@@ -508,7 +508,7 @@ long init_d3d(HWND hWindow){
 //		d3dpp.BackBufferHeight  = 480;
 		d3dpp.BackBufferWidth   = FULLSCREEN_RESX;
 		d3dpp.BackBufferHeight  = FULLSCREEN_RESY;
-		d3dpp.BackBufferFormat  = D3DFMT_R5G6B5;
+		d3dpp.BackBufferFormat  = D3DFMT_A8R8G8B8;
 		}
 	else{
 		d3dpp.Windowed          = TRUE;
@@ -517,7 +517,7 @@ long init_d3d(HWND hWindow){
 
 //	hr=g_D3D->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hWindow,D3DCREATE_HARDWARE_VERTEXPROCESSING,&d3dpp,&g_d3d_device);
 //	hr=g_D3D->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hWindow,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&d3dpp,&g_d3d_device);
-	hr=g_D3D->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hWindow,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&d3dpp,&g_d3d_device);
+	hr=g_D3D->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hWindow,D3DCREATE_HARDWARE_VERTEXPROCESSING,&d3dpp,&g_d3d_device);
 	if(FAILED(hr)){
 		FatalError("Error creating device - ensure that your video card supports 3d acceleration.\n");
 		return 0;
