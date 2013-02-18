@@ -1,0 +1,277 @@
+include Constants
+include Level9Resources
+
+dim iInit
+dim iMeshes[30]
+
+dim X1
+dim Y1
+dim X2
+dim Y2
+
+dim Z
+
+dim Length
+
+dim bNoUp
+dim bNoDown
+
+dim iPlayerAir
+
+Sub Main()
+
+  dim iLoop
+  dim iTemp 
+
+  if iInit=0
+    iInit=1
+
+    Length=30
+    X2=80
+    Y2=80
+
+    iLoop=1
+    while iLoop<30
+      iMeshes[iLoop]=newMesh(#meshChain)
+      SetProperties(#textureChain,1)
+      iLoop=iLoop+1
+    loop
+  end if
+
+  PositionChain()
+
+  bNoUp=0
+  bNoDown=0
+
+  if getext(#pstat)=#JSDYING
+    return 0
+  end if
+
+  if PlayerGrounded()
+    bNoUp=1
+  end if
+
+  AllowLongJumps()
+  AllowLongRoll()
+  DisallowBadJumps()
+
+  EnforceMovement()
+  EnforceMovement()
+
+end sub
+
+sub EnforceMovement()
+  if PlayerInBounds()=1
+    return 0
+  end if
+
+  X1=getext(#px)
+  Y1=getext(#py)+6
+
+  if X1<X2-1
+    setext(#px,X1+1)
+  elseif X1>X2+1
+    setext(#px,X1-1)
+  end if
+
+  if PlayerGrounded()=0
+    if iPlayerAir<2
+      setext(#py,Y1-7)    
+      return 0
+    end if
+  end if
+
+  if Y1<Y2 && bNoUp=0
+    setext(#py,Y1-5)
+  end if
+  if Y1>Y2 && bNoDown=0
+    setext(#py,Y1-7)
+  end if
+
+end sub
+
+sub AllowLongRoll()
+  if getext(#pstat)!=#JSROLL 
+    return 0
+  end if
+  if PlayerInBounds()
+    return 0
+  end if
+  if PlayerGrounded()
+    return 0
+  end if
+
+  dim iPX
+  dim iPY
+  iPX=getext(#px)
+  iPY=getext(#py)
+  
+  if getext(#psc)>8 && iPY<Y2
+    bNoUP=1
+    setext(#psc,8)
+  end if
+
+end sub
+
+sub AllowLongJumps()
+  if getext(#pstat)!=#JSJUMPING
+    return 0
+  end if
+  if PlayerInBounds()
+    return 0
+  end if
+  if PlayerGrounded()
+    return 0
+  end if
+
+  dim iPX
+  dim iPY
+  iPX=getext(#px)
+  iPY=getext(#py)
+  
+  if getext(#psc)>20
+    setext(#psc,getext(#psc)+3)
+  end if
+
+  if getext(#psc)>45 && iPY<Y2
+    bNoUp=1
+    setext(#psc,45)
+  end if
+
+end sub
+
+sub DisallowBadJumps()
+  if getext(#pstat)!=#JSJUMPING && getext(#pstat)!=#JSROLL
+    return 0
+  end if
+  if PlayerInBounds()
+    return 0
+  end if
+  if getext(#py)<Y2 
+    return 0
+  end if
+  
+  if PlayerGrounded()
+    bNoDown=1
+  end if
+
+end sub
+
+sub PositionChain()
+
+  X1=getext(#px)
+  Y1=getext(#py)+6
+  Z=getext(#pz)+2
+
+  dim iLink
+  dim iOX
+  dim iOY
+  dim iSX
+  dim iSY
+  dim iDist
+  dim SagLength
+  dim SagDrop
+  dim DropCenter
+  dim ToCenter 
+
+  dim Angle
+
+  dim xDif
+  dim yDif
+  dim LinkLength
+
+  xDif=abs(x2-x1)
+  yDif=abs(y2-y1)
+
+  iDist=sqr(xDif*xDif+yDif*yDif)
+  SagLength=Length-iDist
+  SagDrop=SagLength/2
+  if SagDrop<0
+    SagDrop=0
+  end if
+
+  DropCenter=(x2+x1)/2
+
+  iLink=0
+  while iLink<30
+    iSX=( (X1*iLink)+(X2*(30-iLink)) )/30
+    iSY=( (Y1*iLink)+(Y2*(30-iLink)) )/30
+
+    ToCenter=abs(15-iLink)/15
+    ToCenter=ToCenter*ToCenter*SagDrop
+
+    iSY=iSY-SagDrop+ToCenter
+
+    if iLink>0
+      Angle=atan(iOY-iSY,xDif/30)
+      if x1>x2
+        Angle=0-Angle
+      end if
+
+      LinkLength=sqr((iSY-iOY)*(iSY-iOY)+(iSX-iOX)*(iSX-iOX))
+      if LinkLength<0.5
+        LinkLength=0.5
+      end if
+
+      selectObjectMesh(iMeshes[iLink])
+      Identity()
+      Scale(LinkLength*1.6,1,1)
+      RotateZ(Angle)
+      Translate(iSX+1,iSY,Z)
+    end if
+
+    iOX=iSX
+    iOY=iSY
+  
+    iLink=iLink+1
+  loop
+
+end sub
+
+
+
+'SUPPORT FUNCTIONS
+
+sub PlayerGrounded()
+  dim iPlat
+  dim iHit
+  dim iPX
+  dim iPY
+ 
+  iPX=getext(#px)
+  iPY=getext(#py)
+  
+  iPlat=FindPlatform(iPX,iPY,12,2)
+  iHit=getext(#event4)
+
+  iPlayerAir=iPY-iHit
+     
+  if iHit>=iPY
+    return 1
+  end if
+
+  return 0
+end sub
+
+sub PlayerInBounds()
+  dim Dist
+
+  X1=getext(#px)
+  Y1=getext(#py)+6
+
+  Dist=sqr((X2-X1)*(X2-X1)+(Y2-Y1)*(Y2-Y1))
+
+  if Dist>Length
+    return 0
+  end if
+
+  return 1
+end sub
+
+sub Abs(Num)
+  if Num<0
+    return 0-Num
+  else
+    return Num
+  end if
+end sub

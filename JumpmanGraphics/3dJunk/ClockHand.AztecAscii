@@ -1,0 +1,123 @@
+Aztec_Scene_File_Version = string 1.0
+Scene myScene {
+	Objects {
+		MPrimitiveCube CubeCreator {
+			Name = string CubeCreator
+			Width = float 10.00000
+			Height = float 10.00000
+			Depth = float 10.00000
+			WidthDiv = int 1
+			HeightDiv = int 1
+			DepthDiv = int 1
+		}
+		MMeshShape CubeShape {
+			Name = string CubeShape
+			inMesh <- CubeCreator.outMesh
+		}
+		MAnimMesh Cube2Mesh {
+			Name = string Cube2Mesh
+			points = array {
+				count = 8
+				vector3 -1.62176 0.03299 -2.50402
+				vector3 1.69447 0.05874 -2.50402
+				vector3 -0.90374 10.00724 -2.50402
+				vector3 0.73989 10.00724 -2.50402
+				vector3 -1.62176 0.03299 2.81602
+				vector3 1.69447 0.05874 2.81602
+				vector3 -0.90374 10.00724 2.81602
+				vector3 0.73989 10.00724 2.81602
+			}
+			triangles = array {
+				count = 12
+				aggregate {
+					indexA = int 2
+					indexB = int 1
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 2
+					indexB = int 3
+					indexC = int 1
+				}
+				aggregate {
+					indexA = int 1
+					indexB = int 4
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 1
+					indexB = int 5
+					indexC = int 4
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 2
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 6
+					indexC = int 2
+				}
+				aggregate {
+					indexA = int 6
+					indexB = int 5
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 6
+					indexB = int 4
+					indexC = int 5
+				}
+				aggregate {
+					indexA = int 3
+					indexB = int 6
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 3
+					indexB = int 2
+					indexC = int 6
+				}
+				aggregate {
+					indexA = int 5
+					indexB = int 3
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 5
+					indexB = int 1
+					indexC = int 3
+				}
+			}
+		}
+		MMeshShape Cube2Shape {
+			Name = string Cube2Shape
+			inMesh = string Cube2Mesh
+		}
+		MSceneObject Cube2 {
+			Name = string Cube2
+			Translate = vector3 -0.46000 -0.46000 0.00000
+			Rotate = vector3 0.00000 0.00000 0.00000
+			Scale = vector3 5.10000 9.28000 1.46000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Cube2Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Cube1 {
+			Name = string Cube1
+			Translate = vector3 -0.46000 0.45000 0.00000
+			Rotate = vector3 0.00000 0.00000 -179.37000
+			Scale = vector3 5.23000 1.72000 2.06000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Cube2Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+	}
+}

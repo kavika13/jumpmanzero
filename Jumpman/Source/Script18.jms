@@ -1,0 +1,189 @@
+include Constants
+include Level18Resources
+include RefDABot
+
+dim iInit
+dim iMessage
+dim iBar
+
+dim iShow
+dim iProgress
+
+dim iWork1
+dim iWork2
+
+dim iFrame
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+
+    iWork1=newMesh(#meshJMWork1)
+    SetProperties(0,0)
+    iWork2=newMesh(#meshJMWork2)
+    SetProperties(0,0)
+
+    iMessage=newMesh(0)   
+    iBar=newMesh(0)
+ 
+    MoveDonuts()  
+
+    CreateDABot(120,10,1,#TextureDABot)
+    CreateDABot(90,85,1,#TextureDABot)
+    CreateDABot(40,86,1,#TextureDABot)
+
+    CreateDABot(90,45,3,#TextureDABotO)
+    CreateDABot(90,118,3,#TextureDABotO)
+
+    CreateDABot(20,150,2,#TextureDABotB)
+  end if
+
+  CollideDonuts()
+
+  dim iProg
+
+  if iShow
+    SelectObjectMesh(iMessage)
+    Identity()
+    Scale(20,20,1)
+    Translate(0-54,0-39,120)
+    Perspective()
+    SetProperties(#TextureDisarming,1)
+
+    SelectObjectMesh(iBar)
+    Identity()
+    iProg=(100-iProgress)*16.5/100
+    Scale(iProg,3.8,1)
+    Translate((0-54)+(iProg/2)-8.25,0-41.8,120)
+    Perspective()
+    SetProperties(#TextureBoringGreen,1)
+  else
+    SelectObjectMesh(iMessage)
+    SetProperties(0,0)
+    SelectObjectMesh(iBar)
+    SetProperties(0,0)
+  end if
+
+End Sub
+
+Sub CollideDonuts()
+  dim iObj
+  dim iCount
+  dim iDX
+  dim iDY
+  dim iDN
+
+  SetExt(#pVisible,1)
+  iShow=0
+  SelectObjectMesh(iWork1)
+  SetProperties(0,0)
+  SelectObjectMesh(iWork2)
+  SetProperties(0,0)
+
+  iCount=Getext(#Donuts)
+  while iObj<iCount
+    ABSDonut(iObj)
+    iDX=GetSel(#sx1)
+    iDY=GetSel(#sy1)    
+    if iDY<0 
+      iDY=0-iDY
+    end if
+
+    if getsel(#sVisible)
+      if collide(iDX-3,iDY-5,iDX+3,iDY+5)
+        iDN=GetSel(#sNumber)      
+        iProgress=iDN
+        iShow=1
+     
+        ShowWorking(iDX)
+        ABSDonut(iObj)
+
+        if rnd(0,100)<20
+          return 0
+        end if
+
+        if iDN>1
+          SetSel(#sNumber,iDN-1)
+        else
+          iDN=0
+          SetSel(#sy1,iDY)
+          iShow=0
+        end if
+
+        return 0
+
+      end if
+    end if
+
+    iObj=iObj+1
+  loop
+end sub
+
+sub ShowWorking(iDX)
+  dim iPX
+  dim iPY
+  dim iPZ
+  dim iPStat
+
+  iPStat=getext(#pstat)
+  if iPStat!=#JSNORMAL
+    return 0
+  end if
+  if getext(#inputLeft) || getext(#inputRight)
+    return 0
+  end if
+
+  SetExt(#pVisible,0)
+  iPX=getext(#px)
+  iPY=getext(#py)
+  iPZ=getext(#pz)
+ 
+  iFrame=iFrame+1
+  if iFrame=10
+    iFrame=0
+  end if
+
+  if iFrame>5
+    SelectObjectMesh(iWork1)
+  else
+    SelectObjectMesh(iWork2)
+  end if
+
+  Identity()
+  Translate(iPX,iPY+6,iPZ+1)
+  SetProperties(#TextureJumpman,1)
+end sub    
+
+sub MoveDonuts()
+  dim iDonut
+  dim iDonuts
+
+  iDonuts=getext(#Donuts)
+  while iDonut<iDonuts
+    ABSDonut(iDonut)
+    SetSel(#sy1,0-getsel(#sy1))
+    iDonut=iDonut+1
+  loop
+  
+end sub
+
+sub CreateDABot(iX,iY,iBehave,iTexture)
+  dim iTemp
+
+  iTemp=Spawn(#ScriptDABot)
+  SetData(iTemp,#DABotStartX,iX)
+  SetData(iTemp,#DABotStartY,iY)
+  SetData(iTemp,#DABotFireTime,70)
+  SetData(iTemp,#DABotWaitTime,50)
+  SetData(iTemp,#DABotBehavior,iBehave)
+  SetData(iTemp,#DABotTexture,iTexture)
+
+end sub
+
+sub Reset()
+  setext(#px,10)
+  setext(#py,4)
+  setext(#pz,2)
+  setext(#pstat,#jsNORMAL)
+end sub

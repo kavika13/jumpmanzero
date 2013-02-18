@@ -1,0 +1,436 @@
+
+dim Generated
+
+dim Color[55]
+dim Copy[55]
+dim Temp[16]
+
+dim iTWidth
+dim iTHeight
+
+dim iBlockNumber
+
+sub Main()
+  if Generated=0
+    Clear()
+    FillWithBlocks()
+    DoDraw()  
+
+    print(-1)
+    print(iBlockNumber)
+    Generated=1
+  end if
+end sub
+
+sub DoDraw()
+  dim iX
+  dim iY
+  dim iCol
+  
+  iY=1
+  while iY<5
+    iX=1 
+    while iX<10
+      iCol=Color[iX+iY*11]
+      if iCol<10
+        print(-2)
+      end if
+      print(iCol)
+      print(-2)
+      iX=iX+1
+    loop
+    print(-1)
+    iY=iY+1
+  loop
+
+end sub
+
+Sub FillWithBlocks()
+  dim iSuccess
+  
+  iBlockNumber=1
+  while iBlockNumber!=10
+    iBlockNumber=1
+    iSuccess=1
+    Clear()
+    while iSuccess=1 && iBlockNumber!=10
+      iSuccess=DoAddBlock()
+    loop
+  loop
+
+End Sub
+
+Sub DoAddBlock()
+  dim iBlock
+  dim iSX 
+  dim iSY
+   
+  dim iOBlock
+  dim iOSX
+  dim iOSY
+
+  dim iTried
+  dim iLaidOut
+
+  dim iFailed
+
+  iBlock=rnd(1,18)
+  iSX=rnd(1,9)
+  iSY=rnd(1,4)
+  GenerateBlock(iBlock)
+
+  if iSX+iTWidth>10
+    iSX=1
+  end if
+  if iSY+iTHeight>5
+    iSY=1
+  end if
+
+  iOBlock=iBlock
+  iOSX=iSX
+  iOSY=iSY
+
+  while iFailed=0  
+
+    iTried=iTried+1
+
+    if CanAddTemp(iSX,iSY)=1
+      AddTemp(iSX, iSY, iBlockNumber)
+  
+      iLaidOut=iLaidOut+1
+      If GoodLayout() 
+        print(iTried)
+        print(-2)
+        print(iLaidOut)
+        print(-2)
+        print(-3)
+        print(-1)
+        iBlockNumber = iBlockNumber + 1
+        CheckForEasyOnes()
+        return 1
+      end if
+
+      RemoveTempBlock(iSX, iSY)
+    End if
+      
+    iSX=iSX+1
+    if iSX+iTWidth>10
+      iSX=1
+      iSY=iSY+1
+      if iSY+iTHeight>5
+        iSY=1
+        iBlock=iBlock+1
+        if iBlock>18
+          iBlock=1
+        end if
+        GenerateBlock(iBlock)
+      end if
+    end if
+
+    if iSX=iOSX
+      if iSY=iOSY
+        if iBlock=iOBlock 
+          return 0
+        end if
+      end if
+    end if
+   
+  loop
+    
+End Sub
+
+Sub ClearCopy()
+  Dim iLoop
+
+  iLoop=0
+  while iLoop<56
+    Copy[iLoop]=Color[iLoop]
+    iLoop=iLoop+1
+  loop
+end sub
+
+Sub Clear()
+  Dim iLoop
+
+  iLoop=0
+  while iLoop<56
+    Color[iLoop]=0
+    iLoop=iLoop+1
+  loop
+end sub
+
+Sub SetTemp(iA,iB,iC,iD)
+  dim iLoop
+  
+  iLoop=0 
+  while iLoop<16
+    Temp[iLoop]=0
+    iLoop=iLoop+1
+  loop
+
+  Temp[iA]=1
+  Temp[iB]=1
+  Temp[iC]=1
+  Temp[iD]=1
+
+  if Temp[3]=1
+    iTWidth=4
+    iTHeight=1
+  elseif Temp[12]=1
+    iTWidth=1
+    iTHeight=4
+  elseif Temp[2]=1 || temp[6]=1
+    iTWidth=3
+    iTHeight=2
+  elseif Temp[8]=1 || temp[9]=1
+    iTWidth=2
+    iTHeight=3
+  else
+    iTWidth=2
+    iTHeight=2
+  end if
+
+end Sub
+    
+Sub GenerateBlock(iRnd)
+  if iRnd<4
+    If iRnd = 0
+      SetTemp(0,1,2,3)
+    elseIf iRnd = 1
+      SetTemp(0,4,8,12)
+    elseIf iRnd = 2
+      SetTemp(0,1,4,5)
+    else
+      SetTemp(0,1,2,6)
+    end if
+  elseif iRnd<8
+    If iRnd = 4
+      SetTemp(1,5,9,8)
+    elseIf iRnd = 5
+      SetTemp(0,4,5,6)
+    elseIf iRnd = 6
+      SetTemp(0,1,4,8)
+    else
+      SetTemp(0,1,2,4)
+    end if
+  elseif iRnd<12
+    If iRnd = 8
+      SetTemp(0,1,5,9)
+    elseif iRnd = 9
+      SetTemp(2,4,5,6)
+    elseif iRnd = 10
+      SetTemp(0,4,8,9)
+    else
+      SetTemp(1,2,4,5)
+    end if
+  elseif iRnd<16
+    If iRnd = 12
+      SetTemp(0,4,5,9)
+    elseIf iRnd = 13
+      SetTemp(0,1,5,6)
+    elseIf iRnd = 14
+      SetTemp(1,4,5,8)
+    else
+      SetTemp(0,1,2,5)
+    end if
+  else
+    If iRnd = 16
+      SetTemp(1,4,5,9)
+    elseIf iRnd = 17
+      SetTemp(1,4,5,6)
+    else
+      SetTemp(0,4,5,8)
+    End If
+  end if
+
+End Sub
+
+Sub RemoveTempBlock(iSX,iSY)
+  Dim iX
+  Dim iY
+
+  iX=0
+  while iX<4
+    iY=0
+    while iY<4
+      if Temp[iX+iY*4]=1
+        SetColor(iX+iSX,iY+iSY,0)
+      end if
+      iY=iY+1
+    loop
+    iX=iX+1
+  loop
+End Sub
+
+Sub CanAddTemp(iSX,iSY)
+  Dim iX
+  Dim iY
+
+  if iSX+iTWidth>10
+    return 0
+  end if
+  if iSY+iTHeight>5
+    return 0
+  end if
+
+  iX=0
+  while iX<iTWidth
+    iY=0
+    while iY<iTHeight
+      if Temp[iX+iY*4]=1
+        if Color[iX+iSX+(iY+iSY)*11]<>0  
+          return 0
+        end if
+      end if
+      iY=iY+1
+    loop
+    iX=iX+1
+  loop
+
+  return 1
+end sub
+
+sub SetColor(iX,iY,iCol)
+  Color[iX+iY*11]=iCol
+end sub
+
+Sub AddTemp(iSX,iSY)
+  Dim iX
+  Dim iY
+
+  iX=0
+  while iX<4
+    iY=0
+    while iY<4
+      if Temp[iX+iY*4]=1
+        SetColor(iX+iSX,iY+iSY,iBlockNumber)
+      end if
+      iY=iY+1
+    loop
+    iX=iX+1
+  loop
+End Sub
+
+Sub CheckForEasyOnes()
+  dim iX
+  dim iY
+  dim iCount
+  dim iGood
+  dim iTemp
+
+  ClearCopy()
+
+  iTemp=200
+  iX=1
+  while iX<10
+    iY=1
+    while iY<5
+      iTemp=iTemp+1
+      iCount=TestLayoutPos(iX,iY,iTemp)
+      if iCount=4
+        SetRealFromCopy(iTemp,iBlockNumber)
+        iBlockNumber=iBlockNumber+1
+      end if
+      iY=iY+1
+    loop
+    iX=iX+1
+  loop
+  
+End Sub
+
+Sub SetRealFromCopy(iCopy,iVal)
+  dim iLoop
+  iLoop=0
+  while iLoop<56
+    if Copy[iLoop]=iCopy 
+      Color[iLoop]=iVal
+    end if
+    iLoop=iLoop+1
+  loop
+end sub
+
+Sub GoodLayout()
+  dim iX
+  dim iY
+  dim iCount
+  dim iGood
+
+  ClearCopy()
+
+  iX=1
+  while iX<10
+    iY=1
+    while iY<5
+      iCount=TestLayoutPos(iX,iY,200)
+      if (iCount & 3)<>0
+        return 0
+      end if
+      iY=iY+1
+    loop
+    iX=iX+1
+  loop
+
+  return 1
+end sub
+
+sub TestLayoutPos(iTX,iTY,iTemp)
+  dim iX
+  dim iY
+  dim iRep
+  dim iCount
+  dim iGood
+  dim iChange
+
+  if Copy[iTX+iTY*11]<>0
+    return 0
+  end if
+
+  Copy[iTX+iTY*11]=iTemp
+  iCount=1
+
+  iRep=0
+  iChange=1
+  while iRep<14 && iChange=1
+    iChange=0
+    iX=1
+    while iX<10
+      iY=1 
+      while iY<5
+        if Copy[iX+iY*11]=0
+
+          iGood=0
+          if Copy[iX+iY*11+1]=iTemp
+            iGood=1
+          elseif Copy[iX+iY*11-1]=iTemp
+            iGood=1
+          elseif Copy[iX+iY*11+11]=iTemp
+            iGood=1
+          elseif Copy[iX+iY*11-11]=iTemp
+            iGood=1
+          end if
+
+          if iGood 
+            Copy[iX+iY*11]=iTemp
+            iCount=iCount+1
+            iChange=1
+            iY=1
+            if iX>1
+              iX=iX-1
+            end if
+          end if
+
+        end if
+
+        iY=iY+1
+      loop
+      iX=iX+1
+    loop
+
+    iRep=iRep+1
+  loop
+
+  return iCount
+
+end sub
+
+

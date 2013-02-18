@@ -1,0 +1,302 @@
+Aztec_Scene_File_Version = string 1.0
+Scene myScene {
+	Objects {
+		MLight WhiteLightShape {
+			Name = string WhiteLightShape
+			Colour = vector3 1.00000 1.00000 1.00000
+			SpecColour = vector3 0.50000 0.50000 0.50000
+			Multiplier = float 1.00000
+		}
+		MLight backLightShape {
+			Name = string backLightShape
+			Colour = vector3 1.00000 1.00000 1.00000
+			SpecColour = vector3 0.50000 0.50000 0.50000
+			Multiplier = float 1.00000
+		}
+		MTimeSegment TimeSegment01 {
+			Name = string TimeSegment01
+			Caption = string ""
+			Start = int 0
+			End = int 1800
+			Objects = string ""
+			Colour = vector3 1.00000 0.00000 0.00000
+			fps = int 30
+		}
+		MPrimitiveTri TriangleShape {
+			Name = string TriangleShape
+		}
+		MAnimMesh Triangle1Mesh {
+			Name = string Triangle1Mesh
+			points = array {
+				count = 3
+				vector3 0.00000 0.00000 0.00000
+				vector3 1.52615 0.10414 0.00000
+				vector3 0.93498 1.44806 0.00000
+			}
+			triangles = array {
+				count = 1
+				aggregate {
+					indexA = int 0
+					indexB = int 1
+					indexC = int 2
+				}
+			}
+		}
+		MMeshShape Triangle1Shape {
+			Name = string Triangle1Shape
+			inMesh = string Triangle1Mesh
+		}
+		MSceneObject Triangle1 {
+			Name = string Triangle1
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 44.41000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle2 {
+			Name = string Triangle2
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 22.18000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle3 {
+			Name = string Triangle3
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -0.16000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle4 {
+			Name = string Triangle4
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -22.71000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle5 {
+			Name = string Triangle5
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -44.36000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle6 {
+			Name = string Triangle6
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -65.99000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle7 {
+			Name = string Triangle7
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -87.80000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle8 {
+			Name = string Triangle8
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -109.62000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle9 {
+			Name = string Triangle9
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -135.95000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle10 {
+			Name = string Triangle10
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -157.59000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle11 {
+			Name = string Triangle11
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 -179.34000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle12 {
+			Name = string Triangle12
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 158.64000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle13 {
+			Name = string Triangle13
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 158.64000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle14 {
+			Name = string Triangle14
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 134.70000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle15 {
+			Name = string Triangle15
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 134.70000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle16 {
+			Name = string Triangle16
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 112.89000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle17 {
+			Name = string Triangle17
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 112.89000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle18 {
+			Name = string Triangle18
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 91.20000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle19 {
+			Name = string Triangle19
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 91.20000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle20 {
+			Name = string Triangle20
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 66.90000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+		MSceneObject Triangle21 {
+			Name = string Triangle21
+			Translate = vector3 0.00000 0.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 66.90000
+			Scale = vector3 30.28000 29.51000 0.95000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string Triangle1Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+	}
+}

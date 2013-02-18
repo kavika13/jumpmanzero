@@ -1,0 +1,13 @@
+define Waveimesh1 0
+define Waveimesh2 1
+define Waveimesh3 2
+define Waveiinit 3
+define Waveiy 4
+define Waveix1 5
+define Waveix2 6
+define Waveiyv 7
+define Waveiramp1 8
+define Waveiheight1 9
+define Waveiheight2 10
+define Waveiadj1 11
+define Waveiadj2 12

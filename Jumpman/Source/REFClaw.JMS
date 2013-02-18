@@ -1,0 +1,13 @@
+define Clawiinit 0
+define Clawix 1
+define Clawiy 2
+define Clawiz 3
+define Clawitop 4
+define Clawicycle 5
+define Clawiopen 6
+define Clawispin 7
+define Clawimeshes 8
+define Clawichain 19
+define Clawistatus 20
+define Clawirescueobj 21
+define Clawiwait 22

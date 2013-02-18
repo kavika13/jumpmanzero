@@ -1,0 +1,12 @@
+define Beeiinit 0
+define Beeix 1
+define Beeiy 2
+define Beeiz 3
+define Beeixv 4
+define Beeiyv 5
+define Beeicount 6
+define Beeimeshes 7
+define Beeistatus 38
+define Beeianimate 39
+define Beeiframe 40
+define Beeisense 41

@@ -1,0 +1,42 @@
+
+include Constants
+include RefDrop
+include Level2Resources
+
+dim iBack
+dim iInit
+
+Sub Main()
+
+  dim iTemp
+
+  if iInit=0
+    iInit=1
+
+    iTemp=spawn(#scriptDrop)
+    SetData(iTemp,#DropWait,700)
+    iTemp=spawn(#scriptDrop)
+    SetData(iTemp,#DropWait,600)
+    iTemp=spawn(#scriptDrop)
+    SetData(iTemp,#DropWait,500)
+    iTemp=spawn(#scriptDrop)
+    SetData(iTemp,#DropWait,400)
+    iTemp=spawn(#scriptDrop)
+    SetData(iTemp,#DropWait,300)
+    iTemp=spawn(#scriptDrop)
+    SetData(iTemp,#DropWait,200)
+    iTemp=spawn(#scriptDrop)
+    SetData(iTemp,#DropWait,100)
+
+    spawn(#scriptWave)
+
+  end if
+
+End Sub
+
+sub Reset()
+  setext(#px,10)
+  setext(#py,73)
+  setext(#pz,2)
+  setext(#pstat,#jsNORMAL)
+end sub

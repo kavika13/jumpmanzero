@@ -1,0 +1,11 @@
+define Sawiinit 0
+define Sawisaw 1
+define Sawix 2
+define Sawiy 3
+define Sawidir 4
+define Sawispin 5
+define Sawiairtime 6
+define Sawiz 7
+define Sawiinitialflight 8
+define Sawiladdering 9
+define Sawiladdertime 10

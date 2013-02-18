@@ -1,0 +1,452 @@
+include Constants
+include Level4Resources
+
+dim StartX
+dim StartY
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+dim iFixDonut
+
+dim iSlow
+dim iAnimate
+dim iFrame
+dim iDir
+
+dim iATime
+
+dim iMeshes[30]
+
+dim iStatus
+dim iCount
+
+Sub Main()
+
+  if iInit=0 
+    Initialize()
+  end if
+  if iY<0
+    iY=0-5
+    iStatus=3
+    iCount=0
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  AdvanceFrame()
+  MoveNinja()
+
+  CollidePlayer()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Translate(iX,iY+5,iZ-0.5)
+  SetProperties(#textureNinja,1)
+
+end sub
+
+Sub CollidePlayer()
+  dim iCollide
+  dim iWin
+  dim iPA
+
+  if iStatus=2 
+    return 0
+  end if
+  if iStatus=3
+    return 0
+  end if
+
+  iPA=getext(#pAct)
+
+  iWin=0
+ 
+  if iStatus<>20 && iStatus<>4
+    iWin=1
+  end if
+
+  if iPA=#ACT_PUNCH
+    iWin=0-1
+  end if
+
+  if iPA=#ACT_KICK
+    if iStatus<>1
+      iWin=0-1
+    end if
+    if getext(#pY)>=iY-2
+      iWin=0-1
+    end if
+  end if
+
+  if iWin=0
+    return 0
+  end if
+
+  if iWin=1 && iStatus=1 && iDir<0
+    iCollide=collide(ix-4,iy+1,ix,iy+9)
+  elseif iWin=1 && iStatus=1 && iDir>=0
+    iCollide=collide(ix,iy+1,ix+4,iy+9)
+  elseif iWin=1
+    iCollide=collide(ix-2,iy+5,ix+2,iy+7)
+  else
+    iCollide=collide(ix-5,iy+5,ix+5,iy+10)
+  end if
+
+  if iCollide<>1 
+    return 0
+  end if
+     
+  if iWin=1
+    kill()
+    return 0
+  end if
+
+  dim iOStatus
+  iOStatus=iStatus
+
+  iStatus=2
+
+  if iOStatus=1
+    iCount=0
+  end if
+
+  if iOStatus=0 || iOStatus=20
+    iCount=5
+  end if
+
+  iDir=0-1.5
+  if getext(#pDIR)=#DIR_RIGHT
+    iDir=1.5
+  end if
+
+  if iOStatus=4
+    iStatus=4
+    iCount=0
+  end if
+
+  if iPA=#ACT_PUNCH
+    iStatus=4
+    iDir=0
+  end if
+
+end Sub
+
+sub MoveNinja()
+  dim iPS
+  dim iHit
+  dim iPlat2
+
+  dim iCollideWall
+
+  iCollideWall=CollideWall(iX-1,iY,iX+1,iY+8)
+  if iCollideWall=1
+    iY=iY-1.25
+  end if  
+
+  iCollideWall=CollideWall(iX-3,iY,iX+3,iY+6)
+  if iCollideWall=3 
+    iX=iX+1
+    if iDir<0
+      iDir=0-(iDir/4)
+    end if
+  end if
+  if iCollideWall=4
+    iX=iX-1
+    if iDir>0
+      iDir=0-(iDir/4)
+    end if
+  end if
+
+  if iStatus=0
+    iATime=3
+
+    iFrame=0
+    if iAnimate=0 || iAnimate=2
+      iFrame=1
+    end if
+
+    iPlat2=FindPlatform(iX,iY,5,2)  
+    iHit=getext(#event4)
+
+    if iHit>iY+.2
+      iY=iY+0.5
+    end if
+ 
+    if iHit<iY
+      iY=iY-0.5
+      if iHit<iY-4
+        iStatus=2
+        iCount=5
+        iDir=0
+      end if
+    end if
+
+  end if
+ 
+  if iStatus=0
+    if iDir<>0.6 && iDir<>(0-0.6)
+      if iDir>0
+        iDir=0.6
+      end if
+      if iDir<0
+        iDir=0-0.6
+      end if
+      if iDir=0
+        if iX<getext(#px)
+          iDir=0.6
+        end if
+        if iX>getext(#px)
+          iDir=0-0.6
+        end if
+      end if
+    end if
+
+    iPlat2=FindPlatform(iX+iDir*10,iY+6,5,2)
+    iHit=getext(#event4)
+    if iHit<iY-7 || iPlat2<0
+      iDir=0-iDir
+    end if
+
+    iX=iX+iDir
+
+    dim iDif
+    dim iPY
+    dim iPX
+    iDif=(iX+44*iDir)-getext(#px)
+    iPY=getext(#py)
+    iPX=getext(#px)
+
+    if iDif>0-2 && iDif<2 && iCount>20
+      if iPY>iY-15 && iPY<=iY 
+        iStatus=1
+        iCount=0
+      end if
+    end if
+
+  end if
+
+  if iStatus=0 && iCount>160
+    CheckForDonut()
+  end if
+
+  if iStatus=1
+
+    dim iC
+    iC=iCount
+
+    if iDir>0
+      iX=iX+0.7
+    end if
+
+    if iDir<0
+      iX=iX-0.7
+    end if
+
+    if iC<5 || iC=7 || iC=10 || iC=14 || iC=18
+      iY=iY+1
+    end if
+    if iC>41 || iC=39 || iC=36 || iC=32 || iC=28
+      iY=iY-1
+    end if
+
+    iPlat2=FindPlatform(iX,iY,5,2)  
+    iHit=getext(#event4)
+
+    if iHit>iY+1
+      iStatus=0
+      iY=iHit
+    end if
+
+    iFrame=2
+    if iC>10
+      iFrame=3
+    end if
+  end if
+
+  if iStatus=2
+    iATime=5
+
+    iX=iX+iDir
+
+    if iCount<5 || iCount=7 || iCount=9
+      iY=iY+1
+    end if
+    if iCount=12 || iCount=15 || iCount=17 || iCount>20
+      iY=iY-1
+    end if
+
+    iPlat2=FindPlatform(iX,iY,5,2)  
+    iHit=getext(#event4)
+
+    if iHit>iY
+      if iCount>10
+        iStatus=3
+        iCount=0
+      end if
+      iY=iHit
+    end if
+
+    iFrame=4+iAnimate
+  end if
+
+  if iStatus=4
+    iATime=5
+
+    iX=iX+iDir
+
+    if iCount<5 || iCount=7 || iCount=10 || iCount=15
+       iY=iY+1
+    end if
+    if iCount>30 || iCount=28 || iCount=25 || iCount=20
+       iY=iY-1
+    end if
+
+    iPlat2=FindPlatform(iX,iY,2,2)  
+    iHit=getext(#event4)
+
+    if iHit>iY
+      iStatus=3
+      iY=iHit
+      iCount=0
+    end if
+    iFrame=4+iAnimate
+  end if
+
+  if iStatus=3
+    iDir=0
+    iFrame=16
+    if iCount=200
+      iStatus=0
+      iCount=0
+    end if
+  end if
+
+  if iDir<0
+    iFrame=iFrame+8
+  end if
+
+  if iStatus=20
+    iFrame=17
+    if iAnimate>1
+      iFrame=18
+    end if
+    if iCount=100
+      iStatus=0
+      absdonut(iFixDonut)
+      setsel(#svisible,1)
+    end if
+  end if
+
+end sub
+
+sub CheckForDonut()
+    dim iD
+    dim iDT
+    dim iDX
+    dim iDY
+    dim iDV
+ 
+    iDT=getext(#donuts)
+
+    iD=0
+    while iD<iDT
+      absdonut(iD)
+
+      iDX=getsel(#sx1)
+      iDY=getsel(#sy1)
+      iDV=getsel(#svisible)
+ 
+      if iDX<iX+1 && iDX>iX-1 && iDV=0 && iDY>iY && iDY<iY+15
+        iStatus=20
+        iCount=0
+        iFixDonut=iD
+      end if
+        
+      iD=iD+1
+    loop
+    
+end sub
+
+sub AdjustZ(iPlatNum)
+    dim iPlatZ
+
+    ABSplatform(iPlatNum)
+    iPlatZ=getsel(#sz1)    
+
+    if iStatus=0 && iDir<3
+       iZ=iPlatZ
+    end if
+
+    if iZ<iPlatZ
+      iZ=iZ+1
+    end if
+    if iZ>iPlatZ+2
+      iZ=iZ-1
+    end if
+end sub
+
+Sub AdvanceFrame()
+  iCount=iCount+1
+
+  iSlow=iSlow+1
+  if iSlow>iATime
+    iSlow=0
+    iAnimate=iAnimate+1
+    if iAnimate>3
+      iAnimate=0
+    end if
+  end if
+end sub
+
+Sub ResetPos()
+  if iStatus=3
+    iCount=0-40
+  else
+    SetPos()
+  end if
+end sub
+
+Sub SetPos()
+  iX=StartX
+  iY=StartY
+  iZ=2
+  iStatus=0
+  iATime=3
+  iDir=0
+end Sub
+
+Sub Initialize()
+  iInit=1
+  SetPos()
+
+'Right facing meshes
+  iMeshes[0]=newmesh(#MeshNjRight1)
+  iMeshes[1]=newmesh(#MeshNjRight2)
+  iMeshes[2]=newmesh(#MeshNjJR)
+  iMeshes[3]=newmesh(#MeshNjKR)
+  iMeshes[4]=newmesh(#MeshNjRR1)
+  iMeshes[5]=newmesh(#MeshNjRR2)
+  iMeshes[6]=newmesh(#MeshNjRR3)
+  iMeshes[7]=newmesh(#MeshNjRR4)
+
+'Left
+  iMeshes[8]=newmesh(#MeshNjLeft1)
+  iMeshes[9]=newmesh(#MeshNjLeft2)
+  iMeshes[10]=newmesh(#MeshNjJL)
+  iMeshes[11]=newmesh(#MeshNjKL)
+  iMeshes[12]=newmesh(#MeshNjRL1)
+  iMeshes[13]=newmesh(#MeshNjRL2)
+  iMeshes[14]=newmesh(#MeshNjRL3)
+  iMeshes[15]=newmesh(#MeshNjRL4)
+
+'Dead
+  iMeshes[16]=newmesh(#MeshNjDead)
+
+'Fix donut
+  iMeshes[17]=newmesh(#MeshNjW1)
+  iMeshes[18]=newmesh(#MeshNjW2)
+
+end sub

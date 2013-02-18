@@ -1,0 +1,105 @@
+define px 1
+define py 2
+define pz 3
+define pstat 4
+define psc 5
+define pvisible 6
+define pdir 7
+define pact 8
+
+define inputLeft 16
+define inputRight 17
+define inputUp 18
+define inputDown 19
+define inputJump 20
+define inputAttack 21
+define inputSelect 22
+define lastKey 23
+
+define noroll 32
+define freeze 33
+define soundon 34
+define musicon 35
+define performance 36
+define showfps 37
+define livesremaining 38
+
+define donuts 64
+define platforms 65
+define ladders 66
+define vines 67
+define walls 68
+define textures 69
+
+define closeladder 131
+define platformheight 131
+
+define event1 128
+define event2 129
+define event3 130
+define event4 131
+define compose 132
+define objects 133
+define debug 134
+define perspective 135
+define levelextentx 136
+define this 137
+
+define perspectiveNormal 0
+define perspectiveCloseUp 1
+define perspectiveFar 2
+define perspectiveWide 3
+define perspectiveFollow 4
+define perspectiveFixed 5
+
+define sx1 1
+define sx2 2
+define sy1 3
+define sy2 4
+define sz1 5
+define sz2 6
+define svisible 7
+define snumber 8
+define stexture 9
+define sextra 10
+
+define ObjectType 1000
+
+define JSNORMAL 0
+define JSJUMPING 1
+define JSRIGHT 2
+define JSLEFT 4
+define JSFALLING 8 
+define JSLADDER 16
+define JSKICK 32
+define JSROLL 64
+define JSPUNCH 128
+define JSDYING 256
+define JSVINE 1024
+
+define DIR_UP 1
+define DIR_DOWN 2
+define DIR_LEFT 3
+define DIR_RIGHT 4
+
+define ACT_KICK 1
+define ACT_PUNCH 2
+
+define NTLadder 1
+define NTPlatform 2
+
+define SERVICE_GAMELIST 128
+define SERVICE_STARTGAME 129
+define SERVICE_LOADMENU 130
+
+define SERVICE_OPTIONSTRING 142
+define SERVICE_SETOPTION 143
+define SERVICE_SAVEOPTIONS 144
+
+define SERVICE_LEVELTITLE 154
+define SERVICE_CREDITLINE 155
+
+define MENU_MAIN 1
+define MENU_OPTIONS 2
+define MENU_SELECTGAME 3
+define MENU_SELECTLEVEL 4

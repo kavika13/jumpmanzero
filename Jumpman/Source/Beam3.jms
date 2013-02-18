@@ -1,0 +1,98 @@
+
+include Constants
+include Level27Resources
+
+define CircleWidth 281
+
+dim iShipX
+dim iShipY
+
+dim iInit
+dim iBeam1
+dim iBeam2
+dim iTime
+dim iBlast
+
+Sub Main()
+
+  iTime=iTime+1
+
+  if iInit=0
+    iInit=1
+    iBeam1=NewMesh(#MeshBeam)
+    iBeam2=NewMesh(#MeshBeam)
+    iBlast=NewMesh(#MeshSquare)
+  end if
+
+  dim iGunX
+  dim iGunY
+  dim iGunZ
+  dim iTargetX
+  dim iTargetY
+  dim iTargetZ
+  dim iAngle
+  dim iPitch
+  dim iLength
+  dim iDX
+  dim iDY
+  dim iDZ
+  dim iLengthXZ
+
+  iTargetX=getext(#px)+sin(iTime,30)
+  iTargetY=(sin(iTime*1.2,100)/4)+45
+  iTargetZ=-2
+
+  dim iBX
+  dim iBY
+
+  SelectObjectMesh(iBlast)
+  Identity()
+  Scale(8,8,1)
+  if iTime&4
+    RotateZ(90)
+  end if
+  iBX=iTargetX+rnd(1,50)/50
+  iBY=iTargetY+rnd(1,50)/50
+  Translate(iBX-.5,iBY,iTargetZ-2)
+  SetProperties(#TextureBlast1,1)
+
+  iGunX=iShipX
+  iGunY=iShipY
+  iGunZ=34
+
+  iDX=iTargetX-iGunX
+  iDY=iTargetY-iGunY
+  iDZ=iTargetZ-iGunZ
+
+  iPitch=atan(iDZ,iDX)
+  iLengthXZ=sqr(iDX*iDX+iDZ*iDZ)
+  iAngle=atan(iDY,iLengthXZ)
+  iLength=sqr(iDX*iDX+iDY*iDY+iDZ*iDZ)
+
+  if iPitch<=0
+    iPitch=0-iPitch
+  else
+    iPitch=180-iPitch
+  end if
+
+  SelectObjectMesh(iBeam1)
+  Identity()
+  Translate(.5,0,0)
+  Scale(iLength,1,1)
+  RotateZ(iAngle)
+  RotateY(iPitch)
+  Translate(iGunX,iGunY,iGunZ)
+  SetProperties(#TextureBrightRed,1)
+
+  SelectObjectMesh(iBeam2)
+  ScrollTexture(.28,.28)
+  Identity()
+  RotateX(iTime*34)
+  Translate(.5,0,0)
+  Scale(iLength,3,2)
+  RotateZ(iAngle)
+  RotateY(iPitch)
+  Translate(iGunX,iGunY,iGunZ)
+  SetProperties(#TextureBeam,1)
+
+End Sub

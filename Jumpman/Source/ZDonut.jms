@@ -1,0 +1,136 @@
+
+include Constants
+include Level27Resources
+define CircleWidth 281
+
+dim iShipX
+dim iShipY
+dim iSinking
+
+dim Donut
+dim iTime
+
+dim iX
+dim iY
+
+dim iDT
+dim iInit
+
+dim iBlasts[20]
+
+dim iBlastTime
+
+dim NoStop
+
+sub Main()
+  dim iDist
+  dim iPX
+  dim iZ
+  dim iTemp
+
+  if iDT=100
+    return 0
+  end if
+
+  if iInit=0
+    iInit=1
+    while iTemp<20
+      iBlasts[iTemp]=newmesh(#MeshSquare)
+      iTemp=iTemp+1
+    loop    
+  end if
+
+  SelectDonut(Donut)
+
+  if iDT<65
+    iDT=iDT+1
+  else
+    SetProperties(0,0)    
+    SetSel(#sVisible,0)
+
+    DoBlasting()
+    iBlastTime=iBlastTime+1
+    if iBlastTime=1
+      Sound(#SoundClasBomb)
+    end if
+    if iBlastTime=35 && NoStop=0
+      while iTemp<20
+        SelectObjectMesh(iBlasts[iTemp])
+        SetProperties(0,0)
+        iTemp=iTemp+1
+      loop    
+      iDT=100
+    end if
+  end if
+
+  iZ=60*iDT
+  iZ=iZ+75*(65-iDT)
+  iZ=iZ/65
+
+  iShipY=iShipY+8
+
+  iY=(65-iDT)*GetSel(#sy1)
+  iY=iY+(iDT*iShipY)
+  iY=iY/65
+
+  iDist=75-iDT 
+  iPX=getext(#px)
+
+  iX=GetSel(#sx1)
+  Identity()
+  Scale(1,1,5)
+  Translate(0-iX,0,0-iDist)
+  RotateY((iPX-iX)*360/#CircleWidth)
+  Translate(iPX,iY-getsel(#sy1),iZ)
+  SetProperties(#TextureRedMetal,1)
+    
+end sub
+
+sub DoBlasting()
+  dim iTemp
+  dim iBX
+  dim iBY
+  dim iBR
+  dim iBD
+  dim iBA
+  dim iBZ
+  dim iSize
+  dim iShow
+
+  iShow=10
+  if NoStop=1
+    iShow=20
+  end if
+
+  while iTemp<iShow
+    SelectObjectMesh(iBlasts[iTemp])
+    iBD=rnd(1,10)*rnd(1,10)
+    iBD=(iBD/6)+rnd(3,15)
+    iBA=rnd(1,360)
+
+    iBY=sin(iBA,iBD*2/3)+iShipY+10
+    iBX=cos(iBA,iBD)+iShipX
+   
+    if iTemp>10
+      iBY=iBY+4
+      iBZ=40
+    else
+      iBZ=30
+    end if
+
+    iBR=rnd(1,360)
+    iSize=rnd(10,13)
+
+    Identity()
+    Scale(iSize,iSize,1)
+    RotateZ(iBR)
+    if iTemp>10
+      Translate(0,0,-10)
+      RotateX(rnd(1,90))
+      Translate(0,0,10)
+    end if
+    Translate(iBX,iBY,iBZ)
+    SetProperties(#TextureLightning,1)
+    iTemp=iTemp+1
+  loop
+end sub

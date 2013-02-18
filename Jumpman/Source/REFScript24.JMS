@@ -1,0 +1,4 @@
+define Script24iinit 0
+define Script24islow 1
+define Script24iframe 2
+define Script24ihangmesh 3

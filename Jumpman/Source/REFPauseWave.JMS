@@ -1,0 +1,13 @@
+define PauseWaveimesh1 0
+define PauseWaveimesh2 1
+define PauseWaveimesh3 2
+define PauseWaveiinit 3
+define PauseWaveiy 4
+define PauseWaveix1 5
+define PauseWaveix2 6
+define PauseWavetarget 7
+define PauseWaveiramp1 8
+define PauseWaveiheight1 9
+define PauseWaveiheight2 10
+define PauseWaveiadj1 11
+define PauseWaveiadj2 12

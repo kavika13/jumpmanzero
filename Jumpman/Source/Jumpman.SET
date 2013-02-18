@@ -1,0 +1,39 @@
+c:\jumpman\data\Prisoner.bmp
+33
+Dead True
+DiveLeft False
+DiveRight False
+JumpLeft False
+JumpRight False
+JumpUp True
+KickLeft False
+KickRight False
+LadderClimb1 False
+LadderClimb2 False
+Left1 False
+Left2 False
+PunchLeft False
+PunchLeft2 False
+PunchRight False
+PunchRight2 False
+Right1 False
+Right2 False
+RollLeft1 False
+RollLeft2 False
+RollLeft3 False
+RollLeft4 False
+RollRight1 False
+RollRight2 False
+RollRight3 False
+RollRight4 False
+RopeClimb1 False
+RopeClimb2 False
+SlideL False
+SlideLB False
+SlideR False
+SlideRB False
+Stand False
+3
+255 255 255 0.01785714 0.005952381 0.4583333 0.4761905 0 1.5
+0 128 192 0.5 0.005952381 0.4821429 0.5178571 0 1.5
+255 0 0 0.5119048 0.5059524 0.4642857 0.4821429 0 1.5

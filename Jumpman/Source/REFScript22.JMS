@@ -1,0 +1,17 @@
+define Script22iinit 0
+define Script22platn 1
+define Script22platx1 12
+define Script22platy1 23
+define Script22platx2 34
+define Script22platy2 45
+define Script22platox1 56
+define Script22platoy1 67
+define Script22platox2 78
+define Script22platoy2 89
+define Script22platlx1 100
+define Script22platly1 111
+define Script22icount 122
+define Script22isphere 123
+define Script22isphere2 124
+define Script22iopx 125
+define Script22iopy 126

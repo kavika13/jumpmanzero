@@ -1,0 +1,72 @@
+
+include Constants
+include Level4Resources
+include REFNinja
+
+dim iTrapP
+dim iInit
+dim iBack
+dim iTrap
+
+Sub Main()
+  dim iTemp
+
+  if iInit=0
+    iInit=1
+
+    iTemp=spawn(#ScriptNinja)
+    setData(iTemp,#ninjaStartX,120)
+    setData(iTemp,#ninjaStartY,8)
+    iTemp=spawn(#ScriptNinja)
+    setData(iTemp,#ninjaStartX,70)
+    setData(iTemp,#ninjaStartY,40)
+    iTemp=spawn(#ScriptNinja)
+    setData(iTemp,#ninjaStartX,30)
+    setData(iTemp,#ninjaStartY,120)
+    iTemp=spawn(#ScriptNinja)
+    setData(iTemp,#ninjaStartX,110)
+    setData(iTemp,#ninjaStartY,80)
+  end if
+
+  if iTrap=1
+    iTrapP=iTrapP+3
+    MovePlatform(1,iTrapP,0,#sx2,#sy2)
+    setext(#compose,1)    
+    selectplatform(1)
+    setsel(#sy1,getsel(#sy1)-3)
+    if iTrapP>=90
+      setsel(#sy1,500)
+      setsel(#sy2,500)
+      iTrap=0
+    end if
+  end if
+
+End Sub
+
+sub Donut()
+  if getext(#event1)=1
+    iTrap=1
+  end if 
+end sub
+
+sub MovePlatform(iPlat,iRotate,iTran,iAX,iAY)
+
+  dim iplatx
+  dim iplaty
+
+  selectplatform(iPlat)
+  iPlatX=getsel(iAX)
+  iPlatY=getsel(iAY)
+  identity()
+  translate(0-iPlatX,0-iPlatY,0)
+  rotatez(iRotate)
+  translate(iPlatX+iTran,iPlatY,0)
+
+end sub
+
+sub Reset()
+  setext(#px,20)
+  setext(#py,7)
+  setext(#pz,1)
+  setext(#pstat,#jsNORMAL)
+end sub

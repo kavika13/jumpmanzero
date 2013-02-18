@@ -1,0 +1,489 @@
+
+include Constants
+include EndingResources
+
+dim iInit
+dim iTime
+dim iMesh[20]
+dim iCont1
+dim iCont2
+
+dim iX
+dim iY
+
+Sub Main()
+
+  dim iTemp
+
+  if iInit=0
+    iTime=0
+
+    SetExt(#LivesRemaining,0)
+
+    setext(#Perspective,#PerspectiveFixed)
+    while iTemp<20
+	iMesh[iTemp]=newmesh(0)
+        iTemp=iTemp+1
+    loop
+    iInit=1
+  end if
+
+  setext(#Freeze,10)
+  iTime=iTime+1
+
+  dim iFogBack
+  dim iFogStart
+
+  if iTime<35
+    iFogStart=20
+    iFogBack=50
+  elseif iTime<2900
+    iFogStart=20+iTime/3
+    if iFogStart>60
+      iFogStart=60
+    end if
+    iFogBack=50+iTime/5
+    if iFogBack>200
+      iFogBack=200
+    end if
+  elseif iTime<3100
+    iTemp=iTime-2900
+    iFogStart=60-iTemp
+    if iFogStart<20
+      iFogStart=20
+    end if
+    iFogBack=200-iTemp
+    if iFogBack<50
+      iFogBack=50
+    end if
+  end if
+  setfog(iFogStart,iFogBack,0,0,0)
+
+  if iTime<3100
+    ShowSomething()
+  elseif iTime=3100
+    Spawn(#ScriptCredits)
+    SelectPlatform(1)
+    SetProperties(0,0)
+    SelectPicture(100)
+    Translate(40,0,20)
+    SetProperties(#TextureBlack,1)
+  end if
+  
+end sub
+
+sub ShowSomething()
+  ClearAll()
+  if iTime<210
+    ShowPlayerStanding(iTime-0)
+  elseif iTime<440
+    ShowPlayerGrooving(iTime-210)
+  elseif iTime<530
+    ShowPlayerLeaving(iTime-440)
+  elseif iTime<825
+    ShowBear(iTime-530)
+  elseif iTime<1160
+    ShowSheep(iTime-825)
+  elseif iTime<1500
+    ShowTurtles(iTime-1160)
+  elseif iTime<1800
+    ShowDonuts(iTime-1500)
+  elseif iTime<2100
+    ShowDino(iTime-1800)
+  elseif iTime=2100
+    Spawn(#EndAlien)
+  elseif iTime<2400
+    iTime=iTime
+  elseif iTime<2750
+    JumpmanChase(iTime-2400)
+  elseif iTime<3100
+    ShowRocket(iTime-2750)
+  end if
+end sub
+
+sub ShowRocket(iAT)
+  dim iRZ
+
+  iY=20+iAT/2
+  iRZ=sin(iAT*3,10)
+
+  SelectObjectMesh(iMesh[0])
+  ChangeMesh(#MeshRocket)
+  Identity()
+  RotateY(iAT/3)
+  RotateZ(iRZ)
+  Scale(2,2,2)
+  Translate(130,iY,10)
+  SetProperties(#TextureDABotO,1)
+
+  dim iBlip
+  dim iBX
+  dim iBY
+  dim iSize
+  dim iBD
+  dim iBA
+
+  iBlip=1
+  while iBlip<15
+    SelectObjectMesh(iMesh[iBlip])
+    ChangeMesh(#MeshSquare)
+    Identity()
+    iSize=rnd(3,6)
+    Scale(iSize,iSize,1)
+
+    iBA=rnd(150,210)
+    iBD=rnd(5,20)*rnd(5,20)
+    iBD=iBD/20
+
+    iBX=sin(iBA,iBD*10)/10
+    iBY=cos(iBA,iBD*10)/10
+    Translate(iBX,iBY-15,0)
+    RotateY(10)
+    RotateZ(iRZ)
+
+    Translate(132.5,iY,12)
+    SetProperties(#TextureBlast1,1)
+    iBlip=iBlip+1
+  loop
+end sub
+
+sub JumpmanChase(iAT)
+  dim iFrame
+  dim iTemp
+  dim iAir
+
+  if iAT=0
+    iY=86
+  end if
+
+  if iAT<60
+    iFrame=(iAT&4)/4
+    iFrame=iFrame+#MeshRight1
+  elseif iAT<200
+    iAir=iAT-60
+    if iAir<5 || iAir=6 || iAir=8 || iAir=10 || iAir=12
+      iY=iY+1
+    end if
+    if iAir>26 || iAir=25 || iAir=23 || iAir=20 || iAir=17
+      iY=iY-1
+    end if
+    iFrame=#meshJumpRight
+  end if
+
+  iX=(iAT*4/5)+40
+
+  SelectObjectMesh(iMesh[0])
+  Identity()
+  Scale(1,1,1)
+  ChangeMesh(iFrame)
+  Translate(iX,iY,3)
+  SetProperties(#TextureJumpman,1)
+
+end sub
+
+sub ShowDino(iAT)
+  dim iFrame
+
+  SelectObjectMesh(iMesh[0])
+  Identity()
+  Scale(1.3,1.3,1.3)
+
+  iX=80
+  iY=93
+
+  if iAT<60
+    iX=80-(60-iAT)/2
+    iFrame=(iAT&12)/4
+    iFrame=iFrame+#MeshTSaurWalkR1
+  elseif iAT<200
+    iFrame=(iAT&12)/4
+    if iFrame=2
+      iX=81.3
+    end if
+    iFrame=iFrame+#MeshTSaurYR1
+  elseif iAT<220
+    iY=iY+(iAT-200)/4
+    RotateZ((iAT-200)*3)
+    iFrame=Cycle(iAT,60,0,3)+#MeshTSaurWalkR1
+  else
+    iY=iY+5+(iAT-220)/2
+    RotateZ((iAT-200)*3)
+    iFrame=Cycle(iAT,60,0,3)+#MeshTSaurWalkR1
+  end if
+
+  ChangeMesh(iFrame)
+  Translate(iX,iY,0)
+  SetProperties(#TextureDinosaur,1)
+
+end sub
+
+sub ShowDonuts(iAT)
+  dim iTemp
+  dim iZ
+
+  dim iDon
+  dim iDonX
+  dim iDonY
+  dim iFrame
+  dim iTemp
+  
+  while iDon<3
+    iZ=2
+
+    iAt=iAT+10*iDon
+
+    if iAT<90
+      iY=84+((90-iAt)*2/3)
+    elseif iAT<200
+      iY=84
+    elseif iAT<230
+      iTemp=(iAT-200)*6
+      iY=84+sin(iTemp,10)
+      iZ=iZ-(iAt-200)/5
+    else
+      iY=84-(iAT-230)
+      iZ=iZ-6
+    end if
+
+    iDonX=69+iDon*10
+    iDonY=iY
+
+    SelectObjectMesh(iMesh[iDon])
+    Identity()
+    Scale(.5,.5,1)
+
+    if iAT<110
+      iFrame=#MeshRunDonutHatch1
+    elseif iAt<120
+      iFrame=#MeshRunDonutHatch2
+    elseif iAt<130
+      iFrame=#MeshRunDonutHatch3
+    elseif iAt<140
+      iFrame=#MeshRunDonutHatch4
+    elseif iAt<200
+      iFrame=#MeshRunDonutHatch5
+    else
+      iFrame=#MeshRunDonut1+(iAT&4)/4
+    end if
+
+    ChangeMesh(iFrame)
+    Translate(iDonX,iDonY,iZ)
+    SetProperties(#TextureRunDonut,1)
+    iDon=iDon+1
+  loop
+end sub
+
+sub ShowTurtles(iAT)
+  if iAT=0
+    iX=60
+  end if
+
+  iX=iX+.5
+
+  dim iTurt
+  dim iTurtX
+  dim iTurtY
+  dim iFrame
+  dim iRZ
+  dim iTemp
+  
+  while iTurt<4
+    iTurtX=iX-iTurt*16
+    iTurtY=84
+
+    SelectObjectMesh(iMesh[iTurt])
+    Identity()
+
+    if iTurtX<101
+      iFrame=Cycle(iAT,90,0,1)+#MeshTurtGR1
+    else
+      iFrame=#MeshTurtS1
+      iRZ=(iTurtX-101)*-5
+      iTemp=Sin(iTurt*63,20)+10
+      iRZ=iRZ*iTemp/20
+      RotateZ(iRZ)
+      iTemp=(iTurtX-101)*sin(iTurt*111+20,20)/20
+      iTurtY=iTurtY-iTemp
+    end if
+
+    ChangeMesh(iFrame)
+    Translate(iTurtX,iTurtY,2)
+    SetProperties(#TextureTurtleTexture,1)
+    iTurt=iTurt+1
+  loop
+end sub
+
+sub ShowSheep(iAT)
+  if iAT=0
+    iX=60
+  end if
+
+  iX=iX+.5
+
+  dim iSheep
+  dim iSheepX
+  dim iSheepY
+  dim iFrame
+  
+  while iSheep<4
+    iSheepX=iX-iSheep*18
+    iSheepY=87
+    if iSheepX<93
+      iFrame=Cycle(iAT,90,0,1)+#MeshSheepR1
+    elseif iSheepX<97
+      iFrame=#MeshSheepJR1
+      iSheepY=iSheepY+(iSheepX-93)/2
+    elseif iSheepX<101
+      iFrame=#MeshSheepJR2
+      iSheepY=iSheepY+2
+    elseif iSheepX<115
+      iFrame=#MeshSheepJR2
+      iSheepY=iSheepY+2-(iSheepX-101)
+    else
+      iFrame=#MeshSheepJR2
+      iSheepY=iSheepY+2-(iSheepX-101)
+      iSheepY=iSheepY-(iSheepX-115)/2
+    end if
+
+    SelectObjectMesh(iMesh[iSheep])
+    ChangeMesh(iFrame)
+    Identity()
+    Translate(iSheepX,iSheepY,2)
+    SetProperties(#TextureSheep,1)
+    iSheep=iSheep+1
+  loop
+end sub
+
+sub ShowBear(iAT)
+  dim iFrame
+
+  if iAT=0
+    iX=75
+    iY=115
+  end if
+
+  if iAT<30
+    iFrame=#MeshFyFR2
+    iX=iX+.3
+    iY=iY-1
+  elseif iAT<84
+    iFrame=#MeshFyFlopR
+  elseif iAT<163
+    iFrame=Cycle(iAT,90,0,2)
+    if iFrame=0
+      iFrame=#MeshFYSR1
+    elseif iFrame=1
+      iFrame=#MeshFYStand
+    elseif iFrame=2
+      iFrame=#MeshFYSR2
+    end if
+  else
+    if iAT>168
+      iX=iX-.5
+    end if
+    iFrame=Cycle(iAT,70,0,1)
+    iFrame=#MeshFyLeft1+iFrame
+  end if
+
+  SelectObjectMesh(iMesh[1])
+
+  ChangeMesh(iFrame)
+  Identity()
+  Scale(1,1,1.3)
+  Translate(iX,iY+7,1.5)
+  SetProperties(#TextureFur,1)
+end sub
+
+sub ShowPlayerLeaving(iAT)
+  dim iFrame
+
+  if iAT<6
+    iFrame=#MeshDiveLeft
+  else
+    iFrame=Cycle(iAT,90,0,3)
+    iFrame=iFrame+#MeshRollLeft1
+  end if
+
+  SelectObjectMesh(iMesh[1])
+
+  ChangeMesh(iFrame)
+  Identity()
+  Translate(80-iAT,85,1.5)
+  SetProperties(#TextureJumpman,1)
+end sub
+
+sub ShowPlayerStanding(iAT)
+  setext(#pvisible,1)
+  setext(#px,80)
+end sub
+
+sub ShowPlayerGrooving(iAT)
+  dim iFrame
+  dim iWiggle
+
+  iFrame=Cycle(iAT,30,0,4)
+  iWiggle=Cycle(iAT,30,0,4)/3
+
+  SelectObjectMesh(iMesh[1])
+
+  iFrame=#meshDance1+iFrame
+  ChangeMesh(iFrame)
+  Identity()
+  Translate(80+iWiggle,85,1.5)
+  SetProperties(#TextureJumpman,1)
+end sub
+
+sub ClearAll()
+  setext(#px,0)
+  setext(#pvisible,0)
+
+  dim iTemp
+  while iTemp<20
+    SelectObjectMesh(iMesh[iTemp])
+    SetProperties(0,0)
+    iTemp=iTemp+1
+  loop  
+end sub
+
+sub Cycle(iCCount,iSpeed,iMin,iMax)
+  dim iCycle
+  dim iCP
+  dim iPlace
+  dim iNeg
+  
+  if iCCount<0
+    iNeg=1
+    iCCount=0-iCCount
+  end if
+
+  iCycle=(iMax-iMin)+1
+  iCP=(iCCount * iSpeed) & 1023
+  iPlace=((iCP/128)*iCycle)/4
+
+  if iNeg 
+    iPlace=iPlace+iCycle
+    if iPlace>iCycle*2
+      iPlace=iPlace-iCycle*2
+    end if
+  end if
+
+  if iPlace>iCycle
+    iPlace=iCycle*2-iPlace
+  end if
+  iPlace=(iPlace+iMin) & 511
+
+  if iPlace<iMin
+    iPlace=iMin
+  elseif iPlace>iMax
+    iPlace=iMax
+  end if
+
+  return iPlace
+end sub
+
+sub reset()
+  setext(#px,80)
+  setext(#py,79)
+  setext(#pz,3)
+  setext(#pstat,#jsNORMAL)
+end sub

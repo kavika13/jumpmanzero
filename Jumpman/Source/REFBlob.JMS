@@ -1,0 +1,8 @@
+define Blobiinit 0
+define Blobiblob 1
+define Blobix 2
+define Blobiy 3
+define Blobixv 4
+define Blobislow 5
+define Blobiframe 6
+define Blobiangle 7

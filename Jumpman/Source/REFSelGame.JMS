@@ -1,0 +1,16 @@
+define SelGameiinit 0
+define SelGametitles 1
+define SelGametitle 2
+define SelGameilmeshes 63
+define SelGameiltitle 64
+define SelGameilmesh 165
+define SelGameislow 266
+define SelGameilastselected 267
+define SelGameiselected 268
+define SelGameiseltime 269
+define SelGameilastseltime 270
+define SelGameiupstatus 271
+define SelGameidownstatus 272
+define SelGameiuphit 273
+define SelGameidownhit 274
+define SelGamebgameselected 275

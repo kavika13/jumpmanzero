@@ -1,0 +1,108 @@
+include Constants
+
+dim iCount
+dim Status
+dim Platform
+dim BadColor
+dim GoodColor
+
+dim iMode
+dim iPos
+ 
+dim iOriginalZ
+dim iInit
+
+sub Main()
+
+  if iInit=0
+    iInit=1
+    absplatform(Platform)
+    iOriginalZ=getsel(#sz1)
+  end if  
+
+  if Status<>0
+    CheckForPlayer()
+    Progress()
+    DrawStatus()
+  end if
+
+end sub
+
+sub Progress()
+  if iMode=0
+    iPos=0
+    if Status=2
+      iMode=1
+      iCount=0
+    end if
+  end if
+  if iMode=1
+    iCount=iCount+1
+    iPos=iCount*10/100
+    if iCount=100
+      iMode=2
+      iCount=0
+    end if
+  end if  
+  if iMode=2
+    iCount=iCount+1
+    iPos=10
+    if iCount=50
+      iMode=3
+      iCount=100
+    end if
+  end if
+  if iMode=3
+    iCount=iCount-1
+    iPos=iCount*10/100
+    if iCount=0
+      iMode=0
+      iCount=0
+    end if
+  end if
+      
+end sub
+
+Sub CheckForPlayer()
+  dim iPX
+  dim iPY
+  dim iPlat
+  dim iHit
+
+  Status=1 
+
+  iPlat=getext(#event2)
+
+  if iPlat=Platform
+    if getext(#pStat)=#JSLADDER
+      return 0
+    end if
+    if getext(#pStat)=#JSVINE
+      return 0
+    end if
+    Status=2   
+  end if
+  
+end sub
+
+Sub DrawStatus()
+  absplatform(Platform)
+
+  setsel(#sz1,iOriginalZ+iPos)
+  if iOriginalZ+iPos>10 && getsel(#sy1)>0
+    setsel(#sy1,0-getsel(#sy1))
+    setsel(#sy2,0-getsel(#sy2))
+  end if
+  if iOriginalZ+iPos<10 && getsel(#sy1)<0 
+    setsel(#sy1,0-getsel(#sy1))
+    setsel(#sy2,0-getsel(#sy2))
+  end if
+
+  Identity()
+  Translate(0,0,iPos)
+  if iMode=0
+    setsel(#sTexture,GoodColor)    
+  else
+    setsel(#sTexture,BadColor)
+  end if
+end sub

@@ -1,0 +1,22 @@
+c:\jumpman\data\Dinosaur.bmp
+14
+TrSaurStandL False
+TrSaurStandR False
+TrSaurWalkL1 False
+TrSaurWalkL2 False
+TrSaurWalkR1 False
+TrSaurWalkR2 False
+pSaurL1 False
+pSaurL2 False
+pSaurL3 False
+pSaurL4 False
+pSaurR1 False
+pSaurR2 False
+pSaurR3 False
+pSaurR4 False
+5
+69 180 50 0.5059524 0.005952381 0.4761905 0.4702381 0 1.5
+0 128 0 0.01190476 0.2559524 0.4642857 0.2202381 0 1.5
+128 128 128 0.02380952 0.5 0.4583333 0.4821429 1 2
+0 255 0 0.01190476 0.01785714 0.4404762 0.2083333 0 1
+0 255 128 0.005952381 0.01190476 0.4464286 0.2202381 0 2

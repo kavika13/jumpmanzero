@@ -1,0 +1,117 @@
+include Constants
+include Level11Resources
+
+dim iX
+dim iY
+dim iInit
+
+dim iXV
+dim iYV
+dim iYVV
+
+dim iFrame
+dim iCount
+
+dim iSlow
+dim iSlowFrame
+
+dim iMeshes[30]
+
+Sub Main()
+
+  if iInit=0 
+    Initialize()
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  Animate()
+  SetFrame()
+  Move()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Translate(iX,iY,3)
+  SetProperties(#textureDinosaur,2)
+
+  dim iCollide
+  iCollide=Collide(iX-8,iY-3,iX+8,iY+3)
+  if iCollide
+    Kill()
+  end if
+
+end Sub
+
+sub Move()
+
+  if iYVV=1
+    iYV=iYV+0.035
+    if iYV>1
+      iYVV=-1
+    end if
+  else
+    iYV=iYV-0.035
+    if iYV<-1
+      iYVV=1
+    end if
+  end if
+
+  iX=iX+iXV
+  iY=iY+iYV
+  
+  if iX>200 || iX<-40
+    iXV=0-iXV
+    iX=iX+iXV
+    iY=(iY+120)/2
+  end if
+
+end sub
+
+Sub SetFrame()
+  iCount=iCount+1
+
+  if iYVV>=0
+    iFrame=iSlowFrame
+  else
+    iFrame=0
+  end if
+
+  if iXV<0
+    iFrame=iFrame+10
+  end if
+End Sub
+
+sub Animate()
+
+  iSlow=iSlow+1
+  if iSlow>3 
+    iSlow=0
+    iSlowFrame=iSlowFrame+1
+    if iSlowFrame=4
+      iSlowFrame=0
+    end if
+  end if
+
+end sub
+
+Sub Initialize()
+  iInit=1
+
+  iYV=0
+  iYVV=1
+  iXV=.8
+
+  iX=-10
+  iY=120
+
+  iMeshes[0]=newmesh(#meshPSaurL1)
+  iMeshes[1]=newmesh(#meshPSaurL2)
+  iMeshes[2]=newmesh(#meshPSaurL3)
+  iMeshes[3]=newmesh(#meshPSaurL4)
+
+  iMeshes[10]=newmesh(#meshPSaurR1)
+  iMeshes[11]=newmesh(#meshPSaurR2)
+  iMeshes[12]=newmesh(#meshPSaurR3)
+  iMeshes[13]=newmesh(#meshPSaurR4)
+end sub

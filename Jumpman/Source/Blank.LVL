@@ -1,0 +1,18 @@
+R LavaTheme 1 1
+R death 1 2
+R ENDLEVEL 1 3
+R Jumpman 3 0
+R ClassicPlatform 3 0
+R BlueMarble 3 0
+R RedMetal 3 0
+R sky 4 0
+R Jump 7 0
+R chomp 7 0
+R bonk 7 0
+R Fire 7 0
+R Bullet 5 2
+R Bullet1 2 0
+R Bullet2 2 0
+R Bullet 3 0
+O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 220 80 1 0 255 220 80 0 1 -100 -140 80 1 1 255 -140 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 1 4 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 6 7 0 0 0 152 7 0 0 0 6 4 0 0 0 152 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 

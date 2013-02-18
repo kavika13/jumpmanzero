@@ -1,0 +1,29 @@
+c:\jumpman\data\Jumpman.bmp
+20
+Groove1 False
+Groove2 False
+Groove3 False
+SwimL1 False
+SwimL2 False
+SwimL3 False
+SwimL4 False
+SwimR1 False
+SwimR2 False
+SwimR3 False
+SwimR4 False
+Hang1 False
+Hang2 False
+Hang3 False
+Hang4 False
+Hang False
+HangL1 False
+HangL2 False
+HangL3 False
+HangL4 False
+6
+255 255 255 0.01785714 0.005952381 0.4583333 0.4761905 0 1.5
+0 128 192 0.5 0.005952381 0.4821429 0.5178571 0 1.5
+255 0 0 0.5119048 0.5059524 0.4642857 0.4821429 0 1.5
+128 0 0 0.01190476 0.8214286 0.4642857 0.1607143 1 2
+0 64 128 0.005952381 0.6428571 0.4642857 0.1607143 1 2
+128 128 128 0 0.5 0.4761905 0.125 1 2

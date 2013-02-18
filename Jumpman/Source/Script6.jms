@@ -1,0 +1,127 @@
+include Constants
+include Level6Resources
+
+dim iInit
+dim iFlip
+dim iGhost
+
+dim iFrame
+
+dim iWallMoving
+
+Sub Main()
+
+  dim iTemp
+
+  if iInit=0
+    iInit=1
+
+    setext(#perspective,#perspectiveCloseUp)
+    iGhost=spawn(#scriptGhost)
+  end if
+
+  dim iPX 
+  dim iPY
+
+  if iWallMoving>0
+    iWallMoving=iWallMoving+1
+    selectwall(33)
+    identity()
+    translate(0,0,iWallMoving/10)
+
+    if iWallMoving=45
+      selectwall(33)
+      setsel(#sy1,0-26)
+      iWallMoving=0
+    end if
+  end if
+  
+  iPX=getext(#px)-90
+  iPY=getext(#py)-70
+
+  iFlip=iFlip+1
+  if iFlip=6
+    iFlip=0
+  end if
+
+  selectpicture(1)
+  identity()
+  translate(iPX,iPY,0)
+  if iFlip>2
+    setsel(#sTexture,#textureRing2)
+  else
+    setsel(#sTexture,#textureRing)
+  end if
+
+  selectpicture(2)
+  identity()
+  translate(iPX,iPY,0)
+  selectpicture(3)
+  identity()
+  translate(iPX,iPY,0)
+  selectpicture(4)
+  identity()
+  translate(iPX,iPY,0)
+  selectpicture(5)
+  identity()
+  translate(iPX,iPY,0)
+
+  iFrame=iFrame+1
+
+  selectpicture(100)
+  setproperties(#texturePainting,1)
+  if iFrame>10
+    setproperties(#texturePainting2,1)
+  end if
+
+  if iFrame>20
+    iFrame=0
+  end if
+
+end Sub
+
+sub donut()
+  dim iDonut
+
+  iDonut=getext(#event1)
+
+  if iDonut=1
+    iWallMoving=1
+
+    selectvine(1)
+    setsel(#sy2,getsel(#sy2)+6)
+    setsel(#sy1,getsel(#sy1)+6)
+    identity()
+    translate(0,6,0)
+    setext(#compose,1)
+  end if
+
+  if iDonut=2
+    selectvine(2)
+    setsel(#sy2,getsel(#sy2)+8)
+    setsel(#sy1,getsel(#sy1)+8)
+    identity()
+    translate(0,8,0)
+    setext(#compose,1)
+  end if
+
+  if iDonut=3
+    selectwall(2)
+    setsel(#sY1,getsel(#sy1)-26)
+    identity()
+    translate(0,0-70,0)
+
+    selectpicture(12)
+    identity()
+    translate(0,0-70,0)
+    setext(#compose,1)
+  end if
+
+end sub
+
+sub reset()
+  setext(#px,96)
+  setext(#py,73)
+  setext(#pz,9)
+  setext(#pstat,#jsNORMAL)
+end sub

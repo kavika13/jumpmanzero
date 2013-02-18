@@ -1,0 +1,138 @@
+include Constants
+include Level6Resources
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+
+dim iXV
+dim iYV
+
+dim iFrame
+dim iSlow
+
+dim iMeshes[30]
+
+Sub Main()
+
+  if iInit=0 
+    Initialize()
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  MoveGhost()
+
+  iSlow=iSlow+1
+  if iSlow>11
+    iSlow=0
+  end if
+
+  if iSlow>5
+    iFrame=1
+  else
+    iFrame=0
+  end if
+
+  dim iAdapt
+
+  iAdapt=0-4.5
+  if iXV<=0
+    iAdapt=4.5
+    iFrame=iFrame+2
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Translate(iX+iAdapt,iY+5,0-.25)
+  SetProperties(#textureGhostTexture,1)
+
+  dim iCollide
+
+  iCollide=Collide(iX+iAdapt-5,iY+4,iX+iAdapt+5,iY+10)
+
+  if iCollide
+    kill()
+  end if
+
+end Sub
+
+Sub MoveGhost()
+  dim iPX 
+  dim iPY
+  dim Accel
+  dim Max 
+  dim TopSpeed
+
+  Accel=0.03
+  Max=1.0
+  TopSpeed=0.65
+ 
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  if iPX>iX
+    iXV=iXV+Accel
+    if iXV>Max
+      iXV=Max
+    end if
+  end if
+  if iPX<iX
+    iXV=iXV-Accel
+    if iXV<(0-Max)
+      iXV=0-Max
+    end if
+  end if
+  if iPY>iY
+    iYV=iYV+Accel
+    if iYV>Max
+      iYV=Max
+    end if
+  end if
+  if iPY<iY
+    iYV=iYV-Accel
+    if iYV<(0-Max)
+      iYV=0-Max
+    end if
+  end if
+
+  if iXV>TopSpeed
+    iX=iX+TopSpeed
+  elseif iXV<(0-TopSpeed)
+    iX=iX-TopSpeed
+  else
+    iX=iX+iXV
+  end if
+
+  if iYV>TopSpeed
+    iY=iY+TopSpeed
+  elseif iYV<(0-TopSpeed)
+    iY=iY-TopSpeed
+  else
+    iY=iY+iYV
+  end if
+
+end sub
+
+sub ResetPos()
+  iX=0
+  iXV=1
+  iY=0
+  iYV=1
+end sub
+
+Sub Initialize()
+  iInit=1
+
+  iMeshes[0]=newmesh(#meshGhostRight)
+  PrioritizeObject()
+  iMeshes[1]=newmesh(#meshGhostRight2)
+  PrioritizeObject()
+  iMeshes[2]=newmesh(#meshGhostLeft)
+  PrioritizeObject()
+  iMeshes[3]=newmesh(#meshGhostLeft2)
+  PrioritizeObject()
+
+end sub

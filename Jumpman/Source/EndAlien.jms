@@ -1,0 +1,153 @@
+
+include Constants
+include EndingResources
+
+dim iInit
+dim iTime
+
+dim iShipTop
+dim iShipBase
+dim iAlien
+dim iEye1
+dim iEye2
+
+dim iShipRY
+dim iShipRYV
+dim iShipY
+dim iShipYV
+
+dim iGoogleX1
+dim iGoogleY1
+dim iGoogleX2
+dim iGoogleY2
+
+
+Sub Main()
+
+  dim iTemp
+
+  iTime=iTime+1
+
+  if iInit=0
+    iInit=1
+  
+    iAlien=NewMesh(#meshAlien1)
+    iEye1=NewMesh(#meshCube)
+    iEye2=NewMesh(#meshCube)
+    iShipBase=NewMesh(#meshShipBase)
+    iShipTop=NewMesh(#meshShipTop)    
+
+    iShipY=130
+  end if
+
+  SetFacing()
+  ShowAlien()
+
+End Sub
+
+sub SetFacing()
+  iShipRY=iShipRY-1.5
+end sub
+
+sub ShowAlien()
+
+    dim iWiggleX
+    dim iRotateZ
+    dim iTargetY
+    dim iGoogleX
+    dim iGoogleY
+    dim iBaseZ
+    dim iBaseX
+
+    iBaseZ=35
+    iBaseX=132
+
+    if iTime<350
+      iTargetY=85-sin(iTime,10)
+    else 
+      iTargetY=150
+    end if
+    if iTargetY>iShipY
+      iShipYV=iShipYV+.06
+    end if
+    if iTargetY<iShipY
+      iShipYV=iShipYV-.06
+    end if
+    if iShipYV>.7
+      iShipYV=.7
+    end if
+    if iShipYV<-.7
+      iShipYV=-.7
+    end if
+    iShipY=iShipY+iShipYV
+ 
+    iWiggleX=(Sin(iTime*3/2,200))/20
+    iRotateZ=(Sin(iTime*3/2,200))/20
+
+    iGoogleX1=AdjustGoogling(iGoogleX1)
+    iGoogleX2=AdjustGoogling(iGoogleX2)
+    iGoogleY1=AdjustGoogling(iGoogleY1)
+    iGoogleY2=AdjustGoogling(iGoogleY2)
+
+    SelectObjectMesh(iEye1)
+    Identity()
+    Scale(.6,.6,.7)
+    Translate(iGoogleX2-1,0,0)
+    RotateZ(iRotateZ)
+    Translate(iBaseX+iWigglex,iShipY+10+1+iGoogleY1,iBaseZ)
+    SetProperties(#TextureRedMetal,1)
+
+    SelectObjectMesh(iEye2)
+    Identity()
+    Scale(.6,.6,.7)
+    Translate(1+iGoogleX2,0,0)
+    RotateZ(iRotateZ)
+    Translate(iBaseX+iWigglex,iShipY+10+1+iGoogleY2,iBaseZ)
+    SetProperties(#TextureRedMetal,1)
+
+    SelectObjectMesh(iAlien)
+    Identity()
+    RotateY(10)
+    if iTime & 8
+      Changemesh(#MeshAlien1)
+    else
+      Changemesh(#MeshAlien2)
+    end if
+    Scale(.55,.6,.7)
+    RotateZ(iRotateZ)
+    Translate(iBaseX+iWigglex,iShipY+10,iBaseZ)
+    SetProperties(#TextureAlien,1)
+
+    SelectObjectMesh(iShipBase)
+    Identity()
+    Scale(11,11,11)
+    RotateY(iShipRY)
+    RotateZ(iRotateZ)
+    Translate(iBaseX+iWigglex,iShipY,iBaseZ+1)
+    SetProperties(#TextureShipMetal,1)
+
+    SelectObjectMesh(iShipTop)
+    Identity()
+    Scale(12,14,14)
+    RotateY(iShipRY)
+    RotateZ(iRotateZ)
+    Translate(iBaseX+iWigglex,iShipY-3,iBaseZ+1)
+    SetProperties(#TextureShipGlass,1)
+end sub
+
+sub AdjustGoogling(iValue)
+  dim iAdjust
+  dim iFinal
+
+  iAdjust=(rnd(1,100)-50)/300
+  iFinal=iValue+iAdjust
+  if iFinal<-.4
+    iFinal=-.4
+  end if
+  if iFinal>.4
+    iFinal=.4
+  end if  
+
+  return iFinal
+end sub
+

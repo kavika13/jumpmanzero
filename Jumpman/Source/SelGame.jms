@@ -1,0 +1,247 @@
+
+include Constants
+include SelectGameResources
+include RefSelGame
+
+dim iInit
+dim Titles
+dim Title[60]
+
+dim iLMeshes
+dim iLTitle[100]
+dim iLMesh[100]
+dim iSlow
+
+dim iLastSelected
+dim iSelected
+dim iSelTime
+dim iLastSelTime
+
+dim iUpStatus
+dim iDownStatus
+dim iUpHit
+dim iDownHit
+
+dim bGameSelected
+
+Sub Main()
+
+  if iInit=0
+    InitializeLetters()
+    iInit=1
+    iSelected=0
+    iSelTime=0
+    iLastSelected=0
+    bGameSelected=0
+  end if
+
+  GetInput()
+
+  iSelTime=iSelTime+5
+  ShowLetters()
+
+  SelectPicture(100)
+  ScrollTexture(.01,.01)
+  iSlow=0
+
+  if bGameSelected=1 && iSelTime>450
+    service(#SERVICE_STARTGAME,iSelected)
+  end if
+
+end Sub
+
+sub GetInput()
+  dim iTemp
+  dim iOldSelected
+
+  if bGameSelected
+    return 0
+  end if
+
+  if getext(#inputSelect)
+    Sound(#SoundFire)
+    bGameSelected=1
+    iSelTime=0
+    return 0
+  end if
+
+  iDownHit=0
+  iUpHit=0
+  iOldSelected=iSelected
+
+  iTemp=Getext(#InputDown)
+  if iDownStatus!=iTemp
+    iDownHit=iTemp
+  end if
+  iDownStatus=iTemp
+
+  iTemp=Getext(#InputUp)
+  if iUpStatus!=iTemp
+    iUpHit=iTemp
+  end if
+  iUpStatus=iTemp
+  
+  if iUpHit
+    iSelected=iSelected-1
+  end if
+  if iDownHit
+    iSelected=iSelected+1
+  end if
+  if iSelected<0
+    iSelected=Titles-1
+  end if
+  if iSelected>Titles-1
+    iSelected=0
+  end if
+
+  if iSelected!=iOldSelected
+    iLastSelected=iOldSelected
+    iLastSelTime=iSelTime
+    iSelTime=0
+    Sound(#SoundSelect)
+  end if
+
+end sub
+
+sub GetTitleWidth(iTitle)
+  dim iLoop
+  dim iLen
+
+  iLoop=0
+  while iLoop<iLMeshes
+    if iLTitle[iLoop]=iTitle
+      iLen=iLen+1
+    end if
+    iLoop=iLoop+1
+  loop
+
+  return iLen
+end sub
+
+sub ShowLetters()
+  dim iLM
+  dim iX
+  dim iY
+  dim iLast
+  dim iTitle
+  dim iWidth
+  dim iCharWidth
+  dim iScreenWidth
+  dim iTemp
+  dim iMoveScale
+  dim iDX
+  dim iDY
+  dim iDZ
+  dim iTempTime
+  dim iFirstX
+  
+  iLM=0
+  iLast=-1
+  while iLM<iLMeshes
+    iTitle=iLTitle[iLM]
+    if iTitle!=iLast
+      iWidth=GetTitleWidth(iTitle)
+      iCharWidth=110/iWidth
+      if iCharWidth>6.1
+        iCharWidth=6.1
+      end if
+      iScreenWidth=iCharWidth*iWidth
+      iX=80-(iScreenWidth/2)
+      iX=iX+(iCharWidth/2)
+      iX=iX-1
+      iFirstX=iX
+      iY=100-(iTitle*15)
+      iLast=iTitle
+    end if
+
+    if iLMesh[iLM]>0
+      SelectObjectMesh(iLMesh[iLM])
+      Identity()
+
+      if bGameSelected 
+        if iSelected=iTitle
+          iDZ=-15
+          IDX=iX
+          IDY=iY
+          iTempTime=(iSelTime*4)-(iX*4)+(iFirstX*4)+10
+          if iTempTime>0 && iTempTime<360
+            RotateX(iTempTime)
+          end if
+          Translate(iDX,iDY,iDZ)
+          SetProperties(#textureBoringBlue,1)
+        else
+          iDZ=0+iSelTime/15
+          IDX=iX+((iSelTime/100)*sin(iX*27,50))
+          IDY=iY+((iSelTime/100)*sin(iX*59,50))
+          RotateZ(iSelTime+iX)
+          Translate(iDX,iDY,iDZ)
+          SetProperties(#textureRachBlue,1)
+        end if
+      elseif iSelected=iTitle
+        if iSelTime>50
+          iMoveScale=1
+        else
+          iMoveScale=iSelTime/50
+        end if
+
+        iDZ=-15*iMoveScale
+        IDX=iX
+        IDY=iY
+
+        Translate(iDX,iDY,iDZ)
+        SetProperties(#textureBoringBlue,1)
+      elseif iLastSelected=iTitle
+
+        iTempTime=(50-iSelTime)
+        if iLastSelTime<50
+          iTempTime=iTempTime-(50-iLastSelTime)
+        end if
+
+        if iTempTime<0
+          iMoveScale=0
+        else
+          iMoveScale=iTempTime/50
+        end if
+
+        iDZ=-15*iMoveScale
+        iDX=iX
+        iDY=iY
+
+        Translate(iDX,iDY,iDZ)
+        SetProperties(#textureRachBlue,1)
+      else
+        Translate(ix,iy,0)
+        SetProperties(#textureRachBlue,1)
+      end if
+    end if
+
+    iX=iX+iCharWidth
+    iLM=iLM+1
+  loop
+
+end sub
+
+sub InitializeLetters()
+
+  dim iMesh
+  dim iTit
+  dim iChar
+  dim iChars
+
+  Titles=Service(#SERVICE_GAMELIST,#SelGameTitle)
+
+  iTit=0
+  while iTit<Titles
+    print(-1)
+    iChars=Title[iTit*20]
+    iChar=1
+    while iChar<=iChars
+      iLMesh[iLMeshes]=NewCharMesh(Title[iTit*20+iChar])
+      iLTitle[iLMeshes]=iTit
+      iLMeshes=iLMeshes+1
+      iChar=iChar+1
+    loop
+    iTit=iTit+1
+  loop
+
+end sub

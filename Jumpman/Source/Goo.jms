@@ -1,0 +1,349 @@
+include Constants
+include Level8Resources
+include RefGoo
+
+dim Bounce
+
+dim Growing
+dim GooType
+dim Angle
+
+dim iInit
+dim iMesh
+
+dim iX[2]
+dim iY[2]
+
+dim iChild1
+dim iChild2
+
+dim Outlet1
+dim Outlet2
+
+dim iMyPlat
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+    Outlet1=0
+    Outlet2=0
+    iMesh=newMesh(#meshGoo)
+    SetProperties(#textureLava,1)
+  end if
+
+  MoveGoo()
+
+  if GooType=0
+    DeleteMesh(iMesh)
+    DeleteObject(getext(#this))
+    return 0
+  end if
+
+  dim GT
+  GT=GooType
+
+  if GT=1 || GT=2 || GT=3 || GT=6 || GT=7 || GT=8
+    DrawHorizontal()
+  end if
+  if GT=4 || GT=5
+    DrawVertical()
+  end if
+
+end Sub
+
+sub MoveGoo()
+
+  if GooType=4
+    if Growing=0
+      ProgressVert(1,0-0.5)
+    end if
+    if ProgressVert(2,0-0.5)=1
+      if iY[2]>0
+        iChild1=SpawnHorizontal(1,1,iX[2],iY[2],iX[2],iY[2])+1
+        GooType=5
+      end if
+      if Growing=0
+        GooType=5
+      end if
+    end if
+    return 0
+  end if
+
+  if GooType=5
+    if Growing=0
+      if ProgressVert(1,0-0.5)=1
+        GooType=0
+	if iChild1>0
+          SetData(iChild1-1,#GooGrowing,0)
+        end if
+      end if
+    end if
+    return 0
+  end if
+
+  dim iProgress
+
+  if GooType=1
+  
+    iProgress=ProgressHorz(2,0.5)
+    if iProgress=1
+      GooType=7
+      iChild2=SpawnVertical(iX[2]+.5,iY[2])+1
+      Outlet2=1
+    end if
+    if iProgress=2
+      GooType=7
+    end if
+
+    if GooType=1
+      iProgress=ProgressHorz(1,0-0.5)
+      if iProgress=1
+        GooType=6
+        iChild1=SpawnVertical(iX[1]-.5,iY[1])+1
+        Outlet1=1
+      end if
+      if iProgress=2
+        GooType=6
+      end if
+    end if
+
+    return 0
+  end if
+
+  if GooType=6
+    iProgress=ProgressHorz(2,0.5)
+    if iProgress=1
+      GooType=8
+      iChild2=SpawnVertical(iX[2]+.5,iY[2])+1
+      Outlet2=1
+    end if
+    if iProgress=2
+      GooType=8
+    end if
+    return 0
+  end if
+
+  if GooType=7
+    iProgress=ProgressHorz(1,0-0.5)
+    if iProgress=1
+      GooType=8
+      iChild1=SpawnVertical(iX[1]-.5,iY[1])+1
+      Outlet1=1
+    end if
+    if iProgress=2
+      GooType=8
+    end if
+    return 0
+  end if
+
+  if GooType=2
+    if ProgressHorz(1,0.5)=1
+      GooType=0
+      if iChild2>0
+        SetData(iChild2-1,#GooGrowing,0)
+      end if
+    end if
+    return 0
+  end if
+
+  if GooType=3
+    if ProgressHorz(2,0-0.5)=1
+      GooType=0
+      if iChild1>0
+        SetData(iChild1-1,#GooGrowing,0)
+      end if
+    end if
+    return 0
+  end if
+
+  dim iNewX
+  dim iNewY
+  dim iNew
+
+  if GooType=8 && Growing=0
+
+    if Outlet1=1 && Outlet2=1
+      iNewX=(iX[1]+iX[2])/2
+      iNewY=(iY[1]+iY[2])/2
+      iNew=SpawnHorizontal(2,3,iNewX,iNewY,iX[2],iY[2])
+      SetData(iNew,#GooIChild2,iChild2)
+      iX[2]=iNewX
+      iY[2]=iNewY
+      GooType=3
+    end if
+    if Outlet1=1 && Outlet2=0
+      GooType=3
+    end if
+    if Outlet1=0 && Outlet2=1
+      GooType=2
+    end if
+
+    return 0
+  end if
+
+end sub
+
+sub SpawnHorizontal(iNType,iNFrom,iNX1,iNY1,iNX2,iNY2)
+  dim iNew
+
+  iNew=Spawn(#scriptGoo)
+  SetData(iNew,#GooGrowing,1)
+  SetData(iNew,#GooGooType,iNType)
+  SetData(iNew,#GooIX+1,iNX1)
+  SetData(iNew,#GooIX+2,iNX2)
+  SetData(iNew,#GooIY+1,iNY1)
+  SetData(iNew,#GooIY+2,iNY2)
+
+  dim iPlat
+  dim iAngle
+  dim iPX1
+  dim iPX2
+  dim iPY1
+  dim iPY2
+
+  iPlat=FindPlatform(iNX1,iNY1+1,3,0)
+  ABSPlatform(iPlat)
+  iPX1=getsel(#sx1)
+  iPX2=getsel(#sx2)
+  iPY1=getsel(#sy1)
+  iPY2=getsel(#sy2)
+  
+  iAngle=aTan(iPY1-iPY2,iPX2-iPX1)
+
+  SetData(iNew,#GooAngle,iAngle)
+
+  print(iNew)
+
+  return iNew
+end sub
+
+sub SpawnVertical(iNewX,iNewY)
+  dim iNew
+
+  iNew=Spawn(#scriptGoo)
+  SetData(iNew,#GooGrowing,1)
+  SetData(iNew,#GooGooType,4)
+  SetData(iNew,#GooIX+1,iNewX)
+  SetData(iNew,#GooIX+2,iNewX)
+  SetData(iNew,#GooIY+1,iNewY)
+  SetData(iNew,#GooIY+2,iNewY)
+
+  print(iNew)
+
+  return iNew
+end sub
+
+sub ProgressVert(iHead,iYV)
+  iY[iHead]=iY[iHead]+iYV
+
+  dim iPlat1
+  dim iHit
+
+  iPlat1=FindPlatform(iX[iHead],iY[iHead],8,0)
+  iHit=getext(#event4)
+  if iPlat1=0-1
+    iHit=0-70
+  end if
+
+  if iHit>=iY[iHead]+iYV
+    iY[iHead]=iHit
+    return 1
+  end if   
+
+  return 0
+end sub
+
+sub ProgressHorz(iHead,iXV)
+  iX[iHead]=iX[iHead]+iXV
+
+  dim iPlat1
+  dim iPlat2
+  dim iHit1
+  dim iHit2
+
+  iPlat1=FindPlatform(iX[iHead],iY[iHead],4,0)
+  iHit1=getext(#event4)
+  iPlat2=FindPlatform(iX[iHead]+iXV,iY[iHead],4,0)
+  iHit2=getext(#event4)
+
+  iMyPlat=iPlat1
+
+  if iHit1>iY[iHead]
+    return 2
+  end if
+
+  if iPlat1<>iPlat2 
+    if iHit2<=iHit1
+      return 1
+    end if
+    return 0
+  end if
+
+  iY[iHead]=(iHit1+iY[iHead])/2
+  return 0
+end sub
+
+sub DrawVertical()
+  dim iCollide
+
+  iCollide=Collide(iX[1]-1,iY[2]+1,iX[2]+1,iY[1]-1)
+  if iCollide=1
+    Kill()
+  end if
+
+  SelectObjectMesh(iMesh)
+  Identity()
+  Scale(iY[1]-iY[2],1.3,3)
+  RotateZ(90)
+  Translate(iX[1]+.3,(iY[1]+iY[2])/2,5)
+end sub
+
+sub DrawHorizontal()
+
+  dim iPX
+  dim iPY
+  dim iPlat
+  dim iPH
+
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  if iPX<iX[2]+2 && iPX>iX[1]-2
+    iPlat=FindPlatform(iPX,iPY,8,2)  
+    iPH=GetExt(#event4)
+    if iPlat=iMyPlat && iPY<iPH+1
+      Kill()
+    end if
+  end if
+
+  SelectObjectMesh(iMesh)
+  Identity()
+
+  dim iLen
+  dim iDX
+  dim iDY
+  
+  iDX=iX[2]-iX[1]
+  iDY=iY[2]-iY[1]
+
+  iLen=sqr(iDX*iDX+iDY*iDY)+1
+
+  Scale(iLen,1,3)
+  RotateZ(0-Angle)
+
+  Bounce=Bounce+1
+  if Bounce>4
+    Bounce=0
+  end if
+
+  if GooType=4 || GooType=5
+    Bounce=0
+  end if
+
+  if Bounce>2
+    Translate((iX[1]+iX[2])/2,(iY[1]+iY[2])/2+.04,5)
+  else
+    Translate((iX[1]+iX[2])/2,(iY[1]+iY[2])/2-.04,5)
+  end if
+end sub

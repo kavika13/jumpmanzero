@@ -1,0 +1,229 @@
+
+include Constants
+include Level27Resources
+
+define CircleWidth 281
+
+dim iShipX
+dim iShipY
+dim iSinking
+
+dim iShipZ
+
+dim iBeamColor
+dim iBeamType
+
+dim iInit
+dim iBeam1
+dim iBeam2
+dim iTime
+dim iBlast1
+dim iBlast2
+
+dim iParmDir
+
+dim iTargetX
+dim iTargetY
+dim iTargetZ
+
+dim iGunX
+dim iGunY
+dim iGunZ
+
+dim iFireDir
+dim iFireAngle
+dim iFireLength
+
+dim iOldPX
+dim iBT
+dim iShowBlast
+
+dim iCollideDir
+
+Sub Main()
+
+  iTime=iTime+1
+  iBT=iBT+1
+
+  if iInit=0
+    iInit=1
+    iBeam1=NewMesh(#MeshBeam)
+    iBeam2=NewMesh(#MeshBeam)
+    return 0
+  end if
+
+  if iInit=1
+    iInit=2
+    iBlast1=NewMesh(#MeshSquare)
+    iShipZ=60
+  end if
+
+  dim iPX
+
+  iPX=getext(#px)
+
+  if iPX>150 && iOldPX<100
+    iOldPX=iOldPX+#CircleWidth
+  end if
+  if iPX<100 && iOldPX>150
+    iOldPX=iOldPX-#CircleWidth
+  end if
+  if iParmDir>360
+    iParmDir=iParmDir-360
+  end if
+
+  iParmDir=iParmDir+2+iOldPX-iPX
+  iOldPX=iPX
+
+  if iSinking>0
+    SelectObjectMesh(iBlast1)
+    SetProperties(0,0)
+    SelectObjectMesh(iBeam1)
+    SetProperties(0,0)
+    SelectObjectMesh(iBeam2)
+    SetProperties(0,0)
+    return 0
+  end if
+
+  SetTarget()
+  SetGun()
+  SetFire()
+  DrawFire()
+
+  dim iPY
+ 
+  iPY=getext(#py)
+  iPX=getext(#px)
+
+  if iShowBlast=1
+    if iCollideDir>267 && iCollideDir<273
+      if Collide(iPX-5,iTargetY-2,iPX+5,iTargetY+2)
+        Kill()
+      end if
+    end if
+  end if
+
+end sub
+
+sub SetTarget()
+
+  if iBeamType=2
+    iTargetX=Cos(iParmDir+10,60)+GetExt(#px)
+    iTargetY=30-sin(iTime*2,25)
+    iTargetZ=Sin(iParmDir+10,60)+60
+    iCollideDir=iParmDir+10
+  elseif iBeamType=3
+    iTargetX=Cos(iParmDir-10,60)+GetExt(#px)
+    iTargetY=40+sin(iTime,40)
+    iTargetZ=Sin(iParmDir-10,60)+60
+    iCollideDir=iParmDir-10
+  else
+    iTargetX=Cos(iParmDir,60)+GetExt(#px)
+    iTargetY=50+sin(iTime*2,25)
+    iTargetZ=Sin(iParmDir,60)+60
+    iCollideDir=iParmDir
+  end if
+
+end Sub
+
+sub SetGun()
+  dim iDX
+  dim iDY
+  dim iDZ
+  dim iLengthXZ
+
+  iDX=iTargetX-iShipX
+  iDY=iTargetY-iShipY
+  iDZ=iTargetZ-iShipZ
+
+  iLengthXZ=sqr(iDX*iDX+iDZ*iDZ)
+
+  dim iGX
+  dim iGY
+  dim iRZ
+
+  iGX=iDX*30/iLengthXZ
+  iGY=0
+  iRZ=Sin(iTime*3/2,200)/20
+
+  iGX=cos(iRZ,iGX*100)/100
+  iGY=sin(iRZ,iGX*100)/100
+
+  iGunX=iGX+iShipX
+  iGunY=iGY+iShipY
+  iGunZ=iShipZ+(iDZ*30/iLengthXZ)
+
+end Sub
+
+Sub SetFire()
+  dim iDX
+  dim iDY
+  dim iDZ
+  dim iLengthXZ
+
+  iDX=iTargetX-iGunX
+  iDY=iTargetY-iGunY
+  iDZ=iTargetZ-iGunZ
+
+  if iTargetX<iGunX
+    iFireDir=atan(0-iDZ,iDX)
+    iFireDir=iFireDir+180
+  else
+    iFireDir=atan(0-iDZ,iDX)
+  end if
+  iLengthXZ=sqr(iDX*iDX+iDZ*iDZ)
+  iFireAngle=atan(iDY,iLengthXZ)
+  iFireLength=sqr(iDX*iDX+iDY*iDY+iDZ*iDZ)
+
+  dim iMin
+
+  iShowBlast=0
+  iMin=iBeamType*70
+  if iBT<iMin
+    iFireLength=1
+  elseif iBT<iMin+70
+    iFireLength=iFireLength*((iBT-iMin)/70)*((iBT-iMin)/70)
+  else 
+    iShowBlast=1
+  end if
+  
+end Sub
+
+Sub DrawFire()
+  dim iBX
+  dim iBY
+
+  if iShowBlast
+    iBX=iTargetX+rnd(1,50)/50
+    iBY=iTargetY+rnd(1,50)/50
+
+    SelectObjectMesh(iBlast1)
+    Identity()
+    Scale(8,8,1)
+    if iTime&4
+      RotateZ(180)
+    end if
+    Translate(iBX-.5,iBY,iTargetZ-2)
+    SetProperties(#TextureBlast1,1)
+  end if
+
+  SelectObjectMesh(iBeam1)
+  Identity()
+  Translate(.5,0,0)
+  Scale(iFireLength,1,1)
+  RotateZ(iFireAngle)
+  RotateY(iFireDir)
+  Translate(iGunX,iGunY,iGunZ)
+  SetProperties(iBeamColor,1)
+
+  SelectObjectMesh(iBeam2)
+  Identity()
+  RotateX(iTime*34)
+  Translate(.5,0,0)
+  Scale(iFireLength,3,2)
+  RotateZ(iFireAngle)
+  RotateY(iFireDir)
+  Translate(iGunX,iGunY,iGunZ)
+  SetProperties(#TextureBeam,1)
+
+End Sub

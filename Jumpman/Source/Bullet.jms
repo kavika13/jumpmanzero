@@ -1,0 +1,237 @@
+include Constants
+include Level1Resources
+
+dim iFiring
+
+dim resMesh1
+dim resMesh2
+dim resTexture
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+dim iXV
+dim iYV
+
+dim iMesh1
+dim iMesh2
+
+dim iSlow
+
+dim iOut
+dim iSpin1
+dim iSpin2
+
+dim Wait
+
+dim iMaxX
+
+Sub Main()
+
+  if Wait>0
+    Wait=Wait-1
+    return 0
+  end if
+
+  if getext(#Freeze)!=0
+    RestartBullet()
+  end if
+
+  if iInit=0
+    iInit=1
+    iMesh1=newmesh(resMesh1)
+    iMesh2=newmesh(resMesh2)
+    RestartBullet()
+    iMaxX=getext(#LevelExtentX)+40
+  end if
+
+  iSlow=iSlow+1
+  if iSlow=5
+    iSlow=0
+  end if
+
+  iX=iX+iXV
+  iY=iY+iYV
+
+  if iFiring=0
+    CheckFire()
+  end if
+
+  CheckOOB()
+
+  dim iPlat1
+  dim iPlat2
+  dim iBest
+
+  iPlat1=FindPlatform(ix,iy,8,4)
+  ABSplatform(iPlat1)
+  iPlat1=getsel(#sz1)
+
+  iPlat2=FindPlatform(ix+iXV*6,(iy)+(iYV*6),8,4)
+  ABSplatform(iPlat2)
+  iPlat2=getsel(#sz1)
+
+  iBest=(iPlat1+iPlat2)/2
+
+  if iSlow=2
+    if iBest>iz
+      iZ=iZ+1
+    end if
+ 
+    if iBest<iZ
+      iZ=iZ-1
+    end if
+  end if
+
+  if iFiring=0
+    iSpin1=iSpin1+3
+    iSpin2=iSpin2+3
+  elseif iYV=0
+    iSpin1=iSpin1+7
+  else
+    iSpin2=iSpin2+7
+  end if
+
+  dim iCollide
+  iCollide=collide(ix-1,iy-1,ix+1,iy+1)
+  if iCollide
+    Kill()
+  end if
+
+  SelectObjectMesh(iMesh1)
+  Identity()
+  RotateX(iSpin2)
+  RotateZ(iSpin1)
+  Translate(iX,iY,iZ-2)
+  SetProperties(resTexture,1)
+
+  SelectObjectMesh(iMesh2)
+  Identity()
+  RotateY(90)
+  RotateX(iSpin2)
+  RotateZ(iSpin1)
+  Translate(iX,iY,iZ-2)
+  SetProperties(resTexture,1)
+
+end Sub
+
+sub CheckFire()
+  dim PX
+  dim PY
+
+  iOut=iOut+1
+
+  PX=getext(#px)
+  PY=getext(#py)+6
+
+  if PX+1>iX && PX<=iX && iOut>100
+    iFiring=1
+    sound(#soundFire)
+    iXV=0
+    if PY>iY
+      iYV=1
+    else
+      iYV=0-1
+    end if
+  end if
+
+  if PY+1>iY && PY<=iY && iFiring=0 && iOut>100
+    iFiring=1
+    sound(#soundFire)
+    iYV=0
+    if PX>iX
+      iXV=1
+    else
+      iXV=0-1
+    end if
+  end if
+
+end sub
+
+sub CheckOOB()
+  if iX<0-40 || iX>iMaxX || iY<0-70 || iY>190
+    RestartBullet()
+  end if
+end sub
+
+sub RestartBullet()
+  dim iType
+  dim PX
+  dim PY
+  dim iSupp
+  dim iVel
+
+  SelectObjectMesh(iMesh1)
+  SetProperties(0,0)
+  SelectObjectMesh(iMesh2)
+  SetProperties(0,0)
+
+  iType=rnd(1,100)
+  if iType<50
+    iVel=0.35
+    iSupp=iVel
+  else
+    iVel=0.5
+  end if
+
+  iFiring=0
+  iOut=0
+
+  PX=getext(#px)
+  PY=getext(#py)
+
+  iType=rnd(1,100)
+
+  if iType<50
+
+    iX=rnd(30,130)
+
+    if (iType<25 && pY>60) || pY>100
+      iY=0-10
+      iYV=iVel
+    end if
+
+    if (iType>=25 && pY<=100) || pY<=60
+      iY=170
+      iYV=0-iVel
+    end if
+
+    iXV=0-iSupp
+    if iX<80
+      iXV=iSupp
+    end if
+
+    iX=iX-(iSupp*5)
+
+  end if
+
+  if iType>=50
+
+    iY=rnd(30,130)
+
+    if (iType<75 && pX>60) || pX>100
+      iX=0-10
+      iXV=iVel
+    end if 
+
+    if (iType>=75 && pX<=100) || pX<=60
+      iX=iMaxX
+      iXV=0-iVel
+    end if
+
+    iYV=0-iSupp
+    if iY<80
+      iYV=iSupp
+    end if
+  
+    iY=iY-(iSupp*5)
+
+  end if
+
+end sub
+
+sub ResetPos()
+  Wait=rnd(50,200)
+  RestartBullet()
+end sub

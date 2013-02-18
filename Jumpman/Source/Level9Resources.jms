@@ -1,0 +1,17 @@
+define TexturePrisoner 0
+define TextureTileStone 1
+define TextureBlueMarble 2
+define TextureRedMetal 3
+define Texturesky 4
+define SoundJump 0
+define Soundchomp 1
+define Soundbonk 2
+define SoundFire 3
+define MeshChain 0
+define TextureChain 5
+define TextureLitFountain 6
+define ScriptBullet 0
+define ScriptChain 1
+define MeshBullet1 1
+define MeshBullet2 2
+define TextureBullet 7

@@ -1,0 +1,204 @@
+include Constants
+include Level25Resources
+
+dim iInit
+dim iMeshes[30]
+
+dim iFrame 
+dim iX
+dim iY
+dim iZ
+dim iSlow
+
+dim StartX
+dim StartY
+
+dim iAnimate
+dim iCycle
+
+dim iTurn
+
+dim iXV
+dim iYV
+
+Sub Main()
+  if iInit=0
+    iInit=1
+
+    iMeshes[1]=NewMesh(#MeshShark1)
+    PrioritizeObject()
+    iMeshes[2]=NewMesh(#MeshShark2)
+    PrioritizeObject()
+    iMeshes[3]=NewMesh(#MeshShark1)
+    PrioritizeObject()
+    iMeshes[4]=NewMesh(#MeshShark3)
+    PrioritizeObject()
+
+    iMeshes[5]=NewMesh(#MeshSharkT1)
+    PrioritizeObject()
+    iMeshes[6]=NewMesh(#MeshSharkT2)
+    PrioritizeObject()
+    iMeshes[7]=NewMesh(#MeshSharkT3)
+    PrioritizeObject()
+
+    iMeshes[11]=NewMesh(#MeshSharkL1)
+    PrioritizeObject()
+    iMeshes[12]=NewMesh(#MeshSharkL2)
+    PrioritizeObject()
+    iMeshes[13]=NewMesh(#MeshSharkL1)
+    PrioritizeObject()
+    iMeshes[14]=NewMesh(#MeshSharkL3)
+    PrioritizeObject()
+
+    iMeshes[15]=NewMesh(#MeshSharkTL1)
+    PrioritizeObject()
+    iMeshes[16]=NewMesh(#MeshSharkTL2)
+    PrioritizeObject()
+    iMeshes[17]=NewMesh(#MeshSharkTL3)
+    PrioritizeObject()
+
+    iX=StartX
+    iY=StartY
+    iZ=.05
+    iXV=1
+    iFrame=1
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  iAnimate=iAnimate+1
+  if iAnimate=4
+    iCycle=iCycle+1
+    if iCycle=4
+      iCycle=0
+    end if
+    iAnimate=0
+  end if
+
+  MoveShark()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Translate(iX,iY+6,iZ)
+  SetProperties(#TextureShark,1)
+
+end Sub
+
+sub MoveShark()
+  dim iPX
+  dim iPY
+  
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  if iPY<iY && iYV>-1.2
+    iYV=iYV-0.09
+  elseif iPY>iY && iYV<1.2
+    iYV=iYV+0.09
+  end if
+
+  dim iVisible
+  
+  iVisible=0
+  if iPX<iX-2 && iXV<0
+    iVisible=1
+  end if
+  if iPX>iX+2 && iXV>0
+    iVisible=1
+  end if
+  if PlayerMoving()=0 || iPY>113
+    iVisible=0
+  end if
+
+  dim iYSpeed
+
+  if iXV>0
+    iYSpeed=iXV*iYV
+  else
+    iYSpeed=(0-iXV)*iYV
+  end if
+  
+  if iVisible 
+    iY=iY+iYSpeed
+  elseif iPY<iY-20 || iPY>iY+20 || iPY>114
+    iY=iY+iYSpeed/3
+  else
+    iY=iY+iYSpeed/10
+  end if
+
+  if iY<12
+    iY=12
+  elseif iY>113
+    iY=113
+  end if
+
+  if iTurn>0
+
+    iTurn=iTurn+1
+
+    if iXV<0
+      if iTurn<5
+        iFrame=15
+      elseif iTurn<10
+        iFrame=16
+      elseif iTurn<15
+        iFrame=17
+      else 
+        iTurn=0
+        iXV=.1
+      end if      
+    else
+      if iTurn<5
+        iFrame=5
+      elseif iTurn<10
+        iFrame=6
+      elseif iTurn<15
+        iFrame=7
+      else 
+        iTurn=0
+        iXV=-.1
+      end if      
+    end if
+
+    return 0
+  end if
+
+  iX=iX+iXV
+  if iX>120
+    iXV=iXV-.05
+    if iXV<.1 && iXV>-.1
+      iTurn=1
+    end if
+    if iXV<-1
+      iXV=-1
+    end if
+  end if
+  if iX<33
+    iXV=iXV+.05
+    if iXV>-.1 && iXV<.1
+      iTurn=1
+    end if
+    if iXV>1
+      iXV=1
+    end if
+  end if
+
+  if iXV>0
+    iFrame=1+iCycle
+  else 
+    iFrame=11+iCycle
+  end if
+
+end sub
+
+sub PlayerMoving()
+  if GetExt(#inputLeft) || GetExt(#inputRight)
+    return 1
+  end if
+  if GetExt(#inputUp) || GetExt(#inputDown)
+    return 1
+  end if
+  return 0
+end sub
+

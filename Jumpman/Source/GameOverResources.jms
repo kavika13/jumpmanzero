@@ -1,0 +1,13 @@
+define TextureJumpman 0
+define TextureClassicPlatform 1
+define TextureBlueMarble 2
+define TextureRedMetal 3
+define TextureSpaceBack 4
+define SoundJump 0
+define Soundchomp 1
+define Soundbonk 2
+define SoundFire 3
+define MeshDead 0
+define MeshStars 1
+define TextureBoringGray 5
+define TextureNewMetal 6

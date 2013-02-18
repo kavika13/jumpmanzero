@@ -1,0 +1,273 @@
+include Constants
+include Level18Resources
+include RefTurtle
+
+define Left 3
+define Right 4
+
+define BePeriodic 1
+define BeChase 2
+define BeStand 3
+
+dim StartX
+dim StartY
+dim FireTime
+dim WaitTime
+dim Behavior
+dim Texture
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+
+dim iFrame
+dim iStatus
+
+dim iMeshes[30]
+
+dim iTurnCount
+dim iWait
+
+dim iLaser
+dim iFiring
+
+Sub Main()
+
+  dim iTemp
+
+  if iInit=0 
+    Initialize()
+    iInit=1
+    iWait=WaitTime
+    iLaser=newMesh(1)
+  end if
+
+  SelectObjectMesh(iLaser)
+  SetProperties(#textureLaser,0)
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  SetFrame()
+  Move()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Scale(.7,.55,1)
+  Translate(iX,iY+5,iZ+2)
+  SetProperties(Texture,1)
+
+  dim iCollide  
+  dim iPX
+  dim iPY
+
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  iCollide=0
+
+  if iStatus=#Left && iFiring>15 && iFiring<FireTime-15
+    SelectObjectMesh(iLaser)
+    SetProperties(#textureLaser,1)
+    Identity()
+    iTemp=rnd(50,100)*(.1)
+    iTemp=iTemp/2
+    Scale(35,4,0)
+    ScrollTexture(iTemp,0)
+    Translate(iX-19,iY+8.6,iZ+2.2)
+    iCollide=Collide(iX-36,iY+7.5,iX-5,iY+11)
+  end if
+
+  if iStatus=#Right && iFiring>15 && iFiring<FireTime-15
+    SelectObjectMesh(iLaser)
+    SetProperties(#textureLaser,1)
+    Identity()
+    iTemp=rnd(50,100)*(-.1)
+    iTemp=iTemp/2
+    Scale(35,4,0)
+    ScrollTexture(iTemp,0)
+    Translate(iX+20.5,iY+8.6,iZ+2.2)
+    iCollide=Collide(iX+5,iY+7.5,iX+36,iY+11)
+  end if
+
+  if iCollide=0
+    iCollide=Collide(iX-4,iY,iX+4,iY+4)
+  end if
+
+  if iCollide 
+    Kill()
+  end if
+
+end Sub
+
+sub Move()
+
+  dim iPlat
+  dim iHit
+  dim iPX
+  dim iPY
+
+  if iTurnCount>0
+    iTurnCount=iTurnCount-1
+    return 0
+  end if
+
+  if iWait>0
+    iWait=iWait-1
+  end if
+
+  if iFiring>0
+    iFiring=iFiring+1
+    if iFiring=FireTime
+      iFiring=0
+      iWait=WaitTime
+    end if
+    return 0
+  elseif iWait=0 && Behavior=#BePeriodic
+    iFiring=1
+    return 0
+  elseif Behavior=#BeStand
+    iPX=getext(#px)
+    iPY=getext(#py)
+    if iPY<iY+6 && iPY>iY-6
+      if iPX<iX && iStatus=#Left
+        iFiring=1
+        return 0
+      end if
+      if iPX>iX && iStatus=#Right
+        iFiring=1
+        return 0
+      end if
+    end if
+  elseif Behavior=#BeChase
+    iPX=getext(#px)
+    iPY=getext(#py)
+    if iPY<iY+6 && iPY>iY-6
+      if iPX<iX && iStatus=#Left
+        if iPX<iX-35
+          iX=iX-0.4
+        else
+          iFiring=1
+          return 0
+        end if
+      end if
+      if iPX>iX && iStatus=#Right
+        if iPX>iX+35
+          iX=iX+0.4
+        else
+          iFiring=1
+          return 0
+        end if
+      end if
+    end if
+  end if
+
+  if iStatus=#Left || iStatus=#Right
+    iPlat=FindPlatform(iX,iY,5,2)
+    iHit=getext(#event4)
+    ABSPlatform(iPlat)
+    iZ=getsel(#sz1)
+
+    if iHit<iY-1
+      iY=iY-1
+    elseif iHit>iY+1
+      iY=iY+1
+    else
+      iY=iHit
+    end if   
+  end if
+
+  if iStatus=#Left
+    iX=iX-0.7
+
+    iPlat=FindPlatform(iX-7,iY,5,2)
+    iHit=getext(#event4)
+
+    if iHit<iY-6
+      iStatus=#Right
+      iTurnCount=50
+    end if
+  end if
+
+  if iStatus=#Right
+    iX=iX+0.7
+
+    iPlat=FindPlatform(iX+7,iY,5,2)
+    iHit=getext(#event4)
+
+    if iHit<iY-6
+      iStatus=#Left
+      iTurnCount=50
+    end if
+  end if
+
+end sub
+
+Sub SetFrame()
+  if iStatus=#Left
+    if iTurnCount=0
+      if iFiring=0
+        iFrame=0
+      elseif iFiring<8 || iFiring>(FireTime-8)
+        iFrame=10
+      else
+        iFrame=11
+      end if
+    elseif iTurnCount>40
+      iFrame=5
+    elseif iTurnCount>30
+      iFrame=4
+    elseif iTurnCount>20
+      iFrame=3
+    elseif iTurnCount>10
+      iFrame=2
+    else
+      iFrame=1
+    end if
+  end if
+  if iStatus=#Right
+    if iTurnCount=0
+      if iFiring=0
+        iFrame=6
+      elseif iFiring<8 || iFiring>(FireTime-8)
+        iFrame=16
+      else
+        iFrame=17
+      end if
+    elseif iTurnCount>40
+      iFrame=1
+    elseif iTurnCount>30
+      iFrame=2
+    elseif iTurnCount>20
+      iFrame=3
+    elseif iTurnCount>10
+      iFrame=4
+    else
+      iFrame=5
+    end if
+  end if
+End Sub
+
+Sub Initialize()
+  iInit=1
+
+  iX=StartX
+  iY=StartY
+  iStatus=#Left
+
+  iMeshes[0]=newmesh(#meshDABotL)
+  iMeshes[1]=newmesh(#meshDABotT1)
+  iMeshes[2]=newmesh(#meshDABotT2)
+  iMeshes[3]=newmesh(#meshDABotT3)
+  iMeshes[4]=newmesh(#meshDABotT4)
+  iMeshes[5]=newmesh(#meshDABotT5)
+  iMeshes[6]=newmesh(#meshDABotR)
+
+  iMeshes[10]=newMesh(#meshDABotLS1)
+  iMeshes[11]=newMesh(#meshDABotLS2)
+
+  iMeshes[16]=newMesh(#meshDABotRS1)
+  iMeshes[17]=newMesh(#meshDABotRS2)
+
+end sub

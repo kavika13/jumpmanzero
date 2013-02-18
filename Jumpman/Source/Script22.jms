@@ -1,0 +1,226 @@
+include Constants
+include RefBullet
+include Level22Resources
+
+dim iInit
+
+dim PlatN[10]
+dim PlatX1[10]
+dim PlatY1[10]
+dim PlatX2[10]
+dim PlatY2[10]
+
+dim PlatOX1[10]
+dim PlatOY1[10]
+dim PlatOX2[10]
+dim PlatOY2[10]
+
+dim PlatLX1[10]
+dim PlatLY1[10]
+
+dim iCount
+
+dim iSphere
+dim iSphere2
+
+dim iOPX
+dim iOPY
+
+Sub Main()
+  dim iLoop 
+
+  if iInit=0
+    iInit=1
+
+    SetExt(#LevelExtentX,200)
+
+    iLoop=1
+    while iLoop<10
+      SelectPlatform(iLoop)
+      SetPlatformData(iLoop)
+      iLoop=iLoop+1
+    loop
+
+    iSphere=newMesh(#meshSphere)
+    iSphere2=newMesh(#meshSphere)
+    iOPX=getext(#px)
+    iOPY=getext(#py)
+  end if
+
+  dim iNX
+  dim iNY
+
+  iCount=iCount+1
+
+  iNX=Cos((iCount*2/3)+180,4300)/100+80
+  iNY=Sin((iCount*2/3)+180,4300)/100+80
+  SetPosition(6,iNX,iNY+3)
+  DisplayPlatform(6)
+
+  iNX=Cos(iCount*2/3,4300)/100+80
+  iNY=Sin(iCount*2/3,4300)/100+80
+  SetPosition(1,iNX,iNY+3)
+  DisplayPlatform(1)
+
+  iNX=Cos((0-iCount)+180,2100)/100+80
+  iNY=Sin((0-iCount)+180,2100)/100+80
+  SetPosition(7,iNX,iNY+3)
+  DisplayPlatform(7)
+
+  iNX=Cos(0-iCount,2100)/100+80
+  iNY=Sin(0-iCount,2100)/100+80
+  SetPosition(2,iNX,iNY+3)
+  DisplayPlatform(2)
+
+  iNX=Cycle(iCount,5.5,12,76)
+  iNY=Cycle(iCount,5.5,175,191)
+  SetPosition(8,iNX,iNY)
+  DisplayPlatform(8)  
+
+  iNX=Cycle(iCount,4.6,97,152)
+  iNY=Cycle(0-iCount,4.6,188,196)
+  SetPosition(9,iNX,iNY)
+  DisplayPlatform(9)  
+
+  iNX=145
+  iNY=Cycle(iCount,3,28,113)
+  SetPosition(3,iNX,iNY)
+  DisplayPlatform(3)  
+
+  iNX=Cycle(iCount,4.9,66,125)
+  iNY=145
+  SetPosition(4,iNX,iNY)
+  DisplayPlatform(4)  
+
+  iNX=Cycle(iCount,6,4,58)
+  iNY=155
+  SetPosition(5,iNX,iNY)
+  DisplayPlatform(5)  
+
+  SelectObjectMesh(iSphere)
+  Identity()
+  RotateZ(0-iCount)
+  Scale(25,25,2)
+  Translate(80,80,7)
+  SetProperties(#TextureBoringGray,1)
+
+  SelectObjectMesh(iSphere2)
+  Identity()
+  RotateZ(iCount*2/3)
+  Scale(50,50,2)
+  Translate(80,80,9)
+  SetProperties(#TextureBoringGray,1)
+
+  iOPX=getext(#px)
+  iOPY=getext(#py)
+
+end sub
+
+sub Cycle(iCCount,iSpeed,iMin,iMax)
+  dim iCycle
+  dim iCP
+  dim iPlace
+  dim iNeg
+  
+  if iCCount<0
+    iNeg=1
+    iCCount=0-iCCount
+  end if
+
+  iCycle=iMax-iMin
+  iCP=(iCCount * iSpeed) & 1023
+  iPlace=((iCP/128)*iCycle)/4
+
+  if iNeg 
+    iPlace=iPlace+iCycle
+    if iPlace>iCycle*2
+      iPlace=iPlace-iCycle*2
+    end if
+  end if
+
+  if iPlace>iCycle
+    iPlace=iCycle*2-iPlace
+  end if
+  iPlace=iPlace+iMin
+
+  return iPlace
+end sub
+
+sub SetPosition(iNum,iNX,iNY)
+  dim iLX
+  dim iLY
+
+  iLX=PlatOX2[iNum]-PlatOX1[iNum]
+  iLY=PlatOY2[iNum]-PlatOY1[iNum]
+
+  PlatX1[iNum]=iNX-iLX/2
+  PlatX2[iNum]=iNX+iLX/2
+
+  PlatY1[iNum]=iNY-iLY/2
+  PlatY2[iNum]=iNY+iLY/2
+end sub
+
+sub SetPlatformData(iNum)
+  PlatN[iNum]=getsel(#this)
+  PlatX1[iNum]=getsel(#sx1)
+  PlatX2[iNum]=getsel(#sx2)
+  PlatY1[iNum]=getsel(#sy1)
+  PlatY2[iNum]=getsel(#sy2)
+
+  PlatOX1[iNum]=getsel(#sx1)
+  PlatOY1[iNum]=getsel(#sy1)
+  PlatOX2[iNum]=getsel(#sx2)
+  PlatOY2[iNum]=getsel(#sy2)
+
+  PlatLX1[iNum]=getsel(#sx1)
+  PlatLY1[iNum]=getsel(#sy1)
+
+end sub
+
+sub DisplayPlatform(iNum)
+  ABSPlatform(PlatN[iNum])
+  setsel(#sx1,PlatX1[iNum])
+  setsel(#sx2,PlatX2[iNum])
+  setsel(#sy1,PlatY1[iNum])
+  setsel(#sy2,PlatY2[iNum])
+
+  dim iDX
+  dim iDY
+  
+  iDX=PlatX1[iNum]-PlatOX1[iNum]
+  iDY=PlatY1[iNum]-PlatOY1[iNum]
+
+  Identity()
+  Translate(iDX,iDY,0)
+
+  iDX=PlatX1[iNum]-PlatLX1[iNum]
+  iDY=PlatY1[iNum]-PlatLY1[iNum]
+
+  PlatLX1[iNum]=PlatX1[iNum]
+  PlatLY1[iNum]=PlatY1[iNum]
+
+  dim iPX
+  dim iPY
+  dim iHeight
+
+  if getext(#event2)=PlatN[iNum]
+    iPX=getext(#PX)
+    iPY=getext(#PY)
+    setext(#PX,iPX+iDX)
+
+    iHeight=PlatY1[iNum]
+    if getext(#pstat)=#JSNORMAL
+      if(iHeight>iPY-1 && iHeight<iPY+2)
+        setext(#PY,iHeight)
+      end if
+    end if
+  end if
+
+end sub
+
+sub reset()
+  setext(#px,150)
+  setext(#py,7)
+  setext(#pz,3)
+  setext(#pstat,#jsNORMAL)
+end sub

@@ -1,0 +1,93 @@
+R Script20 5 1 0
+R LEVEL_M 1 1 2000
+R death 1 2 0
+R ENDLEVL3 1 3 0
+R Jumpman 3 0 0
+R ClassicPlatform 3 0 0
+R BlueMarble 3 0 0
+R RedMetal 3 0 0
+R sky 4 0 0
+R Jump 7 0 0
+R chomp 7 0 0
+R bonk 7 0 0
+R GOAT 7 0 0
+R Copter 2 0 0
+R Sheep 3 0 0
+R LSheep 5 2 0
+R SheepFL1 2 0 0
+R SheepFL2 2 0 0
+R SheepFL3 2 0 0
+R SheepFR1 2 0 0
+R SheepFR2 2 0 0
+R SheepFR3 2 0 0
+R SheepJL1 2 0 0
+R SheepJL2 2 0 0
+R SheepJL3 2 0 0
+R SheepJR1 2 0 0
+R SheepJR2 2 0 0
+R SheepJR3 2 0 0
+R SheepL1 2 0 0
+R SheepL2 2 0 0
+R SheepR1 2 0 0
+R SheepR2 2 0 0
+R BoringRed 3 0 0
+R FSheep 5 2 0
+R LSheep 3 0 0
+O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 280 80 1 0 314 280 80 0 1 -100 -140 80 1 1 314 -140 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 1 4 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 51 200 0 0 0 154 200 0 0 0 51 197 0 0 0 154 197 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 17 20 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 7 199 0 0 0 32 199 0 0 0 7 196 0 0 0 32 196 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 17 20 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 15 204 0 0 0 152 164 0 0 0 77 4 0 0 0 152 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 16 17 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 145 205 0 0 0 100 166 0 0 0 100 97 0 0 0 102 97 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 16 17 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 67 206 0 0 0 39 164 0 0 0 29 108 0 0 0 39 108 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 16 17 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 117 208 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 16 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 41 212 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 16 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 WALL 0 0 173 249 0 0 0 173 161 0 0 0 169 246 0 0 0 169 161 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 17 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 96 166 0 0 0 154 166 0 0 0 96 163 0 0 0 154 163 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 13 16 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 7 164 0 0 0 81 164 0 0 0 7 161 0 0 0 81 161 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 13 16 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 169 164 0 0 0 235 164 0 0 0 169 161 0 0 0 235 161 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 13 16 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 172 217 0 0 0 235 217 0 0 0 172 214 0 0 0 235 214 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 13 16 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 87 180 0 0 0 68 154 0 0 0 63 144 0 0 0 66 144 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 112 172 0 0 0 121 136 0 0 0 118 64 0 0 0 119 38 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 188 222 0 0 0 0 136 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 228 222 0 0 0 0 164 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 207 226 0 0 0 39 114 0 0 0 29 108 0 0 0 39 108 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 206 150 0 0 0 0 138 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 126 148 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 78 152 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 41 178 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 130 179 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 208 179 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 13 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 WALL 0 0 158 220 0 0 0 158 133 0 0 0 154 224 0 0 0 154 133 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 19 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 56 136 0 0 0 130 136 0 0 0 56 133 0 0 0 130 133 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 13 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 155 136 0 0 0 236 136 0 0 0 155 133 0 0 0 236 133 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 13 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 64 140 0 0 0 0 112 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 9 10 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 228 141 0 0 0 0 112 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 9 10 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 94 128 0 0 0 121 38 0 0 0 118 64 0 0 0 119 38 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8 9 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 170 124 0 0 0 234 28 0 0 0 174 25 0 0 0 234 25 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8 9 3 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 13 98 0 0 0 48 98 0 0 0 13 95 0 0 0 48 95 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 10 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 56 112 0 0 0 236 112 0 0 0 56 109 0 0 0 236 109 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 10 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 27 74 0 0 0 49 74 0 0 0 27 71 0 0 0 49 71 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 10 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 105 87 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 7 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 126 117 0 0 0 0 74 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 7 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 58 85 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 7 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 36 80 0 0 0 0 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 7 2 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 69 74 0 0 0 152 74 0 0 0 69 71 0 0 0 152 71 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 8 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 13 50 0 0 0 102 50 0 0 0 13 47 0 0 0 102 47 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 8 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 48 27 0 0 0 128 27 0 0 0 48 24 0 0 0 128 24 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 7 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 WALL 0 0 128 74 0 0 0 128 4 0 0 0 124 74 0 0 0 124 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 7 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 56 32 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 3 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 144 78 0 0 0 37 7 0 0 0 7 149 0 0 0 37 148 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 3 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 20 55 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 3 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 83 80 0 0 0 0 27 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 3 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 200 52 0 0 0 0 96 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 165 35 0 0 0 234 35 0 0 0 165 32 0 0 0 234 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 170 68 0 0 0 220 68 0 0 0 170 65 0 0 0 220 65 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 33 35 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 174 39 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 227 40 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 13 7 0 0 0 234 7 0 0 0 13 4 0 0 0 234 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 118 40 0 0 0 0 164 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 199 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 119 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 189 73 0 0 0 0 35 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 212 72 0 0 0 0 35 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 

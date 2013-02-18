@@ -1,0 +1,77 @@
+
+include Constants
+include Level19Resources
+
+dim iInit
+dim iMesh
+dim iX
+dim iY
+
+dim iR
+dim iRV
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+    iMesh=newMesh(#meshWhomper)
+  end if
+
+  if iR>10
+    iRV=iRV-.02
+  end if
+  if iR>15
+    iRV=iRV-.02
+  end if
+  if iR>20
+    iRV=iRV-.02
+  end if
+  if iR>25
+    iRV=iRV-.02
+  end if
+  if iR>30
+    iRV=iRV-.02
+  end if
+
+  if iR<-10
+    iRV=iRV+.02
+  end if
+  if iR<-15
+    iRV=iRV+.02
+  end if
+  if iR<-20
+    iRV=iRV+.02
+  end if
+  if iR<-25
+    iRV=iRV+.02
+  end if
+  if iR<-30
+    iRV=iRV+.02
+  end if
+
+  iR=iR+iRV
+
+  SelectObjectMesh(iMesh)
+  Identity()
+  Scale(8,8,8)
+  Translate(0,-12,0)
+  RotateX(iR)
+  Translate(iX,iY,2)
+  SetProperties(#TextureBoringGray,1)
+
+  if Collide(iX-4.5,iY-25,iX+4.5,iY-4)
+
+    if iRV>0 
+      if iR<0 && iR>-20
+        Kill()
+      end if
+    else
+      if iR<20 && iR>0
+        Kill()
+      end if
+    end if
+
+  end if
+
+end sub
+

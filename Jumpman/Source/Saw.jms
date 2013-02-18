@@ -1,0 +1,184 @@
+include Constants
+include Level21Resources
+
+dim iInit
+dim iSaw
+dim iX 
+dim iY
+dim iDir
+dim iSpin
+dim iAirTime
+dim iZ
+dim iInitialFlight
+dim iLaddering
+dim iLadderTime
+
+Sub Main()
+
+  if iInit=0
+    iSaw=NewMesh(#MeshSaw)
+    iInit=1
+    if iX=0
+      iX=31
+      iY=173
+    end if
+    iZ=22
+    iDir=4
+    iInitialFlight=1
+    iAirTime=1
+  end if
+
+  MoveSaw()
+  if iY<-60
+    DeleteMesh(iSaw)
+    DeleteObject(getext(#this))
+    return 0
+  end if
+
+  if iInitialFlight=1
+    iSpin=iSpin-6
+  elseif (iDir=4 && iAirTime=0) || (iDir=3 && iAirTime!=0)
+    iSpin=iSpin-6
+  else
+    iSpin=iSpin+6
+  end if
+
+  SelectObjectMesh(iSaw)
+  Identity()
+  RotateZ(iSpin)
+  Scale(.75,.75,.75)
+  Translate(iX,iY+4,iZ-0.1)
+  SetProperties(#TextureBoringGray,1)
+
+  if Collide(iX-3,iY+1,iX+3,iY+3.5)
+    Kill()
+  end if
+
+end Sub
+
+sub MoveSaw()
+  dim iLad
+  dim iLadX
+  dim iLadZ
+  dim iLadY1
+  dim iLadY2
+
+  if iLaddering=0
+    FindLadder(iX,iY)
+    iLad=GetExt(#Event4)
+    if iLad>-1
+      ABSLadder(iLad)
+      iLadX=getSel(#sx1)
+      iLadZ=getSel(#sz1)
+      iLadY1=getSel(#sy1)
+      iLadY2=getSel(#sy2)
+
+      if iLadX>iX-1 && iLadX<iX+1 
+        if rnd(1,100)>74 && iLadY2<iY-5
+          iX=iLadX
+          iLaddering=1
+          iZ=iLadZ
+          iLadderTime=0
+        end if
+      end if  
+
+    end if
+  end if
+
+  if iLaddering=1
+    iLadderTime=iLadderTime+1
+    iY=iY-.5
+    if iLadderTime<15
+      return 0
+    end if
+
+    iPlat=FindPlatform(iX,iY,3,4)
+    iHit=GetExt(#Event4)
+    if iHit>iY
+      iLaddering=0
+      iY=iHit
+      if iDir=4
+        iDir=3
+      else
+        iDir=4
+      end if
+    else
+      return 0
+    end if
+  end if
+
+  dim iPlat
+  dim iHit
+  dim iTargetZ
+
+  iPlat=FindPlatform(iX,iY,6,4)
+  iHit=GetExt(#Event4)
+  ABSPlatform(iPlat)
+  iTargetZ=getsel(#sz1)
+
+  if iHit<1
+    iHit=-100
+    iTargetZ=0
+  end if
+
+  if iZ<iTargetZ
+    iZ=iZ+1
+  elseif iZ>iTargetZ
+    iZ=iZ-1
+  end if
+
+  if iHit>=iY
+    iY=iHit
+    iAirTime=0
+    iInitialFlight=0
+  elseif iInitialFlight=1
+    iAirTime=iAirTime+1
+    iY=iY-iAirTime/30
+  elseif iHit<iY-2
+    iY=iY-iAirTime/20
+    if iAirTime<21
+      iAirTime=iAirTime+1
+    end if
+  else 
+    iY=iHit
+    iAirTime=0
+    iInitialFlight=0
+  end if
+
+  if iAirTime=1
+    if iDir=3
+      iDir=4
+    else
+      iDir=3
+    end if
+  end if
+
+  if iAirTime<10 && iInitialFlight=1
+    if iDir=4
+      iX=iX+.5
+    else
+      iX=iX-.5
+    end if
+  elseif iAirTime<5 && iInitialFlight=1
+    if iDir=4
+      iX=iX+.3
+    else
+      iX=iX-.3
+    end if
+  end if
+
+  if iAirTime<1 || iInitialFlight=1
+    if iDir=4
+      iX=iX+.7
+    else
+      iX=iX-.7
+    end if
+  else
+    if iDir=4
+      iX=iX-.4+iAirTime/60
+    else
+      iX=iX+.4-iAirTime/60
+    end if
+  end if
+
+end sub

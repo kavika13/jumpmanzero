@@ -1,0 +1,206 @@
+Aztec_Scene_File_Version = string 1.0
+Scene myScene {
+	Objects {
+		MLight WhiteLightShape {
+			Name = string WhiteLightShape
+			Colour = vector3 1.00000 1.00000 1.00000
+			SpecColour = vector3 0.50000 0.50000 0.50000
+			Multiplier = float 1.00000
+		}
+		MLight backLightShape {
+			Name = string backLightShape
+			Colour = vector3 1.00000 1.00000 1.00000
+			SpecColour = vector3 0.50000 0.50000 0.50000
+			Multiplier = float 1.00000
+		}
+		MTimeSegment TimeSegment01 {
+			Name = string TimeSegment01
+			Caption = string ""
+			Start = int 0
+			End = int 1800
+			Objects = string ""
+			Colour = vector3 1.00000 0.00000 0.00000
+			fps = int 30
+		}
+		MPrimitiveSphere GeoSphereCreator {
+			Name = string GeoSphereCreator
+			Radius = float 10.00000
+			RadDiv = int 3
+		}
+		MMeshShape GeoSphereShape {
+			Name = string GeoSphereShape
+			inMesh <- GeoSphereCreator.outMesh
+		}
+		MPrimitiveSphere GeoSphereCreator1 {
+			Name = string GeoSphereCreator1
+			Radius = float 10.00000
+			RadDiv = int 2
+		}
+		MMeshShape GeoSphereShape1 {
+			Name = string GeoSphereShape1
+			inMesh <- GeoSphereCreator1.outMesh
+		}
+		MAnimMesh GeoSphere3Mesh {
+			Name = string GeoSphere3Mesh
+			points = array {
+				count = 17
+				vector3 -7.07107 0.00000 -7.07107
+				vector3 0.00000 0.00000 -10.00000
+				vector3 7.07107 0.00000 -7.07107
+				vector3 -5.77350 5.77350 -5.77350
+				vector3 0.00000 7.07107 -7.07107
+				vector3 5.77350 5.77350 -5.77350
+				vector3 -10.00000 0.00000 0.00000
+				vector3 -7.07107 7.07107 0.00000
+				vector3 -7.07107 0.00000 7.07107
+				vector3 -5.77350 5.77350 5.77350
+				vector3 5.77350 5.77350 5.77350
+				vector3 7.07107 0.00000 7.07107
+				vector3 0.00000 7.07107 7.07107
+				vector3 0.00000 0.00000 10.00000
+				vector3 7.07107 7.07107 0.00000
+				vector3 0.00000 10.00000 0.00000
+				vector3 10.00000 0.00000 0.00000
+			}
+			triangles = array {
+				count = 24
+				aggregate {
+					indexA = int 3
+					indexB = int 1
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 3
+					indexB = int 4
+					indexC = int 1
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 2
+					indexC = int 1
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 5
+					indexC = int 2
+				}
+				aggregate {
+					indexA = int 6
+					indexB = int 3
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 6
+					indexB = int 7
+					indexC = int 3
+				}
+				aggregate {
+					indexA = int 8
+					indexB = int 7
+					indexC = int 6
+				}
+				aggregate {
+					indexA = int 8
+					indexB = int 9
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 12
+					indexB = int 11
+					indexC = int 10
+				}
+				aggregate {
+					indexA = int 12
+					indexB = int 13
+					indexC = int 11
+				}
+				aggregate {
+					indexA = int 9
+					indexB = int 13
+					indexC = int 12
+				}
+				aggregate {
+					indexA = int 9
+					indexB = int 8
+					indexC = int 13
+				}
+				aggregate {
+					indexA = int 14
+					indexB = int 12
+					indexC = int 10
+				}
+				aggregate {
+					indexA = int 14
+					indexB = int 15
+					indexC = int 12
+				}
+				aggregate {
+					indexA = int 15
+					indexB = int 9
+					indexC = int 12
+				}
+				aggregate {
+					indexA = int 15
+					indexB = int 7
+					indexC = int 9
+				}
+				aggregate {
+					indexA = int 5
+					indexB = int 15
+					indexC = int 14
+				}
+				aggregate {
+					indexA = int 5
+					indexB = int 4
+					indexC = int 15
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 7
+					indexC = int 15
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 3
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 11
+					indexB = int 14
+					indexC = int 10
+				}
+				aggregate {
+					indexA = int 11
+					indexB = int 16
+					indexC = int 14
+				}
+				aggregate {
+					indexA = int 16
+					indexB = int 5
+					indexC = int 14
+				}
+				aggregate {
+					indexA = int 16
+					indexB = int 2
+					indexC = int 5
+				}
+			}
+		}
+		MMeshShape GeoSphere3Shape {
+			Name = string GeoSphere3Shape
+			inMesh = string GeoSphere3Mesh
+		}
+		MSceneObject GeoSphere3 {
+			Name = string GeoSphere3
+			Translate = vector3 -0.46000 5.49000 0.00000
+			Rotate = vector3 0.00000 0.00000 0.00000
+			Scale = vector3 1.32000 1.02000 1.00000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string GeoSphere3Shape
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+	}
+}

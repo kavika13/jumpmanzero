@@ -1,0 +1,104 @@
+include Constants
+include Level19Resources
+include RefWhomper
+include RefProp
+
+dim iInit
+
+dim iScroll
+
+Sub Main()
+  if iInit=0
+    iInit=1
+    CreateWhomper(86,28,50,3)
+    CreateWhomper(100,28,0,3)
+    CreateWhomper(114,28,1,-3)
+    CreateWhomper(128,28,-90,1)
+
+    CreateWhomper(55,143,0,3)
+    CreateWhomper(73,143,50,3)
+    CreateWhomper(95,143,-50,-3)
+
+    CreateProp(34,90,80,5)
+    CreateProp(34,90,120,5)
+
+    CreateProp(60,46,90,2)
+    CreateProp(60,56,90,2)
+
+    CreateProp(120,46,335,2)
+    CreateProp(120,46,25,2)
+
+    CreateProp(99,105,80,2)
+    CreateProp(101,97,25,2)
+    
+  end if
+
+  ConveyPlatform(1,.04)
+  ConveyPlatform(2,-.02)
+  ConveyPlatform(3,.04)
+  ConveyPlatform(4,-.04)
+
+end sub
+
+sub ConveyPlatform(iPlat,iDist)
+  SelectPlatform(iPlat)
+  ScrollTexture(iDist*16,0)
+
+  dim iPN
+  dim iPX
+  dim iPY
+  dim iHit
+
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  if getext(#pStat) & JS_JUMPING
+    return 0
+  end if
+
+  iPN=FindPlatform(iPX,iPY,8,2)
+  iHit=getext(#event4)
+
+  ABSPlatform(iPN)
+  if iPlat<>getsel(#sNumber)
+    return 0
+  end if
+
+  if GetExt(#event2)=iPN
+    iPX=iPX-iDist*15
+    SetExt(#px,iPX)
+  end if
+  
+'  if (iHit+1)>=iPY
+'    iPX=iPX-iDist*15
+'    SetExt(#px,iPX)
+'  end if
+
+end sub
+
+sub CreateProp(iX,iY,iR,iZ)
+  dim iProp
+
+  iProp=Spawn(#ScriptProp)
+  SetData(iProp,#PropIX,iX)
+  SetData(iProp,#PropIY,iY)
+  SetData(iProp,#PropIR,iR)
+  SetData(iProp,#PropIZ,iZ)
+end sub
+
+sub CreateWhomper(iX,iY,iR,iRV)
+  dim iWhomp
+
+  iWhomp=Spawn(#ScriptWhomper)
+  SetData(iWhomp,#WhomperIX,iX)
+  SetData(iWhomp,#WhomperIY,iY)
+  SetData(iWhomp,#WhomperIR,iR)
+  SetData(iWhomp,#WhomperIRV,iRV)
+end sub
+
+sub reset()
+  setext(#px,20)
+  setext(#py,21)
+  setext(#pz,3)
+  setext(#pstat,#jsNORMAL)
+end sub

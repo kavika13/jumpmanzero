@@ -1,0 +1,79 @@
+R LEVEL_I 1 1 2000
+R death 1 2 0
+R ENDLEVEL 1 3 0
+R Jumpman 3 0 0
+R ClassicPlatform 3 0 0
+R BlueMarble 3 0 0
+R RedMetal 3 0 0
+R sky 4 0 0
+R Jump 7 0 0
+R chomp 7 0 0
+R bonk 7 0 0
+R Fire 7 0 0
+R Bullet 5 2 0
+R Bullet1 2 0 0
+R Bullet2 2 0 0
+R Bullet 3 0 0
+R Script17 5 1 0
+R UpDown 3 1 0
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ARBITRARY 0 0 -120 300 50 1 0 280 300 50 0 1 -120 -120 50 1 1 280 -120 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 50 1 4 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 6 14 0 0 0 197 14 0 0 0 6 11 0 0 0 197 11 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 41 46 0 0 0 56 46 0 0 0 41 43 0 0 0 56 43 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 6 53 0 0 0 25 53 0 0 0 6 50 0 0 0 25 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 108 70 0 0 0 125 70 0 0 0 108 67 0 0 0 125 67 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 6 95 0 0 0 51 95 0 0 0 6 92 0 0 0 51 92 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 5 118 0 0 0 41 118 0 0 0 5 115 0 0 0 41 115 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 40 118 0 1 0 71 125 0 0 1 40 115 0 1 1 71 122 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 71 125 0 0 0 118 125 0 0 0 71 122 0 0 0 118 122 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 79 148 0 0 0 130 148 0 0 0 79 145 0 0 0 130 145 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 100 40 0 0 0 150 59 0 0 0 100 37 0 0 0 150 56 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 51 95 0 0 0 69 92 0 0 0 51 92 0 0 0 69 89 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 5 141 0 0 0 41 141 0 0 0 5 138 0 0 0 41 138 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 69 48 0 0 0 87 48 0 0 0 69 45 0 0 0 87 45 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 88 66 0 0 0 108 70 0 0 0 88 63 0 0 0 108 67 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 69 92 0 0 0 104 103 0 0 0 69 89 0 0 0 104 100 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 104 103 0 0 0 132 109 0 0 0 104 100 0 0 0 132 106 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 150 150 0 0 0 198 150 0 0 0 150 147 0 0 0 198 147 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 153 126 0 0 0 177 126 0 0 0 153 123 0 0 0 177 123 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 160 85 0 0 0 198 85 0 0 0 160 82 0 0 0 198 82 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 150 59 0 0 0 198 59 0 0 0 150 56 0 0 0 198 56 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 25 53 0 0 0 41 46 0 0 0 25 50 0 0 0 41 43 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 111 133 0 0 0 0 84 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 67 138 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 2 0 0 0 0 ARBITRARY 0 0 75 85 0 1 0 85 85 0 0 1 75 75 0 1 1 85 75 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 6 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 87 153 0 0 0 0 125 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 32 23 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 93 75 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 53 157 0 0 0 0 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 88 110 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 ARBITRARY 0 0 6 36 0 1 0 16 36 0 0 1 6 26 0 1 1 16 26 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 6 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 28 67 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 60 106 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 128 23 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 91 28 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 144 73 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 105 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 36 151 0 0 0 68 161 0 0 0 32 158 0 0 0 68 158 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 48 68 0 1 0 17 46 0 0 1 7 17 0 1 1 17 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 72 63 0 0 0 0 26 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 183 147 0 0 0 0 98 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 9 77 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 140 157 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 146 88 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 22 115 0 0 0 131 87 0 0 0 127 125 0 0 0 131 125 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 141 130 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 165 154 0 0 0 0 126 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 193 129 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 144 115 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 194 97 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 181 67 0 0 0 0 25 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 193 40 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 9 70 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 8 158 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 72 114 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 98 164 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 196 165 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 161 66 0 0 0 41 26 0 0 0 23 50 0 0 0 41 43 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 106 6 0 0 0 56 46 0 0 0 41 43 0 0 0 56 43 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 21 37 0 0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 9 0 0 0 0 LADDER 0 0 48 78 0 0 0 0 66 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 

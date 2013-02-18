@@ -1,0 +1,17 @@
+define DABotstartx 0
+define DABotstarty 1
+define DABotfiretime 2
+define DABotwaittime 3
+define DABotbehavior 4
+define DABottexture 5
+define DABotiinit 6
+define DABotix 7
+define DABotiy 8
+define DABotiz 9
+define DABotiframe 10
+define DABotistatus 11
+define DABotimeshes 12
+define DABotiturncount 43
+define DABotiwait 44
+define DABotilaser 45
+define DABotifiring 46

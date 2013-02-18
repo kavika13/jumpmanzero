@@ -1,0 +1,95 @@
+include Constants
+include Level24Resources
+
+dim iInit
+dim iMeshes[30]
+
+dim iFrame 
+dim iX
+dim iY
+dim iZ
+dim iYV
+dim iSlow
+
+dim StartX
+dim StartY
+
+dim iAnimate
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+    iMeshes[1]=NewMesh(#MeshBaboon4)
+    iMeshes[2]=NewMesh(#MeshBaboon)
+    iMeshes[3]=NewMesh(#MeshBaboon2)
+    iMeshes[4]=NewMesh(#MeshBaboon1)
+    iMeshes[5]=NewMesh(#MeshBaboon3)
+    iX=StartX
+    iY=StartY
+    iZ=0
+    iYV=-.5
+    iFrame=1
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  MoveBaboon()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Translate(iX,iY+6,iZ)
+  SetProperties(#TextureBaboon,1)
+
+  if Collide(iX-2,iY+2,iX+2,iY+10)
+    Kill()
+  end if
+
+end Sub
+
+sub MoveBaboon()
+  iSlow=iSlow+1
+  if iSlow>3
+    iAnimate=iAnimate+4
+    iSlow=0
+  end if
+
+  if (iAnimate & 28)=0
+    iFrame=1
+  elseif (iAnimate & 28)=4 || (iAnimate & 28)=28
+    iFrame=2
+  elseif (iAnimate & 28)=8 || (iAnimate & 28)=24
+    iFrame=3
+  elseif (iAnimate & 28)=12 || (iAnimate & 28)=20
+    iFrame=4
+  elseif (iAnimate & 28)=16
+    iFrame=5
+  end if
+
+  dim iOldY
+  dim iVin
+
+  iOldY=iY
+  iY=iY+iYV
+
+  FindVine(iX+3,iY)
+  iVin=GetExt(#event4)
+
+  if iVin<0
+    iY=iOldY
+    iYV=iYV*-1  
+  else
+    ABSVine(iVin)
+    if iY<getsel(#sy2)+3
+      iY=iOldY
+      iYV=iYV*-1
+    end if
+    if iY>getsel(#sy1)-7
+      iY=iOldY
+      iYV=iYV*-1
+    end if
+  end if
+   
+
+end sub

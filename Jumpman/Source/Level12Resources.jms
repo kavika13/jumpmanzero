@@ -1,0 +1,17 @@
+define TextureJumpman 0
+define TexturePurpleHex 1
+define TextureBlueMarble 2
+define TextureRedMetal 3
+define Texturesky 4
+define SoundJump 0
+define Soundchomp 1
+define Soundbonk 2
+define SoundFire 3
+define MeshBeeLeft1 0
+define MeshBeeLeft2 1
+define MeshBeeRight1 2
+define MeshBeeRight2 3
+define TextureBeeTexture 5
+define ScriptBee 0
+define TextureBigHive 6
+define Soundbee 4

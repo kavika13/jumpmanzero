@@ -1,0 +1,90 @@
+
+include Constants
+include MainMenuResources
+
+dim iInit
+dim iBits
+dim iMesh[90]
+dim iX[90]
+dim iY[90]
+dim iCX[90]
+dim iCY[90]
+
+dim iTime
+
+dim iProgress
+
+Sub Main()
+
+  if iInit=0
+    InitBits()    
+    iInit=1
+    iBlockZ=500
+  end if
+
+  iTime=iTime+1
+
+  DrawBits()
+
+end sub
+
+sub DrawBits()
+  dim iBit
+  dim iDX
+  dim iDY
+  dim iDM
+
+  dim iZ
+
+  iBit=0
+  while iBit<iBits
+    iDM=iMesh[iBit]
+
+    iDX=iX[iBit]*(100-iProgress)
+    iDX=iDX+(iCX[iBit]*iProgress)
+    iDX=iDX/100
+
+    iDY=iY[iBit]*(100-iProgress)
+    iDY=iDY+(iCY[iBit]*iProgress)
+    iDY=iDY/100
+
+    iZ=(5*iProgress)-500
+
+    SelectObjectMesh(iDM)
+    Identity()
+    RotateY((100-iProgress)*sin(iBit,10))
+    Scale(4,4,4)
+    Translate(iDX,iDY,iZ)
+    SetProperties(#TextureBoringGreen,1)
+    iBit=iBit+1
+  loop
+end sub
+
+sub InitBits()
+  dim iDonuts
+  dim iObj
+  dim iDX
+  dim iDY
+   
+  iDonuts=Getext(#donuts)
+  
+  iObj=0
+  while(iObj<iDonuts)
+    ABSDonut(iObj)
+    iDX=GetSel(#sx1)
+    iDY=GetSel(#sy1)-2
+    SetSel(#sVisible,0)
+    CreateBit(iDX,iDY)
+    iObj=iObj+1
+  loop
+
+end sub
+
+sub CreateBit(iSX,iSY)
+  iMesh[iBits]=NewMesh(#MeshGoo)
+  iCX[iBits]=iSX
+  iCY[iBits]=iSY
+  iX[iBits]=iCX[iBits]+rnd(1,200)-100
+  iY[iBits]=iCY[iBits]+rnd(1,200)-100
+  iBits=iBits+1
+end sub

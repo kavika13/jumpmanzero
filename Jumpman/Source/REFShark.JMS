@@ -1,0 +1,14 @@
+define Sharkiinit 0
+define Sharkimeshes 1
+define Sharkiframe 32
+define Sharkix 33
+define Sharkiy 34
+define Sharkiz 35
+define Sharkislow 36
+define Sharkstartx 37
+define Sharkstarty 38
+define Sharkianimate 39
+define Sharkicycle 40
+define Sharkiturn 41
+define Sharkixv 42
+define Sharkiyv 43

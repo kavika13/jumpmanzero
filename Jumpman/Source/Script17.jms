@@ -1,0 +1,324 @@
+include Constants
+include RefBullet
+include Level17Resources
+
+define Drop 12
+
+dim iArrowWait[10]
+
+dim iInit
+dim iSpin
+dim iStatus
+dim iOriginalPY
+
+dim iPause
+
+dim iArrowSpin
+
+Sub Main()
+
+  dim iPY
+  dim iArrow
+  
+  if iInit=0
+    iInit=1
+    SetExt(#LevelExtentX,200)
+    DisableLadder(9)
+  
+    StartBullet(500)
+    StartBullet(1000)
+    StartBullet(100)
+    StartBullet(30)
+  end if
+
+  iArrowSpin=iArrowSpin+5
+  if iArrowSpin>360
+    iArrowSpin=0
+  end if
+
+  dim iArrow
+  iArrow=1
+  while iArrow<3
+    if iArrowWait[iArrow]>0
+      iArrowWait[iArrow]=iArrowWait[iArrow]-1
+      SelectPicture(iArrow)
+      SetProperties(#textureUpDown,0)
+    else
+      AnimateArrow(iArrow)
+    end if
+    iArrow=iArrow+1
+  loop
+
+  if iPause>0
+    iPause=iPause-1
+    return 0
+  end if
+
+  if iStatus=1 || iStatus=3
+    iSpin=iSpin+2 
+    SpinLevel()
+    if iSpin=50
+      if iStatus=1
+        iStatus=2
+        EnableLadder(9)
+      else
+        iStatus=0
+      end if
+
+      ReverseLevel()
+
+      if iStatus=0
+        DisableLadder(9)
+      end if 
+
+    end if
+  end if
+
+End Sub
+
+sub StartBullet(iWait)
+  dim iTemp
+
+  iTemp=spawn(#ScriptBullet)
+  SetData(iTemp,#BulletWait,iWait)
+  setData(iTemp,#BulletResMesh1,#meshBullet1)
+  setData(iTemp,#BulletResMesh2,#meshBullet2)
+  setData(iTemp,#BulletResTexture,#textureBullet)
+end sub
+
+sub DisableLadder(iLadder)
+  SelectLadder(iLadder)
+  setsel(#sx1,0-getsel(#sx1))
+  Translate(0,-500,0)
+end sub
+
+sub EnableLadder(iLadder)
+  SelectLadder(iLadder)
+  setsel(#sx1,0-getsel(#sx1))
+  Identity()
+end sub
+
+sub AnimateArrow(iPic)
+  dim SY
+  dim SX
+  dim iReverse
+
+  if iArrowSpin>90 && iArrowSpin<270
+    iReverse=1
+  end if 
+
+  SelectPicture(iPic)
+  SY=getsel(#sy1)
+  SX=getsel(#sx1)
+  SetProperties(#textureUpDown,1)
+
+  Identity()
+  Translate(0-SX,0-SY,0)
+  if iReverse
+    RotateZ(180)
+    RotateY(180)
+  end if
+  RotateX(iArrowSpin)
+  Translate(SX,SY,0)  
+
+  if Collide(SX-3,SY-4,SX+3,SY+4) && (iStatus=0 || iStatus=2)
+    iPause=25
+    setext(#freeze,75)
+    if iStatus=0
+      iStatus=1
+    end if
+    if iStatus=2
+      iStatus=3
+    end if
+    iSpin=0
+    iOriginalPY=getext(#py)  
+    iArrowWait[iPic]=300
+  end if
+
+end sub
+
+Sub ReverseLevel()
+  dim iObj
+  dim iPY
+
+  iPY=(160-iOriginalPY)-#Drop
+  SetExt(#PY,iPY)
+
+  iObj=0
+  while iObj<getext(#platforms)
+    absPlatform(iObj)
+    ReversePlatform(0)
+    iObj=iObj+1
+  loop
+
+  iObj=0
+  while iObj<getext(#ladders)
+    absLadder(iObj)
+    ReverseLadder()
+    iObj=iObj+1
+  loop
+
+  iObj=0
+  while iObj<getext(#donuts)
+    absDonut(iObj)
+    ReverseDonut()
+    iObj=iObj+1
+  loop
+
+  iObj=0
+  while iObj<getext(#Vines)
+    absVine(iObj)
+    ReverseLadder()
+    iObj=iObj+1
+  loop
+
+end sub
+
+sub ReversePlatform()
+  dim SY
+
+  Identity()
+
+  if iStatus=2
+    translate(0,0-80,0)
+    rotateX(180)
+    translate(0,80,6)
+  end if
+
+  if iStatus=2
+    SY=getsel(#sy1)
+    setsel(#sy1,163-SY)
+    SY=getsel(#sy2)
+    setsel(#sy2,163-SY)
+  else
+    SY=getsel(#sy1)
+    setsel(#sy1,163-SY)
+    SY=getsel(#sy2)
+    setsel(#sy2,163-SY)
+  end if
+end sub
+
+sub ReverseLadder()
+  dim SY1
+  dim SY2
+
+  Identity()
+
+  if iStatus=2
+    translate(0,0-80,0)
+    rotateX(180)
+    translate(0,80,2)
+  end if
+
+  SY1=getsel(#sy1)
+  SY2=getsel(#sy2)
+  setsel(#sy1,160-SY2)
+  setsel(#sy2,160-SY1)
+end sub
+
+sub ReverseDonut()
+  dim SY
+
+  Identity()
+
+  if iStatus=2
+    translate(0,0-80,0)
+    rotateX(180)
+    translate(0,80,2)
+  end if
+
+  SY=getsel(#sy1)
+  setsel(#sy1,160-SY)
+end sub
+
+Sub SpinLevel()
+  dim iPlat
+  dim iPY
+  dim iNewY
+
+  iNewY=160-iOriginalPY
+  iNewY=iNewY-#Drop
+  iPY=0
+  iPY=iPY+iOriginalPY*(50-iSpin)+iNewY*iSpin
+  iPY=(iPY/50)&255
+  setext(#py,iPY)
+
+  iNewY=160-iOriginalPY
+  iPY=0
+  iPY=iPY+iOriginalPY*(50-iSpin)+iNewY*iSpin
+  iPY=(iPY/50)&255
+
+  iPlat=0
+  while iPlat<getext(#platforms)
+    absPlatform(iPlat)
+    SpinPlatform(iPY)
+    iPlat=iPlat+1
+  loop
+
+  iPlat=0
+  while iPlat<getext(#ladders)
+    absLadder(iPlat)
+    SpinLadder(iPY)
+    iPlat=iPlat+1
+  loop
+
+  iPlat=0
+  while iPlat<getext(#donuts)
+    absDonut(iPlat)
+    SpinLadder(iPY)
+    iPlat=iPlat+1
+  loop
+
+  iPlat=0
+  while iPlat<getext(#Vines)
+    absVine(iPlat)
+    SpinLadder(iPY)
+    iPlat=iPlat+1
+  loop
+
+end sub
+
+sub SpinPlatform(iPY)
+  identity()
+
+  if iStatus=1
+    translate(0,0-iOriginalPY,0)
+    rotatex(iSpin*180/50)
+    translate(0,iPY,0)
+  end if
+  if iStatus=3
+    translate(0,0-80,0)
+    rotateX(180)
+    translate(0,80,6)
+
+    translate(0,0-iOriginalPY,0)
+    rotatex(iSpin*180/50)
+    translate(0,iPY,0)
+  end if
+end sub
+
+sub SpinLadder(iPY)
+  identity()
+
+  if iStatus=1
+    translate(0,0-iOriginalPY,0)
+    rotatex(iSpin*180/50)
+    translate(0,iPY,0)
+  end if
+  if iStatus=3
+    translate(0,0-80,0)
+    rotateX(180)
+    translate(0,80,2)
+
+    translate(0,0-iOriginalPY,0)
+    rotatex(iSpin*180/50)
+    translate(0,iPY,0)
+  end if
+end sub
+
+sub reset()
+  setext(#px,80)
+  setext(#py,8)
+  setext(#pz,9)
+  setext(#pstat,#jsNORMAL)
+end sub

@@ -1,0 +1,29 @@
+include Constants
+include Level5Resources
+include REFPenguin
+
+dim iInit
+
+Sub Main()
+  dim iLoop
+  dim iTemp
+
+  if iInit=0
+    iInit=1
+    iLoop=0
+    while iLoop<12
+      iTemp=spawn(#scriptPenguin)
+      setData(iTemp,#PenguinAdvance,iLoop*66)
+      iLoop=iLoop+1
+    loop
+  end if
+
+
+end Sub
+
+sub reset()
+  setext(#px,38)
+  setext(#py,25)
+  setext(#pz,2)
+  setext(#pstat,#jsNORMAL)
+end sub

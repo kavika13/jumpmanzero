@@ -1,0 +1,50 @@
+include Constants
+include RefBullet
+include RefZPlat
+include Level15Resources
+
+dim iInit
+dim iBlow
+
+Sub Main()
+  dim iBack
+  dim iTemp
+
+  iBlow=iBlow-0.6
+  if iBlow<0
+    iBlow=110
+  end if
+  selectpicture(5)
+  identity()
+  translate(0,iBlow,10)
+
+  if iInit=0
+    SetExt(#LevelExtentX,180)
+    iInit=1
+    InitPlatforms()
+  end if
+end sub
+
+sub InitPlatforms()
+  dim iPlat
+  dim iNew
+  iPlat=0
+  while(iPlat<getext(#platforms))
+    absPlatform(iPlat)
+    if getsel(#sNumber)<>0 
+      iNew=spawn(#ScriptZPlat)
+      SetData(iNew,#ZPlatStatus,1)
+      SetData(iNew,#ZPlatPlatform,iPlat)
+      SetData(iNew,#ZPlatGoodColor,#TextureYellowPlatform)
+      SetData(iNew,#ZPlatBadColor,#TextureRedPlatform)
+    end if
+    iPlat=iPlat+1
+  loop
+end sub 
+
+sub reset()
+  setext(#px,8)
+  setext(#py,7)
+  setext(#pz,3)
+  setext(#pstat,#jsNORMAL)
+end sub

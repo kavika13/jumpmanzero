@@ -1,0 +1,20 @@
+//Music
+R russian.mid 1
+R death.mid 2
+R endlevel.mid 3
+
+//Textures
+R jumpman.bmp
+R level.bmp
+R bullet.bmp
+R sky.jpg
+
+//Meshes
+R BG.msh
+
+//Scripts
+R Script4.bin 1
+
+S 10 100 30 40 1 0 100 100 30
+S 30 40 100 30 1 10 100 120 20
+S 100 30 120 20 1 30 40 150 20

@@ -1,0 +1,54 @@
+include Constants
+include Level16Resources
+include RefTurtle
+
+dim iInit
+
+Sub Main()
+  dim iTemp
+
+  if iInit=0
+    iInit=1
+    CreateTurtle(128,8)
+    CreateTurtle(65,12)
+    CreateTurtle(80,10)
+
+    CreateTurtle(10,66)
+    CreateTurtle(26,42)
+
+    CreateTurtle(80,40)
+
+    CreateTurtle(20,88)
+    CreateTurtle(50,88)
+
+    CreateTurtle(90,111)
+    CreateTurtle(120,113)
+
+    CreateTurtle(20,118)
+
+    CreateTurtle(49,144)
+    CreateTurtle(60,144)
+
+    CreateTurtle(10,172)
+    CreateTurtle(60,172)
+
+    CreateTurtle(140,170)
+    CreateTurtle(140,145)
+
+  end if
+end sub
+
+sub CreateTurtle(iX,iY)
+  dim iTemp
+
+  iTemp=Spawn(#ScriptTurtle)
+  SetData(iTemp,#TurtleStartX,iX)
+  SetData(iTemp,#TurtleStartY,iY)
+end sub
+
+sub reset()
+  setext(#px,27)
+  setext(#py,3)
+  setext(#pz,4)
+  setext(#pstat,#jsNORMAL)
+end sub

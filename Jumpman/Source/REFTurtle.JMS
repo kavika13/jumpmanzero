@@ -1,0 +1,13 @@
+define Turtlestartx 0
+define Turtlestarty 1
+define Turtleiinit 2
+define Turtleix 3
+define Turtleiy 4
+define Turtleiz 5
+define Turtleiframe 6
+define Turtleistatus 7
+define Turtleicount 8
+define Turtleislow 9
+define Turtleislowframe 10
+define Turtleangle 11
+define Turtleimeshes 12

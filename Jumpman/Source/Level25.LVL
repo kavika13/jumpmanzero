@@ -1,0 +1,74 @@
+R Script25 5 1 0
+R Something 1 1 0
+R death 1 2 0
+R ENDLEVL3 1 3 0
+R Jumpman 3 0 0
+R WoodPlatform 3 0 0
+R BlueMarble 3 0 0
+R RedMetal 3 0 0
+R sky 4 0 0
+R Jump 7 0 0
+R chomp 7 0 0
+R bonk 7 0 0
+R Fire 7 0 0
+R crunch 7 0 0
+R Groove1 2 0 0
+R Groove2 2 0 0
+R Groove3 2 0 0
+R SwimL1 2 0 0
+R SwimL2 2 0 0
+R SwimL3 2 0 0
+R SwimL4 2 0 0
+R SwimR1 2 0 0
+R SwimR2 2 0 0
+R SwimR3 2 0 0
+R SwimR4 2 0 0
+R sea 3 0 0
+R water 6 0 0
+R wave1 3 1 0
+R square 2 0 0
+R SBit 6 0 0
+R Shark1 2 0 0
+R Shark2 2 0 0
+R Shark3 2 0 0
+R Shark 5 2 0
+R Shark 3 0 0
+R SharkL1 2 0 0
+R SharkL2 2 0 0
+R SharkL3 2 0 0
+R SharkTL1 2 0 0
+R SharkTL2 2 0 0
+R SharkTL3 2 0 0
+R SharkT1 2 0 0
+R SharkT2 2 0 0
+R SharkT3 2 0 0
+R SwimColl 5 2 0
+R WaterBack 6 0 0
+O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 220 80 1 0 255 220 80 0 1 -100 -140 80 1 1 255 -140 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 1 4 
+O True True True True True False 0 0 0 0 0 0 0 0 0 6 0 0 0 0 ARBITRARY 0 0 8 120 5 4 0 145 120 5 0 4 9 9 5 4 4 144 9 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 5 1 10 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 WALL 0 0.5 6 9 14 0.5 0.5 146 9 8 0 1 6 6 14 0.5 1 146 6 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 WALL 0.3 0 142 6 8 0.7 0 142 125 8 0.3 0.3 145 6 8 0.7 0.3 145 126 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 WALL 0 0.7 11 128 16 0.3 0.7 11 7 8 0 1 8 129 16 0.3 1 8 7 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 108 71 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 30 100 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 22 54 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 51 44 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 32 30 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 54 72 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 70 22 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 126 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 91 21 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 108 42 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 75 56 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 124 72 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 103 98 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 86 90 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 128 114 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 65 116 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 54 100 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 24 116 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 21 74 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 20 19 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 ARBITRARY 0 0 11 122 0 3 0 142 122 0 0 3 11 10 0 3 3 142 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 6 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 119 128 0 0 0 151 128 0 0 0 119 125 0 0 0 151 125 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 5 1 
+O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0.3 0.7 4 127 8 0.7 0.7 26 127 8 0.3 1 4 124 8 0.7 1 26 124 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 5 1 

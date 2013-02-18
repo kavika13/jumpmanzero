@@ -1,0 +1,399 @@
+include Constants
+include Level20Resources
+include RefFSheep
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+
+dim iDir
+
+dim iSlow
+dim iAnimate
+
+dim iLadderZ
+dim iFrame
+
+dim iMeshes[30]
+dim iCopter
+
+dim iCount
+dim iSpin
+dim iFlyDir
+
+dim iCopterSize
+dim iAirTime
+dim bPassDir
+
+Sub Main()
+
+  if iInit=0 
+    Initialize()
+    iCopter=newMesh(#meshCopter)
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  iCopterSize=0
+
+  AdvanceFrame()
+  MoveSheep()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Translate(iX,iY+6.5,iZ-0.5)
+  SetProperties(#textureLSheep,1)
+
+  if iCopterSize>0
+    iSpin=iSpin+35
+    SelectObjectMesh(iCopter)
+    Identity()
+    RotateX(270)
+    RotateY(iSpin)
+    Translate(0,4,0)
+    Scale(iCopterSize,iCopterSize,iCopterSize)
+    Translate(iX,iY+8.5,iZ-0.5)
+    SetProperties(#textureBoringRed,1)
+  else
+    SelectObjectMesh(iCopter)
+    SetProperties(0,0)
+  end if
+
+  if Collide(iX-6,iY+1,iX+6,IY+9)
+    Kill()
+    Sound(#SoundGoat)
+  end if
+
+end Sub
+
+sub CheckForChange()
+  dim iPlat
+  dim iLad
+  dim iHit
+
+  dim iY1
+  dim iY2
+  dim iX1
+  dim iX2
+
+  dim bUp
+  dim bDown
+  dim bLeft
+  dim bRight
+  dim iLadderX
+
+  bPassDir=0
+
+  if iCount>0
+    iCount=iCount-1
+    return 0
+  end if
+
+  if iDir=4 || iDir=3
+    FindLadder(iX,iY)
+    iLad=getext(#Event4)
+
+    if iLad<0 
+      return 0
+    end if
+
+    ABSLadder(iLad)
+    iLadderX=getsel(#sx1)
+    iLadderZ=getsel(#sz1)
+    iY1=getsel(#sy1)
+    iY2=getsel(#sy2)
+
+    if iX<(iLadderX-.5) || ix>(iLadderX+.5)
+      return 0
+    end if
+  
+    bPassDir=1
+
+    if iY1>iY+12 && iAirTime=0
+      bUp=1
+    end if
+
+    if iY2<iY-12 && iAirTime=0
+      bDown=1
+    end if
+
+    iPlat=FindPlatform(iX,iY+4,4,2)  
+    ABSPlatform(iPlat)
+    iX1=getsel(#sx1)
+    iX2=getsel(#sx2)
+ 
+    if iDir=3 && iX1<iX-10
+      bLeft=1
+    end if
+    if iDir=4 && iX2>iX+10
+      bRight=1
+    end if
+
+  end if
+
+  if iDir=1 || iDir=2
+    iLad=FindLadder(iX,iY)
+    ABSLadder(iLad)
+    iY1=getsel(#sY1)
+    iY2=getsel(#sY2)
+
+    if iY1>iY+10 && iDir!=2
+      bUp=1
+    end if
+    if iY2<iY-10 && iDir!=1
+      bDown=1
+    end if
+    
+    iPlat=FindPlatform(iX,iY+4,4,2)  
+    ABSPlatform(iPlat)
+    iHit=getext(#event4)
+    if iHit=iY
+      bPassDir=1
+      iX1=getsel(#sx1)
+      iX2=getsel(#sx2)
+      if iX1<iX-10
+        bLeft=1
+      end if
+      if iX2>iX+10
+        bRight=1
+      end if      
+    else
+      return 0
+    end if
+  end if
+
+  dim iPX
+  dim iPY
+
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  dim iNewDir
+
+  if bUp && iPY>iY+10
+    iNewDir=1
+  elseif bDown && iPY<iY-10
+    iNewDir=2
+  elseif bLeft && iPX<iX-10
+    iNewDir=3
+  elseif bRight && iPX>iX+10
+    iNewDir=4
+  elseif bLeft && iPX<iX
+    iNewDir=3
+  elseif bRight
+    iNewDir=4
+  elseif bLeft
+    iNewDir=3
+  elseif bUp
+    iNewDir=1
+  elseif bDown
+    iNewDir=2
+  end if
+
+  if iNewDir=0
+    return 0
+  end if
+
+  if iNewDir=1 || iNewDir=2
+    if iDir=3 || iDir=4
+      iCount=15
+      iFlyDir=iDir
+      iAirTime=0
+      iX=iLadderX
+    end if    
+  else
+    if iDir=1 || iDir=2
+      iCount=15
+      iAirTime=0
+    end if    
+  end if
+  iDir=iNewDir
+
+end sub
+
+sub AnimateCopter(iTime)
+  if iTime<5
+    iFrame=7
+  elseif iTime<10
+    iFrame=6
+  else
+    iFrame=5
+  end if
+  if iFlyDir=4
+   iFrame=iFrame+10
+  end if
+
+  iCopterSize=(15-iTime)/15
+end sub
+
+sub ProgressSheep()
+  if iDir=1 || iDir=2
+    if iCount>0
+      AnimateCopter(iCount)
+      return 0
+    end if
+ 
+    if iDir=1
+      iY=iY+1
+    else
+      iY=iY-1
+    end if
+
+    if iFlyDir=3
+      iFrame=7
+    else
+      iFrame=17
+    end if
+    iCopterSize=1
+
+  end if
+
+  if iDir=3 || iDir=4
+    if iCount>0
+      AnimateCopter(15-iCount)
+      return 0
+    end if
+
+    if iDir=3
+      iX=iX-0.85
+      iFrame=0
+      if iAnimate=1 || iAnimate=3
+        iFrame=1
+      end if
+    end if
+    if iDir=4
+      iX=iX+0.85
+      iFrame=10
+      if iAnimate=1 || iAnimate=3
+        iFrame=11
+      end if
+    end if 
+
+  end if
+
+end sub
+
+sub MoveSheep()
+  CheckForChange()
+  if bPassDir 
+    PassDirections(iDir)
+  end if
+  ProgressSheep()
+
+  dim iHit
+  dim iPlat
+
+  iPlat=FindPlatform(iX,iY+5,4,2)  
+  iHit=getext(#event4)
+
+  if iDir=3 || iDir=4
+    if iHit<iY
+      iY=iY-0.5
+      iAirTime=iAirTime+1
+    else 
+      iAirTime=0
+    end if
+
+    if iAirTime>30
+      iFrame=4
+      iY=iY-0.5
+    elseif iAirTime>15
+      iFrame=4
+    elseif iAirTime>8
+      iY=iY+0.5
+      iFrame=3
+    elseif iAirTime>0
+      iY=iY+1
+      iFrame=2
+    end if
+    
+    if iAirTime>0 && iDir=4
+      iFrame=iFrame+10
+    end if
+
+    if iHit>iY+0.4
+      iY=iY+0.5
+    end if
+  end if
+
+  if iDir=1 || iDir=2
+    iZ=iLadderZ
+  else
+    AdjustZ(iPlat)
+  end if
+
+end sub
+
+sub AdjustZ(iPlatNum)
+    dim iPlatZ
+
+    ABSplatform(iPlatNum)
+    iPlatZ=getsel(#sz1)    
+
+    if iZ<iPlatZ
+      iZ=iZ+1
+    end if
+    if iZ>iPlatZ+2
+      iZ=iZ-1
+    end if
+end sub
+
+Sub AdvanceFrame()
+  iSlow=iSlow+1
+  if iSlow>2
+    iSlow=0
+    iAnimate=iAnimate+1
+    if iAnimate>3
+      iAnimate=0
+    end if
+  end if
+end sub
+
+sub PassDirections(iPassDir)
+  dim iLoop
+  dim iObjs
+  dim iQL
+
+  iObjs=GetExt(#objects)
+  
+  iLoop=0
+  while iLoop<iObjs
+
+    if GetData(iLoop,#objectType)=#ScriptFSheep
+      iQL=GetData(iLoop,#FSheepQueueLength)
+      SetData(iLoop,#FSheepQueue+iQL,iPassDir)
+      SetData(iLoop,#FSheepQueueLength,iQL+1)
+    end if
+
+    iLoop=iLoop+1
+  loop
+end sub
+
+Sub Initialize()
+  iInit=1
+  iX=250
+  iY=115
+  iZ=2
+  iDir=3
+
+  iMeshes[0]=newmesh(#meshSheepL1)
+  iMeshes[1]=newmesh(#meshSheepL2)
+  iMeshes[2]=newmesh(#meshSheepJL1)
+  iMeshes[3]=newmesh(#meshSheepJL2)
+  iMeshes[4]=newmesh(#meshSheepJL3)
+  iMeshes[5]=newmesh(#meshSheepFL1)
+  iMeshes[6]=newmesh(#meshSheepFL2)
+  iMeshes[7]=newmesh(#meshSheepFL3)
+
+  iMeshes[10]=newmesh(#meshSheepR1)
+  iMeshes[11]=newmesh(#meshSheepR2)
+  iMeshes[12]=newmesh(#meshSheepJR1)
+  iMeshes[13]=newmesh(#meshSheepJR2)
+  iMeshes[14]=newmesh(#meshSheepJR3)
+  iMeshes[15]=newmesh(#meshSheepFR1)
+  iMeshes[16]=newmesh(#meshSheepFR2)
+  iMeshes[17]=newmesh(#meshSheepFR3)
+  
+end sub

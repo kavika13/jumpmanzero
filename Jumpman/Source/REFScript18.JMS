@@ -1,0 +1,8 @@
+define Script18iinit 0
+define Script18imessage 1
+define Script18ibar 2
+define Script18ishow 3
+define Script18iprogress 4
+define Script18iwork1 5
+define Script18iwork2 6
+define Script18iframe 7

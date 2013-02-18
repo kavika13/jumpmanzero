@@ -1,0 +1,126 @@
+include Constants
+include Level7Resources
+include RefPauseWave
+
+dim iInit
+dim iHand
+
+dim iWave
+
+dim iClock
+
+dim iLittleClockSpin
+dim iClockReady[30]
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+    iHand=NewMesh(#MeshClockHand)
+    SelectObjectMesh(iHand)
+    SetProperties(#textureBlack,1)
+    iWave=spawn(#scriptPauseWave)
+   
+    iClockReady[10]=1
+    iClockReady[11]=1
+    iClockReady[12]=1
+    iClockReady[13]=1
+    iClockReady[14]=1
+  end if
+
+  if iClock>0
+    iClock=iClock-1
+    SetData(iWave,#PauseWaveTarget,0-10)
+  else
+    SetData(iWave,#PauseWaveTarget,125)
+  end if
+
+  SetClockPosition(0-iClock)
+
+  SpinLittleClocks()
+  CollideLittleClocks()
+end sub
+
+sub CollideLittleClocks()
+  dim iLoop 
+  dim iCollide
+  dim iClockX
+  dim iClockY
+
+  iLoop=10
+  while iLoop<20
+    if iClockReady[iLoop]>0 && iClockReady[iLoop]<10
+      SpinClock(iLoop)
+      SelectPicture(iLoop)
+      iClockX=getsel(#sx1)
+      iClockY=getsel(#sy1)
+
+      iCollide=Collide(iClockX-3,iClockY-4,iClockX+4,iClockY-1)
+      if iCollide && iClockReady[iLoop]=1
+        iClock=iClock+140
+        iClockReady[iLoop]=500
+        SelectPicture(iLoop)
+        SetProperties(#textureStopWatch,0)
+      end if
+    end if
+
+    if iClockReady[iLoop]>1
+      iClockReady[iLoop]=iClockReady[iLoop]-1
+    end if
+
+    iLoop=iLoop+1
+  loop
+end sub
+
+sub SpinClock(iPic)
+  dim iObjX
+
+  SelectPicture(iPic)
+  iObjX=getsel(#sx1)
+  Identity()
+  Translate(0-iObjX,0,0)
+  RotateY(iLittleClockSpin)
+  Translate(iObjX,0,7)
+  SetProperties(#textureStopWatch,1)
+end sub
+
+sub SpinLittleClocks()
+  iLittleClockSpin=iLittleClockSpin+5
+  if iLittleClockSpin=90
+    iLittleClockSpin=270
+  end if
+  if iLittleClockSpin=360
+    iLittleClockSpin=0
+  end if
+end sub
+
+sub SetClockPosition(iPos)
+  SelectPicture(1)
+  Identity()
+  Translate(0-64,0-48,120)
+  Perspective()
+
+  SelectObjectMesh(iHand)
+  Identity()
+  RotateZ(iPos)
+  Translate(0-54,0-38,120)
+  Perspective()
+end sub
+
+sub reset()
+  iClock=0
+
+  dim iLoop
+  iLoop=10
+  while iLoop<20
+    if iClockReady[iLoop]>1
+      iClockReady[iLoop]=1
+    end if
+    iLoop=iLoop+1
+  loop
+
+  setext(#px,20)
+  setext(#py,145)
+  setext(#pz,9)
+  setext(#pstat,#jsNORMAL)
+end sub

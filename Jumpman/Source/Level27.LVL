@@ -1,0 +1,99 @@
+R Script27 5 1 0
+R ChainTheme 1 1 0
+R DEATH_B 1 2 0
+R ENDLevL2 1 3 0
+R Jumpman 3 0 0
+R SpacePlatform 3 0 0
+R EvenWood 3 0 0
+R RedMetal 3 0 0
+R SpaceBack 4 0 0
+R Jump 7 0 0
+R chomp 7 0 0
+R bonk 7 0 0
+R Fire 7 0 0
+R ShipBase 2 0 0
+R ShipTop 2 0 0
+R ShipMetal 3 0 0
+R ShipGlass 6 0 0
+R Alien 3 0 0
+R Alien1 2 0 0
+R Alien2 2 0 0
+R Cube 2 0 0
+R square 2 0 0
+R Beam 5 2 0
+R Beam 2 0 0
+R Beam 6 0 0
+R Blast1 3 1 0
+R BrightRed 3 0 0
+R BrightGreen 3 0 0
+R BrightBlue 3 0 0
+R Blob1 2 0 0
+R Blob2 2 0 0
+R Blob3 2 0 0
+R Blob4 2 0 0
+R Blob2L 2 0 0
+R Blob3L 2 0 0
+R Blob 5 2 0
+R ZDonut 5 2 0
+R ClasBomb 7 0 0
+R Lightning 6 0 0
+R ClearBlue 6 0 0
+O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 180 150 1 0 255 180 150 0 1 -100 -140 150 1 1 255 -140 150 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 150 1 4 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 182 31 0 0 0 200 31 0 0 0 182 28 0 0 0 200 28 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 200 31 0 0 0 216 30 0 0 0 200 28 0 0 0 216 27 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 38 77 0 0 0 58 77 0 0 0 38 74 0 0 0 58 74 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 6 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 58 77 0 0 0 79 72 0 0 0 58 74 0 0 0 79 69 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 6 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 79 72 0 0 0 99 70 0 0 0 79 69 0 0 0 99 67 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 6 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 99 70 0 0 0 118 62 0 0 0 99 67 0 0 0 118 59 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 6 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 17 82 0 0 0 38 77 0 0 0 17 79 0 0 0 38 74 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 6 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 27 39 0 0 0 43 44 0 0 0 27 36 0 0 0 43 41 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 43 44 0 0 0 63 44 0 0 0 43 41 0 0 0 63 41 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 63 44 0 0 0 84 37 0 0 0 63 41 0 0 0 84 34 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 84 37 0 0 0 100 42 0 0 0 84 34 0 0 0 100 39 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 0 9 0 0 0 22 7 0 0 0 0 6 0 0 0 22 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 22 7 0 0 0 37 9 0 0 0 22 4 0 0 0 37 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 37 9 0 0 0 50 8 0 0 0 37 6 0 0 0 50 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 50 8 0 0 0 65 10 0 0 0 50 5 0 0 0 65 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 65 10 0 0 0 82 8 0 0 0 65 7 0 0 0 82 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 82 8 0 0 0 94 10 0 0 0 82 5 0 0 0 94 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 94 10 0 0 0 110 7 0 0 0 94 7 0 0 0 110 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 110 7 0 0 0 128 10 0 0 0 110 4 0 0 0 128 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 128 10 0 0 0 144 7 0 0 0 128 7 0 0 0 144 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 144 7 0 0 0 164 10 0 0 0 144 4 0 0 0 164 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 164 10 0 0 0 188 9 0 0 0 164 7 0 0 0 188 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 188 9 0 0 0 210 9 0 0 0 188 6 0 0 0 210 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 210 9 0 0 0 231 12 0 0 0 210 6 0 0 0 231 9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 231 12 0 0 0 256 8 0 0 0 231 9 0 0 0 256 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 256 8 0 0 0 282 9 0 0 0 256 5 0 0 0 282 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 115 35 0 0 0 135 35 0 0 0 115 32 0 0 0 135 32 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 135 35 0 0 0 156 40 0 0 0 135 32 0 0 0 156 37 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 166 48 0 0 0 188 48 0 0 0 166 45 0 0 0 188 45 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 197 36 0 0 0 0 9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 2 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 146 74 0 0 0 166 76 0 0 0 146 71 0 0 0 166 73 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 166 76 0 0 0 186 82 0 0 0 166 73 0 0 0 186 79 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 186 82 0 0 0 204 76 0 0 0 186 79 0 0 0 204 73 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 204 76 0 0 0 219 76 0 0 0 204 73 0 0 0 219 73 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 242 80 0 0 0 268 80 0 0 0 242 77 0 0 0 268 77 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 268 80 0 0 0 282 81 0 0 0 268 77 0 0 0 282 78 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 89 79 0 0 0 0 51 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 52 81 0 0 0 0 44 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 2 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 13 37 0 0 0 27 39 0 0 0 13 34 0 0 0 27 36 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 216 52 0 0 0 240 50 0 0 0 216 49 0 0 0 240 47 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 240 50 0 0 0 260 50 0 0 0 240 47 0 0 0 260 47 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 260 50 0 0 0 282 56 0 0 0 260 47 0 0 0 282 53 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 1 
+O False True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 0 56 0 0 0 20 60 0 0 0 0 53 0 0 0 20 57 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 1 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 21 43 0 0 0 0 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 126 44 0 0 0 0 19 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 VINE 0 0 174 82 0 0 0 0 60 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 252 84 0 0 0 0 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 
+O True True True True True True 0 0 0 0 0 0 0 0 0 9 0 0 0 0 DONUT 0 0 266 89 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 7 0 0 0 0 DONUT 0 0 206 93 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 5 0 0 0 0 DONUT 0 0 121 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 1 0 0 0 0 DONUT 0 0 11 94 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 8 0 0 0 0 DONUT 0 0 218 62 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 10 0 0 0 0 DONUT 0 0 45 18 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 4 0 0 0 0 DONUT 0 0 154 18 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 DONUT 0 0 40 166 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 2 0 0 0 0 DONUT 0 0 142 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 6 0 0 0 0 DONUT 0 0 246 22 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
+O True True True True True True 0 0 0 0 0 0 0 0 0 3 0 0 0 0 DONUT 0 0 270 64 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 

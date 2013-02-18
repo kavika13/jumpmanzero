@@ -1,0 +1,145 @@
+Aztec_Scene_File_Version = string 1.0
+Scene myScene {
+	Objects {
+		MLight WhiteLightShape {
+			Name = string WhiteLightShape
+			Colour = vector3 1.00000 1.00000 1.00000
+			SpecColour = vector3 0.50000 0.50000 0.50000
+			Multiplier = float 1.00000
+		}
+		MLight backLightShape {
+			Name = string backLightShape
+			Colour = vector3 1.00000 1.00000 1.00000
+			SpecColour = vector3 0.50000 0.50000 0.50000
+			Multiplier = float 1.00000
+		}
+		MTimeSegment TimeSegment01 {
+			Name = string TimeSegment01
+			Caption = string ""
+			Start = int 0
+			End = int 1800
+			Objects = string ""
+			Colour = vector3 1.00000 0.00000 0.00000
+			fps = int 30
+		}
+		MPrimitiveCube CubeCreator {
+			Name = string CubeCreator
+			Width = float 10.00000
+			Height = float 10.00000
+			Depth = float 10.00000
+			WidthDiv = int 1
+			HeightDiv = int 1
+			DepthDiv = int 1
+		}
+		MMeshShape CubeShape {
+			Name = string CubeShape
+			inMesh <- CubeCreator.outMesh
+		}
+		MAnimMesh Cube2Mesh {
+			Name = string Cube2Mesh
+			points = array {
+				count = 8
+				vector3 -3.05888 -5.62903 -14.96426
+				vector3 2.45703 -5.68412 -15.02015
+				vector3 -3.02356 3.47066 -15.95762
+				vector3 2.49234 3.41558 -16.01351
+				vector3 -2.09888 -5.62506 -5.44423
+				vector3 1.53049 -5.69970 -5.97913
+				vector3 -2.09289 3.02688 -5.00691
+				vector3 1.53648 2.95224 -5.54181
+			}
+			triangles = array {
+				count = 12
+				aggregate {
+					indexA = int 2
+					indexB = int 1
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 2
+					indexB = int 3
+					indexC = int 1
+				}
+				aggregate {
+					indexA = int 1
+					indexB = int 4
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 1
+					indexB = int 5
+					indexC = int 4
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 2
+					indexC = int 0
+				}
+				aggregate {
+					indexA = int 4
+					indexB = int 6
+					indexC = int 2
+				}
+				aggregate {
+					indexA = int 6
+					indexB = int 5
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 6
+					indexB = int 4
+					indexC = int 5
+				}
+				aggregate {
+					indexA = int 3
+					indexB = int 6
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 3
+					indexB = int 2
+					indexC = int 6
+				}
+				aggregate {
+					indexA = int 5
+					indexB = int 3
+					indexC = int 7
+				}
+				aggregate {
+					indexA = int 5
+					indexB = int 1
+					indexC = int 3
+				}
+			}
+		}
+		MMeshShape Cube2Shape {
+			Name = string Cube2Shape
+			inMesh = string Cube2Mesh
+		}
+		MPrimitiveCube CubeCreator1 {
+			Name = string CubeCreator1
+			Width = float 10.00000
+			Height = float 10.00000
+			Depth = float 10.00000
+			WidthDiv = int 1
+			HeightDiv = int 1
+			DepthDiv = int 1
+		}
+		MMeshShape CubeShape1 {
+			Name = string CubeShape1
+			inMesh <- CubeCreator1.outMesh
+		}
+		MSceneObject Cube3 {
+			Name = string Cube3
+			Translate = vector3 0.00000 5.00000 0.00000
+			Rotate = vector3 0.00000 0.00000 0.00000
+			Scale = vector3 1.00000 1.00000 1.00000
+			pivot = vector3 0.00000 0.00000 0.00000
+			drawWire = string no
+			shapeObj = string CubeShape1
+			material = string ""
+			parent = string ""
+			viewCol = vector3 1.00000 1.00000 1.00000
+		}
+	}
+}

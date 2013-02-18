@@ -1,0 +1,17 @@
+include Constants
+include Level19Resources
+
+dim iInit
+
+Sub Main()
+  if iInit=0
+    iInit=1
+  end if
+end sub
+
+sub reset()
+  setext(#px,10)
+  setext(#py,5)
+  setext(#pz,9)
+  setext(#pstat,#jsNORMAL)
+end sub

@@ -1,0 +1,8 @@
+define Dropiinit 0
+define Dropimesh1 1
+define Dropimesh2 2
+define Dropix 3
+define Dropiy 4
+define Dropwait 5
+define Dropistatus 6
+define Dropiframe 7

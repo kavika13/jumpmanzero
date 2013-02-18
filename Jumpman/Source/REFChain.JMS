@@ -1,0 +1,11 @@
+define Chainiinit 0
+define Chainimeshes 1
+define Chainx1 32
+define Chainy1 33
+define Chainx2 34
+define Chainy2 35
+define Chainz 36
+define Chainlength 37
+define Chainbnoup 38
+define Chainbnodown 39
+define Chainiplayerair 40

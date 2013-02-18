@@ -1,0 +1,17 @@
+define Script25iinit 0
+define Script25iswim 1
+define Script25iframe 32
+define Script25icount 33
+define Script25iangle 34
+define Script25iinpool 35
+define Script25sbits 36
+define Script25sbx 57
+define Script25sby 78
+define Script25isbx 99
+define Script25isby 100
+define Script25sbittime 101
+define Script25isplashscalex 102
+define Script25isplashscaley 103
+define Script25ishark 104
+define Script25isc 105
+define Script25ideathspin 106

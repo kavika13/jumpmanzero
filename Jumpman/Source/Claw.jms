@@ -1,0 +1,252 @@
+include Constants
+include Level23Resources
+include RefJumper
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+dim iTop
+
+dim iCycle
+
+dim iOpen
+dim iSpin
+
+dim iMeshes[10]
+dim iChain
+
+dim iStatus
+
+dim iRescueOBJ
+
+dim iWait
+
+Sub Main()
+
+  if iInit=0 
+    Initialize()
+    iInit=1
+    iWait=120
+  end if
+
+  MoveChain()
+
+  iSpin=iSpin+rnd(50,90)/300
+
+  DrawClaw(0,0+iSpin,iOpen)
+  DrawClaw(1,90+iSpin,iOpen)
+  DrawClaw(2,180+iSpin,iOpen)
+  DrawClaw(3,270+iSpin,iOpen)
+  DrawChain()
+end sub
+
+sub FindStranded()
+  dim iObj
+  dim iObjects
+  dim iType
+
+  iObjects=getext(#objects)
+  while iObj<iObjects
+    iType=getData(iObj,#ObjectType)
+    if iType=#ScriptJumper
+      if getData(iObj,#JumperIStatus)=10
+        iRescueOBJ=iObj
+        iStatus=2
+        return 0
+      end if
+    end if
+
+    iObj=iObj+1
+  loop
+
+end sub
+
+sub FindDonut()
+  dim iLoop
+  dim iDonuts
+  dim iDX
+  dim iDY
+  dim iPY
+  dim iPX
+  
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  iDonuts=getext(#Donuts)
+  while iLoop<iDonuts
+    ABSDonut(iLoop)
+    iDX=GetSel(#sx1)
+    iDY=GetSel(#sy1)
+
+    if GetSel(#sVisible)=0
+      if iDX>iPX-60 && iDX<iPX+60
+        iRescueObj=iLoop
+        iStatus=22
+        return 0
+      end if
+    end if
+    
+    iLoop=iLoop+1
+  loop
+end sub
+
+sub MoveChain()
+  dim iPX
+  dim iPY
+
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  iWait=iWait+1
+
+  if iStatus=1 && iWait>170
+    FindDonut()
+  end if
+
+  if iStatus=1 && iWait>120
+    FindStranded()    
+  end if
+
+  if iStatus=2 || iStatus=22
+    if iY>-20
+      iY=iY-1
+    else 
+      iStatus=iStatus+1
+    end if
+
+    if iX<iPX  
+      if iX>iPX-60
+        iX=iX-1
+      elseif iX<iPX-63
+        iX=iX+1
+      end if
+    else
+      if iX<iPX+60
+        iX=iX+1
+      elseif iX>iPX+63
+        iX=iX-1
+      end if
+    end if
+
+    iOpen=45
+  end if
+
+  dim iOldX
+  dim iOldY
+
+  if iStatus=23
+    iOldX=iX
+    iOldY=iY
+    iOpen=5
+
+    ABSDonut(iRescueObj)
+    if iX<getsel(#sx1)-1
+      iX=iX+1
+    elseif iX>getsel(#sx1)+1
+      iX=iX-1
+    end if    
+    if iY<getsel(#sy1)-1
+      iY=iY+1
+    elseif iY>getsel(#sy1)+1
+      iY=iY-1
+    end if    
+    Identity()
+    Translate(iX-GetSel(#sx1),iY-GetSel(#sy1),0-GetSel(#sz1))
+    SetProperties(#TextureRedMetal,1)
+
+    if iOldX=iX && iOldY=iY
+      SetSel(#sVisible,1)
+      Identity()
+      iStatus=1
+      iWait=50
+    end if
+  end if
+ 
+  if iStatus=3
+    SetData(iRescueObj,#JumperIX,iX)
+    SetData(iRescueObj,#JumperIY,iY-9)
+
+    if iY>iPY+21
+      SetData(iRescueObj,#JumperIStatus,1)
+      SetData(iRescueObj,#JumperIYV,1)
+      if iPX<iX
+        SetData(iRescueObj,#JumperIXV,-.7)
+      else
+        SetData(iRescueObj,#JumperIXV,.7)
+      end if
+      iStatus=1
+      iWait=0
+    else 
+      iY=iY+1
+    end if
+
+    if iX<iPX  
+      if iX>iPX-60
+        iX=iX-1
+      elseif iX<iPX-63
+        iX=iX+1
+      end if
+    else
+      if iX<iPX+60
+        iX=iX+1
+      elseif iX>iPX+63
+        iX=iX-1
+      end if
+    end if
+
+    iOpen=30
+    
+  end if
+
+  if iStatus=1
+    if iX<iPX-5
+      iX=iX+0.7
+    elseif iX>iPX+5
+      iX=iX-0.7
+    end if
+    if iY<iPY+30
+      iY=iY+1
+    elseif iY>iPY+32
+      iY=iY-1
+    end if
+    iOpen=25
+  end if
+
+end sub
+
+Sub DrawChain()
+  SelectObjectMesh(iChain)
+  Identity()
+  Translate(0,-.5,0)
+  Scale(.4,(iTop-iY)-4,.4)
+  Translate(iX,iTop,iZ)
+  SetProperties(#TextureBoringGray,1)
+end sub
+
+Sub DrawClaw(iClaw,iAngle,iSpread)
+  SelectObjectMesh(iMeshes[iClaw])
+  Identity()
+  Translate(0,-5,0)
+  RotateZ(iSpread)
+  RotateY(iAngle)
+  Translate(iX,iY+5,iZ)
+  SetProperties(#TextureEvenWood,1)
+end sub
+
+Sub Initialize()
+  iSpin=55
+  iX=40
+  iY=80
+  iZ=-1
+  iTop=130
+  iStatus=1
+
+  iMeshes[0]=newmesh(#meshClaw)
+  iMeshes[1]=newmesh(#meshClaw)
+  iMeshes[2]=newmesh(#meshClaw)
+  iMeshes[3]=newmesh(#meshClaw)
+
+  iChain=newMesh(#meshChain)
+
+end sub

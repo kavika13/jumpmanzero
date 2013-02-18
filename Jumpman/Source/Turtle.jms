@@ -1,0 +1,254 @@
+include Constants
+include Level16Resources
+include RefTurtle
+
+define Left 3
+define Right 4
+define HideLeft 1
+define HideRight 2
+
+dim StartX
+dim StartY
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+
+dim iFrame
+dim iStatus
+dim iCount
+
+dim iSlow
+dim iSlowFrame
+
+dim Angle
+dim iMeshes[30]
+
+Sub Main()
+
+  if iInit=0 
+    Initialize()
+    iInit=1
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  Animate()
+  SetFrame()
+  Move()
+  SetAngle()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  RotateZ(Angle)
+  Translate(iX,iY+4.4,2)
+  SetProperties(#textureTurtleTexture,2)
+
+  dim iCollide  
+  dim iPX
+  dim iPY
+  dim iPStat
+
+  iPX=getext(#px)
+  iPY=getext(#py)
+  iPStat=getext(#pstat)
+
+  if iPStat & #JSDYING
+    iCollide=0
+  elseif iPY<iY+2 && iStatus=#Left
+    iCollide=Collide(iX-4,iY,iX,iY+4)
+  elseif iPY<iY+2 && iStatus=#Right
+    iCollide=Collide(iX,iY,iX+4,iY+4)
+  else
+    iCollide=Collide(iX-6,iY,iX+6,iY+10)
+  end if
+
+  if iPY>iY+4
+    iCollide=0
+  end if
+
+  if iStatus<3
+    iCollide=0
+  end if
+
+  if iCollide 
+    if iPY<iY+2
+      Kill()
+    else
+      iCount=0
+      if getext(#inputLeft)
+        setext(#pStat,#JSJUMPING)
+        setext(#pDir,#DIR_LEFT)
+      elseif getext(#inputRight)
+        setext(#pStat,#JSJUMPING)
+        setext(#pDir,#DIR_RIGHT)
+      else
+        setext(#pStat,#JSJUMPING)
+        setext(#pDir,#DIR_UP)
+      end if
+      setext(#psc,0)
+      setext(#noroll,10)
+      if iStatus=#Left
+        iStatus=#HideLeft
+      else
+        iStatus=#HideRight
+      end if
+    end if
+  end if
+
+end Sub
+
+sub SetAngle()
+  dim iHit1
+  dim iHit2
+  FindPlatform(iX-5,iY,7,2)
+  iHit1=getext(#event4)
+  FindPlatform(iX+5,iY,7,2)
+  iHit2=getext(#event4)
+
+  Angle=ATan(iHit2-iHit1,14)
+end sub
+
+sub Move()
+
+  dim iPlat
+  dim iHit
+
+  if iStatus=#Left || iStatus=#Right
+    iPlat=FindPlatform(iX,iY,5,2)
+    iHit=getext(#event4)
+
+    if iHit<iY-1
+      iY=iY-1
+    elseif iHit>iY+1
+      iY=iY+1
+    else
+      iY=iHit
+    end if   
+  end if
+
+  if iStatus=#Left
+    iX=iX-0.25
+
+    iPlat=FindPlatform(iX-7,iY,5,2)
+    iHit=getext(#event4)
+
+    if iHit<iY-6
+      iStatus=#Right
+      iCount=0
+    end if
+
+    CheckCollide() 
+  end if
+
+  if iStatus=#Right
+    iX=iX+0.25
+
+    iPlat=FindPlatform(iX+7,iY,5,2)
+    iHit=getext(#event4)
+
+    if iHit<iY-6
+      iStatus=#Left
+      iCount=0
+    end if
+
+    CheckCollide() 
+
+  end if
+
+end sub
+
+sub CheckCollide()
+  dim iLoop
+  dim iObjs
+  dim iObjX
+  dim iObjY
+
+  iObjs=GetExt(#objects)
+  
+  iLoop=0
+  while iLoop<iObjs
+
+    if GetData(iLoop,#objectType)=#ScriptTurtle
+      if iLoop!=getext(#this)     
+
+        iObjX=GetData(iLoop,#TurtleIX)
+        iObjY=GetData(iLoop,#TurtleIY)
+      
+        if iObjX<iX+10 && iObjX>iX-10
+          if iObjY<iY+10 && iObjY>iY-10
+            if iObjX>iX 
+              iStatus=#Left
+            else 
+              iStatus=#Right
+            end if
+          end if
+        end if
+
+      end if
+
+    end if
+
+    iLoop=iLoop+1
+  loop
+  
+  return 0
+end sub
+
+Sub SetFrame()
+  iCount=iCount+1
+  if iStatus=#Left
+    iFrame=10+iSlowFrame
+  end if
+  if iStatus=#Right
+    iFrame=0+iSlowFrame
+  end if
+  if iStatus=#HideLeft || iStatus=#HideRight
+    iCount=iCount+1
+    iFrame=6
+    if iCount<8 || iCount>280
+      iFrame=5
+    end if
+    if iCount>300
+      if iStatus=#HideLeft
+        iStatus=#Left
+      else
+        iStatus=#Right
+      end if
+    end if
+  end if
+End Sub
+
+sub Animate()
+
+  iSlow=iSlow+1
+  if iSlow>5
+    iSlow=0
+    iSlowFrame=iSlowFrame+1
+    if iSlowFrame>1
+      iSlowFrame=0
+    end if
+  end if
+
+end sub
+
+Sub Initialize()
+  iInit=1
+
+  iX=StartX
+  iY=StartY
+  iStatus=#Left
+  iCount=0
+
+  iMeshes[0] =newmesh(#meshTurtGR1)
+  iMeshes[1] =newmesh(#meshTurtGR2)
+
+  iMeshes[10]=newmesh(#meshTurtGL1)
+  iMeshes[11]=newmesh(#meshTurtGL2)
+
+  iMeshes[5]=newMesh(#meshTurtS1)
+  iMeshes[6]=newMesh(#meshTurtSH1)
+
+end sub

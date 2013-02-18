@@ -1,0 +1,15 @@
+define EndAlieniinit 0
+define EndAlienitime 1
+define EndAlienishiptop 2
+define EndAlienishipbase 3
+define EndAlienialien 4
+define EndAlienieye1 5
+define EndAlienieye2 6
+define EndAlienishipry 7
+define EndAlienishipryv 8
+define EndAlienishipy 9
+define EndAlienishipyv 10
+define EndAlienigooglex1 11
+define EndAlienigoogley1 12
+define EndAlienigooglex2 13
+define EndAlienigoogley2 14

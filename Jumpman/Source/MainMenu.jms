@@ -1,0 +1,383 @@
+
+include Constants
+include MainMenuResources
+include RefMainMenu
+include RefZBits
+
+dim iAnimFull
+dim iAnimTime
+dim JMLetters[10]
+dim JMMesh[10]
+dim iAnimDone
+
+dim iInit
+dim Titles
+dim Title[60]
+
+dim iLMeshes
+dim iLTitle[100]
+dim iLMesh[100]
+dim iSlow
+
+dim iLastSelected
+dim iSelected
+dim iSelTime
+dim iLastSelTime
+
+dim iUpStatus
+dim iDownStatus
+dim iUpHit
+dim iDownHit
+
+dim iSelStatus
+dim iSelHit
+
+dim bGameSelected
+
+dim iZBits
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+    iSelStatus=1
+    InitializeLetters()
+    iAnimFull=4400
+    if getext(#event1)=10
+      iAnimTime=0
+    else
+      iAnimTime=iAnimFull
+    end if     
+    iZBits=Spawn(#ScriptZBits)
+  end if
+
+  GetInput()
+
+  iAnimTime=iAnimTime+20
+  if iAnimTime>iAnimFull
+    iAnimDone=1
+    iAnimTime=iAnimFull
+  end if  
+  ShowJMLetters()  
+
+  iSelTime=iSelTime+5
+  ShowLetters()
+
+  SelectPicture(100)
+  ScrollTexture(.01,.01)
+  iSlow=0
+
+  if bGameSelected=1 && iSelTime>250
+    if iSelected=0
+      service(#SERVICE_LOADMENU,#MENU_SELECTGAME)
+    else
+      service(#SERVICE_LOADMENU,#MENU_OPTIONS)
+    end if
+  end if
+
+end Sub
+
+sub ShowJMLetters()
+  dim iChar
+  dim iChars
+  dim iX
+  dim iY
+  dim iZ
+  dim iDX
+  dim iDY
+  dim iDZ
+  dim iSpread
+  dim iHeight
+  dim iThick
+  dim iProgress
+
+  iProgress=(iAnimTime/iAnimFull)*100
+
+  SetData(iZBits,#ZBitsIProgress,iProgress)
+
+  iThick=.2
+  if iProgress>71
+    iThick=10/4
+  elseif iProgress>61
+    iThick=(iProgress-61)/4
+  end if
+
+  iChars=JMLetters[0]
+  iChar=1
+  while iChar<=iChars
+    SelectObjectMesh(JMMesh[iChar])
+    Identity()
+    Scale(2,.8,iThick)
+
+    iX=iChar*15+20
+    if iChar>1
+      iX=iX-1
+    end if
+    if iChar>4
+      iX=iX-2
+    end if
+    if iChar>6
+      iX=iX+1
+    end if
+    iY=100
+    iZ=0
+
+    if iChar=1
+      iHeight=22
+    elseif iChar=5 
+      iHeight=54
+    elseif iChar=2
+      iHeight=76
+    elseif iChar=3
+      iHeight=80
+    elseif iChar=4
+      iHeight=84
+    elseif iChar=7
+      iHeight=78
+    elseif iChar=6
+      iHeight=82
+    end if
+   
+    iHeight=(iHeight*4/3)-(iProgress*2)
+    if iHeight<0
+      iHeight=0
+    end if
+
+    iDX=iX
+    iDY=iY+iHeight
+    iDZ=iZ+iHeight
+
+    if iHeight>3
+      RotateX((iHeight-3)*10)
+    end if
+    
+    Translate(iDX,iDY,iDZ)
+    SetProperties(#TextureBoringOrange,1)
+    iChar=iChar+1
+  loop
+  
+end sub
+
+sub GetInput()
+  dim iTemp
+  dim iOldSelected
+
+  if bGameSelected
+    return 0
+  end if
+
+  iDownHit=0
+  iUpHit=0
+  iOldSelected=iSelected
+  iSelHit=0
+
+  iTemp=Getext(#InputSelect)
+  if iSelStatus!=iTemp
+    iSelHit=iTemp
+  end if
+  iSelStatus=iTemp
+
+  if iSelHit
+    if iAnimTime<iAnimFull
+      iAnimTime=iAnimFull
+    else
+      Sound(#SoundFire)
+      bGameSelected=1
+      iSelTime=0
+      return 0
+    end if
+  end if
+
+  if iAnimDone=0
+    return 0
+  end if
+
+  iTemp=Getext(#InputDown)
+  if iDownStatus!=iTemp
+    iDownHit=iTemp
+  end if
+  iDownStatus=iTemp
+
+  iTemp=Getext(#InputUp)
+  if iUpStatus!=iTemp
+    iUpHit=iTemp
+  end if
+  iUpStatus=iTemp
+  
+  if iUpHit
+    iSelected=iSelected-1
+  end if
+  if iDownHit
+    iSelected=iSelected+1
+  end if
+  if iSelected<0
+    iSelected=Titles-1
+  end if
+  if iSelected>Titles-1
+    iSelected=0
+  end if
+
+  if iSelected!=iOldSelected
+    Sound(#SoundSelect)
+    iLastSelected=iOldSelected
+    iLastSelTime=iSelTime
+    iSelTime=0
+  end if
+
+end sub
+
+sub GetTitleWidth(iTitle)
+  dim iLoop
+  dim iLen
+
+  iLoop=0
+  while iLoop<iLMeshes
+    if iLTitle[iLoop]=iTitle
+      iLen=iLen+1
+    end if
+    iLoop=iLoop+1
+  loop
+
+  return iLen
+end sub
+
+sub ShowLetters()
+  dim iLM
+  dim iX
+  dim iY
+  dim iLast
+  dim iTitle
+  dim iWidth
+  dim iCharWidth
+  dim iScreenWidth
+  dim iTemp
+  dim iMoveScale
+  dim iDX
+  dim iDY
+  dim iDZ
+  dim iTempTime
+  dim iFirstX
+
+  if iAnimDone=0
+    return 0
+  end if
+  
+  iLM=0
+  iLast=-1
+  while iLM<iLMeshes
+    iTitle=iLTitle[iLM]
+    if iTitle!=iLast
+      iWidth=GetTitleWidth(iTitle)
+      iCharWidth=5
+      iScreenWidth=iCharWidth*iWidth
+      iX=80-(iScreenWidth/2)
+      iX=iX+(iCharWidth/2)
+      iX=iX-1
+      iFirstX=iX
+      iY=64-(iTitle*8)
+      iLast=iTitle
+    end if
+
+    if iLMesh[iLM]>0
+      SelectObjectMesh(iLMesh[iLM])
+      Identity()
+      Scale(.7,.7,1)
+
+      if bGameSelected 
+        if iSelected=iTitle
+          iDZ=-5
+          IDX=iX
+          IDY=iY
+          iTempTime=(iSelTime*4)-(iX*4)+(iFirstX*4)+10
+          if iTempTime>0 && iTempTime<360
+            RotateX(iTempTime)
+          end if
+          Translate(iDX,iDY,iDZ)
+          SetProperties(#textureBoringBlue,1)
+        else
+          iDZ=0+iSelTime/15
+          IDX=iX+((iSelTime/100)*sin(iX*27,50))
+          IDY=iY+((iSelTime/100)*sin(iX*59,50))
+          RotateZ(iSelTime+iX)
+          Translate(iDX,iDY,iDZ)
+          SetProperties(#textureRachBlue,1)
+        end if
+      elseif iSelected=iTitle
+        if iSelTime>50
+          iMoveScale=1
+        else
+          iMoveScale=iSelTime/50
+        end if
+
+        iDZ=-5*iMoveScale
+        IDX=iX
+        IDY=iY
+
+        Translate(iDX,iDY,iDZ)
+        SetProperties(#textureBoringBlue,1)
+      elseif iLastSelected=iTitle
+
+        iTempTime=(50-iSelTime)
+        if iLastSelTime<50
+          iTempTime=iTempTime-(50-iLastSelTime)
+        end if
+
+        if iTempTime<0
+          iMoveScale=0
+        else
+          iMoveScale=iTempTime/50
+        end if
+
+        iDZ=-5*iMoveScale
+        iDX=iX
+        iDY=iY
+
+        Translate(iDX,iDY,iDZ)
+        SetProperties(#textureRachBlue,1)
+      else
+        Translate(ix,iy,0)
+        SetProperties(#textureRachBlue,1)
+      end if
+    end if
+
+    iX=iX+iCharWidth
+    iLM=iLM+1
+  loop
+
+end sub
+
+sub InitializeLetters()
+
+  dim iMesh
+  dim iTit
+  dim iChar
+  dim iChars
+
+  StrCopy(#MainMenuJMLetters,"Jumpman")
+  iChars=JMLetters[0]
+  JMMesh[0]=JMLetters[0]
+  iChar=1
+  while iChar<=iChars
+    JMMesh[iChar]=NewCharMesh(JMLetters[iChar])
+    iChar=iChar+1
+  loop  
+
+  Titles=2
+  StrCopy(#MainMenuTitle,"Start Game")
+  StrCopy(#MainMenuTitle+20,"Options")
+
+  iTit=0
+  while iTit<Titles
+    print(-1)
+    iChars=Title[iTit*20]
+    iChar=1
+    while iChar<=iChars
+      iLMesh[iLMeshes]=NewCharMesh(Title[iTit*20+iChar])
+      iLTitle[iLMeshes]=iTit
+      iLMeshes=iLMeshes+1
+      iChar=iChar+1
+    loop
+    iTit=iTit+1
+  loop
+
+end sub

@@ -1,0 +1,126 @@
+include Constants
+include Level12Resources
+
+dim iInit
+dim iX
+dim iY
+dim iZ
+dim iXV
+dim iYV
+
+dim iCount
+
+dim iMeshes[30]
+dim iStatus
+
+dim iAnimate
+dim iFrame
+
+dim iSense
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+    iMeshes[0]=newmesh(#MeshBeeLeft1)
+    iMeshes[1]=newmesh(#MeshBeeLeft2)
+    iMeshes[2]=newmesh(#MeshBeeRight1)
+    iMeshes[3]=newmesh(#MeshBeeRight2)
+    iX=getext(#px)+100
+    iY=getext(#py)
+    iXV=-1
+    iYV=0
+    iSense=rnd(15,30)
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  MoveBee()
+
+  iAnimate=iAnimate+1
+  if iAnimate=4
+    iAnimate=0
+  end if
+
+  if iXV<0 || (iXV=0 && getext(#px)<ix)
+    iFrame=(iAnimate<2)+2
+  else
+    iFrame=iAnimate<2
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Translate(iX,iY+6,0)
+  SetProperties(#textureBeeTexture,1)
+
+  if Collide(iX-3,iY+5,iX+3,iY+7) 
+    Sound(#SoundBee)
+    Kill()
+  end if
+
+end Sub
+
+sub MoveBee()
+  iX=iX+iXV*3/4
+  iY=iY+iYV*5/8
+
+  iCount=iCount+1
+
+  dim iPX
+  dim iPY
+  iPX=getext(#px)
+  iPY=getext(#py)
+
+  if iX<iPX-110
+    iX=iPX+110
+  elseif iX>iPX+110
+    iX=iPX-110
+  end if
+  if iY<iPY-110
+    iY=iPY+110
+  elseif iY>iPY+110
+    iY=iPY-110
+  end if
+
+  if iXV=0
+    iX=iX+.5-Rnd(0,10)/10
+  end if
+  if iYV=0 && abs(iPX-iX)>5
+    iY=iY+.5-Rnd(0,10)/10
+  end if
+
+  if abs(iPY-iY)<1 && abs(iPX-iX)>iSense && rnd(1,20)>7
+    iYV=0
+    iCount=0
+    if iPX<iX
+      iXV=-1
+    else
+      iXV=1
+    end if
+  end if
+
+  if abs(iPX-iX)<1 && abs(iPY-iY)>iSense && rnd(1,20)>7
+    iXV=0
+    iCount=0
+    if iPY<iY
+      iYV=-1
+    else
+      iYV=1
+    end if
+  end if
+
+end sub
+
+sub Abs(iNum)
+  if iNum<0
+    return 0-iNum
+  end if
+  return iNum
+end sub
+
+sub ResetPos()
+  if iY<120
+    iY=120
+  end if
+end sub

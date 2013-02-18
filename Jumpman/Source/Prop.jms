@@ -1,0 +1,46 @@
+
+include Constants
+include Level19Resources
+
+dim iInit
+dim iMesh
+dim iX
+dim iY
+dim iZ
+
+dim iR
+
+Sub Main()
+
+  if iInit=0
+    iInit=1
+    iMesh=newMesh(#meshProp)
+  end if
+
+  iR=iR+4
+  if iR>=360
+    iR=0
+  end if
+
+  SelectObjectMesh(iMesh)
+  Identity()
+  Scale(6,8,2)
+  RotateX(90)
+  RotateY(iR)
+  Translate(iX,iY,iZ)
+  SetProperties(#TextureBoringGray,1)
+
+  dim iPX 
+  iPX=getext(#px)
+
+  if (iR>85 && ir<95) || (iR>265 && iR<275)
+    if Collide(iX-35,iY-1,iX-5,iY+1)
+      Kill()
+    end if
+    if Collide(iX+5,iY-1,iX+35,iY+1)
+      Kill()
+    end if
+  end if
+
+end sub
+

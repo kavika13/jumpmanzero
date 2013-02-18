@@ -1,0 +1,50 @@
+include Constants
+include Level12Resources
+
+dim iInit
+dim iDonuts
+
+sub Main()
+
+  dim iTemp
+  dim iLoop
+
+  if iInit=0
+    iInit=1
+    SetExt(#LevelExtentX,220)
+  end if
+
+end sub
+
+sub Donut()
+  iDonuts=iDonuts+1
+
+  if iDonuts=1
+    Sound(#SoundBee)
+    Spawn(#scriptBee)    
+  end if
+
+  if iDonuts=4
+    Sound(#SoundBee)
+    Spawn(#scriptBee)    
+  end if
+
+  if iDonuts=10
+    Sound(#SoundBee)
+    Spawn(#scriptBee)    
+  end if
+
+  if iDonuts=15
+    Sound(#SoundBee)
+    Spawn(#scriptBee)    
+  end if
+
+end sub
+
+sub reset()
+  setext(#px,80)
+  setext(#py,7)
+  setext(#pz,2)
+  setext(#pstat,#jsNORMAL)
+end sub
+

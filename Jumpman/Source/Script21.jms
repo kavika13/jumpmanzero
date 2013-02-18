@@ -1,0 +1,121 @@
+include Constants
+include Level21Resources
+include RefSaw
+
+dim iInit
+dim iFrog
+
+dim iTest
+dim iSaw
+
+dim iFrame
+dim iMeshes[30]
+
+dim iTimer
+
+Sub Main()
+  dim iTemp
+
+  if iInit=0
+    iInit=1
+    iFrame=0
+    iTimer=100
+    LoadFrogMeshes()
+
+    iTemp=Spawn(#ScriptSaw)
+    SetData(iTemp,#SawIX,80)
+    SetData(iTemp,#SawIY,100)
+
+    iTemp=Spawn(#ScriptSaw)
+    SetData(iTemp,#SawIX,75)
+    SetData(iTemp,#SawIY,100)
+
+    iTemp=Spawn(#ScriptSaw)
+    SetData(iTemp,#SawIX,85)
+    SetData(iTemp,#SawIY,100)
+
+    iTemp=Spawn(#ScriptSaw)
+    SetData(iTemp,#SawIX,100)
+    SetData(iTemp,#SawIY,45)
+
+    iTemp=Spawn(#ScriptSaw)
+    SetData(iTemp,#SawIX,105)
+    SetData(iTemp,#SawIY,45)
+
+    iTemp=Spawn(#ScriptSaw)
+    SetData(iTemp,#SawIX,110)
+    SetData(iTemp,#SawIY,45)
+
+    iTemp=Spawn(#ScriptSaw)
+    SetData(iTemp,#SawIX,115)
+    SetData(iTemp,#SawIY,45)
+
+  end if
+
+  SelectObjectMesh(iMeshes[iFrame])
+  SetProperties(0,0)
+
+  ControlFrog()
+
+  SelectObjectMesh(iMeshes[iFrame])
+  Identity()
+  Scale(2,2,2)
+  Translate(23,175,18)
+  SetProperties(#TextureFrog,1)
+
+end Sub
+
+sub ControlFrog()
+  iTimer=iTimer-1
+  if iTimer>75
+    iFrame=0
+  elseif iTimer>65
+    iFrame=1
+  elseif iTimer>42
+    iFrame=2
+  elseif iTimer>38
+    iFrame=3
+  elseif iTimer>34
+    iFrame=4
+  elseif iTimer>30
+    iFrame=5
+  elseif iTimer=30
+    Spawn(#ScriptSaw)
+    Sound(#SoundFrog)
+    iFrame=5
+  elseif iTimer>20
+    iFrame=5
+  elseif iTimer>16
+    iFrame=4
+  elseif iTimer=11
+    iFrame=3
+    if rnd(1,100)>50
+      iTimer=38
+    end if
+  elseif iTimer>10
+    iFrame=3
+  elseif iTimer>5
+    iFrame=2
+  elseif iTimer>1
+    iFrame=1
+  else
+    iTimer=95+rnd(1,40)
+    iFrame=1
+  end if
+end sub
+
+sub LoadFrogMeshes()
+  iMeshes[0]=NewMesh(#MeshFrogL)
+  iMeshes[1]=NewMesh(#MeshFrogB1)
+  iMeshes[2]=NewMesh(#MeshFrogB2)
+  iMeshes[3]=NewMesh(#MeshFrogB3)
+  iMeshes[4]=NewMesh(#MeshFrogB4)
+  iMeshes[5]=NewMesh(#MeshFrogB5)
+end sub
+
+sub Reset()
+  setext(#px,14)
+  setext(#py,17)
+  setext(#pz,3)
+  setext(#pstat,#jsNORMAL)
+end sub

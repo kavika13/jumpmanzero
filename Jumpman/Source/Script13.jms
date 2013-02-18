@@ -1,0 +1,165 @@
+include Constants
+include Level13Resources
+include RefBullet
+
+dim iInit
+dim iNum
+dim iCount
+dim iRot
+
+sub Main()
+  dim iTemp
+
+  if iInit=0
+    iInit=1
+
+    iTemp=spawn(#ScriptBullet)
+    SetData(iTemp,#BulletWait,300)
+    setData(iTemp,#BulletResMesh1,#meshBullet1)
+    setData(iTemp,#BulletResMesh2,#meshBullet2)
+    setData(iTemp,#BulletResTexture,#textureBullet)
+
+    SetConfig()
+    iNum=1
+    ResetVisible(iNum)
+  end if
+
+  if iCount>0
+    iCount=iCount-1
+    if rnd(1,30)<iCount
+      ResetVisible(iNum)
+    else
+      iTemp=NextNum(iNum)
+      ResetVisible(iTemp)
+    end if
+
+    if iCount=0
+      iNum=NextNum(iNum)
+      ResetVisible(iNum)
+    end if
+  end if
+
+  RotateBack()
+End Sub
+
+sub RotateBack()
+  dim iPic
+  iRot=iRot-0.5
+
+  iPic=200
+  while iPic<204
+    SelectPicture(iPic)
+    Identity()
+    Translate(-80,-40,0)
+    Scale(1.1,1.1,1)
+    RotateZ(iRot)
+    Translate(80,40,0)
+    iPic=iPic+1
+  loop
+end sub
+
+sub SetConfig()
+  dim iLoop 
+  dim iRnd
+  
+  iLoop=256
+  while iLoop<266
+    iRnd=rnd(0,1000)<500
+
+    if iRnd 
+      selectPlatform(iLoop+1)
+      setsel(#sNumber,iLoop-251)
+      selectPlatform(iLoop)
+    else
+      selectPlatform(iLoop)
+      setsel(#sNumber,iLoop-247)
+      selectPlatform(iLoop+1)
+    end if
+
+    setsel(#sy1,500)
+    setsel(#sy2,500)
+    translate(0,0,2000)
+
+    iLoop=iLoop+2
+  loop
+end sub
+
+sub ResetVisible(iNum)
+  dim iObj
+  dim iPlat
+  
+  iObj=0
+  while iObj<getext(#platforms)
+    absplatform(iObj)
+    iPlat=getsel(#sNumber)
+    if iPlat & iNum
+      SetProperties(6,1)
+    else
+      SetProperties(1,1)
+    end if
+    iObj=iObj+1
+  loop
+
+  iObj=0
+  while iObj<getext(#ladders)
+    absladder(iObj)
+    iPlat=getsel(#sNumber)
+    if iPlat & iNum
+      SetProperties(2,1)
+    else
+      SetProperties(1,1)
+    end if
+    iObj=iObj+1
+  loop
+
+  iObj=0
+  while iObj<getext(#vines)
+    absVine(iObj)
+    iPlat=getsel(#sNumber)
+    if iPlat & iNum
+      SetProperties(2,1)
+    else
+      SetProperties(1,1)
+    end if
+    iObj=iObj+1
+  loop
+
+  iObj=0
+  while iObj<getext(#donuts)
+    absDonut(iObj)
+    iPlat=getsel(#sNumber)
+    if iNum=1
+      SetProperties(1,getsel(#sVisible))
+    else
+      SetProperties(3,getsel(#sVisible))
+    end if
+    iObj=iObj+1
+  loop
+
+end sub
+
+sub NextNum(iMove)
+  if iMove=255
+    iNum=1
+  end if
+
+  iMove=iMove*2
+  if iMove=64
+    iMove=1
+  end if
+  return iMove
+end sub
+
+sub Donut()
+  iCount=30
+end sub
+
+sub reset()
+  iNum=255
+  ResetVisible(iNum)
+  setext(#px,68)
+  setext(#py,81)
+  setext(#pz,9)
+  setext(#pstat,#jsNORMAL)
+end sub
+
