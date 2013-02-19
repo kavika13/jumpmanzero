@@ -1,7 +1,9 @@
 #include "stdafx.h"
 
 #include <windows.h>
+#pragma warning( disable:4005 )
 #include <dmusicc.h>
+#pragma warning( default:4005 )
 #include <dmusici.h>
 #include <dxerr8.h>
 #include <tchar.h>

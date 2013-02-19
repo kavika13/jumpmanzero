@@ -20,17 +20,6 @@
 
 
 //-----------------------------------------------------------------------------
-// Name: DXUtil_GetDXSDKMediaPath() and DXUtil_FindMediaFile() 
-// Desc: Returns the DirectX SDK path, as stored in the system registry
-//       during the SDK install.
-//-----------------------------------------------------------------------------
-const TCHAR* DXUtil_GetDXSDKMediaPath();
-HRESULT      DXUtil_FindMediaFile( TCHAR* strPath, TCHAR* strFilename );
-
-
-
-
-//-----------------------------------------------------------------------------
 // Name: DXUtil_Read*RegKey() and DXUtil_Write*RegKey()
 // Desc: Helper functions to read/write a string registry key 
 //-----------------------------------------------------------------------------
@@ -39,7 +28,6 @@ HRESULT DXUtil_WriteIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD dwValue );
 HRESULT DXUtil_WriteGuidRegKey( HKEY hKey, TCHAR* strRegName, GUID guidValue );
 HRESULT DXUtil_WriteBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL bValue );
 
-HRESULT DXUtil_ReadStringRegKey( HKEY hKey, TCHAR* strRegName, TCHAR* strValue, DWORD dwLength, TCHAR* strDefault );
 HRESULT DXUtil_ReadIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD* pdwValue, DWORD dwDefault );
 HRESULT DXUtil_ReadGuidRegKey( HKEY hKey, TCHAR* strRegName, GUID* pGuidValue, GUID& guidDefault );
 HRESULT DXUtil_ReadBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL* pbValue, BOOL bDefault );
@@ -71,19 +59,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command );
 //-----------------------------------------------------------------------------
 VOID DXUtil_ConvertAnsiStringToWide( WCHAR* wstrDestination, const CHAR* strSource, int cchDestChar = -1 );
 VOID DXUtil_ConvertWideStringToAnsi( CHAR* strDestination, const WCHAR* wstrSource, int cchDestChar = -1 );
-VOID DXUtil_ConvertGenericStringToAnsi( CHAR* strDestination, const TCHAR* tstrSource, int cchDestChar = -1 );
 VOID DXUtil_ConvertGenericStringToWide( WCHAR* wstrDestination, const TCHAR* tstrSource, int cchDestChar = -1 );
-VOID DXUtil_ConvertAnsiStringToGeneric( TCHAR* tstrDestination, const CHAR* strSource, int cchDestChar = -1 );
-VOID DXUtil_ConvertWideStringToGeneric( TCHAR* tstrDestination, const WCHAR* wstrSource, int cchDestChar = -1 );
-
-
-
-
-//-----------------------------------------------------------------------------
-// GUID to String converting 
-//-----------------------------------------------------------------------------
-VOID DXUtil_ConvertGUIDToString( const GUID* pGuidIn, TCHAR* strOut );
-BOOL DXUtil_ConvertStringToGUID( const TCHAR* strIn, GUID* pGuidOut );
 
 
 
@@ -91,14 +67,7 @@ BOOL DXUtil_ConvertStringToGUID( const TCHAR* strIn, GUID* pGuidOut );
 //-----------------------------------------------------------------------------
 // Debug printing support
 //-----------------------------------------------------------------------------
-VOID    DXUtil_Trace( TCHAR* strMsg, ... );
 HRESULT _DbgOut( TCHAR*, DWORD, HRESULT, TCHAR* );
-
-#if defined(DEBUG) | defined(_DEBUG)
-    #define DXTRACE           DXUtil_Trace
-#else
-    #define DXTRACE           sizeof
-#endif
 
 #if defined(DEBUG) | defined(_DEBUG)
     #define DEBUG_MSG(str)    _DbgOut( __FILE__, (DWORD)__LINE__, 0, str )

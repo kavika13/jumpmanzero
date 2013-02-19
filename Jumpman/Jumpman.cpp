@@ -620,9 +620,9 @@ long ExtFunction(long iFunc, ScriptContext *SC)
 				}
 			}
 		if(iArg1==SERVICE_SAVEOPTIONS){
-			sprintf(sFile,"%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d",GameKeys[0],GameKeys[1],GameKeys[2],GameKeys[3],GameKeys[4],GameKeys[5],GameSoundOn,GameMusicOn);
+			sprintf_s(sFile,"%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d",GameKeys[0],GameKeys[1],GameKeys[2],GameKeys[3],GameKeys[4],GameKeys[5],GameSoundOn,GameMusicOn);
 			char sFileName[300];
-			sprintf(sFileName,"%s\\Data\\Settings.dat",GamePath);
+			sprintf_s(sFileName,"%s\\Data\\Settings.dat",GamePath);
 			hFile=CreateFile(sFileName,GENERIC_WRITE,FILE_SHARE_READ,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 			WriteFile(hFile,sFile,(long)strlen(sFile),&iWritten,NULL);
 			CloseHandle(hFile);
@@ -659,25 +659,25 @@ long ExtFunction(long iFunc, ScriptContext *SC)
 			if(iArg3>=0 && iArg3<=5){
 				iKey=GameKeys[iArg3];
 				if(iKey>='A' && iKey<='Z'){
-					sprintf(sName,"%c   ",iKey);
+					sprintf_s(sName,"%c   ",iKey);
 					}
 				else if(iKey>='0' && iKey<='9'){
-					sprintf(sName,"%c   ",iKey);
+					sprintf_s(sName,"%c   ",iKey);
 					}
-				else if(iKey==38)sprintf(sName,"UP  ");
-				else if(iKey==40)sprintf(sName,"DOWN");
-				else if(iKey==37)sprintf(sName,"LEFT");
-				else if(iKey==39)sprintf(sName,"RGHT");
-				else if(iKey==32)sprintf(sName,"SPC ");
-				else if(iKey==58)sprintf(sName,":   ");
-				else if(iKey==46)sprintf(sName,".   ");
-				else if(iKey==45)sprintf(sName,"-   ");
+				else if(iKey==38)sprintf_s(sName,"UP  ");
+				else if(iKey==40)sprintf_s(sName,"DOWN");
+				else if(iKey==37)sprintf_s(sName,"LEFT");
+				else if(iKey==39)sprintf_s(sName,"RGHT");
+				else if(iKey==32)sprintf_s(sName,"SPC ");
+				else if(iKey==58)sprintf_s(sName,":   ");
+				else if(iKey==46)sprintf_s(sName,".   ");
+				else if(iKey==45)sprintf_s(sName,"-   ");
 				}
 			else if(iArg3==32 || iArg3==33){
 				if(iArg3==32)iKey=GameSoundOn;
 				else iKey=GameMusicOn;
-				if(iKey)sprintf(sName,"ON  ");
-				else sprintf(sName,"OFF ");
+				if(iKey)sprintf_s(sName,"ON  ");
+				else sprintf_s(sName,"OFF ");
 				}
 			SC->Globals[iArg2]=1024;
 			SC->Globals[iArg2+1]=sName[0]*256;
@@ -693,19 +693,19 @@ long ExtFunction(long iFunc, ScriptContext *SC)
 		if(iArg1==SERVICE_GAMESTART){
 			iTitle=0;
 			GameLivesRemaining=7;
-			sprintf(sFileName,"%s\\Data\\*.jmg",GamePath);
+			sprintf_s(sFileName,"%s\\Data\\*.jmg",GamePath);
 			hFind=FindFirstFile(sFileName, &FindFileData);
 			while(iTitle<iArg2){
 				FindNextFile(hFind,&FindFileData);
 				++iTitle;
 				}
 			FindClose(hFind);
-			sprintf(GameFile,"%s\\Data\\%s",GamePath,FindFileData.cFileName);
+			sprintf_s(GameFile,"%s\\Data\\%s",GamePath,FindFileData.cFileName);
 			GameStatus=GS_INLEVEL;
 			}
 		if(iArg1==SERVICE_CREDITLINE){
-			sprintf(sFileName,"%s\\Data\\credits.txt",GamePath);
-			GetFileLine(sName,sFileName,iArg2);
+			sprintf_s(sFileName,"%s\\Data\\credits.txt",GamePath);
+			GetFileLine(sName,sizeof(sName),sFileName,iArg2);
 			iChar=-1;
 			while(sName[++iChar]!=0 && iChar<18){
 				SC->Globals[iArg3+iChar+1]=sName[iChar]*256;
@@ -714,12 +714,12 @@ long ExtFunction(long iFunc, ScriptContext *SC)
 			}
 		if(iArg1==SERVICE_GAMELIST){
 			iTitle=0;
-			sprintf(sFileName,"%s\\Data\\*.jmg",GamePath);
+			sprintf_s(sFileName,"%s\\Data\\*.jmg",GamePath);
 			hFind=FindFirstFile(sFileName, &FindFileData);
 			while(hFind!=INVALID_HANDLE_VALUE){
 				iChar=-1;
-				sprintf(sFile,"%s\\Data\\%s",GamePath,FindFileData.cFileName);
-				GetFileLine(sName,sFile,0);
+				sprintf_s(sFile,"%s\\Data\\%s",GamePath,FindFileData.cFileName);
+				GetFileLine(sName,sizeof(sName),sFile,0);
 				while(sName[++iChar]!=0 && iChar<18){
 					SC->Globals[iArg2+iTitle*20+iChar+1]=sName[iChar]*256;
 					}
@@ -758,11 +758,11 @@ long ExtFunction(long iFunc, ScriptContext *SC)
 	if(iFunc==EFPRINT && miDEBUG){
 		char sNum[100];
 		if(iArg1==-1)
-			sprintf(sNum,"\n");
+			sprintf_s(sNum,"\n");
 		else if(iArg1==-2)
-			sprintf(sNum," ");
+			sprintf_s(sNum," ");
 		else
-			sprintf(sNum,"%.0f",rArg1/256.0f);
+			sprintf_s(sNum,"%.0f",rArg1/256.0f);
 
 		OutputDebugString(sNum);
 		}
@@ -910,35 +910,35 @@ void LoadLevel(char *sFileName)
 			iArg2=StringToInt(&cData[iPlace+4]);
 
 			if(iTemp==1){
-				sprintf(sBuild,"%s\\Sound\\%s.MID",GamePath,sTemp);
+				sprintf_s(sBuild,"%s\\Sound\\%s.MID",GamePath,sTemp);
 				if(iArg1==1){
-					strcpy(msBackMusic,sBuild);
+					strcpy_s(msBackMusic,sBuild);
 					miIntroLength=iArg2*10;
 					}
-				if(iArg1==2)strcpy(msDeathMusic,sBuild);
-				if(iArg1==3)strcpy(msWinMusic,sBuild);
+				if(iArg1==2)strcpy_s(msDeathMusic,sBuild);
+				if(iArg1==3)strcpy_s(msWinMusic,sBuild);
 				}
 			if(iTemp==2){
-				sprintf(sBuild,"%s.MSH",sTemp);
+				sprintf_s(sBuild,"%s.MSH",sTemp);
 				iOtherMesh[miMeshes]=LoadMesh(sBuild);
 				++miMeshes;
 				}
 			if(iTemp==7){
-				sprintf(sBuild,"%s\\Sound\\%s.WAV",GamePath,sTemp);
+				sprintf_s(sBuild,"%s\\Sound\\%s.WAV",GamePath,sTemp);
 				LoadSound(sBuild,iSounds);
 				++iSounds;
 				}
 
 			if(iTemp==3 || iTemp==4 || iTemp==6){
-				sprintf(sBuild,"%s\\Data\\%s",GamePath,sTemp);
-				if(iTemp==3)strcat(sBuild,".BMP");
-				if(iTemp==4)strcat(sBuild,".JPG");
-				if(iTemp==6)strcat(sBuild,".PNG");
+				sprintf_s(sBuild,"%s\\Data\\%s",GamePath,sTemp);
+				if(iTemp==3)strcat_s(sBuild,".BMP");
+				if(iTemp==4)strcat_s(sBuild,".JPG");
+				if(iTemp==6)strcat_s(sBuild,".PNG");
 				LoadTexture(miTextures,sBuild,iArg1,(iTemp==6) || (iTemp==3 && iArg1==1));
 				++miTextures;
 				}
 			if(iTemp==5){
-				sprintf(sBuild,"%s\\Data\\%s.BIN",GamePath,sTemp);
+				sprintf_s(sBuild,"%s\\Data\\%s.BIN",GamePath,sTemp);
 				if(iArg1==1){
 					LoadScript(sBuild,&LevelScript);
 					ResetContext(&SCLevel);
@@ -1203,18 +1203,18 @@ void LoadLevel(char *sFileName)
 	while(++iChar<100){
 		bGood=1;
 		if((iChar>='A' && iChar<='Z') || (iChar>='0' && iChar<='9')){
-			sprintf(sChar,"%c",iChar);
+			sprintf_s(sChar,"%c",iChar);
 			}
-		else if(iChar=='.')sprintf(sChar,"Period");
-		else if(iChar=='\'')sprintf(sChar,"Apos");
-		else if(iChar=='-')sprintf(sChar,"Dash");
-		else if(iChar==':')sprintf(sChar,"Colon");
-		else if(iChar=='%')sprintf(sChar,"Square");
-		else if(iChar=='^')sprintf(sChar,"Jump");
+		else if(iChar=='.')sprintf_s(sChar,"Period");
+		else if(iChar=='\'')sprintf_s(sChar,"Apos");
+		else if(iChar=='-')sprintf_s(sChar,"Dash");
+		else if(iChar==':')sprintf_s(sChar,"Colon");
+		else if(iChar=='%')sprintf_s(sChar,"Square");
+		else if(iChar=='^')sprintf_s(sChar,"Jump");
 		else bGood=0;
 			
 		if(bGood){
-			sprintf(sFile,"Char%s.MSH",sChar);
+			sprintf_s(sFile,"Char%s.MSH",sChar);
 			iCharMesh[iChar]=LoadMesh(sFile);
 			}
 		else{
@@ -1222,10 +1222,10 @@ void LoadLevel(char *sFileName)
 			}
 		}
 
-	sprintf(sTemp,"%s\\Data\\panel.bmp",GamePath);
+	sprintf_s(sTemp,"%s\\Data\\panel.bmp",GamePath);
 	LoadTexture(miTextures,sTemp,0,0);
 	++miTextures;
-	sprintf(sTemp,"%s\\Data\\Titles.png",GamePath);
+	sprintf_s(sTemp,"%s\\Data\\Titles.png",GamePath);
 	LoadTexture(miTextures,sTemp,0,0);
 	++miTextures;
 }
@@ -1524,8 +1524,8 @@ void AnimateDying()
 			GameLivesRemaining=GameLivesRemaining-1;
 			if(GameLivesRemaining==0){
 				iPlayerST=JS_NORMAL;
-				strcpy(GameTitle,"");
-				sprintf(sTemp,"%s\\Data\\GameOver.DAT",GamePath);	
+				strcpy_s(GameTitle,"");
+				sprintf_s(sTemp,"%s\\Data\\GameOver.DAT",GamePath);	
 				PrepLevel(sTemp);
 				}
 			else{
@@ -1668,7 +1668,7 @@ void TextLine(char *sText,int iTextLen,char *sOut,int iOutLen,int iLine)
 		}
 }
 
-void GetLevelName(char *sLevel,int iLevel)
+void GetLevelName(char *sLevel,size_t sLevelSize,int iLevel)
 {
 	int iLen;
 	char sTemp[20];
@@ -1677,11 +1677,11 @@ void GetLevelName(char *sLevel,int iLevel)
 	iLen=FileToString(GameFile,(unsigned char **)&sData);
 	TextLine(sData,iLen,sTemp,20,iLevel*2-1);
 	TextLine(sData,iLen,GameTitle,49,iLevel*2);
-	sprintf(sLevel,"%s\\Data\\%s.DAT",GamePath,sTemp);	
+	sprintf_s(sLevel,sLevelSize,"%s\\Data\\%s.DAT",GamePath,sTemp);	
 	free(sData);
 }
 
-void GetFileLine(char *sOut,char *sFile,int iLine)
+void GetFileLine(char *sOut,size_t sOutSize,char *sFile,int iLine)
 {
 	int iLen;
 	char sTemp[20];
@@ -1689,7 +1689,7 @@ void GetFileLine(char *sOut,char *sFile,int iLine)
 
 	iLen=FileToString(sFile,(unsigned char **)&sData);
 	TextLine(sData,iLen,sTemp,20,iLine);
-	sprintf(sOut,"%s",sTemp);	
+	sprintf_s(sOut,sOutSize,"%s",sTemp);	
 	free(sData);
 }
 
@@ -1713,7 +1713,7 @@ void PrepLevel(char *sLevel)
 	ProgressGame();
 
 	char sFileName[300];
-	sprintf(sFileName,"%s\\Data\\Title.BIN",GamePath);
+	sprintf_s(sFileName,"%s\\Data\\Title.BIN",GamePath);
 
 	LoadScript(sFileName,&TitleScript);
 	ResetContext(&SCTitle);
@@ -1738,7 +1738,7 @@ void LoadNextLevel()
 		}
 	else{
 		++iLevel;
-		GetLevelName(sLevel,iLevel);
+		GetLevelName(sLevel,sizeof(sLevel),iLevel);
 		PrepLevel(sLevel);
 		}
 }
@@ -1752,7 +1752,7 @@ void LoadMenu()
 	SetFog(0,0,0);
 
 	if(GameMenu==GM_MAIN){
-		sprintf(sFileName,"%s\\Data\\MainMenu.DAT",GamePath);
+		sprintf_s(sFileName,"%s\\Data\\MainMenu.DAT",GamePath);
 		LoadLevel(sFileName);
 		if(iEvent1==10){
 			if(GameMusicOn)NewTrack1(msBackMusic,3000,-1);
@@ -1763,7 +1763,7 @@ void LoadMenu()
 		}
 
 	if(GameMenu==GM_OPTIONS){
-		sprintf(sFileName,"%s\\Data\\Options.DAT",GamePath);
+		sprintf_s(sFileName,"%s\\Data\\Options.DAT",GamePath);
 		LoadLevel(sFileName);
 		if(iEvent1==9){
   			if(GameMusicOn)NewTrack1(msBackMusic,0,miIntroLength);
@@ -1771,7 +1771,7 @@ void LoadMenu()
 		}
 
 	if(GameMenu==GM_SELECTGAME){
-		sprintf(sFileName,"%s\\Data\\SelectGame.DAT",GamePath);
+		sprintf_s(sFileName,"%s\\Data\\SelectGame.DAT",GamePath);
 		LoadLevel(sFileName);
 		if(iEvent1==9){
 			if(GameMusicOn)NewTrack1(msBackMusic,0,miIntroLength);
@@ -1807,7 +1807,7 @@ long LoadSettings()
 	int iKey;
 	char sFileName[300];
 
-	sprintf(sFileName,"%s\\Data\\Settings.DAT",GamePath);
+	sprintf_s(sFileName,"%s\\Data\\Settings.DAT",GamePath);
 
 	char *sData;
 	long iLen;
@@ -1816,13 +1816,13 @@ long LoadSettings()
 
 	iKey=-1;
 	while(++iKey<6){
-		GetFileLine(sTemp,sFileName,iKey);
+		GetFileLine(sTemp,sizeof(sTemp),sFileName,iKey);
 		GameKeys[iKey]=atoi(sTemp);
 		}	
   
-	GetFileLine(sTemp,sFileName,6);
+	GetFileLine(sTemp,sizeof(sTemp),sFileName,6);
 	GameSoundOn=atoi(sTemp);
-	GetFileLine(sTemp,sFileName,7);
+	GetFileLine(sTemp,sizeof(sTemp),sFileName,7);
 	GameMusicOn=atoi(sTemp);
 
 	return 1;
@@ -1861,7 +1861,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	HANDLE g_hDMusicMessageEvent   = NULL;
 
 	if(strlen(lpCmdLine)){
-		sprintf(GameDebugLevel,"%s\\Data\\%s.DAT",GamePath,lpCmdLine);	
+		sprintf_s(GameDebugLevel,"%s\\Data\\%s.DAT",GamePath,lpCmdLine);	
 		GameDebugMode=1;
 		LoadNextLevel();
 		iLevel=0;
@@ -1973,7 +1973,7 @@ long LoadMesh(char *sFileName)
 	long iObjectNum;
 	int iNums;
 
-	sprintf(sFullFile,"%s\\Data\\%s",GamePath,sFileName);
+	sprintf_s(sFullFile,"%s\\Data\\%s",GamePath,sFileName);
 
 	cData=NULL;
 	iNums=FileToString(sFullFile,&cData);

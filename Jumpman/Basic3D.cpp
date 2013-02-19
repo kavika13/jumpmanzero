@@ -201,17 +201,6 @@ void SwapLong(long *l1,long *l2)
 	*l2=iSwap;
 }
 
-void DebugNum(long iArg1)
-{
-	char sNum[100];
-	if(iArg1==-1)
-		sprintf(sNum,"\n");
-	else if(iArg1==-2)
-		sprintf(sNum," ");
-	else
-		sprintf(sNum,"%d",iArg1);
-}
-
 void SwapObjects(long o1, long o2)
 {
   D3DXMATRIX mSwap;
@@ -249,7 +238,7 @@ void LoadTexture(int iTex,char *sFile, int iType,int iAlpha)
 {
 	HRESULT hr;
 	texRequiresAlpha[iTex]=iAlpha;
-	strcpy(RetainTextureFile[iTex],sFile);
+	strcpy_s(RetainTextureFile[iTex],sFile);
 	texType[iTex]=iType;
 
 	if(iType==0){

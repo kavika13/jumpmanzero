@@ -10,7 +10,9 @@
 //
 // Copyright (c) 1999-2001 Microsoft Corp. All rights reserved.
 //-----------------------------------------------------------------------------
+#pragma warning( disable:4005 )
 #include <dmusicc.h>
+#pragma warning( default:4005 )
 #include <dmusici.h>
 #include <dsound.h>
 #include <dxerr8.h>
@@ -88,7 +90,7 @@ HRESULT CMusicManager::Initialize( HWND hWnd, DWORD dwPChannels, DWORD dwDefault
     {
         if( hr == DSERR_NODRIVER )
         {
-            DXTRACE( "Warning: No sound card found\n" );
+            DXTRACE_ERR( TEXT("Warning: No sound card found\n"), hr );
             return hr;
         }
 

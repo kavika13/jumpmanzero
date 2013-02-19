@@ -45,7 +45,7 @@ long FileToString(char *sFileName,unsigned char **sNewBuffer)
 	CloseHandle(hFile);
 
 	char sError[300];
-	sprintf(sError,"Can't find file - %s",sFileName);
+	sprintf_s(sError,"Can't find file - %s",sFileName);
 	if(!iNumRead)MessageBox(0,sError,"Jumpman Zero",0);
 
 	return iNumRead;

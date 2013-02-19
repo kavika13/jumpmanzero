@@ -146,7 +146,7 @@ struct ScriptContext{
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-void GetFileLine(char *sOut,char *sFile,int iLine);
+void GetFileLine(char *sOut,size_t sOutSize,char *sFile,int iLine);
 void LoadNextLevel();
 void ProgressGame();
 void DrawGame();
