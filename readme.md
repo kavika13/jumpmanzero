@@ -10,8 +10,6 @@ Currently Windows is the only supported platform.
 
 ([archive for Jumpman Zero home page](http://web.archive.org/web/20120527012046/http://www.jumpmanzero.com/), since above link is broken)
 
----
-
 ##About this repository
 
 [The original home page for the Jumpman Zero project](http://www.jumpmanzero.com) is currently inaccessible. I haven't managed to get in contact with the author yet about this, but [an archive of the Jumpman Zero site](http://web.archive.org/web/20120527012046/http://www.jumpmanzero.com/) is still visible, as is the source code/tools and latest released version of the game.
@@ -22,19 +20,21 @@ This repository exists in order to continue Dave's work, and to add Merlyn Morga
 
 It seems from [Dave Campbell's Jumpman Zero developer diary](http://web.archive.org/web/20110713125316/http://www.jumpmanzero.com/pc/diary.htm) that some of his work never got publically released. Maybe some of those features or bug fixes will make it into this development branch at some point.
 
----
-
 ##Building
 
 ###Clone this repository
 
-Install Git and follow the instructions off GitHub
+Install Git and follow [the instructions off GitHub](https://help.github.com/articles/working-with-repositories).
+
+Follow the instructions for Cloning [the Jumpman Zero repository](https://github.com/kavika13/jumpmanzero).
 
 ###Install Visual Studio
 
 2012 is the version I am using
 
 ###Install a DirectX SDK
+
+The simplest way to get a good SDK version is to clone and use [the Jumpman Zero third-party packages repository](https://github.com/kavika13/jumpmanzero-thirdparty). The rest of this section is how I got hold of those packages and a warning about them - use at your own risk!
 
 You need a version that supports [DirectMusic](http://en.wikipedia.org/wiki/DirectMusic) and includes the extended DirectX 8 SDK
 
