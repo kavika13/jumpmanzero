@@ -24,9 +24,7 @@ It seems from [Dave Campbell's Jumpman Zero developer diary](http://web.archive.
 
 ###Clone this repository
 
-Install Git and follow [the instructions off GitHub](https://help.github.com/articles/working-with-repositories).
-
-Follow the instructions for Cloning [the Jumpman Zero repository](https://github.com/kavika13/jumpmanzero).
+Install Git and follow [the instructions off GitHub](https://help.github.com/articles/working-with-repositories) to clone [the Jumpman Zero repository](https://github.com/kavika13/jumpmanzero). No need to fork it first (unless you want to) - just clone.
 
 ###Install Visual Studio
 
