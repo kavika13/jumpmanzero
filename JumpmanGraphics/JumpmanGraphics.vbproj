@@ -90,6 +90,7 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
@@ -127,11 +128,20 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="ToolOptions.Designer.vb">
+      <DependentUpon>ToolOptions.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ToolOptions.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="JMGraphics.resx">
       <DependentUpon>JMGraphics.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadDialog.resx">
       <DependentUpon>LoadDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolOptions.resx">
+      <DependentUpon>ToolOptions.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

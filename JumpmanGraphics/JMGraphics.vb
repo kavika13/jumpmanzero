@@ -49,6 +49,8 @@ Public Class Form1
     Friend WithEvents cbDrawBack As System.Windows.Forms.CheckBox
     Friend WithEvents picTextured As System.Windows.Forms.PictureBox
     Friend WithEvents cmdReset As System.Windows.Forms.Button
+    Friend WithEvents MenuStrip As System.Windows.Forms.MenuStrip
+    Friend WithEvents ToolOptionsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents cmdASE As System.Windows.Forms.Button
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.picGraphics = New System.Windows.Forms.PictureBox()
@@ -70,39 +72,45 @@ Public Class Form1
         Me.picTextured = New System.Windows.Forms.PictureBox()
         Me.cmdReset = New System.Windows.Forms.Button()
         Me.cmdASE = New System.Windows.Forms.Button()
+        Me.MenuStrip = New System.Windows.Forms.MenuStrip()
+        Me.ToolOptionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        CType(Me.picGraphics, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picSample, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picColors, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picTextured, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.MenuStrip.SuspendLayout()
         Me.SuspendLayout()
         '
         'picGraphics
         '
         Me.picGraphics.BackColor = System.Drawing.Color.Black
-        Me.picGraphics.Location = New System.Drawing.Point(12, 12)
+        Me.picGraphics.Location = New System.Drawing.Point(12, 27)
         Me.picGraphics.Name = "picGraphics"
-        Me.picGraphics.Size = New System.Drawing.Size(268, 208)
+        Me.picGraphics.Size = New System.Drawing.Size(270, 208)
         Me.picGraphics.TabIndex = 18
         Me.picGraphics.TabStop = False
         '
         'txtOutput
         '
-        Me.txtOutput.Location = New System.Drawing.Point(4, 464)
+        Me.txtOutput.Location = New System.Drawing.Point(12, 475)
         Me.txtOutput.Multiline = True
         Me.txtOutput.Name = "txtOutput"
-        Me.txtOutput.Size = New System.Drawing.Size(276, 64)
+        Me.txtOutput.Size = New System.Drawing.Size(270, 64)
         Me.txtOutput.TabIndex = 19
-        Me.txtOutput.Text = ""
         '
         'picSample
         '
         Me.picSample.BackColor = System.Drawing.Color.Black
-        Me.picSample.Location = New System.Drawing.Point(476, 12)
+        Me.picSample.Location = New System.Drawing.Point(475, 27)
         Me.picSample.Name = "picSample"
-        Me.picSample.Size = New System.Drawing.Size(168, 168)
+        Me.picSample.Size = New System.Drawing.Size(169, 168)
         Me.picSample.TabIndex = 20
         Me.picSample.TabStop = False
         '
         'picColors
         '
         Me.picColors.BackColor = System.Drawing.Color.Black
-        Me.picColors.Location = New System.Drawing.Point(288, 12)
+        Me.picColors.Location = New System.Drawing.Point(288, 27)
         Me.picColors.Name = "picColors"
         Me.picColors.Size = New System.Drawing.Size(140, 512)
         Me.picColors.TabIndex = 21
@@ -110,15 +118,15 @@ Public Class Form1
         '
         'cmdSetSample
         '
-        Me.cmdSetSample.Location = New System.Drawing.Point(476, 188)
+        Me.cmdSetSample.Location = New System.Drawing.Point(475, 203)
         Me.cmdSetSample.Name = "cmdSetSample"
-        Me.cmdSetSample.Size = New System.Drawing.Size(168, 24)
+        Me.cmdSetSample.Size = New System.Drawing.Size(169, 24)
         Me.cmdSetSample.TabIndex = 22
         Me.cmdSetSample.Text = "Set Sample"
         '
         'cmdRender
         '
-        Me.cmdRender.Location = New System.Drawing.Point(12, 436)
+        Me.cmdRender.Location = New System.Drawing.Point(12, 449)
         Me.cmdRender.Name = "cmdRender"
         Me.cmdRender.Size = New System.Drawing.Size(76, 20)
         Me.cmdRender.TabIndex = 23
@@ -126,30 +134,30 @@ Public Class Form1
         '
         'cmdSaveSettings
         '
-        Me.cmdSaveSettings.Location = New System.Drawing.Point(476, 220)
+        Me.cmdSaveSettings.Location = New System.Drawing.Point(475, 235)
         Me.cmdSaveSettings.Name = "cmdSaveSettings"
-        Me.cmdSaveSettings.Size = New System.Drawing.Size(168, 24)
+        Me.cmdSaveSettings.Size = New System.Drawing.Size(169, 24)
         Me.cmdSaveSettings.TabIndex = 24
         Me.cmdSaveSettings.Text = "Save Settings"
         '
         'cmdLoadSettings
         '
-        Me.cmdLoadSettings.Location = New System.Drawing.Point(476, 252)
+        Me.cmdLoadSettings.Location = New System.Drawing.Point(475, 267)
         Me.cmdLoadSettings.Name = "cmdLoadSettings"
-        Me.cmdLoadSettings.Size = New System.Drawing.Size(168, 24)
+        Me.cmdLoadSettings.Size = New System.Drawing.Size(169, 24)
         Me.cmdLoadSettings.TabIndex = 25
         Me.cmdLoadSettings.Text = "Load Settings"
         '
         'lstSrcFiles
         '
-        Me.lstSrcFiles.Location = New System.Drawing.Point(476, 284)
+        Me.lstSrcFiles.Location = New System.Drawing.Point(475, 299)
         Me.lstSrcFiles.Name = "lstSrcFiles"
-        Me.lstSrcFiles.Size = New System.Drawing.Size(164, 186)
+        Me.lstSrcFiles.Size = New System.Drawing.Size(169, 186)
         Me.lstSrcFiles.TabIndex = 26
         '
         'cmdAddSrcFile
         '
-        Me.cmdAddSrcFile.Location = New System.Drawing.Point(432, 476)
+        Me.cmdAddSrcFile.Location = New System.Drawing.Point(434, 491)
         Me.cmdAddSrcFile.Name = "cmdAddSrcFile"
         Me.cmdAddSrcFile.Size = New System.Drawing.Size(116, 20)
         Me.cmdAddSrcFile.TabIndex = 27
@@ -158,7 +166,7 @@ Public Class Form1
         'vsZ1
         '
         Me.vsZ1.LargeChange = 5
-        Me.vsZ1.Location = New System.Drawing.Point(432, 12)
+        Me.vsZ1.Location = New System.Drawing.Point(432, 27)
         Me.vsZ1.Maximum = 50
         Me.vsZ1.Name = "vsZ1"
         Me.vsZ1.Size = New System.Drawing.Size(16, 220)
@@ -167,7 +175,7 @@ Public Class Form1
         'vsZ2
         '
         Me.vsZ2.LargeChange = 5
-        Me.vsZ2.Location = New System.Drawing.Point(456, 12)
+        Me.vsZ2.Location = New System.Drawing.Point(456, 27)
         Me.vsZ2.Maximum = 50
         Me.vsZ2.Name = "vsZ2"
         Me.vsZ2.Size = New System.Drawing.Size(16, 220)
@@ -175,7 +183,7 @@ Public Class Form1
         '
         'lblZ1
         '
-        Me.lblZ1.Location = New System.Drawing.Point(432, 236)
+        Me.lblZ1.Location = New System.Drawing.Point(432, 251)
         Me.lblZ1.Name = "lblZ1"
         Me.lblZ1.Size = New System.Drawing.Size(20, 24)
         Me.lblZ1.TabIndex = 30
@@ -183,7 +191,7 @@ Public Class Form1
         '
         'lblZ2
         '
-        Me.lblZ2.Location = New System.Drawing.Point(456, 236)
+        Me.lblZ2.Location = New System.Drawing.Point(456, 251)
         Me.lblZ2.Name = "lblZ2"
         Me.lblZ2.Size = New System.Drawing.Size(20, 24)
         Me.lblZ2.TabIndex = 31
@@ -191,7 +199,7 @@ Public Class Form1
         '
         'cmdRenderAll
         '
-        Me.cmdRenderAll.Location = New System.Drawing.Point(96, 436)
+        Me.cmdRenderAll.Location = New System.Drawing.Point(94, 449)
         Me.cmdRenderAll.Name = "cmdRenderAll"
         Me.cmdRenderAll.Size = New System.Drawing.Size(76, 20)
         Me.cmdRenderAll.TabIndex = 32
@@ -199,7 +207,7 @@ Public Class Form1
         '
         'cbDrawBack
         '
-        Me.cbDrawBack.Location = New System.Drawing.Point(556, 496)
+        Me.cbDrawBack.Location = New System.Drawing.Point(565, 507)
         Me.cbDrawBack.Name = "cbDrawBack"
         Me.cbDrawBack.Size = New System.Drawing.Size(80, 16)
         Me.cbDrawBack.TabIndex = 33
@@ -208,36 +216,78 @@ Public Class Form1
         'picTextured
         '
         Me.picTextured.BackColor = System.Drawing.Color.Black
-        Me.picTextured.Location = New System.Drawing.Point(12, 224)
+        Me.picTextured.Location = New System.Drawing.Point(12, 239)
         Me.picTextured.Name = "picTextured"
-        Me.picTextured.Size = New System.Drawing.Size(268, 204)
+        Me.picTextured.Size = New System.Drawing.Size(270, 204)
         Me.picTextured.TabIndex = 34
         Me.picTextured.TabStop = False
         '
         'cmdReset
         '
-        Me.cmdReset.Location = New System.Drawing.Point(196, 436)
+        Me.cmdReset.Location = New System.Drawing.Point(202, 449)
         Me.cmdReset.Name = "cmdReset"
-        Me.cmdReset.Size = New System.Drawing.Size(80, 24)
+        Me.cmdReset.Size = New System.Drawing.Size(80, 20)
         Me.cmdReset.TabIndex = 35
         Me.cmdReset.Text = "Reset Colors"
         '
         'cmdASE
         '
-        Me.cmdASE.Location = New System.Drawing.Point(432, 500)
+        Me.cmdASE.Location = New System.Drawing.Point(434, 517)
         Me.cmdASE.Name = "cmdASE"
         Me.cmdASE.Size = New System.Drawing.Size(116, 20)
         Me.cmdASE.TabIndex = 36
         Me.cmdASE.Text = "Import ASE"
         '
+        'MenuStrip
+        '
+        Me.MenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolOptionsToolStripMenuItem})
+        Me.MenuStrip.Location = New System.Drawing.Point(0, 0)
+        Me.MenuStrip.Name = "MenuStrip"
+        Me.MenuStrip.Size = New System.Drawing.Size(657, 24)
+        Me.MenuStrip.TabIndex = 37
+        Me.MenuStrip.Text = "MenuStrip"
+        '
+        'ToolOptionsToolStripMenuItem
+        '
+        Me.ToolOptionsToolStripMenuItem.Name = "ToolOptionsToolStripMenuItem"
+        Me.ToolOptionsToolStripMenuItem.Size = New System.Drawing.Size(88, 20)
+        Me.ToolOptionsToolStripMenuItem.Text = "Tool &Options"
+        '
         'Form1
         '
         Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
-        Me.ClientSize = New System.Drawing.Size(648, 529)
-        Me.Controls.AddRange(New System.Windows.Forms.Control() {Me.cmdASE, Me.cmdReset, Me.picTextured, Me.cbDrawBack, Me.cmdRenderAll, Me.lblZ2, Me.lblZ1, Me.vsZ2, Me.vsZ1, Me.cmdAddSrcFile, Me.lstSrcFiles, Me.cmdLoadSettings, Me.cmdSaveSettings, Me.cmdRender, Me.cmdSetSample, Me.picColors, Me.picSample, Me.txtOutput, Me.picGraphics})
+        Me.ClientSize = New System.Drawing.Size(657, 552)
+        Me.Controls.Add(Me.cmdASE)
+        Me.Controls.Add(Me.cmdReset)
+        Me.Controls.Add(Me.picTextured)
+        Me.Controls.Add(Me.cbDrawBack)
+        Me.Controls.Add(Me.cmdRenderAll)
+        Me.Controls.Add(Me.lblZ2)
+        Me.Controls.Add(Me.lblZ1)
+        Me.Controls.Add(Me.vsZ2)
+        Me.Controls.Add(Me.vsZ1)
+        Me.Controls.Add(Me.cmdAddSrcFile)
+        Me.Controls.Add(Me.lstSrcFiles)
+        Me.Controls.Add(Me.cmdLoadSettings)
+        Me.Controls.Add(Me.cmdSaveSettings)
+        Me.Controls.Add(Me.cmdRender)
+        Me.Controls.Add(Me.cmdSetSample)
+        Me.Controls.Add(Me.picColors)
+        Me.Controls.Add(Me.picSample)
+        Me.Controls.Add(Me.txtOutput)
+        Me.Controls.Add(Me.picGraphics)
+        Me.Controls.Add(Me.MenuStrip)
+        Me.MainMenuStrip = Me.MenuStrip
         Me.Name = "Form1"
         Me.Text = "Jumpman Graphics"
+        CType(Me.picGraphics, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picSample, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picColors, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picTextured, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.MenuStrip.ResumeLayout(False)
+        Me.MenuStrip.PerformLayout()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -1759,8 +1809,8 @@ Public Class Form1
 
     End Sub
 
-
-
-
-
+    Private Sub ToolOptionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToolOptionsToolStripMenuItem.Click
+        Dim optionsDialog As ToolOptionsDialog = New ToolOptionsDialog()
+        optionsDialog.ShowDialog()
+    End Sub
 End Class

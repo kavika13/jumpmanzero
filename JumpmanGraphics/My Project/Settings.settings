@@ -2,13 +2,13 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
   <Profiles />
   <Settings>
-    <Setting Name="SourceDirectory" Type="System.String" Scope="Application">
+    <Setting Name="SourceDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Jumpman\Source\</Value>
     </Setting>
-    <Setting Name="OutputDirectory" Type="System.String" Scope="Application">
+    <Setting Name="OutputDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Jumpman\Data\</Value>
     </Setting>
-    <Setting Name="AseImportDirectory" Type="System.String" Scope="Application">
+    <Setting Name="AseImportDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\JumpmanGraphics\3dJunk\</Value>
     </Setting>
   </Settings>
