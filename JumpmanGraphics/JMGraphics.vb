@@ -1008,8 +1008,8 @@ Public Class Form1
         Dim iY As Long
         Dim iStartX As Single, iEndX As Single, iShiftX As Single
         Dim iStartY As Single, iEndY As Single, iShiftY As Single
-        Dim iStartU As Single, iEndU As Single, iShiftU As Single
-        Dim iStartV As Single, iEndV As Single, iShiftV As Single
+        Dim iStartU As Single, iEndU As Single
+        Dim iStartV As Single, iEndV As Single
         Dim iZ1 As Single, iZ2 As Single
 
         iShiftX = iWidth / 2
@@ -1073,8 +1073,8 @@ Public Class Form1
 
         Dim iStartX As Single, iEndX As Single, iShiftX As Single
         Dim iStartY As Single, iEndY As Single, iShiftY As Single
-        Dim iStartU As Single, iEndU As Single, iShiftU As Single
-        Dim iStartV As Single, iEndV As Single, iShiftV As Single
+        Dim iStartU As Single, iEndU As Single
+        Dim iStartV As Single, iEndV As Single
         iShiftX = iWidth / 2
         iShiftY = iHeight / 2 + 1
 
@@ -1115,7 +1115,6 @@ Public Class Form1
                         iZ2 = iColZ2(iForeCol)
                     End If
 
-                    Dim iPX As Single, iPY As Single
                     If iZ1 < iZ2 Then
 
                         iStartX = iX + iPX1 - iShiftX
@@ -1183,8 +1182,6 @@ Public Class Form1
         nY = Math.Round(nY / nL, 3)
         nZ = Math.Round(nZ / nL, 3)
 
-        Dim sAll As String
-
         Print(1, NumToString(iX1))
         Print(1, NumToString(iY1))
         Print(1, NumToString(iZ1))
@@ -1221,6 +1218,8 @@ Public Class Form1
     End Sub
 
     Private Function NumToString(ByVal sNum As Single, Optional ByVal iRep As Integer = 4) As String
+        NumToString = Nothing
+
         If iRep = 4 Then
             NumToString = IIf(sNum < 0, Chr(1), Chr(0))
             sNum = Math.Abs(sNum)
@@ -1355,7 +1354,7 @@ Public Class Form1
             SetSettingFile(sSettingFile)
         End If
 
-        Dim sAll As String
+        Dim sAll As String = Nothing
         Dim iLoop As Long
 
         sAll = sAll & sSampleFile & vbCrLf
@@ -1389,8 +1388,7 @@ Public Class Form1
         Dim sFile As String
         Dim sAll As String
         Dim sLines() As String
-        Dim iLine As String
-        Dim sLine As String
+        Dim iLine As String = Nothing
         Dim sParts() As String
         Dim iLoop As Long
 
@@ -1591,9 +1589,8 @@ Public Class Form1
         Dim sLines() As String
         sLines = Split(sAll, vbCrLf)
 
-        Dim sWaste As String
         Dim sItem As String
-        Dim sObjectName As String
+        Dim sObjectName As String = Nothing
         Dim fTransform(4, 4) As Double
         Dim fVertex(800, 3) As Double
 
@@ -1697,7 +1694,6 @@ Public Class Form1
         Dim uX As Double, uY As Double, uZ As Double
         Dim vX As Double, vY As Double, vZ As Double
         Static iTeX As Long
-        Static iTeY As Long
 
         iTeX = IIf(iTeX = 0, 1, 0)
 
@@ -1725,8 +1721,6 @@ Public Class Form1
         Dim sTX As Single, sTY As Single
 
         sTX = tX : sTY = tY
-
-        Dim sAll As String
 
         Print(1, NumToString(iX1))
         Print(1, NumToString(iY1))

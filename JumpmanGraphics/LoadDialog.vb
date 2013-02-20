@@ -116,7 +116,7 @@ Public Class LoadDialog
 
     Private Sub cmdLoad_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdLoad.Click
         Dim iLoop As Long
-        Dim sAll As String
+        Dim sAll As String = Nothing
 
         For iLoop = 0 To lstFiles.SelectedIndices.Count - 1
             sAll = sAll & lstFiles.Items(lstFiles.SelectedIndices.Item(iLoop)) & "~"
