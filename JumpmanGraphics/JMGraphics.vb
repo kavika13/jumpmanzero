@@ -1,3 +1,5 @@
+Imports System.IO
+
 Public Class Form1
     Inherits System.Windows.Forms.Form
 
@@ -659,15 +661,15 @@ Public Class Form1
     'End Sub
 
     'Private Sub RegImport(ByVal sFile As String)
-    '    txtFileIn.Text = "c:\Jumpman\Source\" & sFile & ".BMP"
-    '    txtFileOut.Text = "c:\Jumpman\Data\" & sFile & ".MSH"
+    '    txtFileIn.Text = Path.Combine(My.Settings.SourceDirectory, sFile & ".BMP")
+    '    txtFileOut.Text = Path.Combine(My.Settings.OutputDirectory, sFile & ".MSH")
     '    DoImport()
     'End Sub
 
     'Private Sub LoadMap()
     '    Dim sLine As String
     '    Dim sAll As String
-    '    FileOpen(1, "c:\Jumpman\Source\Jumpman.map", OpenMode.Input, OpenAccess.Default)
+    '    FileOpen(1, Path.Combine(My.Settings.SourceDirectory, "Jumpman.map"), OpenMode.Input, OpenAccess.Default)
     '    While Not EOF(1)
     '        Input(1, sLine)
     '        sAll = sAll & sLine & vbCrLf
@@ -692,14 +694,14 @@ Public Class Form1
     '    Dim iX1 As Single, iY1 As Single, iX2 As Single, iY2 As Single, iZ As Single
     '    Dim iTX1 As Single, iTX2 As Single, iTY1 As Single, iTY2 As Single
 
-    '    FileOpen(1, "c:\Jumpman\Data\BG.msh", OpenMode.Output)
+    '    FileOpen(1, Path.Combine(My.Settings.OutputDirectory, "BG.msh"), OpenMode.Output)
     '    iX1 = -100 : iY1 = 200 : iX2 = 255 : iY2 = -140 : iZ = 80
     '    AddFullTriangle(iX1, iY1, iZ, iX2, iY1, iZ, iX1, iY2, iZ, 0, 0, 1, 0, 0, 1)
     '    AddFullTriangle(iX2, iY1, iZ, iX2, iY2, iZ, iX1, iY2, iZ, 1, 0, 1, 1, 0, 1)
     '    FileClose(1)
 
 
-    '    FileOpen(1, "c:\Jumpman\Data\Wave.msh", OpenMode.Output)
+    '    FileOpen(1, Path.Combine(My.Settings.OutputDirectory, "Wave.msh"), OpenMode.Output)
     '    iX1 = -60 : iY1 = 10 : iX2 = 220 : iY2 = -10 : iZ = 0
     '    iTX1 = 0.01 : iTX2 = 41.99
     '    iTY1 = 0.03 : iTY2 = 0.99
@@ -707,7 +709,7 @@ Public Class Form1
     '    AddFullTriangle(iX2, iY1, iZ, iX2, iY2, iZ, iX1, iY2, iZ, iTX2, iTY1, iTX2, iTY2, iTX1, iTY2)
     '    FileClose(1)
 
-    '    FileOpen(1, "c:\Jumpman\Data\Sea.msh", OpenMode.Output)
+    '    FileOpen(1, Path.Combine(My.Settings.OutputDirectory, "Sea.msh"), OpenMode.Output)
     '    iX1 = -60 : iY1 = -5 : iX2 = 220 : iY2 = -135 : iZ = 0
     '    iTX1 = 0.1 : iTX2 = 0.9
     '    iTY1 = 0.1 : iTY2 = 0.9
@@ -715,7 +717,7 @@ Public Class Form1
     '    AddFullTriangle(iX2, iY1, iZ, iX2, iY2, iZ, iX1, iY2, iZ, iTX2, iTY1, iTX2, iTY2, iTX1, iTY2)
     '    FileClose(1)
 
-    '    FileOpen(1, "c:\Jumpman\Data\Drop.msh", OpenMode.Output)
+    '    FileOpen(1, Path.Combine(My.Settings.OutputDirectory, "Drop.msh"), OpenMode.Output)
     '    iX1 = -7 : iY1 = 7 : iX2 = 7 : iY2 = -7 : iZ = 0
     '    iTX1 = 0.1 : iTX2 = 1
     '    iTY1 = 0.1 : iTY2 = 1
@@ -909,7 +911,7 @@ Public Class Form1
 
         sCurFile = sBMP
 
-        bm = Bitmap.FromFile("c:\Jumpman\Source\" & sBMP & ".BMP")
+        bm = Bitmap.FromFile(Path.Combine(My.Settings.SourceDirectory, sBMP & ".BMP"))
         iWidth = bm.Width
         iHeight = bm.Height
 
@@ -1000,7 +1002,7 @@ Public Class Form1
     End Sub
 
     Private Sub RenderObject()
-        FileOpen(1, "c:\Jumpman\Data\" & sCurFile & ".msh", OpenMode.Output, OpenAccess.Default)
+        FileOpen(1, Path.Combine(My.Settings.OutputDirectory, sCurFile & ".msh"), OpenMode.Output, OpenAccess.Default)
         Dim iCol As Long
         Dim iCurCol As Long
         Dim iCount As Long
@@ -1239,7 +1241,7 @@ Public Class Form1
     Private Sub cmdSetSample_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdSetSample.Click
         Dim ld As New LoadDialog()
         ld.Description = "Load Sample Texture"
-        ld.Directory = "c:\jumpman\data\"
+        ld.Directory = My.Settings.OutputDirectory
         ld.Extensions = "BMP,PNG,JPG"
 
         ld.ShowDialog()
@@ -1372,7 +1374,7 @@ Public Class Form1
             sAll = sAll & iColZ1(iLoop) & " " & iColZ2(iLoop) & vbCrLf
         Next
 
-        FileOpen(1, "c:\Jumpman\Source\" & sSettingFile & ".SET", OpenMode.Output)
+        FileOpen(1, Path.Combine(My.Settings.SourceDirectory, sSettingFile & ".SET"), OpenMode.Output)
         Print(1, sAll)
         FileClose(1)
     End Sub
@@ -1380,7 +1382,7 @@ Public Class Form1
     Private Sub cmdLoadSettings_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdLoadSettings.Click
         Dim ld As New LoadDialog()
         ld.Description = "Load Import Settings"
-        ld.Directory = "c:\jumpman\source\"
+        ld.Directory = My.Settings.SourceDirectory
         ld.Extensions = "SET"
 
         ld.ShowDialog()
@@ -1401,7 +1403,7 @@ Public Class Form1
             sFile = Microsoft.VisualBasic.Left(sFile, InStr(sFile, ".") - 1)
             SetSettingFile(sFile)
 
-            FileOpen(1, "c:\jumpman\source\" & sFile & ".SET", OpenMode.Input)
+            FileOpen(1, Path.Combine(My.Settings.SourceDirectory, sFile & ".SET"), OpenMode.Input)
             sAll = InputString(1, LOF(1))
             sLines = Split(sAll, vbCrLf)
             LoadSampleFile(sLines(0))
@@ -1482,7 +1484,7 @@ Public Class Form1
     Private Sub cmdAddSrcFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdAddSrcFile.Click
         Dim ld As New LoadDialog()
         ld.Description = "Add Source File"
-        ld.Directory = "c:\jumpman\source\"
+        ld.Directory = My.Settings.SourceDirectory
         ld.Extensions = "BMP"
         ld.AllowMultiple = True
 
@@ -1572,8 +1574,8 @@ Public Class Form1
 
         sImport = InputBox("File to import?")
 
-        sImportIn = "c:\JumpmanGraphics\3dJunk\" & sImport & ".ase"
-        sImportOut = "c:\Jumpman\Data\" & sImport & ".msh"
+        sImportIn = Path.Combine(My.Settings.AseImportDirectory, sImport & ".ase")
+        sImportOut = Path.Combine(My.Settings.OutputDirectory, sImport & ".msh")
 
         If Dir(sImportIn) = "" Then
             MsgBox("Cannot open " & sImportIn & ".")
