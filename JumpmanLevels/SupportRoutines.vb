@@ -75,6 +75,7 @@ Module SupportRoutines
     End Function
 
     Public Function IntToString(ByVal iInt As Integer) As String
+        IntToString = Nothing
         Dim iTemp As Integer
         iTemp = iInt Mod 256
         IntToString = IntToString & Chr(iTemp)
@@ -92,7 +93,6 @@ Module SupportRoutines
     Public Function NumToString(ByVal sNum As Single) As String
         Dim bNeg As Boolean
         Dim iNum1 As Integer, iNum2 As Integer, iNum3 As Integer, iNum4 As Integer
-        Dim iTemp As Long
         Dim iNum As Int32
 
         iNum = sNum * 256

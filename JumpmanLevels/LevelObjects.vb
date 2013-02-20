@@ -22,15 +22,15 @@ Public Structure LevelResource
     Dim ResourceData2 As Long
     Dim FileName As String
 
-    Public Function ConvertToString()
-        Dim sLine As String, sTemp As String
+    Public Function ConvertToString() As String
+        Dim sLine As String = Nothing, sTemp As String
         sTemp = Me.FileName
         sTemp = Replace(sTemp, " ", "~32~")
         sLine = sLine & sTemp & " " & Me.ResourceType & " " & Me.ResourceData & " " & Me.ResourceData2
         ConvertToString = sLine
     End Function
 
-    Public Function ConvertFromString(ByVal sLine As String)
+    Public Function ConvertFromString(ByVal sLine As String) As LevelResource
         Dim sParts() As String
         Dim sTemp As String
         sParts = Split(sLine, " ")
@@ -43,6 +43,8 @@ Public Structure LevelResource
         If UBound(sParts) > 2 Then
             Me.ResourceData2 = sParts(3)
         End If
+
+        Return Me
     End Function
 
 End Structure
@@ -76,7 +78,6 @@ Public Structure LevelObject
     Dim Texture As Long
 
     Public Sub DestroyIfInvalid()
-        Dim iTemp As Single
         If Me.Type = "PLATFORM" Then
             If Me.V(1).X >= Me.V(2).X Then
                 SwapVertexes(1, 2)
@@ -111,7 +112,7 @@ Public Structure LevelObject
         Me.V(v1).TY = iTemp
     End Sub
 
-    Public Function ConvertFromString(ByVal sLine As String) As String
+    Public Function ConvertFromString(ByVal sLine As String) As LevelObject
         Dim sParts() As String
         Dim iPart As Long
 
@@ -155,10 +156,12 @@ Public Structure LevelObject
         Me.Z2 = sParts(iPart) : iPart = iPart + 1
 
         Me.Texture = sParts(iPart) : iPart = iPart + 1
+
+        Return Me
     End Function
 
     Public Function ConvertToString() As String
-        Dim sLine As String
+        Dim sLine As String = Nothing
 
         sLine = sLine & Me.DrawB & " "
         sLine = sLine & Me.DrawF & " "

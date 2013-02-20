@@ -551,7 +551,7 @@ Public Class JLForm
         Dim iLoop As Long
 
         If bFile Then
-            Dim sAll As String
+            Dim sAll As String = Nothing
             Dim iScripts As Long
             Dim iMeshes As Long
             Dim iTextures As Long
@@ -1127,7 +1127,7 @@ Public Class JLForm
     End Sub
 
     Private Sub SaveFile()
-        Dim sAll As String
+        Dim sAll As String = Nothing
         Dim sLine As String
         Dim iLoop As Long
 
@@ -1395,7 +1395,7 @@ Public Class JLForm
 
     Private Sub picLevel_MouseMove(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles picLevel.MouseMove
         Dim g As Graphics
-        Dim LO As LevelObject
+        Dim LO As LevelObject = New LevelObject()
         Dim sTemp As String
 
         ReDim LO.V(8)
@@ -1565,7 +1565,6 @@ Public Class JLForm
 
         If e.KeyCode = Keys.OemCloseBrackets Then
             Dim iTX As Single, iTY As Single
-            Dim iLoop As Long
             If miSelectedItem <> -1 Then
                 If mLO(miSelectedItem).Type = "WALL" Then
                     iTX = mLO(miSelectedItem).V(4).X
@@ -1585,7 +1584,6 @@ Public Class JLForm
 
         If e.KeyCode = Keys.OemOpenBrackets Then
             Dim iTX As Single, iTY As Single
-            Dim iLoop As Long
             If miSelectedItem <> -1 Then
                 If mLO(miSelectedItem).Type = "WALL" Then
                     iTX = mLO(miSelectedItem).V(4).X

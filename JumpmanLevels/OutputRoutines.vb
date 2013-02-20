@@ -97,7 +97,6 @@ Module OutputRoutines
         Dim U8 As Vertex
 
         Dim iTX1 As Single, iTX2 As Single, iTX3 As Single, iTX4 As Single
-        Dim iTY1 As Single, iTY2 As Single, iTY3 As Single, iTY4 As Single
 
         'OLD METHOD
         'iShift = (V2.Y - V1.Y) / (V2.X - V1.X) * 3 / 15
