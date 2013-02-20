@@ -2,45 +2,45 @@
 
 Public Module FunctionConstants
 
-    Const FCBASECN = 2
-    Const FCSTACKCN = 3
+    Const FCBASECN As Integer = 2
+    Const FCSTACKCN As Integer = 3
 
-    Const FCMOVBCCN = 10
-    Const FCMOVSCCN = 11
-    Const FCMOVBSSC = 12
-    Const FCMOVSCBC = 13
-    Const FCMOVSCSC = 14
+    Const FCMOVBCCN As Integer = 10
+    Const FCMOVSCCN As Integer = 11
+    Const FCMOVBSSC As Integer = 12
+    Const FCMOVSCBC As Integer = 13
+    Const FCMOVSCSC As Integer = 14
 
-    Const FCMOVGCCN = 20
-    Const FCMOVGSSC = 21
-    Const FCMOVSCGC = 22
-    Const FCMOVGCSC = 23
+    Const FCMOVGCCN As Integer = 20
+    Const FCMOVGSSC As Integer = 21
+    Const FCMOVSCGC As Integer = 22
+    Const FCMOVGCSC As Integer = 23
 
-    Const FCADDSCCN = 30
+    Const FCADDSCCN As Integer = 30
 
-    Const FCADDSCSC = 40
-    Const FCMULSCSC = 41
-    Const FCSUBSCSC = 42
-    Const FCDIVSCSC = 43
+    Const FCADDSCSC As Integer = 40
+    Const FCMULSCSC As Integer = 41
+    Const FCSUBSCSC As Integer = 42
+    Const FCDIVSCSC As Integer = 43
 
-    Const FCMOVSCGS = 44
-    Const FCMOVSCBS = 45
-    Const FCBANDSCSC = 46
+    Const FCMOVSCGS As Integer = 44
+    Const FCMOVSCBS As Integer = 45
+    Const FCBANDSCSC As Integer = 46
 
-    Const FCJUMPZ = 50
-    Const FCJUMPNZ = 51
-    Const FCJUMP = 52
+    Const FCJUMPZ As Integer = 50
+    Const FCJUMPNZ As Integer = 51
+    Const FCJUMP As Integer = 52
 
-    Const FCEQUSCSC = 60
-    Const FCNEQSCSC = 61
-    Const FCGTSCSC = 62
-    Const FCGTESCSC = 63
-    Const FCORSCSC = 64
-    Const FCANDSCSC = 65
-    Const FCCALL = 70
-    Const FCRET = 71
+    Const FCEQUSCSC As Integer = 60
+    Const FCNEQSCSC As Integer = 61
+    Const FCGTSCSC As Integer = 62
+    Const FCGTESCSC As Integer = 63
+    Const FCORSCSC As Integer = 64
+    Const FCANDSCSC As Integer = 65
+    Const FCCALL As Integer = 70
+    Const FCRET As Integer = 71
 
-    Const FCEXT = 100
+    Const FCEXT As Integer = 100
 
     Function ExtFunctionName(ByVal iFunc As Integer) As String
         Select Case iFunc
@@ -155,6 +155,8 @@ Public Module FunctionConstants
             Case 89
                 ExtFunctionName = "changemesh"
 
+            Case Else
+                ExtFunctionName = Nothing
         End Select
     End Function
 
@@ -433,7 +435,6 @@ Public Module FunctionConstants
 
     Public Function LoadCode(ByVal sFile As String) As String
         Dim sAll As String
-        Dim sTemp As String
 
         Try
             FileOpen(1, sFile, OpenMode.Input)
@@ -461,7 +462,6 @@ Public Module FunctionConstants
     Public Function IntToString(ByVal iNum As Int32) As String
         Dim bNeg As Boolean
         Dim iNum1 As Integer, iNum2 As Integer, iNum3 As Integer, iNum4 As Integer
-        Dim iTemp As Long
 
         If iNum < 0 Then
             bNeg = True

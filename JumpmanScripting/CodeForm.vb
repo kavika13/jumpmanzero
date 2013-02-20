@@ -304,7 +304,6 @@ Public Class CodeForm
         End If
 
         Dim sTemp As String
-        Dim sBase As String
 
         sTemp = "c:\Jumpman\Data\" & sCurrentFile & ".BIN"
         oScript.WriteBinary(sTemp)

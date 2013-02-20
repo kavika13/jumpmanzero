@@ -44,20 +44,20 @@ Public Class ScriptCompiler
 
 #Region "Public Interface Functions"
 
-    Public Function GetFirstLine(ByVal iSub As Integer)
+    Public Function GetFirstLine(ByVal iSub As Integer) As Integer
         GetFirstLine = mSubs(iSub).LineStart / 3
     End Function
 
-    Public Function GetLine(ByVal iLine As Long, ByRef iFunc As Integer, ByRef iArg1 As Integer, ByRef iArg2 As Integer)
+    Public Sub GetLine(ByVal iLine As Long, ByRef iFunc As Integer, ByRef iArg1 As Integer, ByRef iArg2 As Integer)
         iFunc = iAsm(iLine * 3 + 0)
         iArg1 = iAsm(iLine * 3 + 1)
         iArg2 = iAsm(iLine * 3 + 2)
-    End Function
+    End Sub
 
-    Public Function WriteConstants(ByVal sFile As String, ByVal sPrefix As String)
+    Public Sub WriteConstants(ByVal sFile As String, ByVal sPrefix As String)
         FileOpen(1, sFile, OpenMode.Output)
 
-        Dim sAll As String
+        Dim sAll As String = Nothing
         Dim iLoop As Long
         Dim sLast As String
 
@@ -72,12 +72,12 @@ Public Class ScriptCompiler
         Print(1, sAll)
 
         FileClose(1)
-    End Function
+    End Sub
 
-    Public Function WriteBinary(ByVal sFile As String)
+    Public Sub WriteBinary(ByVal sFile As String)
 
         Dim iLoop As Long
-        Dim sAll As String
+        Dim sAll As String = Nothing
 
         sAll = sAll & IntToString(iSubs + 1)
 
@@ -94,7 +94,7 @@ Public Class ScriptCompiler
         Print(1, sAll)
         FileClose(1)
 
-    End Function
+    End Sub
 
     Public Function CompileSummary() As String
         CompileSummary = sCompiled
@@ -335,7 +335,7 @@ Public Class ScriptCompiler
     Private Sub CodeToSubs(ByVal sCode As String)
         Dim sLines() As String
         Dim iLine As Integer
-        Dim sInSub As String
+        Dim sInSub As String = ""
 
         mSubs(0).Name = "globals"
 
@@ -408,7 +408,7 @@ Public Class ScriptCompiler
 
     Private Sub CompileLine(ByVal sLine As String)
         Dim sParts() As String
-        Dim s0 As String, s1 As String, s2 As String, s3 As String, s4 As String
+        Dim s0 As String = "", s1 As String = Nothing, s2 As String = Nothing, s3 As String = Nothing, s4 As String
         Dim iRef As Long
 
         sParts = Split(sLine, "~")
@@ -561,7 +561,7 @@ Public Class ScriptCompiler
 
     End Sub
 
-    Private Function Evaluate(ByVal sExp As String, ByVal iSP As Long)
+    Private Sub Evaluate(ByVal sExp As String, ByVal iSP As Long)
         Dim iNSP As Long
         Dim sParts() As String
 
@@ -691,32 +691,32 @@ Public Class ScriptCompiler
             iRef = GetVariableRef(sParts(1))
             If iRef <> -1 Then
                 AddInst("MOVSCBC~" & iSP & "~" & iRef)
-                Exit Function
+                Exit Sub
             End If
             If Left(sParts(1), 1) = "#" Then
                 iRef = GetConstantValue(Mid(sParts(1), 2))
                 AddInst("MOVSCCN~" & iSP & "~" & iRef)
-                Exit Function
+                Exit Sub
             End If
             If Left(sParts(1), 1) = "_" Then
                 iRef = Mid(sParts(1), 2)
                 AddInst("MOVSCSC~" & iSP & "~" & iRef)
-                Exit Function
+                Exit Sub
             End If
             If IsNumeric(sParts(1)) Then
                 AddInst("MOVSCCN~" & iSP & "~" & sParts(1))
-                Exit Function
+                Exit Sub
             End If
             iRef = GetGlobalRef(sParts(1))
             If iRef <> -1 Then
                 AddInst("MOVSCGC~" & iSP & "~" & iRef)
-                Exit Function
+                Exit Sub
             End If
 
         End If
 
-        Dim sBefore As String
-        Dim sAfter As String
+        Dim sBefore As String = Nothing
+        Dim sAfter As String = Nothing
         Dim sOp As String
 
         sOp = ""
@@ -749,79 +749,79 @@ Public Class ScriptCompiler
         If sOp = "~+~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("ADDSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         If sOp = "~-~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("SUBSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         If sOp = "~*~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("MULSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         If sOp = "~&~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("BANDSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         If sOp = "~/~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("DIVSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         If sOp = "~=~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("EQUSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
         If sOp = "~!=~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("NEQSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
         If sOp = "~<~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 1)
             AddInst("GTSCSC~" & iSP & "~" & iNSP - 2)
-            Exit Function
+            Exit Sub
         End If
         If sOp = "~>~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("GTSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
         If sOp = "~<=~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 1)
             AddInst("GTESCSC~" & iSP & "~" & iNSP - 2)
-            Exit Function
+            Exit Sub
         End If
         If sOp = "~>=~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("GTESCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         If sOp = "~&&~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("ANDSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         If sOp = "~||~" Then
             AddInst("MOVSCSC~" & iSP & "~" & iNSP - 2)
             AddInst("ORSCSC~" & iSP & "~" & iNSP - 1)
-            Exit Function
+            Exit Sub
         End If
 
         msError = "Invalid expression"
 
-    End Function
+    End Sub
 
 #End Region
 
@@ -850,7 +850,9 @@ Public Class ScriptCompiler
 
     End Function
 
-    Private Function FindOp(ByVal sExp As String, ByVal sOp As String, ByRef sBefore As String, ByRef sAfter As String)
+    Private Function FindOp(ByVal sExp As String, ByVal sOp As String, ByRef sBefore As String, ByRef sAfter As String) As String
+        FindOp = Nothing
+
         If InStr(sExp, sOp) Then
             sBefore = Left(sExp, InStr(sExp, sOp) - 1)
             sAfter = Mid(sExp, InStr(sExp, sOp) + Len(sOp))
@@ -862,7 +864,6 @@ Public Class ScriptCompiler
         Dim sArgs() As String
         Dim iArg As Long
         Dim iLoop As Long
-        Dim sEval As String
         Dim iNSP As Long
 
         iNSP = iSP + 1
@@ -894,7 +895,7 @@ Public Class ScriptCompiler
         Dim sParts() As String
         Dim iLoop As Long
         Dim iBracket As Long
-        Dim sAll As String
+        Dim sAll As String = Nothing
 
         sParts = Split(sExp, "~")
         For iLoop = 0 To UBound(sParts)
@@ -915,7 +916,6 @@ Public Class ScriptCompiler
         Dim sArgs() As String
         Dim iArg As Long
         Dim iLoop As Long
-        Dim sEval As String
         Dim iNSP As Long
 
         iNSP = iSP + 1
@@ -954,12 +954,12 @@ Public Class ScriptCompiler
     Private Function ParseTokens(ByVal sLine As String) As String
         Dim sChar As String
         Dim iChar As Long
-        Dim sBuild As String
-        Dim sDone As String
+        Dim sBuild As String = Nothing
+        Dim sDone As String = Nothing
         Dim sNext As String
         Dim sOperator As String
 
-        Dim sLastThing As String
+        Dim sLastThing As String = Nothing
 
         Dim bQuote As Boolean
         Dim sQuoted As String
@@ -974,6 +974,7 @@ Public Class ScriptCompiler
             iEnd = InStr(sQuoted, """")
             If iEnd = 0 Then
                 MsgBox("Unterminated string!")
+                ParseTokens = Nothing
                 Exit Function
             End If
             sQuoted = Left(sQuoted, iEnd - 1)
