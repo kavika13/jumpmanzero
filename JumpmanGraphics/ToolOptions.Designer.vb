@@ -134,7 +134,7 @@ Partial Class ToolOptionsDialog
         '
         'SaveButton
         '
-        Me.SaveButton.Location = New System.Drawing.Point(541, 120)
+        Me.SaveButton.Location = New System.Drawing.Point(535, 120)
         Me.SaveButton.Name = "SaveButton"
         Me.SaveButton.Size = New System.Drawing.Size(75, 23)
         Me.SaveButton.TabIndex = 1
@@ -143,7 +143,7 @@ Partial Class ToolOptionsDialog
         '
         'CancelButton1
         '
-        Me.CancelButton1.Location = New System.Drawing.Point(460, 120)
+        Me.CancelButton1.Location = New System.Drawing.Point(454, 120)
         Me.CancelButton1.Name = "CancelButton1"
         Me.CancelButton1.Size = New System.Drawing.Size(75, 23)
         Me.CancelButton1.TabIndex = 2
@@ -168,7 +168,11 @@ Partial Class ToolOptionsDialog
         Me.Controls.Add(Me.CancelButton1)
         Me.Controls.Add(Me.SaveButton)
         Me.Controls.Add(Me.GroupBox1)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
+        Me.MaximizeBox = False
+        Me.MinimizeBox = False
         Me.Name = "ToolOptionsDialog"
+        Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.Text = "Tool Options"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
