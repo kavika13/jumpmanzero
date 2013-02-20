@@ -253,9 +253,9 @@ Public Class EditResources
         Dim ld As New LoadDialog()
         ld.Description = sDescription
         If sExt = "MID" Or sExt = "WAV" Then
-            ld.Directory = "c:\jumpman\sound\"
+            ld.Directory = My.Settings.SoundResourceDirectory
         Else
-            ld.Directory = "c:\jumpman\data\"
+            ld.Directory = My.Settings.ContentResourceDirectory
         End If
 
         ld.Extensions = sExt

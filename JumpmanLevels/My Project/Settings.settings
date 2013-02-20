@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
+  <Profiles />
+  <Settings>
+    <Setting Name="SoundResourceDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Jumpman\Sound\</Value>
+    </Setting>
+    <Setting Name="ContentResourceDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Jumpman\Data\</Value>
+    </Setting>
+    <Setting Name="LevelSourceDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Jumpman\Source\</Value>
+    </Setting>
+    <Setting Name="LevelCompileOutputDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Jumpman\Data\</Value>
+    </Setting>
+    <Setting Name="ApplicationResourceDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\JumpmanLevels\</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

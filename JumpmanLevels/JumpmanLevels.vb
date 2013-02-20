@@ -1,3 +1,4 @@
+Imports System.IO
 
 Public Class JLForm
     Inherits System.Windows.Forms.Form
@@ -26,6 +27,7 @@ Public Class JLForm
     Dim miSBoxes As Long
     Dim miSBX(10) As Long
     Dim miSBY(10) As Long
+    Friend WithEvents SettingsMenuItem As System.Windows.Forms.MenuItem
     Dim miSBT(10) As Long
 
     Private Sub SetCaption()
@@ -198,8 +200,9 @@ Public Class JLForm
     Friend WithEvents cbShowPictures As System.Windows.Forms.CheckBox
     Friend WithEvents cmdSaveRender As System.Windows.Forms.Button
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.picLevel = New System.Windows.Forms.PictureBox()
-        Me.MainMenu1 = New System.Windows.Forms.MainMenu()
+        Me.MainMenu1 = New System.Windows.Forms.MainMenu(Me.components)
         Me.MenuItem1 = New System.Windows.Forms.MenuItem()
         Me.MenuNew = New System.Windows.Forms.MenuItem()
         Me.MenuLoad = New System.Windows.Forms.MenuItem()
@@ -210,6 +213,7 @@ Public Class JLForm
         Me.MenuItem2 = New System.Windows.Forms.MenuItem()
         Me.MenuResources = New System.Windows.Forms.MenuItem()
         Me.MenuItem4 = New System.Windows.Forms.MenuItem()
+        Me.SettingsMenuItem = New System.Windows.Forms.MenuItem()
         Me.cmdPlatform = New System.Windows.Forms.Button()
         Me.cmdSelect = New System.Windows.Forms.Button()
         Me.cmdLadder = New System.Windows.Forms.Button()
@@ -236,6 +240,7 @@ Public Class JLForm
         Me.grpCoordinates = New System.Windows.Forms.GroupBox()
         Me.cbShowPictures = New System.Windows.Forms.CheckBox()
         Me.cmdSaveRender = New System.Windows.Forms.Button()
+        CType(Me.picLevel, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.timRepaint, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.grpDepth.SuspendLayout()
         Me.grpCoordinates.SuspendLayout()
@@ -293,7 +298,7 @@ Public Class JLForm
         'MenuItem2
         '
         Me.MenuItem2.Index = 1
-        Me.MenuItem2.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuResources, Me.MenuItem4})
+        Me.MenuItem2.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuResources, Me.MenuItem4, Me.SettingsMenuItem})
         Me.MenuItem2.Text = "Edit"
         '
         'MenuResources
@@ -305,6 +310,11 @@ Public Class JLForm
         '
         Me.MenuItem4.Index = 1
         Me.MenuItem4.Text = "Scripts"
+        '
+        'SettingsMenuItem
+        '
+        Me.SettingsMenuItem.Index = 2
+        Me.SettingsMenuItem.Text = "&Settings"
         '
         'cmdPlatform
         '
@@ -343,7 +353,7 @@ Public Class JLForm
         '
         'timRepaint
         '
-        Me.timRepaint.Interval = 300
+        Me.timRepaint.Interval = 300.0R
         Me.timRepaint.SynchronizingObject = Me
         '
         'cmdDelete
@@ -484,7 +494,14 @@ Public Class JLForm
         '
         'grpDepth
         '
-        Me.grpDepth.Controls.AddRange(New System.Windows.Forms.Control() {Me.vsZ4, Me.vsZ1, Me.vsZ2, Me.vsZ3, Me.lblZ2, Me.lblZ4, Me.lblZ1, Me.lblZ3})
+        Me.grpDepth.Controls.Add(Me.vsZ4)
+        Me.grpDepth.Controls.Add(Me.vsZ1)
+        Me.grpDepth.Controls.Add(Me.vsZ2)
+        Me.grpDepth.Controls.Add(Me.vsZ3)
+        Me.grpDepth.Controls.Add(Me.lblZ2)
+        Me.grpDepth.Controls.Add(Me.lblZ4)
+        Me.grpDepth.Controls.Add(Me.lblZ1)
+        Me.grpDepth.Controls.Add(Me.lblZ3)
         Me.grpDepth.Location = New System.Drawing.Point(712, 16)
         Me.grpDepth.Name = "grpDepth"
         Me.grpDepth.Size = New System.Drawing.Size(120, 216)
@@ -494,7 +511,10 @@ Public Class JLForm
         '
         'grpCoordinates
         '
-        Me.grpCoordinates.Controls.AddRange(New System.Windows.Forms.Control() {Me.lblV4, Me.lblV3, Me.lblV2, Me.lblV1})
+        Me.grpCoordinates.Controls.Add(Me.lblV4)
+        Me.grpCoordinates.Controls.Add(Me.lblV3)
+        Me.grpCoordinates.Controls.Add(Me.lblV2)
+        Me.grpCoordinates.Controls.Add(Me.lblV1)
         Me.grpCoordinates.Location = New System.Drawing.Point(712, 240)
         Me.grpCoordinates.Name = "grpCoordinates"
         Me.grpCoordinates.Size = New System.Drawing.Size(120, 96)
@@ -521,11 +541,25 @@ Public Class JLForm
         '
         Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
         Me.ClientSize = New System.Drawing.Size(840, 673)
-        Me.Controls.AddRange(New System.Windows.Forms.Control() {Me.cmdSaveRender, Me.cbShowPictures, Me.grpCoordinates, Me.grpDepth, Me.cmdWall, Me.cmdArbitrary, Me.cmdEdit, Me.cmdDelete, Me.cmdVine, Me.cmdDonut, Me.cmdLadder, Me.cmdSelect, Me.cmdPlatform, Me.picLevel})
+        Me.Controls.Add(Me.cmdSaveRender)
+        Me.Controls.Add(Me.cbShowPictures)
+        Me.Controls.Add(Me.grpCoordinates)
+        Me.Controls.Add(Me.grpDepth)
+        Me.Controls.Add(Me.cmdWall)
+        Me.Controls.Add(Me.cmdArbitrary)
+        Me.Controls.Add(Me.cmdEdit)
+        Me.Controls.Add(Me.cmdDelete)
+        Me.Controls.Add(Me.cmdVine)
+        Me.Controls.Add(Me.cmdDonut)
+        Me.Controls.Add(Me.cmdLadder)
+        Me.Controls.Add(Me.cmdSelect)
+        Me.Controls.Add(Me.cmdPlatform)
+        Me.Controls.Add(Me.picLevel)
         Me.KeyPreview = True
         Me.Menu = Me.MainMenu1
         Me.Name = "JLForm"
         Me.Text = "Jumpman Levels"
+        CType(Me.picLevel, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.timRepaint, System.ComponentModel.ISupportInitialize).EndInit()
         Me.grpDepth.ResumeLayout(False)
         Me.grpCoordinates.ResumeLayout(False)
@@ -545,7 +579,7 @@ Public Class JLForm
         g.Dispose()
 
         If bFile Then
-            FileOpen(10, "c:\Jumpman\Data\" & msFile & ".DAT", OpenMode.Output, OpenAccess.Default)
+            FileOpen(10, Path.Combine(My.Settings.LevelCompileOutputDirectory, msFile & ".DAT"), OpenMode.Output, OpenAccess.Default)
         End If
 
         Dim iLoop As Long
@@ -579,7 +613,7 @@ Public Class JLForm
                     iSounds = iSounds + 1
                 End If
             Next
-            FileOpen(17, "c:\Jumpman\Source\" & msFile & "Resources.jms", OpenMode.Output, OpenAccess.Default)
+            FileOpen(17, Path.Combine(My.Settings.LevelSourceDirectory, msFile & "Resources.jms"), OpenMode.Output, OpenAccess.Default)
             Print(17, sAll)
             FileClose(17)
         End If
@@ -1018,7 +1052,7 @@ Public Class JLForm
         miSelectedItem = -1
         LD.Description = "Load Level File"
         LD.Extensions = "LVL"
-        LD.Directory = "c:\jumpman\source\"
+        LD.Directory = My.Settings.LevelSourceDirectory
         LD.ShowDialog()
         sFile = LD.ReturnFile
 
@@ -1028,7 +1062,7 @@ Public Class JLForm
 
             picLevel.CreateGraphics.Clear(Color.Black)
             Dim sAll As String
-            FileOpen(1, "c:\Jumpman\Source\" & sFile, OpenMode.Input, OpenAccess.Read)
+            FileOpen(1, Path.Combine(My.Settings.LevelSourceDirectory, sFile), OpenMode.Input, OpenAccess.Read)
             sAll = InputString(1, LOF(1))
 
             Dim sLines() As String
@@ -1058,16 +1092,17 @@ Public Class JLForm
 
     Private Sub ResetButtons(ByVal bLoadGraphics As Boolean)
         If bLoadGraphics Then
-            cmdSelect.Image = Image.FromFile("C:\JumpmanLevels\Select.bmp")
-            cmdPlatform.Image = Image.FromFile("C:\JumpmanLevels\Platform.bmp")
-            cmdDonut.Image = Image.FromFile("C:\JumpmanLevels\Donut.bmp")
-            cmdVine.Image = Image.FromFile("C:\JumpmanLevels\Vine.bmp")
-            cmdLadder.Image = Image.FromFile("C:\JumpmanLevels\Ladder.bmp")
-            cmdDelete.Image = Image.FromFile("C:\JumpmanLevels\Trash.bmp")
-            cmdEdit.Image = Image.FromFile("C:\JumpmanLevels\Edit.bmp")
-            cmdArbitrary.Image = Image.FromFile("C:\JumpmanLevels\Picture.bmp")
-            cmdWall.Image = Image.FromFile("C:\JumpmanLevels\Wall.bmp")
-            cmdSaveRender.Image = Image.FromFile("c:\JumpmanLevels\SaveRender.bmp")
+            ' TODO: Embed these instead of loading from file system
+            cmdSelect.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Select.bmp"))
+            cmdPlatform.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Platform.bmp"))
+            cmdDonut.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Donut.bmp"))
+            cmdVine.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Vine.bmp"))
+            cmdLadder.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Ladder.bmp"))
+            cmdDelete.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Trash.bmp"))
+            cmdEdit.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Edit.bmp"))
+            cmdArbitrary.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Picture.bmp"))
+            cmdWall.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Wall.bmp"))
+            cmdSaveRender.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "SaveRender.bmp"))
         End If
 
         cmdSelect.FlatStyle = FlatStyle.Standard
@@ -1131,7 +1166,7 @@ Public Class JLForm
         Dim sLine As String
         Dim iLoop As Long
 
-        FileOpen(3, "c:\Jumpman\Source\" & msFile & ".LVL", OpenMode.Output)
+        FileOpen(3, Path.Combine(My.Settings.LevelSourceDirectory, msFile & ".LVL"), OpenMode.Output)
 
         For iLoop = 0 To mLRs - 1
             sLine = "R " & mLR(iLoop).ConvertToString()
@@ -1642,4 +1677,8 @@ Public Class JLForm
         RenderLevel(False)
     End Sub
 
+    Private Sub SettingsMenuItem_Click(sender As Object, e As EventArgs) Handles SettingsMenuItem.Click
+        Dim settingsDialog As SettingsDialog = New SettingsDialog()
+        settingsDialog.ShowDialog()
+    End Sub
 End Class

@@ -75,6 +75,7 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
@@ -122,11 +123,22 @@
     <Compile Include="LoadDialog.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="OldStuff.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="OutputRoutines.vb">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SettingsDialog.Designer.vb">
+      <DependentUpon>SettingsDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsDialog.vb">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="SupportRoutines.vb">
       <SubType>Code</SubType>
@@ -149,13 +161,19 @@
     <EmbeddedResource Include="LoadDialog.resx">
       <DependentUpon>LoadDialog.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SettingsDialog.resx">
+      <DependentUpon>SettingsDialog.vb</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="My Project\Settings.settings">
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="My Project\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PreBuildEvent />
