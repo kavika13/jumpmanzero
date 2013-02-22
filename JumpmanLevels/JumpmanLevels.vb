@@ -27,7 +27,7 @@ Public Class JLForm
     Dim miSBoxes As Long
     Dim miSBX(10) As Long
     Dim miSBY(10) As Long
-    Friend WithEvents SettingsMenuItem As System.Windows.Forms.MenuItem
+    Friend WithEvents EditSettingsMenuItem As System.Windows.Forms.MenuItem
     Dim miSBT(10) As Long
 
     Private Sub SetCaption()
@@ -213,7 +213,7 @@ Public Class JLForm
         Me.MenuItem2 = New System.Windows.Forms.MenuItem()
         Me.MenuResources = New System.Windows.Forms.MenuItem()
         Me.MenuItem4 = New System.Windows.Forms.MenuItem()
-        Me.SettingsMenuItem = New System.Windows.Forms.MenuItem()
+        Me.EditSettingsMenuItem = New System.Windows.Forms.MenuItem()
         Me.cmdPlatform = New System.Windows.Forms.Button()
         Me.cmdSelect = New System.Windows.Forms.Button()
         Me.cmdLadder = New System.Windows.Forms.Button()
@@ -298,7 +298,7 @@ Public Class JLForm
         'MenuItem2
         '
         Me.MenuItem2.Index = 1
-        Me.MenuItem2.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuResources, Me.MenuItem4, Me.SettingsMenuItem})
+        Me.MenuItem2.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuResources, Me.MenuItem4, Me.EditSettingsMenuItem})
         Me.MenuItem2.Text = "Edit"
         '
         'MenuResources
@@ -311,10 +311,10 @@ Public Class JLForm
         Me.MenuItem4.Index = 1
         Me.MenuItem4.Text = "Scripts"
         '
-        'SettingsMenuItem
+        'EditSettingsMenuItem
         '
-        Me.SettingsMenuItem.Index = 2
-        Me.SettingsMenuItem.Text = "&Settings"
+        Me.EditSettingsMenuItem.Index = 2
+        Me.EditSettingsMenuItem.Text = "&Settings"
         '
         'cmdPlatform
         '
@@ -1677,8 +1677,9 @@ Public Class JLForm
         RenderLevel(False)
     End Sub
 
-    Private Sub SettingsMenuItem_Click(sender As Object, e As EventArgs) Handles SettingsMenuItem.Click
+    Private Sub EditSettingsMenuItem_Click(sender As Object, e As EventArgs) Handles EditSettingsMenuItem.Click
         Dim settingsDialog As SettingsDialog = New SettingsDialog()
-        settingsDialog.ShowDialog()
+        settingsDialog.StartPosition = FormStartPosition.CenterParent
+        settingsDialog.ShowDialog(Me)
     End Sub
 End Class
