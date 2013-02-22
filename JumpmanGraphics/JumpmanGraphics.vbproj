@@ -128,10 +128,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="ToolOptions.Designer.vb">
-      <DependentUpon>ToolOptions.vb</DependentUpon>
+    <Compile Include="SettingsDialog.Designer.vb">
+      <DependentUpon>SettingsDialog.vb</DependentUpon>
     </Compile>
-    <Compile Include="ToolOptions.vb">
+    <Compile Include="SettingsDialog.vb">
       <SubType>Form</SubType>
     </Compile>
     <EmbeddedResource Include="JMGraphics.resx">
@@ -140,8 +140,8 @@
     <EmbeddedResource Include="LoadDialog.resx">
       <DependentUpon>LoadDialog.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ToolOptions.resx">
-      <DependentUpon>ToolOptions.vb</DependentUpon>
+    <EmbeddedResource Include="SettingsDialog.resx">
+      <DependentUpon>SettingsDialog.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

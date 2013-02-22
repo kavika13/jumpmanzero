@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class ToolOptionsDialog
+Partial Class SettingsDialog
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -159,7 +159,7 @@ Partial Class ToolOptionsDialog
         Me.ResetButton.Text = "Reset To Default Settings"
         Me.ResetButton.UseVisualStyleBackColor = True
         '
-        'ToolOptionsDialog
+        'SettingsDialog
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -171,9 +171,9 @@ Partial Class ToolOptionsDialog
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.MaximizeBox = False
         Me.MinimizeBox = False
-        Me.Name = "ToolOptionsDialog"
+        Me.Name = "SettingsDialog"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
-        Me.Text = "Tool Options"
+        Me.Text = "Settings"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
         Me.ResumeLayout(False)

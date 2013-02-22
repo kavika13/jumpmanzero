@@ -1,7 +1,7 @@
 ﻿Imports System.IO
 Imports System.Configuration
 
-Public Class ToolOptionsDialog
+Public Class SettingsDialog
     Public Sub New()
         InitializeComponent()
         CancelButton = CancelButton1

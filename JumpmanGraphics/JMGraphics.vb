@@ -50,7 +50,8 @@ Public Class Form1
     Friend WithEvents picTextured As System.Windows.Forms.PictureBox
     Friend WithEvents cmdReset As System.Windows.Forms.Button
     Friend WithEvents MenuStrip As System.Windows.Forms.MenuStrip
-    Friend WithEvents ToolOptionsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents EditMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents EditSettingsMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents cmdASE As System.Windows.Forms.Button
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.picGraphics = New System.Windows.Forms.PictureBox()
@@ -73,7 +74,8 @@ Public Class Form1
         Me.cmdReset = New System.Windows.Forms.Button()
         Me.cmdASE = New System.Windows.Forms.Button()
         Me.MenuStrip = New System.Windows.Forms.MenuStrip()
-        Me.ToolOptionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.EditMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.EditSettingsMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.picGraphics, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picSample, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picColors, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -240,18 +242,25 @@ Public Class Form1
         '
         'MenuStrip
         '
-        Me.MenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolOptionsToolStripMenuItem})
+        Me.MenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.EditMenuItem})
         Me.MenuStrip.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip.Name = "MenuStrip"
         Me.MenuStrip.Size = New System.Drawing.Size(657, 24)
         Me.MenuStrip.TabIndex = 37
         Me.MenuStrip.Text = "MenuStrip"
         '
-        'ToolOptionsToolStripMenuItem
+        'EditMenuItem
         '
-        Me.ToolOptionsToolStripMenuItem.Name = "ToolOptionsToolStripMenuItem"
-        Me.ToolOptionsToolStripMenuItem.Size = New System.Drawing.Size(88, 20)
-        Me.ToolOptionsToolStripMenuItem.Text = "Tool &Options"
+        Me.EditMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.EditSettingsMenuItem})
+        Me.EditMenuItem.Name = "EditMenuItem"
+        Me.EditMenuItem.Size = New System.Drawing.Size(39, 20)
+        Me.EditMenuItem.Text = "&Edit"
+        '
+        'EditSettingsMenuItem
+        '
+        Me.EditSettingsMenuItem.Name = "EditSettingsMenuItem"
+        Me.EditSettingsMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.EditSettingsMenuItem.Text = "&Settings"
         '
         'Form1
         '
@@ -1809,8 +1818,9 @@ Public Class Form1
 
     End Sub
 
-    Private Sub ToolOptionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToolOptionsToolStripMenuItem.Click
-        Dim optionsDialog As ToolOptionsDialog = New ToolOptionsDialog()
-        optionsDialog.ShowDialog()
+    Private Sub EditSettingsMenuItem_Click(sender As Object, e As EventArgs) Handles EditSettingsMenuItem.Click
+        Dim settingsDialog As SettingsDialog = New SettingsDialog()
+        settingsDialog.StartPosition = FormStartPosition.CenterParent
+        settingsDialog.ShowDialog(Me)
     End Sub
 End Class
