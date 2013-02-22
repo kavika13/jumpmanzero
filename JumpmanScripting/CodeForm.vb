@@ -1,8 +1,11 @@
+Imports System.IO
 
 Public Class CodeForm
     Inherits System.Windows.Forms.Form
 
     Dim sCurrentFile As String
+    Friend WithEvents MenuItem3 As System.Windows.Forms.MenuItem
+    Friend WithEvents EditSettingsMenuItem As System.Windows.Forms.MenuItem
 
     Dim sLastFind As String
 
@@ -46,17 +49,20 @@ Public Class CodeForm
     Friend WithEvents txtErrors As System.Windows.Forms.TextBox
     Friend WithEvents MenuItem2 As System.Windows.Forms.MenuItem
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.cmdCompile = New System.Windows.Forms.Button()
         Me.txtOut = New System.Windows.Forms.TextBox()
         Me.cmdRun = New System.Windows.Forms.Button()
         Me.txtCode = New System.Windows.Forms.TextBox()
-        Me.CodeFormMenu = New System.Windows.Forms.MainMenu()
+        Me.CodeFormMenu = New System.Windows.Forms.MainMenu(Me.components)
         Me.MenuItem1 = New System.Windows.Forms.MenuItem()
         Me.menuLoad = New System.Windows.Forms.MenuItem()
         Me.menuSave = New System.Windows.Forms.MenuItem()
         Me.menuSaveAs = New System.Windows.Forms.MenuItem()
-        Me.txtErrors = New System.Windows.Forms.TextBox()
         Me.MenuItem2 = New System.Windows.Forms.MenuItem()
+        Me.txtErrors = New System.Windows.Forms.TextBox()
+        Me.MenuItem3 = New System.Windows.Forms.MenuItem()
+        Me.EditSettingsMenuItem = New System.Windows.Forms.MenuItem()
         Me.SuspendLayout()
         '
         'cmdCompile
@@ -77,7 +83,6 @@ Public Class CodeForm
         Me.txtOut.Size = New System.Drawing.Size(404, 168)
         Me.txtOut.TabIndex = 5
         Me.txtOut.TabStop = False
-        Me.txtOut.Text = ""
         '
         'cmdRun
         '
@@ -99,32 +104,36 @@ Public Class CodeForm
         Me.txtCode.Size = New System.Drawing.Size(800, 320)
         Me.txtCode.TabIndex = 8
         Me.txtCode.TabStop = False
-        Me.txtCode.Text = ""
         '
         'CodeFormMenu
         '
-        Me.CodeFormMenu.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuItem1})
+        Me.CodeFormMenu.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.MenuItem1, Me.MenuItem3})
         '
         'MenuItem1
         '
         Me.MenuItem1.Index = 0
         Me.MenuItem1.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.menuLoad, Me.menuSave, Me.menuSaveAs, Me.MenuItem2})
-        Me.MenuItem1.Text = "File"
+        Me.MenuItem1.Text = "&File"
         '
         'menuLoad
         '
         Me.menuLoad.Index = 0
-        Me.menuLoad.Text = "Load"
+        Me.menuLoad.Text = "&Load"
         '
         'menuSave
         '
         Me.menuSave.Index = 1
-        Me.menuSave.Text = "Save"
+        Me.menuSave.Text = "&Save"
         '
         'menuSaveAs
         '
         Me.menuSaveAs.Index = 2
-        Me.menuSaveAs.Text = "Save as"
+        Me.menuSaveAs.Text = "Save &As"
+        '
+        'MenuItem2
+        '
+        Me.MenuItem2.Index = 3
+        Me.MenuItem2.Text = "-"
         '
         'txtErrors
         '
@@ -135,22 +144,32 @@ Public Class CodeForm
         Me.txtErrors.Size = New System.Drawing.Size(312, 168)
         Me.txtErrors.TabIndex = 9
         Me.txtErrors.TabStop = False
-        Me.txtErrors.Text = ""
         '
-        'MenuItem2
+        'MenuItem3
         '
-        Me.MenuItem2.Index = 3
-        Me.MenuItem2.Text = "-"
+        Me.MenuItem3.Index = 1
+        Me.MenuItem3.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.EditSettingsMenuItem})
+        Me.MenuItem3.Text = "&Edit"
+        '
+        'EditSettingsMenuItem
+        '
+        Me.EditSettingsMenuItem.Index = 0
+        Me.EditSettingsMenuItem.Text = "&Settings"
         '
         'CodeForm
         '
         Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
         Me.ClientSize = New System.Drawing.Size(824, 509)
-        Me.Controls.AddRange(New System.Windows.Forms.Control() {Me.txtErrors, Me.txtCode, Me.cmdRun, Me.txtOut, Me.cmdCompile})
+        Me.Controls.Add(Me.txtErrors)
+        Me.Controls.Add(Me.txtCode)
+        Me.Controls.Add(Me.cmdRun)
+        Me.Controls.Add(Me.txtOut)
+        Me.Controls.Add(Me.cmdCompile)
         Me.Menu = Me.CodeFormMenu
         Me.Name = "CodeForm"
         Me.Text = "Jumpman Scripting"
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -161,7 +180,7 @@ Public Class CodeForm
     Private Sub SetCurrentFile(ByVal sFile As String)
         sCurrentFile = sFile
         Me.Text = "Jumpman Script Compiler - " & sCurrentFile & ".jms"
-        txtCode.Text = LoadCode("c:\Jumpman\Source\" & sFile & ".jms")
+        txtCode.Text = LoadCode(Path.Combine(My.Settings.SourceDirectory, sFile & ".jms"))
     End Sub
 
     Private Sub CodeForm_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
@@ -190,7 +209,7 @@ Public Class CodeForm
         sNew = InputBox("File Name:", "Save as..")
         If Len(sNew) > 0 Then
             sCurrentFile = sNew
-            SaveCode("c:\Jumpman\Source\" & sCurrentFile & ".jms")
+            SaveCode(Path.Combine(My.Settings.SourceDirectory, sCurrentFile & ".jms"))
             Me.Text = "Jumpman Script Compiler - " & sCurrentFile & ".jms"
         End If
     End Sub
@@ -204,7 +223,7 @@ Public Class CodeForm
     End Sub
 
     Private Sub DoSave()
-        SaveCode("c:\Jumpman\Source\" & sCurrentFile & ".jms")
+        SaveCode(Path.Combine(My.Settings.SourceDirectory, sCurrentFile & ".jms"))
     End Sub
 
     Private Sub MenuLoad_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles menuLoad.Click
@@ -219,7 +238,7 @@ Public Class CodeForm
 
         Dim ld As New LoadDialog()
         ld.Description = "Load Script"
-        ld.Directory = "c:\jumpman\source\"
+        ld.Directory = My.Settings.SourceDirectory
         ld.Extensions = "JMS"
 
         ld.ShowDialog()
@@ -305,10 +324,10 @@ Public Class CodeForm
 
         Dim sTemp As String
 
-        sTemp = "c:\Jumpman\Data\" & sCurrentFile & ".BIN"
+        sTemp = Path.Combine(My.Settings.OutputDirectory, sCurrentFile & ".BIN")
         oScript.WriteBinary(sTemp)
 
-        sTemp = "c:\Jumpman\Source\REF" & sCurrentFile & ".JMS"
+        sTemp = Path.Combine(My.Settings.SourceDirectory, "REF" & sCurrentFile & ".JMS")
         oScript.WriteConstants(sTemp, sCurrentFile)
 
         rScript.SetScript(oScript)
@@ -371,4 +390,9 @@ Public Class CodeForm
         txtCode.Focus()
     End Sub
 
+    Private Sub EditSettingsMenuItem_Click(sender As Object, e As EventArgs) Handles EditSettingsMenuItem.Click
+        Dim settingsDialog As SettingsDialog = New SettingsDialog()
+        settingsDialog.StartPosition = FormStartPosition.CenterParent
+        settingsDialog.ShowDialog(Me)
+    End Sub
 End Class

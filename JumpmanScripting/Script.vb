@@ -1,3 +1,4 @@
+Imports System.IO
 
 
 Public Structure SubCode
@@ -186,7 +187,7 @@ Public Class ScriptCompiler
             sParts = Split(sLine, "~")
             If UBound(sParts) = 1 Then
                 If sParts(0) = "include" Then
-                    sCode = sCode & LoadCode("c:\Jumpman\Source\" & sParts(1) & ".JMS")
+                    sCode = sCode & LoadCode(Path.Combine(My.Settings.SourceDirectory, sParts(1) & ".JMS"))
                 End If
             End If
         Next
@@ -904,7 +905,7 @@ Public Class ScriptCompiler
             If sParts(iLoop) = "," And iBracket > 0 Then
                 sParts(iLoop) = "!!!"
             End If
-            sall = sall & sParts(iLoop) & "~"
+            sAll = sAll & sParts(iLoop) & "~"
         Next
 
         If Len(sAll) > 0 Then sAll = Left(sAll, Len(sAll) - 1)
