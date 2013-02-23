@@ -174,7 +174,7 @@ Public Class ScriptCompiler
         Next
     End Sub
 
-    Private Sub AddIncludes(ByRef sCode As String)
+    Private Sub AddIncludes(includeDirectory As String, ByRef sCode As String)
         Dim iLine As Long
         Dim sLine As String
         Dim sLines() As String
@@ -187,7 +187,7 @@ Public Class ScriptCompiler
             sParts = Split(sLine, "~")
             If UBound(sParts) = 1 Then
                 If sParts(0) = "include" Then
-                    sCode = sCode & LoadCode(Path.Combine(My.Settings.SourceDirectory, sParts(1) & ".JMS"))
+                    sCode = sCode & LoadCode(Path.Combine(includeDirectory, sParts(1) & ".JMS"))
                 End If
             End If
         Next
@@ -197,7 +197,7 @@ Public Class ScriptCompiler
 
 #Region "Compiling"
 
-    Public Sub Compile(ByVal sCode As String)
+    Public Sub Compile(sourceDirectory As String, ByVal sCode As String)
 
         iLookAheads = 0
 
@@ -206,7 +206,7 @@ Public Class ScriptCompiler
 
         sCode = TextReplace(sCode, Chr(9), " ")
 
-        AddIncludes(sCode)
+        AddIncludes(sourceDirectory, sCode)
         FindConstants(sCode)
 
         CodeToSubs(sCode)
@@ -828,6 +828,7 @@ Public Class ScriptCompiler
 
 #Region "Support Functions"
     Private Function GetConstantValue(ByVal sName As String) As Integer
+        GetConstantValue = Nothing
         Dim iLoop As Long
 
         For iLoop = 0 To iConstants - 1

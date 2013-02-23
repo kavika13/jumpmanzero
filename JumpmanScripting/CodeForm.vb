@@ -1,4 +1,5 @@
 Imports System.IO
+Imports JumpanScriptLib
 
 Public Class CodeForm
     Inherits System.Windows.Forms.Form
@@ -315,7 +316,7 @@ Public Class CodeForm
         sCode = txtCode.Text
 
         oScript = New ScriptCompiler()
-        oScript.Compile(sCode)
+        oScript.Compile(My.Settings.SourceDirectory, sCode)
 
         txtErrors.Text = oScript.CompileSummary
         If txtErrors.Text = "" Then

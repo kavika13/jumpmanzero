@@ -149,6 +149,8 @@ Public Class RunScript
     End Sub
 
     Private Function ExtFunction(ByVal iFunc As Integer) As Integer
+        ExtFunction = Nothing
+
         Dim iArg1 As Long
         Dim iArg2 As Long
 

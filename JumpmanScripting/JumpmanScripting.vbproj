@@ -130,9 +130,6 @@
     <Compile Include="Find.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Globals.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="LoadDialog.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -140,12 +137,6 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="RunScript.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Script.vb">
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="SettingsDialog.Designer.vb">
       <DependentUpon>SettingsDialog.vb</DependentUpon>
@@ -174,7 +165,12 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\JumpanScriptLib\JumpanScriptLib.vbproj">
+      <Project>{584eb392-d96b-4500-8f24-63750dacd811}</Project>
+      <Name>JumpanScriptLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
