@@ -23,9 +23,6 @@ Partial Class SettingsDialog
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.GroupBox = New System.Windows.Forms.GroupBox()
-        Me.ApplicationResourceDirectoryBrowseButton = New System.Windows.Forms.Button()
-        Me.ApplicationResourceDirectoryTextBox = New System.Windows.Forms.TextBox()
-        Me.ApplicationResourceDirectoryLabel = New System.Windows.Forms.Label()
         Me.LevelSourceDirectoryBrowseButton = New System.Windows.Forms.Button()
         Me.LevelSourceDirectoryTextBox = New System.Windows.Forms.TextBox()
         Me.LevelSourceDirectoryLabel = New System.Windows.Forms.Label()
@@ -47,9 +44,6 @@ Partial Class SettingsDialog
         '
         'GroupBox
         '
-        Me.GroupBox.Controls.Add(Me.ApplicationResourceDirectoryBrowseButton)
-        Me.GroupBox.Controls.Add(Me.ApplicationResourceDirectoryTextBox)
-        Me.GroupBox.Controls.Add(Me.ApplicationResourceDirectoryLabel)
         Me.GroupBox.Controls.Add(Me.LevelSourceDirectoryBrowseButton)
         Me.GroupBox.Controls.Add(Me.LevelSourceDirectoryTextBox)
         Me.GroupBox.Controls.Add(Me.LevelSourceDirectoryLabel)
@@ -64,35 +58,10 @@ Partial Class SettingsDialog
         Me.GroupBox.Controls.Add(Me.SoundResourceDirectoryLabel)
         Me.GroupBox.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox.Name = "GroupBox"
-        Me.GroupBox.Size = New System.Drawing.Size(656, 164)
+        Me.GroupBox.Size = New System.Drawing.Size(656, 135)
         Me.GroupBox.TabIndex = 0
         Me.GroupBox.TabStop = False
         Me.GroupBox.Text = "Paths"
-        '
-        'ApplicationResourceDirectoryBrowseButton
-        '
-        Me.ApplicationResourceDirectoryBrowseButton.Location = New System.Drawing.Point(575, 135)
-        Me.ApplicationResourceDirectoryBrowseButton.Name = "ApplicationResourceDirectoryBrowseButton"
-        Me.ApplicationResourceDirectoryBrowseButton.Size = New System.Drawing.Size(75, 23)
-        Me.ApplicationResourceDirectoryBrowseButton.TabIndex = 14
-        Me.ApplicationResourceDirectoryBrowseButton.Text = "Browse..."
-        Me.ApplicationResourceDirectoryBrowseButton.UseVisualStyleBackColor = True
-        '
-        'ApplicationResourceDirectoryTextBox
-        '
-        Me.ApplicationResourceDirectoryTextBox.Location = New System.Drawing.Point(169, 137)
-        Me.ApplicationResourceDirectoryTextBox.Name = "ApplicationResourceDirectoryTextBox"
-        Me.ApplicationResourceDirectoryTextBox.Size = New System.Drawing.Size(400, 20)
-        Me.ApplicationResourceDirectoryTextBox.TabIndex = 13
-        '
-        'ApplicationResourceDirectoryLabel
-        '
-        Me.ApplicationResourceDirectoryLabel.AutoSize = True
-        Me.ApplicationResourceDirectoryLabel.Location = New System.Drawing.Point(6, 140)
-        Me.ApplicationResourceDirectoryLabel.Name = "ApplicationResourceDirectoryLabel"
-        Me.ApplicationResourceDirectoryLabel.Size = New System.Drawing.Size(153, 13)
-        Me.ApplicationResourceDirectoryLabel.TabIndex = 12
-        Me.ApplicationResourceDirectoryLabel.Text = "Application Resource Directory"
         '
         'LevelSourceDirectoryBrowseButton
         '
@@ -196,7 +165,7 @@ Partial Class SettingsDialog
         '
         'SaveButton
         '
-        Me.SaveButton.Location = New System.Drawing.Point(587, 182)
+        Me.SaveButton.Location = New System.Drawing.Point(587, 153)
         Me.SaveButton.Name = "SaveButton"
         Me.SaveButton.Size = New System.Drawing.Size(75, 23)
         Me.SaveButton.TabIndex = 1
@@ -205,7 +174,7 @@ Partial Class SettingsDialog
         '
         'CancelButton1
         '
-        Me.CancelButton1.Location = New System.Drawing.Point(506, 182)
+        Me.CancelButton1.Location = New System.Drawing.Point(506, 153)
         Me.CancelButton1.Name = "CancelButton1"
         Me.CancelButton1.Size = New System.Drawing.Size(75, 23)
         Me.CancelButton1.TabIndex = 2
@@ -214,7 +183,7 @@ Partial Class SettingsDialog
         '
         'ResetButton
         '
-        Me.ResetButton.Location = New System.Drawing.Point(21, 182)
+        Me.ResetButton.Location = New System.Drawing.Point(21, 153)
         Me.ResetButton.Name = "ResetButton"
         Me.ResetButton.Size = New System.Drawing.Size(150, 23)
         Me.ResetButton.TabIndex = 3
@@ -225,7 +194,7 @@ Partial Class SettingsDialog
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(680, 217)
+        Me.ClientSize = New System.Drawing.Size(680, 188)
         Me.Controls.Add(Me.ResetButton)
         Me.Controls.Add(Me.CancelButton1)
         Me.Controls.Add(Me.SaveButton)
@@ -254,9 +223,6 @@ Partial Class SettingsDialog
     Friend WithEvents LevelSourceDirectoryBrowseButton As System.Windows.Forms.Button
     Friend WithEvents LevelSourceDirectoryTextBox As System.Windows.Forms.TextBox
     Friend WithEvents LevelSourceDirectoryLabel As System.Windows.Forms.Label
-    Friend WithEvents ApplicationResourceDirectoryBrowseButton As System.Windows.Forms.Button
-    Friend WithEvents ApplicationResourceDirectoryTextBox As System.Windows.Forms.TextBox
-    Friend WithEvents ApplicationResourceDirectoryLabel As System.Windows.Forms.Label
     Friend WithEvents SaveButton As System.Windows.Forms.Button
     Friend WithEvents CancelButton1 As System.Windows.Forms.Button
     Friend WithEvents ResetButton As System.Windows.Forms.Button

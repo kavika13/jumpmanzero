@@ -24,10 +24,6 @@ Public Class SettingsDialog
         BrowseForDirectory(LevelCompileOutputDirectoryTextBox)
     End Sub
 
-    Private Sub ApplicationResourceDirectoryBrowseButton_Click(sender As Object, e As EventArgs) Handles ApplicationResourceDirectoryBrowseButton.Click
-        BrowseForDirectory(ApplicationResourceDirectoryTextBox)
-    End Sub
-
     Private Sub CancelButton1_Click(sender As Object, e As EventArgs) Handles CancelButton1.Click
         LoadSettings()
         Close()
@@ -54,7 +50,6 @@ Public Class SettingsDialog
             ContentResourceDirectoryTextBox.Text = My.Settings.ContentResourceDirectory
             LevelSourceDirectoryTextBox.Text = My.Settings.LevelSourceDirectory
             LevelCompileOutputDirectoryTextBox.Text = My.Settings.LevelCompileOutputDirectory
-            ApplicationResourceDirectoryTextBox.Text = My.Settings.ApplicationResourceDirectory
         Catch ex As Exception
             If MessageBox.Show("The settings config file was corrupt. Would you like to wipe it out and reload default settings?", "Settings Corrupt", MessageBoxButtons.YesNo) = Windows.Forms.DialogResult.Yes Then
                 RestoreDefaultSettings()
@@ -68,7 +63,6 @@ Public Class SettingsDialog
         Dim contentResourceDirectory As String = Path.GetFullPath(ContentResourceDirectoryTextBox.Text)
         Dim levelSourceDirectory As String = Path.GetFullPath(LevelSourceDirectoryTextBox.Text)
         Dim levelCompileOutputDirectory As String = Path.GetFullPath(LevelCompileOutputDirectoryTextBox.Text)
-        Dim applicationResourceDirectory As String = Path.GetFullPath(ApplicationResourceDirectoryTextBox.Text)
 
         Dim success As Boolean = True
 
@@ -76,14 +70,12 @@ Public Class SettingsDialog
         success = success And EnsureDirectoryExists("Content Resource Directory", contentResourceDirectory)
         success = success And EnsureDirectoryExists("Level Source Directory", levelSourceDirectory)
         success = success And EnsureDirectoryExists("Level Compile Output Directory", levelCompileOutputDirectory)
-        success = success And EnsureDirectoryExists("Application Resource Directory", applicationResourceDirectory)
 
         If success Then
             My.Settings.SoundResourceDirectory = soundResourceDirectory
             My.Settings.ContentResourceDirectory = contentResourceDirectory
             My.Settings.LevelSourceDirectory = levelSourceDirectory
             My.Settings.LevelCompileOutputDirectory = levelCompileOutputDirectory
-            My.Settings.ApplicationResourceDirectory = applicationResourceDirectory
             My.Settings.Save()
         End If
 

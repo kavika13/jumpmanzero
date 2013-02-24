@@ -78,39 +78,27 @@ Namespace My
             End Set
         End Property
         
-        <Global.System.Configuration.UserScopedSettingAttribute(), _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(), _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Source\")> _
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Source\")>  _
         Public Property LevelSourceDirectory() As String
             Get
-                Return CType(Me("LevelSourceDirectory"), String)
+                Return CType(Me("LevelSourceDirectory"),String)
             End Get
-            Set(value As String)
+            Set
                 Me("LevelSourceDirectory") = value
-            End Set
-        End Property
-
-        <Global.System.Configuration.UserScopedSettingAttribute(), _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(), _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Data\")> _
-        Public Property LevelCompileOutputDirectory() As String
-            Get
-                Return CType(Me("LevelCompileOutputDirectory"), String)
-            End Get
-            Set(value As String)
-                Me("LevelCompileOutputDirectory") = value
             End Set
         End Property
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\JumpmanLevels\")>  _
-        Public Property ApplicationResourceDirectory() As String
+         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Data\")>  _
+        Public Property LevelCompileOutputDirectory() As String
             Get
-                Return CType(Me("ApplicationResourceDirectory"),String)
+                Return CType(Me("LevelCompileOutputDirectory"),String)
             End Get
             Set
-                Me("ApplicationResourceDirectory") = value
+                Me("LevelCompileOutputDirectory") = value
             End Set
         End Property
     End Class

@@ -72,7 +72,7 @@ Public Class JLForm
         miSelectedItem = -1
         UpdateHints(loNull, True)
         miSelectedItem = -1
-        ResetButtons(True)
+        ResetButtons()
         cmdSelect.FlatStyle = FlatStyle.Flat
         msTool = "SELECT"
         msFile = "untitled"
@@ -91,43 +91,43 @@ Public Class JLForm
 
 #Region "Selecting Tools"
     Private Sub cmdSelect_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdSelect.Click
-        ResetButtons(False)
+        ResetButtons()
         cmdSelect.FlatStyle = FlatStyle.Flat
         msTool = "SELECT"
     End Sub
 
     Private Sub cmdPlatform_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdPlatform.Click
-        ResetButtons(False)
+        ResetButtons()
         cmdPlatform.FlatStyle = FlatStyle.Flat
         msTool = "PLATFORM"
     End Sub
 
     Private Sub cmdLadder_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdLadder.Click
-        ResetButtons(False)
+        ResetButtons()
         cmdLadder.FlatStyle = FlatStyle.Flat
         msTool = "LADDER"
     End Sub
 
     Private Sub cmdDonut_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdDonut.Click
-        ResetButtons(False)
+        ResetButtons()
         cmdDonut.FlatStyle = FlatStyle.Flat
         msTool = "DONUT"
     End Sub
 
     Private Sub cmdArbitrary_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdArbitrary.Click
-        ResetButtons(False)
+        ResetButtons()
         cmdArbitrary.FlatStyle = FlatStyle.Flat
         msTool = "ARBITRARY"
     End Sub
 
     Private Sub cmdWall_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdWall.Click
-        ResetButtons(False)
+        ResetButtons()
         cmdWall.FlatStyle = FlatStyle.Flat
         msTool = "WALL"
     End Sub
 
     Private Sub cmdVine_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdVine.Click
-        ResetButtons(False)
+        ResetButtons()
         cmdVine.FlatStyle = FlatStyle.Flat
         msTool = "VINE"
     End Sub
@@ -318,6 +318,7 @@ Public Class JLForm
         '
         'cmdPlatform
         '
+        Me.cmdPlatform.Image = Global.JumpmanLevels.My.Resources.Resources.Platform
         Me.cmdPlatform.Location = New System.Drawing.Point(8, 40)
         Me.cmdPlatform.Name = "cmdPlatform"
         Me.cmdPlatform.Size = New System.Drawing.Size(32, 32)
@@ -325,6 +326,7 @@ Public Class JLForm
         '
         'cmdSelect
         '
+        Me.cmdSelect.Image = Global.JumpmanLevels.My.Resources.Resources._Select
         Me.cmdSelect.Location = New System.Drawing.Point(8, 8)
         Me.cmdSelect.Name = "cmdSelect"
         Me.cmdSelect.Size = New System.Drawing.Size(32, 32)
@@ -332,6 +334,7 @@ Public Class JLForm
         '
         'cmdLadder
         '
+        Me.cmdLadder.Image = Global.JumpmanLevels.My.Resources.Resources.Ladder
         Me.cmdLadder.Location = New System.Drawing.Point(8, 72)
         Me.cmdLadder.Name = "cmdLadder"
         Me.cmdLadder.Size = New System.Drawing.Size(32, 32)
@@ -339,6 +342,7 @@ Public Class JLForm
         '
         'cmdDonut
         '
+        Me.cmdDonut.Image = Global.JumpmanLevels.My.Resources.Resources.Donut
         Me.cmdDonut.Location = New System.Drawing.Point(8, 104)
         Me.cmdDonut.Name = "cmdDonut"
         Me.cmdDonut.Size = New System.Drawing.Size(32, 32)
@@ -346,6 +350,7 @@ Public Class JLForm
         '
         'cmdVine
         '
+        Me.cmdVine.Image = Global.JumpmanLevels.My.Resources.Resources.Vine
         Me.cmdVine.Location = New System.Drawing.Point(8, 136)
         Me.cmdVine.Name = "cmdVine"
         Me.cmdVine.Size = New System.Drawing.Size(32, 32)
@@ -358,6 +363,7 @@ Public Class JLForm
         '
         'cmdDelete
         '
+        Me.cmdDelete.Image = Global.JumpmanLevels.My.Resources.Resources.Trash
         Me.cmdDelete.Location = New System.Drawing.Point(8, 272)
         Me.cmdDelete.Name = "cmdDelete"
         Me.cmdDelete.Size = New System.Drawing.Size(32, 32)
@@ -365,6 +371,7 @@ Public Class JLForm
         '
         'cmdEdit
         '
+        Me.cmdEdit.Image = Global.JumpmanLevels.My.Resources.Resources.Edit
         Me.cmdEdit.Location = New System.Drawing.Point(8, 240)
         Me.cmdEdit.Name = "cmdEdit"
         Me.cmdEdit.Size = New System.Drawing.Size(32, 32)
@@ -442,6 +449,7 @@ Public Class JLForm
         '
         'cmdArbitrary
         '
+        Me.cmdArbitrary.Image = Global.JumpmanLevels.My.Resources.Resources.Picture
         Me.cmdArbitrary.Location = New System.Drawing.Point(8, 168)
         Me.cmdArbitrary.Name = "cmdArbitrary"
         Me.cmdArbitrary.Size = New System.Drawing.Size(32, 32)
@@ -487,6 +495,7 @@ Public Class JLForm
         '
         'cmdWall
         '
+        Me.cmdWall.Image = Global.JumpmanLevels.My.Resources.Resources.Wall
         Me.cmdWall.Location = New System.Drawing.Point(8, 200)
         Me.cmdWall.Name = "cmdWall"
         Me.cmdWall.Size = New System.Drawing.Size(32, 32)
@@ -532,6 +541,7 @@ Public Class JLForm
         '
         'cmdSaveRender
         '
+        Me.cmdSaveRender.Image = Global.JumpmanLevels.My.Resources.Resources.SaveRender
         Me.cmdSaveRender.Location = New System.Drawing.Point(8, 312)
         Me.cmdSaveRender.Name = "cmdSaveRender"
         Me.cmdSaveRender.Size = New System.Drawing.Size(32, 32)
@@ -1090,21 +1100,7 @@ Public Class JLForm
 
     End Sub
 
-    Private Sub ResetButtons(ByVal bLoadGraphics As Boolean)
-        If bLoadGraphics Then
-            ' TODO: Embed these instead of loading from file system
-            cmdSelect.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Select.bmp"))
-            cmdPlatform.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Platform.bmp"))
-            cmdDonut.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Donut.bmp"))
-            cmdVine.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Vine.bmp"))
-            cmdLadder.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Ladder.bmp"))
-            cmdDelete.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Trash.bmp"))
-            cmdEdit.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Edit.bmp"))
-            cmdArbitrary.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Picture.bmp"))
-            cmdWall.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "Wall.bmp"))
-            cmdSaveRender.Image = Image.FromFile(Path.Combine(My.Settings.ApplicationResourceDirectory, "SaveRender.bmp"))
-        End If
-
+    Private Sub ResetButtons()
         cmdSelect.FlatStyle = FlatStyle.Standard
         cmdPlatform.FlatStyle = FlatStyle.Standard
         cmdDonut.FlatStyle = FlatStyle.Standard
