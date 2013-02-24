@@ -1,5 +1,5 @@
 Imports System.IO
-Imports JumpanScriptLib
+Imports JumpmanScriptLib
 
 Public Class CodeForm
     Inherits System.Windows.Forms.Form

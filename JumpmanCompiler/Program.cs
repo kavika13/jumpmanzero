@@ -1,4 +1,4 @@
-﻿using JumpanScriptLib;
+﻿using JumpmanScriptLib;
 using Mono.Options;
 using System;
 using System.Collections.Generic;

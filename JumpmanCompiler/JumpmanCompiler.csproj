@@ -50,9 +50,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JumpanScriptLib\JumpanScriptLib.vbproj">
+    <ProjectReference Include="..\JumpmanScriptLib\JumpmanScriptLib.vbproj">
       <Project>{584eb392-d96b-4500-8f24-63750dacd811}</Project>
-      <Name>JumpanScriptLib</Name>
+      <Name>JumpmanScriptLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

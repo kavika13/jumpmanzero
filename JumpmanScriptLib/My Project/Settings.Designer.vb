@@ -63,10 +63,10 @@ Namespace My
      Global.System.Runtime.CompilerServices.CompilerGeneratedAttribute()>  _
     Friend Module MySettingsProperty
         
-        <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>  _
-        Friend ReadOnly Property Settings() As Global.JumpanScriptLib.My.MySettings
+        <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")> _
+        Friend ReadOnly Property Settings() As Global.JumpmanScriptLib.My.MySettings
             Get
-                Return Global.JumpanScriptLib.My.MySettings.Default
+                Return Global.JumpmanScriptLib.My.MySettings.Default
             End Get
         End Property
     End Module
