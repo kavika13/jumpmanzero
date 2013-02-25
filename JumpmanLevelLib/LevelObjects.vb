@@ -208,7 +208,7 @@ Public Structure LevelObject
 
 End Structure
 
-Module Module1
+Public Module Module1
     Public Sub DefaultWall(ByRef LO As LevelObject, ByVal X1 As Long, ByVal Y1 As Long, ByVal X2 As Long, ByVal Y2 As Long)
         LO.Type = "WALL"
 

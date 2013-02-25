@@ -1,4 +1,4 @@
-Module SupportRoutines
+Public Module SupportRoutines
 
     Public Function PointInQuad(ByVal iX As Single, ByVal iY As Single, ByVal qX1 As Single, ByVal qY1 As Single, ByVal qX2 As Single, ByVal qY2 As Single, ByVal qX3 As Single, ByVal qY3 As Single, ByVal qX4 As Single, ByVal qY4 As Single) As Boolean
         Dim bX As Single, bY As Single, nX As Single, nY As Single

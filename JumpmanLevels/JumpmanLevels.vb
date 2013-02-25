@@ -1,4 +1,4 @@
-Imports System.IO
+Imports JumpmanLevelLib
 
 Public Class JLForm
     Inherits System.Windows.Forms.Form
@@ -15,11 +15,11 @@ Public Class JLForm
     Dim mnMouseY As Single
 
     Public mLRs As Long
-    Public mLR(500) As LevelResource
+    Friend mLR(500) As LevelResource
 
-    Public loNull As New LevelObject()
+    Friend loNull As New LevelObject()
     Public mLOs As Long
-    Public mLO(500) As LevelObject
+    Friend mLO(500) As LevelObject
 
     Dim msBuff As String
 
@@ -34,38 +34,9 @@ Public Class JLForm
         Me.Text = "Level Editor - " & msFile & ".lvl"
     End Sub
 
-    Private Sub SortLevelObject()
-        Dim bChange As Boolean
-        Dim iLoop As Long
-        Dim sSwap As String
-        Dim sTemp As String
-
-        bChange = True
-
-        For iLoop = 0 To mLOs - 1
-            If mLO(iLoop).Type = "ARBITRARY" Then
-                mLO(iLoop).Z1 = mLO(iLoop).V(1).Z
-            End If
-        Next
-
-        While bChange
-            bChange = False
-            For iLoop = 0 To mLOs - 2
-                If mLO(iLoop).Z1 < mLO(iLoop + 1).Z1 Then
-                    sSwap = mLO(iLoop).ConvertToString
-                    sTemp = mLO(iLoop + 1).ConvertToString
-                    mLO(iLoop).ConvertFromString(sTemp)
-                    mLO(iLoop + 1).ConvertFromString(sSwap)
-                    bChange = True
-                End If
-            Next
-        End While
-
-    End Sub
-
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         Dim iLoop As Long
-        For iLoop = 0 To 100
+        For iLoop = 0 To 500
             ReDim mLO(iLoop).V(8)
         Next
 
@@ -582,54 +553,14 @@ Public Class JLForm
     Private Sub RenderLevel(ByVal bFile As Boolean)
         Dim g As Graphics
 
-        If bFile Then SortLevelObject()
-
         g = Graphics.FromImage(miLevel)
         g.Clear(Color.Black)
         g.Dispose()
 
-        If bFile Then
-            FileOpen(10, Path.Combine(My.Settings.LevelCompileOutputDirectory, msFile & ".DAT"), OpenMode.Output, OpenAccess.Default)
-        End If
-
         Dim iLoop As Long
 
-        If bFile Then
-            Dim sAll As String = Nothing
-            Dim iScripts As Long
-            Dim iMeshes As Long
-            Dim iTextures As Long
-            Dim iSounds As Long
-
-            iSounds = 0
-            iScripts = 0
-            iMeshes = 0
-            iTextures = 0
-
-            For iLoop = 0 To mLRs - 1
-                OutputResource("R", mLR(iLoop).ResourceType, mLR(iLoop).ResourceData, mLR(iLoop).ResourceData2, 0, mLR(iLoop).FileName)
-
-                If mLR(iLoop).ResourceType = JMResourceType.BIN And mLR(iLoop).ResourceData = 2 Then
-                    sAll = sAll & "define Script" & mLR(iLoop).FileName & " " & iScripts & vbCrLf
-                    iScripts = iScripts + 1
-                ElseIf mLR(iLoop).ResourceType = JMResourceType.BMP Or mLR(iLoop).ResourceType = JMResourceType.PNG Or mLR(iLoop).ResourceType = JMResourceType.JPG Then
-                    sAll = sAll & "define Texture" & mLR(iLoop).FileName & " " & iTextures & vbCrLf
-                    iTextures = iTextures + 1
-                ElseIf mLR(iLoop).ResourceType = JMResourceType.MSH Then
-                    sAll = sAll & "define Mesh" & mLR(iLoop).FileName & " " & iMeshes & vbCrLf
-                    iMeshes = iMeshes + 1
-                ElseIf mLR(iLoop).ResourceType = JMResourceType.WAV Then
-                    sAll = sAll & "define Sound" & mLR(iLoop).FileName & " " & iSounds & vbCrLf
-                    iSounds = iSounds + 1
-                End If
-            Next
-            FileOpen(17, Path.Combine(My.Settings.LevelSourceDirectory, msFile & "Resources.jms"), OpenMode.Output, OpenAccess.Default)
-            Print(17, sAll)
-            FileClose(17)
-        End If
-
         For iLoop = 0 To mLOs - 1
-            ProcessLO(mLO(iLoop), bFile, False, False)
+            ProcessLO(mLO(iLoop), False, False)
         Next
 
         g = picLevel.CreateGraphics
@@ -637,7 +568,7 @@ Public Class JLForm
 
         miSBoxes = 0
         If miSelectedItem <> -1 Then
-            ProcessLO(mLO(miSelectedItem), False, True, True)
+            ProcessLO(mLO(miSelectedItem), True, True)
             DrawSBoxes()
             UpdateHints(mLO(miSelectedItem), True)
         Else
@@ -645,9 +576,10 @@ Public Class JLForm
         End If
 
         If bFile Then
-            FileClose(10)
+            RenderLevelToFile(mLRs, mLR, mLOs, mLO, msFile, My.Settings.LevelSourceDirectory, My.Settings.LevelCompileOutputDirectory)
             MsgBox("Render complete.")
         End If
+
     End Sub
 
     Private Sub UpdateHints(ByVal LO As LevelObject, ByVal bDoScrolls As Boolean)
@@ -731,9 +663,7 @@ Public Class JLForm
         Next
     End Sub
 
-    Private Sub ProcessLO(ByVal LO As LevelObject, ByVal bFile As Boolean, ByVal bToScreen As Boolean, ByVal bSelected As Boolean)
-        Dim sBuff As String
-
+    Private Sub ProcessLO(ByVal LO As LevelObject, ByVal bToScreen As Boolean, ByVal bSelected As Boolean)
         If LO.Type = "PLATFORM" Then
             If bSelected Then
                 DSLine(LO.V(1).X, LO.V(1).Y, LO.V(2).X, LO.V(2).Y, Color.Red, bToScreen)
@@ -761,13 +691,6 @@ Public Class JLForm
                 DSLine(LO.V(2).X, LO.V(2).Y, LO.V(4).X, LO.V(4).Y, Color.Gray, bToScreen)
                 DSLine(LO.V(3).X, LO.V(3).Y, LO.V(4).X, LO.V(4).Y, Color.Gray, bToScreen)
                 DSLine(LO.V(3).X, LO.V(3).Y, LO.V(1).X, LO.V(1).Y, Color.Gray, bToScreen)
-            End If
-
-            If bFile Then
-                OutputLine("P", LO.V(1).X, LO.V(1).Y, LO.V(2).X, LO.V(2).Y, LO.Z1, LO.Extra, LO.Number, LO.Texture, 0, 0, "")
-                sBuff = ""
-                AddPCube(sBuff, LO.V(1), LO.V(2), LO.V(3), LO.V(4), LO)
-                OutputBuffer(sBuff)
             End If
         End If
 
@@ -799,13 +722,6 @@ Public Class JLForm
                 DSLine(LO.V(3).X, LO.V(3).Y, LO.V(4).X, LO.V(4).Y, Color.Purple, bToScreen)
                 DSLine(LO.V(3).X, LO.V(3).Y, LO.V(1).X, LO.V(1).Y, Color.Purple, bToScreen)
             End If
-
-            If bFile Then
-                OutputLine("W", LO.V(1).X, LO.V(1).Y, LO.V(2).X, LO.V(2).Y, LO.V(4).X, LO.V(4).Y, LO.V(3).X, LO.V(3).Y, LO.Number, LO.Texture, "")
-                sBuff = ""
-                AddPCube(sBuff, LO.V(1), LO.V(2), LO.V(3), LO.V(4), LO)
-                OutputBuffer(sBuff)
-            End If
         End If
 
         If LO.Type = "LADDER" Then
@@ -824,21 +740,6 @@ Public Class JLForm
             Else
                 DrawLadder(LO.V(1).X, LO.V(1).Y, LO.V(2).Y, Color.Blue, bToScreen)
             End If
-
-            If bFile Then
-                OutputLine("L", LO.V(1).X, LO.V(1).Y, LO.V(2).Y, LO.Z1, LO.Z1, LO.Number, LO.Texture, 0, 0, 0, "")
-                sBuff = ""
-
-                AddOCube(sBuff, LO.V(1).X - 6.5, LO.V(1).Y, LO.Z1, LO.V(1).X - 5.2, LO.V(2).Y, LO.Z2, LO)
-                AddOCube(sBuff, LO.V(1).X + 5.2, LO.V(1).Y, LO.Z1, LO.V(1).X + 6.5, LO.V(2).Y, LO.Z2, LO)
-
-                Dim iRung As Single
-                For iRung = LO.V(2).Y + 5 To LO.V(1).Y - 3 Step 6
-                    AddOCube(sBuff, LO.V(1).X - 5.3, iRung, LO.Z1, LO.V(1).X + 5.3, iRung - 1.5, LO.Z2, LO)
-                Next
-
-                OutputBuffer(sBuff)
-            End If
         End If
 
         If LO.Type = "VINE" Then
@@ -856,25 +757,6 @@ Public Class JLForm
                 miSBoxes = miSBoxes + 1
             Else
                 DrawVine(LO.V(1).X, LO.V(1).Y, LO.V(2).Y, Color.Purple, bToScreen)
-            End If
-
-            If bFile Then
-                OutputLine("V", LO.V(1).X, LO.V(1).Y, LO.V(2).Y, LO.Z1, LO.Z1, LO.Number, LO.Texture, 0, 0, 0, "")
-                sBuff = ""
-
-                Dim iRung As Single
-                Dim bSwitch As Boolean
-                bSwitch = False
-                For iRung = LO.V(2).Y + 3 To LO.V(1).Y Step 3
-                    bSwitch = Not bSwitch
-                    If bSwitch Then
-                        AddOCube(sBuff, LO.V(1).X - 0.25, iRung, LO.Z1, LO.V(1).X + 0.75, iRung - 3, LO.Z2, LO)
-                    Else
-                        AddOCube(sBuff, LO.V(1).X - 0.75, iRung, LO.Z1, LO.V(1).X + 0.25, iRung - 3, LO.Z2, LO)
-                    End If
-                Next
-
-                OutputBuffer(sBuff)
             End If
         End If
 
@@ -900,25 +782,6 @@ Public Class JLForm
             ElseIf cbShowPictures.Checked Then
                 DrawArbitrary(LO, Color.Gray, bToScreen)
             End If
-
-            If bFile Then
-                Dim iAX As Single
-                Dim iAY As Single
-
-                iAX = (LO.V(1).X + LO.V(2).X + LO.V(3).X + LO.V(4).X) / 4
-                iAY = (LO.V(1).Y + LO.V(2).Y + LO.V(3).Y + LO.V(4).Y) / 4
-
-                If iAY < 0 Then iAY = 0
-                If iAX < 0 Then iAX = 0
-
-                OutputLine("A", LO.Texture, iAX, iAY, LO.Number, 0, 0, 0, 0, 0, 0, "")
-
-                sBuff = ""
-                AddTriangle(sBuff, LO.V(1), LO.V(2), LO.V(3))
-                AddTriangle(sBuff, LO.V(2), LO.V(4), LO.V(3))
-
-                OutputBuffer(sBuff)
-            End If
         End If
 
         If LO.Type = "DONUT" Then
@@ -930,18 +793,6 @@ Public Class JLForm
                 miSBoxes = miSBoxes + 1
             Else
                 DrawDonut(LO.V(1).X, LO.V(1).Y, Color.Brown, bToScreen)
-            End If
-
-            If bFile Then
-                OutputLine("D", LO.V(1).X, LO.V(1).Y, LO.Z1, LO.Number, LO.Texture, 0, 0, 0, 0, 0, "")
-                sBuff = ""
-
-                AddOCube(sBuff, LO.V(1).X - 1, LO.V(1).Y + 3, LO.Z1, LO.V(1).X + 1, LO.V(1).Y + 1, LO.Z2, LO)
-                AddOCube(sBuff, LO.V(1).X - 1, LO.V(1).Y - 1, LO.Z1, LO.V(1).X + 1, LO.V(1).Y - 3, LO.Z2, LO)
-                AddOCube(sBuff, LO.V(1).X - 3, LO.V(1).Y + 1, LO.Z1, LO.V(1).X - 1, LO.V(1).Y - 1, LO.Z2, LO)
-                AddOCube(sBuff, LO.V(1).X + 1, LO.V(1).Y + 1, LO.Z1, LO.V(1).X + 3, LO.V(1).Y - 1, LO.Z2, LO)
-
-                OutputBuffer(sBuff)
             End If
         End If
 
@@ -1067,34 +918,8 @@ Public Class JLForm
         sFile = LD.ReturnFile
 
         If Len(sFile) > 0 Then
-            mLOs = 0
-            mLRs = 0
-
             picLevel.CreateGraphics.Clear(Color.Black)
-            Dim sAll As String
-            FileOpen(1, Path.Combine(My.Settings.LevelSourceDirectory, sFile), OpenMode.Input, OpenAccess.Read)
-            sAll = InputString(1, LOF(1))
-
-            Dim sLines() As String
-            Dim sLine As String
-            Dim iLine As Long
-            sLines = Split(sAll, vbCrLf)
-            For iLine = 0 To UBound(sLines)
-                sLine = sLines(iLine)
-                If Microsoft.VisualBasic.Left(sLine, 2) = "O " Then
-                    mLO(mLOs).ConvertFromString(Mid(sLine, 3))
-                    mLO(mLOs).DestroyIfInvalid()
-                    mLOs = mLOs + 1
-                End If
-                If Microsoft.VisualBasic.Left(sLine, 2) = "R " Then
-                    mLR(mLRs).ConvertFromString(Mid(sLine, 3))
-                    mLRs = mLRs + 1
-                End If
-            Next
-
-            msFile = Microsoft.VisualBasic.Left(sFile, InStr(sFile, ".") - 1)
-            FileClose(1)
-
+            LoadLevelFromFile(sFile, My.Settings.LevelSourceDirectory, msFile, mLOs, mLO, mLRs, mLR)
             SetCaption()
         End If
 
@@ -1158,24 +983,7 @@ Public Class JLForm
     End Sub
 
     Private Sub SaveFile()
-        Dim sAll As String = Nothing
-        Dim sLine As String
-        Dim iLoop As Long
-
-        FileOpen(3, Path.Combine(My.Settings.LevelSourceDirectory, msFile & ".LVL"), OpenMode.Output)
-
-        For iLoop = 0 To mLRs - 1
-            sLine = "R " & mLR(iLoop).ConvertToString()
-            sAll = sAll & sLine & vbCrLf
-        Next
-
-        For iLoop = 0 To mLOs - 1
-            sLine = "O " & mLO(iLoop).ConvertToString()
-            sAll = sAll & sLine & vbCrLf
-        Next
-
-        Print(3, sAll)
-        FileClose(3)
+        SaveLevelToFile(mLRs, mLR, mLOs, mLO, msFile, My.Settings.LevelSourceDirectory)
     End Sub
 
     Private Sub MenuResources_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MenuResources.Click
@@ -1440,31 +1248,31 @@ Public Class JLForm
                 sTemp = mLO(miSelectedItem).ConvertToString
                 LO.ConvertFromString(sTemp)
                 DragObject(LO, e.X, e.Y)
-                ProcessLO(LO, False, True, True)
+                ProcessLO(LO, True, True)
             End If
             If msTool = "PLATFORM" Then
                 DefaultPlatform(LO, ToRealX(mnMouseX), ToRealY(mnMouseY), ToRealX(e.X), ToRealY(e.Y))
-                ProcessLO(LO, False, True, True)
+                ProcessLO(LO, True, True)
             End If
             If msTool = "WALL" Then
                 DefaultWall(LO, ToRealX(mnMouseX), ToRealY(mnMouseY), ToRealX(e.X), ToRealY(e.Y))
-                ProcessLO(LO, False, True, True)
+                ProcessLO(LO, True, True)
             End If
             If msTool = "LADDER" Then
                 DefaultLadder(LO, ToRealX(mnMouseX), ToRealY(mnMouseY), ToRealX(e.X), ToRealY(e.Y))
-                ProcessLO(LO, False, True, True)
+                ProcessLO(LO, True, True)
             End If
             If msTool = "VINE" Then
                 DefaultVine(LO, ToRealX(mnMouseX), ToRealY(mnMouseY), ToRealX(e.X), ToRealY(e.Y))
-                ProcessLO(LO, False, True, True)
+                ProcessLO(LO, True, True)
             End If
             If msTool = "ARBITRARY" Then
                 DefaultArbitrary(LO, ToRealX(mnMouseX), ToRealY(mnMouseY), ToRealX(e.X), ToRealY(e.Y))
-                ProcessLO(LO, False, True, True)
+                ProcessLO(LO, True, True)
             End If
             If msTool = "DONUT" Then
                 DefaultDonut(LO, ToRealX(mnMouseX), ToRealY(mnMouseY), ToRealX(e.X), ToRealY(e.Y))
-                ProcessLO(LO, False, True, True)
+                ProcessLO(LO, True, True)
             End If
 
         End If

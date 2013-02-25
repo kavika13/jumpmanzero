@@ -1,3 +1,5 @@
+Imports JumpmanLevelLib
+
 Public Class EditResources
     Inherits System.Windows.Forms.Form
 

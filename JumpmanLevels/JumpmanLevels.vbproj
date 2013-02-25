@@ -117,9 +117,6 @@
     <Compile Include="JumpmanLevels.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LevelObjects.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="LoadDialog.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -133,20 +130,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="OldStuff.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OutputRoutines.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="SettingsDialog.Designer.vb">
       <DependentUpon>SettingsDialog.vb</DependentUpon>
     </Compile>
     <Compile Include="SettingsDialog.vb">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SupportRoutines.vb">
-      <SubType>Code</SubType>
     </Compile>
     <EmbeddedResource Include="ChooseItem.resx">
       <DependentUpon>ChooseItem.vb</DependentUpon>
@@ -195,6 +183,12 @@
     <None Include="Images\Trash.bmp" />
     <None Include="Images\Vine.bmp" />
     <None Include="Images\Wall.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JumpmanLevelLib\JumpmanLevelLib.vbproj">
+      <Project>{42e7a7b8-3ca8-4211-9b4d-9c2e309fdeba}</Project>
+      <Name>JumpmanLevelLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
