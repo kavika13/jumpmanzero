@@ -1736,14 +1736,13 @@ Public Class Form1
                 iV2 = sParts(5)
                 iV3 = sParts(7)
 
-                AddASETriangle(fVertex(iV1, 0), fVertex(iV1, 1), fVertex(iV1, 2), fVertex(iV2, 0), fVertex(iV2, 1), fVertex(iV2, 2), fVertex(iV3, 0), fVertex(iV3, 1), fVertex(iV3, 2), 0.1, 0)
-
                 If InStr(sObjectName, "Triangle") <> 0 Then
                     iTemp = iV1
                     iV1 = iV2
                     iV2 = iTemp
-                    AddASETriangle(fVertex(iV1, 0), fVertex(iV1, 1), fVertex(iV1, 2), fVertex(iV2, 0), fVertex(iV2, 1), fVertex(iV2, 2), fVertex(iV3, 0), fVertex(iV3, 1), fVertex(iV3, 2), 0.1, 0)
                 End If
+
+                AddASETriangle(fVertex(iV1, 0), fVertex(iV1, 1), fVertex(iV1, 2), fVertex(iV2, 0), fVertex(iV2, 1), fVertex(iV2, 2), fVertex(iV3, 0), fVertex(iV3, 1), fVertex(iV3, 2), 0.1, 0)
 
             End If
         Next
