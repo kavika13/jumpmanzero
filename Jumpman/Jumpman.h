@@ -9,10 +9,9 @@
 
 struct my_vertex{
     FLOAT x, y, z;
-    FLOAT nx,ny,nz;
-//  DWORD color;
+    FLOAT nx, ny, nz;
     FLOAT tu, tv;
-    };
+};
 
 #define GS_EXITING 0
 #define GS_MENU 1
@@ -93,9 +92,9 @@ struct my_vertex{
 #define NT_PlatformFallRight 4
 
 struct LevelObject{
-    int X1,X2,X3,X4;
-    int Y1,Y2,Y3,Y4;
-    int Z1,Z2;
+    int X1, X2, X3, X4;
+    int Y1, Y2, Y3, Y4;
+    int Z1, Z2;
     int Num;
     int Visible;
     char Func[10];
@@ -108,18 +107,18 @@ struct LevelObject{
     int NavChoice;
 
     int MeshSize;
-    long *Mesh;
+    long* Mesh;
     long MeshNumber;
     int Texture;
     int ObjectNumber;
-    };
+};
 
 struct ScriptCode{
     int Subs;
     int SubStart[50];
     char SubName[50][20];
     long Code[8000];
-    };
+};
 
 struct ScriptContext{
     long Done;
@@ -139,30 +138,30 @@ struct ScriptContext{
 
     long Active;
 
-    ScriptCode *Script;
-    };
+    ScriptCode* Script;
+};
 
 //IN JUMPMAN
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-void GetFileLine(char *sOut,size_t sOutSize,char *sFile,int iLine);
+ATOM MyRegisterClass(HINSTANCE hInstance);
+BOOL InitInstance(HINSTANCE, int);
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine);
 void LoadNextLevel();
 void ProgressGame();
 void DrawGame();
 long Init3D();
 void LoadMeshes();
-long LoadMesh(char *sFileName);
-void PrepLevel(char *sLevel);
-int FindObject(LevelObject *lObj,int iCount,int iFind);
-void GetNextPlatform(long iX,long iY,long iHeight,long iWide,float *iSupport,long *iPlatform);
-void FindLadder(long iX, long iY, long *iAbout, long *iExact);
-void FindVine(long iX, long iY, long *iAbout, long *iExact);
+long LoadMesh(char* sFileName);
+void PrepLevel(char* sLevel);
+int FindObject(LevelObject* lObj, int iCount, int iFind);
+void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
+void FindLadder(long iX, long iY, long* iAbout, long* iExact);
+void FindVine(long iX, long iY, long* iAbout, long* iExact);
 void SetGamePerspective();
 void MoveJumpman();
 
 //EXT FUNCTION
-long ExtFunction(long iFunc, ScriptContext *SC);
+long ExtFunction(long iFunc, ScriptContext* SC);
 
 #define EFPRINT 1
 #define EFSET 2
@@ -295,38 +294,38 @@ void PauseMusic2();
 long InitMusic(HWND hWnd);
 long CheckForStop();
 
-void NewTrack1(char *sFile,long iStart,long iIntro);
-void NewTrack2(char *sFile);
+void NewTrack1(char* sFile, long iStart, long iIntro);
+void NewTrack2(char* sFile);
 
 //IN UTILITIES
-long PointInQuad(long iX0,long iY0,long iX1,long iY1,long iX2,long iY2,long iX3,long iY3,long iX4,long iY4);
-long StringToInt(unsigned char *sString);
-long StringToLong(unsigned char *sString);
-long StringToLong2(unsigned char *sString);
-long FileToString(char *sFileName,unsigned char **sNewBuffer);
+long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, long iX3, long iY3, long iX4, long iY4);
+long StringToInt(unsigned char* sString);
+long StringToLong(unsigned char* sString);
+long StringToLong2(unsigned char* sString);
+long FileToString(char* sFileName, unsigned char** sNewBuffer);
 
 //IN JOYSTICK
-void GetJoystickPosition(long *X, long *Y, long *B);
+void GetJoystickPosition(long* X, long* Y, long* B);
 int JoystickPresent();
 
 //IN BASIC3D
-void ChangeMesh(long iMesh,long iNewMesh);
-void SetFog(float iFogStart,float iFogEnd,DWORD Color);
+void ChangeMesh(long iMesh, long iNewMesh);
+void SetFog(float iFogStart, float iFogEnd, DWORD Color);
 long GetDrawnObjects();
 void ScrollTexture(long iObj, float fX, float fY);
 void DeleteMesh(long iMesh);
-void ResetContext(ScriptContext *SC);
+void ResetContext(ScriptContext* SC);
 void Clear3dData();
-void LoadTexture(int iTex,char *sFile, int iType,int iAlpha);
+void LoadTexture(int iTex, char* sFile, int iType, int iAlpha);
 long InitializeAll(HWND hWindow);
 long Render();
 void Reset3d(HWND hWindow);
 void DoCleanUp();
-void CreateObject(long *iParams,long iCount,long *iNum);
-void SetObjectData(long iNum,long iTexture,int iVisible);
-void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX,float iPoiY,float iPoiZ);
-void SetObjectMesh(long *iParams,long iCount, long iNum);
-void CopyObject(int iObject,long *iNum);
+void CreateObject(long* iParams, long iCount, long* iNum);
+void SetObjectData(long iNum, long iTexture, int iVisible);
+void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
+void SetObjectMesh(long* iParams, long iCount, long iNum);
+void CopyObject(int iObject, long* iNum);
 void SwapObjects(long o1, long o2);
 void PrioritizeObject(long o1);
 
@@ -339,12 +338,12 @@ void RotateMatrixY(long iObj, float fDegrees);
 void RotateMatrixZ(long iObj, float fDegrees);
 
 //IN SCRIPT
-void LoadScript(char *sFileName,ScriptCode *oScript);
-void RunScript(ScriptContext *SC, long iSub);
-int FindScript(ScriptContext *SC,char *sFunc);
+void LoadScript(char* sFileName, ScriptCode* oScript);
+void RunScript(ScriptContext* SC, long iSub);
+int FindScript(ScriptContext* SC, char* sFunc);
 
 //IN SOUND
 void DoPlaySound(int iSound);
 void CleanUpSounds();
 long InitSound(HWND hWnd);
-void LoadSound(char *sFile,int iSound);
+void LoadSound(char* sFile, int iSound);
