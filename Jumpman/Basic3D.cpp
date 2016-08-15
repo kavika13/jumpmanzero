@@ -1,10 +1,9 @@
-#include "stdafx.h"
-#include "jumpman.h"
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <D3DX8.h>
 #include <stdio.h>
+#include "./stdafx.h"
+#include "./jumpman.h"
 
 #define MAX_TEXTURES 30
 #define MAX_OBJECTS 600

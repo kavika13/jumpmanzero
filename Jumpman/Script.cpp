@@ -1,5 +1,5 @@
-#include "stdafx.h"
-#include "jumpman.h"
+#include "./stdafx.h"
+#include "./jumpman.h"
 
 #define FCBASECN 2
 #define FCSTACKCN 3

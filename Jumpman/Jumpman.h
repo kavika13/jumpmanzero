@@ -4,8 +4,8 @@
 #define FULLSCREEN_RESX 640
 #define FULLSCREEN_RESY 480
 
-#include "resource.h"
 #include <D3DX8.h>
+#include "./resource.h"
 
 struct my_vertex{
     FLOAT x, y, z;
@@ -141,7 +141,7 @@ struct ScriptContext{
     ScriptCode* Script;
 };
 
-//IN JUMPMAN
+// IN JUMPMAN
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -160,7 +160,7 @@ void FindVine(long iX, long iY, long* iAbout, long* iExact);
 void SetGamePerspective();
 void MoveJumpman();
 
-//EXT FUNCTION
+// EXT FUNCTION
 long ExtFunction(long iFunc, ScriptContext* SC);
 
 #define EFPRINT 1
@@ -285,7 +285,7 @@ long ExtFunction(long iFunc, ScriptContext* SC);
 #define SERVICE_LEVELTITLE 154
 #define SERVICE_CREDITLINE 155
 
-//IN MUSIC
+// IN MUSIC
 int CheckMusicEvent();
 void CleanUpMusic();
 
@@ -297,18 +297,18 @@ long CheckForStop();
 void NewTrack1(char* sFile, long iStart, long iIntro);
 void NewTrack2(char* sFile);
 
-//IN UTILITIES
+// IN UTILITIES
 long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, long iX3, long iY3, long iX4, long iY4);
 long StringToInt(unsigned char* sString);
 long StringToLong(unsigned char* sString);
 long StringToLong2(unsigned char* sString);
 long FileToString(char* sFileName, unsigned char** sNewBuffer);
 
-//IN JOYSTICK
+// IN JOYSTICK
 void GetJoystickPosition(long* X, long* Y, long* B);
 int JoystickPresent();
 
-//IN BASIC3D
+// IN BASIC3D
 void ChangeMesh(long iMesh, long iNewMesh);
 void SetFog(float iFogStart, float iFogEnd, DWORD Color);
 long GetDrawnObjects();
@@ -337,12 +337,12 @@ void RotateMatrixX(long iObj, float fDegrees);
 void RotateMatrixY(long iObj, float fDegrees);
 void RotateMatrixZ(long iObj, float fDegrees);
 
-//IN SCRIPT
+// IN SCRIPT
 void LoadScript(char* sFileName, ScriptCode* oScript);
 void RunScript(ScriptContext* SC, long iSub);
 int FindScript(ScriptContext* SC, char* sFunc);
 
-//IN SOUND
+// IN SOUND
 void DoPlaySound(int iSound);
 void CleanUpSounds();
 long InitSound(HWND hWnd);
