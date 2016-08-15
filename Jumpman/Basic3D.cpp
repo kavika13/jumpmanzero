@@ -1,8 +1,8 @@
-#include "stdafx.h"
+#include "stdafx.h"  // NOLINT
+#include <stdio.h>  // NOLINT
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <windows.h>  // NOLINT
 #include <D3DX8.h>
-#include <stdio.h>
 #include "./jumpman.h"
 
 #define MAX_TEXTURES 30

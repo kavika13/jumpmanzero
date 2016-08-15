@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#include "stdafx.h"  // NOLINT
+#include <stdio.h>  // NOLINT
 #include <D3DX8.h>
-#include <stdio.h>
 #include "./Jumpman.h"
 
 char GameFile[100];
