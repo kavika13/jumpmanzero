@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 // Name: DXUtil_Read*RegKey() and DXUtil_Write*RegKey()
-// Desc: Helper functions to read/write a string registry key 
+// Desc: Helper functions to read/write a string registry key
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteStringRegKey( HKEY hKey, TCHAR* strRegName, TCHAR* strValue );
 HRESULT DXUtil_WriteIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD dwValue );
@@ -44,7 +44,7 @@ HRESULT DXUtil_ReadBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL* pbValue, BOOL
 //          TIMER_ADVANCE         - to advance the timer by 0.1 seconds
 //          TIMER_GETABSOLUTETIME - to get the absolute system time
 //          TIMER_GETAPPTIME      - to get the current time
-//          TIMER_GETELAPSEDTIME  - to get the time that elapsed between 
+//          TIMER_GETELAPSEDTIME  - to get the time that elapsed between
 //                                  TIMER_GETELAPSEDTIME calls
 //-----------------------------------------------------------------------------
 enum TIMER_COMMAND { TIMER_RESET, TIMER_START, TIMER_STOP, TIMER_ADVANCE,

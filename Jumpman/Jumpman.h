@@ -8,11 +8,11 @@
 #include <D3DX8.h>
 
 struct my_vertex{
-    FLOAT x, y, z;  
+    FLOAT x, y, z;
     FLOAT nx,ny,nz;
-//	DWORD color;
-    FLOAT tu, tv;   
-	};
+//  DWORD color;
+    FLOAT tu, tv;
+    };
 
 #define GS_EXITING 0
 #define GS_MENU 1
@@ -70,7 +70,7 @@ struct my_vertex{
 
 #define JS_NORMAL 0
 #define JS_JUMPING 1
-#define JS_FALLING 8 
+#define JS_FALLING 8
 #define JS_LADDER 16
 #define JS_ROLL 64
 #define JS_PUNCH 128
@@ -93,59 +93,59 @@ struct my_vertex{
 #define NT_PlatformFallRight 4
 
 struct LevelObject{
-	int X1,X2,X3,X4;
-	int Y1,Y2,Y3,Y4;
-	int Z1,Z2;
-	int Num;
-	int Visible;
-	char Func[10];
-	int Extra;
-  
-	int Navs;
-	int NavTo[10];
-	int NavToType[10];
-	int NavDist;
-	int NavChoice;
+    int X1,X2,X3,X4;
+    int Y1,Y2,Y3,Y4;
+    int Z1,Z2;
+    int Num;
+    int Visible;
+    char Func[10];
+    int Extra;
 
-	int MeshSize;
-	long *Mesh;
-	long MeshNumber;
-	int Texture;
-	int ObjectNumber;
-	};
+    int Navs;
+    int NavTo[10];
+    int NavToType[10];
+    int NavDist;
+    int NavChoice;
+
+    int MeshSize;
+    long *Mesh;
+    long MeshNumber;
+    int Texture;
+    int ObjectNumber;
+    };
 
 struct ScriptCode{
-	int Subs;
-	int SubStart[50];
-	char SubName[50][20];
-	long Code[8000];
-	};
+    int Subs;
+    int SubStart[50];
+    char SubName[50][20];
+    long Code[8000];
+    };
 
 struct ScriptContext{
-	long Done;
+    long Done;
 
-	long SP;
-	long BP;
-	long IP;
+    long SP;
+    long BP;
+    long IP;
 
-	long CS[1000];
-	long CallStack;
+    long CS[1000];
+    long CallStack;
 
-	long Stack[5000];
-	long Globals[500];
+    long Stack[5000];
+    long Globals[500];
 
-	long ScriptNumber;
-	long ScriptReference;
+    long ScriptNumber;
+    long ScriptReference;
 
-	long Active;
+    long Active;
 
-	ScriptCode *Script;
-	};
+    ScriptCode *Script;
+    };
 
 //IN JUMPMAN
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+ATOM                MyRegisterClass(HINSTANCE hInstance);
+BOOL                InitInstance(HINSTANCE, int);
+LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 void GetFileLine(char *sOut,size_t sOutSize,char *sFile,int iLine);
 void LoadNextLevel();
 void ProgressGame();
@@ -348,4 +348,3 @@ void DoPlaySound(int iSound);
 void CleanUpSounds();
 long InitSound(HWND hWnd);
 void LoadSound(char *sFile,int iSound);
-

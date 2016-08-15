@@ -12,7 +12,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <tchar.h>
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdarg.h>
 #include "DXUtil.h"
 
@@ -26,8 +26,8 @@
 HRESULT DXUtil_WriteStringRegKey( HKEY hKey, TCHAR* strRegName,
                                   TCHAR* strValue )
 {
-    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_SZ, 
-                                        (BYTE*)strValue, 
+    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_SZ,
+                                        (BYTE*)strValue,
                                         (_tcslen(strValue)+1)*sizeof(TCHAR) ) )
         return E_FAIL;
 
@@ -42,13 +42,13 @@ HRESULT DXUtil_WriteStringRegKey( HKEY hKey, TCHAR* strRegName,
 // Name: DXUtil_ReadIntRegKey()
 // Desc: Helper function to read a registry key int
 //-----------------------------------------------------------------------------
-HRESULT DXUtil_ReadIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD* pdwValue, 
+HRESULT DXUtil_ReadIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD* pdwValue,
                               DWORD dwDefault )
 {
     DWORD dwType;
     DWORD dwLength = sizeof(DWORD);
 
-    if( ERROR_SUCCESS != RegQueryValueEx( hKey, strRegName, 0, &dwType, 
+    if( ERROR_SUCCESS != RegQueryValueEx( hKey, strRegName, 0, &dwType,
                                           (BYTE*)pdwValue, &dwLength ) )
     {
         *pdwValue = dwDefault;
@@ -66,7 +66,7 @@ HRESULT DXUtil_ReadIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD* pdwValue,
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD dwValue )
 {
-    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_DWORD, 
+    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_DWORD,
                                         (BYTE*)&dwValue, sizeof(DWORD) ) )
         return E_FAIL;
 
@@ -80,13 +80,13 @@ HRESULT DXUtil_WriteIntRegKey( HKEY hKey, TCHAR* strRegName, DWORD dwValue )
 // Name: DXUtil_ReadBoolRegKey()
 // Desc: Helper function to read a registry key BOOL
 //-----------------------------------------------------------------------------
-HRESULT DXUtil_ReadBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL* pbValue, 
+HRESULT DXUtil_ReadBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL* pbValue,
                               BOOL bDefault )
 {
     DWORD dwType;
     DWORD dwLength = sizeof(BOOL);
 
-    if( ERROR_SUCCESS != RegQueryValueEx( hKey, strRegName, 0, &dwType, 
+    if( ERROR_SUCCESS != RegQueryValueEx( hKey, strRegName, 0, &dwType,
                                           (BYTE*)pbValue, &dwLength ) )
     {
         *pbValue = bDefault;
@@ -104,7 +104,7 @@ HRESULT DXUtil_ReadBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL* pbValue,
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL bValue )
 {
-    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_DWORD, 
+    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_DWORD,
                                         (BYTE*)&bValue, sizeof(BOOL) ) )
         return E_FAIL;
 
@@ -118,13 +118,13 @@ HRESULT DXUtil_WriteBoolRegKey( HKEY hKey, TCHAR* strRegName, BOOL bValue )
 // Name: DXUtil_ReadGuidRegKey()
 // Desc: Helper function to read a registry key guid
 //-----------------------------------------------------------------------------
-HRESULT DXUtil_ReadGuidRegKey( HKEY hKey, TCHAR* strRegName, GUID* pGuidValue, 
+HRESULT DXUtil_ReadGuidRegKey( HKEY hKey, TCHAR* strRegName, GUID* pGuidValue,
                                GUID& guidDefault )
 {
     DWORD dwType;
     DWORD dwLength = sizeof(GUID);
 
-    if( ERROR_SUCCESS != RegQueryValueEx( hKey, strRegName, 0, &dwType, 
+    if( ERROR_SUCCESS != RegQueryValueEx( hKey, strRegName, 0, &dwType,
                                           (LPBYTE) pGuidValue, &dwLength ) )
     {
         *pGuidValue = guidDefault;
@@ -142,7 +142,7 @@ HRESULT DXUtil_ReadGuidRegKey( HKEY hKey, TCHAR* strRegName, GUID* pGuidValue,
 //-----------------------------------------------------------------------------
 HRESULT DXUtil_WriteGuidRegKey( HKEY hKey, TCHAR* strRegName, GUID guidValue )
 {
-    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_BINARY, 
+    if( ERROR_SUCCESS != RegSetValueEx( hKey, strRegName, 0, REG_BINARY,
                                         (BYTE*)&guidValue, sizeof(GUID) ) )
         return E_FAIL;
 
@@ -161,7 +161,7 @@ HRESULT DXUtil_WriteGuidRegKey( HKEY hKey, TCHAR* strRegName, GUID guidValue )
 //          TIMER_ADVANCE         - to advance the timer by 0.1 seconds
 //          TIMER_GETABSOLUTETIME - to get the absolute system time
 //          TIMER_GETAPPTIME      - to get the current time
-//          TIMER_GETELAPSEDTIME  - to get the time that elapsed between 
+//          TIMER_GETELAPSEDTIME  - to get the time that elapsed between
 //                                  TIMER_GETELAPSEDTIME calls
 //-----------------------------------------------------------------------------
 FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
@@ -192,7 +192,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
         double fTime;
         double fElapsedTime;
         LARGE_INTEGER qwTime;
-        
+
         // Get either the current time or the stop time, depending
         // on whether we're stopped and what command was sent
         if( m_llStopTime != 0 && command != TIMER_START && command != TIMER_GETABSOLUTETIME)
@@ -207,14 +207,14 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
             m_llLastElapsedTime = qwTime.QuadPart;
             return (FLOAT) fElapsedTime;
         }
-    
+
         // Return the current time
         if( command == TIMER_GETAPPTIME )
         {
             double fAppTime = (double) ( qwTime.QuadPart - m_llBaseTime ) / (double) m_llQPFTicksPerSec;
             return (FLOAT) fAppTime;
         }
-    
+
         // Reset the timer
         if( command == TIMER_RESET )
         {
@@ -224,7 +224,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
             m_bTimerStopped     = FALSE;
             return 0.0f;
         }
-    
+
         // Start the timer
         if( command == TIMER_START )
         {
@@ -235,7 +235,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
             m_bTimerStopped = FALSE;
             return 0.0f;
         }
-    
+
         // Stop the timer
         if( command == TIMER_STOP )
         {
@@ -244,7 +244,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
             m_bTimerStopped = TRUE;
             return 0.0f;
         }
-    
+
         // Advance the timer by 1/10th second
         if( command == TIMER_ADVANCE )
         {
@@ -268,28 +268,28 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
         static double m_fStopTime         = 0.0;
         double fTime;
         double fElapsedTime;
-        
+
         // Get either the current time or the stop time, depending
         // on whether we're stopped and what command was sent
         if( m_fStopTime != 0.0 && command != TIMER_START && command != TIMER_GETABSOLUTETIME)
             fTime = m_fStopTime;
         else
             fTime = timeGetTime() * 0.001;
-    
+
         // Return the elapsed time
         if( command == TIMER_GETELAPSEDTIME )
-        {   
+        {
             fElapsedTime = (double) (fTime - m_fLastElapsedTime);
             m_fLastElapsedTime = fTime;
             return (FLOAT) fElapsedTime;
         }
-    
+
         // Return the current time
         if( command == TIMER_GETAPPTIME )
         {
             return (FLOAT) (fTime - m_fBaseTime);
         }
-    
+
         // Reset the timer
         if( command == TIMER_RESET )
         {
@@ -299,7 +299,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
             m_bTimerStopped     = FALSE;
             return 0.0f;
         }
-    
+
         // Start the timer
         if( command == TIMER_START )
         {
@@ -310,7 +310,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
             m_bTimerStopped = FALSE;
             return 0.0f;
         }
-    
+
         // Stop the timer
         if( command == TIMER_STOP )
         {
@@ -319,7 +319,7 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
             m_bTimerStopped = TRUE;
             return 0.0f;
         }
-    
+
         // Advance the timer by 1/10th second
         if( command == TIMER_ADVANCE )
         {
@@ -342,10 +342,10 @@ FLOAT __stdcall DXUtil_Timer( TIMER_COMMAND command )
 //-----------------------------------------------------------------------------
 // Name: DXUtil_ConvertAnsiStringToWide()
 // Desc: This is a UNICODE conversion utility to convert a CHAR string into a
-//       WCHAR string. cchDestChar defaults -1 which means it 
+//       WCHAR string. cchDestChar defaults -1 which means it
 //       assumes strDest is large enough to store strSource
 //-----------------------------------------------------------------------------
-VOID DXUtil_ConvertAnsiStringToWide( WCHAR* wstrDestination, const CHAR* strSource, 
+VOID DXUtil_ConvertAnsiStringToWide( WCHAR* wstrDestination, const CHAR* strSource,
                                      int cchDestChar )
 {
     if( wstrDestination==NULL || strSource==NULL )
@@ -354,7 +354,7 @@ VOID DXUtil_ConvertAnsiStringToWide( WCHAR* wstrDestination, const CHAR* strSour
     if( cchDestChar == -1 )
         cchDestChar = strlen(strSource)+1;
 
-    MultiByteToWideChar( CP_ACP, 0, strSource, -1, 
+    MultiByteToWideChar( CP_ACP, 0, strSource, -1,
                          wstrDestination, cchDestChar-1 );
 
     wstrDestination[cchDestChar-1] = 0;
@@ -366,10 +366,10 @@ VOID DXUtil_ConvertAnsiStringToWide( WCHAR* wstrDestination, const CHAR* strSour
 //-----------------------------------------------------------------------------
 // Name: DXUtil_ConvertWideStringToAnsi()
 // Desc: This is a UNICODE conversion utility to convert a WCHAR string into a
-//       CHAR string. cchDestChar defaults -1 which means it 
+//       CHAR string. cchDestChar defaults -1 which means it
 //       assumes strDest is large enough to store strSource
 //-----------------------------------------------------------------------------
-VOID DXUtil_ConvertWideStringToAnsi( CHAR* strDestination, const WCHAR* wstrSource, 
+VOID DXUtil_ConvertWideStringToAnsi( CHAR* strDestination, const WCHAR* wstrSource,
                                      int cchDestChar )
 {
     if( strDestination==NULL || wstrSource==NULL )
@@ -378,7 +378,7 @@ VOID DXUtil_ConvertWideStringToAnsi( CHAR* strDestination, const WCHAR* wstrSour
     if( cchDestChar == -1 )
         cchDestChar = wcslen(wstrSource)+1;
 
-    WideCharToMultiByte( CP_ACP, 0, wstrSource, -1, strDestination, 
+    WideCharToMultiByte( CP_ACP, 0, wstrSource, -1, strDestination,
                          cchDestChar-1, NULL, NULL );
 
     strDestination[cchDestChar-1] = 0;
@@ -390,10 +390,10 @@ VOID DXUtil_ConvertWideStringToAnsi( CHAR* strDestination, const WCHAR* wstrSour
 //-----------------------------------------------------------------------------
 // Name: DXUtil_ConvertGenericStringToWide()
 // Desc: This is a UNICODE conversion utility to convert a TCHAR string into a
-//       WCHAR string. cchDestChar defaults -1 which means it 
+//       WCHAR string. cchDestChar defaults -1 which means it
 //       assumes strDest is large enough to store strSource
 //-----------------------------------------------------------------------------
-VOID DXUtil_ConvertGenericStringToWide( WCHAR* wstrDestination, const TCHAR* tstrSource, 
+VOID DXUtil_ConvertGenericStringToWide( WCHAR* wstrDestination, const TCHAR* tstrSource,
                                         int cchDestChar )
 {
     if( wstrDestination==NULL || tstrSource==NULL || cchDestChar == 0 )

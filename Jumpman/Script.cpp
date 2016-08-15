@@ -45,210 +45,207 @@ void RunLine(ScriptContext *SC,long iFunc,long rArg1,long rArg2);
 
 void ResetContext(ScriptContext *SC)
 {
-	int iLoop;
-	for(iLoop=0;iLoop<500;++iLoop){
-		SC->Globals[iLoop]=0;
-		}
+    int iLoop;
+    for(iLoop=0;iLoop<500;++iLoop){
+        SC->Globals[iLoop]=0;
+        }
 }
 
 int FindScript(ScriptContext *SC,char *sFunc)
 {
-	int iFind;
-	iFind=-1;
-	while(++iFind<SC->Script->Subs){
-		if(strcmp(sFunc,SC->Script->SubName[iFind])==0){
-			return iFind;
-			}
-		}
-	return -1;
+    int iFind;
+    iFind=-1;
+    while(++iFind<SC->Script->Subs){
+        if(strcmp(sFunc,SC->Script->SubName[iFind])==0){
+            return iFind;
+            }
+        }
+    return -1;
 }
 
 void RunScript(ScriptContext *SC, long iSub)
 {
-	if(iSub==-1)return;
+    if(iSub==-1)return;
 
-	SC->Done=0;
-	SC->BP=1;
-	SC->SP=1;
-	SC->CallStack=0;
-	SC->IP=(SC->Script->SubStart[iSub])/3;
+    SC->Done=0;
+    SC->BP=1;
+    SC->SP=1;
+    SC->CallStack=0;
+    SC->IP=(SC->Script->SubStart[iSub])/3;
 
-	long iFunc,iArg1,iArg2;
+    long iFunc,iArg1,iArg2;
 
-	while(!SC->Done){
-		iFunc=SC->Script->Code[SC->IP*3+0];
-		iArg1=SC->Script->Code[SC->IP*3+1];
-		iArg2=SC->Script->Code[SC->IP*3+2];
+    while(!SC->Done){
+        iFunc=SC->Script->Code[SC->IP*3+0];
+        iArg1=SC->Script->Code[SC->IP*3+1];
+        iArg2=SC->Script->Code[SC->IP*3+2];
 
-		RunLine(SC,iFunc,iArg1,iArg2);
+        RunLine(SC,iFunc,iArg1,iArg2);
 
-		++SC->IP;
-		}
+        ++SC->IP;
+        }
 }
 
 void RunLine(ScriptContext *SC,long iFunc,long rArg1,long rArg2)
 {
-	long iArg1,iArg2;
-	iArg1=rArg1/256;
-	iArg2=rArg2/256;
+    long iArg1,iArg2;
+    iArg1=rArg1/256;
+    iArg2=rArg2/256;
 
-	if(iFunc==FCBASECN){
-		SC->BP+=iArg1;
-	}
-	else if(iFunc==FCSTACKCN){
-		SC->SP+=iArg1;
-	}
-	else if(iFunc==FCMOVBCCN){
-		SC->Stack[SC->BP+iArg1]=rArg2;
-	}
-	else if(iFunc==FCMOVSCCN){
-		SC->Stack[SC->SP+iArg1]=rArg2;
-	}
-	else if(iFunc==FCMOVBSSC){
-		SC->Stack[SC->BP+(SC->Stack[SC->SP+iArg1])/256]=SC->Stack[SC->SP + iArg2];
-	}
-	else if(iFunc==FCMOVSCBC){
-		SC->Stack[SC->SP+iArg1]=SC->Stack[SC->BP+iArg2];
-	}
-	else if(iFunc==FCMOVSCSC){
-		SC->Stack[SC->SP+iArg1]=SC->Stack[SC->SP+iArg2];
-	}
-	else if(iFunc==FCADDSCCN){
-		SC->Stack[SC->SP+iArg1]+=rArg2;
-	}
-	else if(iFunc==FCADDSCSC){
-		SC->Stack[SC->SP+iArg1]+=SC->Stack[SC->SP+iArg2];
-	}
-	else if(iFunc==FCSUBSCSC){
-		SC->Stack[SC->SP+iArg1]-=SC->Stack[SC->SP+iArg2];
-	}
-	else if(iFunc==FCMULSCSC){
-		SC->Stack[SC->SP+iArg1]=SC->Stack[SC->SP+iArg1]*SC->Stack[SC->SP+iArg2]/256;
-	}
-	else if(iFunc==FCDIVSCSC){
-		SC->Stack[SC->SP+iArg1]=SC->Stack[SC->SP+iArg1]*256/SC->Stack[SC->SP+iArg2];
-	}
-	else if(iFunc==FCBANDSCSC){
-		SC->Stack[SC->SP+iArg1]&=SC->Stack[SC->SP+iArg2];
-	}
+    if(iFunc==FCBASECN){
+        SC->BP+=iArg1;
+    }
+    else if(iFunc==FCSTACKCN){
+        SC->SP+=iArg1;
+    }
+    else if(iFunc==FCMOVBCCN){
+        SC->Stack[SC->BP+iArg1]=rArg2;
+    }
+    else if(iFunc==FCMOVSCCN){
+        SC->Stack[SC->SP+iArg1]=rArg2;
+    }
+    else if(iFunc==FCMOVBSSC){
+        SC->Stack[SC->BP+(SC->Stack[SC->SP+iArg1])/256]=SC->Stack[SC->SP + iArg2];
+    }
+    else if(iFunc==FCMOVSCBC){
+        SC->Stack[SC->SP+iArg1]=SC->Stack[SC->BP+iArg2];
+    }
+    else if(iFunc==FCMOVSCSC){
+        SC->Stack[SC->SP+iArg1]=SC->Stack[SC->SP+iArg2];
+    }
+    else if(iFunc==FCADDSCCN){
+        SC->Stack[SC->SP+iArg1]+=rArg2;
+    }
+    else if(iFunc==FCADDSCSC){
+        SC->Stack[SC->SP+iArg1]+=SC->Stack[SC->SP+iArg2];
+    }
+    else if(iFunc==FCSUBSCSC){
+        SC->Stack[SC->SP+iArg1]-=SC->Stack[SC->SP+iArg2];
+    }
+    else if(iFunc==FCMULSCSC){
+        SC->Stack[SC->SP+iArg1]=SC->Stack[SC->SP+iArg1]*SC->Stack[SC->SP+iArg2]/256;
+    }
+    else if(iFunc==FCDIVSCSC){
+        SC->Stack[SC->SP+iArg1]=SC->Stack[SC->SP+iArg1]*256/SC->Stack[SC->SP+iArg2];
+    }
+    else if(iFunc==FCBANDSCSC){
+        SC->Stack[SC->SP+iArg1]&=SC->Stack[SC->SP+iArg2];
+    }
 
-	else if(iFunc==FCMOVSCGS){
-		SC->Stack[SC->SP+iArg1]=SC->Globals[SC->Stack[SC->SP+iArg2]/256];
-		}
-	else if(iFunc==FCMOVSCBS){
-		SC->Stack[SC->SP+iArg1]=SC->Stack[SC->BP + SC->Stack[SC->SP+iArg2]/256];
-		}
+    else if(iFunc==FCMOVSCGS){
+        SC->Stack[SC->SP+iArg1]=SC->Globals[SC->Stack[SC->SP+iArg2]/256];
+        }
+    else if(iFunc==FCMOVSCBS){
+        SC->Stack[SC->SP+iArg1]=SC->Stack[SC->BP + SC->Stack[SC->SP+iArg2]/256];
+        }
 
-	else if(iFunc==FCMOVGCCN){
-		SC->Globals[iArg1]=rArg2;
-	}
-	else if(iFunc==FCMOVGSSC){
-		SC->Globals[(SC->Stack[SC->SP+iArg1])/256]=SC->Stack[SC->SP+iArg2];
-	}
-	else if(iFunc==FCMOVSCGC){
-		SC->Stack[SC->SP+iArg1]=SC->Globals[iArg2];
-	}
-	else if(iFunc==FCMOVGCSC){
-		SC->Globals[iArg1]=SC->Stack[SC->SP+iArg2];
-	}
+    else if(iFunc==FCMOVGCCN){
+        SC->Globals[iArg1]=rArg2;
+    }
+    else if(iFunc==FCMOVGSSC){
+        SC->Globals[(SC->Stack[SC->SP+iArg1])/256]=SC->Stack[SC->SP+iArg2];
+    }
+    else if(iFunc==FCMOVSCGC){
+        SC->Stack[SC->SP+iArg1]=SC->Globals[iArg2];
+    }
+    else if(iFunc==FCMOVGCSC){
+        SC->Globals[iArg1]=SC->Stack[SC->SP+iArg2];
+    }
 
-	else if(iFunc==FCEQUSCSC){
-		SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]==SC->Stack[SC->SP+iArg2])?256:0;
-	}
-	else if(iFunc==FCNEQSCSC){
-		SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]!=SC->Stack[SC->SP+iArg2])?256:0;
-	}
-	else if(iFunc==FCGTSCSC){
-		SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]>SC->Stack[SC->SP+iArg2])?256:0;
-	}
-	else if(iFunc==FCGTESCSC){
-		SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]>=SC->Stack[SC->SP+iArg2])?256:0;
-	}
+    else if(iFunc==FCEQUSCSC){
+        SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]==SC->Stack[SC->SP+iArg2])?256:0;
+    }
+    else if(iFunc==FCNEQSCSC){
+        SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]!=SC->Stack[SC->SP+iArg2])?256:0;
+    }
+    else if(iFunc==FCGTSCSC){
+        SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]>SC->Stack[SC->SP+iArg2])?256:0;
+    }
+    else if(iFunc==FCGTESCSC){
+        SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1]>=SC->Stack[SC->SP+iArg2])?256:0;
+    }
 
-	else if(iFunc==FCORSCSC){
-		SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1] || SC->Stack[SC->SP+iArg2])?256:0;
-	}
-	else if(iFunc==FCANDSCSC){
-		SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1] && SC->Stack[SC->SP+iArg2])?256:0;
-	}
+    else if(iFunc==FCORSCSC){
+        SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1] || SC->Stack[SC->SP+iArg2])?256:0;
+    }
+    else if(iFunc==FCANDSCSC){
+        SC->Stack[SC->SP+iArg1]=(SC->Stack[SC->SP+iArg1] && SC->Stack[SC->SP+iArg2])?256:0;
+    }
 
-	else if(iFunc==FCCALL){
-		SC->CS[SC->CallStack]=SC->IP;
-		++SC->CallStack;
-		SC->IP=iArg1;
-	}
-	else if(iFunc==FCRET){
-		--SC->CallStack;
-		if(SC->CallStack<0)SC->Done=1;
-		else SC->IP=SC->CS[SC->CallStack];
-		}
-	else if(iFunc==FCJUMP){
-		SC->IP=iArg1;
-		}
-	else if(iFunc==FCJUMPZ){
-		if(SC->Stack[SC->SP]==0)SC->IP=iArg1;
-		}
-	else if(iFunc==FCJUMPNZ){
-		if(!SC->Stack[SC->SP])SC->IP=iArg1;
-		}
+    else if(iFunc==FCCALL){
+        SC->CS[SC->CallStack]=SC->IP;
+        ++SC->CallStack;
+        SC->IP=iArg1;
+    }
+    else if(iFunc==FCRET){
+        --SC->CallStack;
+        if(SC->CallStack<0)SC->Done=1;
+        else SC->IP=SC->CS[SC->CallStack];
+        }
+    else if(iFunc==FCJUMP){
+        SC->IP=iArg1;
+        }
+    else if(iFunc==FCJUMPZ){
+        if(SC->Stack[SC->SP]==0)SC->IP=iArg1;
+        }
+    else if(iFunc==FCJUMPNZ){
+        if(!SC->Stack[SC->SP])SC->IP=iArg1;
+        }
 
-	else if(iFunc==FCEXT){
-		if(iArg1==EFGETDATA || iArg1==EFGET)
-			SC->Stack[SC->BP-1]=ExtFunction(iArg1,SC);
-		else                
-			SC->Stack[SC->BP-1]=ExtFunction(iArg1,SC)*256;
-		}
-	else{
-		SC->Done=1;
-	}
+    else if(iFunc==FCEXT){
+        if(iArg1==EFGETDATA || iArg1==EFGET)
+            SC->Stack[SC->BP-1]=ExtFunction(iArg1,SC);
+        else
+            SC->Stack[SC->BP-1]=ExtFunction(iArg1,SC)*256;
+        }
+    else{
+        SC->Done=1;
+    }
 
 }
 
 void LoadScript(char *sFileName,ScriptCode *oScript)
 {
-	unsigned char *cData;
-	int iLen;
+    unsigned char *cData;
+    int iLen;
 
-	cData=NULL;
-	iLen=FileToString(sFileName,&cData);
+    cData=NULL;
+    iLen=FileToString(sFileName,&cData);
 
-	int iPlace;
-	int iSubs;
-	int iSub;
-	int iCopy;
-	
-	iPlace=0;
+    int iPlace;
+    int iSubs;
+    int iSub;
+    int iCopy;
 
-	iSubs=StringToLong2(&cData[iPlace]);
-	oScript->Subs=iSubs;
-	iPlace+=4;
+    iPlace=0;
 
-	iSub=-1;
-	while(++iSub<iSubs){
-		iCopy=-1;
-		while(++iCopy<20){
-			oScript->SubName[iSub][iCopy]=cData[iPlace];
-			++iPlace;
-			}
-		oScript->SubStart[iSub]=StringToLong2(&cData[iPlace]);
-		iPlace+=4;
-		}
+    iSubs=StringToLong2(&cData[iPlace]);
+    oScript->Subs=iSubs;
+    iPlace+=4;
 
-	int iCodeLine;
+    iSub=-1;
+    while(++iSub<iSubs){
+        iCopy=-1;
+        while(++iCopy<20){
+            oScript->SubName[iSub][iCopy]=cData[iPlace];
+            ++iPlace;
+            }
+        oScript->SubStart[iSub]=StringToLong2(&cData[iPlace]);
+        iPlace+=4;
+        }
 
-	iCodeLine=0;
-	while(iPlace<iLen){
-		oScript->Code[iCodeLine]=StringToLong2(&cData[iPlace]);
-		iPlace+=4;
-		++iCodeLine;
-		if(iCodeLine>6990){
-			MessageBox(0,"Script is too long!","ERROR",0);
-			break;
-			}
-		}
+    int iCodeLine;
 
-	free(cData);
+    iCodeLine=0;
+    while(iPlace<iLen){
+        oScript->Code[iCodeLine]=StringToLong2(&cData[iPlace]);
+        iPlace+=4;
+        ++iCodeLine;
+        if(iCodeLine>6990){
+            MessageBox(0,"Script is too long!","ERROR",0);
+            break;
+            }
+        }
 
+    free(cData);
 }
-
-

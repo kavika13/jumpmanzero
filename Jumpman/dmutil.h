@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // File: DMUtil.h
 //
-// Desc: 
+// Desc:
 //
 // Copyright (c) 1999-2001 Microsoft Corp. All rights reserved.
 //-----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ class CMusicScript;
 
 //-----------------------------------------------------------------------------
 // Name: class CMusicManager
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
 class CMusicManager
 {
@@ -47,16 +47,16 @@ public:
     HRESULT SetSearchDirectory( const TCHAR* strMediaPath );
     VOID    CollectGarbage();
 
-    HRESULT CreateSegmentFromFile( CMusicSegment** ppSegment, TCHAR* strFileName, 
-		                           BOOL bDownloadNow = TRUE, BOOL bIsMidiFile = FALSE );
+    HRESULT CreateSegmentFromFile( CMusicSegment** ppSegment, TCHAR* strFileName,
+                                   BOOL bDownloadNow = TRUE, BOOL bIsMidiFile = FALSE );
     HRESULT CreateScriptFromFile( CMusicScript** ppScript, TCHAR* strFileName );
 
     HRESULT CreateChordMapFromFile( IDirectMusicChordMap8** ppChordMap, TCHAR* strFileName );
     HRESULT CreateStyleFromFile( IDirectMusicStyle8** ppStyle, TCHAR* strFileName );
     HRESULT GetMotifFromStyle( IDirectMusicSegment8** ppMotif, TCHAR* strStyle, TCHAR* wstrMotif );
 
-    HRESULT CreateSegmentFromResource( CMusicSegment** ppSegment, TCHAR* strResource, TCHAR* strResourceType, 
-		                           BOOL bDownloadNow = TRUE, BOOL bIsMidiFile = FALSE );
+    HRESULT CreateSegmentFromResource( CMusicSegment** ppSegment, TCHAR* strResource, TCHAR* strResourceType,
+                                   BOOL bDownloadNow = TRUE, BOOL bIsMidiFile = FALSE );
 };
 
 
@@ -76,7 +76,7 @@ protected:
     BOOL                      m_bDownloaded;
 
 public:
-    CMusicSegment( IDirectMusicPerformance8* pPerformance, 
+    CMusicSegment( IDirectMusicPerformance8* pPerformance,
                    IDirectMusicLoader8* pLoader,
                    IDirectMusicSegment8* pSegment );
     virtual ~CMusicSegment();
@@ -108,7 +108,7 @@ protected:
     IDirectMusicPerformance8* m_pPerformance;
 
 public:
-    CMusicScript( IDirectMusicPerformance8* pPerformance, 
+    CMusicScript( IDirectMusicPerformance8* pPerformance,
                   IDirectMusicLoader8* pLoader,
                   IDirectMusicScript8* pScript );
     virtual ~CMusicScript();

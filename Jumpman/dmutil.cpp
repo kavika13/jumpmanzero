@@ -5,7 +5,7 @@
 // File: DMUtil.cpp
 //
 // Desc: DirectMusic framework classes for playing DirectMusic segments and
-//       DirectMusic scripts. Feel free to use this class as a starting point 
+//       DirectMusic scripts. Feel free to use this class as a starting point
 //       for adding extra functionality.
 //
 // Copyright (c) 1999-2001 Microsoft Corp. All rights reserved.
@@ -30,7 +30,7 @@ CMusicManager::CMusicManager()
 {
     m_pLoader       = NULL;
     m_pPerformance  = NULL;
-    
+
     // Initialize COM
     HRESULT hr = CoInitialize(NULL);
     m_bCleanupCOM = SUCCEEDED(hr);
@@ -45,7 +45,7 @@ CMusicManager::CMusicManager()
 //-----------------------------------------------------------------------------
 CMusicManager::~CMusicManager()
 {
-    SAFE_RELEASE( m_pLoader ); 
+    SAFE_RELEASE( m_pLoader );
 
     if( m_pPerformance )
     {
@@ -72,20 +72,20 @@ HRESULT CMusicManager::Initialize( HWND hWnd, DWORD dwPChannels, DWORD dwDefault
     HRESULT hr;
 
     // Create loader object
-    if( FAILED( hr = CoCreateInstance( CLSID_DirectMusicLoader, NULL, CLSCTX_INPROC, 
+    if( FAILED( hr = CoCreateInstance( CLSID_DirectMusicLoader, NULL, CLSCTX_INPROC,
                                        IID_IDirectMusicLoader8, (void**)&m_pLoader ) ) )
         return DXTRACE_ERR( TEXT("CoCreateInstance"), hr );
 
     // Create performance object
-    if( FAILED( hr = CoCreateInstance( CLSID_DirectMusicPerformance, NULL, CLSCTX_INPROC, 
+    if( FAILED( hr = CoCreateInstance( CLSID_DirectMusicPerformance, NULL, CLSCTX_INPROC,
                                        IID_IDirectMusicPerformance8, (void**)&m_pPerformance ) ) )
         return DXTRACE_ERR( TEXT("CoCreateInstance"), hr );
 
     // Initialize the performance with the standard audio path.
-    // This initializes both DirectMusic and DirectSound and 
-    // sets up the synthesizer. Typcially its easist to use an 
+    // This initializes both DirectMusic and DirectSound and
+    // sets up the synthesizer. Typcially its easist to use an
     // audio path for playing music and sound effects.
-    if( FAILED( hr = m_pPerformance->InitAudio( NULL, NULL, hWnd, dwDefaultPathType, 
+    if( FAILED( hr = m_pPerformance->InitAudio( NULL, NULL, hWnd, dwDefaultPathType,
                                                 dwPChannels, DMUS_AUDIOF_ALL, NULL ) ) )
     {
         if( hr == DSERR_NODRIVER )
@@ -117,7 +117,7 @@ HRESULT CMusicManager::SetSearchDirectory( const TCHAR* strMediaPath )
     WCHAR wstrMediaPath[MAX_PATH];
     DXUtil_ConvertGenericStringToWide( wstrMediaPath, strMediaPath );
 
-    return m_pLoader->SetSearchDirectory( GUID_DirectMusicAllTypes, 
+    return m_pLoader->SetSearchDirectory( GUID_DirectMusicAllTypes,
                                           wstrMediaPath, FALSE );
 }
 
@@ -126,7 +126,7 @@ HRESULT CMusicManager::SetSearchDirectory( const TCHAR* strMediaPath )
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::GetDefaultAudioPath()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
 IDirectMusicAudioPath8* CMusicManager::GetDefaultAudioPath()
 {
@@ -143,7 +143,7 @@ IDirectMusicAudioPath8* CMusicManager::GetDefaultAudioPath()
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::CollectGarbage()
-// Desc: Tells the loader to cleanup any garbage from previously 
+// Desc: Tells the loader to cleanup any garbage from previously
 //       released objects.
 //-----------------------------------------------------------------------------
 VOID CMusicManager::CollectGarbage()
@@ -157,10 +157,10 @@ VOID CMusicManager::CollectGarbage()
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::CreateSegmentFromFile()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
-HRESULT CMusicManager::CreateSegmentFromFile( CMusicSegment** ppSegment, 
-                                              TCHAR* strFileName, 
+HRESULT CMusicManager::CreateSegmentFromFile( CMusicSegment** ppSegment,
+                                              TCHAR* strFileName,
                                               BOOL bDownloadNow,
                                               BOOL bIsMidiFile )
 {
@@ -187,7 +187,7 @@ HRESULT CMusicManager::CreateSegmentFromFile( CMusicSegment** ppSegment,
 
     if( bIsMidiFile )
     {
-        if( FAILED( hr = pSegment->SetParam( GUID_StandardMIDIFile, 
+        if( FAILED( hr = pSegment->SetParam( GUID_StandardMIDIFile,
                                              0xFFFFFFFF, 0, 0, NULL ) ) )
             return DXTRACE_ERR( TEXT("SetParam"), hr );
     }
@@ -206,9 +206,9 @@ HRESULT CMusicManager::CreateSegmentFromFile( CMusicSegment** ppSegment,
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::CreateSegmentFromResource()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
-HRESULT CMusicManager::CreateSegmentFromResource( CMusicSegment** ppSegment, 
+HRESULT CMusicManager::CreateSegmentFromResource( CMusicSegment** ppSegment,
                                                   TCHAR* strResource,
                                                   TCHAR* strResourceType,
                                                   BOOL bDownloadNow,
@@ -223,25 +223,25 @@ HRESULT CMusicManager::CreateSegmentFromResource( CMusicSegment** ppSegment,
 
     // Find the resource
     hres = FindResource( NULL,strResource,strResourceType );
-    if( NULL == hres ) 
+    if( NULL == hres )
         return E_FAIL;
 
     // Load the resource
     pMem = (void*)LoadResource( NULL, hres );
-    if( NULL == pMem ) 
+    if( NULL == pMem )
         return E_FAIL;
 
     // Store the size of the resource
-    dwSize = SizeofResource( NULL, hres ); 
-    
-    // Set up our object description 
+    dwSize = SizeofResource( NULL, hres );
+
+    // Set up our object description
     ZeroMemory(&objdesc,sizeof(DMUS_OBJECTDESC));
     objdesc.dwSize = sizeof(DMUS_OBJECTDESC);
     objdesc.dwValidData = DMUS_OBJ_MEMORY | DMUS_OBJ_CLASS;
     objdesc.guidClass = CLSID_DirectMusicSegment;
     objdesc.llMemLength =(LONGLONG)dwSize;
     objdesc.pbMemData = (BYTE*)pMem;
-    
+
     if (FAILED ( hr = m_pLoader->GetObject( &objdesc,
                                             IID_IDirectMusicSegment8,
                                             (void**)&pSegment ) ) )
@@ -257,20 +257,20 @@ HRESULT CMusicManager::CreateSegmentFromResource( CMusicSegment** ppSegment,
 
     if( bIsMidiFile )
     {
-        // Do this to make sure that the default General MIDI set 
-        // is connected appropriately to the MIDI file and 
-        // all instruments sound correct.                  
-        if( FAILED( hr = pSegment->SetParam( GUID_StandardMIDIFile, 
+        // Do this to make sure that the default General MIDI set
+        // is connected appropriately to the MIDI file and
+        // all instruments sound correct.
+        if( FAILED( hr = pSegment->SetParam( GUID_StandardMIDIFile,
                                              0xFFFFFFFF, 0, 0, NULL ) ) )
             return DXTRACE_ERR( TEXT("SetParam"), hr );
     }
 
     if( bDownloadNow )
     {
-        // The segment needs to be download first before playing.  
-        // However, some apps may want to wait before calling this 
-        // to because the download allocates memory for the 
-        // instruments. The more instruments currently downloaded, 
+        // The segment needs to be download first before playing.
+        // However, some apps may want to wait before calling this
+        // to because the download allocates memory for the
+        // instruments. The more instruments currently downloaded,
         // the more memory is in use by the synthesizer.
         if( FAILED( hr = (*ppSegment)->Download() ) )
             return DXTRACE_ERR( TEXT("Download"), hr );
@@ -284,9 +284,9 @@ HRESULT CMusicManager::CreateSegmentFromResource( CMusicSegment** ppSegment,
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::CreateScriptFromFile()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
-HRESULT CMusicManager::CreateScriptFromFile( CMusicScript** ppScript, 
+HRESULT CMusicManager::CreateScriptFromFile( CMusicScript** ppScript,
                                              TCHAR* strFileName )
 {
     HRESULT               hr;
@@ -295,7 +295,7 @@ HRESULT CMusicManager::CreateScriptFromFile( CMusicScript** ppScript,
     // DMusic only takes wide strings
     WCHAR wstrFileName[MAX_PATH];
     DXUtil_ConvertGenericStringToWide( wstrFileName, strFileName );
-    
+
     if ( FAILED( hr = m_pLoader->LoadObjectFromFile( CLSID_DirectMusicScript,
                                                      IID_IDirectMusicScript8,
                                                      wstrFileName,
@@ -317,9 +317,9 @@ HRESULT CMusicManager::CreateScriptFromFile( CMusicScript** ppScript,
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::CreateChordMapFromFile()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
-HRESULT CMusicManager::CreateChordMapFromFile( IDirectMusicChordMap8** ppChordMap, 
+HRESULT CMusicManager::CreateChordMapFromFile( IDirectMusicChordMap8** ppChordMap,
                                                TCHAR* strFileName )
 {
     // DMusic only takes wide strings
@@ -336,9 +336,9 @@ HRESULT CMusicManager::CreateChordMapFromFile( IDirectMusicChordMap8** ppChordMa
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::CreateChordMapFromFile()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
-HRESULT CMusicManager::CreateStyleFromFile( IDirectMusicStyle8** ppStyle, 
+HRESULT CMusicManager::CreateStyleFromFile( IDirectMusicStyle8** ppStyle,
                                             TCHAR* strFileName )
 {
     // DMusic only takes wide strings
@@ -355,11 +355,11 @@ HRESULT CMusicManager::CreateStyleFromFile( IDirectMusicStyle8** ppStyle,
 
 //-----------------------------------------------------------------------------
 // Name: CMusicManager::GetMotifFromStyle()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
-HRESULT CMusicManager::GetMotifFromStyle( IDirectMusicSegment8** ppMotif8, 
+HRESULT CMusicManager::GetMotifFromStyle( IDirectMusicSegment8** ppMotif8,
                                           TCHAR* strStyle, TCHAR* strMotif )
-{       
+{
     HRESULT              hr;
     IDirectMusicStyle8*  pStyle = NULL;
     IDirectMusicSegment* pMotif = NULL;
@@ -392,7 +392,7 @@ HRESULT CMusicManager::GetMotifFromStyle( IDirectMusicSegment8** ppMotif8,
 // Name: CMusicSegment::CMusicSegment()
 // Desc: Constructs the class
 //-----------------------------------------------------------------------------
-CMusicSegment::CMusicSegment( IDirectMusicPerformance8* pPerformance, 
+CMusicSegment::CMusicSegment( IDirectMusicPerformance8* pPerformance,
                               IDirectMusicLoader8*      pLoader,
                               IDirectMusicSegment8*     pSegment )
 {
@@ -401,7 +401,7 @@ CMusicSegment::CMusicSegment( IDirectMusicPerformance8* pPerformance,
     m_pSegment              = pSegment;
     m_pEmbeddedAudioPath    = NULL;
     m_bDownloaded           = FALSE;
-    
+
     // Try to pull out an audio path from the segment itself if there is one.
     // This embedded audio path will be used instead of the default
     // audio path if the app doesn't wish to use an overriding audio path.
@@ -410,7 +410,7 @@ CMusicSegment::CMusicSegment( IDirectMusicPerformance8* pPerformance,
     {
         m_pPerformance->CreateAudioPath( pConfig, TRUE, &m_pEmbeddedAudioPath );
         SAFE_RELEASE( pConfig );
-    } 
+    }
 
 }
 
@@ -437,8 +437,8 @@ CMusicSegment::~CMusicSegment()
                 m_pSegment->Unload( m_pPerformance );
         }
 
-        SAFE_RELEASE( m_pEmbeddedAudioPath ); 
-        SAFE_RELEASE( m_pSegment ); 
+        SAFE_RELEASE( m_pEmbeddedAudioPath );
+        SAFE_RELEASE( m_pSegment );
     }
 
     m_pPerformance = NULL;
@@ -464,16 +464,16 @@ HRESULT CMusicSegment::Play( DWORD dwFlags, IDirectMusicAudioPath8* pAudioPath,l
     // use the embedded audio path if there was one.
     if( pAudioPath == NULL && m_pEmbeddedAudioPath != NULL )
         pAudioPath = m_pEmbeddedAudioPath;
-    
-	m_pSegment->SetStartPoint(iStartTime);
 
-	if(iLoopStart>=0){
-		if(iLoopEnd==0){
-			m_pSegment->GetLength(&iLoopEnd);
-			iLoopEnd=iLoopEnd-1;
-			}
-		m_pSegment->SetLoopPoints(iLoopStart,iLoopEnd);
-		}
+    m_pSegment->SetStartPoint(iStartTime);
+
+    if(iLoopStart>=0){
+        if(iLoopEnd==0){
+            m_pSegment->GetLength(&iLoopEnd);
+            iLoopEnd=iLoopEnd-1;
+            }
+        m_pSegment->SetLoopPoints(iLoopStart,iLoopEnd);
+        }
 
     // If pAudioPath is NULL then this plays on the default audio path.
     return m_pPerformance->PlaySegmentEx(m_pSegment, 0, NULL, dwFlags, 0, 0, NULL, pAudioPath );
@@ -486,33 +486,33 @@ HRESULT CMusicSegment::Play( DWORD dwFlags, IDirectMusicAudioPath8* pAudioPath,l
 
 //-----------------------------------------------------------------------------
 // Name: CMusicSegment::Download()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
 HRESULT CMusicSegment::Download( IDirectMusicAudioPath8* pAudioPath )
 {
     HRESULT hr;
-    
+
     if( m_pSegment == NULL )
         return CO_E_NOTINITIALIZED;
 
     // If no audio path was passed in, then download
-    // to the embedded audio path if it exists 
+    // to the embedded audio path if it exists
     // else download to the performance
     if( pAudioPath == NULL )
     {
         if( m_pEmbeddedAudioPath )
             hr = m_pSegment->Download( m_pEmbeddedAudioPath );
-        else    
+        else
             hr = m_pSegment->Download( m_pPerformance );
     }
     else
     {
         hr = m_pSegment->Download( pAudioPath );
     }
-    
+
     if ( SUCCEEDED( hr ) )
         m_bDownloaded = TRUE;
-        
+
     return hr;
 }
 
@@ -521,30 +521,30 @@ HRESULT CMusicSegment::Download( IDirectMusicAudioPath8* pAudioPath )
 
 //-----------------------------------------------------------------------------
 // Name: CMusicSegment::Unload()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
 HRESULT CMusicSegment::Unload( IDirectMusicAudioPath8* pAudioPath )
 {
     HRESULT hr;
-    
+
     if( m_pSegment == NULL )
         return CO_E_NOTINITIALIZED;
 
-    // If no audio path was passed in, then unload 
-    // from the embedded audio path if it exists 
+    // If no audio path was passed in, then unload
+    // from the embedded audio path if it exists
     // else unload from the performance
     if( pAudioPath == NULL )
     {
         if( m_pEmbeddedAudioPath )
             hr = m_pSegment->Unload( m_pEmbeddedAudioPath );
-        else    
+        else
             hr = m_pSegment->Unload( m_pPerformance );
     }
     else
     {
         hr = m_pSegment->Unload( pAudioPath );
     }
-        
+
     if ( SUCCEEDED( hr ) )
         m_bDownloaded = FALSE;
 
@@ -556,7 +556,7 @@ HRESULT CMusicSegment::Unload( IDirectMusicAudioPath8* pAudioPath )
 
 //-----------------------------------------------------------------------------
 // Name: CMusicSegment::IsPlaying()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
 BOOL CMusicSegment::IsPlaying()
 {
@@ -586,7 +586,7 @@ HRESULT CMusicSegment::Stop( DWORD dwFlags )
 
 //-----------------------------------------------------------------------------
 // Name: CMusicSegment::SetRepeats()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
 HRESULT CMusicSegment::SetRepeats( DWORD dwRepeats )
 {
@@ -601,7 +601,7 @@ HRESULT CMusicSegment::SetRepeats( DWORD dwRepeats )
 
 //-----------------------------------------------------------------------------
 // Name: CMusicSegment::GetStyle()
-// Desc: 
+// Desc:
 //-----------------------------------------------------------------------------
 HRESULT CMusicSegment::GetStyle( IDirectMusicStyle8** ppStyle, DWORD dwStyleIndex )
 {
@@ -612,7 +612,7 @@ HRESULT CMusicSegment::GetStyle( IDirectMusicStyle8** ppStyle, DWORD dwStyleInde
     // The second 0 indicates to retrieve the Style from the beginning of the
     // segment, i.e. time 0 in Segment time. If this Segment was loaded from a
     // section file, there is only one Style and it is at time 0.
-    return m_pSegment->GetParam( GUID_IDirectMusicStyle, 0xffffffff, dwStyleIndex, 
+    return m_pSegment->GetParam( GUID_IDirectMusicStyle, 0xffffffff, dwStyleIndex,
                                  0, NULL, (VOID*)ppStyle );
 }
 
@@ -622,8 +622,8 @@ HRESULT CMusicSegment::GetStyle( IDirectMusicStyle8** ppStyle, DWORD dwStyleInde
 // Name: CMusicScript::CMusicScript()
 // Desc: Constructs the class
 //-----------------------------------------------------------------------------
-CMusicScript::CMusicScript( IDirectMusicPerformance8* pPerformance, 
-                            IDirectMusicLoader8* pLoader,                   
+CMusicScript::CMusicScript( IDirectMusicPerformance8* pPerformance,
+                            IDirectMusicLoader8* pLoader,
                             IDirectMusicScript8* pScript )
 {
     m_pPerformance = pPerformance;
@@ -647,7 +647,7 @@ CMusicScript::~CMusicScript()
         m_pLoader = NULL;
     }
 
-    SAFE_RELEASE( m_pScript ); 
+    SAFE_RELEASE( m_pScript );
     m_pPerformance = NULL;
 }
 
