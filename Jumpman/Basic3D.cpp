@@ -32,7 +32,7 @@ long texType[MAX_TEXTURES];
 D3DLIGHT8 light;
 D3DXMATRIX view_matrix;
 
-//#define D3D8T_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_TEX1|D3DFVF_NORMAL|D3DFVF_DIFFUSE)
+// #define D3D8T_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_TEX1|D3DFVF_NORMAL|D3DFVF_DIFFUSE)
 #define D3D8T_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_TEX1|D3DFVF_NORMAL)
 
 D3DPRESENT_PARAMETERS d3dpp;
@@ -60,8 +60,8 @@ long GetDrawnObjects() {
 long SurfaceObject(long o1) {
     int iLoop = -1;
 
-    while(++iLoop < MAX_OBJECTS) {
-        if(iRedirects[iLoop] == o1) {
+    while (++iLoop < MAX_OBJECTS) {
+        if (iRedirects[iLoop] == o1) {
             return iLoop;
         }
     }
@@ -131,14 +131,14 @@ void ScrollTexture(long iObj, float fX, float fY) {
 
     hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         FatalError("Error Locking triangle buffer");
     }
 
     iVertice = iStart[iRNum];
 
     iPlace = -1;
-    while(++iPlace < iLength[iRNum]) {
+    while (++iPlace < iLength[iRNum]) {
         vb_vertices[iVertice].tu += fX;
         vb_vertices[iVertice].tv += fY;
         ++iVertice;
@@ -182,7 +182,7 @@ void PrioritizeObject(long o1) {
 //  SwapObjects(0, iSwap);
 //  return;
 
-    while(--iSwap >= 0) {
+    while (--iSwap >= 0) {
         SwapObjects(iSwap, iSwap + 1);
     }
 }
@@ -216,8 +216,8 @@ void SwapObjects(long o1, long o2) {
 void Clear3dData() {
     int iLoop;
 
-    for(iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
-        if(texData[iLoop]) {
+    for (iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
+        if (texData[iLoop]) {
             texData[iLoop]->Release();
         }
         texData[iLoop] = NULL;
@@ -225,7 +225,7 @@ void Clear3dData() {
 
     miObjects = 0;
 
-    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
         iRedirects[iLoop] = -1;
     }
 
@@ -238,27 +238,26 @@ void LoadTexture(int iTex, char* sFile, int iType, int iAlpha) {
     strcpy_s(RetainTextureFile[iTex], sFile);
     texType[iTex] = iType;
 
-    if(iType == 0) {
+    if (iType == 0) {
         hr = D3DXCreateTextureFromFile(g_d3d_device, sFile, &texData[iTex]);
-    }
-    else if(iType == 1) {
-        hr = D3DXCreateTextureFromFileEx(g_d3d_device, //Our D3D Device
-                                         sFile,    //Filename of our texture
-                                         D3DX_DEFAULT, //Width:D3DX_DEFAULT = Take from file
-                                         D3DX_DEFAULT, //Height:D3DX_DEFAULT = Take from file
-                                         1,            //MipLevels
-                                         0,            //Usage, Is this to be used as a Render Target? 0 == No
-                                         D3DFMT_A8R8G8B8, //32-bit with Alpha, everything should support this
-                                         D3DPOOL_MANAGED,//Pool, let D3D Manage our memory
-                                         D3DX_DEFAULT, //Filter:Default filtering
-                                         D3DX_DEFAULT, //MipFilter, used for filtering mipmaps
-                                         0xFFFFFFFF,   //ColourKey
-                                         NULL,         //SourceInfo, returns extra info if we want it (we don't)
-                                         NULL,         //Palette:We're not using one
+    } else if (iType == 1) {
+        hr = D3DXCreateTextureFromFileEx(g_d3d_device,  // Our D3D Device
+                                         sFile,         // Filename of our texture
+                                         D3DX_DEFAULT,  // Width:D3DX_DEFAULT = Take from file
+                                         D3DX_DEFAULT,  // Height:D3DX_DEFAULT = Take from file
+                                         1,             // MipLevels
+                                         0,             // Usage, Is this to be used as a Render Target? 0 == No
+                                         D3DFMT_A8R8G8B8,  // 32-bit with Alpha, everything should support this
+                                         D3DPOOL_MANAGED,  // Pool, let D3D Manage our memory
+                                         D3DX_DEFAULT,  // Filter:Default filtering
+                                         D3DX_DEFAULT,  // MipFilter, used for filtering mipmaps
+                                         0xFFFFFFFF,    // ColourKey
+                                         NULL,          // SourceInfo, returns extra info if we want it (we don't)
+                                         NULL,          // Palette:We're not using one
                                          &texData[iTex]);  // Our texture goes here.
     }
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         FatalError("Error loading texture");
     }
 }
@@ -274,7 +273,7 @@ void SetObjectMesh(long* iParams, long iCount, long iNum) {
     HRESULT hr;
 
     hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         FatalError("Error Locking triangle buffer");
     }
 
@@ -282,7 +281,7 @@ void SetObjectMesh(long* iParams, long iCount, long iNum) {
     iLength[iRNum] = iCount;
 
     iPlace = -1;
-    while(++iPlace < iCount) {
+    while (++iPlace < iCount) {
         vb_vertices[iVertice].x = iParams[iPlace * 9 + 0] / 256.0f;
         vb_vertices[iVertice].y = iParams[iPlace * 9 + 1] / 256.0f;
         vb_vertices[iVertice].z = iParams[iPlace * 9 + 2] / 256.0f;
@@ -296,7 +295,6 @@ void SetObjectMesh(long* iParams, long iCount, long iNum) {
     }
 
     g_vb->Unlock();
-
 }
 
 void ChangeMesh(long iMesh, long iNewMesh) {
@@ -320,13 +318,13 @@ void CopyObject(int iObject, long* iNum) {
     iLoop = -1;
     iPlace = -1;
 
-    while(++iLoop < MAX_OBJECTS && iPlace == -1) {
-        if(iRedirects[iLoop] == -1) {
+    while (++iLoop < MAX_OBJECTS && iPlace == -1) {
+        if (iRedirects[iLoop] == -1) {
             iPlace = iLoop;
         }
     }
 
-    if(iPlace == -1) {
+    if (iPlace == -1) {
         iPlace = 0;
         MessageBox(0, "Too many objects!", "Jumpman Zero", 0);
     }
@@ -358,12 +356,12 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
     HRESULT hr;
 
     hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         FatalError("Error Locking triangle buffer");
     }
 
     iPlace = -1;
-    while(++iPlace < iCount) {
+    while (++iPlace < iCount) {
         vb_vertices[miVertices].x = iParams[iPlace * 9 + 0] / 256.0f;
         vb_vertices[miVertices].y = iParams[iPlace * 9 + 1] / 256.0f;
         vb_vertices[miVertices].z = iParams[iPlace * 9 + 2] / 256.0f;
@@ -379,7 +377,6 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
     miObjects = miObjects + 1;
 
     g_vb->Unlock();
-
 }
 
 void SetObjectData(long iNum, long iTexture, int iVisible) {
@@ -395,40 +392,40 @@ void Reset3d(HWND hWindow) {
     HRESULT hr;
     long i;
 
-    if(g_D3D == NULL) {
+    if (g_D3D == NULL) {
         return;
     }
-    if(g_vb == NULL) {
+    if (g_vb == NULL) {
         return;
     }
-    if(g_d3d_device == NULL) {
+    if (g_d3d_device == NULL) {
         return;
     }
 
     CopyVertice = (my_vertex*)malloc(MAX_VERTICES * sizeof(my_vertex));
     hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return;
     }
 
     i = -1;
 
-    while(++i < MAX_VERTICES) {
+    while (++i < MAX_VERTICES) {
         CopyVertice[i] = vb_vertices[i];
     }
 
     g_vb->Unlock();
 
-    if(g_vb) {
+    if (g_vb) {
         g_vb->Release();
         g_vb = NULL;
     }
-    if(g_d3d_device) {
+    if (g_d3d_device) {
         g_d3d_device->Release();
         g_d3d_device = NULL;
     }
-    if(g_D3D) {
+    if (g_D3D) {
         g_D3D->Release();
         g_D3D = NULL;
     }
@@ -438,7 +435,7 @@ void Reset3d(HWND hWindow) {
     int iLoop = -1;
     int iLoadTexture[MAX_TEXTURES];
 
-    while(++iLoop < MAX_TEXTURES) {
+    while (++iLoop < MAX_TEXTURES) {
         iLoadTexture[iLoop] = (texData[iLoop] != NULL);
         texData[iLoop] = NULL;
     }
@@ -446,13 +443,13 @@ void Reset3d(HWND hWindow) {
     g_D3D = Direct3DCreate8(D3D_SDK_VERSION);
     hr = g_D3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &display_mode);
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return;
     }
 
     hr = g_D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_d3d_device);
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return;
     }
 
@@ -460,21 +457,21 @@ void Reset3d(HWND hWindow) {
 
     iLoop = -1;
 
-    while(++iLoop<MAX_TEXTURES) {
-        if(iLoadTexture[iLoop]) {
+    while (++iLoop < MAX_TEXTURES) {
+        if (iLoadTexture[iLoop]) {
             LoadTexture(iLoop, RetainTextureFile[iLoop], texType[iLoop], texRequiresAlpha[iLoop]);
         }
     }
 
     hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return;
     }
 
     i = -1;
 
-    while(++i < MAX_VERTICES) {
+    while (++i < MAX_VERTICES) {
         vb_vertices[i] = CopyVertice[i];
     }
 
@@ -482,7 +479,7 @@ void Reset3d(HWND hWindow) {
 }
 
 long InitializeAll(HWND hWindow) {
-    if(!init_d3d(hWindow)) {
+    if (!init_d3d(hWindow)) {
         return 0;
     }
 
@@ -502,24 +499,24 @@ long init_d3d(HWND hWindow) {
 
     int iLoop;
     iLoop = -1;
-    while(++iLoop < MAX_TEXTURES) {
+    while (++iLoop < MAX_TEXTURES) {
         texData[iLoop] = NULL;
     }
 
-    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
         iRedirects[iLoop] = -1;
     }
 
     g_D3D = Direct3DCreate8(D3D_SDK_VERSION);
 
-    if(!g_D3D) {
+    if (!g_D3D) {
         FatalError("Error getting Direct3D - ensure you have DirectX 8.1 installed.");
         return 0;
     }
 
     hr = g_D3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &display_mode);
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         FatalError("Error getting display mode\n");
         return 0;
     }
@@ -533,15 +530,14 @@ long init_d3d(HWND hWindow) {
     d3dpp.EnableAutoDepthStencil = TRUE;
     d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
-    if(FULL_SCREEN) {
+    if (FULL_SCREEN) {
         d3dpp.Windowed = FALSE;
 //      d3dpp.BackBufferWidth = 640;
 //      d3dpp.BackBufferHeight = 480;
         d3dpp.BackBufferWidth = FULLSCREEN_RESX;
         d3dpp.BackBufferHeight = FULLSCREEN_RESY;
         d3dpp.BackBufferFormat = D3DFMT_A8R8G8B8;
-    }
-    else {
+    } else {
         d3dpp.Windowed = TRUE;
         d3dpp.BackBufferFormat = display_mode.Format;
     }
@@ -550,7 +546,7 @@ long init_d3d(HWND hWindow) {
 //  hr = g_D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_d3d_device);
     hr = g_D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_d3d_device);
 
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         FatalError("Error creating device - ensure that your video card supports 3d acceleration.\n");
         return 0;
     }
@@ -559,7 +555,7 @@ long init_d3d(HWND hWindow) {
     g_d3d_device->GetDeviceCaps(&dCaps);
 
     CapsFog = 1;
-    if(!(dCaps.RasterCaps & D3DPRASTERCAPS_ZFOG)) {
+    if (!(dCaps.RasterCaps & D3DPRASTERCAPS_ZFOG)) {
         CapsFog = 0;
     }
 
@@ -567,26 +563,25 @@ long init_d3d(HWND hWindow) {
 }
 
 void kill_d3d(void) {
-    if(g_d3d_device) {
+    if (g_d3d_device) {
         g_d3d_device->Release();
         g_d3d_device = NULL;
     }
 
-    if(g_D3D) {
+    if (g_D3D) {
         g_D3D->Release();
         g_D3D = NULL;
     }
 }
 
 void SetFog(float iFogStart, float iFogEnd, DWORD Color) {
-    if(!CapsFog) {
+    if (!CapsFog) {
         return;
     }
 
-    if(iFogStart == 0 && iFogEnd == 0) {
+    if (iFogStart == 0 && iFogEnd == 0) {
         g_d3d_device->SetRenderState(D3DRS_FOGENABLE, FALSE);
-    }
-    else {
+    } else {
         g_d3d_device->SetRenderState(D3DRS_FOGENABLE, TRUE);
         g_d3d_device->SetRenderState(D3DRS_FOGCOLOR, Color);
         g_d3d_device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
@@ -599,7 +594,7 @@ void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iP
     D3DXMatrixLookAtLH(&view_matrix, &D3DXVECTOR3(iCamX, iCamY, iCamZ), &D3DXVECTOR3(iPoiX, iPoiY, iPoiZ), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
     g_d3d_device->SetTransform(D3DTS_VIEW, &view_matrix);
 
-    light.Position = D3DXVECTOR3(iCamX, iCamY+10.0f,-200.0f);
+    light.Position = D3DXVECTOR3(iCamX, iCamY + 10.0f, -200.0f);
 
     light.Diffuse.r = 1.0f;
     light.Diffuse.g = 1.0f;
@@ -629,7 +624,7 @@ void init_scene(void) {
     light.Ambient.b = 1.0f;
 
     light.Range = 1000.0f;
-    light.Position = D3DXVECTOR3(80.0f, 100.0f,-200.0f);
+    light.Position = D3DXVECTOR3(80.0f, 100.0f, -200.0f);
     light.Attenuation0 = 1.0f;
 
     g_d3d_device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
@@ -647,13 +642,13 @@ void init_scene(void) {
     g_d3d_device->SetRenderState(D3DRS_AMBIENT, 0x01010101);
     g_d3d_device->SetRenderState(D3DRS_ZENABLE, TRUE);
 
-    //SET ALPHA DISABLED
+    // SET ALPHA DISABLED
 /*
     g_d3d_device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
     g_d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 */
 
-    //SET ALPHA ENABLED
+    // SET ALPHA ENABLED
     g_d3d_device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
     g_d3d_device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
     g_d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -666,7 +661,7 @@ void init_scene(void) {
     g_d3d_device->SetTransform(D3DTS_PROJECTION, &matProj);
 
     hr = g_d3d_device->CreateVertexBuffer(MAX_VERTICES * sizeof(my_vertex), D3DUSAGE_WRITEONLY, D3D8T_CUSTOMVERTEX, D3DPOOL_MANAGED, &g_vb);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         FatalError("Error creating vertex buffer");
     }
 
@@ -688,14 +683,14 @@ void kill_scene(void) {
     int iLoop;
 
     iLoop = -1;
-    while(++iLoop<MAX_TEXTURES) {
-        if(texData[iLoop]) {
+    while (++iLoop < MAX_TEXTURES) {
+        if (texData[iLoop]) {
             texData[iLoop]->Release();
             texData[iLoop] = NULL;
         }
     }
 
-    if(g_vb) {
+    if (g_vb) {
         g_vb->Release();
         g_vb = NULL;
     }
@@ -709,12 +704,12 @@ long Render(void) {
     HRESULT hr;
 
     hr = g_d3d_device->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return 0;
     }
 
     hr = g_d3d_device->BeginScene();
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return 0;
     }
 
@@ -723,19 +718,19 @@ long Render(void) {
     iLastTexture = -1;
     iAlphaEnabled = -1;
 
-    while(++iObject<miObjects) {
-        if(iVis[iObject]) {
+    while (++iObject < miObjects) {
+        if (iVis[iObject]) {
             ++DrawnObjects;
-            if(iLastTexture != iTEX[iObject]) {
+            if (iLastTexture != iTEX[iObject]) {
                 hr = g_d3d_device->SetTexture(0, texData[iTEX[iObject]]);
-                if(FAILED(hr)) {
+                if (FAILED(hr)) {
                     MessageBox(0, "Error setting texture!", "Jumpman Zero", 0);
                 }
                 iLastTexture = iTEX[iObject];
                 iReq = texRequiresAlpha[iLastTexture];
-                if(iAlphaEnabled != iReq) {
+                if (iAlphaEnabled != iReq) {
                     hr = g_d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, iReq);
-                    if(FAILED(hr)) {
+                    if (FAILED(hr)) {
                         MessageBox(0, "Error setting alpha!", "Jumpman Zero", 0);
                     }
                     iAlphaEnabled = iReq;
@@ -748,17 +743,17 @@ long Render(void) {
     }
 
     hr = g_d3d_device->EndScene();
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return 0;
     }
 
     hr = g_d3d_device->SetTexture(0, NULL);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return 0;
     }
 
     hr = g_d3d_device->Present(NULL, NULL, NULL, NULL);
-    if(FAILED(hr)) {
+    if (FAILED(hr)) {
         return 0;
     }
 

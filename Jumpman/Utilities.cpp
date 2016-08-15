@@ -6,10 +6,9 @@ long StringToLong(unsigned char* sString) {
 
     fTemp = sString[1] * 256.0f + sString[2] + sString[3] / 256.0f;
 
-    if(sString[0]) {
+    if (sString[0]) {
         return (long)fTemp * -1;
-    }
-    else {
+    } else {
         return (long)fTemp;
     }
 }
@@ -19,10 +18,9 @@ long StringToLong2(unsigned char* sString) {
 
     fTemp = (sString[0] & 127) * 256.0f * 256.0f * 256.0f + sString[1] * 256.0f * 256.0f + sString[2] * 256.0f + sString[3];
 
-    if(sString[0] & 128) {
+    if (sString[0] & 128) {
         return (long)fTemp * -1;
-    }
-    else {
+    } else {
         return (long)fTemp;
     }
 }
@@ -49,17 +47,16 @@ long FileToString(char* sFileName, unsigned char** sNewBuffer) {
     char sError[300];
     sprintf_s(sError, "Can't find file - %s", sFileName);
 
-    if(!iNumRead) {
+    if (!iNumRead) {
         MessageBox(0, sError, "Jumpman Zero", 0);
     }
 
     return iNumRead;
 }
 
-long PointInQuad(long iX0,long iY0,long iX1,long iY1,long iX2,long iY2,long iX3,long iY3,long iX4,long iY4)
-{
-    long iBX,iBY,iSX,iSY;
-    long det,total;
+long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, long iX3, long iY3, long iX4, long iY4) {
+    long iBX, iBY, iSX, iSY;
+    long det, total;
 
     total = 0;
 
@@ -69,7 +66,7 @@ long PointInQuad(long iX0,long iY0,long iX1,long iY1,long iX2,long iY2,long iX3,
     iSY = iY0 - iY1;
     det = iBX * iSY - iBY * iSX;
 
-    if(det <= 0) {
+    if (det <= 0) {
         total = total + 1;
     }
 
@@ -79,7 +76,7 @@ long PointInQuad(long iX0,long iY0,long iX1,long iY1,long iX2,long iY2,long iX3,
     iSY = iY0 - iY2;
     det = iBX * iSY - iBY * iSX;
 
-    if(det <= 0) {
+    if (det <= 0) {
         total = total + 1;
     }
 
@@ -89,7 +86,7 @@ long PointInQuad(long iX0,long iY0,long iX1,long iY1,long iX2,long iY2,long iX3,
     iSY = iY0 - iY3;
     det = iBX * iSY - iBY * iSX;
 
-    if(det <= 0) {
+    if (det <= 0) {
         total = total + 1;
     }
 
@@ -99,11 +96,11 @@ long PointInQuad(long iX0,long iY0,long iX1,long iY1,long iX2,long iY2,long iX3,
     iSY = iY0 - iY4;
     det = iBX * iSY - iBY * iSX;
 
-    if(det <= 0) {
+    if (det <= 0) {
         total = total + 1;
     }
 
-    if(total == 4) {
+    if (total == 4) {
         return 1;
     }
 

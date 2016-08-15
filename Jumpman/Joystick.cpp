@@ -7,7 +7,7 @@ int JoystickPresent() {
 
     mRes = joyGetPos(0, &ji);
 
-    if((!mRes) && ji.wXpos > 0) {
+    if ((!mRes) && ji.wXpos > 0) {
         return 1;
     }
 
