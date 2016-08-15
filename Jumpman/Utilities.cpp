@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include <stdio.h>
-#include "./stdafx.h"
 
 long StringToLong(unsigned char* sString) {
     float fTemp;

@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include <mmsystem.h>
-#include "./stdafx.h"
 
 int JoystickPresent() {
     MMRESULT mRes;

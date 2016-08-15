@@ -1,4 +1,4 @@
-#include "./stdafx.h"
+#include "stdafx.h"
 #include "./jumpman.h"
 
 #define FCBASECN 2
