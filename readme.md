@@ -53,6 +53,13 @@ The solution is `Jumpman/Jumpman.sln`
 
 Point at the DirectX SDK you installed (Include and Libraries folders)
 
+- TODO: Set up these values via Property Sheets for per-user/per-machine macro values. VS2010 broke the rest of these instructions.
 - See the "To specify a per-user directory list" section of [the Directories Property Page instructions](http://msdn.microsoft.com/en-us/library/vstudio/ee855621.aspx)
 - Make sure you add the DirectX SDK Include/Lib paths, and add them **before all other paths** - otherwise the Windows SDK versions of the headers might be used instead, and you'll have build problems
 - Make sure you set up the directories for both the Debug and Release builds (if it doesn't automatically do both.  It did both at the same time for me)
+- The library I am using installs at `C:\Program Files (x86)\Microsoft DirectX 9.0 SDK (October 2004)`
+
+###Using Visual Studio 2015
+
+- I had to link a legacy standard library shim in order to get my project to compile. See: https://msdn.microsoft.com/en-us/library/bb531344.aspx
+- To do this, I added `legacy_stdio_definitions.lib` to Linker -> Input -> Additional Dependencies.
