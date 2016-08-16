@@ -618,11 +618,11 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
     if (iFunc == EFSET) {
         if (iArg1 == EFV_PX) {
-            iPlayerX = (float)rArg2 / 256;
+            iPlayerX = static_cast<float>(rArg2) / 256;
         } else if (iArg1 == EFV_PY) {
-            iPlayerY = (float)rArg2 / 256;
+            iPlayerY = static_cast<float>(rArg2) / 256;
         } else if (iArg1 == EFV_PZ) {
-            iPlayerZ = (float)iArg2;
+            iPlayerZ = static_cast<float>(iArg2);
         } else if (iArg1 == EFV_PSTAT) {
             iPlayerST = iArg2;
         } else if (iArg1 == EFV_PSC) {
@@ -753,19 +753,19 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         float iFind;
         long iPlat;
         GetNextPlatform(iArg1, iArg2, iArg3, iArg4, &iFind, &iPlat);
-        iEvent4 = (long)iFind * 256;
+        iEvent4 = static_cast<long>(iFind) * 256;
         return iPlat;
     }
 
     long iVal;
 
     if (iFunc == EFSIN) {
-        iVal = (long)(sin(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
+        iVal = static_cast<long>(sin(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
         return iVal;
     }
 
     if (iFunc == EFCOS) {
-        iVal = (long)(cos(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
+        iVal = static_cast<long>(cos(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
         return iVal;
     }
 
@@ -773,13 +773,13 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         if (rArg2 == 0) {
             iVal = (rArg1 > 0 ? 90 : 270);
         } else {
-            iVal = (long)(atan((double)rArg1 / (double)rArg2) * 180.0f / 3.1415f);
+            iVal = static_cast<long>(atan(static_cast<double>(rArg1) / static_cast<double>(rArg2)) * 180.0f / 3.1415f);
         }
         return iVal;
     }
 
     if (iFunc == EFSQR) {
-        iVal = (long)sqrt(rArg1 / 256.0f);
+        iVal = static_cast<long>(sqrt(rArg1 / 256.0f));
         return iVal;
     }
 
@@ -812,7 +812,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     }
 
     if (iFunc == EFSETFOG) {
-        SetFog((float)iArg1, (float)iArg2, D3DCOLOR_XRGB(SC->Stack[SC->BP + 2], SC->Stack[SC->BP + 3], SC->Stack[SC->BP + 4]));
+        SetFog(static_cast<float>(iArg1), static_cast<float>(iArg2), D3DCOLOR_XRGB(SC->Stack[SC->BP + 2], SC->Stack[SC->BP + 3], SC->Stack[SC->BP + 4]));
     }
 
     WIN32_FIND_DATA FindFileData;
@@ -828,10 +828,10 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
     if (iFunc == EFSERVICE) {
         if (iArg1 == SERVICE_LEVELTITLE) {
-            SC->Globals[iArg2] = (long)strlen(GameTitle) * 256;
+            SC->Globals[iArg2] = static_cast<long>(strlen(GameTitle)) * 256;
             iLoop = 0;
 
-            while (++iLoop <= (long)strlen(GameTitle)) {
+            while (++iLoop <= static_cast<long>(strlen(GameTitle))) {
                 SC->Globals[iArg2 + iLoop] = GameTitle[iLoop - 1] * 256;
             }
         }
@@ -841,7 +841,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
             char sFileName[300];
             sprintf_s(sFileName, "%s\\Data\\Settings.dat", GamePath);
             hFile = CreateFile(sFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-            WriteFile(hFile, sFile, (long)strlen(sFile), &iWritten, NULL);
+            WriteFile(hFile, sFile, static_cast<long>(strlen(sFile)), &iWritten, NULL);
             CloseHandle(hFile);
         }
 
@@ -1328,7 +1328,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            AS[iAS].Mesh = (long*)malloc(iData * sizeof(long));
+            AS[iAS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
             AS[iAS].MeshSize = iData;
             AS[iAS].ObjectNumber = iAS;
 
@@ -1339,7 +1339,7 @@ void LoadLevel(char* sFileName) {
             }
             iPlace += iNum << 2;
 
-            oData = (long*)malloc(AS[iAS].MeshSize * sizeof(long));
+            oData = static_cast<long*>(malloc(AS[iAS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&AS[iAS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1370,7 +1370,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            LS[iLS].Mesh = (long*)malloc(iData * sizeof(long));
+            LS[iLS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
             LS[iLS].MeshSize = iData;
             LS[iLS].ObjectNumber = iLS;
 
@@ -1382,7 +1382,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = (long*)malloc(LS[iLS].MeshSize * sizeof(long));
+            oData = static_cast<long*>(malloc(LS[iLS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&LS[iLS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1418,7 +1418,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            WS[iWS].Mesh = (long*)malloc(iData * sizeof(long));
+            WS[iWS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
             WS[iWS].MeshSize = iData;
             WS[iWS].ObjectNumber = iWS;
 
@@ -1432,7 +1432,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = (long*)malloc(WS[iWS].MeshSize * sizeof(long));
+            oData = static_cast<long*>(malloc(WS[iWS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&WS[iWS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1463,7 +1463,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            VS[iVS].Mesh = (long*)malloc(iData * sizeof(long));
+            VS[iVS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
             VS[iVS].MeshSize = iData;
             VS[iVS].ObjectNumber = iVS;
 
@@ -1477,7 +1477,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = (long*)malloc(VS[iVS].MeshSize * sizeof(long));
+            oData = static_cast<long*>(malloc(VS[iVS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&VS[iVS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1506,7 +1506,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            DS[iDS].Mesh = (long*)malloc(iData * sizeof(long));
+            DS[iDS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
             DS[iDS].MeshSize = iData;
             DS[iDS].ObjectNumber = iDS;
 
@@ -1520,7 +1520,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = (long*)malloc(DS[iDS].MeshSize * sizeof(long));
+            oData = static_cast<long*>(malloc(DS[iDS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&DS[iDS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1552,7 +1552,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            PS[iPS].Mesh = (long*)malloc(iData * sizeof(long));
+            PS[iPS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
             PS[iPS].MeshSize = iData;
             PS[iPS].ObjectNumber = iPS;
 
@@ -1566,7 +1566,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = (long*)malloc(PS[iPS].MeshSize * sizeof(long));
+            oData = static_cast<long*>(malloc(PS[iPS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&PS[iPS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1741,7 +1741,7 @@ void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport
             }
 
             iLen = PS[iP].X2 - PS[iP].X1;
-            iH = (float)PS[iP].Y1 * abs(PS[iP].X2 - iEX) + (float)PS[iP].Y2 * abs(PS[iP].X1 - iEX);
+            iH = static_cast<float>(PS[iP].Y1) * abs(PS[iP].X2 - iEX) + static_cast<float>(PS[iP].Y2) * abs(PS[iP].X1 - iEX);
             iH /= iLen;
 
             bGood = 0;
@@ -1803,6 +1803,7 @@ void GrabDonuts() {
             if (GameMusicOn) {
                 PauseMusic1();
             }
+
             iPlayerSC = 0;
             iPlayerST = JS_DONE;
         } else if (GameSoundOn) {
@@ -1872,7 +1873,7 @@ void GetInput() {
 }
 
 void AdjustPlayerZ(int iTargetZ, int iTime) {
-    if (iTime < abs(iTargetZ - (int)iPlayerZ)) {
+    if (iTime < abs(iTargetZ - static_cast<int>(iPlayerZ))) {
         if (iTargetZ < iPlayerZ) {
             --iPlayerZ;
         }
@@ -1942,7 +1943,7 @@ void AnimateDying() {
 
         iPlayerRX = iPlayerAF / -10.0f;
 
-        if ((iPlayerAF & 1)) {
+        if (iPlayerAF & 1) {
             iPlayerX += iPlayerMX;
         }
     }
@@ -1953,10 +1954,10 @@ void AnimateDying() {
         iPlayerY -= 2;
         iPlayerRX = iPlayerAF / -10.0f;
 
-        GetNextPlatform((long)iPlayerX, (long)iPlayerY, 8, 2, &iSupport, &iPlatform);
+        GetNextPlatform(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), 8, 2, &iSupport, &iPlatform);
         iSupport -= PlayerFloor();
         bGrounded = (iPlayerY + 4 <= iSupport);
-        AdjustPlayerZ(PS[iPlatform].Z1 - 2, (int)(iPlayerY - iSupport));
+        AdjustPlayerZ(PS[iPlatform].Z1 - 2, static_cast<int>(iPlayerY - iSupport));
 
         if (bGrounded && iPlayerY > -5 && iSupport < iPlayerSC) {
             iPlayerMX = 0;
@@ -1971,7 +1972,7 @@ void AnimateDying() {
                 iPlayerMX = 1;
             }
 
-            iPlayerSC = (long)iSupport - 3;
+            iPlayerSC = static_cast<long>(iSupport) - 3;
             iPlayerAS = 0;
             iPlayerAX = 0;
 
@@ -1979,7 +1980,7 @@ void AnimateDying() {
                 DoPlaySound(2);
             }
 
-            GetNextPlatform((long)iPlayerX, (long)iPlayerY - 8, 8, 2, &iSupport, &iPlatform);
+            GetNextPlatform(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY) - 8, 8, 2, &iSupport, &iPlatform);
 
             if (iPlatform == -1) {
                 iPlayerAS = 2;
@@ -2141,7 +2142,7 @@ void SetGamePerspective() {
     }
 
     if (iTX > miLevelExtentX - 45) {
-        iTX = (float)(miLevelExtentX - 45);
+        iTX = static_cast<float>(miLevelExtentX - 45);
     }
 
     iCamX = (iCamX + iTX) / 2;
@@ -2242,7 +2243,7 @@ void GetLevelName(char* sLevel, size_t sLevelSize, int iLevel) {
     char sTemp[20];
     char* sData;
 
-    iLen = FileToString(GameFile, (unsigned char**) & sData);
+    iLen = FileToString(GameFile, reinterpret_cast<unsigned char**>(&sData));
     TextLine(sData, iLen, sTemp, 20, iLevel * 2 - 1);
     TextLine(sData, iLen, GameTitle, 49, iLevel * 2);
     sprintf_s(sLevel, sLevelSize, "%s\\Data\\%s.DAT", GamePath, sTemp);
@@ -2254,7 +2255,7 @@ void GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
     char sTemp[20];
     char* sData;
 
-    iLen = FileToString(sFile, (unsigned char**) & sData);
+    iLen = FileToString(sFile, reinterpret_cast<unsigned char**>(&sData));
     TextLine(sData, iLen, sTemp, 20, iLine);
     sprintf_s(sOut, sOutSize, "%s", sTemp);
     free(sData);
@@ -2391,7 +2392,7 @@ long LoadSettings() {
 
     char* sData;
     long iLen;
-    iLen = FileToString(sFileName, (unsigned char**) & sData);
+    iLen = FileToString(sFileName, reinterpret_cast<unsigned char**>(&sData));
 
     if (!iLen) {
         return 0;
@@ -2503,8 +2504,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
         if (tTime.LowPart - iTime.LowPart > iFrameTime || tTime.LowPart < iTime.LowPart) {
             ++iPerfCount;
 
-            if (((unsigned long)tTime.LowPart - iPerfTime) > (iFrameTime * 40) || (unsigned long)tTime.LowPart < iPerfTime) {
-                iPerfTime = (long)tTime.LowPart;
+            if ((static_cast<unsigned long>(tTime.LowPart) - iPerfTime) > (iFrameTime * 40) || static_cast<unsigned long>(tTime.LowPart) < iPerfTime) {
+                iPerfTime = static_cast<long>(tTime.LowPart);
                 GamePerformance = iPerfCount;
 
                 if (GamePerformance > 99) {
@@ -2553,7 +2554,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
         }
     }
 
-    return (INT)msg.wParam;
+    return static_cast<int>(msg.wParam);
 }
 
 long Init3D() {
@@ -2594,7 +2595,7 @@ long Init3D() {
     iFrameTime = LI.LowPart / 40;
 
     QueryPerformanceCounter(&iTime);
-    srand((unsigned)iTime.LowPart);
+    srand(static_cast<unsigned>(iTime.LowPart));
 
     if (!InitializeAll(hWnd)) {
         return 0;
@@ -2616,7 +2617,7 @@ long LoadMesh(char* sFileName) {
     iNums = FileToString(sFullFile, &cData);
     iNums = iNums / 4;
 
-    oData = (long*)malloc(iNums * sizeof(long));
+    oData = static_cast<long*>(malloc(iNums * sizeof(long)));
 
     long iNum;
 
@@ -2697,12 +2698,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_JUMPMAN);
+    wcex.hIcon = LoadIcon(hInstance, reinterpret_cast<LPCTSTR>(IDI_JUMPMAN));
     wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
     wcex.lpszMenuName = 0;
     wcex.lpszClassName = "JumpmanClass";
-    wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
+    wcex.hIconSm = LoadIcon(wcex.hInstance, reinterpret_cast<LPCTSTR>(IDI_SMALL));
 
     return RegisterClassEx(&wcex);
 }
@@ -2781,7 +2782,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             iKeySpecial = 1;
         }
 
-        iLastKey = (long)wParam;
+        iLastKey = static_cast<long>(wParam);
 
         if (wParam == 27) {
             GameStatus = GS_EXITING;
@@ -2969,9 +2970,9 @@ int CheckJumpStart(int iLeft, int iUp, int iRight) {
 }
 
 void UpdateSituation() {
-    FindVine((long)iPlayerX, (long)iPlayerY, &iSitVinAp, &iSitVinEx);
-    FindLadder((long)iPlayerX, (long)iPlayerY, &iSitLadA, &iSitLadE);
-    GetNextPlatform((long)iPlayerX, (long)iPlayerY, PlayerHeight(), 2, &iSitSupport, &iSitPlatform);
+    FindVine(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), &iSitVinAp, &iSitVinEx);
+    FindLadder(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), &iSitLadA, &iSitLadE);
+    GetNextPlatform(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), PlayerHeight(), 2, &iSitSupport, &iSitPlatform);
     iSitSupport -= PlayerFloor();
 
     iEvent2 = -1;
@@ -3014,7 +3015,7 @@ void MoveJumpmanVine() {
 
     if (iPlayerAF & 1) {
         if (iPlayerX + 1 > iVinX && iPlayerX - 1 < iVinX) {
-            iPlayerX = (float)iVinX;
+            iPlayerX = static_cast<float>(iVinX);
         } else if (iPlayerX < iVinX) {
             ++iPlayerX;
         } else if (iPlayerX > iVinX) {
@@ -3067,7 +3068,7 @@ void MoveJumpmanLadder() {
     iLadderX = LS[iSitLadA].X1;
 
     if (iPlayerX < iLadderX + 1 && iPlayerX > iLadderX - 1) {
-        iPlayerX = (float)iLadderX;
+        iPlayerX = static_cast<float>(iLadderX);
     } else if (iPlayerX < iLadderX) {
         iPlayerX += 1;
     } else if (iPlayerX > iLadderX) {
@@ -3079,7 +3080,7 @@ void MoveJumpmanNormal() {
     iPlayerST = JS_NORMAL;
     iPlayerACT = 0;
 
-    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
+    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, static_cast<int>(iPlayerY - iSitSupport));
 
     if (iSitVinAp != -1 && !iTKeyLeft && !iTKeyRight && (VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport)) {
         MoveJumpmanVine();
@@ -3320,7 +3321,7 @@ void MoveJumpmanSlide() {
                 }
             }
 
-            iPlayerX += (float)((30 - iPlayerSC)) / 60.0f+.5f;
+            iPlayerX += static_cast<float>(30 - iPlayerSC) / 60.0f+.5f;
         }
 
         if (iPlayerDIR == JD_LEFT) {
@@ -3330,7 +3331,7 @@ void MoveJumpmanSlide() {
                 }
             }
 
-            iPlayerX -= (float)((30 - iPlayerSC)) / 60.0f+.5f;
+            iPlayerX -= static_cast<float>(30 - iPlayerSC) / 60.0f+.5f;
         }
     }
 
@@ -3423,7 +3424,7 @@ void MoveJumpmanRoll() {
         return;
     }
 
-    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
+    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, static_cast<int>(iPlayerY - iSitSupport));
 
     float iVel;
     iVel = 1.3f;
@@ -3537,7 +3538,7 @@ void MoveJumpman() {
     iRep = -1;
 
     while (++iRep < 2) {
-        iCollide = CollideWall((long)iPlayerX - 2, (long)iPlayerY + 11, (long)iPlayerX + 2, (long)iPlayerY + 9);
+        iCollide = CollideWall(static_cast<long>(iPlayerX) - 2, static_cast<long>(iPlayerY) + 11, static_cast<long>(iPlayerX) + 2, static_cast<long>(iPlayerY) + 9);
 
         if (iCollide == 1) {
             iPlayerY -= 1;
@@ -3547,7 +3548,7 @@ void MoveJumpman() {
             }
         }
 
-        iCollide = CollideWall((long)iPlayerX - 3, (long)iPlayerY + 9, (long)iPlayerX + 3, (long)iPlayerY + 3);
+        iCollide = CollideWall(static_cast<long>(iPlayerX) - 3, static_cast<long>(iPlayerY) + 9, static_cast<long>(iPlayerX) + 3, static_cast<long>(iPlayerY) + 3);
 
         if (iCollide == 3) {
             ++iPlayerX;

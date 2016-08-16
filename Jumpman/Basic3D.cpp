@@ -128,7 +128,7 @@ void ScrollTexture(long iObj, float fX, float fY) {
     my_vertex* vb_vertices;
     HRESULT hr;
 
-    hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
+    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
 
     if (FAILED(hr)) {
         FatalError("Error Locking triangle buffer");
@@ -271,7 +271,7 @@ void SetObjectMesh(long* iParams, long iCount, long iNum) {
     my_vertex* vb_vertices;
     HRESULT hr;
 
-    hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
+    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
     if (FAILED(hr)) {
         FatalError("Error Locking triangle buffer");
     }
@@ -354,7 +354,7 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
     my_vertex* vb_vertices;
     HRESULT hr;
 
-    hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
+    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
     if (FAILED(hr)) {
         FatalError("Error Locking triangle buffer");
     }
@@ -401,8 +401,8 @@ void Reset3d(HWND hWindow) {
         return;
     }
 
-    CopyVertice = (my_vertex*)malloc(MAX_VERTICES * sizeof(my_vertex));
-    hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
+    CopyVertice = static_cast<my_vertex*>(malloc(MAX_VERTICES * sizeof(my_vertex)));
+    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
 
     if (FAILED(hr)) {
         return;
@@ -462,7 +462,7 @@ void Reset3d(HWND hWindow) {
         }
     }
 
-    hr = g_vb->Lock(0, 0, (BYTE **)&vb_vertices, 0);
+    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
 
     if (FAILED(hr)) {
         return;
@@ -584,8 +584,8 @@ void SetFog(float iFogStart, float iFogEnd, DWORD Color) {
         g_d3d_device->SetRenderState(D3DRS_FOGENABLE, TRUE);
         g_d3d_device->SetRenderState(D3DRS_FOGCOLOR, Color);
         g_d3d_device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
-        g_d3d_device->SetRenderState(D3DRS_FOGSTART, *(DWORD*)(&iFogStart));
-        g_d3d_device->SetRenderState(D3DRS_FOGEND, *(DWORD*)(&iFogEnd));
+        g_d3d_device->SetRenderState(D3DRS_FOGSTART, *reinterpret_cast<DWORD*>(&iFogStart));
+        g_d3d_device->SetRenderState(D3DRS_FOGEND, *reinterpret_cast<DWORD*>(&iFogEnd));
     }
 }
 

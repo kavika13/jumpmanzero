@@ -7,9 +7,9 @@ long StringToLong(unsigned char* sString) {
     fTemp = sString[1] * 256.0f + sString[2] + sString[3] / 256.0f;
 
     if (sString[0]) {
-        return (long)fTemp * -1;
+        return static_cast<long>(fTemp) * -1;
     } else {
-        return (long)fTemp;
+        return static_cast<long>(fTemp);
     }
 }
 
@@ -19,16 +19,16 @@ long StringToLong2(unsigned char* sString) {
     fTemp = (sString[0] & 127) * 256.0f * 256.0f * 256.0f + sString[1] * 256.0f * 256.0f + sString[2] * 256.0f + sString[3];
 
     if (sString[0] & 128) {
-        return (long)fTemp * -1;
+        return static_cast<long>(fTemp) * -1;
     } else {
-        return (long)fTemp;
+        return static_cast<long>(fTemp);
     }
 }
 
 long StringToInt(unsigned char* sString) {
     float fTemp;
     fTemp = sString[0] * 256.0f + sString[1];
-    return (long)fTemp;
+    return static_cast<long>(fTemp);
 }
 
 long FileToString(char* sFileName, unsigned char** sNewBuffer) {
@@ -40,7 +40,7 @@ long FileToString(char* sFileName, unsigned char** sNewBuffer) {
     hFile = CreateFile(sFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     GetFileInformationByHandle(hFile, &info);
     iSize = info.nFileSizeLow;
-    *sNewBuffer = (unsigned char*)malloc(iSize);
+    *sNewBuffer = static_cast<unsigned char*>(malloc(iSize));
     ReadFile(hFile, *sNewBuffer, iSize, &iNumRead, NULL);
     CloseHandle(hFile);
 
