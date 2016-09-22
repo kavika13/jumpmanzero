@@ -39,6 +39,11 @@ class ScopeLogger {
 #define GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(logger_name, name)\
   boost::log::attributes::named_scope::sentry BOOST_LOG_UNIQUE_IDENTIFIER_NAME(scope_sentry1_)(name, __FILE__, __LINE__);\
   boost::log::attributes::named_scope::sentry BOOST_LOG_UNIQUE_IDENTIFIER_NAME(scope_sentry2_)(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__, boost::log::attributes::named_scope_entry::function);\
+  auto& logger_name = global_logger::get()
+
+#define GET_NAMED_SCOPE_TRACED_FUNCTION_GLOBAL_LOGGER(logger_name, name)\
+  boost::log::attributes::named_scope::sentry BOOST_LOG_UNIQUE_IDENTIFIER_NAME(scope_sentry1_)(name, __FILE__, __LINE__);\
+  boost::log::attributes::named_scope::sentry BOOST_LOG_UNIQUE_IDENTIFIER_NAME(scope_sentry2_)(BOOST_CURRENT_FUNCTION, __FILE__, __LINE__, boost::log::attributes::named_scope_entry::function);\
   ScopeLogger scope_logger_instance;\
   auto& logger_name = global_logger::get()
 
