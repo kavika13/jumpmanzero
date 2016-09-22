@@ -163,17 +163,30 @@ $(BUILD_DIR)/%/$(ENGINE_LIB_TEST_BIN): LDLIBS := $(LDLIBS) $(ENGINE_LIB_TEST_BIN
 $(BUILD_DIR)/%/$(ENGINE_LIB_TEST_BIN): $(addprefix $(BUILD_DIR)/%/, $(ENGINE_LIB_TEST_BIN_OBJECTS)) | $(BUILD_DIR)/% $(BUILD_DIR)/%/$(ENGINE_LIB_BIN) $(addprefix $(BUILD_DIR)/%/, $(DYNAMIC_LIBS))
 	$(LINK.cpp) -L$(BUILD_DIR)/$* $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-$(BUILD_DIR)/%/$(FMOD_LIB_BIN): $(FMOD_LIB_DIR)/$(FMOD_LIB_BIN) | $(BUILD_DIR)/%
+$(BUILD_DIR)/release/$(FMOD_LIB_BIN): $(FMOD_LIB_DIR)/$(FMOD_LIB_BIN) | $(BUILD_DIR)/release
 	cp $< $@
 
-$(BUILD_DIR)/%/$(SDL_FRAMEWORK_BIN): $(SDL_FRAMEWORKS_DIR)/$(SDL_FRAMEWORK_BIN) | $(BUILD_DIR)/%
-	cp -R $< $@
+$(BUILD_DIR)/debug/$(FMOD_LIB_BIN): $(FMOD_LIB_DIR)/$(FMOD_LIB_BIN) | $(BUILD_DIR)/debug
+	cp $< $@
 
-$(BUILD_DIR)/%/$(SDL_IMAGE_FRAMEWORK_BIN): $(SDL_IMAGE_FRAMEWORKS_DIR)/$(SDL_IMAGE_FRAMEWORK_BIN) | $(BUILD_DIR)/%
+# Mac specific
+$(BUILD_DIR)/release/$(SDL_FRAMEWORK_BIN): $(SDL_FRAMEWORKS_DIR)/$(SDL_FRAMEWORK_BIN) | $(BUILD_DIR)/release
 	cp -R $< $@
 
 # Mac specific
-%/$(GAME_APP): %/$(GAME_APP)/Contents/MacOS/$(GAME_BIN) %/$(GAME_APP)/Contents %/$(GAME_APP)/Contents/Frameworks %/$(GAME_APP)/Contents/Resources
+$(BUILD_DIR)/debug/$(SDL_FRAMEWORK_BIN): $(SDL_FRAMEWORKS_DIR)/$(SDL_FRAMEWORK_BIN) | $(BUILD_DIR)/debug
+	cp -R $< $@
+
+# Mac specific
+$(BUILD_DIR)/release/$(SDL_IMAGE_FRAMEWORK_BIN): $(SDL_IMAGE_FRAMEWORKS_DIR)/$(SDL_IMAGE_FRAMEWORK_BIN) | $(BUILD_DIR)/release
+	cp -R $< $@
+
+# Mac specific
+$(BUILD_DIR)/debug/$(SDL_IMAGE_FRAMEWORK_BIN): $(SDL_IMAGE_FRAMEWORKS_DIR)/$(SDL_IMAGE_FRAMEWORK_BIN) | $(BUILD_DIR)/debug
+	cp -R $< $@
+
+# Mac specific
+%/$(GAME_APP): %/$(GAME_APP)/Contents/MacOS/$(GAME_BIN) %/$(GAME_APP)/Contents $(addprefix %/$(GAME_APP)/Contents/Frameworks/, $(GAME_APP_FRAMEWORKS)) $(addprefix %/$(GAME_APP)/Contents/Resources/, $(GAME_APP_RESOURCES))
 	@true
 
 # Mac specific
@@ -186,13 +199,19 @@ $(BUILD_DIR)/%/$(SDL_IMAGE_FRAMEWORK_BIN): $(SDL_IMAGE_FRAMEWORKS_DIR)/$(SDL_IMA
 	cp $< $@
 	install_name_tool -rpath "$(GAME_BIN_RPATH)" "$(GAME_APP_RPATH)" $@
 
-# Mac specific
-%/$(GAME_APP)/Contents/Frameworks: $(addprefix %/, $(DYNAMIC_LIBS)) | %/$(GAME_APP)/Contents
-	cp -R $^ $@
+%/$(GAME_APP)/Contents/Frameworks/$(ENGINE_LIB_BIN): %/$(ENGINE_LIB_BIN) | %/$(GAME_APP)/Contents
+	cp $< $@
+
+%/$(GAME_APP)/Contents/Frameworks/$(FMOD_LIB_BIN): %/$(FMOD_LIB_BIN) | %/$(GAME_APP)/Contents
+	cp $< $@
 
 # Mac specific
-%/$(GAME_APP)/Contents/Resources: $(addprefix %/$(GAME_APP)/Contents/Resources/, $(GAME_APP_RESOURCES)) | %/$(GAME_APP)/Contents
-	@true
+%/$(GAME_APP)/Contents/Frameworks/$(SDL_FRAMEWORK_BIN): %/$(SDL_FRAMEWORK_BIN) | %/$(GAME_APP)/Contents
+	cp -R $< $@
+
+# Mac specific
+%/$(GAME_APP)/Contents/Frameworks/$(SDL_IMAGE_FRAMEWORK_BIN): %/$(SDL_IMAGE_FRAMEWORK_BIN) | %/$(GAME_APP)/Contents
+	cp -R $< $@
 
 $(BUILD_DIR)/release/%.o: $(SOURCE_DIR)/%.cpp | $(BUILD_DIR)/release
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
