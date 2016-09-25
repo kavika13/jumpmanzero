@@ -123,7 +123,7 @@ std::istream& operator>>(std::istream& stream, LevelObjectEntry& entry) {
   bool drawtop = boolean_name_map.at(drawtopdata);
   bool drawback = boolean_name_map.at(drawbackdata);
 
-  float platform_type;
+  uint16_t platform_type;
 
   if (!(stream >> platform_type)) {
     BOOST_LOG_SEV(log, LogSeverity::kWarning)
@@ -428,6 +428,18 @@ LevelData LevelConverter::Convert() {
 
   std::vector<QuadObjectData> quads;
   std::vector<DonutObjectData> donuts;
+  std::vector<PlatformObjectData> platforms;
+
+  auto convert_vertex =
+    [](const LevelObjectVertex& source) -> const VertexData {
+      return {
+        source.x,
+        source.y,
+        source.z,
+        source.tu,
+        source.tv,
+      };
+    };
 
   for (const auto& object: objects) {
     switch (object.type) {
@@ -444,17 +456,6 @@ LevelData LevelConverter::Convert() {
             });
           });
         LevelObjectVertex origin = { sum.x / 4, sum.y / 4 };
-
-        auto convert_vertex =
-          [](const LevelObjectVertex& source) -> const VertexData {
-            return {
-              source.x,
-              source.y,
-              source.z,
-              source.tu,
-              source.tv,
-            };
-          };
 
         quads.push_back({
           std::to_string(object.tag_handle),
@@ -480,9 +481,33 @@ LevelData LevelConverter::Convert() {
         });
         break;
       }
-      // TODO: Other objects
-      case LevelObjectType::kPlatform:
+      case LevelObjectType::kPlatform: {
+        const auto vertices = object.vertices;
+        platforms.push_back({
+          std::to_string(object.tag_handle),
+          std::to_string(object.texture_index),
+          object.drawtop,
+          object.drawbottom,
+          object.drawfront,
+          object.drawback,
+          object.drawleft,
+          object.drawright,
+          static_cast<PlatformType>(object.platform_type),
+          vertices[0].x,
+          vertices[0].y,
+          vertices[1].x,
+          vertices[1].y,
+          object.near_z,
+          {
+            convert_vertex(vertices[0]),
+            convert_vertex(vertices[1]),
+            convert_vertex(vertices[2]),
+            convert_vertex(vertices[3]),
+          },
+        });
         break;
+      }
+      // TODO: Other objects
       case LevelObjectType::kWall:
         break;
       case LevelObjectType::kLadder:
@@ -507,5 +532,6 @@ LevelData LevelConverter::Convert() {
 
     quads,
     donuts,
+    platforms,
   };
 }

@@ -1,3 +1,4 @@
+#include <unordered_map>
 #include <json/json.h>
 #include "leveldata.hpp"
 #include "logging.hpp"
@@ -110,6 +111,49 @@ std::ostream& operator<<(std::ostream& stream, const DonutObjectData& val) {
   return stream;
 }
 
+bool operator==(const PlatformObjectData& lhs, const PlatformObjectData& rhs) {
+  return lhs.tag == rhs.tag
+    && lhs.texture_tag == rhs.texture_tag
+    && lhs.drawtop == rhs.drawtop
+    && lhs.drawbottom == rhs.drawbottom
+    && lhs.drawfront == rhs.drawfront
+    && lhs.drawback == rhs.drawback
+    && lhs.drawleft == rhs.drawleft
+    && lhs.drawright == rhs.drawright
+    && lhs.platform_type == rhs.platform_type
+    && lhs.start_x == rhs.start_x
+    && lhs.start_y == rhs.start_y
+    && lhs.end_x == rhs.end_x
+    && lhs.end_y == rhs.end_y
+    && lhs.front_z == rhs.front_z
+    && lhs.vertices[0] == rhs.vertices[0]
+    && lhs.vertices[1] == rhs.vertices[1]
+    && lhs.vertices[2] == rhs.vertices[2]
+    && lhs.vertices[3] == rhs.vertices[3];
+}
+
+std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val) {
+  stream << "tag: " << val.tag
+    << " - texture_tag: " << val.texture_tag
+    << " - drawtop: " << val.drawtop
+    << " - drawbottom: " << val.drawbottom
+    << " - drawfront: " << val.drawfront
+    << " - drawback: " << val.drawback
+    << " - drawleft: " << val.drawleft
+    << " - drawright: " << val.drawright
+    << " - platform_type: " << static_cast<int>(val.platform_type)
+    << " - start_x: " << val.start_x
+    << " - start_y: " << val.start_y
+    << " - end_x: " << val.end_x
+    << " - end_y: " << val.end_y
+    << " - front_z: " << val.front_z
+    << " - vertices[0]: " << val.vertices[0]
+    << " - vertices[1]: " << val.vertices[1]
+    << " - vertices[2]: " << val.vertices[2]
+    << " - vertices[3]: " << val.vertices[3];
+  return stream;
+}
+
 LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value root_node;
   stream >> root_node;
@@ -175,11 +219,11 @@ LevelData LevelData::FromStream(std::istream& stream) {
 
   Json::Value quads_node = objects_node["quads"];
   Json::Value donuts_node = objects_node["donuts"];
+  Json::Value platforms_node = objects_node["platforms"];
   // TODO: Other objects
 
-  std::vector<QuadObjectData> quads;
-  for (const auto& quad_node: quads_node) {
-    Json::Value vertices_node = quad_node["vertices"];
+  auto extract_vertices_node = [](const Json::Value& object_node) {
+    Json::Value vertices_node = object_node["vertices"];
 
     std::vector<VertexData> vertices_data;
     for (const auto& vertex_node: vertices_node) {
@@ -191,6 +235,13 @@ LevelData LevelData::FromStream(std::istream& stream) {
         vertex_node["tv"].asFloat(),
       });
     }
+
+    return vertices_data;
+  };
+
+  std::vector<QuadObjectData> quads;
+  for (const auto& quad_node: quads_node) {
+    std::vector<VertexData> vertices_data = extract_vertices_node(quad_node);
 
     quads.push_back({
       quad_node["tag"].asString(),
@@ -216,6 +267,42 @@ LevelData LevelData::FromStream(std::istream& stream) {
       donut_node["originZ"].asFloat(),
     });
   }
+
+  static const std::unordered_map<std::string, PlatformType> type_map = {
+    { "plain", PlatformType::kPlain },
+    { "slideLeft", PlatformType::kSlideLeft },
+    { "slideRight", PlatformType::kSlideRight },
+    { "hang", PlatformType::kHang },
+  };
+
+  std::vector<PlatformObjectData> platforms;
+  for (const auto& platform_node: platforms_node) {
+    std::vector<VertexData> vertices_data =
+      extract_vertices_node(platform_node);
+
+    platforms.push_back({
+      platform_node["tag"].asString(),
+      platform_node["textureTag"].asString(),
+      platform_node["drawTop"].asBool(),
+      platform_node["drawBottom"].asBool(),
+      platform_node["drawFront"].asBool(),
+      platform_node["drawBack"].asBool(),
+      platform_node["drawLeft"].asBool(),
+      platform_node["drawRight"].asBool(),
+      type_map.at(platform_node["type"].asString()),
+      platform_node["startX"].asFloat(),
+      platform_node["startY"].asFloat(),
+      platform_node["endX"].asFloat(),
+      platform_node["endY"].asFloat(),
+      platform_node["frontZ"].asFloat(),
+      {
+        vertices_data[0],
+        vertices_data[1],
+        vertices_data[2],
+        vertices_data[3],
+      },
+    });
+  }
   // TODO: Other objects
 
   return LevelData {
@@ -233,6 +320,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
 
     quads,
     donuts,
+    platforms,
     // TODO: Other objects
   };
 }
@@ -307,7 +395,19 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   resources_node["quads"] = quads_node;
   Json::Value donuts_node(Json::arrayValue);
   resources_node["donuts"] = donuts_node;
+  Json::Value platforms_node(Json::arrayValue);
+  resources_node["platforms"] = platforms_node;
   // TODO: Other objects
+
+  auto create_vertex_node = [](const VertexData& vertex) {
+    Json::Value vertex_node(Json::objectValue);
+    vertex_node["x"] = vertex.x;
+    vertex_node["y"] = vertex.y;
+    vertex_node["z"] = vertex.z;
+    vertex_node["tu"] = vertex.tu;
+    vertex_node["tv"] = vertex.tv;
+    return vertex_node;
+  };
 
   for (const auto& quad: data.quads) {
     Json::Value quad_node(Json::objectValue);
@@ -322,13 +422,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     resources_node["vertices"] = vertices_node;
 
     for (const auto& vertex: quad.vertices) {
-      Json::Value vertex_node(Json::arrayValue);
-      vertex_node["x"] = vertex.x;
-      vertex_node["y"] = vertex.y;
-      vertex_node["z"] = vertex.z;
-      vertex_node["tu"] = vertex.tu;
-      vertex_node["tv"] = vertex.tv;
-      vertices_node.append(vertex_node);
+      vertices_node.append(create_vertex_node(vertex));
     }
 
     quads_node.append(quad_node);
@@ -345,6 +439,44 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     donut_node["originZ"] = donut.origin_z;
 
     donuts_node.append(donut_node);
+  }
+
+  static const std::unordered_map<PlatformType, std::string> type_map = {
+    { PlatformType::kPlain, "plain" },
+    { PlatformType::kSlideLeft, "slideLeft" },
+    { PlatformType::kSlideRight, "slideRight" },
+    { PlatformType::kHang, "hang" },
+  };
+
+  for (const auto& platform: data.platforms) {
+    Json::Value platform_node(Json::objectValue);
+
+    platform_node["tag"] = platform.tag;
+    platform_node["textureTag"] = platform.texture_tag;
+
+    platform_node["drawTop"] = platform.drawtop;
+    platform_node["drawBottom"] = platform.drawbottom;
+    platform_node["drawFront"] = platform.drawfront;
+    platform_node["drawBack"] = platform.drawback;
+    platform_node["drawLeft"] = platform.drawleft;
+    platform_node["drawRight"] = platform.drawright;
+
+    platform_node["type"] = type_map.at(platform.platform_type);
+
+    platform_node["startX"] = platform.start_x;
+    platform_node["startY"] = platform.start_y;
+    platform_node["endX"] = platform.end_x;
+    platform_node["endY"] = platform.end_y;
+    platform_node["frontZ"] = platform.front_z;
+
+    Json::Value vertices_node(Json::arrayValue);
+    resources_node["vertices"] = vertices_node;
+
+    for (const auto& vertex: platform.vertices) {
+      vertices_node.append(create_vertex_node(vertex));
+    }
+
+    platforms_node.append(platform_node);
   }
   // TODO: Other objects
 

@@ -37,7 +37,7 @@ struct LevelObjectVertex {
 struct LevelObjectEntry {
   bool drawbottom, drawfront, drawleft, drawright, drawtop, drawback;
 
-  float platform_type;
+  uint16_t platform_type;
 
   float frontback_scale_x, frontback_scale_y;
   float frontback_start_x, frontback_start_y;

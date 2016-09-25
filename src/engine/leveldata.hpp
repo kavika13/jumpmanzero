@@ -77,21 +77,25 @@ struct DonutObjectData {
 bool operator==(const DonutObjectData& lhs, const DonutObjectData& rhs);
 std::ostream& operator<<(std::ostream& stream, const DonutObjectData& val);
 
-// enum class PlatformType {
-//   // TODO: Are these values right?
-//   kLeftWall = 1,
-//   kRightWall = 2,
-//   kFloor = 3,
-// };
+enum class PlatformType {
+  // TODO: Are these values right for left/right?
+  kPlain = 0,
+  kSlideLeft = 1,
+  kSlideRight = 2,
+  kHang = 3,
+};
 
-// struct PlatformObjectData {
-//   const std::string tag;
-//   const std::string texture_tag;
-//   const std::array<VertexData, 4> vertices;
-//   const PlatformType platform_type;
-//   const float start_x, start_y, end_x, end_y, front_z;  // TODO: Better names?
-//   // TODO: Add fields, but only base data, not triangles/squares
-// };
+struct PlatformObjectData {
+  const std::string tag;
+  const std::string texture_tag;
+  bool drawtop, drawbottom, drawfront, drawback, drawleft, drawright;
+  const PlatformType platform_type;
+  const float start_x, start_y, end_x, end_y, front_z;  // TODO: Better names?
+  const std::array<VertexData, 4> vertices;
+};
+
+bool operator==(const PlatformObjectData& lhs, const PlatformObjectData& rhs);
+std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val);
 
 // struct WallObjectData {
 //   const std::string tag;
@@ -134,7 +138,7 @@ struct LevelData {
 
   const std::vector<QuadObjectData> quads;
   const std::vector<DonutObjectData> donuts;
-  // const std::vector<PlatformObjectData> platforms;
+  const std::vector<PlatformObjectData> platforms;
   // const std::vector<WallObjectData> walls;
   // const std::vector<LadderObjectData> ladders;
   // const std::vector<VineObjectData> vines;
