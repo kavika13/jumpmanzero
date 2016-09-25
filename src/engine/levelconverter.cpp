@@ -1,8 +1,8 @@
-#include <fstream>
-#include <unordered_map>
+#include <numeric>
 #include <sstream>
-#include "./levelconverter.hpp"
-#include "./logging.hpp"
+#include <unordered_map>
+#include "levelconverter.hpp"
+#include "logging.hpp"
 
 std::istream& operator>>(std::istream& stream, LevelResourceType& type) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
@@ -50,12 +50,13 @@ std::istream& operator>>(std::istream& stream, LevelResourceEntry& entry) {
 
   constexpr size_t extension_count =
     sizeof(file_extensions) / sizeof(*file_extensions);
+  auto type_index = static_cast<size_t>(type);
 
-  if (static_cast<size_t>(type) < extension_count) {
-    filename += std::string(".") + file_extensions[type];
+  if (type_index < extension_count) {
+    filename += std::string(".") + file_extensions[type_index];
   } else {
     BOOST_LOG_SEV(log, LogSeverity::kWarning)
-      << "Invalid resource type: " << type;
+      << "Invalid resource type: " << type_index;
     return stream;
   }
 
@@ -74,16 +75,16 @@ std::istream& operator>>(std::istream& stream, LevelResourceEntry& entry) {
 
 std::istream& operator>>(std::istream& stream, LevelObjectVertex& vertex) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
-  float tx, ty, x, y, z;
+  float tu, tv, x, y, z;
 
-  if (!(stream >> tx >> ty >> x >> y >> z)) {
+  if (!(stream >> tu >> tv >> x >> y >> z)) {
     BOOST_LOG_SEV(log, LogSeverity::kWarning)
       << "Failed to parse level object vertex";
     return stream;
   }
 
-  vertex.tx = tx;
-  vertex.ty = ty;
+  vertex.tu = tu;
+  vertex.tv = tv;
   vertex.x = x;
   vertex.y = y;
   vertex.z = z;
@@ -152,7 +153,7 @@ std::istream& operator>>(std::istream& stream, LevelObjectEntry& entry) {
     return stream;
   }
 
-  int64_t tag_handle;
+  uint32_t tag_handle;
 
   if (!(stream >> tag_handle)) {
     BOOST_LOG_SEV(log, LogSeverity::kWarning)
@@ -181,12 +182,12 @@ std::istream& operator>>(std::istream& stream, LevelObjectEntry& entry) {
 
   static const std::unordered_map<std::string, LevelObjectType>
   object_type_name_map = {
-    {"ARBITRARY", kArbitrary},
-    {"DONUT", kDonut},
-    {"PLATFORM", kPlatform},
-    {"WALL", kWall},
-    {"LADDER", kLadder},
-    {"VINE", kVine},
+    {"ARBITRARY", LevelObjectType::kQuad},
+    {"DONUT", LevelObjectType::kDonut},
+    {"PLATFORM", LevelObjectType::kPlatform},
+    {"WALL", LevelObjectType::kWall},
+    {"LADDER", LevelObjectType::kLadder},
+    {"VINE", LevelObjectType::kVine},
   };
 
   LevelObjectType object_type = object_type_name_map.at(object_type_data);
@@ -202,9 +203,9 @@ std::istream& operator>>(std::istream& stream, LevelObjectEntry& entry) {
     }
   }
 
-  float z1, z2;
+  float near_z, far_z;  // TODO: Right order?
 
-  if (!(stream >> z1 >> z2)) {
+  if (!(stream >> near_z >> far_z)) {
     BOOST_LOG_SEV(log, LogSeverity::kWarning)
       << "failed to parse depth fields from level object entry";
     return stream;
@@ -245,41 +246,36 @@ std::istream& operator>>(std::istream& stream, LevelObjectEntry& entry) {
   entry.topbottom_start_x = topbottom_start_x;
   entry.topbottom_start_y = topbottom_start_y;
 
-  entry.object_type = object_type;
+  entry.type = object_type;
 
   for (size_t vertex_index = 0; vertex_index < 8; ++vertex_index) {
     const auto& vertex = vertices[vertex_index];
     entry.vertices[vertex_index] = {
-      vertex.tx,
-      vertex.ty,
       vertex.x,
       vertex.y,
       vertex.z,
+      vertex.tu,
+      vertex.tv,
     };
   }
 
-  entry.z1 = z1;
-  entry.z2 = z2;
+  entry.near_z = near_z;
+  entry.far_z = far_z;
 
   entry.texture_index = texture_index;
 
   return stream;
 }
 
-LevelConverter::LevelConverter(const std::string& source_filename) {
+LevelConverter LevelConverter::FromStream(std::istream& stream) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
-  std::ifstream source_file(source_filename);
 
-  if (!source_file) {
-    std::string error_message = "failed to open file: " + source_filename;
-    BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
-    throw std::ifstream::failure(error_message);
-  }
-
+  std::vector<LevelResourceEntry> level_resources;
+  std::vector<LevelObjectEntry> level_objects;
   int line_count = 0;
   std::string line;
 
-  while (std::getline(source_file, line)) {
+  while (std::getline(stream, line)) {
     ++line_count;
     std::istringstream iss(line);
 
@@ -287,8 +283,7 @@ LevelConverter::LevelConverter(const std::string& source_filename) {
 
     if (!(iss >> entry_type)) {
       BOOST_LOG_SEV(log, LogSeverity::kWarning)
-        << "failed to parse entry type from line of level file"
-        << ": " << source_filename
+        << "failed to parse entry type from line of level stream"
         << " - line: " << line_count;
       continue;
     }
@@ -299,13 +294,12 @@ LevelConverter::LevelConverter(const std::string& source_filename) {
 
         if (!(iss >> resource_entry)) {
           BOOST_LOG_SEV(log, LogSeverity::kWarning)
-            << "failed to parse resource entry from line of level file"
-            << ": " << source_filename
+            << "failed to parse resource entry from line of level stream"
             << " - line: " << line_count;
           continue;
         }
 
-        level_resources_.push_back(resource_entry);
+        level_resources.push_back(resource_entry);
         break;
       }
       case 'O': {
@@ -313,20 +307,195 @@ LevelConverter::LevelConverter(const std::string& source_filename) {
 
         if (!(iss >> object_entry)) {
           BOOST_LOG_SEV(log, LogSeverity::kWarning)
-            << "failed to parse object entry from line of level file"
-            << ": " << source_filename
+            << "failed to parse object entry from line of level stream"
             << " - line: " << line_count;
           continue;
         }
 
-        level_objects_.push_back(object_entry);
+        level_objects.push_back(object_entry);
         break;
       }
       default:
         assert(false);
     }
   }
+
+  return {
+    level_resources,
+    level_objects,
+  };
 }
 
-void LevelConverter::Convert(const std::string& target_filename) {
+enum class MusicResourceType {
+  kBackgroundTrack = 1,
+  kDeathTrack = 2,
+  kWinTrack = 3,
+};
+
+LevelData LevelConverter::Convert() {
+  std::string main_script_tag;
+  std::string donut_script_tag;
+  std::string background_track_tag;
+  std::string death_track_tag;
+  std::string end_level_track_tag;
+
+  std::vector<ScriptResourceData> scripts;
+  std::vector<MeshResourceData> meshes;
+  std::vector<TextureResourceData> textures;
+  std::vector<MusicResourceData> music_tracks;
+  std::vector<SoundResourceData> sounds;
+
+  for (const auto& resource: resources) {
+    switch (resource.type) {
+      case LevelResourceType::kScript: {
+        int tag_number = static_cast<int>(resource.data1);
+        std::string tag = std::to_string(tag_number);
+
+        switch (tag_number) {
+          case 1:
+            main_script_tag = tag;
+            break;
+          case 2:  // TODO: This probably isn't reliable
+            donut_script_tag = tag;
+            break;
+        }
+
+        scripts.push_back({
+          resource.filename,
+          tag,
+        });
+
+        break;
+      }
+      case LevelResourceType::kMusic: {
+        auto music_type = static_cast<MusicResourceType>(resource.data1);
+        std::string tag = std::to_string(static_cast<int>(music_type));
+
+        switch (music_type) {
+          case MusicResourceType::kBackgroundTrack:
+            background_track_tag = tag;
+            break;
+          case MusicResourceType::kDeathTrack:
+            death_track_tag = tag;
+            break;
+          case MusicResourceType::kWinTrack:
+            end_level_track_tag = tag;
+            break;
+        }
+
+        music_tracks.push_back({
+          resource.filename,
+          tag,
+          static_cast<uint32_t>(resource.data2),
+        });
+
+        break;
+      }
+      case LevelResourceType::kWave:
+        sounds.push_back({
+          resource.filename,
+          std::to_string(sounds.size()),
+        });
+        break;
+      case LevelResourceType::kMesh:
+        meshes.push_back({
+          resource.filename,
+          std::to_string(meshes.size()),
+        });
+        break;
+      case LevelResourceType::kBitmap:
+      case LevelResourceType::kJpeg:
+      case LevelResourceType::kPng: {
+        // TODO: Correct logic on these?
+        bool has_alpha_channel = resource.data1;
+        bool has_colorkey_alpha =
+          resource.type == LevelResourceType::kPng
+          || (resource.type == LevelResourceType::kBitmap && has_alpha_channel);
+
+        textures.push_back({
+          resource.filename,
+          std::to_string(textures.size()),
+          has_colorkey_alpha,
+          has_alpha_channel,
+        });
+
+        break;
+      }
+      default:
+        assert(false);
+    }
+  }
+
+  std::vector<QuadObjectData> quads;
+
+  for (const auto& object: objects) {
+    switch (object.type) {
+      case LevelObjectType::kQuad: {
+        const auto vertices = object.vertices;
+        const auto sum = std::accumulate(
+          vertices.begin(),
+          vertices.end(),
+          LevelObjectVertex({ 0, 0 }),
+          [](const auto& source, const auto& target) {
+            return LevelObjectVertex({
+              source.x + target.x,
+              source.y + target.y,
+            });
+          });
+        LevelObjectVertex origin = { sum.x / 4, sum.y / 4 };
+
+        auto convert_vertex =
+          [](const LevelObjectVertex& source) -> const VertexData {
+            return {
+              source.x,
+              source.y,
+              source.z,
+              source.tu,
+              source.tv,
+            };
+          };
+
+        quads.push_back({
+          std::to_string(object.tag_handle),
+          std::to_string(object.texture_index),
+          origin.x < 0.0f ? 0.0f : origin.x,
+          origin.y < 0.0f ? 0.0f : origin.y,
+          {
+            convert_vertex(vertices[0]),
+            convert_vertex(vertices[1]),
+            convert_vertex(vertices[2]),
+            convert_vertex(vertices[3]),
+          },
+        });
+        break;
+      }
+      // TODO: Other objects
+      case LevelObjectType::kDonut:
+        break;
+      case LevelObjectType::kPlatform:
+        break;
+      case LevelObjectType::kWall:
+        break;
+      case LevelObjectType::kLadder:
+        break;
+      case LevelObjectType::kVine:
+        break;
+    }
+  }
+
+  return LevelData {
+    main_script_tag,
+    donut_script_tag,
+    background_track_tag,
+    death_track_tag,
+    end_level_track_tag,
+
+    scripts,
+    meshes,
+    textures,
+    music_tracks,
+    sounds,
+
+    quads,
+  };
 }

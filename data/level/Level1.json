@@ -1,0 +1,52 @@
+{
+  "mainScriptTag": "1",
+  "donutScriptTag": "2",
+  "backgroundTrackTag": "1",
+  "deathTrackTag": "2",
+  "endLevelTrackTag": "3",
+  "resources": {
+    "scripts": [
+      { "filename": "Script1.lua", "tag": "1" },
+      { "filename": "Bullet.lua", "tag": "2" }
+    ],
+    "meshes": [
+      { "filename": "Bullet1.msh", "tag": "0" },
+      { "filename": "Bullet2.msh", "tag": "1" }
+    ],
+    "textures": [
+      { "filename": "Jumpman.bmp", "tag": "0" },
+      { "filename": "ClassicPlatform.bmp", "tag": "1" },
+      { "filename": "BlueMarble.bmp", "tag": "2" },
+      { "filename": "RedMetal.bmp", "tag": "3" },
+      { "filename": "Bullet.bmp", "tag": "4" },
+      { "filename": "sky.jpg", "tag": "5" }
+    ],
+    "music": [
+      { "filename": "L1.mid", "tag": "1", "introEndOffsetMS": "1200" },
+      { "filename": "death.mid", "tag": "2" },
+      { "filename": "endlevel.mid", "tag": "3" }
+    ],
+    "sounds": [
+      { "filename": "Jump.wav", "tag": "0" },
+      { "filename": "chomp.wav", "tag": "1" },
+      { "filename": "bonk.wav", "tag": "2" },
+      { "filename": "Fire.wav", "tag": "3" }
+    ]
+  },
+  "objects": {
+    "quads": [
+      {
+        "tag": "0",
+        "textureTag": "5",
+        "originX": "77.5",
+        "originY": "30",
+        "vertices": [
+          { "x": "-100", "y": "200", "z": "80", "tu": "0", "tv": "0" },
+          { "x": "255", "y": "200", "z": "80", "tu": "1", "tv": "0" },
+          { "x": "-100", "y": "-140", "z": "80", "tu": "0", "tv": "1" },
+          { "x": "255", "y": "-140", "z": "80", "tu": "1", "tv": "1" }
+        ]
+      }
+    ]
+  }
+}

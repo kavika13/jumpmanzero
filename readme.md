@@ -1,3 +1,5 @@
+TODO: More info about total rebuild
+
 #[Jumpman Zero](http://www.jumpmanzero.com)
 
 A platformer video game with a very old-school theme. Based on the [Jumpman](http://en.wikipedia.org/wiki/Jumpman) series by Randy Glover, released by Epyx in 1983.
@@ -24,37 +26,27 @@ It seems from [Dave Campbell's Jumpman Zero developer diary](http://web.archive.
 
 Install Git and follow [the instructions off GitHub](https://help.github.com/articles/working-with-repositories) to clone [the Jumpman Zero repository](https://github.com/kavika13/jumpmanzero). No need to fork it first (unless you want to) - just clone.
 
-###Install Visual Studio
+###Makefile based build instructions
 
-2012 is the version I am using
+TODO: Full instructions for each OS and each dependency.
 
-###Install a DirectX SDK
+Just build with:
 
-The simplest way to get a good SDK version is to clone and use [the Jumpman Zero third-party packages repository](https://github.com/kavika13/jumpmanzero-thirdparty). The rest of this section is how I got hold of those packages and a warning about them - use at your own risk!
+    make
 
-You need a version that supports [DirectMusic](http://en.wikipedia.org/wiki/DirectMusic) and includes the extended DirectX 8 SDK
+Dependencies:
 
-The last one that supported these is [the October 2004 release, which is no longer available](www.microsoft.com/download/en/details.aspx?id=19320)
+- FMOD 1.08.11 (put in `extlibs` and rename the top level directory so it becomes `extlibs/FMOD-1.08.11`)
+- glm 0.9.8.0 (put in `extlibs`, forget if you have to rename)
+- jsoncpp 1.7.5 (see instruction below)
+- lua 5.3.3 (put in `extlibs` and build it + lib, forget if you have to rename)
+- SDL2_Image 2.0.1 (put framework in `extlibs/SDL2_image-2.0.1/Frameworks`)
+- SDL2 2.0.4 (put framework in `extlibs/SDL2-2.0.4/Frameworks`)
 
-- See [The web archive of the MS download](http://web.archive.org/web/20111220021902/http://www.microsoft.com/download/en/details.aspx?id=19320)
+- Unzip jsoncpp (1.7.5) to `extlibs` so it creates a `jsoncpp-1.7.5` subdirectory
+- Build jsoncpp with:
 
-I got [a copy of the SDK download from google off "FindThatFile.com"](http://www.findthatfile.com/search-608303-fEXE/software-tools-download-dxsdk_oct2004.exe.htm) (totally legit :P - lots of sarcasm)
-
-  - I scanned the file with a virus scanner (Windows Defender)
-  - I checked that the checksum matched [the only MD5 I could find on the web](http://www.isthisfilesafe.com/md5/7400ADDC1EF83CC8A813040E192168CA_details.aspx) (couldn't find a checksum on MS's site, and I don't have an MSDN subscription).  This might just mean it is the same tampered file.  **Try at your own risk**
-
-Apparently when installing you can [ignore the error message: "This Pre-release version of Xaudio2 has expired"](http://forum.thegamecreators.com/?m=forum_view&t=185890&b=22) - this might only apply to the August 2007 SDK though.  I tried that one first.
-
-###Open the Solution in Visual Studio
-
-The solution is `Jumpman/Jumpman.sln`
-
-###Setup your SDK sources
-
-Point at the DirectX SDK you installed (Include and Libraries folders)
-
-- TODO: Set up these values via user Property Sheets for `DXInstallDir` macro now used by build (see value below).
-- See the "To specify a per-user directory list" section of [the Directories Property Page instructions](http://msdn.microsoft.com/en-us/library/vstudio/ee855621.aspx)
-- Make sure you add the DirectX SDK Include/Lib paths, and add them **before all other paths** - otherwise the Windows SDK versions of the headers might be used instead, and you'll have build problems
-- Make sure you set up the directories for both the Debug and Release builds (if it doesn't automatically do both.  It did both at the same time for me)
-- The library I am using is installed at `C:\Program Files (x86)\Microsoft DirectX 9.0 SDK (October 2004)\`. Create a `DXInstallDir` macro with this value.
+    mkdir -p extlibs/jsoncpp-1.7.5/build
+    cd extlibs/jsoncpp-1.7.5/build
+    cmake -DJSONCPP_WITH_PKGCONFIG_SUPPORT=OFF -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON -DLIBRARY_INSTALL_DIR=../lib -DARCHIVE_INSTALL_DIR=../lib -DINCLUDE_INSTALL_DIR=../include -G "Unix Makefiles" ..
+    make install
