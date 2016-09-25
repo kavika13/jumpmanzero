@@ -429,7 +429,7 @@ LevelData LevelConverter::Convert() {
   std::vector<QuadObjectData> quads;
   std::vector<DonutObjectData> donuts;
   std::vector<PlatformObjectData> platforms;
-  // TODO: std::vector<WallObjectData> walls;
+  std::vector<WallObjectData> walls;
   std::vector<LadderObjectData> ladders;
   std::vector<VineObjectData> vines;
 
@@ -510,9 +510,26 @@ LevelData LevelConverter::Convert() {
         });
         break;
       }
-      // TODO: Wall objects
-      case LevelObjectType::kWall:
+      case LevelObjectType::kWall: {
+        const auto vertices = object.vertices;
+        walls.push_back({
+          std::to_string(object.tag_handle),
+          std::to_string(object.texture_index),
+          object.drawtop,
+          object.drawbottom,
+          object.drawfront,
+          object.drawback,
+          object.drawleft,
+          object.drawright,
+          {
+            convert_vertex(vertices[0]),
+            convert_vertex(vertices[1]),
+            convert_vertex(vertices[2]),
+            convert_vertex(vertices[3]),
+          },
+        });
         break;
+      }
       case LevelObjectType::kLadder: {
         ladders.push_back({
           std::to_string(object.tag_handle),
@@ -554,7 +571,7 @@ LevelData LevelConverter::Convert() {
     quads,
     donuts,
     platforms,
-    // TODO: walls,
+    walls,
     ladders,
     vines,
   };

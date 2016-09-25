@@ -154,6 +154,37 @@ std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val) {
   return stream;
 }
 
+bool operator==(const WallObjectData& lhs, const WallObjectData& rhs) {
+  return lhs.tag == rhs.tag
+    && lhs.texture_tag == rhs.texture_tag
+    && lhs.drawtop == rhs.drawtop
+    && lhs.drawbottom == rhs.drawbottom
+    && lhs.drawfront == rhs.drawfront
+    && lhs.drawback == rhs.drawback
+    && lhs.drawleft == rhs.drawleft
+    && lhs.drawright == rhs.drawright
+    && lhs.vertices[0] == rhs.vertices[0]
+    && lhs.vertices[1] == rhs.vertices[1]
+    && lhs.vertices[2] == rhs.vertices[2]
+    && lhs.vertices[3] == rhs.vertices[3];
+}
+
+std::ostream& operator<<(std::ostream& stream, const WallObjectData& val) {
+  stream << "tag: " << val.tag
+    << " - texture_tag: " << val.texture_tag
+    << " - drawtop: " << val.drawtop
+    << " - drawbottom: " << val.drawbottom
+    << " - drawfront: " << val.drawfront
+    << " - drawback: " << val.drawback
+    << " - drawleft: " << val.drawleft
+    << " - drawright: " << val.drawright
+    << " - vertices[0]: " << val.vertices[0]
+    << " - vertices[1]: " << val.vertices[1]
+    << " - vertices[2]: " << val.vertices[2]
+    << " - vertices[3]: " << val.vertices[3];
+  return stream;
+}
+
 bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs) {
   return lhs.tag == rhs.tag
     && lhs.texture_tag == rhs.texture_tag
@@ -258,7 +289,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value quads_node = objects_node["quads"];
   Json::Value donuts_node = objects_node["donuts"];
   Json::Value platforms_node = objects_node["platforms"];
-  // TODO: Json::Value walls_node = objects_node["walls"];
+  Json::Value walls_node = objects_node["walls"];
   Json::Value ladders_node = objects_node["ladders"];
   Json::Value vines_node = objects_node["vines"];
 
@@ -344,7 +375,28 @@ LevelData LevelData::FromStream(std::istream& stream) {
     });
   }
 
-  // TODO: Wall objects
+  std::vector<WallObjectData> walls;
+  for (const auto& wall_node: walls_node) {
+    std::vector<VertexData> vertices_data =
+      extract_vertices_node(wall_node);
+
+    walls.push_back({
+      wall_node["tag"].asString(),
+      wall_node["textureTag"].asString(),
+      wall_node["drawTop"].asBool(),
+      wall_node["drawBottom"].asBool(),
+      wall_node["drawFront"].asBool(),
+      wall_node["drawBack"].asBool(),
+      wall_node["drawLeft"].asBool(),
+      wall_node["drawRight"].asBool(),
+      {
+        vertices_data[0],
+        vertices_data[1],
+        vertices_data[2],
+        vertices_data[3],
+      },
+    });
+  }
 
   std::vector<LadderObjectData> ladders;
   for (const auto& ladder_node: ladders_node) {
@@ -386,7 +438,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
     quads,
     donuts,
     platforms,
-    // TODO: walls,
+    walls,
     ladders,
     vines,
   };
@@ -464,8 +516,8 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   resources_node["donuts"] = donuts_node;
   Json::Value platforms_node(Json::arrayValue);
   resources_node["platforms"] = platforms_node;
-  // TODO: Json::Value walls_node(Json::arrayValue);
-  // TODO: resources_node["walls"] = walls_node;
+  Json::Value walls_node(Json::arrayValue);
+  resources_node["walls"] = walls_node;
   Json::Value ladders_node(Json::arrayValue);
   resources_node["ladders"] = ladders_node;
   Json::Value vines_node(Json::arrayValue);
@@ -551,7 +603,28 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     platforms_node.append(platform_node);
   }
 
-  // TODO: Walls object
+  for (const auto& wall: data.walls) {
+    Json::Value wall_node(Json::objectValue);
+
+    wall_node["tag"] = wall.tag;
+    wall_node["textureTag"] = wall.texture_tag;
+
+    wall_node["drawTop"] = wall.drawtop;
+    wall_node["drawBottom"] = wall.drawbottom;
+    wall_node["drawFront"] = wall.drawfront;
+    wall_node["drawBack"] = wall.drawback;
+    wall_node["drawLeft"] = wall.drawleft;
+    wall_node["drawRight"] = wall.drawright;
+
+    Json::Value vertices_node(Json::arrayValue);
+    resources_node["vertices"] = vertices_node;
+
+    for (const auto& vertex: wall.vertices) {
+      vertices_node.append(create_vertex_node(vertex));
+    }
+
+    walls_node.append(wall_node);
+  }
 
   for (const auto& ladder: data.ladders) {
     Json::Value ladder_node(Json::objectValue);
