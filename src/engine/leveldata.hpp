@@ -115,12 +115,14 @@ struct LadderObjectData {
 bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);
 std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
 
-// struct VineObjectData {
-//   const std::string tag;
-//   const std::string texture_tag;
-//   const float x1, y1, y2, z1, z2;  // TODO: Better type? Don't need?
-//   // TODO: Add fields, but only base data, not triangles/squares
-// };
+struct VineObjectData {
+  const std::string tag;
+  const std::string texture_tag;
+  const float origin_x, top_y, bottom_y, front_z;
+};
+
+bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);
+std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
 
 struct LevelData {
   static LevelData FromStream(std::istream& stream);
@@ -144,7 +146,7 @@ struct LevelData {
   const std::vector<PlatformObjectData> platforms;
   // const std::vector<WallObjectData> walls;
   const std::vector<LadderObjectData> ladders;
-  // const std::vector<VineObjectData> vines;
+  const std::vector<VineObjectData> vines;
 };
 
 #endif  // ENGINE_LEVELDATA_HPP_

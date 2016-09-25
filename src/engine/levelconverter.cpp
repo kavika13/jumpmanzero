@@ -431,6 +431,7 @@ LevelData LevelConverter::Convert() {
   std::vector<PlatformObjectData> platforms;
   // TODO: std::vector<WallObjectData> walls;
   std::vector<LadderObjectData> ladders;
+  std::vector<VineObjectData> vines;
 
   auto convert_vertex =
     [](const LevelObjectVertex& source) -> const VertexData {
@@ -509,7 +510,7 @@ LevelData LevelConverter::Convert() {
         });
         break;
       }
-      // TODO: Ladder objects
+      // TODO: Wall objects
       case LevelObjectType::kWall:
         break;
       case LevelObjectType::kLadder: {
@@ -523,9 +524,17 @@ LevelData LevelConverter::Convert() {
         });
         break;
       }
-      // TODO: Vine objects
-      case LevelObjectType::kVine:
+      case LevelObjectType::kVine: {
+        vines.push_back({
+          std::to_string(object.tag_handle),
+          std::to_string(object.texture_index),
+          object.vertices[0].x,
+          object.vertices[0].y,
+          object.vertices[1].y,
+          object.near_z,
+        });
         break;
+      }
     }
   }
 
@@ -547,5 +556,6 @@ LevelData LevelConverter::Convert() {
     platforms,
     // TODO: walls,
     ladders,
+    vines,
   };
 }

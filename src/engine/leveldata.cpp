@@ -173,6 +173,25 @@ std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val) {
   return stream;
 }
 
+bool operator==(const VineObjectData& lhs, const VineObjectData& rhs) {
+  return lhs.tag == rhs.tag
+    && lhs.texture_tag == rhs.texture_tag
+    && lhs.origin_x == rhs.origin_x
+    && lhs.top_y == rhs.top_y
+    && lhs.bottom_y == rhs.bottom_y
+    && lhs.front_z == rhs.front_z;
+}
+
+std::ostream& operator<<(std::ostream& stream, const VineObjectData& val) {
+  stream << "tag: " << val.tag
+    << " - texture_tag: " << val.texture_tag
+    << " - origin_x: " << val.origin_x
+    << " - top_y: " << val.top_y
+    << " - bottom_y: " << val.bottom_y
+    << " - front_z: " << val.front_z;
+  return stream;
+}
+
 LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value root_node;
   stream >> root_node;
@@ -241,7 +260,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value platforms_node = objects_node["platforms"];
   // TODO: Json::Value walls_node = objects_node["walls"];
   Json::Value ladders_node = objects_node["ladders"];
-  // TODO: Other objects
+  Json::Value vines_node = objects_node["vines"];
 
   auto extract_vertices_node = [](const Json::Value& object_node) {
     Json::Value vertices_node = object_node["vertices"];
@@ -338,7 +357,18 @@ LevelData LevelData::FromStream(std::istream& stream) {
       ladder_node["frontZ"].asFloat(),
     });
   }
-  // TODO: Other objects
+
+  std::vector<VineObjectData> vines;
+  for (const auto& vine_node: vines_node) {
+    vines.push_back({
+      vine_node["tag"].asString(),
+      vine_node["textureTag"].asString(),
+      vine_node["originX"].asFloat(),
+      vine_node["topY"].asFloat(),
+      vine_node["bottomY"].asFloat(),
+      vine_node["frontZ"].asFloat(),
+    });
+  }
 
   return LevelData {
     main_script_tag,
@@ -358,7 +388,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
     platforms,
     // TODO: walls,
     ladders,
-    // TODO: Other objects
+    vines,
   };
 }
 
@@ -438,7 +468,8 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   // TODO: resources_node["walls"] = walls_node;
   Json::Value ladders_node(Json::arrayValue);
   resources_node["ladders"] = ladders_node;
-  // TODO: Other objects
+  Json::Value vines_node(Json::arrayValue);
+  resources_node["vines"] = vines_node;
 
   auto create_vertex_node = [](const VertexData& vertex) {
     Json::Value vertex_node(Json::objectValue);
@@ -536,7 +567,19 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     ladders_node.append(ladder_node);
   }
 
-  // TODO: Other objects
+  for (const auto& vine: data.vines) {
+    Json::Value vine_node(Json::objectValue);
+
+    vine_node["tag"] = vine.tag;
+    vine_node["textureTag"] = vine.texture_tag;
+
+    vine_node["originX"] = vine.origin_x;
+    vine_node["topY"] = vine.top_y;
+    vine_node["bottomY"] = vine.bottom_y;
+    vine_node["frontZ"] = vine.front_z;
+
+    vines_node.append(vine_node);
+  }
 
   stream << root_node;
 

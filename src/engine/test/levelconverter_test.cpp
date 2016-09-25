@@ -458,7 +458,7 @@ SCENARIO ("load old level files and verify there are no errors",
         };
         REQUIRE (expected_ladders == data.ladders);
 
-        // TODO: REQUIRE (0 == data.vines.size());
+        REQUIRE (0 == data.vines.size());
       }
     }
   }
