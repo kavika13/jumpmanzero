@@ -1,7 +1,6 @@
-#include "./logging.hpp"
-
 #include <fstream>
 #include <iomanip>
+#define BOOST_LOG_DYN_LINK
 #include <boost/core/null_deleter.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/log/expressions.hpp>
@@ -9,6 +8,7 @@
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/smart_ptr/make_shared_object.hpp>
+#include "logging.hpp"
 
 namespace logging = boost::log;
 namespace expr = boost::log::expressions;

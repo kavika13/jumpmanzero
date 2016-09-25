@@ -1,7 +1,7 @@
 #include <fstream>
 #include <string>
-#include "levelconverter.hpp"
-#include "./catch.hpp"
+#include "engine/levelconverter.hpp"
+#include "catch.hpp"
 
 SCENARIO ("load old level files and verify there are no errors",
           "[dataconversion]") {

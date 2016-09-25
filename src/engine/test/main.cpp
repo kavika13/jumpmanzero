@@ -1,6 +1,6 @@
-#include "logging.hpp"
+#include "engine/logging.hpp"
 #define CATCH_CONFIG_RUNNER
-#include "./catch.hpp"
+#include "catch.hpp"
 
 int main(int argc, char* argv[]) {
   InitializeLogging();
