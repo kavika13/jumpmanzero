@@ -440,6 +440,25 @@ SCENARIO ("load old level files and verify there are no errors",
 
         };
         REQUIRE (expected_platforms == data.platforms);
+
+        // TODO: REQUIRE (0 == data.walls.size());
+
+        const std::vector<LadderObjectData> expected_ladders = {
+          { "0", "2", 10.0f, 130.0f, 79.0f, 13.0f },
+          { "0", "2", 10.0f, 67.0f, 55.0f, 13.0f },
+          { "1", "2", 10.0f, 79.0f, 67.0f, 13.0f },
+          { "0", "2", 150.0f, 130.0f, 79.0f, 13.0f },
+          { "0", "2", 150.0f, 67.0f, 55.0f, 13.0f },
+          { "2", "2", 150.0f, 79.0f, 67.0f, 13.0f },
+          { "0", "2", 80.0f, 95.0f, 63.0f, 13.0f },
+          { "0", "2", 60.0f, 68.0f, 35.0f, 8.0f },
+          { "0", "2", 100.0f, 68.0f, 35.0f, 8.0f },
+          { "0", "2", 12.0f, 30.0f, 2.0f, 4.0f },
+          { "0", "2", 148.0f, 30.0f, 2.0f, 4.0f },
+        };
+        REQUIRE (expected_ladders == data.ladders);
+
+        // TODO: REQUIRE (0 == data.vines.size());
       }
     }
   }

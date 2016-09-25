@@ -90,6 +90,7 @@ struct PlatformObjectData {
   const std::string texture_tag;
   bool drawtop, drawbottom, drawfront, drawback, drawleft, drawright;
   const PlatformType platform_type;
+  // TODO: Do we need end_x, end_y?
   const float start_x, start_y, end_x, end_y, front_z;  // TODO: Better names?
   const std::array<VertexData, 4> vertices;
 };
@@ -105,12 +106,14 @@ std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val);
 //   // TODO: Add fields, but only base data, not triangles/squares
 // };
 
-// struct LadderObjectData {
-//   const std::string tag;
-//   const std::string texture_tag;
-//   const float x1, y1, y2, z1, z2;  // TODO: Better type? Don't need?
-//   // TODO: Add fields, but only base data, not triangles/squares
-// };
+struct LadderObjectData {
+  const std::string tag;
+  const std::string texture_tag;
+  const float origin_x, top_y, bottom_y, front_z;
+};
+
+bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);
+std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
 
 // struct VineObjectData {
 //   const std::string tag;
@@ -140,7 +143,7 @@ struct LevelData {
   const std::vector<DonutObjectData> donuts;
   const std::vector<PlatformObjectData> platforms;
   // const std::vector<WallObjectData> walls;
-  // const std::vector<LadderObjectData> ladders;
+  const std::vector<LadderObjectData> ladders;
   // const std::vector<VineObjectData> vines;
 };
 
