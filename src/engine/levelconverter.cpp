@@ -427,6 +427,7 @@ LevelData LevelConverter::Convert() {
   }
 
   std::vector<QuadObjectData> quads;
+  std::vector<DonutObjectData> donuts;
 
   for (const auto& object: objects) {
     switch (object.type) {
@@ -469,9 +470,17 @@ LevelData LevelConverter::Convert() {
         });
         break;
       }
-      // TODO: Other objects
-      case LevelObjectType::kDonut:
+      case LevelObjectType::kDonut: {
+        donuts.push_back({
+          std::to_string(object.tag_handle),
+          std::to_string(object.texture_index),
+          object.vertices[0].x,
+          object.vertices[0].y,
+          object.near_z,
+        });
         break;
+      }
+      // TODO: Other objects
       case LevelObjectType::kPlatform:
         break;
       case LevelObjectType::kWall:
@@ -497,5 +506,6 @@ LevelData LevelConverter::Convert() {
     sounds,
 
     quads,
+    donuts,
   };
 }

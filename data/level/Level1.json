@@ -36,10 +36,7 @@
   "objects": {
     "quads": [
       {
-        "tag": "0",
-        "textureTag": "5",
-        "originX": "77.5",
-        "originY": "30",
+        "tag": "0", "textureTag": "5", "originX": "77.5", "originY": "30",
         "vertices": [
           { "x": "-100", "y": "200", "z": "80", "tu": "0", "tv": "0" },
           { "x": "255", "y": "200", "z": "80", "tu": "1", "tv": "0" },
@@ -47,6 +44,17 @@
           { "x": "255", "y": "-140", "z": "80", "tu": "1", "tv": "1" }
         ]
       }
+    ],
+    "donuts": [
+      { "tag": "2", "textureTag": "3", "originX": "138", "originY": "137", "originZ": "15" },
+      { "tag": "1", "textureTag": "3", "originX": "22", "originY": "137", "originZ": "15" },
+      { "tag": "0", "textureTag": "3", "originX": "50", "originY": "110", "originZ": "15" },
+      { "tag": "0", "textureTag": "3", "originX": "110", "originY": "110", "originZ": "15" },
+      { "tag": "3", "textureTag": "3", "originX": "35", "originY": "70", "originZ": "12" },
+      { "tag": "4", "textureTag": "3", "originX": "125", "originY": "70", "originZ": "12" },
+      { "tag": "0", "textureTag": "3", "originX": "80", "originY": "50", "originZ": "6" },
+      { "tag": "0", "textureTag": "3", "originX": "130", "originY": "13", "originZ": "2" },
+      { "tag": "0", "textureTag": "3", "originX": "30", "originY": "13", "originZ": "2" }
     ]
   }
 }

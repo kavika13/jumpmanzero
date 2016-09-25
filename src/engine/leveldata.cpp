@@ -93,6 +93,23 @@ std::ostream& operator<<(std::ostream& stream, const QuadObjectData& val) {
   return stream;
 }
 
+bool operator==(const DonutObjectData& lhs, const DonutObjectData& rhs) {
+  return lhs.tag == rhs.tag
+    && lhs.texture_tag == rhs.texture_tag
+    && lhs.origin_x == rhs.origin_x
+    && lhs.origin_y == rhs.origin_y
+    && lhs.origin_z == rhs.origin_z;
+}
+
+std::ostream& operator<<(std::ostream& stream, const DonutObjectData& val) {
+  stream << "tag: " << val.tag
+    << " - texture_tag: " << val.texture_tag
+    << " - origin_x: " << val.origin_x
+    << " - origin_y: " << val.origin_y
+    << " - origin_z: " << val.origin_z;
+  return stream;
+}
+
 LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value root_node;
   stream >> root_node;
@@ -157,6 +174,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value objects_node = root_node["objects"];
 
   Json::Value quads_node = objects_node["quads"];
+  Json::Value donuts_node = objects_node["donuts"];
   // TODO: Other objects
 
   std::vector<QuadObjectData> quads;
@@ -187,6 +205,17 @@ LevelData LevelData::FromStream(std::istream& stream) {
       },
     });
   }
+
+  std::vector<DonutObjectData> donuts;
+  for (const auto& donut_node: donuts_node) {
+    donuts.push_back({
+      donut_node["tag"].asString(),
+      donut_node["textureTag"].asString(),
+      donut_node["originX"].asFloat(),
+      donut_node["originY"].asFloat(),
+      donut_node["originZ"].asFloat(),
+    });
+  }
   // TODO: Other objects
 
   return LevelData {
@@ -203,6 +232,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
     sounds,
 
     quads,
+    donuts,
     // TODO: Other objects
   };
 }
@@ -275,6 +305,8 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
   Json::Value quads_node(Json::arrayValue);
   resources_node["quads"] = quads_node;
+  Json::Value donuts_node(Json::arrayValue);
+  resources_node["donuts"] = donuts_node;
   // TODO: Other objects
 
   for (const auto& quad: data.quads) {
@@ -300,6 +332,19 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     }
 
     quads_node.append(quad_node);
+  }
+
+  for (const auto& donut: data.donuts) {
+    Json::Value donut_node(Json::objectValue);
+
+    donut_node["tag"] = donut.tag;
+    donut_node["textureTag"] = donut.texture_tag;
+
+    donut_node["originX"] = donut.origin_x;
+    donut_node["originY"] = donut.origin_y;
+    donut_node["originZ"] = donut.origin_z;
+
+    donuts_node.append(donut_node);
   }
   // TODO: Other objects
 

@@ -68,12 +68,14 @@ struct QuadObjectData {
 bool operator==(const QuadObjectData& lhs, const QuadObjectData& rhs);
 std::ostream& operator<<(std::ostream& stream, const QuadObjectData& val);
 
-// struct DonutObjectData {
-//   const std::string tag;
-//   const std::string texture_tag;
-//   const float origin_x, origin_y, near_z, far_z;  // TODO: Do we need far_z?
-//   // TODO: Add fields, but only base data, not triangles/squares
-// };
+struct DonutObjectData {
+  const std::string tag;
+  const std::string texture_tag;
+  const float origin_x, origin_y, origin_z;
+};
+
+bool operator==(const DonutObjectData& lhs, const DonutObjectData& rhs);
+std::ostream& operator<<(std::ostream& stream, const DonutObjectData& val);
 
 // enum class PlatformType {
 //   // TODO: Are these values right?
@@ -131,7 +133,7 @@ struct LevelData {
   const std::vector<SoundResourceData> sounds;
 
   const std::vector<QuadObjectData> quads;
-  // const std::vector<DonutObjectData> donuts;
+  const std::vector<DonutObjectData> donuts;
   // const std::vector<PlatformObjectData> platforms;
   // const std::vector<WallObjectData> walls;
   // const std::vector<LadderObjectData> ladders;

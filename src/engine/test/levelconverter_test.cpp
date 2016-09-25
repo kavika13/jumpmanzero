@@ -73,42 +73,45 @@ SCENARIO ("load old level files and verify there are no errors",
         REQUIRE ("2" == data.death_track_tag);
         REQUIRE ("3" == data.end_level_track_tag);
 
-        REQUIRE (2 == data.scripts.size());
-        REQUIRE (ScriptResourceData({ "Script1.lua", "1" }) == data.scripts[0]);
-        REQUIRE (ScriptResourceData({ "Bullet.lua", "2" }) == data.scripts[1]);
+        const std::vector<ScriptResourceData> expected_scripts = {
+          { "Script1.lua", "1" },
+          { "Bullet.lua", "2" },
+        };
+        REQUIRE (expected_scripts == data.scripts);
 
-        REQUIRE (2 == data.meshes.size());
-        REQUIRE (MeshResourceData({ "Bullet1.msh", "0" }) == data.meshes[0]);
-        REQUIRE (MeshResourceData({ "Bullet2.msh", "1" }) == data.meshes[1]);
+        const std::vector<MeshResourceData> expected_meshes = {
+          { "Bullet1.msh", "0" },
+          { "Bullet2.msh", "1" },
+        };
+        REQUIRE (expected_meshes == data.meshes);
 
-        REQUIRE (6 == data.textures.size());
-        REQUIRE (
-          TextureResourceData({ "Jumpman.bmp", "0" }) == data.textures[0]);
-        REQUIRE (
-          TextureResourceData({ "ClassicPlatform.bmp", "1" })
-          == data.textures[1]);
-        REQUIRE (
-          TextureResourceData({ "BlueMarble.bmp", "2" }) == data.textures[2]);
-        REQUIRE (
-          TextureResourceData({ "RedMetal.bmp", "3" }) == data.textures[3]);
-        REQUIRE (
-          TextureResourceData({ "Bullet.bmp", "4" }) == data.textures[4]);
-        REQUIRE (TextureResourceData({ "sky.jpg", "5" }) == data.textures[5]);
+        const std::vector<TextureResourceData> expected_textures = {
+          { "Jumpman.bmp", "0" },
+          { "ClassicPlatform.bmp", "1" },
+          { "BlueMarble.bmp", "2" },
+          { "RedMetal.bmp", "3" },
+          { "Bullet.bmp", "4" },
+          { "sky.jpg", "5" },
+        };
+        REQUIRE (expected_textures == data.textures);
 
-        REQUIRE (3 == data.music.size());
-        REQUIRE (MusicResourceData({ "L1.mid", "1", 1200 }) == data.music[0]);
-        REQUIRE (MusicResourceData({ "death.mid", "2" }) == data.music[1]);
-        REQUIRE (MusicResourceData({ "ENDLEVEL.mid", "3" }) == data.music[2]);
+        const std::vector<MusicResourceData> expected_music = {
+          { "L1.mid", "1", 1200 },
+          { "death.mid", "2" },
+          { "ENDLEVEL.mid", "3" },
+        };
+        REQUIRE (expected_music == data.music);
 
-        REQUIRE (4 == data.sounds.size());
-        REQUIRE (SoundResourceData({ "Jump.wav", "0" }) == data.sounds[0]);
-        REQUIRE (SoundResourceData({ "chomp.wav", "1" }) == data.sounds[1]);
-        REQUIRE (SoundResourceData({ "bonk.wav", "2" }) == data.sounds[2]);
-        REQUIRE (SoundResourceData({ "Fire.wav", "3" }) == data.sounds[3]);
+        const std::vector<SoundResourceData> expected_sounds = {
+          { "Jump.wav", "0" },
+          { "chomp.wav", "1" },
+          { "bonk.wav", "2" },
+          { "Fire.wav", "3" },
+        };
+        REQUIRE (expected_sounds == data.sounds);
 
-        REQUIRE (1 == data.quads.size());
-        REQUIRE (
-          QuadObjectData({
+        const std::vector<QuadObjectData> expected_quads = {
+          {
             "0", "5", 77.5f, 30.0f,
             {
               VertexData({ -100.0f, 200.0f, 80.0f, 0.0f, 0.0f }),
@@ -116,8 +119,22 @@ SCENARIO ("load old level files and verify there are no errors",
               VertexData({ -100.0f, -140.0f, 80.0f, 0.0f, 1.0f }),
               VertexData({ 255.0f, -140.0f, 80.0f, 1.0f, 1.0f }),
             }
-          })
-          == data.quads[0]);
+          }
+        };
+        REQUIRE (expected_quads == data.quads);
+
+        const std::vector<DonutObjectData> expected_donuts = {
+          { "2", "3", 138.0f, 137.0f, 15.0f },
+          { "1", "3", 22.0f, 137.0f, 15.0f },
+          { "0", "3", 50.0f, 110.0f, 15.0f },
+          { "0", "3", 110.0f, 110.0f, 15.0f },
+          { "3", "3", 35.0f, 70.0f, 12.0f },
+          { "4", "3", 125.0f, 70.0f, 12.0f },
+          { "0", "3", 80.0f, 50.0f, 6.0f },
+          { "0", "3", 130.0f, 13.0f, 2.0f },
+          { "0", "3", 30.0f, 13.0f, 2.0f },
+        };
+        REQUIRE (expected_donuts == data.donuts);
       }
     }
   }
