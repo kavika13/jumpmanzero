@@ -244,7 +244,7 @@ bool operator==(const LevelData& lhs, const LevelData& rhs) {
   ;
 }
 
-LevelData LevelData::FromStream(std::istream& stream) {
+std::unique_ptr<LevelData> LevelData::FromStream(std::istream& stream) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
   BOOST_LOG_SEV(log, LogSeverity::kInfo) << "Reading level data from stream";
 
@@ -448,7 +448,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
     });
   }
 
-  return LevelData {
+  return std::unique_ptr<LevelData>(new LevelData {
     main_script_tag,
     donut_script_tag,
     background_track_tag,
@@ -467,7 +467,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
     walls,
     ladders,
     vines,
-  };
+  });
 }
 
 std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
@@ -587,11 +587,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     quad_node["originY"] = quad.origin_y;
 
     Json::Value vertices_node(Json::arrayValue);
-    resources_node["vertices"] = vertices_node;
-
     for (const auto& vertex: quad.vertices) {
       vertices_node.append(create_vertex_node(vertex));
     }
+    quad_node["vertices"] = vertices_node;
 
     quads_node.append(quad_node);
 
@@ -646,11 +645,11 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     platform_node["frontZ"] = platform.front_z;
 
     Json::Value vertices_node(Json::arrayValue);
-    resources_node["vertices"] = vertices_node;
 
     for (const auto& vertex: platform.vertices) {
       vertices_node.append(create_vertex_node(vertex));
     }
+    platform_node["vertices"] = vertices_node;
 
     platforms_node.append(platform_node);
 
@@ -673,11 +672,11 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     wall_node["drawRight"] = wall.drawright;
 
     Json::Value vertices_node(Json::arrayValue);
-    resources_node["vertices"] = vertices_node;
 
     for (const auto& vertex: wall.vertices) {
       vertices_node.append(create_vertex_node(vertex));
     }
+    wall_node["vertices"] = vertices_node;
 
     walls_node.append(wall_node);
 

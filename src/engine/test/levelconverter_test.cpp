@@ -461,6 +461,19 @@ SCENARIO ("load old level files and verify there are no errors",
         REQUIRE (0 == data.vines.size());
       }
     }
+
+    WHEN ("a round-trip save and load is done") {
+      auto converter = LevelConverter::FromStream(level);
+      const LevelData expected_data = converter.Convert();
+
+      std::stringstream buffer;
+      buffer << expected_data;
+      std::unique_ptr<LevelData> actual_data = LevelData::FromStream(buffer);
+
+      THEN ("correct level objects and resources to have been loaded") {
+        REQUIRE (expected_data == *actual_data);
+      }
+    }
   }
 
   GIVEN ("Level10.lvl") {

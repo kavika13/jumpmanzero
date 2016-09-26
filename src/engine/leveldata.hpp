@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <istream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -128,7 +129,7 @@ bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);
 std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
 
 struct LevelData {
-  static LevelData FromStream(std::istream& stream);
+  static std::unique_ptr<LevelData> FromStream(std::istream& stream);
 
   friend std::ostream& operator<<(std::ostream& stream, const LevelData& data);
 
