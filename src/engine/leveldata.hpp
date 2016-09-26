@@ -152,4 +152,6 @@ struct LevelData {
   const std::vector<VineObjectData> vines;
 };
 
+bool operator==(const LevelData& lhs, const LevelData& rhs);
+
 #endif  // ENGINE_LEVELDATA_HPP_

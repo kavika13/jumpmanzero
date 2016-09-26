@@ -223,9 +223,35 @@ std::ostream& operator<<(std::ostream& stream, const VineObjectData& val) {
   return stream;
 }
 
+bool operator==(const LevelData& lhs, const LevelData& rhs) {
+  return true
+    && lhs.main_script_tag == rhs.main_script_tag
+    && lhs.donut_script_tag == rhs.donut_script_tag
+    && lhs.background_track_tag == rhs.background_track_tag
+    && lhs.death_track_tag == rhs.death_track_tag
+    && lhs.end_level_track_tag == rhs.end_level_track_tag
+    && lhs.scripts == rhs.scripts
+    && lhs.meshes == rhs.meshes
+    && lhs.textures == rhs.textures
+    && lhs.music == rhs.music
+    && lhs.sounds == rhs.sounds
+    && lhs.quads == rhs.quads
+    && lhs.donuts == rhs.donuts
+    && lhs.platforms == rhs.platforms
+    && lhs.walls == rhs.walls
+    && lhs.ladders == rhs.ladders
+    && lhs.vines == rhs.vines
+  ;
+}
+
 LevelData LevelData::FromStream(std::istream& stream) {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  BOOST_LOG_SEV(log, LogSeverity::kInfo) << "Reading level data from stream";
+
   Json::Value root_node;
   stream >> root_node;
+
+  BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Read json data:\n" << root_node;
 
   std::string main_script_tag = root_node["mainScriptTag"].asString();
   std::string donut_script_tag = root_node["donutScriptTag"].asString();
