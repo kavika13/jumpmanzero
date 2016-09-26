@@ -46,7 +46,6 @@ void InitializeLogging() {
   logging::add_common_attributes();
   logging::core::get()->add_global_attribute("Scope", attrs::named_scope());
 
-  // TODO: Should this go in an init function instead?
   logging::formatter console_format = expr::stream
     << std::setw(8) << std::setfill('0') << line_id << std::setfill(' ')
     << " <" << severity << ">"
@@ -62,7 +61,16 @@ void InitializeLogging() {
   boost::shared_ptr<text_sink> sink = boost::make_shared<text_sink>();
   boost::shared_ptr<std::ostream> console_stream(&std::cout, boost::null_deleter());
   sink->locked_backend()->add_stream(console_stream);
-  sink->set_filter(severity == LogSeverity::kInfo);  // TODO: Add debug if configured to do so (compile time?), tracing also as a flag
+#ifdef LOG_TRACE
+  sink->set_filter(severity == LogSeverity::kInfo
+    || severity == LogSeverity::kDebug
+    || severity == LogSeverity::kTrace);
+#elif defined DEBUG
+  sink->set_filter(severity == LogSeverity::kInfo
+    || severity == LogSeverity::kDebug);
+#else
+  sink->set_filter(severity == LogSeverity::kInfo);
+#endif
   sink->set_formatter(console_format);
   logging::core::get()->add_sink(sink);
 
@@ -72,11 +80,24 @@ void InitializeLogging() {
   sink->set_filter(severity >= LogSeverity::kWarning);
   sink->set_formatter(console_format);
   logging::core::get()->add_sink(sink);
+}
 
-  sink = boost::make_shared<text_sink>();
+void AddLogFile(const std::string& filename) {
+  typedef sinks::synchronous_sink<sinks::text_ostream_backend> text_sink;
+
+  boost::shared_ptr<text_sink> sink = boost::make_shared<text_sink>();
   sink->locked_backend()->add_stream(
-    boost::make_shared<std::ofstream>("full.log"));  // TODO: Put in application's writable directory
-  sink->set_filter(severity >= LogSeverity::kInfo);  // TODO: Add debug if configured to do so (compile time?), tracing also as a flag
+    boost::make_shared<std::ofstream>(filename));
+#ifdef LOG_TRACE
+  sink->set_filter(severity == LogSeverity::kInfo
+    || severity == LogSeverity::kDebug
+    || severity == LogSeverity::kTrace);
+#elif defined DEBUG
+  sink->set_filter(severity == LogSeverity::kInfo
+    || severity == LogSeverity::kDebug);
+#else
+  sink->set_filter(severity >= LogSeverity::kInfo);
+#endif
   sink->set_formatter(
     expr::stream
       << "[" << time_stamp << "]"

@@ -1,8 +1,8 @@
 #ifndef ENGINE_LOGGING_HPP_
 #define ENGINE_LOGGING_HPP_
 
+#include <string>
 #define BOOST_LOG_DYN_LINK
-
 #include <boost/log/sources/severity_feature.hpp>
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
@@ -48,5 +48,6 @@ class ScopeLogger {
   auto& logger_name = global_logger::get()
 
 void InitializeLogging();
+void AddLogFile(const std::string& filename);
 
 #endif  // ENGINE_LOGGING_HPP_

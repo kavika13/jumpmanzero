@@ -445,6 +445,9 @@ LevelData LevelData::FromStream(std::istream& stream) {
 }
 
 std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  BOOST_LOG_SEV(log, LogSeverity::kInfo) << "Writing level data to stream";
+
   Json::Value root_node;
 
   root_node["mainScriptTag"] = data.main_script_tag;
@@ -453,25 +456,25 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   root_node["deathTrackTag"] = data.death_track_tag;
   root_node["endLevelTrackTag"] = data.end_level_track_tag;
 
-  Json::Value resources_node(Json::objectValue);
-  root_node["resources"] = resources_node;
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Set root node data:\n"
+    << root_node;
 
+  Json::Value resources_node(Json::objectValue);
   Json::Value scripts_node(Json::arrayValue);
-  resources_node["scripts"] = scripts_node;
   Json::Value meshes_node(Json::arrayValue);
-  resources_node["meshes"] = meshes_node;
   Json::Value textures_node(Json::arrayValue);
-  resources_node["textures"] = textures_node;
   Json::Value music_node(Json::arrayValue);
-  resources_node["music"] = music_node;
   Json::Value sounds_node(Json::arrayValue);
-  resources_node["sounds"] = sounds_node;
 
   for (const auto& script: data.scripts) {
     Json::Value script_node(Json::objectValue);
     script_node["filename"] = script.filename;
     script_node["tag"] = script.tag;
     scripts_node.append(script_node);
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added script node:\n"
+      << script_node;
   }
 
   for (const auto& mesh: data.meshes) {
@@ -479,6 +482,9 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     mesh_node["filename"] = mesh.filename;
     mesh_node["tag"] = mesh.tag;
     meshes_node.append(mesh_node);
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added mesh node:\n"
+      << mesh_node;
   }
 
   for (const auto& texture: data.textures) {
@@ -488,6 +494,9 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     texture_node["hasColorkeyAlpha"] = texture.has_colorkey_alpha;
     texture_node["hasAlphaChannel"] = texture.has_alpha_channel;
     textures_node.append(texture_node);
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added texture node:\n"
+      << texture_node;
   }
 
   for (const auto& track: data.music) {
@@ -498,6 +507,9 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
       track_node["introEndOffsetMS"] = track.intro_end_offset_ms;
     }
     music_node.append(track_node);
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added music node:\n"
+      << track_node;
   }
 
   for (const auto& sound: data.sounds) {
@@ -505,23 +517,29 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     sound_node["filename"] = sound.filename;
     sound_node["tag"] = sound.tag;
     sounds_node.append(sound_node);
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added sound node:\n"
+      << sound_node;
   }
 
-  Json::Value objects_node(Json::objectValue);
-  root_node["objects"] = objects_node;
+  resources_node["scripts"] = scripts_node;
+  resources_node["meshes"] = meshes_node;
+  resources_node["textures"] = textures_node;
+  resources_node["music"] = music_node;
+  resources_node["sounds"] = sounds_node;
+  root_node["resources"] = resources_node;
 
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Added resources node:\n"
+    << resources_node;
+
+  Json::Value objects_node(Json::objectValue);
   Json::Value quads_node(Json::arrayValue);
-  resources_node["quads"] = quads_node;
   Json::Value donuts_node(Json::arrayValue);
-  resources_node["donuts"] = donuts_node;
   Json::Value platforms_node(Json::arrayValue);
-  resources_node["platforms"] = platforms_node;
   Json::Value walls_node(Json::arrayValue);
-  resources_node["walls"] = walls_node;
   Json::Value ladders_node(Json::arrayValue);
-  resources_node["ladders"] = ladders_node;
   Json::Value vines_node(Json::arrayValue);
-  resources_node["vines"] = vines_node;
 
   auto create_vertex_node = [](const VertexData& vertex) {
     Json::Value vertex_node(Json::objectValue);
@@ -550,6 +568,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     }
 
     quads_node.append(quad_node);
+
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added quad node:\n"
+      << quad_node;
   }
 
   for (const auto& donut: data.donuts) {
@@ -563,6 +585,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     donut_node["originZ"] = donut.origin_z;
 
     donuts_node.append(donut_node);
+
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added donut node:\n"
+      << donut_node;
   }
 
   static const std::unordered_map<PlatformType, std::string> type_map = {
@@ -601,6 +627,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     }
 
     platforms_node.append(platform_node);
+
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added platform node:\n"
+      << platform_node;
   }
 
   for (const auto& wall: data.walls) {
@@ -624,6 +654,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     }
 
     walls_node.append(wall_node);
+
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added wall node:\n"
+      << wall_node;
   }
 
   for (const auto& ladder: data.ladders) {
@@ -638,6 +672,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     ladder_node["frontZ"] = ladder.front_z;
 
     ladders_node.append(ladder_node);
+
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added ladder node:\n"
+      << ladder_node;
   }
 
   for (const auto& vine: data.vines) {
@@ -652,7 +690,23 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     vine_node["frontZ"] = vine.front_z;
 
     vines_node.append(vine_node);
+
+    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+      << "Added vine node:\n"
+      << vine_node;
   }
+
+  objects_node["quads"] = quads_node;
+  objects_node["donuts"] = donuts_node;
+  objects_node["platforms"] = platforms_node;
+  objects_node["walls"] = walls_node;
+  objects_node["ladders"] = ladders_node;
+  objects_node["vines"] = vines_node;
+  root_node["objects"] = objects_node;
+
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Added objects node:\n"
+    << objects_node;
 
   stream << root_node;
 
