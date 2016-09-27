@@ -48,12 +48,25 @@ std::istream& operator>>(std::istream& stream, LevelResourceEntry& entry) {
     "wav",
   };
 
+  static const char* data_directory[] = {
+    "",
+    "music",
+    "model",
+    "texture",
+    "texture",
+    "script",
+    "texture",
+    "sound",
+  };
+
   constexpr size_t extension_count =
     sizeof(file_extensions) / sizeof(*file_extensions);
   auto type_index = static_cast<size_t>(type);
 
   if (type_index < extension_count) {
-    filename += std::string(".") + file_extensions[type_index];
+    filename = std::string("data/")
+      + data_directory[type_index]
+      + "/" + filename + std::string(".") + file_extensions[type_index];
   } else {
     BOOST_LOG_SEV(log, LogSeverity::kWarning)
       << "Invalid resource type: " << type_index;

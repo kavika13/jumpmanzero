@@ -74,39 +74,39 @@ SCENARIO ("load old level files and verify there are no errors",
         REQUIRE ("3" == data.end_level_track_tag);
 
         const std::vector<ScriptResourceData> expected_scripts = {
-          { "Script1.lua", "1" },
-          { "Bullet.lua", "2" },
+          { "data/script/Script1.lua", "1" },
+          { "data/script/Bullet.lua", "2" },
         };
         REQUIRE (expected_scripts == data.scripts);
 
         const std::vector<MeshResourceData> expected_meshes = {
-          { "Bullet1.msh", "0" },
-          { "Bullet2.msh", "1" },
+          { "data/model/Bullet1.msh", "0" },
+          { "data/model/Bullet2.msh", "1" },
         };
         REQUIRE (expected_meshes == data.meshes);
 
         const std::vector<TextureResourceData> expected_textures = {
-          { "Jumpman.bmp", "0" },
-          { "ClassicPlatform.bmp", "1" },
-          { "BlueMarble.bmp", "2" },
-          { "RedMetal.bmp", "3" },
-          { "Bullet.bmp", "4" },
-          { "sky.jpg", "5" },
+          { "data/texture/Jumpman.bmp", "0" },
+          { "data/texture/ClassicPlatform.bmp", "1" },
+          { "data/texture/BlueMarble.bmp", "2" },
+          { "data/texture/RedMetal.bmp", "3" },
+          { "data/texture/Bullet.bmp", "4" },
+          { "data/texture/sky.jpg", "5" },
         };
         REQUIRE (expected_textures == data.textures);
 
         const std::vector<MusicResourceData> expected_music = {
-          { "L1.mid", "1", 1200 },
-          { "death.mid", "2" },
-          { "ENDLEVEL.mid", "3" },
+          { "data/music/L1.mid", "1", 1200 },
+          { "data/music/death.mid", "2" },
+          { "data/music/ENDLEVEL.mid", "3" },
         };
         REQUIRE (expected_music == data.music);
 
         const std::vector<SoundResourceData> expected_sounds = {
-          { "Jump.wav", "0" },
-          { "chomp.wav", "1" },
-          { "bonk.wav", "2" },
-          { "Fire.wav", "3" },
+          { "data/sound/Jump.wav", "0" },
+          { "data/sound/chomp.wav", "1" },
+          { "data/sound/bonk.wav", "2" },
+          { "data/sound/Fire.wav", "3" },
         };
         REQUIRE (expected_sounds == data.sounds);
 
