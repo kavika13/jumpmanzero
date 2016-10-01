@@ -407,6 +407,37 @@ bool Engine::LoadLevel(const std::string& filename) {
     });
   }
 
+  // TODO: Wall objects
+
+  for (const LadderObjectData& ladder: leveldata.ladders) {
+    size_t starting_vertex_index = data_->vertices.size();
+
+    add_cube(
+      ladder.origin_x - 6.5f, ladder.top_y, ladder.front_z,
+      ladder.origin_x - 5.2f, ladder.bottom_y, ladder.front_z + 1);
+    add_cube(
+      ladder.origin_x + 5.2f, ladder.top_y, ladder.front_z,
+      ladder.origin_x + 6.5f, ladder.bottom_y, ladder.front_z + 1);
+
+    for (
+        float rung_position = ladder.bottom_y + 5.0f;
+        rung_position <= ladder.top_y - 3.0f;
+        rung_position += 6) {
+      add_cube(
+        ladder.origin_x - 5.3f, rung_position, ladder.front_z,
+        ladder.origin_x + 5.3f, rung_position - 1.5f, ladder.front_z + 1);
+    }
+
+    scene_objects.push_back({
+      glm::mat4(),
+      data_->tag_to_texture_map.at(ladder.texture_tag),
+      starting_vertex_index,
+      data_->vertices.size() - starting_vertex_index,
+    });
+  }
+
+  // TODO: Vine objects
+
   data_->vertex_buffer.reset(new VertexBuffer(data_->vertices));
   data_->vertex_array.reset(new VertexArray([&]() {
     // TODO: Defer this to an Initialize function
