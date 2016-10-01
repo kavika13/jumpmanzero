@@ -4,7 +4,6 @@
 #include <array>
 #include <cstdint>
 #include <istream>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -93,7 +92,8 @@ struct PlatformObjectData {
   bool drawtop, drawbottom, drawfront, drawback, drawleft, drawright;
   const PlatformType platform_type;
   // TODO: Can we derive these variables easily from the vertices?
-  const float start_x, start_y, end_x, end_y, front_z;  // TODO: Better names?
+  // TODO: Better names?
+  const float start_x, start_y, end_x, end_y, front_z, back_z;
   const std::array<VertexData, 4> vertices;
 };
 
@@ -129,7 +129,7 @@ bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);
 std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
 
 struct LevelData {
-  static std::unique_ptr<LevelData> FromStream(std::istream& stream);
+  static LevelData FromStream(std::istream& stream);
 
   friend std::ostream& operator<<(std::ostream& stream, const LevelData& data);
 

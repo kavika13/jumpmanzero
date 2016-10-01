@@ -1,6 +1,13 @@
-#include "engine/logging.hpp"
+#include "engine/engine.hpp"
 
 int main(int argc, char* argv[]) {
-  InitializeLogging();
-  return 0;
+  Engine engine;
+
+  if (engine.Initialize()) {
+    if (engine.LoadLevel("data/level/Level1.json")) {
+      return engine.Run();
+    }
+  }
+
+  return -1;
 }

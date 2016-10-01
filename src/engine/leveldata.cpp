@@ -126,6 +126,7 @@ bool operator==(const PlatformObjectData& lhs, const PlatformObjectData& rhs) {
     && lhs.end_x == rhs.end_x
     && lhs.end_y == rhs.end_y
     && lhs.front_z == rhs.front_z
+    && lhs.back_z == rhs.back_z
     && lhs.vertices[0] == rhs.vertices[0]
     && lhs.vertices[1] == rhs.vertices[1]
     && lhs.vertices[2] == rhs.vertices[2]
@@ -147,6 +148,7 @@ std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val) {
     << " - end_x: " << val.end_x
     << " - end_y: " << val.end_y
     << " - front_z: " << val.front_z
+    << " - back_z: " << val.back_z
     << " - vertices[0]: " << val.vertices[0]
     << " - vertices[1]: " << val.vertices[1]
     << " - vertices[2]: " << val.vertices[2]
@@ -244,14 +246,14 @@ bool operator==(const LevelData& lhs, const LevelData& rhs) {
   ;
 }
 
-std::unique_ptr<LevelData> LevelData::FromStream(std::istream& stream) {
+LevelData LevelData::FromStream(std::istream& stream) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
-  BOOST_LOG_SEV(log, LogSeverity::kInfo) << "Reading level data from stream";
+  BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Reading level data from stream";
 
   Json::Value root_node;
   stream >> root_node;
 
-  BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Read json data:\n" << root_node;
+  BOOST_LOG_SEV(log, LogSeverity::kTrace) << "Read json data:\n" << root_node;
 
   std::string main_script_tag = root_node["mainScriptTag"].asString();
   std::string donut_script_tag = root_node["donutScriptTag"].asString();
@@ -392,6 +394,7 @@ std::unique_ptr<LevelData> LevelData::FromStream(std::istream& stream) {
       platform_node["endX"].asFloat(),
       platform_node["endY"].asFloat(),
       platform_node["frontZ"].asFloat(),
+      platform_node["backZ"].asFloat(),
       {
         vertices_data[0],
         vertices_data[1],
@@ -448,7 +451,10 @@ std::unique_ptr<LevelData> LevelData::FromStream(std::istream& stream) {
     });
   }
 
-  return std::unique_ptr<LevelData>(new LevelData {
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Finished reading level data from stream";
+
+  return LevelData {
     main_script_tag,
     donut_script_tag,
     background_track_tag,
@@ -467,12 +473,12 @@ std::unique_ptr<LevelData> LevelData::FromStream(std::istream& stream) {
     walls,
     ladders,
     vines,
-  });
+  };
 }
 
 std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
-  BOOST_LOG_SEV(log, LogSeverity::kInfo) << "Writing level data to stream";
+  BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Writing level data to stream";
 
   Json::Value root_node;
 
@@ -482,7 +488,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   root_node["deathTrackTag"] = data.death_track_tag;
   root_node["endLevelTrackTag"] = data.end_level_track_tag;
 
-  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+  BOOST_LOG_SEV(log, LogSeverity::kTrace)
     << "Set root node data:\n"
     << root_node;
 
@@ -498,7 +504,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     script_node["filename"] = script.filename;
     script_node["tag"] = script.tag;
     scripts_node.append(script_node);
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added script node:\n"
       << script_node;
   }
@@ -508,7 +514,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     mesh_node["filename"] = mesh.filename;
     mesh_node["tag"] = mesh.tag;
     meshes_node.append(mesh_node);
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added mesh node:\n"
       << mesh_node;
   }
@@ -520,7 +526,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     texture_node["hasColorkeyAlpha"] = texture.has_colorkey_alpha;
     texture_node["hasAlphaChannel"] = texture.has_alpha_channel;
     textures_node.append(texture_node);
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added texture node:\n"
       << texture_node;
   }
@@ -533,7 +539,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
       track_node["introEndOffsetMS"] = track.intro_end_offset_ms;
     }
     music_node.append(track_node);
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added music node:\n"
       << track_node;
   }
@@ -543,7 +549,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     sound_node["filename"] = sound.filename;
     sound_node["tag"] = sound.tag;
     sounds_node.append(sound_node);
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added sound node:\n"
       << sound_node;
   }
@@ -555,7 +561,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   resources_node["sounds"] = sounds_node;
   root_node["resources"] = resources_node;
 
-  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+  BOOST_LOG_SEV(log, LogSeverity::kTrace)
     << "Added resources node:\n"
     << resources_node;
 
@@ -594,7 +600,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     quads_node.append(quad_node);
 
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added quad node:\n"
       << quad_node;
   }
@@ -611,7 +617,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     donuts_node.append(donut_node);
 
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added donut node:\n"
       << donut_node;
   }
@@ -643,6 +649,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     platform_node["endX"] = platform.end_x;
     platform_node["endY"] = platform.end_y;
     platform_node["frontZ"] = platform.front_z;
+    platform_node["backZ"] = platform.back_z;
 
     Json::Value vertices_node(Json::arrayValue);
 
@@ -653,7 +660,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     platforms_node.append(platform_node);
 
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added platform node:\n"
       << platform_node;
   }
@@ -680,7 +687,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     walls_node.append(wall_node);
 
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added wall node:\n"
       << wall_node;
   }
@@ -698,7 +705,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     ladders_node.append(ladder_node);
 
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added ladder node:\n"
       << ladder_node;
   }
@@ -716,7 +723,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     vines_node.append(vine_node);
 
-    BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added vine node:\n"
       << vine_node;
   }
@@ -729,11 +736,14 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   objects_node["vines"] = vines_node;
   root_node["objects"] = objects_node;
 
-  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+  BOOST_LOG_SEV(log, LogSeverity::kTrace)
     << "Added objects node:\n"
     << objects_node;
 
   stream << root_node;
+
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Finished writing level data to stream";
 
   return stream;
 }

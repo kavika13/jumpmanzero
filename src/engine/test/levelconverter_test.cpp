@@ -139,7 +139,7 @@ SCENARIO ("load old level files and verify there are no errors",
         const std::vector<PlatformObjectData> expected_platforms = {
           {
             "1", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 25.0f, 125.0f, 33.0f, 120.0f, 14.0f,
+            PlatformType::kPlain, 25.0f, 125.0f, 33.0f, 120.0f, 14.0f, 18.0f,
             {
               VertexData({ 25.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 33.0f, 120.0f, 0.0f, 0.0f, 0.0f }),
@@ -149,7 +149,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "2", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 33.0f, 120.0f, 41.0f, 125.0f, 14.0f,
+            PlatformType::kPlain, 33.0f, 120.0f, 41.0f, 125.0f, 14.0f, 18.0f,
             {
               VertexData({ 33.0f, 120.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 41.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
@@ -159,7 +159,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "3", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 119.0f, 125.0f, 127.0f, 120.0f, 14.0f,
+            PlatformType::kPlain, 119.0f, 125.0f, 127.0f, 120.0f, 14.0f, 18.0f,
             {
               VertexData({ 119.0f, 125.0f, 80.0f, 0.0f, 0.0f }),
               VertexData({ 127.0f, 120.0f, 80.0f, 1.0f, 0.0f }),
@@ -169,7 +169,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "4", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 127.0f, 120.0f, 135.0f, 125.0f, 14.0f,
+            PlatformType::kPlain, 127.0f, 120.0f, 135.0f, 125.0f, 14.0f, 18.0f,
             {
               VertexData({ 127.0f, 120.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 135.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
@@ -179,7 +179,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 41.0f, 125.0f, 58.0f, 125.0f, 14.0f,
+            PlatformType::kPlain, 41.0f, 125.0f, 58.0f, 125.0f, 14.0f, 18.0f,
             {
               VertexData({ 41.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 58.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
@@ -189,7 +189,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, true, true, false, true, true,
-            PlatformType::kPlain, 58.0f, 125.0f, 67.0f, 130.0f, 14.0f,
+            PlatformType::kPlain, 58.0f, 125.0f, 67.0f, 130.0f, 14.0f, 18.0f,
             {
               VertexData({ 58.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 67.0f, 130.0f, 0.0f, 0.0f, 0.0f }),
@@ -199,7 +199,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, true, true, false, true, true,
-            PlatformType::kPlain, 93.0f, 130.0f, 102.0f, 125.0f, 14.0f,
+            PlatformType::kPlain, 93.0f, 130.0f, 102.0f, 125.0f, 14.0f, 18.0f,
             {
               VertexData({ 93.0f, 130.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 102.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
@@ -209,7 +209,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 102.0f, 125.0f, 119.0f, 125.0f, 14.0f,
+            PlatformType::kPlain, 102.0f, 125.0f, 119.0f, 125.0f, 14.0f, 19.0f,
             {
               VertexData({ 102.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 119.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
@@ -219,7 +219,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 135.0f, 125.0f, 157.0f, 125.0f, 14.0f,
+            PlatformType::kPlain, 135.0f, 125.0f, 157.0f, 125.0f, 14.0f, 18.0f,
             {
               VertexData({ 135.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 157.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
@@ -229,7 +229,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 3.0f, 125.0f, 25.0f, 125.0f, 14.0f,
+            PlatformType::kPlain, 3.0f, 125.0f, 25.0f, 125.0f, 14.0f, 18.0f,
             {
               VertexData({ 3.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 25.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
@@ -239,7 +239,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 3.0f, 90.0f, 25.0f, 90.0f, 14.0f,
+            PlatformType::kPlain, 3.0f, 90.0f, 25.0f, 90.0f, 14.0f, 18.0f,
             {
               VertexData({ 3.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 25.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
@@ -249,7 +249,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 42.0f, 95.0f, 59.0f, 95.0f, 14.0f,
+            PlatformType::kPlain, 42.0f, 95.0f, 59.0f, 95.0f, 14.0f, 18.0f,
             {
               VertexData({ 42.0f, 95.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 59.0f, 95.0f, 0.0f, 0.0f, 0.0f }),
@@ -259,7 +259,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 59.0f, 95.0f, 69.0f, 90.0f, 14.0f,
+            PlatformType::kPlain, 59.0f, 95.0f, 69.0f, 90.0f, 14.0f, 18.0f,
             {
               VertexData({ 59.0f, 95.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 69.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
@@ -269,7 +269,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 69.0f, 90.0f, 91.0f, 90.0f, 14.0f,
+            PlatformType::kPlain, 69.0f, 90.0f, 91.0f, 90.0f, 14.0f, 18.0f,
             {
               VertexData({ 69.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 91.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
@@ -279,7 +279,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 91.0f, 90.0f, 101.0f, 95.0f, 14.0f,
+            PlatformType::kPlain, 91.0f, 90.0f, 101.0f, 95.0f, 14.0f, 18.0f,
             {
               VertexData({ 91.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 101.0f, 95.0f, 0.0f, 0.0f, 0.0f }),
@@ -289,7 +289,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 135.0f, 90.0f, 157.0f, 90.0f, 14.0f,
+            PlatformType::kPlain, 135.0f, 90.0f, 157.0f, 90.0f, 14.0f, 18.0f,
             {
               VertexData({ 135.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 157.0f, 90.0f, 0.0f, 0.0f, 0.0f }),
@@ -299,7 +299,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 101.0f, 95.0f, 118.0f, 95.0f, 14.0f,
+            PlatformType::kPlain, 101.0f, 95.0f, 118.0f, 95.0f, 14.0f, 18.0f,
             {
               VertexData({ 101.0f, 95.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 118.0f, 95.0f, 0.0f, 0.0f, 0.0f }),
@@ -309,7 +309,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 125.0f, 55.0f, 157.0f, 55.0f, 9.0f,
+            PlatformType::kPlain, 125.0f, 55.0f, 157.0f, 55.0f, 9.0f, 14.0f,
             {
               VertexData({ 125.0f, 55.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 157.0f, 55.0f, 0.0f, 0.0f, 0.0f }),
@@ -319,7 +319,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 50.0f, 63.0f, 110.0f, 63.0f, 9.0f,
+            PlatformType::kPlain, 50.0f, 63.0f, 110.0f, 63.0f, 9.0f, 14.0f,
             {
               VertexData({ 50.0f, 63.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 110.0f, 63.0f, 0.0f, 0.0f, 0.0f }),
@@ -329,7 +329,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 3.0f, 55.0f, 35.0f, 55.0f, 9.0f,
+            PlatformType::kPlain, 3.0f, 55.0f, 35.0f, 55.0f, 9.0f, 14.0f,
             {
               VertexData({ 3.0f, 55.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 35.0f, 55.0f, 0.0f, 0.0f, 0.0f }),
@@ -339,7 +339,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 35.0f, 25.0f, 50.0f, 35.0f, 5.0f,
+            PlatformType::kPlain, 35.0f, 25.0f, 50.0f, 35.0f, 5.0f, 9.0f,
             {
               VertexData({ 35.0f, 25.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 50.0f, 35.0f, 0.0f, 0.0f, 0.0f }),
@@ -349,7 +349,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 50.0f, 35.0f, 110.0f, 35.0f, 5.0f,
+            PlatformType::kPlain, 50.0f, 35.0f, 110.0f, 35.0f, 5.0f, 9.0f,
             {
               VertexData({ 50.0f, 35.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 110.0f, 35.0f, 0.0f, 0.0f, 0.0f }),
@@ -359,7 +359,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 3.0f, 25.0f, 35.0f, 25.0f, 5.0f,
+            PlatformType::kPlain, 3.0f, 25.0f, 35.0f, 25.0f, 5.0f, 9.0f,
             {
               VertexData({ 3.0f, 25.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 35.0f, 25.0f, 0.0f, 0.0f, 0.0f }),
@@ -369,7 +369,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 110.0f, 35.0f, 125.0f, 25.0f, 5.0f,
+            PlatformType::kPlain, 110.0f, 35.0f, 125.0f, 25.0f, 5.0f, 9.0f,
             {
               VertexData({ 110.0f, 35.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 125.0f, 25.0f, 0.0f, 0.0f, 0.0f }),
@@ -379,7 +379,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 125.0f, 25.0f, 157.0f, 25.0f, 5.0f,
+            PlatformType::kPlain, 125.0f, 25.0f, 157.0f, 25.0f, 5.0f, 9.0f,
             {
               VertexData({ 125.0f, 25.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 157.0f, 25.0f, 0.0f, 0.0f, 0.0f }),
@@ -389,7 +389,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 3.0f, 2.0f, 65.0f, 2.0f, 1.0f,
+            PlatformType::kPlain, 3.0f, 2.0f, 65.0f, 2.0f, 1.0f, 5.0f,
             {
               VertexData({ 3.0f, 2.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 65.0f, 2.0f, 0.0f, 0.0f, 0.0f }),
@@ -399,7 +399,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 65.0f, 2.0f, 70.0f, 5.0f, 1.0f,
+            PlatformType::kPlain, 65.0f, 2.0f, 70.0f, 5.0f, 1.0f, 5.0f,
             {
               VertexData({ 65.0f, 2.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 70.0f, 5.0f, 0.0f, 0.0f, 0.0f }),
@@ -409,7 +409,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 70.0f, 5.0f, 90.0f, 5.0f, 1.0f,
+            PlatformType::kPlain, 70.0f, 5.0f, 90.0f, 5.0f, 1.0f, 5.0f,
             {
               VertexData({ 70.0f, 5.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 90.0f, 5.0f, 0.0f, 0.0f, 0.0f }),
@@ -419,7 +419,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 95.0f, 2.0f, 157.0f, 2.0f, 1.0f,
+            PlatformType::kPlain, 95.0f, 2.0f, 157.0f, 2.0f, 1.0f, 5.0f,
             {
               VertexData({ 95.0f, 2.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 157.0f, 2.0f, 0.0f, 0.0f, 0.0f }),
@@ -429,7 +429,7 @@ SCENARIO ("load old level files and verify there are no errors",
           },
           {
             "0", "1", true, false, true, false, true, true,
-            PlatformType::kPlain, 90.0f, 5.0f, 95.0f, 2.0f, 1.0f,
+            PlatformType::kPlain, 90.0f, 5.0f, 95.0f, 2.0f, 1.0f, 5.0f,
             {
               VertexData({ 90.0f, 5.0f, 0.0f, 0.0f, 0.0f }),
               VertexData({ 95.0f, 2.0f, 0.0f, 0.0f, 0.0f }),
@@ -468,10 +468,10 @@ SCENARIO ("load old level files and verify there are no errors",
 
       std::stringstream buffer;
       buffer << expected_data;
-      std::unique_ptr<LevelData> actual_data = LevelData::FromStream(buffer);
+      LevelData actual_data = LevelData::FromStream(buffer);
 
       THEN ("correct level objects and resources to have been loaded") {
-        REQUIRE (expected_data == *actual_data);
+        REQUIRE (expected_data == actual_data);
       }
     }
   }

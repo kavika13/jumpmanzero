@@ -514,6 +514,7 @@ LevelData LevelConverter::Convert() {
           vertices[1].x,
           vertices[1].y,
           object.near_z,
+          object.far_z,
           {
             convert_vertex(vertices[0]),
             convert_vertex(vertices[1]),
