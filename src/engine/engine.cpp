@@ -523,7 +523,11 @@ bool Engine::LoadLevel(const std::string& filename) {
 int Engine::Run() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
 
-  // TODO: Running without a "level"" should be fine, should run GUI
+  // TODO: Running without a " should be fine, should run GUI
+  // TODO: A level should be considered a resource anyhow,
+  // not a core engine concept.
+  // TODO: There should be a default script that runs the GUI,
+  // and the GUI can trigger level loading, or choose not to
 
   const double max_accumulated_time = 2.0;
   const double ticks_per_second = SDL_GetPerformanceFrequency();

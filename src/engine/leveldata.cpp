@@ -247,7 +247,7 @@ bool operator==(const LevelData& lhs, const LevelData& rhs) {
 }
 
 LevelData LevelData::FromStream(std::istream& stream) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
   BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Reading level data from stream";
 
   Json::Value root_node;
@@ -477,7 +477,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
 }
 
 std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
   BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Writing level data to stream";
 
   Json::Value root_node;

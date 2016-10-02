@@ -5,7 +5,7 @@
 #include "logging.hpp"
 
 std::istream& operator>>(std::istream& stream, LevelResourceType& type) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
 
   int i;
   if (!(stream >> i)) {
@@ -19,7 +19,7 @@ std::istream& operator>>(std::istream& stream, LevelResourceType& type) {
 }
 
 std::istream& operator>>(std::istream& stream, LevelResourceEntry& entry) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
   std::string filename;
   LevelResourceType type;
   float data1;
@@ -87,7 +87,7 @@ std::istream& operator>>(std::istream& stream, LevelResourceEntry& entry) {
 }
 
 std::istream& operator>>(std::istream& stream, LevelObjectVertex& vertex) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
   float tu, tv, x, y, z;
 
   if (!(stream >> tu >> tv >> x >> y >> z)) {
@@ -106,7 +106,7 @@ std::istream& operator>>(std::istream& stream, LevelObjectVertex& vertex) {
 }
 
 std::istream& operator>>(std::istream& stream, LevelObjectEntry& entry) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
 
   std::string drawbottomdata, drawfrontdata;
   std::string drawleftdata, drawrightdata;
@@ -281,7 +281,7 @@ std::istream& operator>>(std::istream& stream, LevelObjectEntry& entry) {
 }
 
 LevelConverter LevelConverter::FromStream(std::istream& stream) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Level");
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
 
   std::vector<LevelResourceEntry> level_resources;
   std::vector<LevelObjectEntry> level_objects;
