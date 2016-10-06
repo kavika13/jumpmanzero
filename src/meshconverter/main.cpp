@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
   InitializeLogging();  // Engine logging - TODO: Should be in its own namespace
 
   if (argc < 2 || argc > 3) {
-    std::cerr << "Usage: meshconverter path/mesh.msh path/outputmesh.obj"
+    std::cerr << "Usage: meshconverter path/mesh.msh[ path/outputmesh.obj]"
       << std::endl;
     return -1;
   }
