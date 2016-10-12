@@ -15,14 +15,6 @@ struct ScriptResourceData {
 bool operator==(const ScriptResourceData& lhs, const ScriptResourceData& rhs);
 std::ostream& operator<<(std::ostream& stream, const ScriptResourceData& val);
 
-struct MeshResourceData {
-  const std::string filename;
-  const std::string tag;
-};
-
-bool operator==(const MeshResourceData& lhs, const MeshResourceData& rhs);
-std::ostream& operator<<(std::ostream& stream, const MeshResourceData& val);
-
 struct TextureResourceData {
   const std::string filename;
   const std::string tag;
@@ -32,6 +24,24 @@ struct TextureResourceData {
 
 bool operator==(const TextureResourceData& lhs, const TextureResourceData& rhs);
 std::ostream& operator<<(std::ostream& stream, const TextureResourceData& val);
+
+struct MaterialResourceData {
+  const std::string vertex_shader_filename;
+  const std::string fragment_shader_filename;
+  const std::string tag;
+  const std::string texture_tag;
+};
+
+bool operator==(const MaterialResourceData&, const MaterialResourceData&);
+std::ostream& operator<<(std::ostream& stream, const MaterialResourceData& val);
+
+struct MeshResourceData {
+  const std::string filename;
+  const std::string tag;
+};
+
+bool operator==(const MeshResourceData& lhs, const MeshResourceData& rhs);
+std::ostream& operator<<(std::ostream& stream, const MeshResourceData& val);
 
 struct MusicResourceData {
   const std::string filename;
@@ -60,7 +70,7 @@ std::ostream& operator<<(std::ostream& stream, const VertexData& val);
 
 struct QuadObjectData {
   const std::string tag;
-  const std::string texture_tag;
+  const std::string material_tag;
   // TODO: Can we derive these variables easily from the vertices?
   const float origin_x, origin_y;  // TODO: Better names?
   const std::array<VertexData, 4> vertices;
@@ -71,7 +81,7 @@ std::ostream& operator<<(std::ostream& stream, const QuadObjectData& val);
 
 struct DonutObjectData {
   const std::string tag;
-  const std::string texture_tag;
+  const std::string material_tag;
   const float origin_x, origin_y, origin_z;
 };
 
@@ -88,7 +98,7 @@ enum class PlatformType {
 
 struct PlatformObjectData {
   const std::string tag;
-  const std::string texture_tag;
+  const std::string material_tag;
   bool drawtop, drawbottom, drawfront, drawback, drawleft, drawright;
   const PlatformType platform_type;
   // TODO: Can we derive these variables easily from the vertices?
@@ -102,7 +112,7 @@ std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val);
 
 struct WallObjectData {
   const std::string tag;
-  const std::string texture_tag;
+  const std::string material_tag;
   bool drawtop, drawbottom, drawfront, drawback, drawleft, drawright;
   const std::array<VertexData, 4> vertices;
 };
@@ -112,7 +122,7 @@ std::ostream& operator<<(std::ostream& stream, const WallObjectData& val);
 
 struct LadderObjectData {
   const std::string tag;
-  const std::string texture_tag;
+  const std::string material_tag;
   const float origin_x, top_y, bottom_y, front_z;  // TODO: Better name for z?
 };
 
@@ -121,7 +131,7 @@ std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
 
 struct VineObjectData {
   const std::string tag;
-  const std::string texture_tag;
+  const std::string material_tag;
   const float origin_x, top_y, bottom_y, front_z;  // TODO: Better name for z?
 };
 
@@ -140,8 +150,9 @@ struct LevelData {
   const std::string end_level_track_tag;
 
   const std::vector<ScriptResourceData> scripts;
-  const std::vector<MeshResourceData> meshes;
   const std::vector<TextureResourceData> textures;
+  const std::vector<MaterialResourceData> materials;
+  const std::vector<MeshResourceData> meshes;
   const std::vector<MusicResourceData> music;
   const std::vector<SoundResourceData> sounds;
 

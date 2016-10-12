@@ -40,7 +40,7 @@ std::istream& operator>>(std::istream& stream, LevelResourceEntry& entry) {
   static const char* file_extensions[] = {
     "",
     "mid",
-    "msh",
+    "obj",
     "bmp",
     "jpg",
     "lua",
@@ -353,8 +353,9 @@ LevelData LevelConverter::Convert() {
   std::string end_level_track_tag;
 
   std::vector<ScriptResourceData> scripts;
-  std::vector<MeshResourceData> meshes;
   std::vector<TextureResourceData> textures;
+  std::vector<MaterialResourceData> materials;
+  std::vector<MeshResourceData> meshes;
   std::vector<MusicResourceData> music_tracks;
   std::vector<SoundResourceData> sounds;
 
@@ -439,6 +440,15 @@ LevelData LevelConverter::Convert() {
     }
   }
 
+  for (size_t i = 0; i < textures.size(); ++i) {
+    materials.push_back({
+      "data/shader/global.vert",
+      "data/shader/global.frag",
+      std::to_string(i),
+      std::to_string(i),
+    });
+  }
+
   std::vector<QuadObjectData> quads;
   std::vector<DonutObjectData> donuts;
   std::vector<PlatformObjectData> platforms;
@@ -446,16 +456,16 @@ LevelData LevelConverter::Convert() {
   std::vector<LadderObjectData> ladders;
   std::vector<VineObjectData> vines;
 
-  auto convert_vertex =
-    [](const LevelObjectVertex& source) -> const VertexData {
-      return {
-        source.x,
-        source.y,
-        source.z,
-        source.tu,
-        source.tv,
-      };
+  auto convert_vertex = [](const LevelObjectVertex& source)
+      -> const VertexData {
+    return {
+      source.x,
+      source.y,
+      source.z,
+      source.tu,
+      source.tv,
     };
+  };
 
   for (const auto& object: objects) {
     switch (object.type) {
@@ -577,8 +587,9 @@ LevelData LevelConverter::Convert() {
     end_level_track_tag,
 
     scripts,
-    meshes,
     textures,
+    materials,
+    meshes,
     music_tracks,
     sounds,
 

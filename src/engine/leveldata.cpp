@@ -12,15 +12,6 @@ std::ostream& operator<<(std::ostream& stream, const ScriptResourceData& val) {
   return stream;
 }
 
-bool operator==(const MeshResourceData& lhs, const MeshResourceData& rhs) {
-  return lhs.filename == rhs.filename && lhs.tag == rhs.tag;
-}
-
-std::ostream& operator<<(std::ostream& stream, const MeshResourceData& val) {
-  stream << "filename: " << val.filename << " - tag: " << val.tag;
-  return stream;
-}
-
 bool operator==(
     const TextureResourceData& lhs, const TextureResourceData& rhs) {
   return lhs.filename == rhs.filename
@@ -34,6 +25,36 @@ std::ostream& operator<<(std::ostream& stream, const TextureResourceData& val) {
     << " - tag: " << val.tag
     << " - has_colorkey_alpha: " << val.has_colorkey_alpha
     << " - has_alpha_channel: " << val.has_alpha_channel;
+  return stream;
+}
+
+bool operator==(
+    const MaterialResourceData& lhs,
+    const MaterialResourceData& rhs) {
+  return lhs.vertex_shader_filename == rhs.vertex_shader_filename
+    && lhs.fragment_shader_filename == rhs.fragment_shader_filename
+    && lhs.tag == rhs.tag
+    && lhs.texture_tag == rhs.texture_tag;
+}
+
+std::ostream& operator<<(
+    std::ostream& stream,
+    const MaterialResourceData& val) {
+  stream << "vertex_shader_filename: " << val.vertex_shader_filename
+    << " - fragment_shader_filename: " << val.fragment_shader_filename
+    << " - tag: " << val.tag
+    << " - texture_tag: " << val.texture_tag;
+  return stream;
+}
+
+bool operator==(const MeshResourceData& lhs, const MeshResourceData& rhs) {
+  return lhs.filename == rhs.filename
+    && lhs.tag == rhs.tag;
+}
+
+std::ostream& operator<<(std::ostream& stream, const MeshResourceData& val) {
+  stream << "filename: " << val.filename
+    << " - tag: " << val.tag;
   return stream;
 }
 
@@ -73,7 +94,7 @@ std::ostream& operator<<(std::ostream& stream, const VertexData& val) {
 
 bool operator==(const QuadObjectData& lhs, const QuadObjectData& rhs) {
   return lhs.tag == rhs.tag
-    && lhs.texture_tag == rhs.texture_tag
+    && lhs.material_tag == rhs.material_tag
     && lhs.origin_x == rhs.origin_x
     && lhs.origin_y == rhs.origin_y
     && lhs.vertices[0] == rhs.vertices[0]
@@ -84,7 +105,7 @@ bool operator==(const QuadObjectData& lhs, const QuadObjectData& rhs) {
 
 std::ostream& operator<<(std::ostream& stream, const QuadObjectData& val) {
   stream << "tag: " << val.tag
-    << " - texture_tag: " << val.texture_tag
+    << " - material_tag: " << val.material_tag
     << " - origin_x: " << val.origin_x
     << " - origin_y: " << val.origin_y
     << " - vertices[0]: " << val.vertices[0]
@@ -96,7 +117,7 @@ std::ostream& operator<<(std::ostream& stream, const QuadObjectData& val) {
 
 bool operator==(const DonutObjectData& lhs, const DonutObjectData& rhs) {
   return lhs.tag == rhs.tag
-    && lhs.texture_tag == rhs.texture_tag
+    && lhs.material_tag == rhs.material_tag
     && lhs.origin_x == rhs.origin_x
     && lhs.origin_y == rhs.origin_y
     && lhs.origin_z == rhs.origin_z;
@@ -104,7 +125,7 @@ bool operator==(const DonutObjectData& lhs, const DonutObjectData& rhs) {
 
 std::ostream& operator<<(std::ostream& stream, const DonutObjectData& val) {
   stream << "tag: " << val.tag
-    << " - texture_tag: " << val.texture_tag
+    << " - material_tag: " << val.material_tag
     << " - origin_x: " << val.origin_x
     << " - origin_y: " << val.origin_y
     << " - origin_z: " << val.origin_z;
@@ -113,7 +134,7 @@ std::ostream& operator<<(std::ostream& stream, const DonutObjectData& val) {
 
 bool operator==(const PlatformObjectData& lhs, const PlatformObjectData& rhs) {
   return lhs.tag == rhs.tag
-    && lhs.texture_tag == rhs.texture_tag
+    && lhs.material_tag == rhs.material_tag
     && lhs.drawtop == rhs.drawtop
     && lhs.drawbottom == rhs.drawbottom
     && lhs.drawfront == rhs.drawfront
@@ -135,7 +156,7 @@ bool operator==(const PlatformObjectData& lhs, const PlatformObjectData& rhs) {
 
 std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val) {
   stream << "tag: " << val.tag
-    << " - texture_tag: " << val.texture_tag
+    << " - material_tag: " << val.material_tag
     << " - drawtop: " << val.drawtop
     << " - drawbottom: " << val.drawbottom
     << " - drawfront: " << val.drawfront
@@ -158,7 +179,7 @@ std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val) {
 
 bool operator==(const WallObjectData& lhs, const WallObjectData& rhs) {
   return lhs.tag == rhs.tag
-    && lhs.texture_tag == rhs.texture_tag
+    && lhs.material_tag == rhs.material_tag
     && lhs.drawtop == rhs.drawtop
     && lhs.drawbottom == rhs.drawbottom
     && lhs.drawfront == rhs.drawfront
@@ -173,7 +194,7 @@ bool operator==(const WallObjectData& lhs, const WallObjectData& rhs) {
 
 std::ostream& operator<<(std::ostream& stream, const WallObjectData& val) {
   stream << "tag: " << val.tag
-    << " - texture_tag: " << val.texture_tag
+    << " - material_tag: " << val.material_tag
     << " - drawtop: " << val.drawtop
     << " - drawbottom: " << val.drawbottom
     << " - drawfront: " << val.drawfront
@@ -189,7 +210,7 @@ std::ostream& operator<<(std::ostream& stream, const WallObjectData& val) {
 
 bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs) {
   return lhs.tag == rhs.tag
-    && lhs.texture_tag == rhs.texture_tag
+    && lhs.material_tag == rhs.material_tag
     && lhs.origin_x == rhs.origin_x
     && lhs.top_y == rhs.top_y
     && lhs.bottom_y == rhs.bottom_y
@@ -198,7 +219,7 @@ bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs) {
 
 std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val) {
   stream << "tag: " << val.tag
-    << " - texture_tag: " << val.texture_tag
+    << " - material_tag: " << val.material_tag
     << " - origin_x: " << val.origin_x
     << " - top_y: " << val.top_y
     << " - bottom_y: " << val.bottom_y
@@ -208,7 +229,7 @@ std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val) {
 
 bool operator==(const VineObjectData& lhs, const VineObjectData& rhs) {
   return lhs.tag == rhs.tag
-    && lhs.texture_tag == rhs.texture_tag
+    && lhs.material_tag == rhs.material_tag
     && lhs.origin_x == rhs.origin_x
     && lhs.top_y == rhs.top_y
     && lhs.bottom_y == rhs.bottom_y
@@ -217,7 +238,7 @@ bool operator==(const VineObjectData& lhs, const VineObjectData& rhs) {
 
 std::ostream& operator<<(std::ostream& stream, const VineObjectData& val) {
   stream << "tag: " << val.tag
-    << " - texture_tag: " << val.texture_tag
+    << " - material_tag: " << val.material_tag
     << " - origin_x: " << val.origin_x
     << " - top_y: " << val.top_y
     << " - bottom_y: " << val.bottom_y
@@ -233,8 +254,9 @@ bool operator==(const LevelData& lhs, const LevelData& rhs) {
     && lhs.death_track_tag == rhs.death_track_tag
     && lhs.end_level_track_tag == rhs.end_level_track_tag
     && lhs.scripts == rhs.scripts
-    && lhs.meshes == rhs.meshes
     && lhs.textures == rhs.textures
+    && lhs.materials == rhs.materials
+    && lhs.meshes == rhs.meshes
     && lhs.music == rhs.music
     && lhs.sounds == rhs.sounds
     && lhs.quads == rhs.quads
@@ -264,8 +286,9 @@ LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value resources_node = root_node["resources"];
 
   Json::Value scripts_node = resources_node["scripts"];
-  Json::Value meshes_node = resources_node["meshes"];
   Json::Value textures_node = resources_node["textures"];
+  Json::Value materials_node = resources_node["materials"];
+  Json::Value meshes_node = resources_node["meshes"];
   Json::Value music_node = resources_node["music"];
   Json::Value sounds_node = resources_node["sounds"];
 
@@ -277,14 +300,6 @@ LevelData LevelData::FromStream(std::istream& stream) {
     });
   }
 
-  std::vector<MeshResourceData> meshes;
-  for (const auto& mesh_node: meshes_node) {
-    meshes.push_back({
-      mesh_node["filename"].asString(),
-      mesh_node["tag"].asString(),
-    });
-  }
-
   std::vector<TextureResourceData> textures;
   for (const auto& texture_node: textures_node) {
     textures.push_back({
@@ -292,6 +307,24 @@ LevelData LevelData::FromStream(std::istream& stream) {
       texture_node["tag"].asString(),
       texture_node.get("hasColorkeyAlpha", false).asBool(),
       texture_node.get("hasAlphaChannel", false).asBool(),
+    });
+  }
+
+  std::vector<MaterialResourceData> materials;
+  for (const auto& material_node: materials_node) {
+    materials.push_back({
+      material_node["vertexShaderFilename"].asString(),
+      material_node["fragmentShaderFilename"].asString(),
+      material_node["tag"].asString(),
+      material_node["textureTag"].asString(),
+    });
+  }
+
+  std::vector<MeshResourceData> meshes;
+  for (const auto& mesh_node: meshes_node) {
+    meshes.push_back({
+      mesh_node["filename"].asString(),
+      mesh_node["tag"].asString(),
     });
   }
 
@@ -344,7 +377,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
 
     quads.push_back({
       quad_node["tag"].asString(),
-      quad_node["textureTag"].asString(),
+      quad_node["materialTag"].asString(),
       quad_node["originX"].asFloat(),
       quad_node["originY"].asFloat(),
       {
@@ -360,7 +393,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   for (const auto& donut_node: donuts_node) {
     donuts.push_back({
       donut_node["tag"].asString(),
-      donut_node["textureTag"].asString(),
+      donut_node["materialTag"].asString(),
       donut_node["originX"].asFloat(),
       donut_node["originY"].asFloat(),
       donut_node["originZ"].asFloat(),
@@ -381,7 +414,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
 
     platforms.push_back({
       platform_node["tag"].asString(),
-      platform_node["textureTag"].asString(),
+      platform_node["materialTag"].asString(),
       platform_node["drawTop"].asBool(),
       platform_node["drawBottom"].asBool(),
       platform_node["drawFront"].asBool(),
@@ -411,7 +444,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
 
     walls.push_back({
       wall_node["tag"].asString(),
-      wall_node["textureTag"].asString(),
+      wall_node["materialTag"].asString(),
       wall_node["drawTop"].asBool(),
       wall_node["drawBottom"].asBool(),
       wall_node["drawFront"].asBool(),
@@ -431,7 +464,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   for (const auto& ladder_node: ladders_node) {
     ladders.push_back({
       ladder_node["tag"].asString(),
-      ladder_node["textureTag"].asString(),
+      ladder_node["materialTag"].asString(),
       ladder_node["originX"].asFloat(),
       ladder_node["topY"].asFloat(),
       ladder_node["bottomY"].asFloat(),
@@ -443,7 +476,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   for (const auto& vine_node: vines_node) {
     vines.push_back({
       vine_node["tag"].asString(),
-      vine_node["textureTag"].asString(),
+      vine_node["materialTag"].asString(),
       vine_node["originX"].asFloat(),
       vine_node["topY"].asFloat(),
       vine_node["bottomY"].asFloat(),
@@ -462,8 +495,9 @@ LevelData LevelData::FromStream(std::istream& stream) {
     end_level_track_tag,
 
     scripts,
-    meshes,
     textures,
+    materials,
+    meshes,
     music,
     sounds,
 
@@ -494,8 +528,9 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
   Json::Value resources_node(Json::objectValue);
   Json::Value scripts_node(Json::arrayValue);
-  Json::Value meshes_node(Json::arrayValue);
   Json::Value textures_node(Json::arrayValue);
+  Json::Value materials_node(Json::arrayValue);
+  Json::Value meshes_node(Json::arrayValue);
   Json::Value music_node(Json::arrayValue);
   Json::Value sounds_node(Json::arrayValue);
 
@@ -509,16 +544,6 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
       << script_node;
   }
 
-  for (const auto& mesh: data.meshes) {
-    Json::Value mesh_node(Json::objectValue);
-    mesh_node["filename"] = mesh.filename;
-    mesh_node["tag"] = mesh.tag;
-    meshes_node.append(mesh_node);
-    BOOST_LOG_SEV(log, LogSeverity::kTrace)
-      << "Added mesh node:\n"
-      << mesh_node;
-  }
-
   for (const auto& texture: data.textures) {
     Json::Value texture_node(Json::objectValue);
     texture_node["filename"] = texture.filename;
@@ -529,6 +554,28 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     BOOST_LOG_SEV(log, LogSeverity::kTrace)
       << "Added texture node:\n"
       << texture_node;
+  }
+
+  for (const auto& material: data.materials) {
+    Json::Value material_node(Json::objectValue);
+    material_node["vertexShaderFilename"] = material.vertex_shader_filename;
+    material_node["fragmentShaderFilename"] = material.fragment_shader_filename;
+    material_node["tag"] = material.tag;
+    material_node["textureTag"] = material.texture_tag;
+    materials_node.append(material_node);
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
+      << "Added material node:\n"
+      << material_node;
+  }
+
+  for (const auto& mesh: data.meshes) {
+    Json::Value mesh_node(Json::objectValue);
+    mesh_node["filename"] = mesh.filename;
+    mesh_node["tag"] = mesh.tag;
+    meshes_node.append(mesh_node);
+    BOOST_LOG_SEV(log, LogSeverity::kTrace)
+      << "Added mesh node:\n"
+      << mesh_node;
   }
 
   for (const auto& track: data.music) {
@@ -555,8 +602,9 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   }
 
   resources_node["scripts"] = scripts_node;
-  resources_node["meshes"] = meshes_node;
   resources_node["textures"] = textures_node;
+  resources_node["materials"] = materials_node;
+  resources_node["meshes"] = meshes_node;
   resources_node["music"] = music_node;
   resources_node["sounds"] = sounds_node;
   root_node["resources"] = resources_node;
@@ -587,7 +635,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     Json::Value quad_node(Json::objectValue);
 
     quad_node["tag"] = quad.tag;
-    quad_node["textureTag"] = quad.texture_tag;
+    quad_node["materialTag"] = quad.material_tag;
 
     quad_node["originX"] = quad.origin_x;
     quad_node["originY"] = quad.origin_y;
@@ -609,7 +657,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     Json::Value donut_node(Json::objectValue);
 
     donut_node["tag"] = donut.tag;
-    donut_node["textureTag"] = donut.texture_tag;
+    donut_node["materialTag"] = donut.material_tag;
 
     donut_node["originX"] = donut.origin_x;
     donut_node["originY"] = donut.origin_y;
@@ -633,7 +681,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     Json::Value platform_node(Json::objectValue);
 
     platform_node["tag"] = platform.tag;
-    platform_node["textureTag"] = platform.texture_tag;
+    platform_node["materialTag"] = platform.material_tag;
 
     platform_node["drawTop"] = platform.drawtop;
     platform_node["drawBottom"] = platform.drawbottom;
@@ -669,7 +717,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     Json::Value wall_node(Json::objectValue);
 
     wall_node["tag"] = wall.tag;
-    wall_node["textureTag"] = wall.texture_tag;
+    wall_node["materialTag"] = wall.material_tag;
 
     wall_node["drawTop"] = wall.drawtop;
     wall_node["drawBottom"] = wall.drawbottom;
@@ -696,7 +744,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     Json::Value ladder_node(Json::objectValue);
 
     ladder_node["tag"] = ladder.tag;
-    ladder_node["textureTag"] = ladder.texture_tag;
+    ladder_node["materialTag"] = ladder.material_tag;
 
     ladder_node["originX"] = ladder.origin_x;
     ladder_node["topY"] = ladder.top_y;
@@ -714,7 +762,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     Json::Value vine_node(Json::objectValue);
 
     vine_node["tag"] = vine.tag;
-    vine_node["textureTag"] = vine.texture_tag;
+    vine_node["materialTag"] = vine.material_tag;
 
     vine_node["originX"] = vine.origin_x;
     vine_node["topY"] = vine.top_y;

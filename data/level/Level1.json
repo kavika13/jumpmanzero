@@ -9,67 +9,67 @@
 		"donuts" : 
 		[
 			{
+				"materialTag" : "3",
 				"originX" : 138,
 				"originY" : 137,
 				"originZ" : 15,
-				"tag" : "2",
-				"textureTag" : "3"
+				"tag" : "2"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 22,
 				"originY" : 137,
 				"originZ" : 15,
-				"tag" : "1",
-				"textureTag" : "3"
+				"tag" : "1"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 50,
 				"originY" : 110,
 				"originZ" : 15,
-				"tag" : "0",
-				"textureTag" : "3"
+				"tag" : "0"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 110,
 				"originY" : 110,
 				"originZ" : 15,
-				"tag" : "0",
-				"textureTag" : "3"
+				"tag" : "0"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 35,
 				"originY" : 70,
 				"originZ" : 12,
-				"tag" : "3",
-				"textureTag" : "3"
+				"tag" : "3"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 125,
 				"originY" : 70,
 				"originZ" : 12,
-				"tag" : "4",
-				"textureTag" : "3"
+				"tag" : "4"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 80,
 				"originY" : 50,
 				"originZ" : 6,
-				"tag" : "0",
-				"textureTag" : "3"
+				"tag" : "0"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 130,
 				"originY" : 13,
 				"originZ" : 2,
-				"tag" : "0",
-				"textureTag" : "3"
+				"tag" : "0"
 			},
 			{
+				"materialTag" : "3",
 				"originX" : 30,
 				"originY" : 13,
 				"originZ" : 2,
-				"tag" : "0",
-				"textureTag" : "3"
+				"tag" : "0"
 			}
 		],
 		"ladders" : 
@@ -77,89 +77,89 @@
 			{
 				"bottomY" : 79,
 				"frontZ" : 13,
+				"materialTag" : "2",
 				"originX" : 10,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 130
 			},
 			{
 				"bottomY" : 55,
 				"frontZ" : 13,
+				"materialTag" : "2",
 				"originX" : 10,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 67
 			},
 			{
 				"bottomY" : 67,
 				"frontZ" : 13,
+				"materialTag" : "2",
 				"originX" : 10,
 				"tag" : "1",
-				"textureTag" : "2",
 				"topY" : 79
 			},
 			{
 				"bottomY" : 79,
 				"frontZ" : 13,
+				"materialTag" : "2",
 				"originX" : 150,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 130
 			},
 			{
 				"bottomY" : 55,
 				"frontZ" : 13,
+				"materialTag" : "2",
 				"originX" : 150,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 67
 			},
 			{
 				"bottomY" : 67,
 				"frontZ" : 13,
+				"materialTag" : "2",
 				"originX" : 150,
 				"tag" : "2",
-				"textureTag" : "2",
 				"topY" : 79
 			},
 			{
 				"bottomY" : 63,
 				"frontZ" : 13,
+				"materialTag" : "2",
 				"originX" : 80,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 95
 			},
 			{
 				"bottomY" : 35,
 				"frontZ" : 8,
+				"materialTag" : "2",
 				"originX" : 60,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 68
 			},
 			{
 				"bottomY" : 35,
 				"frontZ" : 8,
+				"materialTag" : "2",
 				"originX" : 100,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 68
 			},
 			{
 				"bottomY" : 2,
 				"frontZ" : 4,
+				"materialTag" : "2",
 				"originX" : 12,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 30
 			},
 			{
 				"bottomY" : 2,
 				"frontZ" : 4,
+				"materialTag" : "2",
 				"originX" : 148,
 				"tag" : "0",
-				"textureTag" : "2",
 				"topY" : 30
 			}
 		],
@@ -176,10 +176,10 @@
 				"endX" : 33,
 				"endY" : 120,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 25,
 				"startY" : 125,
 				"tag" : "1",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -224,10 +224,10 @@
 				"endX" : 41,
 				"endY" : 125,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 33,
 				"startY" : 120,
 				"tag" : "2",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -272,10 +272,10 @@
 				"endX" : 127,
 				"endY" : 120,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 119,
 				"startY" : 125,
 				"tag" : "3",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -320,10 +320,10 @@
 				"endX" : 135,
 				"endY" : 125,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 127,
 				"startY" : 120,
 				"tag" : "4",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -368,10 +368,10 @@
 				"endX" : 58,
 				"endY" : 125,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 41,
 				"startY" : 125,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -416,10 +416,10 @@
 				"endX" : 67,
 				"endY" : 130,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 58,
 				"startY" : 125,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -464,10 +464,10 @@
 				"endX" : 102,
 				"endY" : 125,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 93,
 				"startY" : 130,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -512,10 +512,10 @@
 				"endX" : 119,
 				"endY" : 125,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 102,
 				"startY" : 125,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -560,10 +560,10 @@
 				"endX" : 157,
 				"endY" : 125,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 135,
 				"startY" : 125,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -608,10 +608,10 @@
 				"endX" : 25,
 				"endY" : 125,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 125,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -656,10 +656,10 @@
 				"endX" : 25,
 				"endY" : 90,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 90,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -704,10 +704,10 @@
 				"endX" : 59,
 				"endY" : 95,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 42,
 				"startY" : 95,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -752,10 +752,10 @@
 				"endX" : 69,
 				"endY" : 90,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 59,
 				"startY" : 95,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -800,10 +800,10 @@
 				"endX" : 91,
 				"endY" : 90,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 69,
 				"startY" : 90,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -848,10 +848,10 @@
 				"endX" : 101,
 				"endY" : 95,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 91,
 				"startY" : 90,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -896,10 +896,10 @@
 				"endX" : 157,
 				"endY" : 90,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 135,
 				"startY" : 90,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -944,10 +944,10 @@
 				"endX" : 118,
 				"endY" : 95,
 				"frontZ" : 14,
+				"materialTag" : "1",
 				"startX" : 101,
 				"startY" : 95,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -992,10 +992,10 @@
 				"endX" : 157,
 				"endY" : 55,
 				"frontZ" : 9,
+				"materialTag" : "1",
 				"startX" : 125,
 				"startY" : 55,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1040,10 +1040,10 @@
 				"endX" : 110,
 				"endY" : 63,
 				"frontZ" : 9,
+				"materialTag" : "1",
 				"startX" : 50,
 				"startY" : 63,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1088,10 +1088,10 @@
 				"endX" : 35,
 				"endY" : 55,
 				"frontZ" : 9,
+				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 55,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1136,10 +1136,10 @@
 				"endX" : 50,
 				"endY" : 35,
 				"frontZ" : 5,
+				"materialTag" : "1",
 				"startX" : 35,
 				"startY" : 25,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1184,10 +1184,10 @@
 				"endX" : 110,
 				"endY" : 35,
 				"frontZ" : 5,
+				"materialTag" : "1",
 				"startX" : 50,
 				"startY" : 35,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1232,10 +1232,10 @@
 				"endX" : 35,
 				"endY" : 25,
 				"frontZ" : 5,
+				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 25,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1280,10 +1280,10 @@
 				"endX" : 125,
 				"endY" : 25,
 				"frontZ" : 5,
+				"materialTag" : "1",
 				"startX" : 110,
 				"startY" : 35,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1328,10 +1328,10 @@
 				"endX" : 157,
 				"endY" : 25,
 				"frontZ" : 5,
+				"materialTag" : "1",
 				"startX" : 125,
 				"startY" : 25,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1376,10 +1376,10 @@
 				"endX" : 65,
 				"endY" : 2,
 				"frontZ" : 1,
+				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 2,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1424,10 +1424,10 @@
 				"endX" : 70,
 				"endY" : 5,
 				"frontZ" : 1,
+				"materialTag" : "1",
 				"startX" : 65,
 				"startY" : 2,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1472,10 +1472,10 @@
 				"endX" : 90,
 				"endY" : 5,
 				"frontZ" : 1,
+				"materialTag" : "1",
 				"startX" : 70,
 				"startY" : 5,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1520,10 +1520,10 @@
 				"endX" : 157,
 				"endY" : 2,
 				"frontZ" : 1,
+				"materialTag" : "1",
 				"startX" : 95,
 				"startY" : 2,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1568,10 +1568,10 @@
 				"endX" : 95,
 				"endY" : 2,
 				"frontZ" : 1,
+				"materialTag" : "1",
 				"startX" : 90,
 				"startY" : 5,
 				"tag" : "0",
-				"textureTag" : "1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1609,10 +1609,10 @@
 		"quads" : 
 		[
 			{
+				"materialTag" : "5",
 				"originX" : 77.5,
 				"originY" : 30,
 				"tag" : "0",
-				"textureTag" : "5",
 				"vertices" : 
 				[
 					{
@@ -1651,14 +1651,53 @@
 	},
 	"resources" : 
 	{
+		"materials" : 
+		[
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "0",
+				"textureTag" : "0",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "1",
+				"textureTag" : "1",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "2",
+				"textureTag" : "2",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "3",
+				"textureTag" : "3",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "4",
+				"textureTag" : "4",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "5",
+				"textureTag" : "5",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			}
+		],
 		"meshes" : 
 		[
 			{
-				"filename" : "data/model/Bullet1.msh",
+				"filename" : "data/model/Bullet1.obj",
 				"tag" : "0"
 			},
 			{
-				"filename" : "data/model/Bullet2.msh",
+				"filename" : "data/model/Bullet2.obj",
 				"tag" : "1"
 			}
 		],

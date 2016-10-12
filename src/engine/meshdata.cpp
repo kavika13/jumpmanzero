@@ -68,6 +68,8 @@ MeshData MeshData::FromStream(std::istream& stream) {
         });
       }
 
+      // TODO: Triangulate vertices if necessary
+
       index_offset += face_vertex_count;
     }
   }
