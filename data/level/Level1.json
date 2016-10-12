@@ -13,63 +13,63 @@
 				"originX" : 138,
 				"originY" : 137,
 				"originZ" : 15,
-				"tag" : "2"
+				"tag" : "donut2"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 22,
 				"originY" : 137,
 				"originZ" : 15,
-				"tag" : "1"
+				"tag" : "donut1"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 50,
 				"originY" : 110,
 				"originZ" : 15,
-				"tag" : "0"
+				"tag" : "donut-anon1"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 110,
 				"originY" : 110,
 				"originZ" : 15,
-				"tag" : "0"
+				"tag" : "donut-anon2"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 35,
 				"originY" : 70,
 				"originZ" : 12,
-				"tag" : "3"
+				"tag" : "donut3"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 125,
 				"originY" : 70,
 				"originZ" : 12,
-				"tag" : "4"
+				"tag" : "donut4"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 80,
 				"originY" : 50,
 				"originZ" : 6,
-				"tag" : "0"
+				"tag" : "donut-anon26"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 130,
 				"originY" : 13,
 				"originZ" : 2,
-				"tag" : "0"
+				"tag" : "donut-anon34"
 			},
 			{
 				"materialTag" : "3",
 				"originX" : 30,
 				"originY" : 13,
 				"originZ" : 2,
-				"tag" : "0"
+				"tag" : "donut-anon35"
 			}
 		],
 		"ladders" : 
@@ -79,7 +79,7 @@
 				"frontZ" : 13,
 				"materialTag" : "2",
 				"originX" : 10,
-				"tag" : "0",
+				"tag" : "ladder-anon16",
 				"topY" : 130
 			},
 			{
@@ -87,7 +87,7 @@
 				"frontZ" : 13,
 				"materialTag" : "2",
 				"originX" : 10,
-				"tag" : "0",
+				"tag" : "ladder-anon17",
 				"topY" : 67
 			},
 			{
@@ -95,7 +95,7 @@
 				"frontZ" : 13,
 				"materialTag" : "2",
 				"originX" : 10,
-				"tag" : "1",
+				"tag" : "ladder1",
 				"topY" : 79
 			},
 			{
@@ -103,7 +103,7 @@
 				"frontZ" : 13,
 				"materialTag" : "2",
 				"originX" : 150,
-				"tag" : "0",
+				"tag" : "ladder-anon18",
 				"topY" : 130
 			},
 			{
@@ -111,7 +111,7 @@
 				"frontZ" : 13,
 				"materialTag" : "2",
 				"originX" : 150,
-				"tag" : "0",
+				"tag" : "ladder-anon19",
 				"topY" : 67
 			},
 			{
@@ -119,7 +119,7 @@
 				"frontZ" : 13,
 				"materialTag" : "2",
 				"originX" : 150,
-				"tag" : "2",
+				"tag" : "ladder2",
 				"topY" : 79
 			},
 			{
@@ -127,7 +127,7 @@
 				"frontZ" : 13,
 				"materialTag" : "2",
 				"originX" : 80,
-				"tag" : "0",
+				"tag" : "ladder-anon20",
 				"topY" : 95
 			},
 			{
@@ -135,7 +135,7 @@
 				"frontZ" : 8,
 				"materialTag" : "2",
 				"originX" : 60,
-				"tag" : "0",
+				"tag" : "ladder-anon24",
 				"topY" : 68
 			},
 			{
@@ -143,7 +143,7 @@
 				"frontZ" : 8,
 				"materialTag" : "2",
 				"originX" : 100,
-				"tag" : "0",
+				"tag" : "ladder-anon25",
 				"topY" : 68
 			},
 			{
@@ -151,7 +151,7 @@
 				"frontZ" : 4,
 				"materialTag" : "2",
 				"originX" : 12,
-				"tag" : "0",
+				"tag" : "ladder-anon32",
 				"topY" : 30
 			},
 			{
@@ -159,7 +159,7 @@
 				"frontZ" : 4,
 				"materialTag" : "2",
 				"originX" : 148,
-				"tag" : "0",
+				"tag" : "ladder-anon33",
 				"topY" : 30
 			}
 		],
@@ -179,7 +179,7 @@
 				"materialTag" : "1",
 				"startX" : 25,
 				"startY" : 125,
-				"tag" : "1",
+				"tag" : "platform1",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -227,7 +227,7 @@
 				"materialTag" : "1",
 				"startX" : 33,
 				"startY" : 120,
-				"tag" : "2",
+				"tag" : "platform2",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -275,7 +275,7 @@
 				"materialTag" : "1",
 				"startX" : 119,
 				"startY" : 125,
-				"tag" : "3",
+				"tag" : "platform3",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -323,7 +323,7 @@
 				"materialTag" : "1",
 				"startX" : 127,
 				"startY" : 120,
-				"tag" : "4",
+				"tag" : "platform4",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -371,7 +371,7 @@
 				"materialTag" : "1",
 				"startX" : 41,
 				"startY" : 125,
-				"tag" : "0",
+				"tag" : "platform-anon3",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -419,7 +419,7 @@
 				"materialTag" : "1",
 				"startX" : 58,
 				"startY" : 125,
-				"tag" : "0",
+				"tag" : "platform-anon4",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -467,7 +467,7 @@
 				"materialTag" : "1",
 				"startX" : 93,
 				"startY" : 130,
-				"tag" : "0",
+				"tag" : "platform-anon5",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -515,7 +515,7 @@
 				"materialTag" : "1",
 				"startX" : 102,
 				"startY" : 125,
-				"tag" : "0",
+				"tag" : "platform-anon6",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -563,7 +563,7 @@
 				"materialTag" : "1",
 				"startX" : 135,
 				"startY" : 125,
-				"tag" : "0",
+				"tag" : "platform-anon7",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -611,7 +611,7 @@
 				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 125,
-				"tag" : "0",
+				"tag" : "platform-anon8",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -659,7 +659,7 @@
 				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 90,
-				"tag" : "0",
+				"tag" : "platform-anon9",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -707,7 +707,7 @@
 				"materialTag" : "1",
 				"startX" : 42,
 				"startY" : 95,
-				"tag" : "0",
+				"tag" : "platform-anon10",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -755,7 +755,7 @@
 				"materialTag" : "1",
 				"startX" : 59,
 				"startY" : 95,
-				"tag" : "0",
+				"tag" : "platform-anon11",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -803,7 +803,7 @@
 				"materialTag" : "1",
 				"startX" : 69,
 				"startY" : 90,
-				"tag" : "0",
+				"tag" : "platform-anon12",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -851,7 +851,7 @@
 				"materialTag" : "1",
 				"startX" : 91,
 				"startY" : 90,
-				"tag" : "0",
+				"tag" : "platform-anon13",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -899,7 +899,7 @@
 				"materialTag" : "1",
 				"startX" : 135,
 				"startY" : 90,
-				"tag" : "0",
+				"tag" : "platform-anon14",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -947,7 +947,7 @@
 				"materialTag" : "1",
 				"startX" : 101,
 				"startY" : 95,
-				"tag" : "0",
+				"tag" : "platform-anon15",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -995,7 +995,7 @@
 				"materialTag" : "1",
 				"startX" : 125,
 				"startY" : 55,
-				"tag" : "0",
+				"tag" : "platform-anon21",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1043,7 +1043,7 @@
 				"materialTag" : "1",
 				"startX" : 50,
 				"startY" : 63,
-				"tag" : "0",
+				"tag" : "platform-anon22",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1091,7 +1091,7 @@
 				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 55,
-				"tag" : "0",
+				"tag" : "platform-anon23",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1139,7 +1139,7 @@
 				"materialTag" : "1",
 				"startX" : 35,
 				"startY" : 25,
-				"tag" : "0",
+				"tag" : "platform-anon27",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1187,7 +1187,7 @@
 				"materialTag" : "1",
 				"startX" : 50,
 				"startY" : 35,
-				"tag" : "0",
+				"tag" : "platform-anon28",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1235,7 +1235,7 @@
 				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 25,
-				"tag" : "0",
+				"tag" : "platform-anon29",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1283,7 +1283,7 @@
 				"materialTag" : "1",
 				"startX" : 110,
 				"startY" : 35,
-				"tag" : "0",
+				"tag" : "platform-anon30",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1331,7 +1331,7 @@
 				"materialTag" : "1",
 				"startX" : 125,
 				"startY" : 25,
-				"tag" : "0",
+				"tag" : "platform-anon31",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1379,7 +1379,7 @@
 				"materialTag" : "1",
 				"startX" : 3,
 				"startY" : 2,
-				"tag" : "0",
+				"tag" : "platform-anon36",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1427,7 +1427,7 @@
 				"materialTag" : "1",
 				"startX" : 65,
 				"startY" : 2,
-				"tag" : "0",
+				"tag" : "platform-anon37",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1475,7 +1475,7 @@
 				"materialTag" : "1",
 				"startX" : 70,
 				"startY" : 5,
-				"tag" : "0",
+				"tag" : "platform-anon38",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1523,7 +1523,7 @@
 				"materialTag" : "1",
 				"startX" : 95,
 				"startY" : 2,
-				"tag" : "0",
+				"tag" : "platform-anon39",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1571,7 +1571,7 @@
 				"materialTag" : "1",
 				"startX" : 90,
 				"startY" : 5,
-				"tag" : "0",
+				"tag" : "platform-anon40",
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1612,7 +1612,7 @@
 				"materialTag" : "5",
 				"originX" : 77.5,
 				"originY" : 30,
-				"tag" : "0",
+				"tag" : "quad-anon0",
 				"vertices" : 
 				[
 					{
