@@ -5,23 +5,18 @@
 #include <unordered_map>
 #include <vector>
 #include "material.hpp"
+#include "luascript.hpp"
 #include "texture.hpp"
 #include "trianglemesh.hpp"
 
 class ResourceContext {
  public:
-  // TODO:
-  // std::shared_ptr<Script> LoadScript(const std::string& filename) {
-  //   // TODO Implement
-  // }
-
-  // std::shared_ptr<Script> FindScript(const std::string& tag) {
-  //   return tag_to_script_map_.at(tag);
-  // }
+  std::shared_ptr<LuaScript> LoadScript(
+    const std::string& filename, const std::string& tag);
+  std::shared_ptr<LuaScript> FindScript(const std::string& tag);
 
   std::shared_ptr<Texture> LoadTexture(
       const std::string& filename, const std::string& tag);
-
   std::shared_ptr<Texture> FindTexture(const std::string& tag);
 
   std::shared_ptr<Material> LoadMaterial(
@@ -56,14 +51,14 @@ class ResourceContext {
   // }
 
  private:
-  // TODO: std::vector<std::shared_ptr<Script>> scripts_;
+  std::vector<std::shared_ptr<LuaScript>> scripts_;
   std::vector<std::shared_ptr<Texture>> textures_;
   std::vector<std::shared_ptr<Material>> materials_;
   std::vector<std::shared_ptr<TriangleMesh>> meshes_;
   // TODO: std::vector<std::shared_ptr<Sound>> sounds_;
   // TODO: std::vector<std::shared_ptr<Music>> music_tracks_;
 
-  // TODO: std::unordered_map<std::string, std::weak_ptr<Script>> tag_to_script_map_;
+  std::unordered_map<std::string, std::weak_ptr<LuaScript>> tag_to_script_map_;
   std::unordered_map<std::string, std::weak_ptr<Texture>> tag_to_texture_map_;
   std::unordered_map<std::string, std::weak_ptr<Material>> tag_to_material_map_;
   std::unordered_map<std::string, std::weak_ptr<TriangleMesh>> tag_to_mesh_map_;

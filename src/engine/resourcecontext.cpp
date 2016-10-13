@@ -6,6 +6,21 @@
 #include "resourcecontext.hpp"
 #include "shader.hpp"
 
+std::shared_ptr<LuaScript> ResourceContext::LoadScript(
+    const std::string& filename, const std::string& tag) {
+  std::shared_ptr<LuaScript> script(new LuaScript(filename));
+
+  scripts_.push_back(script);
+
+  tag_to_script_map_[tag] = script;
+
+  return script;
+}
+
+std::shared_ptr<LuaScript> ResourceContext::FindScript(const std::string& tag) {
+  return tag_to_script_map_.at(tag).lock();
+}
+
 std::shared_ptr<Texture> ResourceContext::LoadTexture(
     const std::string& filename, const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");

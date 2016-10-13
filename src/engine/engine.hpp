@@ -12,7 +12,6 @@ class Engine {
   ~Engine();
 
   bool Initialize();
-  bool LoadLevel(const std::string& filename);
   int Run();
 
  private:

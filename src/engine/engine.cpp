@@ -16,6 +16,7 @@ struct EngineData {
   SDL_GLContext gl_context = NULL;
   std::unique_ptr<ResourceContext> resource_context;
   std::unique_ptr<Scene> scene;
+  std::shared_ptr<LuaScript> main_script;
 };
 
 Engine::Engine() : data_(new EngineData) {
@@ -89,51 +90,49 @@ bool Engine::Initialize() {
   glEnable(GL_CULL_FACE);  // TODO: Should never error?
 
   data_->resource_context.reset(new ResourceContext);
+  data_->scene.reset(new Scene);
+
+  data_->main_script = data_->resource_context->LoadScript(
+    "data/script/main.lua", "main");
 
   return true;
 }
 
-// TODO: Get rid of this function. Put in a script context object?
-bool Engine::LoadLevel(const std::string& filename) {
-  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
+// // TODO: Get rid of this function. Put in a script context object?
+// bool Engine::LoadLevel(const std::string& filename) {
+//   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
 
-  std::ifstream levelfile(filename);
+//   std::ifstream levelfile(filename);
 
-  if (!levelfile) {
-    BOOST_LOG_SEV(log, LogSeverity::kError)
-      << "Failed to open level file: " << filename;
-    return false;
-  }
+//   if (!levelfile) {
+//     BOOST_LOG_SEV(log, LogSeverity::kError)
+//       << "Failed to open level file: " << filename;
+//     return false;
+//   }
 
-  auto leveldata = LevelData::FromStream(levelfile);
+//   auto leveldata = LevelData::FromStream(levelfile);
 
-  glm::mat4 projection_matrix = glm::perspective(
-    glm::radians(45.0f),
-    // TODO: Don't get window values from constants
-    static_cast<float>(640) / static_cast<float>(480),
-    0.1f, 300.0f);
+//   glm::mat4 projection_matrix = glm::perspective(
+//     glm::radians(45.0f),
+//     // TODO: Don't get window values from constants
+//     static_cast<float>(640) / static_cast<float>(480),
+//     0.1f, 300.0f);
 
-  Camera camera { projection_matrix };
-  camera.transform.SetTranslation(glm::vec3(80.0f, 103.0f, -115.0f));
-  camera.transform.LookAt(glm::vec3(80.0f, 63.0f, 0.0f));
+//   Camera camera { projection_matrix };
+//   camera.transform.SetTranslation(glm::vec3(80.0f, 103.0f, -115.0f));
+//   camera.transform.LookAt(glm::vec3(80.0f, 63.0f, 0.0f));
 
-  data_->scene.reset(new Scene {
-    camera,
-  });
+//   data_->scene.reset(new Scene {
+//     camera,
+//   });
 
-  LevelResource level(leveldata, *data_->resource_context, *data_->scene);
+//   LevelResource level(leveldata, *data_->resource_context, *data_->scene);
 
-  return true;
-}
+//   return true;
+// }
 
 int Engine::Run() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
-
-  // TODO: Running without a level should be fine, should run GUI
-  // TODO: A level should be considered a resource anyhow,
-  // not a core engine concept.
-  // TODO: There should be a default script that runs the GUI,
-  // and the GUI can trigger level loading, or choose not to
 
   const double max_accumulated_time = 2.0;
   const double ticks_per_second = SDL_GetPerformanceFrequency();
@@ -204,6 +203,8 @@ int Engine::Run() {
             break;
         }
       }
+
+      data_->main_script->Update(seconds_per_update);
     }
 
     // TODO: Check OpenGL errors?
