@@ -8,15 +8,18 @@ LuaScript::LuaScript(const std::string& filename) {
     sol::lib::string,
     sol::lib::os,
     sol::lib::math,
-    sol::lib::table);
-  sol::global_table glob = script_.globals();
+    sol::lib::table,
+    sol::lib::io);
+  sol::table glob = script_.globals();
 
   const std::unordered_set<std::string> base_whitelist {
+    "_G",
     "coroutine",
     "string",
     "os",
     "math",
     "table",
+    "io",
 
     "_VERSION",
     "assert",
@@ -116,48 +119,33 @@ LuaScript::LuaScript(const std::string& filename) {
     "unpack",
   };
 
-  glob.for_each([&](sol::object key, sol::object value) {
-    if (base_whitelist.find(key.as<std::string>()) == base_whitelist.end()) {
-      glob.set(key, sol::nil);
-    }
-  });
+  const std::unordered_set<std::string> io_whitelist {
+    "read",
+    "write",
+    "flush",
+    "type",
+  };
 
-  auto coroutine_table = glob.get<sol::table>("coroutine");
-  coroutine_table.for_each([&](sol::object key, sol::object value) {
-    if (coroutine_whitelist.find(key.as<std::string>())
-        == coroutine_whitelist.end()) {
-      coroutine_table.set(key, sol::nil);
-    }
-  });
+  auto sanitize_subtable = [&glob, this](
+      const std::string& table_name,
+      const std::unordered_set<std::string>& whitelist) {
+    auto table = glob.get<sol::table>(table_name);
+    table.for_each([&](sol::object key, sol::object value) {
+      if (whitelist.find(key.as<std::string>()) == whitelist.end()) {
+        table.set(key, sol::nil);
+      }
+    });
+  };
 
-  auto string_table = glob.get<sol::table>("string");
-  string_table.for_each([&](sol::object key, sol::object value) {
-    if (string_whitelist.find(key.as<std::string>())
-        == string_whitelist.end()) {
-      string_table.set(key, sol::nil);
-    }
-  });
+  sanitize_subtable("coroutine", coroutine_whitelist);
+  sanitize_subtable("string", string_whitelist);
+  sanitize_subtable("os", os_whitelist);
+  sanitize_subtable("math", math_whitelist);
+  sanitize_subtable("table", table_whitelist);
+  sanitize_subtable("io", io_whitelist);
+  sanitize_subtable("_G", base_whitelist);
 
-  auto os_table = glob.get<sol::table>("os");
-  os_table.for_each([&](sol::object key, sol::object value) {
-    if (os_whitelist.find(key.as<std::string>()) == os_whitelist.end()) {
-      os_table.set(key, sol::nil);
-    }
-  });
-
-  auto math_table = glob.get<sol::table>("math");
-  math_table.for_each([&](sol::object key, sol::object value) {
-    if (math_whitelist.find(key.as<std::string>()) == math_whitelist.end()) {
-      math_table.set(key, sol::nil);
-    }
-  });
-
-  auto table_table = glob.get<sol::table>("table");
-  table_table.for_each([&](sol::object key, sol::object value) {
-    if (table_whitelist.find(key.as<std::string>()) == table_whitelist.end()) {
-      table_table.set(key, sol::nil);
-    }
-  });
+  // TODO: Make environment read-only for white-listed functions/tables
 
   // TODO: Add bindings to engine
 
