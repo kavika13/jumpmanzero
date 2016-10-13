@@ -376,7 +376,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
     std::vector<VertexData> vertices_data = extract_vertices_node(quad_node);
 
     quads.push_back({
-      quad_node["tag"].asString(),
+      quad_node.get("tag", "").asString(),
       quad_node["materialTag"].asString(),
       quad_node["originX"].asFloat(),
       quad_node["originY"].asFloat(),
@@ -392,7 +392,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   std::vector<DonutObjectData> donuts;
   for (const auto& donut_node: donuts_node) {
     donuts.push_back({
-      donut_node["tag"].asString(),
+      donut_node.get("tag", "").asString(),
       donut_node["materialTag"].asString(),
       donut_node["originX"].asFloat(),
       donut_node["originY"].asFloat(),
@@ -413,7 +413,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
       extract_vertices_node(platform_node);
 
     platforms.push_back({
-      platform_node["tag"].asString(),
+      platform_node.get("tag", "").asString(),
       platform_node["materialTag"].asString(),
       platform_node["drawTop"].asBool(),
       platform_node["drawBottom"].asBool(),
@@ -443,7 +443,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
       extract_vertices_node(wall_node);
 
     walls.push_back({
-      wall_node["tag"].asString(),
+      wall_node.get("tag", "").asString(),
       wall_node["materialTag"].asString(),
       wall_node["drawTop"].asBool(),
       wall_node["drawBottom"].asBool(),
@@ -463,7 +463,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   std::vector<LadderObjectData> ladders;
   for (const auto& ladder_node: ladders_node) {
     ladders.push_back({
-      ladder_node["tag"].asString(),
+      ladder_node.get("tag", "").asString(),
       ladder_node["materialTag"].asString(),
       ladder_node["originX"].asFloat(),
       ladder_node["topY"].asFloat(),
@@ -475,7 +475,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
   std::vector<VineObjectData> vines;
   for (const auto& vine_node: vines_node) {
     vines.push_back({
-      vine_node["tag"].asString(),
+      vine_node.get("tag", "").asString(),
       vine_node["materialTag"].asString(),
       vine_node["originX"].asFloat(),
       vine_node["topY"].asFloat(),
@@ -634,7 +634,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   for (const auto& quad: data.quads) {
     Json::Value quad_node(Json::objectValue);
 
-    quad_node["tag"] = quad.tag;
+    if (!quad.tag.empty()) {
+      quad_node["tag"] = quad.tag;
+    }
+
     quad_node["materialTag"] = quad.material_tag;
 
     quad_node["originX"] = quad.origin_x;
@@ -656,7 +659,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   for (const auto& donut: data.donuts) {
     Json::Value donut_node(Json::objectValue);
 
-    donut_node["tag"] = donut.tag;
+    if (!donut.tag.empty()) {
+      donut_node["tag"] = donut.tag;
+    }
+
     donut_node["materialTag"] = donut.material_tag;
 
     donut_node["originX"] = donut.origin_x;
@@ -680,7 +686,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   for (const auto& platform: data.platforms) {
     Json::Value platform_node(Json::objectValue);
 
-    platform_node["tag"] = platform.tag;
+    if (!platform.tag.empty()) {
+      platform_node["tag"] = platform.tag;
+    }
+
     platform_node["materialTag"] = platform.material_tag;
 
     platform_node["drawTop"] = platform.drawtop;
@@ -716,7 +725,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   for (const auto& wall: data.walls) {
     Json::Value wall_node(Json::objectValue);
 
-    wall_node["tag"] = wall.tag;
+    if (!wall.tag.empty()) {
+      wall_node["tag"] = wall.tag;
+    }
+
     wall_node["materialTag"] = wall.material_tag;
 
     wall_node["drawTop"] = wall.drawtop;
@@ -743,7 +755,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   for (const auto& ladder: data.ladders) {
     Json::Value ladder_node(Json::objectValue);
 
-    ladder_node["tag"] = ladder.tag;
+    if (!ladder.tag.empty()) {
+      ladder_node["tag"] = ladder.tag;
+    }
+
     ladder_node["materialTag"] = ladder.material_tag;
 
     ladder_node["originX"] = ladder.origin_x;
@@ -761,7 +776,10 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   for (const auto& vine: data.vines) {
     Json::Value vine_node(Json::objectValue);
 
-    vine_node["tag"] = vine.tag;
+    if (!vine.tag.empty()) {
+      vine_node["tag"] = vine.tag;
+    }
+
     vine_node["materialTag"] = vine.material_tag;
 
     vine_node["originX"] = vine.origin_x;

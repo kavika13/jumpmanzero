@@ -11,47 +11,47 @@
 class ResourceContext {
  public:
   // TODO:
-  // std::weak_ptr<Script> LoadScript(const std::string& filename) {
+  // std::shared_ptr<Script> LoadScript(const std::string& filename) {
   //   // TODO Implement
   // }
 
-  // std::weak_ptr<Script> FindScript(const std::string& tag) {
+  // std::shared_ptr<Script> FindScript(const std::string& tag) {
   //   return tag_to_script_map_.at(tag);
   // }
 
-  std::weak_ptr<Texture> LoadTexture(
-      const std::string& filename, const std::string& tag = "");
+  std::shared_ptr<Texture> LoadTexture(
+      const std::string& filename, const std::string& tag);
 
-  std::weak_ptr<Texture> FindTexture(const std::string& tag);
+  std::shared_ptr<Texture> FindTexture(const std::string& tag);
 
-  std::weak_ptr<Material> LoadMaterial(
+  std::shared_ptr<Material> LoadMaterial(
       const std::string& vertex_shader_filename,
       const std::string& fragment_shader_filename,
       const std::string& tag);
-  std::weak_ptr<Material> FindMaterial(const std::string& tag);
+  std::shared_ptr<Material> FindMaterial(const std::string& tag);
 
-  std::weak_ptr<TriangleMesh> CreateMesh(
+  std::shared_ptr<TriangleMesh> CreateMesh(
       const std::vector<Vertex>& vertices, const std::string& tag = "");
 
-  std::weak_ptr<TriangleMesh> LoadMesh(
-      const std::string& filename, const std::string& tag = "");
-  std::weak_ptr<TriangleMesh> FindMesh(const std::string& tag);
+  std::shared_ptr<TriangleMesh> LoadMesh(
+      const std::string& filename, const std::string& tag);
+  std::shared_ptr<TriangleMesh> FindMesh(const std::string& tag);
 
   // TODO:
-  // std::weak_ptr<Sound> LoadSound(const std::string& filename) {
+  // std::shared_ptr<Sound> LoadSound(const std::string& filename) {
   //   // TODO Implement
   // }
 
-  // std::weak_ptr<Sound> FindSound(const std::string& tag) {
+  // std::shared_ptr<Sound> FindSound(const std::string& tag) {
   //   return tag_to_sound_map_.at(tag);
   // }
 
   // TODO:
-  // std::weak_ptr<Music> LoadMusic(const std::string& filename) {
+  // std::shared_ptr<Music> LoadMusic(const std::string& filename) {
   //   // TODO Implement
   // }
 
-  // std::weak_ptr<Music> FindMusic(const std::string& tag) {
+  // std::shared_ptr<Music> FindMusic(const std::string& tag) {
   //   return tag_to_music_map_.at(tag);
   // }
 

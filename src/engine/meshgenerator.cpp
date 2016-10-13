@@ -164,9 +164,9 @@ void MeshGenerator::AddSkewedCube(
   }
 }
 
-void MeshGenerator::CreateMesh(
-    ResourceContext& resource_context, const std::string& tag) {
-  resource_context.CreateMesh(vertices_, tag);
+std::shared_ptr<TriangleMesh> MeshGenerator::CreateMesh(
+    ResourceContext& resource_context, const std::string& tag) const {
+  return resource_context.CreateMesh(vertices_, tag);
 }
 
 Vertex MeshGenerator::AppendTexCoord(const Vertex& vertex, float tu, float tv) {

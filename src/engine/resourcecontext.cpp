@@ -6,7 +6,7 @@
 #include "resourcecontext.hpp"
 #include "shader.hpp"
 
-std::weak_ptr<Texture> ResourceContext::LoadTexture(
+std::shared_ptr<Texture> ResourceContext::LoadTexture(
     const std::string& filename, const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   // TODO: Check errors, do logging
@@ -39,11 +39,11 @@ std::weak_ptr<Texture> ResourceContext::LoadTexture(
   return texture;
 }
 
-std::weak_ptr<Texture> ResourceContext::FindTexture(const std::string& tag) {
-  return tag_to_texture_map_.at(tag);
+std::shared_ptr<Texture> ResourceContext::FindTexture(const std::string& tag) {
+  return tag_to_texture_map_.at(tag).lock();
 }
 
-std::weak_ptr<Material> ResourceContext::LoadMaterial(
+std::shared_ptr<Material> ResourceContext::LoadMaterial(
     const std::string& vertex_shader_filename,
     const std::string& fragment_shader_filename,
     const std::string& tag) {
@@ -94,11 +94,12 @@ std::weak_ptr<Material> ResourceContext::LoadMaterial(
   return material;
 }
 
-std::weak_ptr<Material> ResourceContext::FindMaterial(const std::string& tag) {
-  return tag_to_material_map_.at(tag);
+std::shared_ptr<Material> ResourceContext::FindMaterial(
+    const std::string& tag) {
+  return tag_to_material_map_.at(tag).lock();
 }
 
-std::weak_ptr<TriangleMesh> ResourceContext::CreateMesh(
+std::shared_ptr<TriangleMesh> ResourceContext::CreateMesh(
     const std::vector<Vertex>& vertices, const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Generating mesh: " << tag;
@@ -114,7 +115,7 @@ std::weak_ptr<TriangleMesh> ResourceContext::CreateMesh(
   return mesh;
 }
 
-std::weak_ptr<TriangleMesh> ResourceContext::LoadMesh(
+std::shared_ptr<TriangleMesh> ResourceContext::LoadMesh(
     const std::string& filename, const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
@@ -148,6 +149,7 @@ std::weak_ptr<TriangleMesh> ResourceContext::LoadMesh(
   return CreateMesh(vertices, tag);
 }
 
-std::weak_ptr<TriangleMesh> ResourceContext::FindMesh(const std::string& tag) {
-  return tag_to_mesh_map_.at(tag);
+std::shared_ptr<TriangleMesh> ResourceContext::FindMesh(
+    const std::string& tag) {
+  return tag_to_mesh_map_.at(tag).lock();
 }

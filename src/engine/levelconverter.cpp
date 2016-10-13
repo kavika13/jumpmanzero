@@ -467,14 +467,10 @@ LevelData LevelConverter::Convert() {
     };
   };
 
-  int unique_id = 0;
-
-  auto make_unique_tag = [&unique_id](
-      const std::string& type, const LevelObjectEntry& object) {
-    return type
-      + (object.tag_handle != 0
-          ? std::to_string(object.tag_handle)
-          : ("-anon" + std::to_string(unique_id++)));
+  auto make_tag = [](const std::string& type, const LevelObjectEntry& object) {
+    return object.tag_handle != 0
+      ? (type + std::to_string(object.tag_handle))
+      : "";
   };
 
   for (const auto& object: objects) {
@@ -494,7 +490,7 @@ LevelData LevelConverter::Convert() {
         LevelObjectVertex origin = { sum.x / 4, sum.y / 4 };
 
         quads.push_back({
-          make_unique_tag("quad", object),
+          make_tag("quad", object),
           std::to_string(object.texture_index),
           origin.x < 0.0f ? 0.0f : origin.x,
           origin.y < 0.0f ? 0.0f : origin.y,
@@ -509,7 +505,7 @@ LevelData LevelConverter::Convert() {
       }
       case LevelObjectType::kDonut: {
         donuts.push_back({
-          make_unique_tag("donut", object),
+          make_tag("donut", object),
           std::to_string(object.texture_index),
           object.vertices[0].x,
           object.vertices[0].y,
@@ -520,7 +516,7 @@ LevelData LevelConverter::Convert() {
       case LevelObjectType::kPlatform: {
         const auto vertices = object.vertices;
         platforms.push_back({
-          make_unique_tag("platform", object),
+          make_tag("platform", object),
           std::to_string(object.texture_index),
           object.drawtop,
           object.drawbottom,
@@ -547,7 +543,7 @@ LevelData LevelConverter::Convert() {
       case LevelObjectType::kWall: {
         const auto vertices = object.vertices;
         walls.push_back({
-          make_unique_tag("wall", object),
+          make_tag("wall", object),
           std::to_string(object.texture_index),
           object.drawtop,
           object.drawbottom,
@@ -566,7 +562,7 @@ LevelData LevelConverter::Convert() {
       }
       case LevelObjectType::kLadder: {
         ladders.push_back({
-          make_unique_tag("ladder", object),
+          make_tag("ladder", object),
           std::to_string(object.texture_index),
           object.vertices[0].x,
           object.vertices[0].y,
@@ -577,7 +573,7 @@ LevelData LevelConverter::Convert() {
       }
       case LevelObjectType::kVine: {
         vines.push_back({
-          make_unique_tag("vine", object),
+          make_tag("vine", object),
           std::to_string(object.texture_index),
           object.vertices[0].x,
           object.vertices[0].y,

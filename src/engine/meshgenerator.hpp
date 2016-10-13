@@ -4,6 +4,7 @@
 #include <vector>
 #include "leveldata.hpp"
 #include "resourcecontext.hpp"
+#include "trianglemesh.hpp"
 
 class MeshGenerator {
  public:
@@ -25,7 +26,8 @@ class MeshGenerator {
     const Vertex& v0, const Vertex& v1, const Vertex& v2, const Vertex& v3,
     float front_z, float back_z);
 
-  void CreateMesh(ResourceContext&, const std::string& tag);
+  std::shared_ptr<TriangleMesh> CreateMesh(
+    ResourceContext&, const std::string& tag) const;
 
  private:
   Vertex AppendTexCoord(const Vertex& vertex, float tu, float tv);
