@@ -1,8 +1,12 @@
 #include <iomanip>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
-#include "logging.hpp"
+#include "engine/logging.hpp"
 #include "meshdata.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 std::ostream& operator<<(std::ostream& stream, const MeshVertexData& vertex) {
   stream << "(MeshVertex"
@@ -145,3 +149,7 @@ std::ostream& operator<<(std::ostream& stream, const MeshData& data) {
 bool operator==(const MeshData& lhs, const MeshData& rhs) {
   return lhs.vertices == rhs.vertices;
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

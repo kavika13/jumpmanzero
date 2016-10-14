@@ -1,8 +1,12 @@
-#ifndef ENGINE_MESHDATA_HPP_
-#define ENGINE_MESHDATA_HPP_
+#ifndef ENGINE_GRAPHICS_MESHDATA_HPP_
+#define ENGINE_GRAPHICS_MESHDATA_HPP_
 
 #include <istream>
 #include <vector>
+
+namespace Jumpman {
+
+namespace Graphics {
 
 struct MeshVertexData {
   friend std::ostream& operator<<(std::ostream&, const MeshVertexData&);
@@ -22,4 +26,8 @@ struct MeshData {
   const std::vector<MeshVertexData> vertices;
 };
 
-#endif  // ENGINE_MESHDATA_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_MESHDATA_HPP_

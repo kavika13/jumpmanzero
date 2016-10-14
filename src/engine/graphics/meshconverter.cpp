@@ -1,5 +1,9 @@
+#include "engine/logging.hpp"
 #include "meshconverter.hpp"
-#include "logging.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 MeshConverter MeshConverter::FromStream(std::istream& stream) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
@@ -69,3 +73,7 @@ MeshData MeshConverter::Convert() {
     std::move(vertices),
   };
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

@@ -1,7 +1,11 @@
-#ifndef ENGINE_MESHCONVERTER_HPP_
-#define ENGINE_MESHCONVERTER_HPP_
+#ifndef ENGINE_GRAPHICS_MESHCONVERTER_HPP_
+#define ENGINE_GRAPHICS_MESHCONVERTER_HPP_
 
 #include "meshdata.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 struct OldMeshVertexData {
   const float x, y, z;
@@ -17,4 +21,8 @@ struct MeshConverter {
   const std::vector<OldMeshVertexData> vertices;
 };
 
-#endif  // ENGINE_MESHCONVERTER_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_MESHCONVERTER_HPP_

@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include "engine/meshconverter.hpp"
+#include "engine/graphics/meshconverter.hpp"
 #include "engine/logging.hpp"
 
 int main(int argc, char* argv[]) {
@@ -34,8 +34,8 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  auto converter = MeshConverter::FromStream(old_mesh_file);
-  MeshData converted_data = std::move(converter.Convert());
+  auto converter = Jumpman::Graphics::MeshConverter::FromStream(old_mesh_file);
+  Jumpman::Graphics::MeshData converted_data = std::move(converter.Convert());
   new_mesh_file << converted_data;
 
   return 0;

@@ -1,8 +1,8 @@
 #include <fstream>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
+#include "graphics/meshdata.hpp"
 #include "logging.hpp"
-#include "meshdata.hpp"
 #include "resourcecontext.hpp"
 #include "shader.hpp"
 
@@ -144,11 +144,12 @@ std::shared_ptr<TriangleMesh> ResourceContext::LoadMesh(
     throw std::runtime_error(error_message);
   }
 
-  MeshData mesh_data(std::move(MeshData::FromStream(mesh_file)));
+  Jumpman::Graphics::MeshData mesh_data(
+    std::move(Jumpman::Graphics::MeshData::FromStream(mesh_file)));
   std::vector<Vertex> vertices;
   vertices.reserve(mesh_data.vertices.size());
 
-  for (const MeshVertexData& vertex: mesh_data.vertices) {
+  for (const Jumpman::Graphics::MeshVertexData& vertex: mesh_data.vertices) {
     vertices.push_back({
       vertex.x,
       vertex.y,
