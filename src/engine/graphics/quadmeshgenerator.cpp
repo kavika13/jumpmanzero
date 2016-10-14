@@ -1,6 +1,10 @@
-#include "quadobjectresource.hpp"
+#include "quadmeshgenerator.hpp"
 
-QuadObjectResource::QuadObjectResource(
+namespace Jumpman {
+
+namespace Graphics {
+
+QuadMeshGenerator::QuadMeshGenerator(
     const QuadObjectData& data,
     MeshGenerator& generator) {
   // TODO: Bounding box, proper scene origin
@@ -11,3 +15,7 @@ QuadObjectResource::QuadObjectResource(
 
   generator.AddQuad(v0, v1, v2, v3);
 }
+
+};  // namespace Jumpman
+
+};  // namespace Graphics

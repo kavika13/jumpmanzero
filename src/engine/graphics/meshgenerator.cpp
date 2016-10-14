@@ -1,5 +1,9 @@
 #include "meshgenerator.hpp"
 
+namespace Jumpman {
+
+namespace Graphics {
+
 Vertex MeshGenerator::ConvertVertex(const VertexData& vertex) {
   return Vertex {
     vertex.x,
@@ -194,3 +198,7 @@ Vertex MeshGenerator::AppendZCoord(const Vertex& vertex, float z) {
     vertex.tv,
   };
 }
+
+};  // namespace Jumpman
+
+};  // namespace Graphics

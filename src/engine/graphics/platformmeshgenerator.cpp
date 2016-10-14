@@ -1,6 +1,10 @@
-#include "platformobjectresource.hpp"
+#include "platformmeshgenerator.hpp"
 
-PlatformObjectResource::PlatformObjectResource(
+namespace Jumpman {
+
+namespace Graphics {
+
+PlatformMeshGenerator::PlatformMeshGenerator(
     const PlatformObjectData& data,
     MeshGenerator& generator) {
   // TODO: Bounding box, proper scene origin
@@ -17,3 +21,7 @@ PlatformObjectResource::PlatformObjectResource(
     generator.ConvertVertex(data.vertices[3]),
     data.front_z, data.back_z);
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

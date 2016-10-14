@@ -2,7 +2,6 @@
 #define ENGINE_ENGINE_HPP_
 
 #include <memory>
-#include <string>
 
 struct EngineData;
 

@@ -1,10 +1,14 @@
-#ifndef ENGINE_MESHGENERATOR_HPP_
-#define ENGINE_MESHGENERATOR_HPP_
+#ifndef ENGINE_GRAPHICS_MESHGENERATOR_HPP_
+#define ENGINE_GRAPHICS_MESHGENERATOR_HPP_
 
 #include <vector>
-#include "leveldata.hpp"
-#include "resourcecontext.hpp"
-#include "trianglemesh.hpp"
+#include "engine/leveldata.hpp"
+#include "engine/resourcecontext.hpp"
+#include "engine/trianglemesh.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 class MeshGenerator {
  public:
@@ -36,4 +40,8 @@ class MeshGenerator {
   std::vector<Vertex> vertices_;
 };
 
-#endif  // ENGINE_MESHGENERATOR_HPP_
+};  // namespace Jumpman
+
+};  // namespace Graphics
+
+#endif  // ENGINE_GRAPHICS_MESHGENERATOR_HPP_

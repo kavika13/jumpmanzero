@@ -1,12 +1,8 @@
 #include <fstream>
-#define GLM_FORCE_LEFT_HANDED
-#include <glm/gtc/matrix_transform.hpp>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
 #include <SDL2/SDL.h>
 #include "engine.hpp"
-#include "leveldata.hpp"
-#include "levelresource.hpp"
 #include "logging.hpp"
 #include "resourcecontext.hpp"
 #include "scene.hpp"

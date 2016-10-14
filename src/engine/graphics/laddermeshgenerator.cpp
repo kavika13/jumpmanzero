@@ -1,6 +1,10 @@
-#include "ladderobjectresource.hpp"
+#include "laddermeshgenerator.hpp"
 
-LadderObjectResource::LadderObjectResource(
+namespace Jumpman {
+
+namespace Graphics {
+
+LadderMeshGenerator::LadderMeshGenerator(
     const LadderObjectData& data,
     MeshGenerator& mesh_generator) {
   mesh_generator.AddCube(
@@ -19,3 +23,7 @@ LadderObjectResource::LadderObjectResource(
       data.origin_x + 5.3f, rung_position - 1.5f, data.front_z + 1);
   }
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman
