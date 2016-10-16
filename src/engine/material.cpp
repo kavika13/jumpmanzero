@@ -11,23 +11,19 @@ void Material::SetActive() noexcept {
   glUseProgram(*shader_program_);
 }
 
-void Material::SetTexture(std::weak_ptr<Texture> texture) noexcept {
+void Material::SetTexture(std::shared_ptr<Texture> texture) noexcept {
   // TODO: Handle null texture
   texture_ = texture;
 }
 
-std::weak_ptr<Texture> Material::GetTexture() noexcept {
+std::shared_ptr<Texture> Material::GetTexture() noexcept {
   return texture_;
 }
 
 void Material::BindTexture(GLuint texture_index) {
-  if (!texture_.expired()) {
-    glActiveTexture(GL_TEXTURE0);  // TODO: base off texture_index
-    glBindTexture(GL_TEXTURE_2D, *texture_.lock());
-    glUniform1i(current_texture_param_, texture_index);
-  } else {
-    // TODO: Draw null texture
-  }
+  glActiveTexture(GL_TEXTURE0);  // TODO: base off texture_index
+  glBindTexture(GL_TEXTURE_2D, *texture_);
+  glUniform1i(current_texture_param_, texture_index);
 }
 
 void Material::BindMvpMatrix(const glm::mat4& mvp_matrix) {

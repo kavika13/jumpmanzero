@@ -1,7 +1,9 @@
 #include "luascript.hpp"
 #include <unordered_set>
 
-LuaScript::LuaScript(const std::string& filename) {
+LuaScript::LuaScript(
+    const std::string& filename,
+    std::function<void(sol::state&)> add_bindings) {
   script_.open_libraries(
     sol::lib::base,
     sol::lib::coroutine,
@@ -147,7 +149,7 @@ LuaScript::LuaScript(const std::string& filename) {
 
   // TODO: Make environment read-only for white-listed functions/tables
 
-  // TODO: Add bindings to engine
+  add_bindings(script_);
 
   script_.script_file(filename);
   update_function_ = script_["update"];

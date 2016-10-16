@@ -37,45 +37,79 @@ Level::Level(const LevelData& data, ResourceContext& resource_context)
   quads_.reserve(data.quads.size());
 
   for (const QuadObjectData& quad: data.quads) {
-    quads_.push_back(
-      std::shared_ptr<QuadObject>(new QuadObject(quad, resource_context)));
+    auto object = std::shared_ptr<QuadObject>(
+      new QuadObject(quad, resource_context));
+
+    quads_.push_back(object);
+
+    if (!quad.tag.empty()) {
+      tag_to_quad_map_[quad.tag] = object;
+    }
   }
 
   donuts_.reserve(data.donuts.size());
 
   for (const DonutObjectData& donut: data.donuts) {
-    donuts_.push_back(
-      std::shared_ptr<DonutObject>(new DonutObject(donut, resource_context)));
+    auto object = std::shared_ptr<DonutObject>(
+      new DonutObject(donut, resource_context));
+
+    donuts_.push_back(object);
+
+    if (!donut.tag.empty()) {
+      tag_to_donut_map_[donut.tag] = object;
+    }
   }
 
   platforms_.reserve(data.platforms.size());
 
   for (const PlatformObjectData& platform: data.platforms) {
-    platforms_.push_back(
-      std::shared_ptr<PlatformObject>(
-        new PlatformObject(platform, resource_context)));
+    auto object = std::shared_ptr<PlatformObject>(
+      new PlatformObject(platform, resource_context));
+
+    platforms_.push_back(object);
+
+    if (!platform.tag.empty()) {
+      tag_to_platform_map_[platform.tag] = object;
+    }
   }
 
   walls_.reserve(data.walls.size());
 
   for (const WallObjectData& wall: data.walls) {
-    walls_.push_back(
-      std::shared_ptr<WallObject>(new WallObject(wall, resource_context)));
+    auto object = std::shared_ptr<WallObject>(
+      new WallObject(wall, resource_context));
+
+    walls_.push_back(object);
+
+    if (!wall.tag.empty()) {
+      tag_to_wall_map_[wall.tag] = object;
+    }
   }
 
   ladders_.reserve(data.ladders.size());
 
   for (const LadderObjectData& ladder: data.ladders) {
-    ladders_.push_back(
-      std::shared_ptr<LadderObject>(
-        new LadderObject(ladder, resource_context)));
+    auto object = std::shared_ptr<LadderObject>(
+      new LadderObject(ladder, resource_context));
+
+    ladders_.push_back(object);
+
+    if (!ladder.tag.empty()) {
+      tag_to_ladder_map_[ladder.tag] = object;
+    }
   }
 
   vines_.reserve(data.vines.size());
 
   for (const VineObjectData& vine: data.vines) {
-    vines_.push_back(
-      std::shared_ptr<VineObject>(new VineObject(vine, resource_context)));
+    auto object = std::shared_ptr<VineObject>(
+      new VineObject(vine, resource_context));
+
+    vines_.push_back(object);
+
+    if (!vine.tag.empty()) {
+      tag_to_vine_map_[vine.tag] = object;
+    }
   }
 }
 
@@ -103,56 +137,56 @@ size_t Level::NumVines() const {
   return vines_.size();
 }
 
-Level::ObjectIterator<QuadObject> Level::GetQuads() const {
-  return quads_.begin();
+const Level::ObjectContainer<QuadObject>& Level::GetQuads() const {
+  return quads_;
 }
 
-Level::ObjectIterator<DonutObject> Level::GetDonuts() const {
-  return donuts_.begin();
+const Level::ObjectContainer<DonutObject>& Level::GetDonuts() const {
+  return donuts_;
 }
 
-Level::ObjectIterator<PlatformObject> Level::GetPlatforms() const {
-  return platforms_.begin();
+const Level::ObjectContainer<PlatformObject>& Level::GetPlatforms() const {
+  return platforms_;
 }
 
-Level::ObjectIterator<WallObject> Level::GetWalls() const {
-  return walls_.begin();
+const Level::ObjectContainer<WallObject>& Level::GetWalls() const {
+  return walls_;
 }
 
-Level::ObjectIterator<LadderObject> Level::GetLadders() const {
-  return ladders_.begin();
+const Level::ObjectContainer<LadderObject>& Level::GetLadders() const {
+  return ladders_;
 }
 
-Level::ObjectIterator<VineObject> Level::GetVines() const {
-  return vines_.begin();
+const Level::ObjectContainer<VineObject>& Level::GetVines() const {
+  return vines_;
 }
 
-const Level::ObjectRef<QuadObject> Level::FindQuads(
+const Level::ObjectRef<QuadObject> Level::FindQuad(
     const std::string& tag) const {
   return tag_to_quad_map_.at(tag).lock();
 }
 
-const Level::ObjectRef<DonutObject> Level::FindDonuts(
+const Level::ObjectRef<DonutObject> Level::FindDonut(
     const std::string& tag) const {
   return tag_to_donut_map_.at(tag).lock();
 }
 
-const Level::ObjectRef<PlatformObject> Level::FindPlatforms(
+const Level::ObjectRef<PlatformObject> Level::FindPlatform(
     const std::string& tag) const {
   return tag_to_platform_map_.at(tag).lock();
 }
 
-const Level::ObjectRef<WallObject> Level::FindWalls(
+const Level::ObjectRef<WallObject> Level::FindWall(
     const std::string& tag) const {
   return tag_to_wall_map_.at(tag).lock();
 }
 
-const Level::ObjectRef<LadderObject> Level::FindLadders(
+const Level::ObjectRef<LadderObject> Level::FindLadder(
     const std::string& tag) const {
   return tag_to_ladder_map_.at(tag).lock();
 }
 
-const Level::ObjectRef<VineObject> Level::FindVines(
+const Level::ObjectRef<VineObject> Level::FindVine(
     const std::string& tag) const {
   return tag_to_vine_map_.at(tag).lock();
 }

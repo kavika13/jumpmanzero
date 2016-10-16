@@ -1,25 +1,29 @@
 #include <fstream>
+#define GLM_FORCE_LEFT_HANDED
+#include <glm/gtc/matrix_transform.hpp>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
 #include <SDL2/SDL.h>
 #include "engine.hpp"
 #include "logging.hpp"
-#include "resourcecontext.hpp"
 #include "scene.hpp"
+#include "scriptcontext.hpp"
 
-struct EngineData {
+namespace Jumpman {
+
+struct Engine::EngineData {
   SDL_Window* main_window = NULL;
   SDL_GLContext gl_context = NULL;
-  std::unique_ptr<ResourceContext> resource_context;
-  std::unique_ptr<Scene> scene;
-  std::shared_ptr<LuaScript> main_script;
+  std::shared_ptr<Scene> scene;
+  std::shared_ptr<ScriptContext> script_context;
 };
 
 Engine::Engine() : data_(new EngineData) {
 }
 
 Engine::~Engine() {
-  // TODO: Shutdown subsystems here, or rely on destruction of sub-objects?
+  data_->scene.reset();
+  data_->script_context.reset();
   SDL_GL_DeleteContext(data_->gl_context);
   SDL_DestroyWindow(data_->main_window);
   SDL_Quit();
@@ -85,47 +89,27 @@ bool Engine::Initialize() {
   glEnable(GL_DEPTH_TEST);  // TODO: Should never error?
   glEnable(GL_CULL_FACE);  // TODO: Should never error?
 
-  data_->resource_context.reset(new ResourceContext);
-  data_->scene.reset(new Scene);
+  // TODO: Setup camera in script
+  glm::mat4 projection_matrix = glm::perspective(
+    glm::radians(45.0f),
+    // TODO: Don't get window values from constants
+    static_cast<float>(640) / static_cast<float>(480),
+    0.1f, 300.0f);
 
-  data_->main_script = data_->resource_context->LoadScript(
-    "data/script/main.lua", "main");
+  Camera camera { projection_matrix };
+  camera.transform.SetTranslation(glm::vec3(80.0f, 103.0f, -115.0f));
+  camera.transform.LookAt(glm::vec3(80.0f, 63.0f, 0.0f));
+
+  data_->scene.reset(new Scene {
+    camera,
+  });
+
+  // data_->scene.reset(new Scene);
+  data_->script_context.reset(
+    new ScriptContext(data_->scene, "data/script/main.lua"));
 
   return true;
 }
-
-// // TODO: Get rid of this function. Put in a script context object?
-// bool Engine::LoadLevel(const std::string& filename) {
-//   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
-
-//   std::ifstream levelfile(filename);
-
-//   if (!levelfile) {
-//     BOOST_LOG_SEV(log, LogSeverity::kError)
-//       << "Failed to open level file: " << filename;
-//     return false;
-//   }
-
-//   auto leveldata = LevelData::FromStream(levelfile);
-
-//   glm::mat4 projection_matrix = glm::perspective(
-//     glm::radians(45.0f),
-//     // TODO: Don't get window values from constants
-//     static_cast<float>(640) / static_cast<float>(480),
-//     0.1f, 300.0f);
-
-//   Camera camera { projection_matrix };
-//   camera.transform.SetTranslation(glm::vec3(80.0f, 103.0f, -115.0f));
-//   camera.transform.LookAt(glm::vec3(80.0f, 63.0f, 0.0f));
-
-//   data_->scene.reset(new Scene {
-//     camera,
-//   });
-
-//   LevelResource level(leveldata, *data_->resource_context, *data_->scene);
-
-//   return true;
-// }
 
 int Engine::Run() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
@@ -200,7 +184,7 @@ int Engine::Run() {
         }
       }
 
-      data_->main_script->Update(seconds_per_update);
+      data_->script_context->Update(seconds_per_update);
     }
 
     // TODO: Check OpenGL errors?
@@ -214,3 +198,5 @@ int Engine::Run() {
 
   return 0;
 }
+
+};  // namespace Jumpman

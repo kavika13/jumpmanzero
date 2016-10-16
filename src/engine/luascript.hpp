@@ -5,7 +5,8 @@
 
 class LuaScript {
  public:
-  LuaScript(const std::string& filename);
+  LuaScript(
+    const std::string& filename, std::function<void(sol::state&)> add_bindings);
 
   void Update(double elapsed_seconds);
 

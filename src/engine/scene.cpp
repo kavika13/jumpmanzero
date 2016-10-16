@@ -13,7 +13,7 @@ void Scene::Draw(double time_since_last_frame) {
 
     if (mesh_component) {
       // TODO: Handle enable/diable alpha blend depending on texture data
-      auto current_material = mesh_component->material.lock();
+      auto current_material = mesh_component->material;
 
       // TODO: Move to mesh component/material
       if (current_material != previous_material) {
@@ -28,7 +28,7 @@ void Scene::Draw(double time_since_last_frame) {
       current_material->BindMvpMatrix(mvp_matrix);
 
       // TODO: Move to mesh component
-      auto mesh = mesh_component->mesh.lock();
+      auto mesh = mesh_component->mesh;
       mesh->Draw();
     }
   }

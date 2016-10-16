@@ -6,9 +6,14 @@
 #include "resourcecontext.hpp"
 #include "shader.hpp"
 
+ResourceContext::ResourceContext(
+  ResourceContext::ScriptFactory script_factory)
+    : script_factory_(script_factory) {
+}
+
 std::shared_ptr<LuaScript> ResourceContext::LoadScript(
     const std::string& filename, const std::string& tag) {
-  std::shared_ptr<LuaScript> script(new LuaScript(filename));
+  std::shared_ptr<LuaScript> script = script_factory_(filename);
 
   scripts_.push_back(script);
 
@@ -18,7 +23,11 @@ std::shared_ptr<LuaScript> ResourceContext::LoadScript(
 }
 
 std::shared_ptr<LuaScript> ResourceContext::FindScript(const std::string& tag) {
-  return tag_to_script_map_.at(tag).lock();
+  auto iter = tag_to_script_map_.find(tag);
+  if (iter == tag_to_script_map_.end()) {
+    throw std::runtime_error("Failed to find script with tag: " + tag);
+  }
+  return iter->second.lock();
 }
 
 std::shared_ptr<Texture> ResourceContext::LoadTexture(
@@ -55,7 +64,11 @@ std::shared_ptr<Texture> ResourceContext::LoadTexture(
 }
 
 std::shared_ptr<Texture> ResourceContext::FindTexture(const std::string& tag) {
-  return tag_to_texture_map_.at(tag).lock();
+  auto iter = tag_to_texture_map_.find(tag);
+  if (iter == tag_to_texture_map_.end()) {
+    throw std::runtime_error("Failed to find texture with tag: " + tag);
+  }
+  return iter->second.lock();
 }
 
 std::shared_ptr<Material> ResourceContext::LoadMaterial(
@@ -111,7 +124,11 @@ std::shared_ptr<Material> ResourceContext::LoadMaterial(
 
 std::shared_ptr<Material> ResourceContext::FindMaterial(
     const std::string& tag) {
-  return tag_to_material_map_.at(tag).lock();
+  auto iter = tag_to_material_map_.find(tag);
+  if (iter == tag_to_material_map_.end()) {
+    throw std::runtime_error("Failed to find material with tag: " + tag);
+  }
+  return iter->second.lock();
 }
 
 std::shared_ptr<TriangleMesh> ResourceContext::CreateMesh(
@@ -167,5 +184,9 @@ std::shared_ptr<TriangleMesh> ResourceContext::LoadMesh(
 
 std::shared_ptr<TriangleMesh> ResourceContext::FindMesh(
     const std::string& tag) {
-  return tag_to_mesh_map_.at(tag).lock();
+  auto iter = tag_to_mesh_map_.find(tag);
+  if (iter == tag_to_mesh_map_.end()) {
+    throw std::runtime_error("Failed to find mesh with tag: " + tag);
+  }
+  return iter->second.lock();
 }

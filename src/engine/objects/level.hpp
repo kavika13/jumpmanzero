@@ -23,10 +23,11 @@ class Level {
   using ObjectRef = std::shared_ptr<T>;
 
   template <typename T>
-  using ObjectIterator = typename std::vector<ObjectRef<T>>::const_iterator;
+  using ObjectContainer = std::vector<ObjectRef<T>>;
 
   explicit Level(const LevelData& data, ResourceContext& resource_context);
 
+  // TODO: Reference these scripts instead of just holding tags
   const std::string main_script_tag;
   const std::string donut_script_tag;
   const std::string background_track_tag;
@@ -40,24 +41,21 @@ class Level {
   size_t NumLadders() const;
   size_t NumVines() const;
 
-  ObjectIterator<QuadObject> GetQuads() const;
-  ObjectIterator<DonutObject> GetDonuts() const;
-  ObjectIterator<PlatformObject> GetPlatforms() const;
-  ObjectIterator<WallObject> GetWalls() const;
-  ObjectIterator<LadderObject> GetLadders() const;
-  ObjectIterator<VineObject> GetVines() const;
+  const ObjectContainer<QuadObject>& GetQuads() const;
+  const ObjectContainer<DonutObject>& GetDonuts() const;
+  const ObjectContainer<PlatformObject>& GetPlatforms() const;
+  const ObjectContainer<WallObject>& GetWalls() const;
+  const ObjectContainer<LadderObject>& GetLadders() const;
+  const ObjectContainer<VineObject>& GetVines() const;
 
-  const ObjectRef<QuadObject> FindQuads(const std::string& tag) const;
-  const ObjectRef<DonutObject> FindDonuts(const std::string& tag) const;
-  const ObjectRef<PlatformObject> FindPlatforms(const std::string& tag) const;
-  const ObjectRef<WallObject> FindWalls(const std::string& tag) const;
-  const ObjectRef<LadderObject> FindLadders(const std::string& tag) const;
-  const ObjectRef<VineObject> FindVines(const std::string& tag) const;
+  const ObjectRef<QuadObject> FindQuad(const std::string& tag) const;
+  const ObjectRef<DonutObject> FindDonut(const std::string& tag) const;
+  const ObjectRef<PlatformObject> FindPlatform(const std::string& tag) const;
+  const ObjectRef<WallObject> FindWall(const std::string& tag) const;
+  const ObjectRef<LadderObject> FindLadder(const std::string& tag) const;
+  const ObjectRef<VineObject> FindVine(const std::string& tag) const;
 
  private:
-  template <typename T>
-  using ObjectContainer = std::vector<ObjectRef<T>>;
-
   template <typename T>
   using TagObjectMap = std::unordered_map<std::string, std::weak_ptr<T>>;
 

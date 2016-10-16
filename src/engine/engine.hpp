@@ -3,7 +3,7 @@
 
 #include <memory>
 
-struct EngineData;
+namespace Jumpman {
 
 class Engine {
  public:
@@ -14,7 +14,10 @@ class Engine {
   int Run();
 
  private:
+  struct EngineData;
   std::unique_ptr<EngineData> data_;
 };
+
+};  // namespace Jumpman
 
 #endif  // ENGINE_ENGINE_HPP_

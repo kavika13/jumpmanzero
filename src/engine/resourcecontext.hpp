@@ -4,13 +4,18 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "material.hpp"
 #include "luascript.hpp"
+#include "material.hpp"
 #include "texture.hpp"
 #include "trianglemesh.hpp"
 
 class ResourceContext {
  public:
+  using ScriptFactory =
+    std::function<std::shared_ptr<LuaScript>(const std::string&)>;
+
+  ResourceContext(ScriptFactory script_factory);
+
   std::shared_ptr<LuaScript> LoadScript(
     const std::string& filename, const std::string& tag);
   std::shared_ptr<LuaScript> FindScript(const std::string& tag);
@@ -51,6 +56,8 @@ class ResourceContext {
   // }
 
  private:
+  const ScriptFactory script_factory_;
+
   std::vector<std::shared_ptr<LuaScript>> scripts_;
   std::vector<std::shared_ptr<Texture>> textures_;
   std::vector<std::shared_ptr<Material>> materials_;

@@ -15,15 +15,15 @@ class Material {
 
   void SetActive() noexcept;
 
-  void SetTexture(std::weak_ptr<Texture>) noexcept;
-  std::weak_ptr<Texture> GetTexture() noexcept;
+  void SetTexture(std::shared_ptr<Texture>) noexcept;
+  std::shared_ptr<Texture> GetTexture() noexcept;
   void BindTexture(GLuint texture_index);
 
   void BindMvpMatrix(const glm::mat4& mvp_matrix);
 
  private:
   std::shared_ptr<ShaderProgram> shader_program_;
-  std::weak_ptr<Texture> texture_;
+  std::shared_ptr<Texture> texture_;
   ShaderUniformParameter current_texture_param_;
   ShaderUniformParameter mvp_matrix_param_;
 };

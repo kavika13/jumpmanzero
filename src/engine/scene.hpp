@@ -11,8 +11,8 @@
 
 struct MeshComponent {
   // TODO: shared_ptr?
-  std::weak_ptr<TriangleMesh> mesh;
-  std::weak_ptr<Material> material;
+  std::shared_ptr<TriangleMesh> mesh;
+  std::shared_ptr<Material> material;
   // TODO: Make into a good class
 };
 
@@ -21,10 +21,9 @@ struct SceneObject {
   std::shared_ptr<MeshComponent> mesh_component;
 };
 
-struct Camera {
+struct Camera {  // TODO: Make into a good class
   glm::mat4 projection_matrix;
   Transform transform;
-  // TODO: Make into a good class
 };
 
 struct Scene {
