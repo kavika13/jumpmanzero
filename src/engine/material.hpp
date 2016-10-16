@@ -13,11 +13,10 @@ class Material {
  public:
   Material(std::shared_ptr<ShaderProgram>) noexcept;
 
-  void SetActive() noexcept;
+  void Activate(const Material* previous_material);
 
   void SetTexture(std::shared_ptr<Texture>) noexcept;
   std::shared_ptr<Texture> GetTexture() noexcept;
-  void BindTexture(GLuint texture_index);
 
   void BindMvpMatrix(const glm::mat4& mvp_matrix);
 

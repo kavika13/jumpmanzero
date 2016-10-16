@@ -7,8 +7,20 @@ Material::Material(std::shared_ptr<ShaderProgram> shader_program) noexcept
     , mvp_matrix_param_(*shader_program, "mvp_matrix") {
 }
 
-void Material::SetActive() noexcept {
-  glUseProgram(*shader_program_);
+void Material::Activate(const Material* previous_material) {
+  if (!previous_material
+      || previous_material->shader_program_ != shader_program_) {
+    glUseProgram(*shader_program_);
+  }
+
+  if (!previous_material
+      || previous_material->texture_ != texture_) {
+    // TODO: Handle enable/diable alpha blend depending on texture data
+    // TODO: Pass in texture index? Store it as a material property?
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, *texture_);
+    glUniform1i(current_texture_param_, 0);
+  }
 }
 
 void Material::SetTexture(std::shared_ptr<Texture> texture) noexcept {
@@ -18,12 +30,6 @@ void Material::SetTexture(std::shared_ptr<Texture> texture) noexcept {
 
 std::shared_ptr<Texture> Material::GetTexture() noexcept {
   return texture_;
-}
-
-void Material::BindTexture(GLuint texture_index) {
-  glActiveTexture(GL_TEXTURE0);  // TODO: base off texture_index
-  glBindTexture(GL_TEXTURE_2D, *texture_);
-  glUniform1i(current_texture_param_, texture_index);
 }
 
 void Material::BindMvpMatrix(const glm::mat4& mvp_matrix) {

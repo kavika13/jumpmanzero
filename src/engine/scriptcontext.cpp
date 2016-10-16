@@ -214,8 +214,9 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
 
         , "orientation", sol::property(
           &Transform::GetOrientation, &Transform::SetOrientation)
+        , "set_angle_axis_rotation", &Transform::SetAngleAxisRotation
 
-        // TODO: Axis-angle rotation
+        , "rotate_on_angle_axis", &Transform::RotateOnAngleAxis
 
         , "translation", sol::property(
           &Transform::GetTranslation,
@@ -247,6 +248,11 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
 
         , "transform", &SceneObject::transform
         , "mesh_component", &SceneObject::mesh_component
+        , "children", &SceneObject::children
+        , "add_child", [](
+            SceneObject& scene_object, std::shared_ptr<SceneObject> child) {
+          scene_object.children.push_back(child);
+        }
       );
 
       jumpman.new_usertype<glm::mat4>("Matrix"

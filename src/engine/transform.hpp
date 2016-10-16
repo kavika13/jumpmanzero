@@ -17,6 +17,7 @@ class Transform {
   void SetOrientation(const glm::quat& value);
   void SetAngleAxisRotation(float radians, const glm::vec3& axis);
   const glm::quat& GetOrientation() const;
+  void RotateOnAngleAxis(float radians, const glm::vec3& axis);
 
   void SetTranslation(const glm::vec3& value);
   void SetTranslation(float x, float y, float z);

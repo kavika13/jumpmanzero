@@ -48,6 +48,11 @@ void Transform::SetAngleAxisRotation(float radians, const glm::vec3& axis) {
   are_matrices_dirty_ = true;
 }
 
+void Transform::RotateOnAngleAxis(float radians, const glm::vec3& axis) {
+  orientation_ *= glm::angleAxis(radians, axis);
+  are_matrices_dirty_ = true;
+}
+
 const glm::quat& Transform::GetOrientation() const {
   return orientation_;
 }
