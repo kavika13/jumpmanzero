@@ -161,10 +161,10 @@ SCENARIO ("load old level files and verify there are no errors",
             "platform3", "1", true, false, true, false, true, true,
             PlatformType::kPlain, 14.0f, 18.0f,
             {
-              VertexData({ 119.0f, 125.0f, 80.0f, 0.0f, 0.0f }),
-              VertexData({ 127.0f, 120.0f, 80.0f, 1.0f, 0.0f }),
-              VertexData({ 119.0f, 122.0f, 80.0f, 0.0f, 1.0f }),
-              VertexData({ 127.0f, 117.0f, 80.0f, 1.0f, 1.0f }),
+              VertexData({ 119.0f, 125.0f, 0.0f, 0.0f, 0.0f }),
+              VertexData({ 127.0f, 120.0f, 0.0f, 1.0f, 0.0f }),
+              VertexData({ 119.0f, 122.0f, 0.0f, 0.0f, 1.0f }),
+              VertexData({ 127.0f, 117.0f, 0.0f, 1.0f, 1.0f }),
             }
           },
           {
