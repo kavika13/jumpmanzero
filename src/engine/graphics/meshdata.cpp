@@ -55,9 +55,13 @@ MeshData MeshData::FromStream(std::istream& stream) {
     size_t index_offset = 0;
 
     for (const auto& face_vertex_count: shape.mesh.num_face_vertices) {
-      for (size_t vertex_index = 0;
-           vertex_index < face_vertex_count;
-           ++vertex_index) {
+      // TODO: Triangulate vertices if necessary
+      if (face_vertex_count != 3) {
+        throw std::runtime_error("Cannot load mesh with non-triangle face");
+      }
+
+      auto load_vertex = [&shape, &index_offset, &vertices, &attrib](
+          size_t vertex_index) {
         tinyobj::index_t idx = shape.mesh.indices[index_offset + vertex_index];
 
         vertices.push_back({
@@ -70,9 +74,12 @@ MeshData MeshData::FromStream(std::istream& stream) {
           attrib.texcoords[2 * idx.texcoord_index + 0],
           attrib.texcoords[2 * idx.texcoord_index + 1],
         });
-      }
+      };
 
-      // TODO: Triangulate vertices if necessary
+      // Flip winding order
+      load_vertex(0);
+      load_vertex(2);
+      load_vertex(1);
 
       index_offset += face_vertex_count;
     }

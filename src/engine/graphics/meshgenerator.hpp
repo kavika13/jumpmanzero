@@ -34,9 +34,6 @@ class MeshGenerator {
     ResourceContext&, const std::string& tag) const;
 
  private:
-  Vertex AppendTexCoord(const Vertex& vertex, float tu, float tv);
-  Vertex AppendZCoord(const Vertex& vertex, float z);
-
   std::vector<Vertex> vertices_;
 };
 

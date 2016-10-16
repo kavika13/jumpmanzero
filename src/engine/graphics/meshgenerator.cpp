@@ -1,8 +1,49 @@
 #include "meshgenerator.hpp"
+#define GLM_FORCE_LEFT_HANDED
+#include <glm/vec3.hpp>
 
 namespace Jumpman {
 
 namespace Graphics {
+
+static Vertex AppendNormalCoord(const Vertex& vertex, const glm::vec3& normal) {
+  return Vertex {
+    vertex.x,
+    vertex.y,
+    vertex.z,
+    normal.x,
+    normal.y,
+    normal.z,
+    vertex.tu,
+    vertex.tv,
+  };
+}
+
+static Vertex AppendTexCoord(const Vertex& vertex, float tu, float tv) {
+  return Vertex {
+    vertex.x,
+    vertex.y,
+    vertex.z,
+    vertex.nx,
+    vertex.ny,
+    vertex.nz,
+    tu,
+    tv,
+  };
+}
+
+static Vertex AppendZCoord(const Vertex& vertex, float z) {
+  return Vertex {
+    vertex.x,
+    vertex.y,
+    z,
+    vertex.nx,
+    vertex.ny,
+    vertex.nz,
+    vertex.tu,
+    vertex.tv,
+  };
+}
 
 Vertex MeshGenerator::ConvertVertex(const VertexData& vertex) {
   return Vertex {
@@ -19,9 +60,14 @@ Vertex MeshGenerator::ConvertVertex(const VertexData& vertex) {
 
 void MeshGenerator::AddTriangle(
     const Vertex& v0, const Vertex& v1, const Vertex& v2) {
-  vertices_.push_back(v0);
-  vertices_.push_back(v1);
-  vertices_.push_back(v2);
+  glm::vec3 v0pos(v0.x, v0.y, v0.z);
+  glm::vec3 v1pos(v1.x, v1.y, v1.z);
+  glm::vec3 v2pos(v2.x, v2.y, v2.z);
+  glm::vec3 normal = glm::cross(v0pos - v1pos, v2pos - v1pos);
+
+  vertices_.push_back(AppendNormalCoord(v0, normal));
+  vertices_.push_back(AppendNormalCoord(v1, normal));
+  vertices_.push_back(AppendNormalCoord(v2, normal));
 }
 
 void MeshGenerator::AddPretexturedQuad(
@@ -171,32 +217,6 @@ void MeshGenerator::AddSkewedCube(
 std::shared_ptr<TriangleMesh> MeshGenerator::CreateMesh(
     ResourceContext& resource_context, const std::string& tag) const {
   return resource_context.CreateMesh(vertices_, tag);
-}
-
-Vertex MeshGenerator::AppendTexCoord(const Vertex& vertex, float tu, float tv) {
-  return Vertex {
-    vertex.x,
-    vertex.y,
-    vertex.z,
-    vertex.nx,
-    vertex.ny,
-    vertex.nz,
-    tu,
-    tv,
-  };
-}
-
-Vertex MeshGenerator::AppendZCoord(const Vertex& vertex, float z) {
-  return Vertex {
-    vertex.x,
-    vertex.y,
-    z,
-    vertex.nx,
-    vertex.ny,
-    vertex.nz,
-    vertex.tu,
-    vertex.tv,
-  };
 }
 
 };  // namespace Jumpman
