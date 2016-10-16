@@ -71,8 +71,7 @@ std::ostream& operator<<(std::ostream& stream, const VertexData& val);
 struct QuadObjectData {
   const std::string tag;
   const std::string material_tag;
-  // TODO: Can we derive these variables easily from the vertices?
-  const float origin_x, origin_y;  // TODO: Better names?
+  const float origin_x, origin_y, origin_z;
   const std::array<VertexData, 4> vertices;
 };
 
@@ -122,7 +121,7 @@ std::ostream& operator<<(std::ostream& stream, const WallObjectData& val);
 struct LadderObjectData {
   const std::string tag;
   const std::string material_tag;
-  const float origin_x, top_y, bottom_y, front_z;  // TODO: Better name for z?
+  const float origin_x, top_y, bottom_y, front_z;
 };
 
 bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);
@@ -131,7 +130,7 @@ std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
 struct VineObjectData {
   const std::string tag;
   const std::string material_tag;
-  const float origin_x, top_y, bottom_y, front_z;  // TODO: Better name for z?
+  const float origin_x, top_y, bottom_y, front_z;
 };
 
 bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);

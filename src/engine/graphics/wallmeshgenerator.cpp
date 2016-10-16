@@ -7,7 +7,8 @@ namespace Graphics {
 WallMeshGenerator::WallMeshGenerator(
     const WallObjectData& data,
     MeshGenerator& generator) {
-  // TODO: Bounding box, proper scene origin
+  // TODO: Bounding box
+  auto& origin = data.vertices[2];
   generator.AddSkewedCube(
     data.drawtop,
     data.drawbottom,
@@ -15,11 +16,15 @@ WallMeshGenerator::WallMeshGenerator(
     data.drawright,
     data.drawfront,
     data.drawback,
-    generator.ConvertVertex(data.vertices[0]),
-    generator.ConvertVertex(data.vertices[1]),
-    generator.ConvertVertex(data.vertices[2]),
-    generator.ConvertVertex(data.vertices[3]),
-    data.front_z, data.back_z);
+    generator.TranslateVertex(
+      data.vertices[0], -origin.x, -origin.y, 0.0f),
+    generator.TranslateVertex(
+      data.vertices[1], -origin.x, -origin.y, 0.0f),
+    generator.TranslateVertex(
+      data.vertices[2], -origin.x, -origin.y, 0.0f),
+    generator.TranslateVertex(
+      data.vertices[3], -origin.x, -origin.y, 0.0f),
+    0.0f, data.back_z - data.front_z);
 }
 
 };  // namespace Graphics

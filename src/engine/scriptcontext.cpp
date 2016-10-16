@@ -1,6 +1,7 @@
 #include <fstream>
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include "logging.hpp"
 #include "scriptcontext.hpp"
 
@@ -71,6 +72,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "material", sol::property(
             &Objects::QuadObject::GetMaterial,
             &Objects::QuadObject::SetMaterial)
+        , "origin", &Objects::QuadObject::origin
       );
 
       jumpman.new_usertype<Objects::DonutObject>("Donut"
@@ -81,6 +83,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "material", sol::property(
             &Objects::DonutObject::GetMaterial,
             &Objects::DonutObject::SetMaterial)
+        , "origin", &Objects::DonutObject::origin
       );
 
       jumpman.new_usertype<Objects::PlatformObject>("Platform"
@@ -92,6 +95,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "material", sol::property(
             &Objects::PlatformObject::GetMaterial,
             &Objects::PlatformObject::SetMaterial)
+        , "origin", &Objects::PlatformObject::origin
       );
 
       jumpman.new_usertype<Objects::WallObject>("Wall"
@@ -102,6 +106,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "material", sol::property(
             &Objects::WallObject::GetMaterial,
             &Objects::WallObject::SetMaterial)
+        , "origin", &Objects::WallObject::origin
       );
 
       jumpman.new_usertype<Objects::LadderObject>("Ladder"
@@ -112,6 +117,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "material", sol::property(
             &Objects::LadderObject::GetMaterial,
             &Objects::LadderObject::SetMaterial)
+        , "origin", &Objects::LadderObject::origin
       );
 
       jumpman.new_usertype<Objects::VineObject>("Vine"
@@ -122,6 +128,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "material", sol::property(
             &Objects::VineObject::GetMaterial,
             &Objects::VineObject::SetMaterial)
+        , "origin", &Objects::VineObject::origin
       );
 
       jumpman.new_usertype<Objects::Level>("Level"
@@ -181,6 +188,8 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
 
         , sol::meta_function::index, static_cast<float&(glm::vec3::*)(int)>(
           &glm::vec3::operator[])
+        , sol::meta_function::to_string,
+          static_cast<std::string(*)(const glm::vec3&)>(&glm::to_string)
 
         , "x", &glm::vec3::x
         , "y", &glm::vec3::y

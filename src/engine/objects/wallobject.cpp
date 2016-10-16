@@ -7,7 +7,8 @@ namespace Jumpman {
 namespace Objects {
 
 WallObject::WallObject(
-    const WallObjectData& data, ResourceContext& resource_context) {
+  const WallObjectData& data, ResourceContext& resource_context)
+    : origin(data.vertices[2].x, data.vertices[2].y, data.front_z) {
   Graphics::MeshGenerator generator;
   Graphics::WallMeshGenerator generate_wall_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);

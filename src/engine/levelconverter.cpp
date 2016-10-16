@@ -467,6 +467,17 @@ LevelData LevelConverter::Convert() {
     };
   };
 
+  auto translate = [](const VertexData& source, float x, float y, float z)
+      -> const VertexData {
+    return {
+      source.x + x,
+      source.y + y,
+      source.z + z,
+      source.tu,
+      source.tv,
+    };
+  };
+
   auto make_tag = [](const std::string& type, const LevelObjectEntry& object) {
     return object.tag_handle != 0
       ? (type + std::to_string(object.tag_handle))
@@ -488,17 +499,28 @@ LevelData LevelConverter::Convert() {
             });
           });
         LevelObjectVertex origin = { sum.x / 4, sum.y / 4 };
+        origin.x = origin.x < 0.0f ? 0.0f : origin.x;
+        origin.y = origin.y < 0.0f ? 0.0f : origin.y;
 
         quads.push_back({
           make_tag("quad", object),
           std::to_string(object.texture_index),
-          origin.x < 0.0f ? 0.0f : origin.x,
-          origin.y < 0.0f ? 0.0f : origin.y,
+          origin.x,
+          origin.y,
+          object.near_z,
           {
-            convert_vertex(vertices[0]),
-            convert_vertex(vertices[1]),
-            convert_vertex(vertices[2]),
-            convert_vertex(vertices[3]),
+            translate(
+              convert_vertex(vertices[0]),
+              -origin.x, -origin.y, -object.near_z),
+            translate(
+              convert_vertex(vertices[1]),
+              -origin.x, -origin.y, -object.near_z),
+            translate(
+              convert_vertex(vertices[2]),
+              -origin.x, -origin.y, -object.near_z),
+            translate(
+              convert_vertex(vertices[3]),
+              -origin.x, -origin.y, -object.near_z),
           },
         });
         break;

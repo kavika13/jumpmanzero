@@ -7,7 +7,8 @@ namespace Jumpman {
 namespace Objects {
 
 VineObject::VineObject(
-    const VineObjectData& data, ResourceContext& resource_context) {
+  const VineObjectData& data, ResourceContext& resource_context)
+    : origin(data.origin_x, data.bottom_y, data.front_z) {
   Graphics::MeshGenerator generator;
   Graphics::VineMeshGenerator generate_vine_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);

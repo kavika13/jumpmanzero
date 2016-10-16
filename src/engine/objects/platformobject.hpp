@@ -2,6 +2,8 @@
 #define ENGINE_OBJECTS_PLATFORMOBJECT_HPP_
 
 #include <memory>
+#define GLM_FORCE_LEFT_HANDED
+#include <memory>
 #include "engine/leveldata.hpp"
 #include "engine/resourcecontext.hpp"
 
@@ -18,6 +20,8 @@ class PlatformObject {
 
   std::shared_ptr<Material> GetMaterial();
   void SetMaterial(std::shared_ptr<Material> material);
+
+  glm::vec3 origin;
 
  private:
   std::shared_ptr<TriangleMesh> mesh_;

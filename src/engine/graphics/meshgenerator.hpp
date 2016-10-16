@@ -13,6 +13,7 @@ namespace Graphics {
 class MeshGenerator {
  public:
   Vertex ConvertVertex(const VertexData& vertex);
+  Vertex TranslateVertex(const VertexData& vertex, float x, float y, float z);
 
   void AddTriangle(const Vertex& v0, const Vertex& v1, const Vertex& v2);
   void AddPretexturedQuad(

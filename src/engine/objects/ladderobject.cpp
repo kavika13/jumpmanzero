@@ -7,7 +7,8 @@ namespace Jumpman {
 namespace Objects {
 
 LadderObject::LadderObject(
-    const LadderObjectData& data, ResourceContext& resource_context) {
+  const LadderObjectData& data, ResourceContext& resource_context)
+    : origin(data.origin_x, data.bottom_y, data.front_z) {
   Graphics::MeshGenerator generator;
   Graphics::LadderMeshGenerator generate_ladder_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);

@@ -112,12 +112,12 @@ SCENARIO ("load old level files and verify there are no errors",
 
         const std::vector<QuadObjectData> expected_quads = {
           {
-            "", "5", 77.5f, 30.0f,
+            "", "5", 77.5f, 30.0f, 80.0f,
             {
-              VertexData({ -100.0f, 200.0f, 80.0f, 0.0f, 0.0f }),
-              VertexData({ 255.0f, 200.0f, 80.0f, 1.0f, 0.0f }),
-              VertexData({ -100.0f, -140.0f, 80.0f, 0.0f, 1.0f }),
-              VertexData({ 255.0f, -140.0f, 80.0f, 1.0f, 1.0f }),
+              VertexData({ -177.5f, 170.0f, 0.0f, 0.0f, 0.0f }),
+              VertexData({ 177.5f, 170.0f, 0.0f, 1.0f, 0.0f }),
+              VertexData({ -177.5f, -170.0f, 0.0f, 0.0f, 1.0f }),
+              VertexData({ 177.5f, -170.0f, 0.0f, 1.0f, 1.0f }),
             }
           }
         };

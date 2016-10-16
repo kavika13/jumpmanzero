@@ -32,11 +32,11 @@ static Vertex AppendTexCoord(const Vertex& vertex, float tu, float tv) {
   };
 }
 
-static Vertex AppendZCoord(const Vertex& vertex, float z) {
+static Vertex TranslateVertexZ(const Vertex& vertex, float z) {
   return Vertex {
     vertex.x,
     vertex.y,
-    z,
+    vertex.z + z,
     vertex.nx,
     vertex.ny,
     vertex.nz,
@@ -53,6 +53,23 @@ Vertex MeshGenerator::ConvertVertex(const VertexData& vertex) {
     0.0f,
     0.0f,
     0.0f,
+    vertex.tu,
+    vertex.tv,
+  };
+}
+
+Vertex MeshGenerator::TranslateVertex(
+    const VertexData& vertex,
+    float translate_x,
+    float translate_y,
+    float translate_z) {
+  return Vertex {
+    vertex.x + translate_x,
+    vertex.y + translate_y,
+    vertex.z + translate_z,
+    vertex.x,
+    vertex.y,
+    vertex.z,
     vertex.tu,
     vertex.tv,
   };
@@ -127,14 +144,14 @@ void MeshGenerator::AddSkewedCube(
     const Vertex& v0, const Vertex& v1, const Vertex& v2, const Vertex& v3,
     float front_z, float back_z) {
   // TODO: Reduce the math/temp variables here
-  const Vertex left_top_front = AppendZCoord(v0, front_z);
-  const Vertex left_top_back = AppendZCoord(v0, back_z);
-  const Vertex left_bottom_front = AppendZCoord(v2, front_z);
-  const Vertex left_bottom_back = AppendZCoord(v2, back_z);
-  const Vertex right_top_front = AppendZCoord(v1, front_z);
-  const Vertex right_top_back = AppendZCoord(v1, back_z);
-  const Vertex right_bottom_front = AppendZCoord(v3, front_z);
-  const Vertex right_bottom_back = AppendZCoord(v3, back_z);
+  const Vertex left_top_front = TranslateVertexZ(v0, front_z);
+  const Vertex left_top_back = TranslateVertexZ(v0, back_z);
+  const Vertex left_bottom_front = TranslateVertexZ(v2, front_z);
+  const Vertex left_bottom_back = TranslateVertexZ(v2, back_z);
+  const Vertex right_top_front = TranslateVertexZ(v1, front_z);
+  const Vertex right_top_back = TranslateVertexZ(v1, back_z);
+  const Vertex right_bottom_front = TranslateVertexZ(v3, front_z);
+  const Vertex right_bottom_back = TranslateVertexZ(v3, back_z);
 
   const glm::vec2 top_left_vec = glm::vec2(
     left_top_front.x, left_top_front.y);

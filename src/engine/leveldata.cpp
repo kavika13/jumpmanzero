@@ -97,6 +97,7 @@ bool operator==(const QuadObjectData& lhs, const QuadObjectData& rhs) {
     && lhs.material_tag == rhs.material_tag
     && lhs.origin_x == rhs.origin_x
     && lhs.origin_y == rhs.origin_y
+    && lhs.origin_z == rhs.origin_z
     && lhs.vertices[0] == rhs.vertices[0]
     && lhs.vertices[1] == rhs.vertices[1]
     && lhs.vertices[2] == rhs.vertices[2]
@@ -108,6 +109,7 @@ std::ostream& operator<<(std::ostream& stream, const QuadObjectData& val) {
     << " - material_tag: " << val.material_tag
     << " - origin_x: " << val.origin_x
     << " - origin_y: " << val.origin_y
+    << " - origin_z: " << val.origin_z
     << " - vertices[0]: " << val.vertices[0]
     << " - vertices[1]: " << val.vertices[1]
     << " - vertices[2]: " << val.vertices[2]
@@ -376,6 +378,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
       quad_node["materialTag"].asString(),
       quad_node["originX"].asFloat(),
       quad_node["originY"].asFloat(),
+      quad_node["originZ"].asFloat(),
       {
         vertices_data[0],
         vertices_data[1],
@@ -636,6 +639,7 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     quad_node["originX"] = quad.origin_x;
     quad_node["originY"] = quad.origin_y;
+    quad_node["originZ"] = quad.origin_z;
 
     Json::Value vertices_node(Json::arrayValue);
     for (const auto& vertex: quad.vertices) {

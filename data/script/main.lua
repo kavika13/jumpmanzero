@@ -9,6 +9,7 @@ function bind_to_scene(object)
 
   local scene_object = jumpman.SceneObject.new()
   scene_object.mesh_component = mesh_component
+  scene_object.transform.translation = object.origin
 
   scene:add_object(scene_object)
 
@@ -50,11 +51,13 @@ local bullets = {}
 table.insert(bullets, bind_to_scene({
   mesh=context:find_mesh("0"),
   material=context:find_material("4"),
+  origin=jumpman.Vector3.new(),
 }))
 
 table.insert(bullets, bind_to_scene({
   mesh=context:find_mesh("1"),
   material=context:find_material("4"),
+  origin=jumpman.Vector3.new(),
 }))
 
 local camera = scene.camera

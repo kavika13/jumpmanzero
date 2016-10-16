@@ -5,9 +5,8 @@ namespace Jumpman {
 namespace Graphics {
 
 QuadMeshGenerator::QuadMeshGenerator(
-    const QuadObjectData& data,
-    MeshGenerator& generator) {
-  // TODO: Bounding box, proper scene origin
+    const QuadObjectData& data, MeshGenerator& generator) {
+  // TODO: Bounding box
   const Vertex v0 = generator.ConvertVertex(data.vertices[0]);
   const Vertex v1 = generator.ConvertVertex(data.vertices[1]);
   const Vertex v2 = generator.ConvertVertex(data.vertices[2]);

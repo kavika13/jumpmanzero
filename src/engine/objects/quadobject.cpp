@@ -7,7 +7,8 @@ namespace Jumpman {
 namespace Objects {
 
 QuadObject::QuadObject(
-    const QuadObjectData& data, ResourceContext& resource_context) {
+  const QuadObjectData& data, ResourceContext& resource_context)
+    : origin(data.origin_x, data.origin_y, data.origin_z) {
   Graphics::MeshGenerator generator;
   Graphics::QuadMeshGenerator generate_quad_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);

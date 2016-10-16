@@ -7,7 +7,8 @@ namespace Jumpman {
 namespace Objects {
 
 DonutObject::DonutObject(
-    const DonutObjectData& data, ResourceContext& resource_context) {
+      const DonutObjectData& data, ResourceContext& resource_context)
+    : origin(data.origin_x, data.origin_y, data.origin_z) {
   Graphics::MeshGenerator generator;
   Graphics::DonutMeshGenerator generate_donut_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);

@@ -7,7 +7,8 @@ namespace Jumpman {
 namespace Objects {
 
 PlatformObject::PlatformObject(
-    const PlatformObjectData& data, ResourceContext& resource_context) {
+  const PlatformObjectData& data, ResourceContext& resource_context)
+    : origin(data.vertices[2].x, data.vertices[2].y, data.front_z) {
   Graphics::MeshGenerator generator;
   Graphics::PlatformMeshGenerator generate_platform_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);
