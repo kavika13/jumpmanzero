@@ -7,6 +7,7 @@ namespace Graphics {
 LadderMeshGenerator::LadderMeshGenerator(
     const LadderObjectData& data,
     MeshGenerator& mesh_generator) {
+  // TODO: Bounding box, proper scene origin
   mesh_generator.AddCube(
     data.origin_x - 6.5f, data.top_y, data.front_z,
     data.origin_x - 5.2f, data.bottom_y, data.front_z + 1);

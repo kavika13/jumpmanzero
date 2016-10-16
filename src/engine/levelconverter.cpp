@@ -525,10 +525,6 @@ LevelData LevelConverter::Convert() {
           object.drawleft,
           object.drawright,
           static_cast<PlatformType>(object.platform_type),
-          vertices[0].x,
-          vertices[0].y,
-          vertices[1].x,
-          vertices[1].y,
           object.near_z,
           object.far_z,
           {
@@ -551,6 +547,8 @@ LevelData LevelConverter::Convert() {
           object.drawback,
           object.drawleft,
           object.drawright,
+          object.near_z,
+          object.far_z,
           {
             convert_vertex(vertices[0]),
             convert_vertex(vertices[1]),

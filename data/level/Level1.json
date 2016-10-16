@@ -159,12 +159,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 33,
-				"endY" : 120,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 25,
-				"startY" : 125,
 				"tag" : "platform1",
 				"type" : "plain",
 				"vertices" : 
@@ -207,12 +203,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 41,
-				"endY" : 125,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 33,
-				"startY" : 120,
 				"tag" : "platform2",
 				"type" : "plain",
 				"vertices" : 
@@ -255,12 +247,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 127,
-				"endY" : 120,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 119,
-				"startY" : 125,
 				"tag" : "platform3",
 				"type" : "plain",
 				"vertices" : 
@@ -303,12 +291,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 135,
-				"endY" : 125,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 127,
-				"startY" : 120,
 				"tag" : "platform4",
 				"type" : "plain",
 				"vertices" : 
@@ -351,12 +335,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 58,
-				"endY" : 125,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 41,
-				"startY" : 125,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -398,12 +378,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 67,
-				"endY" : 130,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 58,
-				"startY" : 125,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -445,12 +421,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 102,
-				"endY" : 125,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 93,
-				"startY" : 130,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -492,12 +464,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 119,
-				"endY" : 125,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 102,
-				"startY" : 125,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -539,12 +507,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 157,
-				"endY" : 125,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 135,
-				"startY" : 125,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -586,12 +550,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 25,
-				"endY" : 125,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 3,
-				"startY" : 125,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -633,12 +593,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 25,
-				"endY" : 90,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 3,
-				"startY" : 90,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -680,12 +636,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 59,
-				"endY" : 95,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 42,
-				"startY" : 95,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -727,12 +679,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 69,
-				"endY" : 90,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 59,
-				"startY" : 95,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -774,12 +722,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 91,
-				"endY" : 90,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 69,
-				"startY" : 90,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -821,12 +765,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 101,
-				"endY" : 95,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 91,
-				"startY" : 90,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -868,12 +808,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 157,
-				"endY" : 90,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 135,
-				"startY" : 90,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -915,12 +851,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 118,
-				"endY" : 95,
 				"frontZ" : 14,
 				"materialTag" : "1",
-				"startX" : 101,
-				"startY" : 95,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -962,12 +894,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 157,
-				"endY" : 55,
 				"frontZ" : 9,
 				"materialTag" : "1",
-				"startX" : 125,
-				"startY" : 55,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1009,12 +937,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 110,
-				"endY" : 63,
 				"frontZ" : 9,
 				"materialTag" : "1",
-				"startX" : 50,
-				"startY" : 63,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1056,12 +980,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 35,
-				"endY" : 55,
 				"frontZ" : 9,
 				"materialTag" : "1",
-				"startX" : 3,
-				"startY" : 55,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1103,12 +1023,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 50,
-				"endY" : 35,
 				"frontZ" : 5,
 				"materialTag" : "1",
-				"startX" : 35,
-				"startY" : 25,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1150,12 +1066,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 110,
-				"endY" : 35,
 				"frontZ" : 5,
 				"materialTag" : "1",
-				"startX" : 50,
-				"startY" : 35,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1197,12 +1109,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 35,
-				"endY" : 25,
 				"frontZ" : 5,
 				"materialTag" : "1",
-				"startX" : 3,
-				"startY" : 25,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1244,12 +1152,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 125,
-				"endY" : 25,
 				"frontZ" : 5,
 				"materialTag" : "1",
-				"startX" : 110,
-				"startY" : 35,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1291,12 +1195,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 157,
-				"endY" : 25,
 				"frontZ" : 5,
 				"materialTag" : "1",
-				"startX" : 125,
-				"startY" : 25,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1338,12 +1238,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 65,
-				"endY" : 2,
 				"frontZ" : 1,
 				"materialTag" : "1",
-				"startX" : 3,
-				"startY" : 2,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1385,12 +1281,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 70,
-				"endY" : 5,
 				"frontZ" : 1,
 				"materialTag" : "1",
-				"startX" : 65,
-				"startY" : 2,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1432,12 +1324,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 90,
-				"endY" : 5,
 				"frontZ" : 1,
 				"materialTag" : "1",
-				"startX" : 70,
-				"startY" : 5,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1479,12 +1367,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 157,
-				"endY" : 2,
 				"frontZ" : 1,
 				"materialTag" : "1",
-				"startX" : 95,
-				"startY" : 2,
 				"type" : "plain",
 				"vertices" : 
 				[
@@ -1526,12 +1410,8 @@
 				"drawLeft" : true,
 				"drawRight" : true,
 				"drawTop" : true,
-				"endX" : 95,
-				"endY" : 2,
 				"frontZ" : 1,
 				"materialTag" : "1",
-				"startX" : 90,
-				"startY" : 5,
 				"type" : "plain",
 				"vertices" : 
 				[

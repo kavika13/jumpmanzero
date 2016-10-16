@@ -101,9 +101,7 @@ struct PlatformObjectData {
   const std::string material_tag;
   bool drawtop, drawbottom, drawfront, drawback, drawleft, drawright;
   const PlatformType platform_type;
-  // TODO: Can we derive these variables easily from the vertices?
-  // TODO: Better names?
-  const float start_x, start_y, end_x, end_y, front_z, back_z;
+  const float front_z, back_z;
   const std::array<VertexData, 4> vertices;
 };
 
@@ -114,6 +112,7 @@ struct WallObjectData {
   const std::string tag;
   const std::string material_tag;
   bool drawtop, drawbottom, drawfront, drawback, drawleft, drawright;
+  const float front_z, back_z;
   const std::array<VertexData, 4> vertices;
 };
 

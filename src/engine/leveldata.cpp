@@ -142,10 +142,6 @@ bool operator==(const PlatformObjectData& lhs, const PlatformObjectData& rhs) {
     && lhs.drawleft == rhs.drawleft
     && lhs.drawright == rhs.drawright
     && lhs.platform_type == rhs.platform_type
-    && lhs.start_x == rhs.start_x
-    && lhs.start_y == rhs.start_y
-    && lhs.end_x == rhs.end_x
-    && lhs.end_y == rhs.end_y
     && lhs.front_z == rhs.front_z
     && lhs.back_z == rhs.back_z
     && lhs.vertices[0] == rhs.vertices[0]
@@ -164,10 +160,6 @@ std::ostream& operator<<(std::ostream& stream, const PlatformObjectData& val) {
     << " - drawleft: " << val.drawleft
     << " - drawright: " << val.drawright
     << " - platform_type: " << static_cast<int>(val.platform_type)
-    << " - start_x: " << val.start_x
-    << " - start_y: " << val.start_y
-    << " - end_x: " << val.end_x
-    << " - end_y: " << val.end_y
     << " - front_z: " << val.front_z
     << " - back_z: " << val.back_z
     << " - vertices[0]: " << val.vertices[0]
@@ -186,6 +178,8 @@ bool operator==(const WallObjectData& lhs, const WallObjectData& rhs) {
     && lhs.drawback == rhs.drawback
     && lhs.drawleft == rhs.drawleft
     && lhs.drawright == rhs.drawright
+    && lhs.front_z == rhs.front_z
+    && lhs.back_z == rhs.back_z
     && lhs.vertices[0] == rhs.vertices[0]
     && lhs.vertices[1] == rhs.vertices[1]
     && lhs.vertices[2] == rhs.vertices[2]
@@ -201,6 +195,8 @@ std::ostream& operator<<(std::ostream& stream, const WallObjectData& val) {
     << " - drawback: " << val.drawback
     << " - drawleft: " << val.drawleft
     << " - drawright: " << val.drawright
+    << " - front_z: " << val.front_z
+    << " - back_z: " << val.back_z
     << " - vertices[0]: " << val.vertices[0]
     << " - vertices[1]: " << val.vertices[1]
     << " - vertices[2]: " << val.vertices[2]
@@ -422,10 +418,6 @@ LevelData LevelData::FromStream(std::istream& stream) {
       platform_node["drawLeft"].asBool(),
       platform_node["drawRight"].asBool(),
       type_map.at(platform_node["type"].asString()),
-      platform_node["startX"].asFloat(),
-      platform_node["startY"].asFloat(),
-      platform_node["endX"].asFloat(),
-      platform_node["endY"].asFloat(),
       platform_node["frontZ"].asFloat(),
       platform_node["backZ"].asFloat(),
       {
@@ -451,6 +443,8 @@ LevelData LevelData::FromStream(std::istream& stream) {
       wall_node["drawBack"].asBool(),
       wall_node["drawLeft"].asBool(),
       wall_node["drawRight"].asBool(),
+      wall_node["frontZ"].asFloat(),
+      wall_node["backZ"].asFloat(),
       {
         vertices_data[0],
         vertices_data[1],
@@ -701,10 +695,6 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
     platform_node["type"] = type_map.at(platform.platform_type);
 
-    platform_node["startX"] = platform.start_x;
-    platform_node["startY"] = platform.start_y;
-    platform_node["endX"] = platform.end_x;
-    platform_node["endY"] = platform.end_y;
     platform_node["frontZ"] = platform.front_z;
     platform_node["backZ"] = platform.back_z;
 
@@ -737,6 +727,9 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
     wall_node["drawBack"] = wall.drawback;
     wall_node["drawLeft"] = wall.drawleft;
     wall_node["drawRight"] = wall.drawright;
+
+    wall_node["frontZ"] = wall.front_z;
+    wall_node["backZ"] = wall.back_z;
 
     Json::Value vertices_node(Json::arrayValue);
 
