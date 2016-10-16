@@ -1,6 +1,4 @@
 #include <fstream>
-#define GLM_FORCE_LEFT_HANDED
-#include <glm/gtc/matrix_transform.hpp>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
 #include <SDL2/SDL.h>
@@ -89,22 +87,7 @@ bool Engine::Initialize() {
   glEnable(GL_DEPTH_TEST);  // TODO: Should never error?
   glEnable(GL_CULL_FACE);  // TODO: Should never error?
 
-  // TODO: Setup camera in script
-  glm::mat4 projection_matrix = glm::perspective(
-    glm::radians(45.0f),
-    // TODO: Don't get window values from constants
-    static_cast<float>(640) / static_cast<float>(480),
-    0.1f, 300.0f);
-
-  Camera camera { projection_matrix };
-  camera.transform.SetTranslation(glm::vec3(80.0f, 103.0f, -115.0f));
-  camera.transform.LookAt(glm::vec3(80.0f, 63.0f, 0.0f));
-
-  data_->scene.reset(new Scene {
-    camera,
-  });
-
-  // data_->scene.reset(new Scene);
+  data_->scene.reset(new Scene);
   data_->script_context.reset(
     new ScriptContext(data_->scene, "data/script/main.lua"));
 

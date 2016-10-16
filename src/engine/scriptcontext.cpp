@@ -1,4 +1,6 @@
 #include <fstream>
+#define GLM_FORCE_LEFT_HANDED
+#include <glm/gtc/matrix_transform.hpp>
 #include "logging.hpp"
 #include "scriptcontext.hpp"
 
@@ -170,6 +172,63 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "material", &MeshComponent::material
       );
 
+      jumpman.new_usertype<glm::vec3>("Vector3"
+        , sol::constructors<
+            sol::types<>,
+            sol::types<const glm::vec3&>,
+            sol::types<float>,
+            sol::types<float, float, float>>()
+
+        , sol::meta_function::index, static_cast<float&(glm::vec3::*)(int)>(
+          &glm::vec3::operator[])
+
+        , "x", &glm::vec3::x
+        , "y", &glm::vec3::y
+        , "z", &glm::vec3::z
+
+        , "r", &glm::vec3::r
+        , "g", &glm::vec3::g
+        , "b", &glm::vec3::b
+
+        , "s", &glm::vec3::s
+        , "t", &glm::vec3::t
+        , "p", &glm::vec3::p
+      );
+
+      jumpman.new_usertype<Transform>("Transform"
+        , "scale", sol::property(
+          &Transform::GetScale,
+          static_cast<void (Transform::*)(const glm::vec3&)>(
+            &Transform::SetScale))
+        , "set_scale", static_cast<void (Transform::*)(float, float, float)>(
+          &Transform::SetScale)
+
+        , "orientation", sol::property(
+          &Transform::GetOrientation, &Transform::SetOrientation)
+
+        // TODO: Axis-angle rotation
+
+        , "translation", sol::property(
+          &Transform::GetTranslation,
+          static_cast<void (Transform::*)(const glm::vec3&)>(
+            &Transform::SetTranslation))
+        , "set_translation",
+          static_cast<void (Transform::*)(float, float, float)>(
+            &Transform::SetTranslation)
+
+        , "translate", sol::overload(
+          static_cast<void (Transform::*)(const glm::vec3&)>(
+            &Transform::Translate),
+          static_cast<void (Transform::*)(float, float, float)>(
+            &Transform::Translate))
+
+        , "look_at", sol::overload(
+          static_cast<void (Transform::*)(const glm::vec3&)>(
+            &Transform::LookAt),
+          static_cast<void (Transform::*)(float, float, float)>(
+            &Transform::LookAt))
+      );
+
       jumpman.new_usertype<SceneObject>("SceneObject"
         , "", sol::no_constructor
 
@@ -179,6 +238,13 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
 
         , "transform", &SceneObject::transform
         , "mesh_component", &SceneObject::mesh_component
+      );
+
+      jumpman.new_usertype<glm::mat4>("Matrix"
+        , "new_perspective", sol::factories(
+          [](float fovy, float aspect, float z_near, float z_far) {
+            return glm::perspective(glm::radians(fovy), aspect, z_near, z_far);
+          })
       );
 
       jumpman.new_usertype<Camera>("Camera"
@@ -191,7 +257,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
 
         , "camera", &Scene::camera
         , "objects", &Scene::objects
-        , "add_object", [this](Scene& scene, std::shared_ptr<SceneObject> object) {
+        , "add_object", [](Scene& scene, std::shared_ptr<SceneObject> object) {
           scene.objects.push_back(object);
         }
       );

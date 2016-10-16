@@ -83,6 +83,10 @@ void Transform::LookAt(const glm::vec3& point_of_interest) {
   are_matrices_dirty_ = true;
 }
 
+void Transform::LookAt(float poi_x, float poi_y, float poi_z) {
+  LookAt(glm::vec3(poi_x, poi_y, poi_z));
+}
+
 const glm::mat4& Transform::GetLocalToWorldMatrix() {
   if (are_matrices_dirty_) {
     RecalculateMatrices();

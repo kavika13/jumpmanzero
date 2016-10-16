@@ -25,6 +25,7 @@ class Transform {
   const glm::vec3& GetTranslation() const;
 
   void LookAt(const glm::vec3& point_of_interest);
+  void LookAt(float poi_x, float poi_y, float poi_z);
 
   const glm::mat4& GetLocalToWorldMatrix();
   const glm::mat4& GetWorldToLocalMatrix();
