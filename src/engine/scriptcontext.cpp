@@ -192,6 +192,41 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , sol::meta_function::to_string,
           static_cast<std::string(*)(const glm::vec3&)>(&glm::to_string)
 
+        , sol::meta_function::unary_minus,
+          static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::operator-)
+        , sol::meta_function::addition,
+          sol::overload(
+            static_cast<glm::vec3(*)(const glm::vec3&, const glm::vec3&)>(
+              &glm::operator+),
+            static_cast<glm::vec3(*)(const glm::vec3&, float)>(
+              &glm::operator+),
+            static_cast<glm::vec3(*)(float, const glm::vec3&)>(
+              &glm::operator+))
+        , sol::meta_function::subtraction,
+          sol::overload(
+            static_cast<glm::vec3(*)(const glm::vec3&, const glm::vec3&)>(
+              &glm::operator-),
+            static_cast<glm::vec3(*)(const glm::vec3&, float)>(
+              &glm::operator-),
+            static_cast<glm::vec3(*)(float, const glm::vec3&)>(
+              &glm::operator-))
+        , sol::meta_function::multiplication,
+          sol::overload(
+            static_cast<glm::vec3(*)(const glm::vec3&, const glm::vec3&)>(
+              &glm::operator*),
+            static_cast<glm::vec3(*)(const glm::vec3&, float)>(
+              &glm::operator*),
+            static_cast<glm::vec3(*)(float, const glm::vec3&)>(
+              &glm::operator*))
+       , sol::meta_function::division,
+          sol::overload(
+            static_cast<glm::vec3(*)(const glm::vec3&, const glm::vec3&)>(
+              &glm::operator/),
+            static_cast<glm::vec3(*)(const glm::vec3&, float)>(
+              &glm::operator/),
+            static_cast<glm::vec3(*)(float, const glm::vec3&)>(
+              &glm::operator/))
+
         , "x", &glm::vec3::x
         , "y", &glm::vec3::y
         , "z", &glm::vec3::z
@@ -290,6 +325,15 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
           scene.objects.push_back(object);
         }
       );
+
+      jumpman.set_function(
+        "mix",
+        sol::overload(
+          static_cast<
+            glm::vec3(*)(const glm::vec3&, const glm::vec3&, const glm::vec3&)>(
+              &glm::mix),
+          static_cast<glm::vec3(*)(const glm::vec3&, const glm::vec3&, float)>(
+            &glm::mix)));
 
       jumpman.set("resource_context", resource_context_);
       jumpman.set("scene", scene_);
