@@ -1,0 +1,441 @@
+{
+	"backgroundTrackTag" : "1",
+	"deathTrackTag" : "2",
+	"donutScriptTag" : "2",
+	"endLevelTrackTag" : "3",
+	"mainScriptTag" : "1",
+	"objects" : 
+	{
+		"donuts" : 
+		[
+			{
+				"materialTag" : "3",
+				"originX" : 106,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 62,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 54,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 58,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 69,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 73,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 77,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 53,
+				"originY" : 83,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 49,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 56,
+				"originY" : 86,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 50,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 69,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 69,
+				"originY" : 88,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 59,
+				"originY" : 88,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 53,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 61,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 57,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 73,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 69,
+				"originY" : 84,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 74,
+				"originY" : 86,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 77,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 86,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 86,
+				"originY" : 88,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 86,
+				"originY" : 84,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 86,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 90,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 95,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 93,
+				"originY" : 88,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 90,
+				"originY" : 85,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 93,
+				"originY" : 83,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 102,
+				"originY" : 88,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 104,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 108,
+				"originY" : 93,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 110,
+				"originY" : 88,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 110,
+				"originY" : 85,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 106,
+				"originY" : 80,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 102,
+				"originY" : 85,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 103,
+				"originY" : 81,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 109,
+				"originY" : 81,
+				"originZ" : 0
+			}
+		],
+		"ladders" : [],
+		"platforms" : [],
+		"quads" : 
+		[
+			{
+				"materialTag" : "0",
+				"originX" : 80,
+				"originY" : 40,
+				"originZ" : 80,
+				"tag" : "quad100",
+				"vertices" : 
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : -150,
+						"y" : 180,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 180,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 1,
+						"x" : -150,
+						"y" : -180,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 1,
+						"x" : 150,
+						"y" : -180,
+						"z" : 0
+					}
+				]
+			}
+		],
+		"vines" : [],
+		"walls" : []
+	},
+	"resources" : 
+	{
+		"materials" : 
+		[
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "0",
+				"textureTag" : "0",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "1",
+				"textureTag" : "1",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "2",
+				"textureTag" : "2",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "3",
+				"textureTag" : "3",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "4",
+				"textureTag" : "4",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "5",
+				"textureTag" : "5",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "6",
+				"textureTag" : "6",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "7",
+				"textureTag" : "7",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			}
+		],
+		"meshes" : 
+		[
+			{
+				"filename" : "data/model/goo.obj",
+				"tag" : "0"
+			}
+		],
+		"music" : 
+		[
+			{
+				"filename" : "data/music/TITLE.mid",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/music/MENU.mid",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/music/ENDLEVEL.mid",
+				"tag" : "3"
+			}
+		],
+		"scripts" : 
+		[
+			{
+				"filename" : "data/script/MainMenu.lua",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/script/ZBits.lua",
+				"tag" : "2"
+			}
+		],
+		"sounds" : 
+		[
+			{
+				"filename" : "data/sound/Select.wav",
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/sound/Fire.wav",
+				"tag" : "1"
+			}
+		],
+		"textures" : 
+		[
+			{
+				"filename" : "data/texture/MenuBack.jpg",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/texture/BoringBlue.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/texture/RachBlue.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/texture/BoringBlush.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/texture/BlueMarble.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/texture/ZBit.png",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : true,
+				"tag" : "5"
+			},
+			{
+				"filename" : "data/texture/BoringGreen.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "6"
+			},
+			{
+				"filename" : "data/texture/BoringOrange.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "7"
+			}
+		]
+	}
+}
