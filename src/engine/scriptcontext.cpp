@@ -175,6 +175,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
           return std::shared_ptr<MeshComponent>(new MeshComponent);
         })
 
+        , "is_visible", &MeshComponent::is_visible
         , "mesh", &MeshComponent::mesh
         , "material", &MeshComponent::material
       );

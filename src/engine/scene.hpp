@@ -13,6 +13,7 @@
 struct MeshComponent {
   void Draw(const glm::mat4& current_matrix, const Material* previous_material);
 
+  bool is_visible = true;
   std::shared_ptr<TriangleMesh> mesh;
   std::shared_ptr<Material> material;
 };

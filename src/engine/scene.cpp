@@ -23,7 +23,7 @@ void Scene::Draw(double time_since_last_frame) {
 
     auto& mesh_component = scene_object->mesh_component;
 
-    if (mesh_component) {
+    if (mesh_component && mesh_component->is_visible) {
       mesh_component->Draw(current_matrix, previous_material);
       previous_material = mesh_component->material.get();
     }
