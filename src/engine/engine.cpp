@@ -99,7 +99,7 @@ int Engine::Run() {
 
   const double max_accumulated_time = 2.0;
   const double ticks_per_second = SDL_GetPerformanceFrequency();
-  const double seconds_per_update = 1.0 / 40.0;
+  const double seconds_per_update = 1.0 / 60.0;
   double previous_tick_count = SDL_GetPerformanceCounter();
   double accumulated_time = 0.0;
   bool is_running = true;
