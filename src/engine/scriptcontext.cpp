@@ -204,6 +204,8 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "p", &glm::vec3::p
       );
 
+      using Transform = Graphics::Transform;
+
       jumpman.new_usertype<Transform>("Transform"
         , "scale", sol::property(
           &Transform::GetScale,
@@ -262,9 +264,20 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
           })
       );
 
-      jumpman.new_usertype<Camera>("Camera"
-        , "projection_matrix", &Camera::projection_matrix
-        , "transform", &Camera::transform
+      using ProjectionCamera = Graphics::ProjectionCamera;
+
+      jumpman.new_usertype<ProjectionCamera>("ProjectionCamera"
+        , "field_of_view", sol::property(
+          &ProjectionCamera::GetFieldOfView, &ProjectionCamera::SetFieldOfView)
+        , "aspect_ratio", sol::property(
+          &ProjectionCamera::GetAspectRatio, &ProjectionCamera::SetAspectRatio)
+        , "near_clip_plane_distance", sol::property(
+          &ProjectionCamera::GetNearClipPlaneDistance,
+          &ProjectionCamera::GetNearClipPlaneDistance)
+        , "far_clip_plane_distance", sol::property(
+          &ProjectionCamera::GetFarClipPlaneDistance,
+          &ProjectionCamera::GetFarClipPlaneDistance)
+        , "transform", &ProjectionCamera::transform
       );
 
       jumpman.new_usertype<Scene>("Scene"

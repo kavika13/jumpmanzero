@@ -5,7 +5,11 @@
 #include <glm/gtx/transform.hpp>
 #include "transform.hpp"
 
-Transform::Transform()
+namespace Jumpman {
+
+namespace Graphics {
+
+Transform::Transform() noexcept
   : scale_(1.0f),
     orientation_(),
     translation_(),
@@ -14,7 +18,7 @@ Transform::Transform()
     are_matrices_dirty_(false) {
 }
 
-void Transform::Reset() {
+void Transform::Reset() noexcept {
   scale_ = glm::vec3(1.0f);
   orientation_ = glm::quat();
   translation_ = glm::vec3();
@@ -115,3 +119,7 @@ void Transform::RecalculateMatrices() {
   world_to_local_matrix_ = glm::inverse(local_to_world_matrix_);
   are_matrices_dirty_ = false;
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

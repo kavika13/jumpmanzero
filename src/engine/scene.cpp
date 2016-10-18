@@ -10,7 +10,7 @@ void MeshComponent::Draw(
 
 void Scene::Draw(double time_since_last_frame) {
   std::stack<glm::mat4> matrix_stack({
-    camera.projection_matrix * camera.transform.GetWorldToLocalMatrix()
+    camera.GetProjectionMatrix() * camera.GetWorldToCameraMatrix()
   });
   Material* previous_material = nullptr;
 

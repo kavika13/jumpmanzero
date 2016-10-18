@@ -4,11 +4,15 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+namespace Jumpman {
+
+namespace Graphics {
+
 class Transform {
  public:
-  Transform();
+  Transform() noexcept;
 
-  void Reset();
+  void Reset() noexcept;
 
   void SetScale(const glm::vec3& value);
   void SetScale(float x, float y, float z);
@@ -42,5 +46,9 @@ class Transform {
   glm::mat4 world_to_local_matrix_;
   bool are_matrices_dirty_;
 };
+
+};  // namespace Camera
+
+};  // namespace Jumpman
 
 #endif  // ENGINE_TRANSFORM_HPP_

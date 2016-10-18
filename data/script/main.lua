@@ -87,10 +87,6 @@ scene:add_object(bullet_scene_object)
 table.insert(bullets, bullet_scene_object)
 
 local camera = scene.camera
-camera.projection_matrix = jumpman.Matrix.new_perspective(
-  45,
-  640 / 480,  -- TODO: Get actual window values
-  0.1, 300.0)
 camera.transform:set_translation(80, 103, -115)
 camera.transform:look_at(80, 63, 0)
 
