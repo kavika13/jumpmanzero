@@ -327,6 +327,32 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
       );
 
       jumpman.set_function(
+        "abs", static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::abs));
+      jumpman.set_function(
+        "sign", static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::sign));
+      jumpman.set_function(
+        "ceil", static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::ceil));
+      jumpman.set_function(
+        "floor", static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::floor));
+      jumpman.set_function(
+        "trunc", static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::trunc));
+      jumpman.set_function(
+        "round", static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::round));
+      jumpman.set_function(
+        "max", static_cast<glm::vec3(*)(const glm::vec3&, const glm::vec3&)>(
+          &glm::max));
+      jumpman.set_function(
+        "min", static_cast<glm::vec3(*)(const glm::vec3&, const glm::vec3&)>(
+          &glm::min));
+      jumpman.set_function(
+        "clamp",
+        sol::overload(
+          static_cast<
+            glm::vec3(*)(const glm::vec3&, const glm::vec3&, const glm::vec3&)>(
+              &glm::clamp),
+          static_cast<glm::vec3(*)(const glm::vec3&, float, float)>(
+            &glm::clamp)));
+      jumpman.set_function(
         "mix",
         sol::overload(
           static_cast<
