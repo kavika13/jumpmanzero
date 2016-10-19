@@ -64,6 +64,14 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "new", sol::no_constructor
 
         , "texture", sol::property(&Material::GetTexture, &Material::SetTexture)
+        , "texture_transform", &Material::texture_transform
+        , "set_uniform", sol::overload(
+          static_cast<void(Material::*)(const std::string&, const glm::mat4&)>(
+            &Material::SetShaderUniform),
+          static_cast<void(Material::*)(const std::string&, const glm::vec3&)>(
+            &Material::SetShaderUniform),
+          static_cast<void(Material::*)(const std::string&, float)>(
+            &Material::SetShaderUniform))
       );
 
       jumpman.new_usertype<Objects::QuadObject>("Quad"

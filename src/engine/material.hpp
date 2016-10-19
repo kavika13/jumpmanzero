@@ -2,10 +2,12 @@
 #define ENGINE_MATERIAL_HPP_
 
 #include <memory>
+#include <unordered_map>
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/mat4x4.hpp>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
+#include "engine/graphics/transform.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 
@@ -20,11 +22,26 @@ class Material {
 
   void BindMvpMatrix(const glm::mat4& mvp_matrix);
 
+  void SetShaderUniform(const std::string& name, const glm::mat4& value);
+  void SetShaderUniform(const std::string& name, const glm::vec3& value);
+  void SetShaderUniform(const std::string& name, float value);
+
+  Jumpman::Graphics::Transform texture_transform;
+
  private:
   std::shared_ptr<ShaderProgram> shader_program_;
   std::shared_ptr<Texture> texture_;
   ShaderUniformParameter current_texture_param_;
+  ShaderUniformParameter texture_transform_matrix_param_;
   ShaderUniformParameter mvp_matrix_param_;
+
+  std::unordered_map<std::string, ShaderUniformParameter> matrix_parameters_;
+  std::unordered_map<std::string, ShaderUniformParameter> vector_parameters_;
+  std::unordered_map<std::string, ShaderUniformParameter> float_parameters_;
+
+  std::unordered_map<std::string, glm::mat4> matrix_values_;
+  std::unordered_map<std::string, glm::vec3> vector_values_;
+  std::unordered_map<std::string, float> float_values_;
 };
 
 #endif  // ENGINE_MATERIAL_HPP_
