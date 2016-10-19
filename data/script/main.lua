@@ -141,9 +141,6 @@ local camera = scene.camera
 camera.transform:set_translation(80, 80, -100)
 camera.transform:look_at(80, 80, 0)
 
-local animation_time = 0
-local animation_finish_time = 5.5
-
 function create_string_objects(input_string, material)
   local result = {}
 
@@ -209,6 +206,9 @@ for i, letter in ipairs(jumpman_string_objects) do
   transform:set_scale(2, 0.8, 0.2)
 end
 
+local sky_material = context:find_material("0")
+local sky_material_transform = sky_material.texture_transform
+
 -- TODO: Put in zbits script
 local zbit_objects = {}
 local zbit_begin_positions = {}
@@ -236,8 +236,13 @@ for i, zbit_object in ipairs(scene_objects.donuts) do
   transform.translation = begin_position
 end
 
+local total_elapsed_time = 0
+local animation_time = 0
+local animation_finish_time = 5.5
+
 function update(elapsed_seconds)
   -- TODO: Put in main menu script
+  total_elapsed_time = total_elapsed_time + elapsed_seconds
   animation_time = animation_time + elapsed_seconds
   if animation_time > animation_finish_time then
     animation_time = animation_finish_time
@@ -256,6 +261,9 @@ function update(elapsed_seconds)
     animate_jumpman_string(i, animation_scale)
     jumpman_string_object.transform.scale.z = jumpman_inflate_thickness
   end
+
+  local shift_sky = 0.025 * total_elapsed_time
+  sky_material_transform:set_translation(-shift_sky, shift_sky, 0.0)
 
   -- TODO: Put in zbits script
   for i, zbit_object in ipairs(zbit_objects) do
