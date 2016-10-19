@@ -55,6 +55,8 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "find_script", &ResourceContext::FindScript
         , "find_texture", &ResourceContext::FindTexture
         , "find_material", &ResourceContext::FindMaterial
+
+        , "load_mesh", &ResourceContext::LoadMesh
         , "find_mesh", &ResourceContext::FindMesh
       );
 
