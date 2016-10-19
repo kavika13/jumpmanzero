@@ -173,8 +173,6 @@ local jumpman_string_starting_heights = {
   [7] = 78,
 }
 
-local x_axis = jumpman.Vector3.new(1, 0, 0)
-
 function animate_jumpman_string(letter_index, animation_scale)
   local height = math.max(
     0,
@@ -184,7 +182,9 @@ function animate_jumpman_string(letter_index, animation_scale)
   transform:set_translation(transform.translation.x, 100 + height, height)
 
   if height >= 3 then
-    transform:set_angle_axis_rotation(10 * (height - 3) * math.pi / 180, x_axis)
+    transform:set_angle_axis_rotation(
+      10 * (height - 3) * math.pi / 180,
+      jumpman.Vector3.unit_x())
   end
 end
 
@@ -236,8 +236,6 @@ for i, zbit_object in ipairs(scene_objects.donuts) do
   transform.translation = begin_position
 end
 
-local y_axis = jumpman.Vector3.new(0, 1, 0)
-
 function update(elapsed_seconds)
   -- TODO: Put in main menu script
   animation_time = animation_time + elapsed_seconds
@@ -266,6 +264,6 @@ function update(elapsed_seconds)
       zbit_begin_positions[i], zbit_end_positions[i], animation_scale)
     transform:set_angle_axis_rotation(
       (1 - animation_scale) * math.sin(i * math.pi / 180) * 10,
-      y_axis)
+      jumpman.Vector3.unit_y())
   end
 end

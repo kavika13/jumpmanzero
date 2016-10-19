@@ -189,6 +189,19 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
             sol::types<float>,
             sol::types<float, float, float>>()
 
+        , "unit_x", sol::factories([]() -> const glm::vec3& {
+          static glm::vec3 unit_x(1.0f, 0.0f, 0.0f);
+          return unit_x;
+        })
+        , "unit_y", sol::factories([]() -> const glm::vec3& {
+          static glm::vec3 unit_y(0.0f, 1.0f, 0.0f);
+          return unit_y;
+        })
+        , "unit_z", sol::factories([]() -> const glm::vec3& {
+          static glm::vec3 unit_z(0.0f, 0.0f, 1.0f);
+          return unit_z;
+        })
+
         , sol::meta_function::index, static_cast<float&(glm::vec3::*)(int)>(
           &glm::vec3::operator[])
         , sol::meta_function::to_string,
