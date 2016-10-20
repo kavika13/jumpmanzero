@@ -2,10 +2,16 @@ local context = jumpman.resource_context
 local scene = jumpman.scene
 
 -- TODO: Move to shared code?
-function create_scene_object(object)
+function create_scene_object(object, allow_nil)
   local mesh_component = jumpman.MeshComponent.new()
-  mesh_component.mesh = object.mesh
-  mesh_component.material = object.material
+
+  if not allow_nil or object.mesh then
+    mesh_component.mesh = object.mesh
+  end
+
+  if not allow_nil or object.material then
+    mesh_component.material = object.material
+  end
 
   local scene_object = jumpman.SceneObject.new()
   scene_object.mesh_component = mesh_component
@@ -118,6 +124,32 @@ function load_char_meshes()
   return char_mesh_cache
 end
 
+function create_string_objects(char_meshes, text, material)
+  local result = {}
+  local char_map = {
+    ["'"] = "Apos",
+    [":"] = "Colon",
+    ["-"] = "Dash",
+    ["^"] = "Jump",
+    ["."] = "Period",
+    ["%"] = "Square",
+  }
+
+  for i = 1, string.len(text) do
+    local char = string.sub(text, i, i)
+    local scene_object = create_scene_object({
+      mesh = char_meshes[char_map[char] or char],
+      material = material,
+      origin = jumpman.Vector3.new(),
+      char = char,
+    }, true)
+    scene:add_object(scene_object)
+    table.insert(result, scene_object)
+  end
+
+  return result
+end
+
 function animate(animation, current_time)
   local result = animation.start_value
 
@@ -133,6 +165,135 @@ function animate(animation, current_time)
   return result
 end
 
+local Menu = {}
+Menu.__index = Menu
+
+function Menu.new(
+    char_meshes,
+    selected_material_tag, deselected_material_tag,
+    origin, scale, transform_selected, letter_width, letter_height,
+    select_animation_time, explode_animation_time)
+  local self = create_class_instance(Menu)
+
+  self.menu_items_ = {}
+  self.selected_item_index_ = 1
+
+  self.char_meshes_ = char_meshes
+  self.selected_material_ = context:find_material(selected_material_tag)
+  self.deselected_material_ = context:find_material(deselected_material_tag)
+
+  origin = origin or { x = 0, y = 0, z = 0 }
+  self.deselected_origin_ = jumpman.Vector3.new(origin.x, origin.y, origin.z)
+
+  local t_sel = transform_selected or { x = 0, y = 0, z = -5 }
+  self.selected_origin_ = self.deselected_origin_
+    + jumpman.Vector3.new(t_sel.x, t_sel.y, t_sel.z)
+
+  scale = scale or { x = 1, y = 1, z = 1 }
+  self.scale_ = jumpman.Vector3.new(scale.x, scale.y, scale.z)
+
+  self.letter_width_ = letter_width or 5
+  self.letter_height_ = letter_height or 8
+  self.select_animation_time_ = select_animation_time or 0.125
+  self.explode_animation_time_ = explode_animation_time or 0.125
+
+  self.is_selection_locked_in_ = false
+
+  return self
+end
+
+function Menu:add_item(message)
+  table.insert(self.menu_items_, {
+    letters = create_string_objects(
+      self.char_meshes_, message, self.deselected_material_),
+    tween_weight = 1,
+  })
+
+  return self
+end
+
+function Menu:select(new_index)
+  if not self.is_selection_locked_in_
+      and self.selected_item_index_ ~= index then
+    local old_menu_item = self.menu_items_[self.selected_item_index_]
+    old_menu_item.tween_weight = 1 - old_menu_item.tween_weight
+
+    local new_menu_item = self.menu_items_[new_index]
+    new_menu_item.tween_weight = 1 - new_menu_item.tween_weight
+
+    self.selected_item_index_ = new_index
+  end
+end
+
+function Menu:lock_selection()
+  if not self.is_selection_locked_in_ then
+    self.is_selection_locked_in_ = true
+    self.menu_items_[self.selected_item_index_].tween_weight = 1
+
+    for item_index, other_menu_item in ipairs(self.menu_items_) do
+      if item_index ~= self.selected_item_index_ then
+        other_menu_item.tween_weight = 0
+      end
+    end
+  end
+end
+
+function Menu:update(elapsed_seconds)
+  for item_index, menu_item in ipairs(self.menu_items_) do
+    local num_letters = #menu_item.letters
+    local item_width = num_letters * self.letter_width_
+    local is_selected = self.selected_item_index_ == item_index
+    local current_material = is_selected
+      and self.selected_material_
+      or self.deselected_material_
+    local first_keyframe_position = is_selected
+      and self.deselected_origin_
+      or self.selected_origin_
+    local second_keyframe_position = is_selected
+      and self.selected_origin_
+      or self.deselected_origin_
+    menu_item.tween_weight = menu_item.tween_weight
+      + elapsed_seconds / self.select_animation_time_
+
+    if menu_item.tween_weight > 1 then
+      menu_item.tween_weight = 1
+    end
+
+    for letter_index, letter in ipairs(menu_item.letters) do
+      -- TODO: implement on select: explode of non-selected, rotate of selected
+      -- TODO: implement on select animation finished: callbacks?
+      local transform = letter.transform
+      transform.translation = jumpman.mix(
+        first_keyframe_position,
+        second_keyframe_position,
+        menu_item.tween_weight)
+      print(transform.translation)
+      transform:translate(
+        -item_width / 2 + (letter_index - 1) * self.letter_width_ + 1,
+        -(item_index - 1) * self.letter_height_,
+        0)
+      transform.scale = self.scale_
+      letter.mesh_component.material = current_material
+    end
+  end
+end
+
+function Menu:hide()
+  for item_index, menu_item in ipairs(self.menu_items_) do
+    for letter_index, letter in ipairs(menu_item.letters) do
+      letter.mesh_component.is_visible = false
+    end
+  end
+end
+
+function Menu:show()
+  for item_index, menu_item in ipairs(self.menu_items_) do
+    for letter_index, letter in ipairs(menu_item.letters) do
+      letter.mesh_component.is_visible = true
+    end
+  end
+end
+
 -- TODO: Put in main menu script
 local scene_objects = load_level("data/level/MainMenu.json")
 local char_meshes = load_char_meshes()
@@ -141,25 +302,8 @@ local camera = scene.camera
 camera.transform:set_translation(80, 80, -100)
 camera.transform:look_at(80, 80, 0)
 
-function create_string_objects(input_string, material)
-  local result = {}
-
-  for i = 1, string.len(input_string) do
-    local char = string.sub(input_string, i, i)
-    local scene_object = create_scene_object({
-      mesh = char_meshes[char],
-      material = material,
-      origin = jumpman.Vector3.new(),
-    })
-    scene:add_object(scene_object)
-    table.insert(result, scene_object)
-  end
-
-  return result
-end
-
 local jumpman_string_objects = create_string_objects(
-  "JUMPMAN", context:find_material("7"))
+  char_meshes, "JUMPMAN", context:find_material("7"))
 local jumpman_string_starting_heights = {
   [1] = 22,
   [5] = 54,
@@ -206,6 +350,16 @@ for i, letter in ipairs(jumpman_string_objects) do
   transform:set_scale(2, 0.8, 0.2)
 end
 
+local top_menu = Menu.new(
+    char_meshes,
+    "1",
+    "2",
+    { x = 80, y = 64, z = 0 },
+    { x = 0.7, y = 0.7, z = 1 })
+  :add_item("START GAME")
+  :add_item("OPTIONS")
+top_menu:hide()
+
 local sky_material = context:find_material("0")
 local sky_material_transform = sky_material.texture_transform
 
@@ -246,6 +400,7 @@ function update(elapsed_seconds)
   animation_time = animation_time + elapsed_seconds
   if animation_time > animation_finish_time then
     animation_time = animation_finish_time
+    top_menu:show()
   end
   local animation_scale = animation_time / animation_finish_time
 
@@ -261,6 +416,8 @@ function update(elapsed_seconds)
     animate_jumpman_string(i, animation_scale)
     jumpman_string_object.transform.scale.z = jumpman_inflate_thickness
   end
+
+  top_menu:update(elapsed_seconds)
 
   local shift_sky = 0.025 * total_elapsed_time
   sky_material_transform:set_translation(-shift_sky, shift_sky, 0.0)
