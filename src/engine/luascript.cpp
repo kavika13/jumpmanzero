@@ -23,6 +23,8 @@ LuaScript::LuaScript(
     "table",
     "io",
 
+    "setmetatable",  // Will be wiped out later, after being safely wrapped
+
     "_VERSION",
     "assert",
     "error",
@@ -146,6 +148,20 @@ LuaScript::LuaScript(
   sanitize_subtable("table", table_whitelist);
   sanitize_subtable("io", io_whitelist);
   sanitize_subtable("_G", base_whitelist);
+
+  script_.script(
+    R"RAWLITERAL(
+      function wrap_setmetatable()
+        local setmetatable_safe = setmetatable
+        _G.create_class_instance = function(cls)
+          return setmetatable_safe({}, cls)
+        end
+      end
+      wrap_setmetatable()
+    )RAWLITERAL");
+  auto global_table = glob.get<sol::table>("_G");
+  global_table.set("setmetatable", sol::nil);
+  global_table.set("wrap_setmetatable", sol::nil);
 
   // TODO: Make environment read-only for white-listed functions/tables
 
