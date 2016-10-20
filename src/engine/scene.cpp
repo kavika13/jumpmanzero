@@ -3,6 +3,10 @@
 
 void MeshComponent::Draw(
     const glm::mat4& current_matrix, const Material* previous_material) {
+  if (!material || !mesh) {
+    return;
+  }
+
   material->Activate(previous_material);
   material->BindMvpMatrix(current_matrix);
   mesh->Draw();
