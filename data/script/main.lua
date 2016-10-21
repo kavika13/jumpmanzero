@@ -241,7 +241,8 @@ end
 function Menu:update(elapsed_seconds)
   for item_index, menu_item in ipairs(self.menu_items_) do
     local num_letters = #menu_item.letters
-    local item_width = num_letters * self.letter_width_
+    local fudge_factor = 3
+    local item_width = num_letters * self.letter_width_ - fudge_factor
     local is_selected = self.selected_item_index_ == item_index
     local current_material = is_selected
       and self.selected_material_
@@ -267,9 +268,8 @@ function Menu:update(elapsed_seconds)
         first_keyframe_position,
         second_keyframe_position,
         menu_item.tween_weight)
-      print(transform.translation)
       transform:translate(
-        -item_width / 2 + (letter_index - 1) * self.letter_width_ + 1,
+        -item_width / 2 + (letter_index - 1) * self.letter_width_,
         -(item_index - 1) * self.letter_height_,
         0)
       transform.scale = self.scale_
