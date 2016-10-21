@@ -1,5 +1,5 @@
-#ifndef ENGINE_TRANSFORM_HPP_
-#define ENGINE_TRANSFORM_HPP_
+#ifndef ENGINE_GRAPHICS_TRANSFORM_HPP_
+#define ENGINE_GRAPHICS_TRANSFORM_HPP_
 
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -51,4 +51,4 @@ class Transform {
 
 };  // namespace Jumpman
 
-#endif  // ENGINE_TRANSFORM_HPP_
+#endif  // ENGINE_GRAPHICS_TRANSFORM_HPP_
