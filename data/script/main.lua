@@ -15,7 +15,9 @@ function create_scene_object(object, allow_nil)
 
   local scene_object = jumpman.SceneObject.new()
   scene_object.mesh_component = mesh_component
-  scene_object.transform.translation = object.origin
+
+  local origin = object.origin or jumpman.Vector3.new()
+  scene_object.transform.translation = origin
 
   return scene_object
 end
