@@ -126,8 +126,8 @@ function load_char_meshes()
   return char_mesh_cache
 end
 
-function create_string_objects(char_meshes, text, material)
-  local result = {}
+function create_string_object(char_meshes, text, material)
+  local result = create_scene_object({}, true)
   local char_map = {
     ["'"] = "Apos",
     [":"] = "Colon",
@@ -142,12 +142,11 @@ function create_string_objects(char_meshes, text, material)
     local scene_object = create_scene_object({
       mesh = char_meshes[char_map[char] or char],
       material = material,
-      origin = jumpman.Vector3.new(),
-      char = char,
     }, true)
-    scene:add_object(scene_object)
-    table.insert(result, scene_object)
+    result:add_child(scene_object)
   end
+
+  scene:add_object(result)
 
   return result
 end
@@ -167,12 +166,92 @@ function animate(animation, current_time)
   return result
 end
 
+-- TODO: Move to its own script
+local FallingTitle = {}
+FallingTitle.__index = FallingTitle
+
+function FallingTitle.new(
+    char_meshes,
+    message, material,
+    starting_heights,
+    animation_time,
+    inflate_animation_start_time,
+    inflate_animation_duration)
+  local self = create_class_instance(FallingTitle)
+
+  self.string_ = create_string_object(char_meshes, message, material)
+  self.starting_heights_ = starting_heights
+  self.animation_time_ = animation_time or 5.5  -- TODO: Separate fall velocity?
+  self.inflate_animation_start_time_ = inflate_animation_start_time or 3.35
+  self.inflate_animation_duration_ = inflate_animation_duration or 0.55
+  self.total_elapsed_seconds_ = 0
+
+  for i = 1, #self.string_.children do
+    local letter = self.string_.children[i]
+    local x = i * 15 + 20
+
+    if i > 1 then
+      x = x - 1
+    end
+
+    if i > 4 then
+      x = x - 2
+    end
+
+    if i > 6 then
+      x = x + 1
+    end
+
+    local transform = letter.transform
+    transform.translation.x = x
+    transform:set_scale(2, 0.8, 0.2)
+  end
+
+  return self
+end
+
+function FallingTitle:update(elapsed_seconds)
+  self.total_elapsed_seconds_ = self.total_elapsed_seconds_ + elapsed_seconds
+  local fall_tween_weight = self.total_elapsed_seconds_ / self.animation_time_
+  local letters = self.string_.children
+  local inflate_thickness =
+    animate({
+      start_value = 0.2,
+      end_value = 2.5,
+      start_time = 3.35,
+      length = 0.55
+    }, self.total_elapsed_seconds_)
+
+  for letter_index = 1, #letters do
+    local letter = letters[letter_index]
+    local starting_height = self.starting_heights_[letter_index]
+    local height = math.max(
+      0,
+      (starting_height * 4 / 3) - (fall_tween_weight * 200))
+
+    local transform = letter.transform
+    transform:set_translation(transform.translation.x, 100 + height, height)
+    transform.scale.z = inflate_thickness
+
+    if height >= 3 then
+      transform:set_angle_axis_rotation(
+        10 * (height - 3) * math.pi / 180,
+        jumpman.Vector3.unit_x())
+    end
+  end
+end
+
+function FallingTitle:is_finished()
+  return self.total_elapsed_seconds_ >= self.animation_time_
+end
+
+-- TODO: Move to its own script
 local Menu = {}
 Menu.__index = Menu
 
 function Menu.new(
     char_meshes,
-    selected_material_tag, deselected_material_tag,
+    selected_material, deselected_material,
     origin, scale, transform_selected, letter_width, letter_height,
     select_animation_time, explode_animation_time)
   local self = create_class_instance(Menu)
@@ -181,8 +260,8 @@ function Menu.new(
   self.selected_item_index_ = 1
 
   self.char_meshes_ = char_meshes
-  self.selected_material_ = context:find_material(selected_material_tag)
-  self.deselected_material_ = context:find_material(deselected_material_tag)
+  self.selected_material_ = selected_material
+  self.deselected_material_ = deselected_material
 
   origin = origin or { x = 0, y = 0, z = 0 }
   self.deselected_origin_ = jumpman.Vector3.new(origin.x, origin.y, origin.z)
@@ -206,7 +285,7 @@ end
 
 function Menu:add_item(message)
   table.insert(self.menu_items_, {
-    letters = create_string_objects(
+    string = create_string_object(
       self.char_meshes_, message, self.deselected_material_),
     tween_weight = 1,
   })
@@ -242,7 +321,7 @@ end
 
 function Menu:update(elapsed_seconds)
   for item_index, menu_item in ipairs(self.menu_items_) do
-    local num_letters = #menu_item.letters
+    local num_letters = #menu_item.string.children
     local fudge_factor = 3
     local item_width = num_letters * self.letter_width_ - fudge_factor
     local is_selected = self.selected_item_index_ == item_index
@@ -262,7 +341,8 @@ function Menu:update(elapsed_seconds)
       menu_item.tween_weight = 1
     end
 
-    for letter_index, letter in ipairs(menu_item.letters) do
+    for letter_index = 1, #menu_item.string.children do
+      local letter = menu_item.string.children[letter_index]
       -- TODO: implement on select: explode of non-selected, rotate of selected
       -- TODO: implement on select animation finished: callbacks?
       local transform = letter.transform
@@ -282,18 +362,34 @@ end
 
 function Menu:hide()
   for item_index, menu_item in ipairs(self.menu_items_) do
-    for letter_index, letter in ipairs(menu_item.letters) do
-      letter.mesh_component.is_visible = false
-    end
+    menu_item.string.mesh_component.is_visible = false
   end
 end
 
 function Menu:show()
   for item_index, menu_item in ipairs(self.menu_items_) do
-    for letter_index, letter in ipairs(menu_item.letters) do
-      letter.mesh_component.is_visible = true
-    end
+    menu_item.string.mesh_component.is_visible = true
   end
+end
+
+-- TODO: Move to its own script
+local MaterialScroller = {}
+MaterialScroller.__index = MaterialScroller
+
+function MaterialScroller.new(material, translation_per_second)
+  local self = create_class_instance(MaterialScroller)
+
+  self.material_ = material
+  self.translation_per_second_ = translation_per_second
+  self.total_elapsed_seconds_ = 0
+
+  return self
+end
+
+function MaterialScroller:update(elapsed_seconds)
+  self.total_elapsed_seconds_ = self.total_elapsed_seconds_ + elapsed_seconds
+  self.material_.texture_transform:set_translation(
+    self.translation_per_second_ * self.total_elapsed_seconds_)
 end
 
 -- TODO: Put in main menu script
@@ -304,66 +400,33 @@ local camera = scene.camera
 camera.transform:set_translation(80, 80, -100)
 camera.transform:look_at(80, 80, 0)
 
-local jumpman_string_objects = create_string_objects(
-  char_meshes, "JUMPMAN", context:find_material("7"))
-local jumpman_string_starting_heights = {
-  [1] = 22,
-  [5] = 54,
-  [2] = 76,
-  [3] = 80,
-  [4] = 84,
-  [6] = 82,
-  [7] = 78,
-}
-
-function animate_jumpman_string(letter_index, animation_scale)
-  local height = math.max(
-    0,
-    (jumpman_string_starting_heights[letter_index] * 4 / 3)
-      - (animation_scale * 200))
-  local transform = jumpman_string_objects[letter_index].transform
-  transform:set_translation(transform.translation.x, 100 + height, height)
-
-  if height >= 3 then
-    transform:set_angle_axis_rotation(
-      10 * (height - 3) * math.pi / 180,
-      jumpman.Vector3.unit_x())
-  end
-end
-
-for i, letter in ipairs(jumpman_string_objects) do
-  local x = i * 15 + 20
-
-  if i > 1 then
-    x = x - 1
-  end
-
-  if i > 4 then
-    x = x - 2
-  end
-
-  if i > 6 then
-    x = x + 1
-  end
-
-  local transform = letter.transform
-  transform.translation.x = x
-  animate_jumpman_string(i, 0)
-  transform:set_scale(2, 0.8, 0.2)
-end
+local jumpman_title = FallingTitle.new(
+  char_meshes,
+  "JUMPMAN",
+  context:find_material("7"),
+  {
+    [1] = 22,
+    [5] = 54,
+    [2] = 76,
+    [3] = 80,
+    [4] = 84,
+    [6] = 82,
+    [7] = 78,
+  })
 
 local top_menu = Menu.new(
     char_meshes,
-    "1",
-    "2",
+    context:find_material("1"),
+    context:find_material("2"),
     { x = 80, y = 64, z = 0 },
     { x = 0.7, y = 0.7, z = 1 })
   :add_item("START GAME")
   :add_item("OPTIONS")
 top_menu:hide()
 
-local sky_material = context:find_material("0")
-local sky_material_transform = sky_material.texture_transform
+local sky_scroller = MaterialScroller.new(
+  context:find_material("0"),
+  jumpman.Vector3.new(-0.025, 0.025, 0))
 
 -- TODO: Put in zbits script
 local zbit_objects = {}
@@ -392,39 +455,27 @@ for i, zbit_object in ipairs(scene_objects.donuts) do
   transform.translation = begin_position
 end
 
-local total_elapsed_time = 0
 local animation_time = 0
 local animation_finish_time = 5.5
 
 function update(elapsed_seconds)
   -- TODO: Put in main menu script
-  total_elapsed_time = total_elapsed_time + elapsed_seconds
+  jumpman_title:update(elapsed_seconds)
+
+  if jumpman_title:is_finished() then
+    top_menu:show()
+    top_menu:update(elapsed_seconds)
+  end
+
+  sky_scroller:update(elapsed_seconds)
+
+  -- TODO: Put in zbits script
   animation_time = animation_time + elapsed_seconds
   if animation_time > animation_finish_time then
     animation_time = animation_finish_time
-    top_menu:show()
   end
   local animation_scale = animation_time / animation_finish_time
 
-  local jumpman_inflate_thickness =
-    animate({
-      start_value = 0.2,
-      end_value = 2.5,
-      start_time = 3.35,
-      length = 0.55
-    }, animation_time)
-
-  for i, jumpman_string_object in ipairs(jumpman_string_objects) do
-    animate_jumpman_string(i, animation_scale)
-    jumpman_string_object.transform.scale.z = jumpman_inflate_thickness
-  end
-
-  top_menu:update(elapsed_seconds)
-
-  local shift_sky = 0.025 * total_elapsed_time
-  sky_material_transform:set_translation(-shift_sky, shift_sky, 0.0)
-
-  -- TODO: Put in zbits script
   for i, zbit_object in ipairs(zbit_objects) do
     local transform = zbit_object.transform
     transform.translation = jumpman.mix(
