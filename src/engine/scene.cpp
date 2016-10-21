@@ -2,13 +2,22 @@
 #include "scene.hpp"
 
 void MeshComponent::Draw(
-    const glm::mat4& current_matrix, const Material* previous_material) {
+    const glm::mat4& wvp_matrix,
+    Jumpman::Graphics::Transform& transform,
+    const Material* previous_material) {
   if (!material || !mesh) {
     return;
   }
 
   material->Activate(previous_material);
-  material->BindMvpMatrix(current_matrix);
+
+  glm::mat4 transpose_world_to_local_matrix = glm::transpose(
+    transform.GetWorldToLocalMatrix());
+  material->BindTransformMatrices(
+    wvp_matrix,
+    transform.GetLocalToWorldMatrix(),
+    transpose_world_to_local_matrix);
+
   mesh->Draw();
 }
 
@@ -28,7 +37,8 @@ void Scene::Draw(double time_since_last_frame) {
     auto& mesh_component = scene_object->mesh_component;
 
     if (mesh_component && mesh_component->is_visible) {
-      mesh_component->Draw(current_matrix, previous_material);
+      mesh_component->Draw(
+        current_matrix, scene_object->transform, previous_material);
       previous_material = mesh_component->material.get();
     }
 

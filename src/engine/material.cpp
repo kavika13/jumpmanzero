@@ -7,7 +7,10 @@ Material::Material(std::shared_ptr<ShaderProgram> shader_program) noexcept
     , current_texture_param_(*shader_program, "current_texture")
     , texture_transform_matrix_param_(
         *shader_program, "texture_transform_matrix")
-    , mvp_matrix_param_(*shader_program, "mvp_matrix") {
+    , wvp_matrix_param_(*shader_program, "wvp_matrix")
+    , local_to_world_matrix_param_(*shader_program, "local_to_world_matrix")
+    , transpose_world_to_local_matrix_param_(
+        *shader_program, "transpose_world_to_local_matrix") {
 }
 
 void Material::Activate(const Material* previous_material) {
@@ -56,9 +59,18 @@ std::shared_ptr<Texture> Material::GetTexture() noexcept {
   return texture_;
 }
 
-void Material::BindMvpMatrix(const glm::mat4& mvp_matrix) {
+void Material::BindTransformMatrices(
+    const glm::mat4& wvp_matrix,
+    const glm::mat4& local_to_world_matrix,
+    const glm::mat4& transpose_world_to_local_matrix) {
   glUniformMatrix4fv(
-    mvp_matrix_param_, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
+    wvp_matrix_param_, 1, GL_FALSE, glm::value_ptr(wvp_matrix));
+  glUniformMatrix4fv(
+    local_to_world_matrix_param_, 1,
+    GL_FALSE, glm::value_ptr(local_to_world_matrix));
+  glUniformMatrix4fv(
+    transpose_world_to_local_matrix_param_, 1,
+    GL_FALSE, glm::value_ptr(transpose_world_to_local_matrix));
 }
 
 void Material::SetShaderUniform(

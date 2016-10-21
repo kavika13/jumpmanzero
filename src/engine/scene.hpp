@@ -11,7 +11,10 @@
 #include "trianglemesh.hpp"
 
 struct MeshComponent {
-  void Draw(const glm::mat4& current_matrix, const Material* previous_material);
+  void Draw(
+    const glm::mat4& wvp_matrix,
+    Jumpman::Graphics::Transform& tranform,
+    const Material* previous_material);
 
   bool is_visible = true;
   std::shared_ptr<TriangleMesh> mesh;
