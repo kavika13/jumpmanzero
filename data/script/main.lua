@@ -429,40 +429,73 @@ local sky_scroller = MaterialScroller.new(
   jumpman.Vector3.new(-0.025, 0.025, 0))
 
 -- TODO: Put in zbits script
-local zbit_objects = {}
-local zbit_begin_positions = {}
-local zbit_end_positions = {}
+local ZBits = {}
+ZBits.__index = ZBits
 
-local zbit_mesh = context:find_mesh("0")
-local zbit_texture = context:find_texture("6")
+function ZBits.new(base_objects, mesh, texture, animation_time)
+  local self = create_class_instance(ZBits)
 
-for i, zbit_object in ipairs(scene_objects.donuts) do
-  local end_position = zbit_object.transform.translation
-    + jumpman.Vector3.new(0, -2, 0)
-  local begin_position = end_position
-    + jumpman.Vector3.new(math.random(-100, 100), math.random(-100, 100), -500)
+  self.objects_ = {}
+  self.begin_positions_ = {}
+  self.end_positions_ = {}
+  self.animation_time_ = animation_time or 5.5
+  self.total_elapsed_seconds_ = 0
 
-  table.insert(zbit_objects, zbit_object)
-  table.insert(zbit_begin_positions, begin_position)
-  table.insert(zbit_end_positions, end_position)
+  for i, object in ipairs(base_objects) do
+    local end_position = object.transform.translation
+      + jumpman.Vector3.new(0, -2, 0)
+    local begin_position = end_position
+      + jumpman.Vector3.new(
+          math.random(-100, 100),
+          math.random(-100, 100),
+          -500)
 
-  local mesh_component = zbit_object.mesh_component
-  mesh_component.mesh = zbit_mesh
-  mesh_component.material.texture = zbit_texture
+    table.insert(self.objects_, object)
+    table.insert(self.begin_positions_, begin_position)
+    table.insert(self.end_positions_, end_position)
 
-  local transform = zbit_object.transform
-  transform:set_scale(4, 4, 4)
-  transform.translation = begin_position
+    local mesh_component = object.mesh_component
+    mesh_component.mesh = mesh
+    mesh_component.material.texture = texture
+
+    local transform = object.transform
+    transform:set_scale(4, 4, 4)
+    transform.translation = begin_position
+  end
+
+  return self
 end
 
-local animation_time = 0
-local animation_finish_time = 5.5
+function ZBits:update(elapsed_seconds)
+  self.total_elapsed_seconds_ = self.total_elapsed_seconds_ + elapsed_seconds
+  local animation_scale = self.total_elapsed_seconds_ / self.animation_time_
+
+  if animation_scale > 1 then
+    animation_scale = 1
+  end
+
+  for i, object in ipairs(self.objects_) do
+    local transform = object.transform
+    transform.translation = jumpman.mix(
+      self.begin_positions_[i], self.end_positions_[i], animation_scale)
+    transform:set_angle_axis_rotation(
+      (1 - animation_scale) * math.sin(i * math.pi / 180) * 10,
+      jumpman.Vector3.unit_y())
+  end
+end
+
+function ZBits:is_finished()
+  return self.total_elapsed_seconds_ >= self.animation_time_
+end
+
+local zbits = ZBits.new(
+  scene_objects.donuts, context:find_mesh("0"), context:find_texture("6"))
 
 function update(elapsed_seconds)
   -- TODO: Put in main menu script
-  jumpman_title:update(elapsed_seconds)
-
-  if jumpman_title:is_finished() then
+  if not jumpman_title:is_finished() then
+    jumpman_title:update(elapsed_seconds)
+  else
     top_menu:show()
     top_menu:update(elapsed_seconds)
   end
@@ -470,18 +503,7 @@ function update(elapsed_seconds)
   sky_scroller:update(elapsed_seconds)
 
   -- TODO: Put in zbits script
-  animation_time = animation_time + elapsed_seconds
-  if animation_time > animation_finish_time then
-    animation_time = animation_finish_time
-  end
-  local animation_scale = animation_time / animation_finish_time
-
-  for i, zbit_object in ipairs(zbit_objects) do
-    local transform = zbit_object.transform
-    transform.translation = jumpman.mix(
-      zbit_begin_positions[i], zbit_end_positions[i], animation_scale)
-    transform:set_angle_axis_rotation(
-      (1 - animation_scale) * math.sin(i * math.pi / 180) * 10,
-      jumpman.Vector3.unit_y())
+  if not zbits:is_finished() then
+    zbits:update(elapsed_seconds)
   end
 end
