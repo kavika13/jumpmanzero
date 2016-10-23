@@ -1,0 +1,140 @@
+{
+  "entrypoint": "data/script/maincampaign.lua",
+  "data": [
+    {
+      "title": "Beginner",
+      "levels": [
+        {
+          "entrypoint": "data/script/Level1.lua",
+          "title": "Easy Does It"
+        },
+        {
+          "entrypoint": "data/script/Level20.lua",
+          "title": "Followers"
+        },
+        {
+          "entrypoint": "data/script/Level14.lua",
+          "title": "Disorderly"
+        },
+        {
+          "entrypoint": "data/script/Level8.lua",
+          "title": "Hot. Hot. Hot."
+        },
+        {
+          "entrypoint": "data/script/Level7.lua",
+          "title": "Flash Flood"
+        },
+        {
+          "entrypoint": "data/script/Level12.lua",
+          "title": "The Hive"
+        },
+        {
+          "entrypoint": "data/script/Level17.lua",
+          "title": "Downside Up"
+        },
+        {
+          "entrypoint": "data/script/Level24.lua",
+          "title": "Tree Huggers"
+        },
+        {
+          "entrypoint": "data/script/Level27.lua",
+          "title": "Final Battle"
+        },
+        {
+          "name": "Ending",
+          "title": "Congratulations"
+        }
+      ]
+    },
+    {
+      "title": "Intermediate",
+      "levels": [
+        {
+          "entrypoint": "data/script/Level15.lua",
+          "title": "Solid Ground"
+        },
+        {
+          "entrypoint": "data/script/Level16.lua",
+          "title": "No Rush"
+        },
+        {
+          "entrypoint": "data/script/Level22.lua",
+          "title": "Clockwork"
+        },
+        {
+          "entrypoint": "data/script/Level13.lua",
+          "title": "...Now You Don't"
+        },
+        {
+          "entrypoint": "data/script/Level5.lua",
+          "title": "Great White North"
+        },
+        {
+          "entrypoint": "data/script/Level23.lua",
+          "title": "La Garra"
+        },
+        {
+          "entrypoint": "data/script/Level19.lua",
+          "title": "Gauntlet"
+        },
+        {
+          "entrypoint": "data/script/Level11.lua",
+          "title": "Big Game"
+        },
+        {
+          "entrypoint": "data/script/Level27.lua",
+          "title": "Final Battle"
+        },
+        {
+          "entrypoint": "data/script/Ending.lua",
+          "title": "Congratulations"
+        }
+      ]
+    },
+    {
+      "title": "Advanced",
+      "levels": [
+        {
+          "entrypoint": "data/script/Level6.lua",
+          "title": "Flicker"
+        },
+        {
+          "entrypoint": "data/script/Level2.lua",
+          "title": "When It Rains..."
+        },
+        {
+          "entrypoint": "data/script/Level3.lua",
+          "title": "Fyodor"
+        },
+        {
+          "entrypoint": "data/script/Level10.lua",
+          "title": "Infestation"
+        },
+        {
+          "entrypoint": "data/script/Level9.lua",
+          "title": "High Strung"
+        },
+        {
+          "entrypoint": "data/script/Level18.lua",
+          "title": "A Difficult Assignment"
+        },
+        {
+          "entrypoint": "data/script/Level21.lua",
+          "title": "Wonky Frog"
+        },
+        {
+          "entrypoint": "data/script/Level25.lua",
+          "title": "Jump the Shark"
+        },
+        {
+          "entrypoint": "data/script/Level27.lua",
+          "title": "Final Battle"
+        },
+        {
+          "entrypoint": "data/script/Ending.lua",
+          "title": "Congratulations"
+        }
+      ]
+    }
+  ]
+}
