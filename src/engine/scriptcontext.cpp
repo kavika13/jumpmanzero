@@ -283,9 +283,11 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
           &Transform::GetTranslation,
           static_cast<void (Transform::*)(const glm::vec3&)>(
             &Transform::SetTranslation))
-        , "set_translation",
+        , "set_translation", sol::overload(
+          static_cast<void (Transform::*)(const glm::vec3&)>(
+            &Transform::SetTranslation),
           static_cast<void (Transform::*)(float, float, float)>(
-            &Transform::SetTranslation)
+            &Transform::SetTranslation))
 
         , "translate", sol::overload(
           static_cast<void (Transform::*)(const glm::vec3&)>(
