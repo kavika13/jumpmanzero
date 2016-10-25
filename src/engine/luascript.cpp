@@ -155,9 +155,22 @@ LuaScript::LuaScript(
     R"RAWLITERAL(
       function wrap_setmetatable()
         local setmetatable_safe = setmetatable
+
         _G.create_class_instance = function(cls)
           return setmetatable_safe({}, cls)
         end
+
+        table.as_readonly = function(target_table)
+          return setmetatable_safe({}, {
+            __index = target_table,
+            __newindex =
+              function(target_table, key, value)
+                error("Attempted to modify read-only table")
+              end,
+            __metatable = false
+          });
+        end
+
       end
       wrap_setmetatable()
     )RAWLITERAL");
@@ -165,7 +178,20 @@ LuaScript::LuaScript(
   global_table.set("setmetatable", sol::nil);
   global_table.set("wrap_setmetatable", sol::nil);
 
-  // TODO: Make environment read-only for white-listed functions/tables
+  sol::function as_readonly = global_table["table"]["as_readonly"];
+
+  auto lock_subtable = [&global_table, &as_readonly](
+      const std::string& table_name) {
+    sol::table read_only_table = as_readonly(global_table[table_name]);
+    global_table.set(table_name, read_only_table);
+  };
+
+  lock_subtable("coroutine");
+  lock_subtable("string");
+  lock_subtable("os");
+  lock_subtable("math");
+  lock_subtable("table");
+  lock_subtable("io");
 
   add_bindings(script_);
 
