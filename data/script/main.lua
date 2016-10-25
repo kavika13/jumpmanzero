@@ -415,44 +415,6 @@ function MaterialScroller:update(elapsed_seconds)
     self.translation_per_second_ * self.total_elapsed_seconds_)
 end
 
--- TODO: Put in main menu script
-local scene_objects = load_level("data/level/MainMenu.json")
-local char_meshes = load_char_meshes()
-
-local camera = scene.camera
-camera.transform:set_translation(80, 80, -100)
-camera.transform:look_at(80, 80, 0)
-
-local jumpman_title = FallingTitle.new(
-  char_meshes,
-  "JUMPMAN",
-  context:find_material("7"),
-  {
-    [1] = 22,
-    [5] = 54,
-    [2] = 76,
-    [3] = 80,
-    [4] = 84,
-    [6] = 82,
-    [7] = 78,
-  })
-
-local top_menu = Menu.new(
-    char_meshes,
-    context:find_material("1"),
-    context:find_material("2"),
-    { x = 80, y = 64, z = 0 },
-    { x = 0.7, y = 0.7, z = 1 })
-  :add_item("START GAME")
-  :add_item("OPTIONS")
-top_menu:hide()
-
-local sky_scroller = MaterialScroller.new(
-  context:find_material("0"),
-  jumpman.Vector3.new(-0.025, 0.025, 0))
-
-input:activate_action_set("MenuControls")
-
 -- TODO: Put in zbits script
 local ZBits = {}
 ZBits.__index = ZBits
@@ -518,48 +480,144 @@ function ZBits:is_finished()
   return self.total_elapsed_seconds_ >= self.animation_time_
 end
 
+-- TODO: Put in main menu script
+local scene_objects = load_level("data/level/MainMenu.json")
+local char_meshes = load_char_meshes()
+
+local camera = scene.camera
+camera.transform:set_translation(80, 80, -100)
+camera.transform:look_at(80, 80, 0)
+
+local jumpman_title = FallingTitle.new(
+  char_meshes,
+  "JUMPMAN",
+  context:find_material("7"),
+  {
+    [1] = 22,
+    [5] = 54,
+    [2] = 76,
+    [3] = 80,
+    [4] = 84,
+    [6] = 82,
+    [7] = 78,
+  })
+
+local top_menu = Menu.new(
+    char_meshes,
+    context:find_material("1"),
+    context:find_material("2"),
+    { x = 80, y = 64, z = 0 },
+    { x = 0.7, y = 0.7, z = 1 })
+  :add_item("START GAME")
+  :add_item("OPTIONS")
+top_menu:hide()
+
+local mod_menu
+
+function load_mod_menu()
+end
+
+local sky_scroller = MaterialScroller.new(
+  context:find_material("0"),
+  jumpman.Vector3.new(-0.025, 0.025, 0))
+
 local zbits = ZBits.new(
   scene_objects.donuts, context:find_mesh("0"), context:find_texture("6"))
 
-function update(elapsed_seconds)
-  -- TODO: Put in main menu script
+local menu_state
+local current_menu_state
+
+local animate_title = function(elapsed_seconds)
   if input:get_digital_action_state("menu_cancel").is_pressed then
     return false
   end
 
   local is_animation_finished = jumpman_title:is_finished()
     and zbits:is_finished()
-  local was_animation_just_terminated = false
 
-  if not is_animation_finished then
-    if input:get_digital_action_state("menu_select").was_just_pressed then
-      jumpman_title:finish()
-      zbits:finish()
-      was_animation_just_terminated = true
-    end
+  if is_animation_finished
+      or input:get_digital_action_state("menu_select").was_just_pressed then
+    jumpman_title:finish()
+    zbits:finish()
+    top_menu:show()
+    current_menu_state = menu_state.SelectingTopMenu
   end
 
   if not jumpman_title:is_finished() then
     jumpman_title:update(elapsed_seconds)
-  else
-    if not was_animation_just_terminated then
-      if input:get_digital_action_state("menu_down").was_just_pressed then
-        top_menu:select_next()
-      elseif input:get_digital_action_state("menu_up").was_just_pressed then
-        top_menu:select_previous()
-      end
-    end
-
-    top_menu:show()
-    top_menu:update(elapsed_seconds)
   end
 
-  sky_scroller:update(elapsed_seconds)
-
-  -- TODO: Put in zbits script
   if not zbits:is_finished() then
     zbits:update(elapsed_seconds)
   end
 
   return true
+end
+
+local select_top_menu = function(elapsed_seconds)
+  if input:get_digital_action_state("menu_cancel").is_pressed then
+    return false
+  end
+
+  if input:get_digital_action_state("menu_down").was_just_pressed then
+    top_menu:select_next()
+  elseif input:get_digital_action_state("menu_up").was_just_pressed then
+    top_menu:select_previous()
+  elseif input:get_digital_action_state("menu_select").was_just_pressed then
+    current_menu_state = menu_state.AnimatingTopMenuSelected
+  end
+
+  top_menu:update(elapsed_seconds)
+
+  return true
+end
+
+local animate_top_menu_selected = function(elapsed_seconds)
+  if input:get_digital_action_state("menu_cancel").is_pressed then
+    return false
+  end
+
+  -- TODO: Implement
+
+  return true
+end
+
+local select_mod_menu = function(elapsed_seconds)
+  if input:get_digital_action_state("menu_cancel").is_pressed then
+    -- TODO: Clear this menu, and reset/display: top menu, title, zbits
+    current_menu_state = menu_state.SelectingTopMenu
+  end
+
+  -- TODO: Implement
+
+  return true
+end
+
+local animate_mod_menu_selected = function(elapsed_seconds)
+  if input:get_digital_action_state("menu_cancel").is_pressed then
+    -- TODO: Clear this menu, and reset/display: top menu, title, zbits
+    current_menu_state = menu_state.SelectingTopMenu
+  end
+
+  -- TODO: Implement
+
+  return true
+end
+
+menu_state = table.as_readonly({
+  AnimatingTitle = animate_title,
+  SelectingTopMenu = select_top_menu,
+  AnimatingTopMenuSelected = animate_top_menu_selected,
+  SelectingModMenu = select_mod_menu,
+  AnimatingModMenuSelected = animate_mod_menu_selected,
+})
+current_menu_state = menu_state.AnimatingTitle
+
+input:activate_action_set("MenuControls")
+
+function update(elapsed_seconds)
+  -- TODO: Put in main menu script
+  sky_scroller:update(elapsed_seconds)
+
+  return current_menu_state(elapsed_seconds)
 end
