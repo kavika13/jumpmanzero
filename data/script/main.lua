@@ -238,8 +238,15 @@ function FallingTitle:update(elapsed_seconds)
       transform:set_angle_axis_rotation(
         10 * (height - 3) * math.pi / 180,
         jumpman.Vector3.unit_x())
+    else
+      transform:set_angle_axis_rotation(0, jumpman.Vector3.unit_x())
     end
   end
+end
+
+function FallingTitle:finish()
+  self.total_elapsed_seconds_ = self.animation_time_
+  self:update(0)
 end
 
 function FallingTitle:is_finished()
@@ -502,6 +509,11 @@ function ZBits:update(elapsed_seconds)
   end
 end
 
+function ZBits:finish()
+  self.total_elapsed_seconds_ = self.animation_time_
+  self:update(0)
+end
+
 function ZBits:is_finished()
   return self.total_elapsed_seconds_ >= self.animation_time_
 end
@@ -515,13 +527,27 @@ function update(elapsed_seconds)
     return false
   end
 
+  local is_animation_finished = jumpman_title:is_finished()
+    and zbits:is_finished()
+  local was_animation_just_terminated = false
+
+  if not is_animation_finished then
+    if input:get_digital_action_state("menu_select").was_just_pressed then
+      jumpman_title:finish()
+      zbits:finish()
+      was_animation_just_terminated = true
+    end
+  end
+
   if not jumpman_title:is_finished() then
     jumpman_title:update(elapsed_seconds)
   else
-    if input:get_digital_action_state("menu_down").was_just_pressed then
-      top_menu:select_next()
-    elseif input:get_digital_action_state("menu_up").was_just_pressed then
-      top_menu:select_previous()
+    if not was_animation_just_terminated then
+      if input:get_digital_action_state("menu_down").was_just_pressed then
+        top_menu:select_next()
+      elseif input:get_digital_action_state("menu_up").was_just_pressed then
+        top_menu:select_previous()
+      end
     end
 
     top_menu:show()
