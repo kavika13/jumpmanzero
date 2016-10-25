@@ -1,8 +1,5 @@
 {
   "builtin": [
-    {
-      "title": "Campaign",
-      "mod": "data/mod/maincampaign.json"
-    }
+    "data/mod/maincampaign.json"
   ]
 }

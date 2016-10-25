@@ -1,4 +1,5 @@
 {
+  "title": "Campaign",
   "entrypoint": "data/script/maincampaign.lua",
   "data": [
     {
