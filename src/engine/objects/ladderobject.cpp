@@ -15,19 +15,19 @@ LadderObject::LadderObject(
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
-std::shared_ptr<TriangleMesh> LadderObject::GetMesh() {
+std::shared_ptr<Graphics::TriangleMesh> LadderObject::GetMesh() {
   return mesh_;
 }
 
-void LadderObject::SetMesh(std::shared_ptr<TriangleMesh> mesh) {
+void LadderObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
 }
 
-std::shared_ptr<Material> LadderObject::GetMaterial() {
+std::shared_ptr<Graphics::Material> LadderObject::GetMaterial() {
   return material_;
 }
 
-void LadderObject::SetMaterial(std::shared_ptr<Material> material) {
+void LadderObject::SetMaterial(std::shared_ptr<Graphics::Material> material) {
   material_ = material;
 }
 

@@ -1,7 +1,11 @@
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
-#include "logging.hpp"
+#include "engine/logging.hpp"
 #include "openglerror.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 bool AreOpenGLErrorFlagsSet() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Graphics");
@@ -39,3 +43,7 @@ bool AreOpenGLErrorFlagsSet() {
 
   return result;
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

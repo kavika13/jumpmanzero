@@ -15,19 +15,19 @@ WallObject::WallObject(
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
-std::shared_ptr<TriangleMesh> WallObject::GetMesh() {
+std::shared_ptr<Graphics::TriangleMesh> WallObject::GetMesh() {
   return mesh_;
 }
 
-void WallObject::SetMesh(std::shared_ptr<TriangleMesh> mesh) {
+void WallObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
 }
 
-std::shared_ptr<Material> WallObject::GetMaterial() {
+std::shared_ptr<Graphics::Material> WallObject::GetMaterial() {
   return material_;
 }
 
-void WallObject::SetMaterial(std::shared_ptr<Material> material) {
+void WallObject::SetMaterial(std::shared_ptr<Graphics::Material> material) {
   material_ = material;
 }
 

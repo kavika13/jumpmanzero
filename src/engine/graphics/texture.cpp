@@ -1,6 +1,10 @@
-#include "logging.hpp"
+#include "engine/logging.hpp"
 #include "openglerror.hpp"
 #include "texture.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 Texture::Texture() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Graphics");
@@ -102,3 +106,7 @@ void Image::Deallocate() {
     SDL_FreeSurface(handle_);
   }
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

@@ -1,10 +1,14 @@
-#ifndef ENGINE_TEXTURE_HPP_
-#define ENGINE_TEXTURE_HPP_
+#ifndef ENGINE_GRAPHICS_TEXTURE_HPP_
+#define ENGINE_GRAPHICS_TEXTURE_HPP_
 
 #include <string>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
 #include <SDL2_image/SDL_image.h>
+
+namespace Jumpman {
+
+namespace Graphics {
 
 class Texture {
  public:
@@ -42,4 +46,8 @@ class Image {
   SDL_Surface* handle_;
 };
 
-#endif  // ENGINE_TEXTURE_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_TEXTURE_HPP_

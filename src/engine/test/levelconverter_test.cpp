@@ -3,6 +3,22 @@
 #include "engine/levelconverter.hpp"
 #include "catch.hpp"
 
+using LevelConverter = Jumpman::LevelConverter;
+using LevelData = Jumpman::LevelData;
+using ScriptResourceData = Jumpman::ScriptResourceData;
+using MeshResourceData = Jumpman::MeshResourceData;
+using TextureResourceData = Jumpman::TextureResourceData;
+using SoundResourceData = Jumpman::SoundResourceData;
+using MusicResourceData = Jumpman::MusicResourceData;
+using QuadObjectData = Jumpman::QuadObjectData;
+using DonutObjectData = Jumpman::DonutObjectData;
+using PlatformObjectData = Jumpman::PlatformObjectData;
+using PlatformType = Jumpman::PlatformType;
+using WallObjectData = Jumpman::WallObjectData;
+using LadderObjectData = Jumpman::LadderObjectData;
+using VineObjectData = Jumpman::VineObjectData;
+using VertexData = Jumpman::VertexData;
+
 SCENARIO ("load old level files and verify there are no errors",
           "[dataconversion]") {
   std::string level_directory = "data/level";

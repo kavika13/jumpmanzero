@@ -2,6 +2,10 @@
 #include <OpenGL/gl3.h>
 #include "trianglemesh.hpp"
 
+namespace Jumpman {
+
+namespace Graphics {
+
 TriangleMesh::TriangleMesh(const void* buffer_data, size_t buffer_size)
     : triangle_count_(buffer_size)
     , vertex_buffer_(buffer_data, buffer_size)
@@ -35,3 +39,7 @@ void TriangleMesh::Draw() noexcept {
   glBindVertexArray(vertex_array_);
   glDrawArrays(GL_TRIANGLES, 0, triangle_count_);
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

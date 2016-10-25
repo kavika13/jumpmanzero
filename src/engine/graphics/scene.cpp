@@ -1,9 +1,13 @@
 #include <stack>
 #include "scene.hpp"
 
+namespace Jumpman {
+
+namespace Graphics {
+
 void MeshComponent::Draw(
     const glm::mat4& wvp_matrix,
-    Jumpman::Graphics::Transform& transform,
+    Transform& transform,
     const Material* previous_material) {
   if (!material || !mesh) {
     return;
@@ -58,3 +62,7 @@ void Scene::Draw(double time_since_last_frame) {
     render_scene_object(scene_object);
   }
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

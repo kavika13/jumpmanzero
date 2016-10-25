@@ -2,6 +2,10 @@
 #include <glm/gtx/transform.hpp>
 #include "material.hpp"
 
+namespace Jumpman {
+
+namespace Graphics {
+
 Material::Material(std::shared_ptr<ShaderProgram> shader_program) noexcept
     : shader_program_(shader_program)
     , current_texture_param_(*shader_program, "current_texture")
@@ -107,3 +111,7 @@ void Material::SetShaderUniform(const std::string& name, float value) {
 
   float_values_[name] = value;
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

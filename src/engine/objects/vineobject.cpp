@@ -15,19 +15,19 @@ VineObject::VineObject(
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
-std::shared_ptr<TriangleMesh> VineObject::GetMesh() {
+std::shared_ptr<Graphics::TriangleMesh> VineObject::GetMesh() {
   return mesh_;
 }
 
-void VineObject::SetMesh(std::shared_ptr<TriangleMesh> mesh) {
+void VineObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
 }
 
-std::shared_ptr<Material> VineObject::GetMaterial() {
+std::shared_ptr<Graphics::Material> VineObject::GetMaterial() {
   return material_;
 }
 
-void VineObject::SetMaterial(std::shared_ptr<Material> material) {
+void VineObject::SetMaterial(std::shared_ptr<Graphics::Material> material) {
   material_ = material;
 }
 

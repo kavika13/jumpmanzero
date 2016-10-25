@@ -4,7 +4,7 @@
 #include <vector>
 #include "engine/leveldata.hpp"
 #include "engine/resourcecontext.hpp"
-#include "engine/trianglemesh.hpp"
+#include "trianglemesh.hpp"
 
 namespace Jumpman {
 

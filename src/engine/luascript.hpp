@@ -3,6 +3,8 @@
 
 #include <sol.hpp>
 
+namespace Jumpman {
+
 class LuaScript {
  public:
   LuaScript(
@@ -14,5 +16,7 @@ class LuaScript {
   sol::state script_;
   sol::function update_function_;
 };
+
+};  // namespace Jumpman
 
 #endif  // ENGINE_LUASCRIPT_HPP_

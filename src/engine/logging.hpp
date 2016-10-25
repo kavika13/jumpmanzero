@@ -11,6 +11,8 @@
 
 namespace src = boost::log::sources;
 
+namespace Jumpman {
+
 enum class LogSeverity {
   kTrace,
   kDebug,
@@ -49,5 +51,7 @@ class ScopeLogger {
 
 void InitializeLogging();
 void AddLogFile(const std::string& filename);
+
+};  // namespace Jumpman
 
 #endif  // ENGINE_LOGGING_HPP_

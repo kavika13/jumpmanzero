@@ -2,10 +2,10 @@
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
 #include <SDL2/SDL.h>
+#include "engine/graphics/scene.hpp"
 #include "engine.hpp"
 #include "input.hpp"
 #include "logging.hpp"
-#include "scene.hpp"
 #include "scriptcontext.hpp"
 
 namespace Jumpman {
@@ -14,7 +14,7 @@ struct Engine::EngineData {
   SDL_Window* main_window = NULL;
   SDL_GLContext gl_context = NULL;
   std::shared_ptr<Input> input;
-  std::shared_ptr<Scene> scene;
+  std::shared_ptr<Graphics::Scene> scene;
   std::shared_ptr<ScriptContext> script_context;
 };
 
@@ -89,7 +89,7 @@ bool Engine::Initialize() {
   glEnable(GL_DEPTH_TEST);  // TODO: Should never error?
   glEnable(GL_CULL_FACE);  // TODO: Should never error?
 
-  data_->scene.reset(new Scene);
+  data_->scene.reset(new Graphics::Scene);
   data_->input.reset(new Input);
   data_->script_context.reset(
     new ScriptContext(data_->scene, data_->input, "data/script/main.lua"));

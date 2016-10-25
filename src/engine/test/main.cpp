@@ -3,7 +3,7 @@
 #include "catch.hpp"
 
 int main(int argc, char* argv[]) {
-  InitializeLogging();
+  Jumpman::InitializeLogging();
   int result = Catch::Session().run(argc, argv);
   return result;
 }

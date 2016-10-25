@@ -3,6 +3,8 @@
 #include "leveldata.hpp"
 #include "logging.hpp"
 
+namespace Jumpman {
+
 bool operator==(const ScriptResourceData& lhs, const ScriptResourceData& rhs) {
   return lhs.filename == rhs.filename && lhs.tag == rhs.tag;
 }
@@ -810,3 +812,5 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
 
   return stream;
 }
+
+};  // namespace Jumpman

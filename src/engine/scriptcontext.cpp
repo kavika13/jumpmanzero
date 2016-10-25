@@ -9,7 +9,7 @@
 namespace Jumpman {
 
 ScriptContext::ScriptContext(
-  std::shared_ptr<Scene> scene,
+  std::shared_ptr<Graphics::Scene> scene,
   std::shared_ptr<Input> input,
   const std::string& main_script_filename)
     : scene_(scene)
@@ -63,6 +63,8 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "load_mesh", &ResourceContext::LoadMesh
         , "find_mesh", &ResourceContext::FindMesh
       );
+
+      using Material = Graphics::Material;
 
       jumpman.new_usertype<Material>("Material"
         , "new", sol::no_constructor
@@ -181,6 +183,8 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "find_ladder", &Objects::Level::FindLadder
         , "find_vine", &Objects::Level::FindVine
       );
+
+      using MeshComponent = Graphics::MeshComponent;
 
       jumpman.new_usertype<MeshComponent>("MeshComponent"
         , "", sol::no_constructor
@@ -306,18 +310,22 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
             &Transform::LookAt))
       );
 
+      using SceneObject = Graphics::SceneObject;
+
       jumpman.new_usertype<SceneObject>("SceneObject"
         , "", sol::no_constructor
 
         , "new", sol::factories([]() {
-          return std::shared_ptr<SceneObject>(new SceneObject);
+          return std::shared_ptr<SceneObject>(
+            new SceneObject);
         })
 
         , "transform", &SceneObject::transform
         , "mesh_component", &SceneObject::mesh_component
         , "children", &SceneObject::children
         , "add_child", [](
-            SceneObject& scene_object, std::shared_ptr<SceneObject> child) {
+            SceneObject& scene_object,
+            std::shared_ptr<SceneObject> child) {
           scene_object.children.push_back(child);
         }
       );
@@ -344,6 +352,8 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
           &ProjectionCamera::GetFarClipPlaneDistance)
         , "transform", &ProjectionCamera::transform
       );
+
+      using Scene = Graphics::Scene;
 
       jumpman.new_usertype<Scene>("Scene"
         , "new", sol::no_constructor

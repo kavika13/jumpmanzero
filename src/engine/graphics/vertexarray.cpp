@@ -1,6 +1,10 @@
-#include "logging.hpp"
-#include "vertexarray.hpp"
+#include "engine/logging.hpp"
 #include "openglerror.hpp"
+#include "vertexarray.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 VertexArray::VertexArray(std::function<void()> configure_vertex_array) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Graphics");
@@ -57,3 +61,7 @@ void VertexArray::Deallocate() {
     glDeleteVertexArrays(1, &handle_);
   }
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

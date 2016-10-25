@@ -1,10 +1,12 @@
 #include <fstream>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
-#include "graphics/meshdata.hpp"
+#include "engine/graphics/meshdata.hpp"
+#include "engine/graphics/shader.hpp"
 #include "logging.hpp"
 #include "resourcecontext.hpp"
-#include "shader.hpp"
+
+namespace Jumpman {
 
 ResourceContext::ResourceContext(
   ResourceContext::ScriptFactory script_factory)
@@ -30,14 +32,14 @@ std::shared_ptr<LuaScript> ResourceContext::FindScript(const std::string& tag) {
   return iter->second.lock();
 }
 
-std::shared_ptr<Texture> ResourceContext::LoadTexture(
+std::shared_ptr<Graphics::Texture> ResourceContext::LoadTexture(
     const std::string& filename, const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   // TODO: Check errors, do logging
 
   // TODO: Handle colorkey alpha in texture class
-  std::shared_ptr<Texture> texture(new Texture);
-  Image image(filename);
+  std::shared_ptr<Graphics::Texture> texture(new Graphics::Texture);
+  Graphics::Image image(filename);
 
   glBindTexture(GL_TEXTURE_2D, *texture);
   SDL_Surface* image_data = image;
@@ -63,7 +65,8 @@ std::shared_ptr<Texture> ResourceContext::LoadTexture(
   return texture;
 }
 
-std::shared_ptr<Texture> ResourceContext::FindTexture(const std::string& tag) {
+std::shared_ptr<Graphics::Texture> ResourceContext::FindTexture(
+    const std::string& tag) {
   auto iter = tag_to_texture_map_.find(tag);
   if (iter == tag_to_texture_map_.end()) {
     throw std::runtime_error("Failed to find texture with tag: " + tag);
@@ -71,7 +74,7 @@ std::shared_ptr<Texture> ResourceContext::FindTexture(const std::string& tag) {
   return iter->second.lock();
 }
 
-std::shared_ptr<Material> ResourceContext::LoadMaterial(
+std::shared_ptr<Graphics::Material> ResourceContext::LoadMaterial(
     const std::string& vertex_shader_filename,
     const std::string& fragment_shader_filename,
     const std::string& tag) {
@@ -105,15 +108,16 @@ std::shared_ptr<Material> ResourceContext::LoadMaterial(
 
   std::string vertexshadersource;
   read_file_to_string(vertexshaderfile, vertexshadersource);
-  VertexShader vertex_shader(vertexshadersource);
+  Graphics::VertexShader vertex_shader(vertexshadersource);
 
   std::string fragmentshadersource;
   read_file_to_string(fragmentshaderfile, fragmentshadersource);
-  FragmentShader fragment_shader(fragmentshadersource);
+  Graphics::FragmentShader fragment_shader(fragmentshadersource);
 
-  std::shared_ptr<ShaderProgram> shader_program(
-    new ShaderProgram(vertex_shader, fragment_shader));
-  std::shared_ptr<Material> material(new Material(shader_program));
+  std::shared_ptr<Graphics::ShaderProgram> shader_program(
+    new Graphics::ShaderProgram(vertex_shader, fragment_shader));
+  std::shared_ptr<Graphics::Material> material(
+    new Graphics::Material(shader_program));
 
   tag_to_material_map_[tag] = material;
 
@@ -122,7 +126,7 @@ std::shared_ptr<Material> ResourceContext::LoadMaterial(
   return material;
 }
 
-std::shared_ptr<Material> ResourceContext::FindMaterial(
+std::shared_ptr<Graphics::Material> ResourceContext::FindMaterial(
     const std::string& tag) {
   auto iter = tag_to_material_map_.find(tag);
   if (iter == tag_to_material_map_.end()) {
@@ -131,12 +135,13 @@ std::shared_ptr<Material> ResourceContext::FindMaterial(
   return iter->second.lock();
 }
 
-std::shared_ptr<TriangleMesh> ResourceContext::CreateMesh(
-    const std::vector<Vertex>& vertices, const std::string& tag) {
+std::shared_ptr<Graphics::TriangleMesh> ResourceContext::CreateMesh(
+    const std::vector<Graphics::Vertex>& vertices, const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Generating mesh: " << tag;
 
-  std::shared_ptr<TriangleMesh> mesh(new TriangleMesh(vertices));
+  std::shared_ptr<Graphics::TriangleMesh> mesh(
+    new Graphics::TriangleMesh(vertices));
 
   if (!tag.empty()) {
     tag_to_mesh_map_[tag] = mesh;
@@ -147,7 +152,7 @@ std::shared_ptr<TriangleMesh> ResourceContext::CreateMesh(
   return mesh;
 }
 
-std::shared_ptr<TriangleMesh> ResourceContext::LoadMesh(
+std::shared_ptr<Graphics::TriangleMesh> ResourceContext::LoadMesh(
     const std::string& filename, const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
@@ -161,12 +166,12 @@ std::shared_ptr<TriangleMesh> ResourceContext::LoadMesh(
     throw std::runtime_error(error_message);
   }
 
-  Jumpman::Graphics::MeshData mesh_data(
-    std::move(Jumpman::Graphics::MeshData::FromStream(mesh_file)));
-  std::vector<Vertex> vertices;
+  Graphics::MeshData mesh_data(
+    std::move(Graphics::MeshData::FromStream(mesh_file)));
+  std::vector<Graphics::Vertex> vertices;
   vertices.reserve(mesh_data.vertices.size());
 
-  for (const Jumpman::Graphics::MeshVertexData& vertex: mesh_data.vertices) {
+  for (const Graphics::MeshVertexData& vertex: mesh_data.vertices) {
     vertices.push_back({
       vertex.x,
       vertex.y,
@@ -182,7 +187,7 @@ std::shared_ptr<TriangleMesh> ResourceContext::LoadMesh(
   return CreateMesh(vertices, tag);
 }
 
-std::shared_ptr<TriangleMesh> ResourceContext::FindMesh(
+std::shared_ptr<Graphics::TriangleMesh> ResourceContext::FindMesh(
     const std::string& tag) {
   auto iter = tag_to_mesh_map_.find(tag);
   if (iter == tag_to_mesh_map_.end()) {
@@ -190,3 +195,5 @@ std::shared_ptr<TriangleMesh> ResourceContext::FindMesh(
   }
   return iter->second.lock();
 }
+
+};  // namespace Jumpman

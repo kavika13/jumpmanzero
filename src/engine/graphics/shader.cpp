@@ -1,6 +1,10 @@
-#include "logging.hpp"
-#include "shader.hpp"
+#include "engine/logging.hpp"
 #include "openglerror.hpp"
+#include "shader.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 static constexpr const char* GetShaderNameByType(GLenum type) {
   switch (type) {
@@ -181,3 +185,7 @@ ShaderUniformParameter::ShaderUniformParameter(
 ShaderUniformParameter::operator GLint() const {
   return handle_;
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

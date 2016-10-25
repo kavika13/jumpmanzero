@@ -1,9 +1,13 @@
-#ifndef ENGINE_VERTEXARRAY_HPP_
-#define ENGINE_VERTEXARRAY_HPP_
+#ifndef ENGINE_GRAPHICS_VERTEXARRAY_HPP_
+#define ENGINE_GRAPHICS_VERTEXARRAY_HPP_
 
 #include <functional>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
+
+namespace Jumpman {
+
+namespace Graphics {
 
 struct VertexArray {
   explicit VertexArray(std::function<void()> configure_vertex_array);
@@ -22,4 +26,8 @@ struct VertexArray {
   GLuint handle_;
 };
 
-#endif  // ENGINE_VERTEXARRAY_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_VERTEXARRAY_HPP_

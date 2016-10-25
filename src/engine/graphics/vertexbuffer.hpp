@@ -1,8 +1,12 @@
-#ifndef ENGINE_VERTEXBUFFER_HPP_
-#define ENGINE_VERTEXBUFFER_HPP_
+#ifndef ENGINE_GRAPHICS_VERTEXBUFFER_HPP_
+#define ENGINE_GRAPHICS_VERTEXBUFFER_HPP_
 
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
+
+namespace Jumpman {
+
+namespace Graphics {
 
 class VertexBuffer {
  public:
@@ -24,4 +28,8 @@ class VertexBuffer {
   GLuint handle_;
 };
 
-#endif  // ENGINE_VERTEXBUFFER_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_VERTEXBUFFER_HPP_

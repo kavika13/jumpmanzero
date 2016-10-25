@@ -1,9 +1,13 @@
-#ifndef ENGINE_SHADER_HPP_
-#define ENGINE_SHADER_HPP_
+#ifndef ENGINE_GRAPHICS_SHADER_HPP_
+#define ENGINE_GRAPHICS_SHADER_HPP_
 
 #include <string>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
+
+namespace Jumpman {
+
+namespace Graphics {
 
 template <GLenum kShaderType>
 class Shader {
@@ -68,4 +72,8 @@ class ShaderUniformParameter {
   const GLint handle_;
 };
 
-#endif  // ENGINE_SHADER_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_SHADER_HPP_

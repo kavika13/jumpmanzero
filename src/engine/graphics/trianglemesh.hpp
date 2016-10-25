@@ -1,9 +1,13 @@
-#ifndef ENGINE_TRIANGLEMESH_HPP_
-#define ENGINE_TRIANGLEMESH_HPP_
+#ifndef ENGINE_GRAPHICS_TRIANGLEMESH_HPP_
+#define ENGINE_GRAPHICS_TRIANGLEMESH_HPP_
 
 #include <vector>
 #include "vertexarray.hpp"
 #include "vertexbuffer.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 // TODO: Don't force this definition
 struct Vertex {
@@ -38,4 +42,8 @@ class TriangleMesh {
   VertexArray vertex_array_;
 };
 
-#endif  // ENGINE_TRIANGLEMESH_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_TRIANGLEMESH_HPP_

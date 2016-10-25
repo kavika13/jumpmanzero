@@ -1,6 +1,0 @@
-#ifndef ENGINE_OPENGLERROR_HPP_
-#define ENGINE_OPENGLERROR_HPP_
-
-bool AreOpenGLErrorFlagsSet();
-
-#endif  // ENGINE_OPENGLERROR_HPP_

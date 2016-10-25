@@ -15,17 +15,17 @@ class QuadObject {
  public:
   explicit QuadObject(const QuadObjectData& data, ResourceContext&);
 
-  std::shared_ptr<TriangleMesh> GetMesh();
-  void SetMesh(std::shared_ptr<TriangleMesh> mesh);
+  std::shared_ptr<Graphics::TriangleMesh> GetMesh();
+  void SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh);
 
-  std::shared_ptr<Material> GetMaterial();
-  void SetMaterial(std::shared_ptr<Material> material);
+  std::shared_ptr<Graphics::Material> GetMaterial();
+  void SetMaterial(std::shared_ptr<Graphics::Material> material);
 
   glm::vec3 origin;
 
  private:
-  std::shared_ptr<TriangleMesh> mesh_;
-  std::shared_ptr<Material> material_;
+  std::shared_ptr<Graphics::TriangleMesh> mesh_;
+  std::shared_ptr<Graphics::Material> material_;
 };
 
 };  // namespace Objects

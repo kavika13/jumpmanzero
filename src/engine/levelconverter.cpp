@@ -4,6 +4,8 @@
 #include "levelconverter.hpp"
 #include "logging.hpp"
 
+namespace Jumpman {
+
 std::istream& operator>>(std::istream& stream, LevelResourceType& type) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
 
@@ -627,3 +629,5 @@ LevelData LevelConverter::Convert() {
     vines,
   };
 }
+
+};  // namespace Jumpman

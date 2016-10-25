@@ -15,19 +15,19 @@ DonutObject::DonutObject(
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
-std::shared_ptr<TriangleMesh> DonutObject::GetMesh() {
+std::shared_ptr<Graphics::TriangleMesh> DonutObject::GetMesh() {
   return mesh_;
 }
 
-void DonutObject::SetMesh(std::shared_ptr<TriangleMesh> mesh) {
+void DonutObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
 }
 
-std::shared_ptr<Material> DonutObject::GetMaterial() {
+std::shared_ptr<Graphics::Material> DonutObject::GetMaterial() {
   return material_;
 }
 
-void DonutObject::SetMaterial(std::shared_ptr<Material> material) {
+void DonutObject::SetMaterial(std::shared_ptr<Graphics::Material> material) {
   material_ = material;
 }
 

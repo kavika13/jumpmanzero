@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace Jumpman {
+
 struct ScriptResourceData {
   const std::string filename;
   const std::string tag;
@@ -163,5 +165,7 @@ struct LevelData {
 };
 
 bool operator==(const LevelData& lhs, const LevelData& rhs);
+
+};  // namespace Jumpman
 
 #endif  // ENGINE_LEVELDATA_HPP_

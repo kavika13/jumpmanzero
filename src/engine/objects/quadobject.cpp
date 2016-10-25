@@ -15,19 +15,19 @@ QuadObject::QuadObject(
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
-std::shared_ptr<TriangleMesh> QuadObject::GetMesh() {
+std::shared_ptr<Graphics::TriangleMesh> QuadObject::GetMesh() {
   return mesh_;
 }
 
-void QuadObject::SetMesh(std::shared_ptr<TriangleMesh> mesh) {
+void QuadObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
 }
 
-std::shared_ptr<Material> QuadObject::GetMaterial() {
+std::shared_ptr<Graphics::Material> QuadObject::GetMaterial() {
   return material_;
 }
 
-void QuadObject::SetMaterial(std::shared_ptr<Material> material) {
+void QuadObject::SetMaterial(std::shared_ptr<Graphics::Material> material) {
   material_ = material;
 }
 

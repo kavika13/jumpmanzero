@@ -3,6 +3,8 @@
 
 #include "leveldata.hpp"
 
+namespace Jumpman {
+
 enum class LevelResourceType {
   kMusic = 1,
   kMesh = 2,
@@ -65,5 +67,7 @@ struct LevelConverter {
   const std::vector<LevelResourceEntry> resources;
   const std::vector<LevelObjectEntry> objects;
 };
+
+};  // namespace Jumpman
 
 #endif  // ENGINE_LEVELCONVERTER_HPP_

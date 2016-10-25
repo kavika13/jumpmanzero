@@ -1,5 +1,5 @@
-#ifndef ENGINE_MATERIAL_HPP_
-#define ENGINE_MATERIAL_HPP_
+#ifndef ENGINE_GRAPHICS_MATERIAL_HPP_
+#define ENGINE_GRAPHICS_MATERIAL_HPP_
 
 #include <memory>
 #include <unordered_map>
@@ -7,9 +7,13 @@
 #include <glm/mat4x4.hpp>
 #define GL3_PROTOTYPES
 #include <OpenGL/gl3.h>
-#include "engine/graphics/transform.hpp"
+#include "transform.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 class Material {
  public:
@@ -29,7 +33,7 @@ class Material {
   void SetShaderUniform(const std::string& name, const glm::vec3& value);
   void SetShaderUniform(const std::string& name, float value);
 
-  Jumpman::Graphics::Transform texture_transform;
+  Transform texture_transform;
 
  private:
   std::shared_ptr<ShaderProgram> shader_program_;
@@ -49,4 +53,8 @@ class Material {
   std::unordered_map<std::string, float> float_values_;
 };
 
-#endif  // ENGINE_MATERIAL_HPP_
+};  // namespace Graphics
+
+};  // namespace Jumpman
+
+#endif  // ENGINE_GRAPHICS_MATERIAL_HPP_

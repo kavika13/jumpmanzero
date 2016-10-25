@@ -5,7 +5,7 @@
 #include "engine/logging.hpp"
 
 int main(int argc, char* argv[]) {
-  InitializeLogging();  // Engine logging - TODO: Should be in its own namespace
+  Jumpman::InitializeLogging();
 
   if (argc < 2 || argc > 3) {
     std::cerr << "Usage: levelconverter path/level.lvl[ path/outputlevel.json]"
@@ -34,8 +34,8 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  auto converter = LevelConverter::FromStream(old_level_file);
-  LevelData converted_data = converter.Convert();
+  auto converter = Jumpman::LevelConverter::FromStream(old_level_file);
+  Jumpman::LevelData converted_data = converter.Convert();
   new_level_file << converted_data;
 
   return 0;

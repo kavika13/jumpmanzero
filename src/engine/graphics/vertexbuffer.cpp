@@ -1,6 +1,10 @@
-#include "logging.hpp"
-#include "vertexbuffer.hpp"
+#include "engine/logging.hpp"
 #include "openglerror.hpp"
+#include "vertexbuffer.hpp"
+
+namespace Jumpman {
+
+namespace Graphics {
 
 VertexBuffer::VertexBuffer(const void* buffer_data, size_t buffer_size) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Graphics");
@@ -62,3 +66,7 @@ void VertexBuffer::Deallocate() {
     glDeleteBuffers(1, &handle_);
   }
 }
+
+};  // namespace Graphics
+
+};  // namespace Jumpman

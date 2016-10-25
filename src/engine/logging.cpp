@@ -15,6 +15,8 @@ namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 namespace attrs = boost::log::attributes;
 
+namespace Jumpman {
+
 std::ostream& operator<<(std::ostream& strm, LogSeverity level) {
   static const char* strings[] = {
     "Trace",
@@ -111,3 +113,5 @@ void AddLogFile(const std::string& filename) {
       << expr::smessage);
   logging::core::get()->add_sink(sink);
 }
+
+};  // namespace Jumpman

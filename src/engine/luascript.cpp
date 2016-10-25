@@ -1,5 +1,7 @@
-#include "luascript.hpp"
 #include <unordered_set>
+#include "luascript.hpp"
+
+namespace Jumpman {
 
 LuaScript::LuaScript(
     const std::string& filename,
@@ -174,3 +176,5 @@ LuaScript::LuaScript(
 bool LuaScript::Update(double elapsed_seconds) {
   return update_function_(elapsed_seconds);
 }
+
+};  // namespace Jumpman

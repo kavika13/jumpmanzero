@@ -15,19 +15,19 @@ PlatformObject::PlatformObject(
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
-std::shared_ptr<TriangleMesh> PlatformObject::GetMesh() {
+std::shared_ptr<Graphics::TriangleMesh> PlatformObject::GetMesh() {
   return mesh_;
 }
 
-void PlatformObject::SetMesh(std::shared_ptr<TriangleMesh> mesh) {
+void PlatformObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
 }
 
-std::shared_ptr<Material> PlatformObject::GetMaterial() {
+std::shared_ptr<Graphics::Material> PlatformObject::GetMaterial() {
   return material_;
 }
 
-void PlatformObject::SetMaterial(std::shared_ptr<Material> material) {
+void PlatformObject::SetMaterial(std::shared_ptr<Graphics::Material> material) {
   material_ = material;
 }
 
