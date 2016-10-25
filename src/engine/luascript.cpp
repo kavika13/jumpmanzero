@@ -171,6 +171,6 @@ LuaScript::LuaScript(
   update_function_ = script_["update"];
 }
 
-void LuaScript::Update(double elapsed_seconds) {
-  update_function_(elapsed_seconds);
+bool LuaScript::Update(double elapsed_seconds) {
+  return update_function_(elapsed_seconds);
 }

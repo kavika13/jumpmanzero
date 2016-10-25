@@ -2,14 +2,18 @@
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include "input.hpp"
 #include "logging.hpp"
 #include "scriptcontext.hpp"
 
 namespace Jumpman {
 
 ScriptContext::ScriptContext(
-  std::shared_ptr<Scene> scene, const std::string& main_script_filename)
-    : scene_(scene) {
+  std::shared_ptr<Scene> scene,
+  std::shared_ptr<Input> input,
+  const std::string& main_script_filename)
+    : scene_(scene)
+    , input_(input) {
   // TODO: Why isn't std::bind working?
   auto script_factory = [this](const std::string& filename) {
     return this->ScriptFactory(filename);
@@ -21,8 +25,8 @@ ScriptContext::ScriptContext(
   main_script_ = resource_context_->LoadScript(main_script_filename, "main");
 }
 
-void ScriptContext::Update(double elapsed_seconds) {
-  main_script_->Update(elapsed_seconds);
+bool ScriptContext::Update(double elapsed_seconds) {
+  return main_script_->Update(elapsed_seconds);
 }
 
 std::shared_ptr<Objects::Level> ScriptContext::LoadLevel(
@@ -351,6 +355,24 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         }
       );
 
+      jumpman.new_usertype<DigitalControllerActionState>(
+        "DigitalControllerActionState"
+        , "new", sol::no_constructor
+
+        , "is_pressed", &DigitalControllerActionState::is_pressed
+        , "was_just_pressed", &DigitalControllerActionState::was_just_pressed
+        , "is_released", &DigitalControllerActionState::is_released
+        , "was_just_released", &DigitalControllerActionState::was_just_released
+      );
+
+      jumpman.new_usertype<Input>("Input"
+        , "new", sol::no_constructor
+
+        , "activate_action_set", &Input::ActivateActionSet
+        , "get_digital_action_state", &Input::GetDigitalActionState
+        , "get_analog_action_state", &Input::GetAnalogActionState
+      );
+
       jumpman.set_function(
         "abs", static_cast<glm::vec3(*)(const glm::vec3&)>(&glm::abs));
       jumpman.set_function(
@@ -387,6 +409,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
             &glm::mix)));
 
       jumpman.set("resource_context", resource_context_);
+      jumpman.set("input", input_);
       jumpman.set("scene", scene_);
     })
   );

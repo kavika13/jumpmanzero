@@ -3,6 +3,7 @@
 #include <OpenGL/gl3.h>
 #include <SDL2/SDL.h>
 #include "engine.hpp"
+#include "input.hpp"
 #include "logging.hpp"
 #include "scene.hpp"
 #include "scriptcontext.hpp"
@@ -12,6 +13,7 @@ namespace Jumpman {
 struct Engine::EngineData {
   SDL_Window* main_window = NULL;
   SDL_GLContext gl_context = NULL;
+  std::shared_ptr<Input> input;
   std::shared_ptr<Scene> scene;
   std::shared_ptr<ScriptContext> script_context;
 };
@@ -88,8 +90,9 @@ bool Engine::Initialize() {
   glEnable(GL_CULL_FACE);  // TODO: Should never error?
 
   data_->scene.reset(new Scene);
+  data_->input.reset(new Input);
   data_->script_context.reset(
-    new ScriptContext(data_->scene, "data/script/main.lua"));
+    new ScriptContext(data_->scene, data_->input, "data/script/main.lua"));
 
   return true;
 }
@@ -118,56 +121,11 @@ int Engine::Run() {
     if (accumulated_time > seconds_per_update) {
       accumulated_time -= seconds_per_update;
 
-      // TODO: Move somwehere, to other method or input class maybe
-      SDL_Event event;
+      SDL_PumpEvents();
+      is_running = !SDL_HasEvent(SDL_QUIT);
+      data_->input->Update();
 
-      while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-          case SDL_QUIT:
-            is_running = false;
-            break;
-          case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
-              case SDLK_ESCAPE:
-                is_running = false;
-                break;
-              // TODO: Remove this debug camera movement
-              case SDLK_w: {
-                float amount = event.key.keysym.mod & KMOD_SHIFT ? 10.0f : 1.0f;
-                data_->scene->camera.transform.Translate(0.0f, 0.0f, amount);
-                break;
-              }
-              case SDLK_s: {
-                float amount = event.key.keysym.mod & KMOD_SHIFT ? 10.0f : 1.0f;
-                data_->scene->camera.transform.Translate(0.0f, 0.0f, -amount);
-                break;
-              }
-              case SDLK_UP: {
-                float amount = event.key.keysym.mod & KMOD_SHIFT ? 10.0f : 1.0f;
-                data_->scene->camera.transform.Translate(0.0f, amount, 0.0f);
-                break;
-              }
-              case SDLK_DOWN: {
-                float amount = event.key.keysym.mod & KMOD_SHIFT ? 10.0f : 1.0f;
-                data_->scene->camera.transform.Translate(0.0f, -amount, 0.0f);
-                break;
-              }
-              case SDLK_RIGHT: {
-                float amount = event.key.keysym.mod & KMOD_SHIFT ? 10.0f : 1.0f;
-                data_->scene->camera.transform.Translate(amount, 0.0f, 0.0f);
-                break;
-              }
-              case SDLK_LEFT: {
-                float amount = event.key.keysym.mod & KMOD_SHIFT ? 10.0f : 1.0f;
-                data_->scene->camera.transform.Translate(-amount, 0.0f, 0.0f);
-                break;
-              }
-            }
-            break;
-        }
-      }
-
-      data_->script_context->Update(seconds_per_update);
+      is_running &= data_->script_context->Update(seconds_per_update);
     }
 
     // TODO: Check OpenGL errors?

@@ -1,5 +1,6 @@
 local context = jumpman.resource_context
 local scene = jumpman.scene
+local input = jumpman.input
 
 -- TODO: Move to shared code?
 function create_scene_object(object, allow_nil)
@@ -296,6 +297,13 @@ end
 function Menu:select(new_index)
   if not self.is_selection_locked_in_
       and self.selected_item_index_ ~= index then
+
+    if new_index < 1 then
+      new_index = #self.menu_items_ + new_index
+    elseif new_index > #self.menu_items_ then
+      new_index = new_index - #self.menu_items_
+    end
+
     local old_menu_item = self.menu_items_[self.selected_item_index_]
     old_menu_item.tween_weight = 1 - old_menu_item.tween_weight
 
@@ -304,6 +312,14 @@ function Menu:select(new_index)
 
     self.selected_item_index_ = new_index
   end
+end
+
+function Menu:select_next()
+  self:select(self.selected_item_index_ + 1)
+end
+
+function Menu:select_previous()
+  self:select(self.selected_item_index_ - 1)
 end
 
 function Menu:lock_selection()
@@ -428,6 +444,8 @@ local sky_scroller = MaterialScroller.new(
   context:find_material("0"),
   jumpman.Vector3.new(-0.025, 0.025, 0))
 
+input:activate_action_set("MenuControls")
+
 -- TODO: Put in zbits script
 local ZBits = {}
 ZBits.__index = ZBits
@@ -493,9 +511,19 @@ local zbits = ZBits.new(
 
 function update(elapsed_seconds)
   -- TODO: Put in main menu script
+  if input:get_digital_action_state("menu_cancel").is_pressed then
+    return false
+  end
+
   if not jumpman_title:is_finished() then
     jumpman_title:update(elapsed_seconds)
   else
+    if input:get_digital_action_state("menu_down").was_just_pressed then
+      top_menu:select_next()
+    elseif input:get_digital_action_state("menu_up").was_just_pressed then
+      top_menu:select_previous()
+    end
+
     top_menu:show()
     top_menu:update(elapsed_seconds)
   end
@@ -506,4 +534,6 @@ function update(elapsed_seconds)
   if not zbits:is_finished() then
     zbits:update(elapsed_seconds)
   end
+
+  return true
 end

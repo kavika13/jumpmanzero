@@ -8,7 +8,7 @@ class LuaScript {
   LuaScript(
     const std::string& filename, std::function<void(sol::state&)> add_bindings);
 
-  void Update(double elapsed_seconds);
+  bool Update(double elapsed_seconds);
 
  private:
   sol::state script_;
