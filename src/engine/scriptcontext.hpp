@@ -27,6 +27,7 @@ class ScriptContext {
 
   std::shared_ptr<ResourceContext> resource_context_;
   std::shared_ptr<Graphics::Scene> scene_;
+  std::shared_ptr<Graphics::SceneObject> scene_root_;
   std::shared_ptr<Input> input_;
   std::shared_ptr<LuaScript> main_script_;
 };

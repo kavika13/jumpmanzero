@@ -1,5 +1,6 @@
 local context = jumpman.resource_context
 local scene = jumpman.scene
+local scene_root = jumpman.scene_root
 local input = jumpman.input
 
 -- TODO: Move to shared code?
@@ -29,7 +30,7 @@ function load_level(filename)
   local load_scene_object = function(level_objects, scene_objects)
     for i, level_object in pairs(level_objects) do
       local scene_object = create_scene_object(level_object)
-      scene:add_object(scene_object)
+      scene_root:add_child(scene_object)
       table.insert(scene_objects, scene_object)
     end
   end
@@ -147,7 +148,7 @@ function create_string_object(char_meshes, text, material)
     result:add_child(scene_object)
   end
 
-  scene:add_object(result)
+  scene_root:add_child(result)
 
   return result
 end

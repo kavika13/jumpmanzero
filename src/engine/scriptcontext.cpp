@@ -13,6 +13,7 @@ ScriptContext::ScriptContext(
   std::shared_ptr<Input> input,
   const std::string& main_script_filename)
     : scene_(scene)
+    , scene_root_(new Graphics::SceneObject)
     , input_(input) {
   // TODO: Why isn't std::bind working?
   auto script_factory = [this](const std::string& filename) {
@@ -21,6 +22,10 @@ ScriptContext::ScriptContext(
 
   resource_context_ = std::shared_ptr<ResourceContext>(
     new ResourceContext(script_factory));
+
+  // TODO: We shouldn't have to add mesh_component - just for is_visible for now
+  scene_root_->mesh_component.reset(new Graphics::MeshComponent);
+  scene_->objects.push_back(scene_root_);
 
   main_script_ = resource_context_->LoadScript(main_script_filename, "main");
 }
@@ -371,10 +376,6 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "new", sol::no_constructor
 
         , "camera", &Scene::camera
-        , "objects", &Scene::objects
-        , "add_object", [](Scene& scene, std::shared_ptr<SceneObject> object) {
-          scene.objects.push_back(object);
-        }
       );
 
       jumpman.new_usertype<DigitalControllerActionState>(
@@ -433,6 +434,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
       jumpman.set("resource_context", resource_context_);
       jumpman.set("input", input_);
       jumpman.set("scene", scene_);
+      jumpman.set("scene_root", scene_root_);
     })
   );
 }
