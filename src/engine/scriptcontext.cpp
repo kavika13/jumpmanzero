@@ -271,6 +271,19 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "p", &glm::vec3::p
       );
 
+      jumpman.new_usertype<glm::quat>("Quaternion"
+        , sol::constructors<
+            sol::types<>,
+            sol::types<const glm::quat&>,
+            sol::types<float, const glm::vec3&>,
+            sol::types<float, float, float, float>>()
+
+        , "x", &glm::quat::x
+        , "y", &glm::quat::y
+        , "z", &glm::quat::z
+        , "w", &glm::quat::w
+      );
+
       using Transform = Graphics::Transform;
 
       jumpman.new_usertype<Transform>("Transform"
