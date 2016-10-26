@@ -155,7 +155,6 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         })
 
         , "main_script_tag", sol::readonly(&Objects::Level::main_script_tag)
-        , "donut_script_tag", sol::readonly(&Objects::Level::donut_script_tag)
         , "background_track_tag", sol::readonly(
             &Objects::Level::background_track_tag)
         , "death_track_tag", sol::readonly(&Objects::Level::death_track_tag)

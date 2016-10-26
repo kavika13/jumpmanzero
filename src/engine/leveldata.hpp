@@ -144,7 +144,6 @@ struct LevelData {
   friend std::ostream& operator<<(std::ostream& stream, const LevelData& data);
 
   const std::string main_script_tag;
-  const std::string donut_script_tag;
   const std::string background_track_tag;
   const std::string death_track_tag;
   const std::string end_level_track_tag;

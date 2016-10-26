@@ -6,7 +6,6 @@ namespace Objects {
 
 Level::Level(const LevelData& data, ResourceContext& resource_context)
     : main_script_tag(data.main_script_tag)
-    , donut_script_tag(data.donut_script_tag)
     , background_track_tag(data.background_track_tag)
     , death_track_tag(data.death_track_tag)
     , end_level_track_tag(data.end_level_track_tag) {

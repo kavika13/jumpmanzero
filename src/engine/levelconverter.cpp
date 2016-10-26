@@ -349,7 +349,6 @@ enum class MusicResourceType {
 
 LevelData LevelConverter::Convert() {
   std::string main_script_tag;
-  std::string donut_script_tag;
   std::string background_track_tag;
   std::string death_track_tag;
   std::string end_level_track_tag;
@@ -370,9 +369,6 @@ LevelData LevelConverter::Convert() {
         switch (tag_number) {
           case 1:
             main_script_tag = tag;
-            break;
-          case 2:  // TODO: This probably isn't reliable
-            donut_script_tag = tag;
             break;
         }
 
@@ -609,7 +605,6 @@ LevelData LevelConverter::Convert() {
 
   return LevelData {
     main_script_tag,
-    donut_script_tag,
     background_track_tag,
     death_track_tag,
     end_level_track_tag,

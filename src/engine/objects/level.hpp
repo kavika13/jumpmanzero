@@ -29,7 +29,6 @@ class Level {
 
   // TODO: Reference these scripts instead of just holding tags
   const std::string main_script_tag;
-  const std::string donut_script_tag;
   const std::string background_track_tag;
   const std::string death_track_tag;
   const std::string end_level_track_tag;

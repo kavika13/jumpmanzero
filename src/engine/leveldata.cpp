@@ -249,7 +249,6 @@ std::ostream& operator<<(std::ostream& stream, const VineObjectData& val) {
 bool operator==(const LevelData& lhs, const LevelData& rhs) {
   return true
     && lhs.main_script_tag == rhs.main_script_tag
-    && lhs.donut_script_tag == rhs.donut_script_tag
     && lhs.background_track_tag == rhs.background_track_tag
     && lhs.death_track_tag == rhs.death_track_tag
     && lhs.end_level_track_tag == rhs.end_level_track_tag
@@ -278,7 +277,6 @@ LevelData LevelData::FromStream(std::istream& stream) {
   BOOST_LOG_SEV(log, LogSeverity::kTrace) << "Read json data:\n" << root_node;
 
   std::string main_script_tag = root_node["mainScriptTag"].asString();
-  std::string donut_script_tag = root_node["donutScriptTag"].asString();
   std::string background_track_tag = root_node["backgroundTrackTag"].asString();
   std::string death_track_tag = root_node["deathTrackTag"].asString();
   std::string end_level_track_tag = root_node["endLevelTrackTag"].asString();
@@ -488,7 +486,6 @@ LevelData LevelData::FromStream(std::istream& stream) {
 
   return LevelData {
     main_script_tag,
-    donut_script_tag,
     background_track_tag,
     death_track_tag,
     end_level_track_tag,
@@ -516,7 +513,6 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   Json::Value root_node;
 
   root_node["mainScriptTag"] = data.main_script_tag;
-  root_node["donutScriptTag"] = data.donut_script_tag;
   root_node["backgroundTrackTag"] = data.background_track_tag;
   root_node["deathTrackTag"] = data.death_track_tag;
   root_node["endLevelTrackTag"] = data.end_level_track_tag;
