@@ -340,6 +340,7 @@ local Menu = {}
 Menu.__index = Menu
 
 function Menu.new(
+    state_machine,
     char_meshes,
     selected_material, deselected_material,
     origin, scale, letter_height, transform_selected, letter_width,
@@ -349,6 +350,7 @@ function Menu.new(
   self.menu_items_ = {}
   self.selected_item_index_ = 1
 
+  self.state_machine_ = state_machine
   self.char_meshes_ = char_meshes
   self.selected_material_ = selected_material
   self.deselected_material_ = deselected_material
@@ -374,11 +376,13 @@ function Menu.new(
   return self
 end
 
-function Menu:add_item(message)
+function Menu:add_item(message, next_state_name, ...)
   table.insert(self.menu_items_, {
     string = create_string_object(
       self.char_meshes_, message, self.deselected_material_),
     select_tween_weight = 1,
+    next_state_name = next_state_name,
+    next_state_args = arg
   })
 
   return self
@@ -509,6 +513,19 @@ function Menu:is_finished()
   return self.elapsed_explode_animation_time_ >= self.explode_animation_time_
 end
 
+function Menu:finish()
+  self.is_selection_locked_in_ = true
+  self.elapsed_explode_animation_time_ = self.explode_animation_time_
+
+  local menu_item = self.menu_items_[self.selected_item_index_]
+
+  if menu_item.next_state_name then
+    return self.state_machine_:enter(
+      menu_item.next_state_name,
+      menu_item.next_state_args)
+  end
+end
+
 function Menu:reset()
   self.is_selection_locked_in_ = false
   self.elapsed_explode_animation_time_ = 0
@@ -634,11 +651,18 @@ end
 
 -- TODO: Put in main menu script
 local scene_objects = load_level("data/level/MainMenu.json")
+local mod_list = jumpman.ModList.load()
 local char_meshes = load_char_meshes()
 
 local camera = scene.camera
 camera.transform:set_translation(80, 80, -100)
 camera.transform:look_at(80, 80, 0)
+
+local menu_state = StateMachine.new()
+
+local sky_scroller = MaterialScroller.new(
+  context:find_material("0"),
+  jumpman.Vector3.new(-0.025, 0.025, 0))
 
 local jumpman_title = FallingTitle.new(
   char_meshes,
@@ -654,31 +678,48 @@ local jumpman_title = FallingTitle.new(
     [7] = 78,
   })
 
+local zbits = ZBits.new(
+  scene_objects.donuts, context:find_mesh("0"), context:find_texture("6"))
+
 local top_menu = Menu.new(
+    menu_state,
     char_meshes,
     context:find_material("1"),
     context:find_material("2"),
     { x = 80, y = 64, z = 0 },
     { x = 0.7, y = 0.7, z = 1 },
     8)
-  :add_item("START GAME")
-  :add_item("OPTIONS")
-top_menu:hide()
+  :add_item("START GAME", "SelectingModMenu")
+  :add_item("OPTIONS", "SelectingOptionMenu")
 
-local mod_menu
+local mod_menu = Menu.new(
+  menu_state,
+  char_meshes,
+  context:find_material("1"),
+  context:find_material("2"),
+  { x = 80, y = 100, z = 0 },
+  { x = 0.7, y = 0.7, z = 1 },
+  15)
 
-function load_mod_menu()
+for mod_index = 1, #mod_list.builtin do
+  local mod = mod_list.builtin[mod_index]
+  -- TODO: Correct state name, param
+  mod_menu:add_item(mod.title)
 end
 
-local sky_scroller = MaterialScroller.new(
-  context:find_material("0"),
-  jumpman.Vector3.new(-0.025, 0.025, 0))
+for mod_index = 1, #mod_list.discovered do
+  local mod = mod_list.discovered[mod_index]
+  -- TODO: Correct state name, param
+  mod_menu:add_item(mod.title)
+end
 
-local zbits = ZBits.new(
-  scene_objects.donuts, context:find_mesh("0"), context:find_texture("6"))
-
-local menu_state
-local current_menu_state
+local enter_animate_title = function()
+  top_menu:hide()
+  mod_menu:hide()
+  jumpman_title:show()
+  zbits:show()
+  return true
+end
 
 local animate_title = function(elapsed_seconds)
   if input:get_digital_action_state("menu_cancel").was_just_pressed then
@@ -690,20 +731,26 @@ local animate_title = function(elapsed_seconds)
 
   if is_animation_finished
       or input:get_digital_action_state("menu_select").was_just_pressed then
-    jumpman_title:finish()
-    zbits:finish()
-    top_menu:show()
-    current_menu_state = menu_state.SelectingTopMenu
+    menu_state:enter("SelectingTopMenu")
+    return true
   end
 
-  if not jumpman_title:is_finished() then
-    jumpman_title:update(elapsed_seconds)
-  end
+  jumpman_title:update(elapsed_seconds)
+  zbits:update(elapsed_seconds)
 
-  if not zbits:is_finished() then
-    zbits:update(elapsed_seconds)
-  end
+  return true
+end
 
+local enter_select_top_menu = function()
+  mod_menu:hide()
+
+  jumpman_title:finish()
+  zbits:finish()
+  jumpman_title:show()
+  zbits:show()
+
+  top_menu:reset()
+  top_menu:show()
   return true
 end
 
@@ -717,12 +764,17 @@ local select_top_menu = function(elapsed_seconds)
   elseif input:get_digital_action_state("menu_up").was_just_pressed then
     top_menu:select_previous()
   elseif input:get_digital_action_state("menu_select").was_just_pressed then
-    top_menu:lock_selection()
-    current_menu_state = menu_state.AnimatingTopMenuSelected
+    menu_state:enter("AnimatingTopMenuSelected")
+    return true
   end
 
   top_menu:update(elapsed_seconds)
 
+  return true
+end
+
+local enter_animate_top_menu_selected = function()
+  top_menu:lock_selection()
   return true
 end
 
@@ -731,76 +783,97 @@ local animate_top_menu_selected = function(elapsed_seconds)
     return false
   end
 
-  if not top_menu:is_finished() then
-    top_menu:update(elapsed_seconds)
-  else
-    jumpman_title:hide()
-    zbits:hide()
-    top_menu:hide()
-    -- TODO: Show correct menu based on selection
-    -- TODO: Switch to correct state based on selection
-    current_menu_state = menu_state.SelectingModMenu
+  if top_menu:is_finished() then
+    top_menu:finish()
+    return true
   end
 
+  top_menu:update(elapsed_seconds)
+
+  return true
+end
+
+local enter_select_mod_menu = function()
+  -- TODO: If only one mod, switch straight to next state, and return false.
+  --       Or should that be part of the menu class functionality?
+  jumpman_title:hide()
+  zbits:hide()
+  top_menu:hide()
+
+  mod_menu:reset()
+  mod_menu:show()
   return true
 end
 
 local select_mod_menu = function(elapsed_seconds)
   if input:get_digital_action_state("menu_cancel").was_just_pressed then
-    -- TODO: Clear this menu
-    top_menu:reset()
-    jumpman_title:show()
-    zbits:show()
-    top_menu:show()
-    current_menu_state = menu_state.SelectingTopMenu
+    menu_state:enter("SelectingTopMenu")
     return true
   end
 
-  -- TODO: Implement
+  if input:get_digital_action_state("menu_down").was_just_pressed then
+    mod_menu:select_next()
+  elseif input:get_digital_action_state("menu_up").was_just_pressed then
+    mod_menu:select_previous()
+  elseif input:get_digital_action_state("menu_select").was_just_pressed then
+    menu_state:enter("AnimatingModMenuSelected")
+    return true
+  end
 
+  mod_menu:update(elapsed_seconds)
+
+  return true
+end
+
+local enter_animate_mod_menu_selected = function()
+  mod_menu:lock_selection()
   return true
 end
 
 local animate_mod_menu_selected = function(elapsed_seconds)
   if input:get_digital_action_state("menu_cancel").was_just_pressed then
-    -- TODO: Clear this menu
-    top_menu:reset()
-    jumpman_title:show()
-    zbits:show()
-    top_menu:show()
-    current_menu_state = menu_state.SelectingTopMenu
+    menu_state:enter("SelectingTopMenu")
     return true
   end
 
-  -- TODO: Implement
+  if mod_menu:is_finished() then
+    mod_menu:finish()
+    return true
+  end
 
+  mod_menu:update(elapsed_seconds)
+
+  return true
+end
+
+local enter_select_option_menu = function()
+  jumpman_title:hide()
+  zbits:hide()
+  top_menu:hide()
+
+  -- TODO: Show options menu
   return true
 end
 
 local select_option_menu = function(elapsed_seconds)
   if input:get_digital_action_state("menu_cancel").was_just_pressed then
-    -- TODO: Clear this menu
-    top_menu:reset()
-    jumpman_title:show()
-    zbits:show()
-    top_menu:show()
-    current_menu_state = menu_state.SelectingTopMenu
+    menu_state:enter("SelectingTopMenu")
     return true
   end
 
   -- TODO: Implement
 
+  return true
+end
+
+local enter_animate_option_menu_exited = function()
+  -- TODO: Implement
   return true
 end
 
 local animate_option_menu_exited = function(elapsed_seconds)
   if input:get_digital_action_state("menu_cancel").was_just_pressed then
-    -- TODO: Clear this menu
-    top_menu:reset()
-    jumpman_title:show()
-    zbits:show()
-    top_menu:show()
-    current_menu_state = menu_state.SelectingTopMenu
+    menu_state:enter("SelectingTopMenu")
     return true
   end
 
@@ -809,22 +882,42 @@ local animate_option_menu_exited = function(elapsed_seconds)
   return true
 end
 
-menu_state = table.as_readonly({
-  AnimatingTitle = animate_title,
-  SelectingTopMenu = select_top_menu,
-  AnimatingTopMenuSelected = animate_top_menu_selected,
-  SelectingModMenu = select_mod_menu,
-  AnimatingModMenuSelected = animate_mod_menu_selected,
-  SelectingOptionMenu = select_option_menu,
-  AnimatingOptionMenuExited = animate_option_menu_exited,
-})
-current_menu_state = menu_state.AnimatingTitle
+menu_state
+  :add_state("AnimatingTitle", {
+    enter = enter_animate_title,
+    update = animate_title,
+  })
+  :add_state("SelectingTopMenu", {
+    enter = enter_select_top_menu,
+    update = select_top_menu,
+  })
+  :add_state("AnimatingTopMenuSelected", {
+    enter = enter_animate_top_menu_selected,
+    update = animate_top_menu_selected,
+  })
+  :add_state("SelectingModMenu", {
+    enter = enter_select_mod_menu,
+    update = select_mod_menu,
+  })
+  :add_state("AnimatingModMenuSelected", {
+    enter = enter_animate_mod_menu_selected,
+    update = animate_mod_menu_selected,
+  })
+  :add_state("SelectingOptionMenu", {
+    enter = enter_select_option_menu,
+    update = select_option_menu,
+  })
+  :add_state("AnimatingOptionMenuExited", {
+    enter = enter_animate_option_menu_exited,
+    update = animate_option_menu_exited,
+  })
 
 input:activate_action_set("MenuControls")
+menu_state:enter("AnimatingTitle")
 
 function update(elapsed_seconds)
   -- TODO: Put in main menu script
   sky_scroller:update(elapsed_seconds)
 
-  return current_menu_state(elapsed_seconds)
+  return menu_state:update(elapsed_seconds)
 end
