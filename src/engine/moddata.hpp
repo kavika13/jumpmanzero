@@ -12,9 +12,10 @@ struct ModData {
 
   friend std::ostream& operator<<(std::ostream& stream, const ModData& data);
 
-  const std::string title;
-  const std::string entrypoint_script_filename;
-  const Json::Value data;  // TODO: Don't expose as json
+  // TODO: Make const once we wrap this with a safer resource loader
+  std::string title;
+  std::string entrypoint_script_filename;
+  Json::Value data;  // TODO: Don't expose as json
 };
 
 bool operator==(const ModData& lhs, const ModData& rhs);
@@ -26,8 +27,9 @@ class ModList {
 
   friend std::ostream& operator<<(std::ostream& stream, const ModList& data);
 
-  const std::vector<ModData> builtin;
-  const std::vector<ModData> discovered;
+  // TODO: Make const once we wrap this with a safer resource loader
+  std::vector<ModData> builtin;
+  std::vector<ModData> discovered;
 };
 
 bool operator==(const ModList& lhs, const ModList& rhs);

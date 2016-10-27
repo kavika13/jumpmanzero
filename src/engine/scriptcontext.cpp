@@ -34,6 +34,7 @@ bool ScriptContext::Update(double elapsed_seconds) {
   return main_script_->Update(elapsed_seconds);
 }
 
+// TODO: Not a good interface for this
 std::shared_ptr<Objects::Level> ScriptContext::LoadLevel(
     const std::string& filename) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
@@ -50,6 +51,24 @@ std::shared_ptr<Objects::Level> ScriptContext::LoadLevel(
 
   return std::shared_ptr<Objects::Level>(
     new Objects::Level(data, *resource_context_));
+}
+
+// TODO: Not a good interface for this
+ModList ScriptContext::LoadModList() {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
+
+  // TODO: Don't hard code paths, at least not here
+  const std::string filename("data/mod/knownmods.json");
+  std::ifstream modlistfile(filename);
+
+  if (!modlistfile) {
+    BOOST_LOG_SEV(log, LogSeverity::kError)
+      << "Failed to mod list file: " << filename;
+    throw std::runtime_error("Failed to mod list file: " + filename);
+  }
+
+  // TODO: Don't hard code paths, at least not here
+  return ModList::FromStream(modlistfile, "data/mod");
 }
 
 std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
@@ -186,6 +205,24 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
         , "find_wall", &Objects::Level::FindWall
         , "find_ladder", &Objects::Level::FindLadder
         , "find_vine", &Objects::Level::FindVine
+      );
+
+      // TODO: Wrap these types with a safe resource loader - makes new context?
+      jumpman.new_usertype<ModData>("ModData"
+        , "new", sol::no_constructor
+
+        , "title", sol::readonly(&ModData::title)
+      );
+
+      jumpman.new_usertype<ModList>("ModList"
+        , "new", sol::no_constructor
+
+        , "load", sol::factories([this]() {
+          return this->LoadModList();
+        })
+
+        , "builtin", sol::readonly(&ModList::builtin)
+        , "discovered", sol::readonly(&ModList::discovered)
       );
 
       using MeshComponent = Graphics::MeshComponent;

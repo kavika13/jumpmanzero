@@ -7,6 +7,7 @@
 #include "engine/objects/level.hpp"
 #include "input.hpp"
 #include "luascript.hpp"
+#include "moddata.hpp"
 #include "resourcecontext.hpp"
 
 namespace Jumpman {
@@ -21,6 +22,7 @@ class ScriptContext {
   bool Update(double elapsed_seconds);
 
   std::shared_ptr<Objects::Level> LoadLevel(const std::string& filename);
+  ModList LoadModList();
 
  private:
   std::shared_ptr<LuaScript> ScriptFactory(const std::string& filename);
