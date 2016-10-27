@@ -342,7 +342,7 @@ Menu.__index = Menu
 function Menu.new(
     char_meshes,
     selected_material, deselected_material,
-    origin, scale, transform_selected, letter_width, letter_height,
+    origin, scale, letter_height, transform_selected, letter_width,
     select_animation_time, explode_animation_time)
   local self = create_class_instance(Menu)
 
@@ -363,8 +363,8 @@ function Menu.new(
   scale = scale or { x = 1, y = 1, z = 1 }
   self.scale_ = jumpman.Vector3.new(scale.x, scale.y, scale.z)
 
-  self.letter_width_ = letter_width or 5
   self.letter_height_ = letter_height or 8
+  self.letter_width_ = letter_width or 5
   self.select_animation_time_ = select_animation_time or 0.125
   self.explode_animation_time_ = explode_animation_time or 1.275
   self.elapsed_explode_animation_time_ = 0
@@ -659,7 +659,8 @@ local top_menu = Menu.new(
     context:find_material("1"),
     context:find_material("2"),
     { x = 80, y = 64, z = 0 },
-    { x = 0.7, y = 0.7, z = 1 })
+    { x = 0.7, y = 0.7, z = 1 },
+    8)
   :add_item("START GAME")
   :add_item("OPTIONS")
 top_menu:hide()
