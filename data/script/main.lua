@@ -140,7 +140,7 @@ function create_string_object(char_meshes, text, material)
   }
 
   for i = 1, string.len(text) do
-    local char = string.sub(text, i, i)
+    local char = string.sub(text, i, i):upper()
     local scene_object = create_scene_object({
       mesh = char_meshes[char_map[char] or char],
       material = material,
