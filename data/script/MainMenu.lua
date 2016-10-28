@@ -600,10 +600,11 @@ menu_state
     update = animate_option_menu_exited,
   })
 
-input:activate_action_set("MenuControls")
 menu_state:enter("AnimatingTitle")
 
 function update(elapsed_seconds)
+  input:activate_action_set("MenuControls")
+
   sky_scroller:update(elapsed_seconds)
 
   return menu_state:update(elapsed_seconds)
