@@ -3,9 +3,9 @@
 	"deathTrackTag" : "2",
 	"endLevelTrackTag" : "3",
 	"mainScriptTag" : "1",
-	"objects" : 
+	"objects" :
 	{
-		"donuts" : 
+		"donuts" :
 		[
 			{
 				"materialTag" : "3",
@@ -66,7 +66,7 @@
 				"originZ" : 2
 			}
 		],
-		"ladders" : 
+		"ladders" :
 		[
 			{
 				"bottomY" : 79,
@@ -148,7 +148,7 @@
 				"topY" : 30
 			}
 		],
-		"platforms" : 
+		"platforms" :
 		[
 			{
 				"backZ" : 18,
@@ -162,7 +162,7 @@
 				"materialTag" : "1",
 				"tag" : "platform1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -206,7 +206,7 @@
 				"materialTag" : "1",
 				"tag" : "platform2",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -250,7 +250,7 @@
 				"materialTag" : "1",
 				"tag" : "platform3",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -294,7 +294,7 @@
 				"materialTag" : "1",
 				"tag" : "platform4",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -337,7 +337,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -380,7 +380,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -423,7 +423,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -466,7 +466,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -509,7 +509,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -552,7 +552,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -595,7 +595,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -638,7 +638,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -681,7 +681,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -724,7 +724,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -767,7 +767,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -810,7 +810,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -853,7 +853,7 @@
 				"frontZ" : 14,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -896,7 +896,7 @@
 				"frontZ" : 9,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -939,7 +939,7 @@
 				"frontZ" : 9,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -982,7 +982,7 @@
 				"frontZ" : 9,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1025,7 +1025,7 @@
 				"frontZ" : 5,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1068,7 +1068,7 @@
 				"frontZ" : 5,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1111,7 +1111,7 @@
 				"frontZ" : 5,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1154,7 +1154,7 @@
 				"frontZ" : 5,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1197,7 +1197,7 @@
 				"frontZ" : 5,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1240,7 +1240,7 @@
 				"frontZ" : 1,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1283,7 +1283,7 @@
 				"frontZ" : 1,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1326,7 +1326,7 @@
 				"frontZ" : 1,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1369,7 +1369,7 @@
 				"frontZ" : 1,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1412,7 +1412,7 @@
 				"frontZ" : 1,
 				"materialTag" : "1",
 				"type" : "plain",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1445,14 +1445,14 @@
 				]
 			}
 		],
-		"quads" : 
+		"quads" :
 		[
 			{
 				"materialTag" : "5",
 				"originX" : 77.5,
 				"originY" : 30,
 				"originZ" : 80,
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -1488,9 +1488,9 @@
 		"vines" : [],
 		"walls" : []
 	},
-	"resources" : 
+	"resources" :
 	{
-		"materials" : 
+		"materials" :
 		[
 			{
 				"fragmentShaderFilename" : "data/shader/global.frag",
@@ -1529,7 +1529,7 @@
 				"vertexShaderFilename" : "data/shader/global.vert"
 			}
 		],
-		"meshes" : 
+		"meshes" :
 		[
 			{
 				"filename" : "data/model/Bullet1.obj",
@@ -1540,7 +1540,7 @@
 				"tag" : "1"
 			}
 		],
-		"music" : 
+		"music" :
 		[
 			{
 				"filename" : "data/music/L1.mid",
@@ -1556,18 +1556,26 @@
 				"tag" : "3"
 			}
 		],
-		"scripts" : 
+		"scripts" :
 		[
-			{
-				"filename" : "data/script/Script1.lua",
-				"tag" : "1"
-			},
 			{
 				"filename" : "data/script/Bullet.lua",
 				"tag" : "2"
+			},
+			{
+				"filename" : "data/script/SceneObject.lua",
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/script/JumpmanLevel.lua",
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/script/Script1.lua",
+				"tag" : "1"
 			}
 		],
-		"sounds" : 
+		"sounds" :
 		[
 			{
 				"filename" : "data/sound/Jump.wav",
@@ -1586,7 +1594,7 @@
 				"tag" : "3"
 			}
 		],
-		"textures" : 
+		"textures" :
 		[
 			{
 				"filename" : "data/texture/Jumpman.bmp",
