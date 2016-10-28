@@ -3,9 +3,9 @@
 	"deathTrackTag" : "2",
 	"endLevelTrackTag" : "3",
 	"mainScriptTag" : "1",
-	"objects" : 
+	"objects" :
 	{
-		"donuts" : 
+		"donuts" :
 		[
 			{
 				"materialTag" : "3",
@@ -244,7 +244,7 @@
 		],
 		"ladders" : [],
 		"platforms" : [],
-		"quads" : 
+		"quads" :
 		[
 			{
 				"materialTag" : "0",
@@ -252,7 +252,7 @@
 				"originY" : 40,
 				"originZ" : 80,
 				"tag" : "quad100",
-				"vertices" : 
+				"vertices" :
 				[
 					{
 						"tu" : 0,
@@ -288,9 +288,9 @@
 		"vines" : [],
 		"walls" : []
 	},
-	"resources" : 
+	"resources" :
 	{
-		"materials" : 
+		"materials" :
 		[
 			{
 				"fragmentShaderFilename" : "data/shader/global.frag",
@@ -341,14 +341,14 @@
 				"vertexShaderFilename" : "data/shader/global.vert"
 			}
 		],
-		"meshes" : 
+		"meshes" :
 		[
 			{
 				"filename" : "data/model/goo.obj",
 				"tag" : "0"
 			}
 		],
-		"music" : 
+		"music" :
 		[
 			{
 				"filename" : "data/music/TITLE.mid",
@@ -363,18 +363,34 @@
 				"tag" : "3"
 			}
 		],
-		"scripts" : 
+		"scripts" :
 		[
-			{
-				"filename" : "data/script/MainMenu.lua",
-				"tag" : "1"
-			},
 			{
 				"filename" : "data/script/ZBits.lua",
 				"tag" : "2"
+			},
+			{
+				"filename" : "data/script/SceneObject.lua",
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/script/StringObject.lua",
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/script/MaterialScroller.lua",
+				"tag" : "5"
+			},
+			{
+				"filename" : "data/script/StateMachine.lua",
+				"tag" : "6"
+			},
+			{
+				"filename" : "data/script/MainMenu.lua",
+				"tag" : "1"
 			}
 		],
-		"sounds" : 
+		"sounds" :
 		[
 			{
 				"filename" : "data/sound/Select.wav",
@@ -385,7 +401,7 @@
 				"tag" : "1"
 			}
 		],
-		"textures" : 
+		"textures" :
 		[
 			{
 				"filename" : "data/texture/MenuBack.jpg",

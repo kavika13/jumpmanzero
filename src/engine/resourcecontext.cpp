@@ -15,7 +15,27 @@ ResourceContext::ResourceContext(
 
 std::shared_ptr<LuaScript> ResourceContext::LoadScript(
     const std::string& filename, const std::string& tag) {
-  std::shared_ptr<LuaScript> script = script_factory_(filename);
+  return LoadScripts(filename, tag, std::vector<std::string>(), NULL);
+}
+
+std::shared_ptr<LuaScript> ResourceContext::LoadScripts(
+    const std::string& filename,
+    const std::string& tag,
+    const std::vector<std::string>& script_dependency_filenames,
+    const Objects::Level* level) {
+  std::shared_ptr<LuaScript> script;
+
+  if (!script_dependency_filenames.empty()) {
+    script = script_factory_(script_dependency_filenames[0], level);
+
+    for (size_t i = 1; i < script_dependency_filenames.size(); ++i) {
+      script->LoadScript(script_dependency_filenames[i]);
+    }
+
+    script->LoadScript(filename);
+  } else {
+    script = script_factory_(filename, level);
+  }
 
   scripts_.push_back(script);
 

@@ -84,6 +84,7 @@ SCENARIO ("load old level files and verify there are no errors",
 
       THEN ("correct level objects and resources to have been converted") {
         REQUIRE ("1" == data.main_script_tag);
+        REQUIRE ("data/script/Script1.lua" == data.main_script_filename);
         REQUIRE ("1" == data.background_track_tag);
         REQUIRE ("2" == data.death_track_tag);
         REQUIRE ("3" == data.end_level_track_tag);

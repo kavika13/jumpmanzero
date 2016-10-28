@@ -10,6 +10,7 @@ class LuaScript {
   LuaScript(
     const std::string& filename, std::function<void(sol::state&)> add_bindings);
 
+  void LoadScript(const std::string filename);
   bool Update(double elapsed_seconds);
 
  private:

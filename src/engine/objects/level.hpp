@@ -27,11 +27,11 @@ class Level {
 
   explicit Level(const LevelData& data, ResourceContext& resource_context);
 
-  // TODO: Reference these scripts instead of just holding tags
-  const std::string main_script_tag;
   const std::string background_track_tag;
   const std::string death_track_tag;
   const std::string end_level_track_tag;
+
+  const ObjectRef<LuaScript>& GetMainScript() const;
 
   size_t NumQuads() const;
   size_t NumDonuts() const;
@@ -57,6 +57,8 @@ class Level {
  private:
   template <typename T>
   using TagObjectMap = std::unordered_map<std::string, std::weak_ptr<T>>;
+
+  ObjectRef<LuaScript> main_script_;
 
   ObjectContainer<QuadObject> quads_;
   ObjectContainer<DonutObject> donuts_;

@@ -11,15 +11,25 @@
 
 namespace Jumpman {
 
+namespace Objects {
+  class Level;
+};
+
 class ResourceContext {
  public:
   using ScriptFactory =
-    std::function<std::shared_ptr<LuaScript>(const std::string&)>;
+    std::function<
+      std::shared_ptr<LuaScript>(const std::string&, const Objects::Level*)>;
 
   ResourceContext(ScriptFactory script_factory);
 
   std::shared_ptr<LuaScript> LoadScript(
     const std::string& filename, const std::string& tag);
+  std::shared_ptr<LuaScript> LoadScripts(
+    const std::string& filename,
+    const std::string& tag,
+    const std::vector<std::string>& script_dependency_filenames,
+    const Objects::Level*);
   std::shared_ptr<LuaScript> FindScript(const std::string& tag);
 
   std::shared_ptr<Graphics::Texture> LoadTexture(

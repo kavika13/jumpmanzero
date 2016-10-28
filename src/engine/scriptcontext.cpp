@@ -16,8 +16,9 @@ ScriptContext::ScriptContext(
     , scene_root_(new Graphics::SceneObject)
     , input_(input) {
   // TODO: Why isn't std::bind working?
-  auto script_factory = [this](const std::string& filename) {
-    return this->ScriptFactory(filename);
+  auto script_factory = [this](
+      const std::string& filename, const Objects::Level* level) {
+    return this->ScriptFactory(filename, level);
   };
 
   resource_context_ = std::shared_ptr<ResourceContext>(
@@ -72,10 +73,16 @@ ModList ScriptContext::LoadModList() {
 }
 
 std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
-    const std::string& filename) {
+    const std::string& filename, const Objects::Level* level) {
   return std::shared_ptr<LuaScript>(
-    new LuaScript(filename, [this](sol::state& script) {
+    new LuaScript(filename, [this, level](sol::state& script) {
       sol::table jumpman = script.create_named_table("jumpman");
+
+      jumpman.new_usertype<LuaScript>("LuaScript"
+        , "new", sol::no_constructor
+
+        , "update", sol::readonly(&LuaScript::Update)
+      );
 
       jumpman.new_usertype<ResourceContext>("ResourceContext"
         , "new", sol::no_constructor
@@ -178,7 +185,8 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
           return this->LoadLevel(filename);
         })
 
-        , "main_script_tag", sol::readonly(&Objects::Level::main_script_tag)
+        , "main_script", sol::property(&Objects::Level::GetMainScript)
+
         , "background_track_tag", sol::readonly(
             &Objects::Level::background_track_tag)
         , "death_track_tag", sol::readonly(&Objects::Level::death_track_tag)
@@ -472,6 +480,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory(
       jumpman.set("input", input_);
       jumpman.set("scene", scene_);
       jumpman.set("scene_root", scene_root_);
+      jumpman.set("level", level);
     })
   );
 }

@@ -5,12 +5,9 @@ namespace Jumpman {
 namespace Objects {
 
 Level::Level(const LevelData& data, ResourceContext& resource_context)
-    : main_script_tag(data.main_script_tag)
-    , background_track_tag(data.background_track_tag)
+    : background_track_tag(data.background_track_tag)
     , death_track_tag(data.death_track_tag)
     , end_level_track_tag(data.end_level_track_tag) {
-  // TODO: Load scripts
-
   for (const TextureResourceData& texture_resource: data.textures) {
     resource_context.LoadTexture(
       texture_resource.filename, texture_resource.tag);
@@ -110,6 +107,26 @@ Level::Level(const LevelData& data, ResourceContext& resource_context)
       tag_to_vine_map_[vine.tag] = object;
     }
   }
+
+  // Loading scripts last so it can reference resources on initialization
+  std::vector<std::string> script_dependency_filenames;
+  script_dependency_filenames.reserve(data.scripts.size());
+
+  for (const ScriptResourceData& script: data.scripts) {
+    if (script.tag != data.main_script_tag) {
+      script_dependency_filenames.push_back(script.filename);
+    }
+  }
+
+  main_script_ = resource_context.LoadScripts(
+    data.main_script_filename,
+    data.main_script_tag,
+    script_dependency_filenames,
+    this);
+}
+
+const Level::ObjectRef<LuaScript>& Level::GetMainScript() const {
+  return main_script_;
 }
 
 size_t Level::NumQuads() const {

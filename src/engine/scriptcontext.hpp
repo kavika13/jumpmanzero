@@ -25,7 +25,8 @@ class ScriptContext {
   ModList LoadModList();
 
  private:
-  std::shared_ptr<LuaScript> ScriptFactory(const std::string& filename);
+  std::shared_ptr<LuaScript> ScriptFactory(
+    const std::string& filename, const Objects::Level* level);
 
   std::shared_ptr<ResourceContext> resource_context_;
   std::shared_ptr<Graphics::Scene> scene_;

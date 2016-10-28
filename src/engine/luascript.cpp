@@ -199,6 +199,14 @@ LuaScript::LuaScript(
   update_function_ = script_["update"];
 }
 
+void LuaScript::LoadScript(const std::string filename) {
+  script_.script_file(filename);
+  sol::function update_function = script_["update"];
+  if (update_function) {
+    update_function_ = update_function;
+  }
+}
+
 bool LuaScript::Update(double elapsed_seconds) {
   return update_function_(elapsed_seconds);
 }

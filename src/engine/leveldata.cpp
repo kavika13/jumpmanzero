@@ -291,11 +291,29 @@ LevelData LevelData::FromStream(std::istream& stream) {
   Json::Value sounds_node = resources_node["sounds"];
 
   std::vector<ScriptResourceData> scripts;
+  std::string main_script_filename;
+  bool was_main_script_found = false;
+
   for (const auto& script_node: scripts_node) {
+    const std::string script_filename(script_node["filename"].asString());
+    const std::string script_tag(script_node["tag"].asString());
+
+    if (script_tag == main_script_tag) {
+      main_script_filename = script_filename;
+      was_main_script_found = true;
+    }
+
     scripts.push_back({
-      script_node["filename"].asString(),
-      script_node["tag"].asString(),
+      script_filename,
+      script_tag,
     });
+  }
+
+  if (!was_main_script_found) {
+    const std::string error_message(
+      "Failed to find script that has main script tag");
+    BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
+    throw std::runtime_error(error_message);
   }
 
   std::vector<TextureResourceData> textures;
@@ -486,6 +504,7 @@ LevelData LevelData::FromStream(std::istream& stream) {
 
   return LevelData {
     main_script_tag,
+    main_script_filename,
     background_track_tag,
     death_track_tag,
     end_level_track_tag,
