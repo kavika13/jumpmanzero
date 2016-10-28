@@ -386,6 +386,10 @@
 				"tag" : "6"
 			},
 			{
+				"filename" : "data/script/JumpmanLevel.lua",
+				"tag" : "7"
+			},
+			{
 				"filename" : "data/script/MainMenu.lua",
 				"tag" : "1"
 			}
