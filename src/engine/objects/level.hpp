@@ -26,7 +26,9 @@ class Level {
   using ObjectContainer = std::vector<ObjectRef<T>>;
 
   static ObjectRef<Level> Load(
-    const LevelData& data, ResourceContext& resource_context);
+    const LevelData& data,
+    std::function<void(sol::state&)> add_bindings_for_main_script,
+    ResourceContext& resource_context);
 
   const std::string background_track_tag;
   const std::string death_track_tag;

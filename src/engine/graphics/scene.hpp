@@ -20,12 +20,12 @@ struct MeshComponent {
     Transform& tranform,
     const Material* previous_material);
 
-  bool is_visible = true;
   std::shared_ptr<TriangleMesh> mesh;
   std::shared_ptr<Material> material;
 };
 
 struct SceneObject {
+  bool is_enabled = true;
   Transform transform;
   std::shared_ptr<MeshComponent> mesh_component;
   std::vector<std::shared_ptr<SceneObject>> children;

@@ -6,7 +6,7 @@ namespace Jumpman {
 std::ostream& operator<<(std::ostream& stream, const ModData& data) {
   stream
     << "ModData(title: " << data.title
-    << ", entrypoint_script_filename: " << data.entrypoint_script_filename
+    << ", filename: " << data.filename
     << ", data: " << data.data
     << ")";
   return stream;
@@ -14,21 +14,20 @@ std::ostream& operator<<(std::ostream& stream, const ModData& data) {
 
 bool operator==(const ModData& lhs, const ModData& rhs) {
   return lhs.title == rhs.title
-    && lhs.entrypoint_script_filename == rhs.entrypoint_script_filename
+    && lhs.filename == rhs.filename
     && lhs.data == rhs.data;
 }
 
-ModData ModData::FromStream(std::istream& stream) {
+ModData ModData::FromStream(std::istream& stream, const std::string& filename) {
   Json::Value root_node;
   stream >> root_node;
 
   std::string title = root_node["title"].asString();
-  std::string entrypoint_script_filename = root_node["entrypoint"].asString();
   Json::Value data_node = root_node["data"];
 
   return {
     title,
-    entrypoint_script_filename,
+    filename,
     data_node,
   };
 }
@@ -81,7 +80,7 @@ ModList ModList::FromStream(
         "Failed to open builtin mod at path: " + mod_path);
     }
 
-    builtin.push_back(ModData::FromStream(mod_file));
+    builtin.push_back(ModData::FromStream(mod_file, mod_path));
   }
 
   BOOST_LOG_SEV(log, LogSeverity::kTrace)

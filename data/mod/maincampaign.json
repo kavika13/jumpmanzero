@@ -1,48 +1,51 @@
 {
   "title": "Campaign",
-  "entrypoint": "data/script/MainCampaign.lua",
+	"backgroundTrackTag" : "1",
+	"deathTrackTag" : "2",
+	"endLevelTrackTag" : "3",
+	"mainScriptTag" : "1",
   "data": [
     {
       "title": "Beginner",
       "levels": [
         {
-          "entrypoint": "data/script/Level1.lua",
+          "filename": "data/level/Level1.json",
           "title": "Easy Does It"
         },
         {
-          "entrypoint": "data/script/Level20.lua",
+          "filename": "data/level/Level20.json",
           "title": "Followers"
         },
         {
-          "entrypoint": "data/script/Level14.lua",
+          "filename": "data/level/Level14.json",
           "title": "Disorderly"
         },
         {
-          "entrypoint": "data/script/Level8.lua",
+          "filename": "data/level/Level8.json",
           "title": "Hot. Hot. Hot."
         },
         {
-          "entrypoint": "data/script/Level7.lua",
+          "filename": "data/level/Level7.json",
           "title": "Flash Flood"
         },
         {
-          "entrypoint": "data/script/Level12.lua",
+          "filename": "data/level/Level12.json",
           "title": "The Hive"
         },
         {
-          "entrypoint": "data/script/Level17.lua",
+          "filename": "data/level/Level17.json",
           "title": "Downside Up"
         },
         {
-          "entrypoint": "data/script/Level24.lua",
+          "filename": "data/level/Level24.json",
           "title": "Tree Huggers"
         },
         {
-          "entrypoint": "data/script/Level27.lua",
+          "filename": "data/level/Level27.json",
           "title": "Final Battle"
         },
         {
-          "entrypoint": "data/script/Ending.lua",
+          "filename": "data/level/Ending.json",
           "title": "Congratulations"
         }
       ]
@@ -51,43 +54,43 @@
       "title": "Intermediate",
       "levels": [
         {
-          "entrypoint": "data/script/Level15.lua",
+          "filename": "data/level/Level15.json",
           "title": "Solid Ground"
         },
         {
-          "entrypoint": "data/script/Level16.lua",
+          "filename": "data/level/Level16.json",
           "title": "No Rush"
         },
         {
-          "entrypoint": "data/script/Level22.lua",
+          "filename": "data/level/Level22.json",
           "title": "Clockwork"
         },
         {
-          "entrypoint": "data/script/Level13.lua",
+          "filename": "data/level/Level13.json",
           "title": "...Now You Don't"
         },
         {
-          "entrypoint": "data/script/Level5.lua",
+          "filename": "data/level/Level5.json",
           "title": "Great White North"
         },
         {
-          "entrypoint": "data/script/Level23.lua",
+          "filename": "data/level/Level23.json",
           "title": "La Garra"
         },
         {
-          "entrypoint": "data/script/Level19.lua",
+          "filename": "data/level/Level19.json",
           "title": "Gauntlet"
         },
         {
-          "entrypoint": "data/script/Level11.lua",
+          "filename": "data/level/Level11.json",
           "title": "Big Game"
         },
         {
-          "entrypoint": "data/script/Level27.lua",
+          "filename": "data/level/Level27.json",
           "title": "Final Battle"
         },
         {
-          "entrypoint": "data/script/Ending.lua",
+          "filename": "data/level/Ending.json",
           "title": "Congratulations"
         }
       ]
@@ -96,46 +99,198 @@
       "title": "Advanced",
       "levels": [
         {
-          "entrypoint": "data/script/Level6.lua",
+          "filename": "data/level/Level6.json",
           "title": "Flicker"
         },
         {
-          "entrypoint": "data/script/Level2.lua",
+          "filename": "data/level/Level2.json",
           "title": "When It Rains..."
         },
         {
-          "entrypoint": "data/script/Level3.lua",
+          "filename": "data/level/Level3.json",
           "title": "Fyodor"
         },
         {
-          "entrypoint": "data/script/Level10.lua",
+          "filename": "data/level/Level10.json",
           "title": "Infestation"
         },
         {
-          "entrypoint": "data/script/Level9.lua",
+          "filename": "data/level/Level9.json",
           "title": "High Strung"
         },
         {
-          "entrypoint": "data/script/Level18.lua",
+          "filename": "data/level/Level18.json",
           "title": "A Difficult Assignment"
         },
         {
-          "entrypoint": "data/script/Level21.lua",
+          "filename": "data/level/Level21.json",
           "title": "Wonky Frog"
         },
         {
-          "entrypoint": "data/script/Level25.lua",
+          "filename": "data/level/Level25.json",
           "title": "Jump the Shark"
         },
         {
-          "entrypoint": "data/script/Level27.lua",
+          "filename": "data/level/Level27.json",
           "title": "Final Battle"
         },
         {
-          "entrypoint": "data/script/Ending.lua",
+          "filename": "data/level/Ending.json",
           "title": "Congratulations"
         }
       ]
     }
-  ]
+  ],
+	"objects" : {
+		"quads" : [
+			{
+				"materialTag" : "0",
+				"originX" : 80,
+				"originY" : 40,
+				"originZ" : 80,
+				"tag" : "quad100",
+				"vertices" : [
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : -150,
+						"y" : 180,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 180,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 1,
+						"x" : -150,
+						"y" : -180,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 1,
+						"x" : 150,
+						"y" : -180,
+						"z" : 0
+					}
+				]
+			}
+		],
+		"vines" : [],
+		"walls" : []
+	},
+	"resources" : {
+		"materials" : [
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "0",
+				"textureTag" : "0",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "1",
+				"textureTag" : "1",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "2",
+				"textureTag" : "2",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "3",
+				"textureTag" : "3",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			}
+		],
+		"meshes" : [],
+		"music" : [
+			{
+				"filename" : "data/music/MENU.mid",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/music/death.mid",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/music/ENDLEVEL.mid",
+				"tag" : "3"
+			}
+		],
+		"scripts" : [
+			{
+				"filename" : "data/script/MainCampaign.lua",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/script/SceneObject.lua",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/script/StringObject.lua",
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/script/MaterialScroller.lua",
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/script/StateMachine.lua",
+				"tag" : "5"
+			},
+			{
+				"filename" : "data/script/JumpmanLevel.lua",
+				"tag" : "6"
+			},
+			{
+				"filename" : "data/script/Menu.lua",
+				"tag" : "7"
+			}
+		],
+		"sounds" : [
+			{
+				"filename" : "data/sound/Select.wav",
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/sound/Fire.wav",
+				"tag" : "1"
+			}
+		],
+		"textures" : [
+			{
+				"filename" : "data/texture/MenuBack.jpg",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/texture/BoringBlue.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/texture/BoringGreen.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/texture/RachBlue.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "3"
+			}
+		]
+	}
 }

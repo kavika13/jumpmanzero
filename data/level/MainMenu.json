@@ -390,6 +390,10 @@
 				"tag" : "7"
 			},
 			{
+				"filename" : "data/script/Menu.lua",
+				"tag" : "8"
+			},
+			{
 				"filename" : "data/script/MainMenu.lua",
 				"tag" : "1"
 			}

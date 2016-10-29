@@ -24,9 +24,6 @@ ScriptContext::ScriptContext(
     , input_(input) {
   resource_context_ = std::shared_ptr<ResourceContext>(
     new ResourceContext(std::bind(&ScriptContext::ScriptFactory, this)));
-
-  // TODO: We shouldn't have to add mesh_component - just for is_visible for now
-  scene_root_->mesh_component.reset(new Graphics::MeshComponent);
   scene_->objects.push_back(scene_root_);
 }
 
@@ -50,7 +47,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
 
   const auto leveldata = LevelData::FromStream(levelfile);
   std::shared_ptr<Objects::Level> level = Objects::Level::Load(
-    leveldata, *result->resource_context_);
+    leveldata, [](sol::state&) { }, *result->resource_context_);
 
   result->main_script_ = level->GetMainScript();
 
@@ -58,11 +55,24 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
 }
 
 std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
+
+  std::ifstream modfile(moddata.filename);
+
+  if (!modfile) {
+    const std::string error_message = "Failed to open level file: "
+      + moddata.filename;
+    BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
+    throw std::runtime_error(error_message);
+  }
+
   std::shared_ptr<ScriptContext> result(new ScriptContext(scene_, input_));
 
-  result->main_script_ = result->resource_context_->LoadScript(
+  const auto leveldata = LevelData::FromStream(modfile);
+  std::shared_ptr<Objects::Level> level = Objects::Level::Load(
+    leveldata,
     [moddata](sol::state& state) {
-      // // TODO: Delegate to a class that knows json and converts dynamically
+      // TODO: Delegate to a class that knows json and converts dynamically
       sol::table data_table = sol::table::create(state);
       Json::Value data_node = moddata.data;
       for (const auto& leveset_node: data_node) {
@@ -72,7 +82,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
         sol::table levels_table = sol::table::create(state);
         for (const auto& level_node: leveset_node["levels"]) {
           sol::table level_table = sol::table::create(state);
-          level_table["entrypoint"] = level_node["entrypoint"].asString();
+          level_table["filename"] = level_node["filename"].asString();
           level_table["title"] = level_node["title"].asString();
           levels_table.add(level_table);
         }
@@ -83,8 +93,9 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
 
       state["jumpman"]["mod_data"] = data_table;
     },
-    moddata.entrypoint_script_filename,
-    "main");
+    *result->resource_context_);
+
+  result->main_script_ = level->GetMainScript();
 
   return result;
 }
@@ -279,7 +290,6 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
         return std::shared_ptr<MeshComponent>(new MeshComponent);
       })
 
-      , "is_visible", &MeshComponent::is_visible
       , "mesh", &MeshComponent::mesh
       , "material", &MeshComponent::material
     );
@@ -419,13 +429,22 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
           new SceneObject);
       })
 
+      , "is_enabled", &SceneObject::is_enabled
       , "transform", &SceneObject::transform
       , "mesh_component", &SceneObject::mesh_component
       , "children", &SceneObject::children
       , "add_child", [](
-          SceneObject& scene_object,
-          std::shared_ptr<SceneObject> child) {
+          SceneObject& scene_object, std::shared_ptr<SceneObject> child) {
         scene_object.children.push_back(child);
+      }
+      , "remove_child", [](
+          SceneObject& scene_object, std::shared_ptr<SceneObject> child) {
+        auto it = std::find(
+          scene_object.children.begin(), scene_object.children.end(), child);
+
+        if (it != scene_object.children.end()) {
+          scene_object.children.erase(it);
+        }
       }
     );
 
@@ -458,6 +477,14 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
       , "new", sol::no_constructor
 
       , "camera", &Scene::camera
+      , "remove_child", [](
+          Scene& scene, std::shared_ptr<SceneObject> child) {
+        auto it = std::find(scene.objects.begin(), scene.objects.end(), child);
+
+        if (it != scene.objects.end()) {
+          scene.objects.erase(it);
+        }
+      }
     );
 
     jumpman.new_usertype<DigitalControllerActionState>(

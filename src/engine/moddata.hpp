@@ -8,13 +8,13 @@
 namespace Jumpman {
 
 struct ModData {
-  static ModData FromStream(std::istream& stream);
+  static ModData FromStream(std::istream& stream, const std::string& mod_path);
 
   friend std::ostream& operator<<(std::ostream& stream, const ModData& data);
 
   // TODO: Make const once we wrap this with a safer resource loader
   std::string title;
-  std::string entrypoint_script_filename;
+  std::string filename;
   Json::Value data;  // TODO: Don't expose as json
 };
 

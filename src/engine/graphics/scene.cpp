@@ -40,14 +40,13 @@ void Scene::Draw(double time_since_last_frame) {
 
     auto& mesh_component = scene_object->mesh_component;
 
-    if (mesh_component && mesh_component->is_visible) {
-      mesh_component->Draw(
-        current_matrix, scene_object->transform, previous_material);
-      previous_material = mesh_component->material.get();
-    }
+    if (scene_object->is_enabled) {
+      if (mesh_component) {
+        mesh_component->Draw(
+          current_matrix, scene_object->transform, previous_material);
+        previous_material = mesh_component->material.get();
+      }
 
-    // TODO: Should is_visible be on a scene object instead?
-    if (!mesh_component || (mesh_component && mesh_component->is_visible)) {
       matrix_stack.push(current_matrix);
 
       for (auto& child_scene_object: scene_object->children) {

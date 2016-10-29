@@ -11,7 +11,9 @@ Level::Level(const LevelData& data)
 }
 
 Level::ObjectRef<Level> Level::Load(
-    const LevelData& data, ResourceContext& resource_context) {
+    const LevelData& data,
+    std::function<void(sol::state&)> add_bindings_for_main_script,
+    ResourceContext& resource_context) {
   Level::ObjectRef<Level> result(new Level(data));
 
   for (const TextureResourceData& texture_resource: data.textures) {
@@ -126,8 +128,9 @@ Level::ObjectRef<Level> Level::Load(
 
   result->main_script_ = resource_context.LoadScripts(
     script_dependency_filenames,
-    [&result](sol::state& state) {
+    [&result, &add_bindings_for_main_script](sol::state& state) {
       state["jumpman"]["level"] = result;
+      add_bindings_for_main_script(state);
     },
     data.main_script_filename,
     data.main_script_tag);

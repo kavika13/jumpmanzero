@@ -15,12 +15,11 @@ SCENARIO ("load mod file and verify there are no errors",
     std::ifstream mod_file(mod_filename);
 
     WHEN ("the load is done") {
-      auto data = ModData::FromStream(mod_file);
+      auto data = ModData::FromStream(mod_file, mod_filename);
 
       THEN ("correct data to have been parsed") {
         REQUIRE ("Campaign" == data.title);
-        REQUIRE (
-          "data/script/maincampaign.lua" == data.entrypoint_script_filename);
+        REQUIRE ("data/mod/maincampaign.json" == data.filename);
         REQUIRE (3 == data.data.size());
       }
     }
@@ -42,9 +41,7 @@ SCENARIO ("load mod list and verify there are no errors",
         REQUIRE (1 == data.builtin.size());
         REQUIRE (0 == data.discovered.size());
         REQUIRE ("Campaign" == data.builtin[0].title);
-        REQUIRE (
-          "data/script/maincampaign.lua"
-            == data.builtin[0].entrypoint_script_filename);
+        REQUIRE ("data/mod/maincampaign.json" == data.builtin[0].filename);
         REQUIRE (3 == data.builtin[0].data.size());
       }
     }

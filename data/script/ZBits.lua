@@ -64,12 +64,12 @@ end
 
 function ZBits:hide()
   for item_index, zbit in ipairs(self.objects_) do
-    zbit.mesh_component.is_visible = false
+    zbit.is_enabled = false
   end
 end
 
 function ZBits:show()
   for item_index, zbit in ipairs(self.objects_) do
-    zbit.mesh_component.is_visible = true
+    zbit.is_enabled = true
   end
 end

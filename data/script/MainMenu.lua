@@ -110,231 +110,14 @@ end
 function FallingTitle:hide()
   for i = 1, #self.string_.children do
     local letter = self.string_.children[i]
-    letter.mesh_component.is_visible = false
+    letter.is_enabled = false
   end
 end
 
 function FallingTitle:show()
   for i = 1, #self.string_.children do
     local letter = self.string_.children[i]
-    letter.mesh_component.is_visible = true
-  end
-end
-
--- TODO: Move to its own script?
-local Menu = {}
-Menu.__index = Menu
-
-function Menu.new(
-    state_machine,
-    char_meshes,
-    selected_material, deselected_material,
-    origin, scale, letter_height, transform_selected, letter_width,
-    select_animation_time, explode_animation_time)
-  local self = create_class_instance(Menu)
-
-  self.menu_items_ = {}
-  self.selected_item_index_ = 1
-
-  self.state_machine_ = state_machine
-  self.char_meshes_ = char_meshes
-  self.selected_material_ = selected_material
-  self.deselected_material_ = deselected_material
-
-  origin = origin or { x = 0, y = 0, z = 0 }
-  self.deselected_origin_ = jumpman.Vector3.new(origin.x, origin.y, origin.z)
-
-  local t_sel = transform_selected or { x = 0, y = 0, z = -5 }
-  self.selected_origin_ = self.deselected_origin_
-    + jumpman.Vector3.new(t_sel.x, t_sel.y, t_sel.z)
-
-  scale = scale or { x = 1, y = 1, z = 1 }
-  self.scale_ = jumpman.Vector3.new(scale.x, scale.y, scale.z)
-
-  self.letter_height_ = letter_height or 8
-  self.letter_width_ = letter_width or 5
-  self.select_animation_time_ = select_animation_time or 0.125
-  self.explode_animation_time_ = explode_animation_time or 1.275
-  self.elapsed_explode_animation_time_ = 0
-
-  self.is_selection_locked_in_ = false
-
-  return self
-end
-
-function Menu:add_item(message, next_state_name, ...)
-  table.insert(self.menu_items_, {
-    string = create_string_object(
-      self.char_meshes_, scene_root, message, self.deselected_material_),
-    select_tween_weight = 1,
-    next_state_name = next_state_name,
-    next_state_args = {...}
-  })
-
-  return self
-end
-
-function Menu:select(new_index)
-  if not self.is_selection_locked_in_
-      and self.selected_item_index_ ~= index then
-
-    if new_index < 1 then
-      new_index = #self.menu_items_ + new_index
-    elseif new_index > #self.menu_items_ then
-      new_index = new_index - #self.menu_items_
-    end
-
-    local old_menu_item = self.menu_items_[self.selected_item_index_]
-    old_menu_item.select_tween_weight = 1 - old_menu_item.select_tween_weight
-
-    local new_menu_item = self.menu_items_[new_index]
-    new_menu_item.select_tween_weight = 1 - new_menu_item.select_tween_weight
-
-    self.selected_item_index_ = new_index
-  end
-end
-
-function Menu:select_next()
-  self:select(self.selected_item_index_ + 1)
-end
-
-function Menu:select_previous()
-  self:select(self.selected_item_index_ - 1)
-end
-
-function Menu:lock_selection()
-  if not self.is_selection_locked_in_ then
-    self.is_selection_locked_in_ = true
-    self.elapsed_explode_animation_time_ = 0
-
-    for item_index, menu_item in ipairs(self.menu_items_) do
-      menu_item.select_tween_weight = 1
-    end
-  end
-end
-
-function Menu:update(elapsed_seconds)
-  if self.is_selection_locked_in_ then
-    local animation_time = self.elapsed_explode_animation_time_
-      + elapsed_seconds
-
-    if animation_time > self.explode_animation_time_ then
-      animation_time = self.explode_animation_time_
-    end
-
-    self.elapsed_explode_animation_time_ = animation_time
-  end
-
-  for item_index, menu_item in ipairs(self.menu_items_) do
-    local num_letters = #menu_item.string.children
-    local fudge_factor = 3
-    local item_width = num_letters * self.letter_width_ - fudge_factor
-    local is_selected = self.selected_item_index_ == item_index
-
-    -- Menu item texture based on if it is selected
-    local current_material = is_selected
-      and self.selected_material_
-      or self.deselected_material_
-
-    -- Menu item base position based on if it is selected
-    local select_tween_weight = menu_item.select_tween_weight
-      + elapsed_seconds / self.select_animation_time_
-
-    if select_tween_weight > 1 then
-      select_tween_weight = 1
-    end
-
-    menu_item.select_tween_weight = select_tween_weight
-
-    if not is_selected then
-      select_tween_weight = 1 - select_tween_weight
-    end
-
-    local menu_item_origin = jumpman.mix(
-      self.deselected_origin_, self.selected_origin_, select_tween_weight)
-
-    for letter_index = 1, #menu_item.string.children do
-      local letter_position = jumpman.Vector3.new(
-        -item_width / 2 + (letter_index - 1) * self.letter_width_,
-        -(item_index - 1) * self.letter_height_,
-        0)
-      local letter = menu_item.string.children[letter_index]
-      local transform = letter.transform
-      transform.translation = menu_item_origin + letter_position
-      transform.scale = self.scale_
-
-      if self.is_selection_locked_in_ then
-        if is_selected then
-          local letter_rotation = math.pi * (
-            200 * self.elapsed_explode_animation_time_ * 4
-              - letter_position.x * 4 + 10) / 180
-
-          if letter_rotation > math.pi * 2 then
-            letter_rotation = 0
-          end
-
-          transform:set_angle_axis_rotation(
-            letter_rotation, jumpman.Vector3.unit_x())
-        else
-          local absolute_letter_x = transform.translation.x
-          transform:translate(
-            self.elapsed_explode_animation_time_
-              * 100 * math.sin(absolute_letter_x * 27 * math.pi / 180),
-            self.elapsed_explode_animation_time_
-              * 100 * math.sin(absolute_letter_x * 59 * math.pi / 180),
-            self.elapsed_explode_animation_time_ * 40 / 3)
-          transform:set_angle_axis_rotation(
-            (200 * self.elapsed_explode_animation_time_ + absolute_letter_x)
-              * math.pi / 180,
-            jumpman.Vector3.unit_z())
-        end
-      end
-
-      letter.mesh_component.material = current_material
-    end
-  end
-end
-
-function Menu:is_finished()
-  return self.elapsed_explode_animation_time_ >= self.explode_animation_time_
-end
-
-function Menu:finish()
-  self.is_selection_locked_in_ = true
-  self.elapsed_explode_animation_time_ = self.explode_animation_time_
-
-  local menu_item = self.menu_items_[self.selected_item_index_]
-
-  if menu_item.next_state_name then
-    return self.state_machine_:enter(
-      menu_item.next_state_name,
-      table.unpack(menu_item.next_state_args))
-  end
-end
-
-function Menu:reset()
-  self.is_selection_locked_in_ = false
-  self.elapsed_explode_animation_time_ = 0
-
-  for item_index, menu_item in ipairs(self.menu_items_) do
-    menu_item.select_tween_weight = 1
-
-    for letter_index = 1, #menu_item.string.children do
-      local transform = menu_item.string.children[letter_index].transform
-      transform.orientation = jumpman.Quaternion.new()
-    end
-  end
-end
-
-function Menu:hide()
-  for item_index, menu_item in ipairs(self.menu_items_) do
-    menu_item.string.mesh_component.is_visible = false
-  end
-end
-
-function Menu:show()
-  for item_index, menu_item in ipairs(self.menu_items_) do
-    menu_item.string.mesh_component.is_visible = true
+    letter.is_enabled = true
   end
 end
 
@@ -374,6 +157,7 @@ local zbits = ZBits.new(
 local top_menu = Menu.new(
     menu_state,
     char_meshes,
+    scene_root,
     context:find_material("1"),
     context:find_material("2"),
     { x = 80, y = 64, z = 0 },
@@ -385,11 +169,14 @@ local top_menu = Menu.new(
 local mod_menu = Menu.new(
   menu_state,
   char_meshes,
+  scene_root,
   context:find_material("1"),
   context:find_material("2"),
   { x = 80, y = 100, z = 0 },
-  { x = 0.7, y = 0.7, z = 1 },
-  15)
+  { x = 1, y = 1, z = 1 },
+  15,
+  7,
+  { x = 0, y = 0, z = -15 })
 
 for mod_index = 1, #mod_list.builtin do
   local mod = mod_list.builtin[mod_index]
@@ -402,6 +189,8 @@ for mod_index = 1, #mod_list.discovered do
 end
 
 local enter_animate_title = function()
+  camera.transform:set_translation(80, 80, -100)
+  camera.transform:look_at(80, 80, 0)
   top_menu:hide()
   mod_menu:hide()
   jumpman_title:show()
@@ -430,6 +219,8 @@ local animate_title = function(elapsed_seconds)
 end
 
 local enter_select_top_menu = function()
+  camera.transform:set_translation(80, 80, -100)
+  camera.transform:look_at(80, 80, 0)
   mod_menu:hide()
 
   jumpman_title:finish()
@@ -541,20 +332,27 @@ local enter_run_mod = function(list_name, mod_index)
   }
   local mod = mod_lists[list_name][mod_index]
   running_mod = jumpman.ScriptContext.load_mod(mod)
-  scene_root.mesh_component.is_visible = false
+  scene_root.is_enabled = false
   mod_menu:hide()
   return true
 end
 
 local run_mod = function(elapsed_seconds)
   if input:get_digital_action_state("toggle_menu").was_just_pressed then
-    running_mod.scene_root.mesh_component.is_visible = false
-    scene_root.mesh_component.is_visible = true
+    running_mod.scene_root.is_enabled = false
+    scene_root.is_enabled = true
+    -- Call update to let mod hide sub-UI - TODO: Make it so it doesn't have to?
+    running_mod:update(elapsed_seconds)
     menu_state:enter("SelectingTopMenu")  -- TODO: Different menu while in mod?
     return true
   end
 
-  running_mod:update(elapsed_seconds)
+  if not running_mod:update(elapsed_seconds) then
+    scene:remove_child(running_mod.scene_root)
+    running_mod = nil
+    scene_root.is_enabled = true
+    menu_state:enter("SelectingTopMenu")
+  end
 
   return true
 end
@@ -634,7 +432,9 @@ menu_state:enter("AnimatingTitle")
 function update(elapsed_seconds)
   input:activate_action_set("MenuControls")
 
-  sky_scroller:update(elapsed_seconds)
+  if scene_root.is_enabled then
+    sky_scroller:update(elapsed_seconds)
+  end
 
   return menu_state:update(elapsed_seconds)
 end

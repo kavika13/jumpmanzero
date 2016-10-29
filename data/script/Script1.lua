@@ -31,6 +31,8 @@ function update(elapsed_seconds)
     camera.transform:translate(-translation, 0, 0)
   elseif input:get_digital_action_state("move_right").is_pressed then
     camera.transform:translate(translation, 0, 0)
+  elseif input:get_digital_action_state("attack").was_just_pressed then
+    return false
   end
 
   return true
