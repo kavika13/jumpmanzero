@@ -3,9 +3,7 @@
 
 namespace Jumpman {
 
-LuaScript::LuaScript(
-    const std::string& filename,
-    std::function<void(sol::state&)> add_bindings) {
+LuaScript::LuaScript() {
   script_.open_libraries(
     sol::lib::base,
     sol::lib::coroutine,
@@ -192,19 +190,23 @@ LuaScript::LuaScript(
   lock_subtable("math");
   lock_subtable("table");
   lock_subtable("io");
-
-  add_bindings(script_);
-
-  script_.script_file(filename);
-  update_function_ = script_["update"];
 }
 
-void LuaScript::LoadScript(const std::string filename) {
+LuaScript& LuaScript::LoadScript(const std::string filename) {
   script_.script_file(filename);
   sol::function update_function = script_["update"];
+
   if (update_function) {
     update_function_ = update_function;
   }
+
+  return *this;
+}
+
+LuaScript& LuaScript::AddState(std::function<void(sol::state&)> add_state) {
+  add_state(script_);
+
+  return *this;
 }
 
 bool LuaScript::Update(double elapsed_seconds) {

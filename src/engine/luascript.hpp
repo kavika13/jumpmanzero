@@ -7,10 +7,11 @@ namespace Jumpman {
 
 class LuaScript {
  public:
-  LuaScript(
-    const std::string& filename, std::function<void(sol::state&)> add_bindings);
+  LuaScript();
 
-  void LoadScript(const std::string filename);
+  LuaScript& LoadScript(const std::string filename);
+  LuaScript& AddState(std::function<void(sol::state&)> add_state);
+
   bool Update(double elapsed_seconds);
 
  private:

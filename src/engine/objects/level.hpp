@@ -25,13 +25,14 @@ class Level {
   template <typename T>
   using ObjectContainer = std::vector<ObjectRef<T>>;
 
-  explicit Level(const LevelData& data, ResourceContext& resource_context);
+  static ObjectRef<Level> Load(
+    const LevelData& data, ResourceContext& resource_context);
 
   const std::string background_track_tag;
   const std::string death_track_tag;
   const std::string end_level_track_tag;
 
-  const ObjectRef<LuaScript>& GetMainScript() const;
+  ObjectRef<LuaScript> GetMainScript();
 
   size_t NumQuads() const;
   size_t NumDonuts() const;
@@ -55,6 +56,8 @@ class Level {
   const ObjectRef<VineObject> FindVine(const std::string& tag) const;
 
  private:
+  explicit Level(const LevelData& data);
+
   template <typename T>
   using TagObjectMap = std::unordered_map<std::string, std::weak_ptr<T>>;
 

@@ -21,12 +21,14 @@ class ScriptContext {
 
   bool Update(double elapsed_seconds);
 
-  std::shared_ptr<Objects::Level> LoadLevel(const std::string& filename);
+  std::shared_ptr<ScriptContext> LoadLevel(const std::string& filename);
   ModList LoadModList();
 
  private:
-  std::shared_ptr<LuaScript> ScriptFactory(
-    const std::string& filename, const Objects::Level* level);
+  ScriptContext(
+    std::shared_ptr<Graphics::Scene> scene, std::shared_ptr<Input> input);
+
+  std::shared_ptr<LuaScript> ScriptFactory();
 
   std::shared_ptr<ResourceContext> resource_context_;
   std::shared_ptr<Graphics::Scene> scene_;

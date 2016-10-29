@@ -1,5 +1,5 @@
-local main_menu_level = jumpman.Level.load("data/level/MainMenu.json")
+local context = jumpman.ScriptContext.load_level("data/level/MainMenu.json")
 
 function update(elasped_seconds)
-  return main_menu_level.main_script:update(elasped_seconds)
+  return context:update(elasped_seconds)
 end

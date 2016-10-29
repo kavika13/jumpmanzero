@@ -15,30 +15,25 @@ ResourceContext::ResourceContext(
 
 std::shared_ptr<LuaScript> ResourceContext::LoadScript(
     const std::string& filename, const std::string& tag) {
-  return LoadScripts(filename, tag, std::vector<std::string>(), NULL);
+  return LoadScripts(
+    std::vector<std::string>(), [](sol::state&){ }, filename, tag);
 }
 
 std::shared_ptr<LuaScript> ResourceContext::LoadScripts(
-    const std::string& filename,
-    const std::string& tag,
     const std::vector<std::string>& script_dependency_filenames,
-    const Objects::Level* level) {
-  std::shared_ptr<LuaScript> script;
+    std::function<void(sol::state&)> add_bindings_for_main_script,
+    const std::string& main_script_filename,
+    const std::string& tag) {
+  std::shared_ptr<LuaScript> script = script_factory_();
 
-  if (!script_dependency_filenames.empty()) {
-    script = script_factory_(script_dependency_filenames[0], level);
-
-    for (size_t i = 1; i < script_dependency_filenames.size(); ++i) {
-      script->LoadScript(script_dependency_filenames[i]);
-    }
-
-    script->LoadScript(filename);
-  } else {
-    script = script_factory_(filename, level);
+  for (auto script_filename: script_dependency_filenames) {
+    script->LoadScript(script_filename);
   }
 
-  scripts_.push_back(script);
+  script->AddState(add_bindings_for_main_script);
+  script->LoadScript(main_script_filename);
 
+  scripts_.push_back(script);
   tag_to_script_map_[tag] = script;
 
   return script;
