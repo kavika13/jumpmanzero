@@ -57,6 +57,38 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
   return result;
 }
 
+std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
+  std::shared_ptr<ScriptContext> result(new ScriptContext(scene_, input_));
+
+  result->main_script_ = result->resource_context_->LoadScript(
+    [moddata](sol::state& state) {
+      // // TODO: Delegate to a class that knows json and converts dynamically
+      sol::table data_table = sol::table::create(state);
+      Json::Value data_node = moddata.data;
+      for (const auto& leveset_node: data_node) {
+        sol::table levelset_table = sol::table::create(state);
+        levelset_table["title"] = leveset_node["title"].asString();
+
+        sol::table levels_table = sol::table::create(state);
+        for (const auto& level_node: leveset_node["levels"]) {
+          sol::table level_table = sol::table::create(state);
+          level_table["entrypoint"] = level_node["entrypoint"].asString();
+          level_table["title"] = level_node["title"].asString();
+          levels_table.add(level_table);
+        }
+        levelset_table["levels"] = levels_table;
+
+        data_table.add(levelset_table);
+      }
+
+      state["jumpman"]["mod_data"] = data_table;
+    },
+    moddata.entrypoint_script_filename,
+    "main");
+
+  return result;
+}
+
 // TODO: Not a good interface for this
 ModList ScriptContext::LoadModList() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
@@ -84,11 +116,15 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
     jumpman.new_usertype<ScriptContext>("ScriptContext"
       , "new", sol::no_constructor
 
-      , "load_level", sol::factories([this](const std::string& filename) {
+      , "load_mod", [this](const ModData& moddata) {
+        return this->LoadMod(moddata);
+      }
+      , "load_level", [this](const std::string& filename) {
         return this->LoadLevel(filename);
-      })
+      }
 
       , "update", sol::readonly(&ScriptContext::Update)
+      , "scene_root", sol::readonly(&ScriptContext::scene_root_)
     );
 
     jumpman.new_usertype<ResourceContext>("ResourceContext"

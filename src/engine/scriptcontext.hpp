@@ -21,8 +21,9 @@ class ScriptContext {
 
   bool Update(double elapsed_seconds);
 
-  std::shared_ptr<ScriptContext> LoadLevel(const std::string& filename);
   ModList LoadModList();
+  std::shared_ptr<ScriptContext> LoadMod(const ModData& moddata);
+  std::shared_ptr<ScriptContext> LoadLevel(const std::string& filename);
 
  private:
   ScriptContext(

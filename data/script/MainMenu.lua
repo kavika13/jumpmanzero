@@ -168,7 +168,7 @@ function Menu:add_item(message, next_state_name, ...)
       self.char_meshes_, scene_root, message, self.deselected_material_),
     select_tween_weight = 1,
     next_state_name = next_state_name,
-    next_state_args = arg
+    next_state_args = {...}
   })
 
   return self
@@ -308,7 +308,7 @@ function Menu:finish()
   if menu_item.next_state_name then
     return self.state_machine_:enter(
       menu_item.next_state_name,
-      menu_item.next_state_args)
+      table.unpack(menu_item.next_state_args))
   end
 end
 
@@ -338,9 +338,11 @@ function Menu:show()
   end
 end
 
+-- Begin actual script
 local scene_objects = load_level_scene_objects(scene_root, level)
-local mod_list = jumpman.ModList.load()
 local char_meshes = load_char_meshes(context)
+local mod_list = jumpman.ModList.load()
+local running_mod
 
 local camera = scene.camera
 camera.transform:set_translation(80, 80, -100)
@@ -391,14 +393,12 @@ local mod_menu = Menu.new(
 
 for mod_index = 1, #mod_list.builtin do
   local mod = mod_list.builtin[mod_index]
-  -- TODO: Correct state name, param
-  mod_menu:add_item(mod.title)
+  mod_menu:add_item(mod.title, "RunningMod", "builtin", mod_index)
 end
 
 for mod_index = 1, #mod_list.discovered do
   local mod = mod_list.discovered[mod_index]
-  -- TODO: Correct state name, param
-  mod_menu:add_item(mod.title)
+  mod_menu:add_item(mod.title, "RunningMod", "discovered", mod_index)
 end
 
 local enter_animate_title = function()
@@ -534,6 +534,31 @@ local animate_mod_menu_selected = function(elapsed_seconds)
   return true
 end
 
+local enter_run_mod = function(list_name, mod_index)
+  local mod_lists = {
+    builtin = mod_list.builtin,
+    discovered = mod_list.discovered,
+  }
+  local mod = mod_lists[list_name][mod_index]
+  running_mod = jumpman.ScriptContext.load_mod(mod)
+  scene_root.mesh_component.is_visible = false
+  mod_menu:hide()
+  return true
+end
+
+local run_mod = function(elapsed_seconds)
+  if input:get_digital_action_state("toggle_menu").was_just_pressed then
+    running_mod.scene_root.mesh_component.is_visible = false
+    scene_root.mesh_component.is_visible = true
+    menu_state:enter("SelectingTopMenu")  -- TODO: Different menu while in mod?
+    return true
+  end
+
+  running_mod:update(elapsed_seconds)
+
+  return true
+end
+
 local enter_select_option_menu = function()
   jumpman_title:hide()
   zbits:hide()
@@ -590,6 +615,10 @@ menu_state
   :add_state("AnimatingModMenuSelected", {
     enter = enter_animate_mod_menu_selected,
     update = animate_mod_menu_selected,
+  })
+  :add_state("RunningMod", {
+    enter = enter_run_mod,
+    update = run_mod,
   })
   :add_state("SelectingOptionMenu", {
     enter = enter_select_option_menu,

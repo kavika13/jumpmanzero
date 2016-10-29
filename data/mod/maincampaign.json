@@ -1,6 +1,6 @@
 {
   "title": "Campaign",
-  "entrypoint": "data/script/maincampaign.lua",
+  "entrypoint": "data/script/MainCampaign.lua",
   "data": [
     {
       "title": "Beginner",
@@ -42,7 +42,7 @@
           "title": "Final Battle"
         },
         {
-          "name": "Ending",
+          "entrypoint": "data/script/Ending.lua",
           "title": "Congratulations"
         }
       ]

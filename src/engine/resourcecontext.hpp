@@ -19,6 +19,10 @@ class ResourceContext {
 
   std::shared_ptr<LuaScript> LoadScript(
     const std::string& filename, const std::string& tag);
+  std::shared_ptr<LuaScript> LoadScript(
+    std::function<void(sol::state&)> add_bindings_for_main_script,
+    const std::string& filename,
+    const std::string& tag);
   std::shared_ptr<LuaScript> LoadScripts(
     const std::vector<std::string>& script_dependency_filenames,
     std::function<void(sol::state&)> add_bindings_for_main_script,
