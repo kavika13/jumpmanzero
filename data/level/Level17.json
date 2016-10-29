@@ -1,0 +1,1434 @@
+{
+	"backgroundTrackTag" : "1",
+	"deathTrackTag" : "2",
+	"endLevelTrackTag" : "3",
+	"mainScriptTag" : "1",
+	"objects" :
+	{
+		"donuts" :
+		[
+			{
+				"materialTag" : "3",
+				"originX" : 67,
+				"originY" : 138,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 32,
+				"originY" : 23,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 93,
+				"originY" : 75,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 88,
+				"originY" : 110,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 28,
+				"originY" : 67,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 60,
+				"originY" : 106,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 128,
+				"originY" : 23,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 91,
+				"originY" : 28,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 144,
+				"originY" : 73,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 105,
+				"originY" : 50,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 36,
+				"originY" : 151,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 9,
+				"originY" : 77,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 140,
+				"originY" : 157,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 146,
+				"originY" : 88,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 141,
+				"originY" : 130,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 193,
+				"originY" : 129,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 144,
+				"originY" : 115,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 194,
+				"originY" : 97,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 193,
+				"originY" : 40,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 9,
+				"originY" : 70,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 8,
+				"originY" : 158,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 72,
+				"originY" : 114,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 98,
+				"originY" : 164,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 196,
+				"originY" : 165,
+				"originZ" : 0
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 106,
+				"originY" : 6,
+				"originZ" : 0
+			}
+		],
+		"ladders" :
+		[
+			{
+				"bottomY" : 125,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 87,
+				"topY" : 153
+			},
+			{
+				"bottomY" : 46,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 48,
+				"topY" : 68
+			},
+			{
+				"bottomY" : 87,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 22,
+				"topY" : 115
+			},
+			{
+				"bottomY" : 126,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 165,
+				"topY" : 154
+			},
+			{
+				"bottomY" : 66,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 48,
+				"tag" : "ladder9",
+				"topY" : 78
+			}
+		],
+		"platforms" :
+		[
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 6,
+						"y" : 14,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 197,
+						"y" : 14,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 6,
+						"y" : 11,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 197,
+						"y" : 11,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 46,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 56,
+						"y" : 46,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 43,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 56,
+						"y" : 43,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 6,
+						"y" : 53,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 25,
+						"y" : 53,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 6,
+						"y" : 50,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 25,
+						"y" : 50,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 108,
+						"y" : 70,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 125,
+						"y" : 70,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 108,
+						"y" : 67,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 125,
+						"y" : 67,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 6,
+						"y" : 95,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 51,
+						"y" : 95,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 6,
+						"y" : 92,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 51,
+						"y" : 92,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 5,
+						"y" : 118,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 118,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 5,
+						"y" : 115,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 115,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 40,
+						"y" : 118,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 0,
+						"x" : 71,
+						"y" : 125,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 1,
+						"x" : 40,
+						"y" : 115,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 1,
+						"x" : 71,
+						"y" : 122,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 71,
+						"y" : 125,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 118,
+						"y" : 125,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 71,
+						"y" : 122,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 118,
+						"y" : 122,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 79,
+						"y" : 148,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 130,
+						"y" : 148,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 79,
+						"y" : 145,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 130,
+						"y" : 145,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 100,
+						"y" : 40,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 59,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 100,
+						"y" : 37,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 56,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 51,
+						"y" : 95,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 69,
+						"y" : 92,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 51,
+						"y" : 92,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 69,
+						"y" : 89,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 5,
+						"y" : 141,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 141,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 5,
+						"y" : 138,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 138,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 69,
+						"y" : 48,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 87,
+						"y" : 48,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 69,
+						"y" : 45,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 87,
+						"y" : 45,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 88,
+						"y" : 66,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 108,
+						"y" : 70,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 88,
+						"y" : 63,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 108,
+						"y" : 67,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 69,
+						"y" : 92,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 104,
+						"y" : 103,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 69,
+						"y" : 89,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 104,
+						"y" : 100,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 104,
+						"y" : 103,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 132,
+						"y" : 109,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 104,
+						"y" : 100,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 132,
+						"y" : 106,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 150,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 198,
+						"y" : 150,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 147,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 198,
+						"y" : 147,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 153,
+						"y" : 126,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 177,
+						"y" : 126,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 153,
+						"y" : 123,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 177,
+						"y" : 123,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 160,
+						"y" : 85,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 198,
+						"y" : 85,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 160,
+						"y" : 82,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 198,
+						"y" : 82,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 59,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 198,
+						"y" : 59,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 150,
+						"y" : 56,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 198,
+						"y" : 56,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : true,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 25,
+						"y" : 53,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 46,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 25,
+						"y" : 50,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 41,
+						"y" : 43,
+						"z" : 0
+					}
+				]
+			}
+		],
+		"quads" :
+		[
+			{
+				"materialTag" : "4",
+				"originX" : 80,
+				"originY" : 90,
+				"originZ" : 50,
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : -200,
+						"y" : 210,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 0,
+						"x" : 200,
+						"y" : 210,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 1,
+						"x" : -200,
+						"y" : -210,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 1,
+						"x" : 200,
+						"y" : -210,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"materialTag" : "6",
+				"originX" : 80,
+				"originY" : 80,
+				"originZ" : 0,
+				"tag" : "quad2",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : -5,
+						"y" : 5,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 0,
+						"x" : 5,
+						"y" : 5,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 1,
+						"x" : -5,
+						"y" : -5,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 1,
+						"x" : 5,
+						"y" : -5,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"materialTag" : "6",
+				"originX" : 11,
+				"originY" : 31,
+				"originZ" : 0,
+				"tag" : "quad1",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : -5,
+						"y" : 5,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 0,
+						"x" : 5,
+						"y" : 5,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 1,
+						"x" : -5,
+						"y" : -5,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 1,
+						"x" : 5,
+						"y" : -5,
+						"z" : 0
+					}
+				]
+			}
+		],
+		"vines" :
+		[
+			{
+				"bottomY" : 84,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 111,
+				"topY" : 133
+			},
+			{
+				"bottomY" : 128,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 53,
+				"topY" : 157
+			},
+			{
+				"bottomY" : 26,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 72,
+				"topY" : 63
+			},
+			{
+				"bottomY" : 98,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 183,
+				"topY" : 147
+			},
+			{
+				"bottomY" : 25,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 181,
+				"topY" : 67
+			},
+			{
+				"bottomY" : 26,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 161,
+				"topY" : 66
+			},
+			{
+				"bottomY" : 6,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 21,
+				"topY" : 37
+			}
+		],
+		"walls" : []
+	},
+	"resources" :
+	{
+		"materials" :
+		[
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "0",
+				"textureTag" : "0",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "1",
+				"textureTag" : "1",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "2",
+				"textureTag" : "2",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "3",
+				"textureTag" : "3",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "4",
+				"textureTag" : "4",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "5",
+				"textureTag" : "5",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "6",
+				"textureTag" : "6",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			}
+		],
+		"meshes" :
+		[
+			{
+				"filename" : "data/model/Bullet1.obj",
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/model/Bullet2.obj",
+				"tag" : "1"
+			}
+		],
+		"music" :
+		[
+			{
+				"filename" : "data/music/LEVEL_I.mid",
+				"introEndOffsetMS" : 2000,
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/music/death.mid",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/music/ENDLEVEL.mid",
+				"tag" : "3"
+			}
+		],
+		"scripts" :
+		[
+			{
+				"filename" : "data/script/Bullet.lua",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/script/Script17.lua",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/script/SceneObject.lua",
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/script/JumpmanLevel.lua",
+				"tag" : "4"
+			}
+		],
+		"sounds" :
+		[
+			{
+				"filename" : "data/sound/Jump.wav",
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/sound/chomp.wav",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/sound/bonk.wav",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/sound/Fire.wav",
+				"tag" : "3"
+			}
+		],
+		"textures" :
+		[
+			{
+				"filename" : "data/texture/Jumpman.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/texture/ClassicPlatform.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/texture/BlueMarble.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/texture/RedMetal.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/texture/sky.jpg",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/texture/Bullet.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "5"
+			},
+			{
+				"filename" : "data/texture/UpDown.bmp",
+				"hasAlphaChannel" : true,
+				"hasColorkeyAlpha" : true,
+				"tag" : "6"
+			}
+		]
+	}
+}

@@ -1,0 +1,2218 @@
+{
+	"backgroundTrackTag" : "1",
+	"deathTrackTag" : "2",
+	"endLevelTrackTag" : "3",
+	"mainScriptTag" : "1",
+	"objects" :
+	{
+		"donuts" :
+		[
+			{
+				"materialTag" : "3",
+				"originX" : 266,
+				"originY" : 89,
+				"originZ" : 0,
+				"tag" : "donut9"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 206,
+				"originY" : 93,
+				"originZ" : 0,
+				"tag" : "donut7"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 121,
+				"originY" : 80,
+				"originZ" : 0,
+				"tag" : "donut5"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 11,
+				"originY" : 94,
+				"originZ" : 0,
+				"tag" : "donut1"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 218,
+				"originY" : 62,
+				"originZ" : 0,
+				"tag" : "donut8"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 45,
+				"originY" : 18,
+				"originZ" : 0,
+				"tag" : "donut10"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 154,
+				"originY" : 18,
+				"originZ" : 0,
+				"tag" : "donut4"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 40,
+				"originY" : 166,
+				"originZ" : 0,
+				"tag" : "donut100"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 142,
+				"originY" : 50,
+				"originZ" : 0,
+				"tag" : "donut2"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 246,
+				"originY" : 22,
+				"originZ" : 0,
+				"tag" : "donut6"
+			},
+			{
+				"materialTag" : "3",
+				"originX" : 270,
+				"originY" : 64,
+				"originZ" : 0,
+				"tag" : "donut3"
+			}
+		],
+		"ladders" :
+		[
+			{
+				"bottomY" : 9,
+				"frontZ" : 1,
+				"materialTag" : "2",
+				"originX" : 197,
+				"topY" : 36
+			},
+			{
+				"bottomY" : 44,
+				"frontZ" : 1,
+				"materialTag" : "2",
+				"originX" : 52,
+				"topY" : 81
+			},
+			{
+				"bottomY" : 50,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 252,
+				"topY" : 84
+			}
+		],
+		"platforms" :
+		[
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 2,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 182,
+						"y" : 31,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 200,
+						"y" : 31,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 182,
+						"y" : 28,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 200,
+						"y" : 28,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 2,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 200,
+						"y" : 31,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 216,
+						"y" : 30,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 200,
+						"y" : 28,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 216,
+						"y" : 27,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 6,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 2,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 38,
+						"y" : 77,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 58,
+						"y" : 77,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 38,
+						"y" : 74,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 58,
+						"y" : 74,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 6,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 2,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 58,
+						"y" : 77,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 79,
+						"y" : 72,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 58,
+						"y" : 74,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 79,
+						"y" : 69,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 6,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 2,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 79,
+						"y" : 72,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 99,
+						"y" : 70,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 79,
+						"y" : 69,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 99,
+						"y" : 67,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 6,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 2,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 99,
+						"y" : 70,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 118,
+						"y" : 62,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 99,
+						"y" : 67,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 118,
+						"y" : 59,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 6,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 2,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 17,
+						"y" : 82,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 38,
+						"y" : 77,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 17,
+						"y" : 79,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 38,
+						"y" : 74,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 27,
+						"y" : 39,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 43,
+						"y" : 44,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 27,
+						"y" : 36,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 43,
+						"y" : 41,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 43,
+						"y" : 44,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 63,
+						"y" : 44,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 43,
+						"y" : 41,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 63,
+						"y" : 41,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 63,
+						"y" : 44,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 84,
+						"y" : 37,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 63,
+						"y" : 41,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 84,
+						"y" : 34,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 84,
+						"y" : 37,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 100,
+						"y" : 42,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 84,
+						"y" : 34,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 100,
+						"y" : 39,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 0,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 22,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 0,
+						"y" : 6,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 22,
+						"y" : 4,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 22,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 37,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 22,
+						"y" : 4,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 37,
+						"y" : 6,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 37,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 50,
+						"y" : 8,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 37,
+						"y" : 6,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 50,
+						"y" : 5,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 50,
+						"y" : 8,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 65,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 50,
+						"y" : 5,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 65,
+						"y" : 7,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 65,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 82,
+						"y" : 8,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 65,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 82,
+						"y" : 5,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 82,
+						"y" : 8,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 94,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 82,
+						"y" : 5,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 94,
+						"y" : 7,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 94,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 110,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 94,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 110,
+						"y" : 4,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 110,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 128,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 110,
+						"y" : 4,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 128,
+						"y" : 7,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 128,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 144,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 128,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 144,
+						"y" : 4,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 144,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 164,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 144,
+						"y" : 4,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 164,
+						"y" : 7,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 164,
+						"y" : 10,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 188,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 164,
+						"y" : 7,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 188,
+						"y" : 6,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 188,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 210,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 188,
+						"y" : 6,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 210,
+						"y" : 6,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 210,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 231,
+						"y" : 12,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 210,
+						"y" : 6,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 231,
+						"y" : 9,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 231,
+						"y" : 12,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 256,
+						"y" : 8,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 231,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 256,
+						"y" : 5,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 256,
+						"y" : 8,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 282,
+						"y" : 9,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 256,
+						"y" : 5,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 282,
+						"y" : 6,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 115,
+						"y" : 35,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 135,
+						"y" : 35,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 115,
+						"y" : 32,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 135,
+						"y" : 32,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 135,
+						"y" : 35,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 156,
+						"y" : 40,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 135,
+						"y" : 32,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 156,
+						"y" : 37,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 166,
+						"y" : 48,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 188,
+						"y" : 48,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 166,
+						"y" : 45,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 188,
+						"y" : 45,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 146,
+						"y" : 74,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 166,
+						"y" : 76,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 146,
+						"y" : 71,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 166,
+						"y" : 73,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 166,
+						"y" : 76,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 186,
+						"y" : 82,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 166,
+						"y" : 73,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 186,
+						"y" : 79,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 186,
+						"y" : 82,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 204,
+						"y" : 76,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 186,
+						"y" : 79,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 204,
+						"y" : 73,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 204,
+						"y" : 76,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 219,
+						"y" : 76,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 204,
+						"y" : 73,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 219,
+						"y" : 73,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 242,
+						"y" : 80,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 268,
+						"y" : 80,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 242,
+						"y" : 77,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 268,
+						"y" : 77,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 268,
+						"y" : 80,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 282,
+						"y" : 81,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 268,
+						"y" : 77,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 282,
+						"y" : 78,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 5,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 1,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 13,
+						"y" : 37,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 27,
+						"y" : 39,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 13,
+						"y" : 34,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 27,
+						"y" : 36,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 4,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 0,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 216,
+						"y" : 52,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 240,
+						"y" : 50,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 216,
+						"y" : 49,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 240,
+						"y" : 47,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 4,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 0,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 240,
+						"y" : 50,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 260,
+						"y" : 50,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 240,
+						"y" : 47,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 260,
+						"y" : 47,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 4,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 0,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 260,
+						"y" : 50,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 282,
+						"y" : 56,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 260,
+						"y" : 47,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 282,
+						"y" : 53,
+						"z" : 0
+					}
+				]
+			},
+			{
+				"backZ" : 4,
+				"drawBack" : true,
+				"drawBottom" : false,
+				"drawFront" : true,
+				"drawLeft" : true,
+				"drawRight" : true,
+				"drawTop" : true,
+				"frontZ" : 0,
+				"materialTag" : "1",
+				"type" : "plain",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 0,
+						"y" : 56,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 20,
+						"y" : 60,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 0,
+						"y" : 53,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : 20,
+						"y" : 57,
+						"z" : 0
+					}
+				]
+			}
+		],
+		"quads" :
+		[
+			{
+				"materialTag" : "4",
+				"originX" : 77.5,
+				"originY" : 20,
+				"originZ" : 150,
+				"tag" : "quad100",
+				"vertices" :
+				[
+					{
+						"tu" : 0,
+						"tv" : 0,
+						"x" : -177.5,
+						"y" : 160,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 0,
+						"x" : 177.5,
+						"y" : 160,
+						"z" : 0
+					},
+					{
+						"tu" : 0,
+						"tv" : 1,
+						"x" : -177.5,
+						"y" : -160,
+						"z" : 0
+					},
+					{
+						"tu" : 1,
+						"tv" : 1,
+						"x" : 177.5,
+						"y" : -160,
+						"z" : 0
+					}
+				]
+			}
+		],
+		"vines" :
+		[
+			{
+				"bottomY" : 51,
+				"frontZ" : 1,
+				"materialTag" : "2",
+				"originX" : 89,
+				"topY" : 79
+			},
+			{
+				"bottomY" : 15,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 21,
+				"topY" : 43
+			},
+			{
+				"bottomY" : 19,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 126,
+				"topY" : 44
+			},
+			{
+				"bottomY" : 60,
+				"frontZ" : 0,
+				"materialTag" : "2",
+				"originX" : 174,
+				"topY" : 82
+			}
+		],
+		"walls" : []
+	},
+	"resources" :
+	{
+		"materials" :
+		[
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "0",
+				"textureTag" : "0",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "1",
+				"textureTag" : "1",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "2",
+				"textureTag" : "2",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "3",
+				"textureTag" : "3",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "4",
+				"textureTag" : "4",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "5",
+				"textureTag" : "5",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "6",
+				"textureTag" : "6",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "7",
+				"textureTag" : "7",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "8",
+				"textureTag" : "8",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "9",
+				"textureTag" : "9",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "10",
+				"textureTag" : "10",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "11",
+				"textureTag" : "11",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "12",
+				"textureTag" : "12",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "13",
+				"textureTag" : "13",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			},
+			{
+				"fragmentShaderFilename" : "data/shader/global.frag",
+				"tag" : "14",
+				"textureTag" : "14",
+				"vertexShaderFilename" : "data/shader/global.vert"
+			}
+		],
+		"meshes" :
+		[
+			{
+				"filename" : "data/model/ShipBase.obj",
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/model/ShipTop.obj",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/model/Alien1.obj",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/model/Alien2.obj",
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/model/Cube.obj",
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/model/square.obj",
+				"tag" : "5"
+			},
+			{
+				"filename" : "data/model/Beam.obj",
+				"tag" : "6"
+			},
+			{
+				"filename" : "data/model/Blob1.obj",
+				"tag" : "7"
+			},
+			{
+				"filename" : "data/model/Blob2.obj",
+				"tag" : "8"
+			},
+			{
+				"filename" : "data/model/Blob3.obj",
+				"tag" : "9"
+			},
+			{
+				"filename" : "data/model/Blob4.obj",
+				"tag" : "10"
+			},
+			{
+				"filename" : "data/model/Blob2L.obj",
+				"tag" : "11"
+			},
+			{
+				"filename" : "data/model/Blob3L.obj",
+				"tag" : "12"
+			}
+		],
+		"music" :
+		[
+			{
+				"filename" : "data/music/ChainTheme.mid",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/music/DEATH_B.mid",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/music/ENDLevL2.mid",
+				"tag" : "3"
+			}
+		],
+		"scripts" :
+		[
+			{
+				"filename" : "data/script/Script27.lua",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/script/Beam.lua",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/script/Blob.lua",
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/script/ZDonut.lua",
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/script/SceneObject.lua",
+				"tag" : "5"
+			},
+			{
+				"filename" : "data/script/JumpmanLevel.lua",
+				"tag" : "6"
+			}
+		],
+		"sounds" :
+		[
+			{
+				"filename" : "data/sound/Jump.wav",
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/sound/chomp.wav",
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/sound/bonk.wav",
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/sound/Fire.wav",
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/sound/ClasBomb.wav",
+				"tag" : "4"
+			}
+		],
+		"textures" :
+		[
+			{
+				"filename" : "data/texture/Jumpman.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "0"
+			},
+			{
+				"filename" : "data/texture/SpacePlatform.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "1"
+			},
+			{
+				"filename" : "data/texture/EvenWood.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "2"
+			},
+			{
+				"filename" : "data/texture/RedMetal.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "3"
+			},
+			{
+				"filename" : "data/texture/SpaceBack.jpg",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "4"
+			},
+			{
+				"filename" : "data/texture/ShipMetal.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "5"
+			},
+			{
+				"filename" : "data/texture/ShipGlass.png",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : true,
+				"tag" : "6"
+			},
+			{
+				"filename" : "data/texture/Alien.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "7"
+			},
+			{
+				"filename" : "data/texture/Beam.png",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : true,
+				"tag" : "8"
+			},
+			{
+				"filename" : "data/texture/Blast1.bmp",
+				"hasAlphaChannel" : true,
+				"hasColorkeyAlpha" : true,
+				"tag" : "9"
+			},
+			{
+				"filename" : "data/texture/BrightRed.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "10"
+			},
+			{
+				"filename" : "data/texture/BrightGreen.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "11"
+			},
+			{
+				"filename" : "data/texture/BrightBlue.bmp",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : false,
+				"tag" : "12"
+			},
+			{
+				"filename" : "data/texture/Lightning.png",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : true,
+				"tag" : "13"
+			},
+			{
+				"filename" : "data/texture/ClearBlue.png",
+				"hasAlphaChannel" : false,
+				"hasColorkeyAlpha" : true,
+				"tag" : "14"
+			}
+		]
+	}
+}
