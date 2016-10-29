@@ -263,7 +263,7 @@ local animate_top_menu_selected = function(elapsed_seconds)
   end
 
   if top_menu:is_finished() then
-    top_menu:finish()
+    top_menu:advance_state()
     return true
   end
 
@@ -273,11 +273,14 @@ local animate_top_menu_selected = function(elapsed_seconds)
 end
 
 local enter_select_mod_menu = function()
-  -- TODO: If only one mod, switch straight to next state, and return false.
-  --       Or should that be part of the menu class functionality?
   jumpman_title:hide()
   zbits:hide()
   top_menu:hide()
+
+  if #mod_list.builtin + #mod_list.discovered == 1 then
+    mod_menu:advance_state()
+    return false
+  end
 
   mod_menu:reset()
   mod_menu:show()
@@ -316,7 +319,7 @@ local animate_mod_menu_selected = function(elapsed_seconds)
   end
 
   if mod_menu:is_finished() then
-    mod_menu:finish()
+    mod_menu:advance_state()
     return true
   end
 

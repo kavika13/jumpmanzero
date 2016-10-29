@@ -177,7 +177,7 @@ function Menu:is_finished()
   return self.elapsed_explode_animation_time_ >= self.explode_animation_time_
 end
 
-function Menu:finish()
+function Menu:advance_state()
   self.is_selection_locked_in_ = true
   self.elapsed_explode_animation_time_ = self.explode_animation_time_
 

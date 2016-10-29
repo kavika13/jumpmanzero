@@ -66,7 +66,7 @@ end
 
 local animate_level_set_selected = function(elapsed_seconds)
   if level_set_menu:is_finished() then
-    level_set_menu:finish()
+    level_set_menu:advance_state()
     return true
   end
 
