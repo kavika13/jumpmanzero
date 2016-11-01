@@ -19,6 +19,7 @@ System::System() {
     throw std::runtime_error(error_message);
   }
 
+  // TODO: Get magic constants from somewhere else
   result = handle_->init(32, FMOD_INIT_NORMAL, nullptr);
 
   if (result != FMOD_OK) {
