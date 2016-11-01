@@ -38,7 +38,9 @@ Level::ObjectRef<Level> Level::Load(
     resource_context.LoadSound(sound_resource.filename, sound_resource.tag);
   }
 
-  // TODO: Load music
+  for (const MusicResourceData& track_resource: data.music) {
+    resource_context.LoadTrack(track_resource.filename, track_resource.tag);
+  }
 
   result->quads_.reserve(data.quads.size());
 

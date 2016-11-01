@@ -40,9 +40,15 @@ for i, level_set in pairs(mod_data) do
   level_set_menu:add_item(level_set.title, "RunningLevelSet", level_set)
 end
 
+local select_levelset_menu_track = context:find_track("1")
+
 local enter_select_level_set = function()
   level_set_menu:reset()
   level_set_menu:show()
+  local playing_track = jumpman.MusicTrack.get_current_track()
+  if not playing_track or not playing_track.is_playing then
+    select_levelset_menu_track:play_repeating()
+  end
   return true
 end
 
@@ -79,6 +85,11 @@ end
 
 local enter_run_level_set = function(level_set)
   scene:remove_child(scene_root)
+
+  local playing_track = jumpman.MusicTrack.get_current_track()
+  if playing_track and playing_track.is_playing then
+    playing_track:pause()
+  end
 
   if running_level then
     scene:remove_child(running_level.scene_root)

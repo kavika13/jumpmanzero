@@ -139,6 +139,7 @@ int Engine::Run() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     data_->scene->Draw(time_since_last_frame);
+    data_->sound_system->Update();
 
     SDL_GL_SwapWindow(data_->main_window);
   }

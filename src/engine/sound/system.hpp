@@ -17,6 +17,8 @@ class System {
   System& operator=(const System&) = delete;
   System& operator=(System&&) noexcept;
 
+  void Update();
+
   operator FMOD::System*();
 
  private:

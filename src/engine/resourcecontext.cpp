@@ -255,4 +255,39 @@ std::shared_ptr<Sound::Sound> ResourceContext::FindSound(
   return iter->second.lock();
 }
 
+std::shared_ptr<Sound::MusicTrack> ResourceContext::LoadTrack(
+    const std::string& filename, const std::string& tag) {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Loading music track: " << filename;
+
+  std::ifstream track_file(filename);
+
+  if (!track_file) {
+    const std::string error_message = "Failed to open music track file: "
+      + filename;
+    BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
+    throw std::runtime_error(error_message);
+  }
+
+  auto track = Sound::MusicTrack::FromStream(*sound_system_, track_file);
+
+  if (!tag.empty()) {
+    tag_to_track_map_[tag] = track;
+  }
+
+  music_tracks_.push_back(track);
+
+  return track;
+}
+
+std::shared_ptr<Sound::MusicTrack> ResourceContext::FindTrack(
+    const std::string& tag) {
+  auto iter = tag_to_track_map_.find(tag);
+  if (iter == tag_to_track_map_.end()) {
+    throw std::runtime_error("Failed to find music track with tag: " + tag);
+  }
+  return iter->second.lock();
+}
+
 };  // namespace Jumpman

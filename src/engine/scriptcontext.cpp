@@ -13,17 +13,19 @@ ScriptContext::ScriptContext(
   std::shared_ptr<Sound::System> sound_system,
   std::shared_ptr<Input> input,
   const std::string& main_script_filename)
-    : ScriptContext(scene, sound_system, input) {
+    : ScriptContext(scene, sound_system, nullptr, input) {
   main_script_ = resource_context_->LoadScript(main_script_filename, "main");
 }
 
 ScriptContext::ScriptContext(
   std::shared_ptr<Graphics::Scene> scene,
   std::shared_ptr<Sound::System> sound_system,
+  std::shared_ptr<Sound::MusicTrack> current_track,
   std::shared_ptr<Input> input)
     : scene_(scene)
     , scene_root_(new Graphics::SceneObject)
     , sound_system_(sound_system)
+    , current_track_(current_track)
     , input_(input) {
   resource_context_ = std::shared_ptr<ResourceContext>(
     new ResourceContext(
@@ -49,7 +51,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
   }
 
   std::shared_ptr<ScriptContext> result(
-    new ScriptContext(scene_, sound_system_, input_));
+    new ScriptContext(scene_, sound_system_, current_track_, input_));
 
   const auto leveldata = LevelData::FromStream(levelfile);
   std::shared_ptr<Objects::Level> level = Objects::Level::Load(
@@ -73,7 +75,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
   }
 
   std::shared_ptr<ScriptContext> result(
-    new ScriptContext(scene_, sound_system_, input_));
+    new ScriptContext(scene_, sound_system_, current_track_, input_));
 
   const auto leveldata = LevelData::FromStream(modfile);
   std::shared_ptr<Objects::Level> level = Objects::Level::Load(
@@ -148,9 +150,56 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
     using Sound = Sound::Sound;
 
     jumpman.new_usertype<Sound>("Sound"
+      , "new", sol::no_constructor
+
       , "play", [this](Sound& sound) {
         sound.Play(*this->sound_system_);
       }
+    );
+
+    using MusicTrack = Jumpman::Sound::MusicTrack;
+
+    jumpman.new_usertype<MusicTrack>("MusicTrack"
+      , "new", sol::no_constructor
+
+      , "get_current_track", [this]() { return current_track_; }
+
+      , "play_once", sol::overload(
+        [this](std::shared_ptr<MusicTrack> track) {
+          track->PlayOnce(*this->sound_system_);
+          this->current_track_ = track;
+        },
+        [this](
+            std::shared_ptr<MusicTrack> track,
+            unsigned int start_at_milliseconds) {
+          track->PlayOnce(*this->sound_system_, start_at_milliseconds);
+          this->current_track_ = track;
+        })
+      , "play_repeating", sol::overload(
+        [this](std::shared_ptr<MusicTrack> track) {
+          track->PlayRepeating(*this->sound_system_);
+          this->current_track_ = track;
+        },
+        [this](
+            std::shared_ptr<MusicTrack> track,
+            unsigned int start_at_milliseconds) {
+          track->PlayRepeating(*this->sound_system_, start_at_milliseconds);
+          this->current_track_ = track;
+        },
+        [this](
+            std::shared_ptr<MusicTrack> track,
+            unsigned int start_at_milliseconds,
+            unsigned int repeat_at_milliseconds) {
+          track->PlayRepeating(
+            *this->sound_system_,
+            start_at_milliseconds,
+            repeat_at_milliseconds);
+          this->current_track_ = track;
+        })
+      , "pause", [this](MusicTrack& track) {
+        track.Pause(*this->sound_system_);
+      }
+      , "is_playing", sol::property(&MusicTrack::GetIsPlaying)
     );
 
     jumpman.new_usertype<ResourceContext>("ResourceContext"
@@ -160,6 +209,7 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
       , "find_texture", &ResourceContext::FindTexture
       , "find_material", &ResourceContext::FindMaterial
       , "find_sound", &ResourceContext::FindSound
+      , "find_track", &ResourceContext::FindTrack
 
       , "load_mesh", &ResourceContext::LoadMesh
       , "find_mesh", &ResourceContext::FindMesh

@@ -192,6 +192,10 @@ for mod_index = 1, #mod_list.discovered do
   mod_menu:add_item(mod.title, "RunningMod", "discovered", mod_index)
 end
 
+local title_track = context:find_track("1")
+local mod_menu_track = context:find_track("2")
+local option_menu_track = context:find_track("2")
+
 local enter_animate_title = function()
   camera.transform:set_translation(80, 80, -100)
   camera.transform:look_at(80, 80, 0)
@@ -199,6 +203,7 @@ local enter_animate_title = function()
   mod_menu:hide()
   jumpman_title:show()
   zbits:show()
+  title_track:play_once(1800)
   return true
 end
 
@@ -281,6 +286,10 @@ local enter_select_mod_menu = function()
   zbits:hide()
   top_menu:hide()
 
+  if title_track.is_playing then
+    title_track:pause()
+  end
+
   if #mod_list.builtin + #mod_list.discovered == 1 then
     mod_menu:advance_state()
     return false
@@ -288,6 +297,7 @@ local enter_select_mod_menu = function()
 
   mod_menu:reset()
   mod_menu:show()
+  mod_menu_track:play_repeating()
   return true
 end
 

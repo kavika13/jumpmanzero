@@ -50,6 +50,20 @@ System& System::operator=(System&& other) noexcept {
   return *this;
 }
 
+void System::Update() {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Sound");
+
+  FMOD_RESULT result = handle_->update();
+
+  if (result != FMOD_OK) {
+    const std::string error_message =
+      std::string("Failed when calling update on sound system")
+        + FMOD_ErrorString(result);
+    BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
+    throw std::runtime_error(error_message);
+  }
+}
+
 System::operator FMOD::System*() {
   return handle_;
 }
