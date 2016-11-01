@@ -6,6 +6,7 @@ function Menu.new(
     char_meshes,
     scene_root,
     selected_material, deselected_material,
+    selected_sound, lock_selection_sound,
     origin, scale, letter_height, letter_width, transform_selected,
     select_animation_time, explode_animation_time)
   local self = create_class_instance(Menu)
@@ -18,6 +19,8 @@ function Menu.new(
   self.scene_root_ = scene_root
   self.selected_material_ = selected_material
   self.deselected_material_ = deselected_material
+  self.selected_sound_ = selected_sound
+  self.lock_selection_sound_ = lock_selection_sound
 
   origin = origin or { x = 0, y = 0, z = 0 }
   self.deselected_origin_ = jumpman.Vector3.new(origin.x, origin.y, origin.z)
@@ -68,6 +71,8 @@ function Menu:select(new_index)
     local new_menu_item = self.menu_items_[new_index]
     new_menu_item.select_tween_weight = 1 - new_menu_item.select_tween_weight
 
+    self.selected_sound_:play()
+
     self.selected_item_index_ = new_index
   end
 end
@@ -88,6 +93,8 @@ function Menu:lock_selection()
     for item_index, menu_item in ipairs(self.menu_items_) do
       menu_item.select_tween_weight = 1
     end
+
+    self.lock_selection_sound_:play()
   end
 end
 

@@ -160,6 +160,8 @@ local top_menu = Menu.new(
     scene_root,
     context:find_material("1"),
     context:find_material("2"),
+    context:find_sound("0"),
+    context:find_sound("1"),
     { x = 80, y = 64, z = 0 },
     { x = 0.7, y = 0.7, z = 1 },
     8)
@@ -172,6 +174,8 @@ local mod_menu = Menu.new(
   scene_root,
   context:find_material("1"),
   context:find_material("2"),
+  context:find_sound("0"),
+  context:find_sound("1"),
   { x = 80, y = 100, z = 0 },
   { x = 1, y = 1, z = 1 },
   15,

@@ -28,6 +28,8 @@ local level_set_menu = Menu.new(
     scene_root,
     context:find_material("1"),
     context:find_material("3"),
+    context:find_sound("0"),
+    context:find_sound("1"),
     { x = 80, y = 100, z = 0 },
     { x = 1, y = 1, z = 1 },
     15,
