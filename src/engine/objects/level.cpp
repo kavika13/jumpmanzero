@@ -34,7 +34,9 @@ Level::ObjectRef<Level> Level::Load(
     resource_context.LoadMesh(mesh_resource.filename, mesh_resource.tag);
   }
 
-  // TODO: Load sounds
+  for (const SoundResourceData& sound_resource: data.sounds) {
+    resource_context.LoadSound(sound_resource.filename, sound_resource.tag);
+  }
 
   // TODO: Load music
 

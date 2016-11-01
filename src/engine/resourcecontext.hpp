@@ -7,6 +7,8 @@
 #include "engine/graphics/material.hpp"
 #include "engine/graphics/texture.hpp"
 #include "engine/graphics/trianglemesh.hpp"
+#include "engine/sound/sound.hpp"
+#include "engine/sound/system.hpp"
 #include "luascript.hpp"
 
 namespace Jumpman {
@@ -15,7 +17,8 @@ class ResourceContext {
  public:
   using ScriptFactory = std::function<std::shared_ptr<LuaScript>()>;
 
-  ResourceContext(ScriptFactory script_factory);
+  ResourceContext(
+    std::shared_ptr<Sound::System> sound_system, ScriptFactory script_factory);
 
   std::shared_ptr<LuaScript> LoadScript(
     const std::string& filename, const std::string& tag);
@@ -47,14 +50,9 @@ class ResourceContext {
     const std::string& filename, const std::string& tag);
   std::shared_ptr<Graphics::TriangleMesh> FindMesh(const std::string& tag);
 
-  // TODO:
-  // std::shared_ptr<Sound> LoadSound(const std::string& filename) {
-  //   // TODO Implement
-  // }
-
-  // std::shared_ptr<Sound> FindSound(const std::string& tag) {
-  //   return tag_to_sound_map_.at(tag);
-  // }
+  std::shared_ptr<Sound::Sound> LoadSound(
+    const std::string& filename, const std::string& tag);
+  std::shared_ptr<Sound::Sound> FindSound(const std::string& tag);
 
   // TODO:
   // std::shared_ptr<Music> LoadMusic(const std::string& filename) {
@@ -66,13 +64,14 @@ class ResourceContext {
   // }
 
  private:
+  std::shared_ptr<Sound::System> sound_system_;
   const ScriptFactory script_factory_;
 
   std::vector<std::shared_ptr<LuaScript>> scripts_;
   std::vector<std::shared_ptr<Graphics::Texture>> textures_;
   std::vector<std::shared_ptr<Graphics::Material>> materials_;
   std::vector<std::shared_ptr<Graphics::TriangleMesh>> meshes_;
-  // TODO: std::vector<std::shared_ptr<Sound>> sounds_;
+  std::vector<std::shared_ptr<Sound::Sound>> sounds_;
   // TODO: std::vector<std::shared_ptr<Music>> music_tracks_;
 
   std::unordered_map<std::string, std::weak_ptr<LuaScript>> tag_to_script_map_;
@@ -82,7 +81,8 @@ class ResourceContext {
     tag_to_material_map_;
   std::unordered_map<std::string, std::weak_ptr<Graphics::TriangleMesh>>
     tag_to_mesh_map_;
-  // TODO: std::unordered_map<std::string, std::weak_ptr<Sound>> tag_to_sound_map_;
+  std::unordered_map<std::string, std::weak_ptr<Sound::Sound>>
+    tag_to_sound_map_;
   // TODO:  std::unordered_map<std::string, std::weak_ptr<Music>> tag_to_music_map_;
 };
 

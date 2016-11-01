@@ -10,20 +10,25 @@ namespace Jumpman {
 
 ScriptContext::ScriptContext(
   std::shared_ptr<Graphics::Scene> scene,
+  std::shared_ptr<Sound::System> sound_system,
   std::shared_ptr<Input> input,
   const std::string& main_script_filename)
-    : ScriptContext(scene, input) {
+    : ScriptContext(scene, sound_system, input) {
   main_script_ = resource_context_->LoadScript(main_script_filename, "main");
 }
 
 ScriptContext::ScriptContext(
   std::shared_ptr<Graphics::Scene> scene,
+  std::shared_ptr<Sound::System> sound_system,
   std::shared_ptr<Input> input)
     : scene_(scene)
     , scene_root_(new Graphics::SceneObject)
+    , sound_system_(sound_system)
     , input_(input) {
   resource_context_ = std::shared_ptr<ResourceContext>(
-    new ResourceContext(std::bind(&ScriptContext::ScriptFactory, this)));
+    new ResourceContext(
+      sound_system,
+      std::bind(&ScriptContext::ScriptFactory, this)));
   scene_->objects.push_back(scene_root_);
 }
 
@@ -43,7 +48,8 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
     throw std::runtime_error(error_message);
   }
 
-  std::shared_ptr<ScriptContext> result(new ScriptContext(scene_, input_));
+  std::shared_ptr<ScriptContext> result(
+    new ScriptContext(scene_, sound_system_, input_));
 
   const auto leveldata = LevelData::FromStream(levelfile);
   std::shared_ptr<Objects::Level> level = Objects::Level::Load(
@@ -66,7 +72,8 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
     throw std::runtime_error(error_message);
   }
 
-  std::shared_ptr<ScriptContext> result(new ScriptContext(scene_, input_));
+  std::shared_ptr<ScriptContext> result(
+    new ScriptContext(scene_, sound_system_, input_));
 
   const auto leveldata = LevelData::FromStream(modfile);
   std::shared_ptr<Objects::Level> level = Objects::Level::Load(
@@ -138,12 +145,21 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
       , "scene_root", sol::readonly(&ScriptContext::scene_root_)
     );
 
+    using Sound = Sound::Sound;
+
+    jumpman.new_usertype<Sound>("Sound"
+      , "play", [this](Sound& sound) {
+        sound.Play(*this->sound_system_);
+      }
+    );
+
     jumpman.new_usertype<ResourceContext>("ResourceContext"
       , "new", sol::no_constructor
 
       , "find_script", &ResourceContext::FindScript
       , "find_texture", &ResourceContext::FindTexture
       , "find_material", &ResourceContext::FindMaterial
+      , "find_sound", &ResourceContext::FindSound
 
       , "load_mesh", &ResourceContext::LoadMesh
       , "find_mesh", &ResourceContext::FindMesh

@@ -9,8 +9,10 @@
 namespace Jumpman {
 
 ResourceContext::ResourceContext(
+  std::shared_ptr<Sound::System> sound_system,
   ResourceContext::ScriptFactory script_factory)
-    : script_factory_(script_factory) {
+    : sound_system_(sound_system)
+    , script_factory_(script_factory) {
 }
 
 std::shared_ptr<LuaScript> ResourceContext::LoadScript(
@@ -215,6 +217,40 @@ std::shared_ptr<Graphics::TriangleMesh> ResourceContext::FindMesh(
   auto iter = tag_to_mesh_map_.find(tag);
   if (iter == tag_to_mesh_map_.end()) {
     throw std::runtime_error("Failed to find mesh with tag: " + tag);
+  }
+  return iter->second.lock();
+}
+
+std::shared_ptr<Sound::Sound> ResourceContext::LoadSound(
+    const std::string& filename, const std::string& tag) {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Loading sound: " << filename;
+
+  std::ifstream sound_file(filename);
+
+  if (!sound_file) {
+    const std::string error_message = "Failed to open sound file: " + filename;
+    BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
+    throw std::runtime_error(error_message);
+  }
+
+  auto sound = Sound::Sound::FromStream(*sound_system_, sound_file);
+
+  if (!tag.empty()) {
+    tag_to_sound_map_[tag] = sound;
+  }
+
+  sounds_.push_back(sound);
+
+  return sound;
+}
+
+std::shared_ptr<Sound::Sound> ResourceContext::FindSound(
+    const std::string& tag) {
+  auto iter = tag_to_sound_map_.find(tag);
+  if (iter == tag_to_sound_map_.end()) {
+    throw std::runtime_error("Failed to find sound with tag: " + tag);
   }
   return iter->second.lock();
 }

@@ -3,6 +3,7 @@
 #include <OpenGL/gl3.h>
 #include <SDL2/SDL.h>
 #include "engine/graphics/scene.hpp"
+#include "engine/sound/system.hpp"
 #include "engine.hpp"
 #include "input.hpp"
 #include "logging.hpp"
@@ -13,8 +14,9 @@ namespace Jumpman {
 struct Engine::EngineData {
   SDL_Window* main_window = NULL;
   SDL_GLContext gl_context = NULL;
-  std::shared_ptr<Input> input;
   std::shared_ptr<Graphics::Scene> scene;
+  std::shared_ptr<Sound::System> sound_system;
+  std::shared_ptr<Input> input;
   std::shared_ptr<ScriptContext> script_context;
 };
 
@@ -22,8 +24,10 @@ Engine::Engine() : data_(new EngineData) {
 }
 
 Engine::~Engine() {
-  data_->scene.reset();
   data_->script_context.reset();
+  data_->input.reset();
+  data_->sound_system.reset();
+  data_->scene.reset();
   SDL_GL_DeleteContext(data_->gl_context);
   SDL_DestroyWindow(data_->main_window);
   SDL_Quit();
@@ -90,9 +94,11 @@ bool Engine::Initialize() {
   glEnable(GL_CULL_FACE);  // TODO: Should never error?
 
   data_->scene.reset(new Graphics::Scene);
+  data_->sound_system.reset(new Sound::System);
   data_->input.reset(new Input);
   data_->script_context.reset(
-    new ScriptContext(data_->scene, data_->input, "data/script/main.lua"));
+    new ScriptContext(
+      data_->scene, data_->sound_system, data_->input, "data/script/main.lua"));
 
   return true;
 }
