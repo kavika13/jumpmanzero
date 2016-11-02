@@ -1,6 +1,7 @@
 local context = jumpman.resource_context
 local scene = jumpman.scene
 local scene_root = jumpman.scene_root
+local main_music_track_slot = jumpman.main_music_track_slot
 local input = jumpman.input
 local level = jumpman.level
 
@@ -203,7 +204,7 @@ local enter_animate_title = function()
   mod_menu:hide()
   jumpman_title:show()
   zbits:show()
-  title_track:play_once(1800)
+  main_music_track_slot:play_once(title_track, 1750)
   return true
 end
 
@@ -239,6 +240,7 @@ local enter_select_top_menu = function()
 
   top_menu:reset()
   top_menu:show()
+
   return true
 end
 
@@ -286,10 +288,6 @@ local enter_select_mod_menu = function()
   zbits:hide()
   top_menu:hide()
 
-  if title_track.is_playing then
-    title_track:pause()
-  end
-
   if #mod_list.builtin + #mod_list.discovered == 1 then
     mod_menu:advance_state()
     return false
@@ -297,7 +295,9 @@ local enter_select_mod_menu = function()
 
   mod_menu:reset()
   mod_menu:show()
-  mod_menu_track:play_repeating()
+
+  main_music_track_slot:play_repeating(mod_menu_track)
+
   return true
 end
 
@@ -380,6 +380,9 @@ local enter_select_option_menu = function()
   top_menu:hide()
 
   -- TODO: Show options menu
+
+  main_music_track_slot:play_repeating(option_menu_track)
+
   return true
 end
 

@@ -271,7 +271,30 @@ void MusicTrack::Pause(System& system) {
     }
 
     is_playing_ = false;
-    channel_ = nullptr;
+  }
+}
+
+void MusicTrack::Unpause(System& system) {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Sound");
+
+  if (is_playing_) {
+    BOOST_LOG_SEV(log, LogSeverity::kError)
+      << "Tried to unpause track that wasn't playing: " << handle_;
+  } else {
+    if (!channel_) {
+      throw std::runtime_error("Channel was null when unpausing track");
+    }
+
+    FMOD_RESULT result = channel_->setPaused(false);
+
+    if (result != FMOD_OK) {
+      const std::string error_message = std::string("Failed to unpause track: ")
+        + FMOD_ErrorString(result);
+      BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
+      throw std::runtime_error(error_message);
+    }
+
+    is_playing_ = true;
   }
 }
 

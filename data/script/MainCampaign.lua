@@ -1,6 +1,7 @@
 local context = jumpman.resource_context
 local scene = jumpman.scene
 local scene_root = jumpman.scene_root
+local main_music_track_slot = jumpman.main_music_track_slot
 local input = jumpman.input
 local level = jumpman.level
 local mod_data = jumpman.mod_data
@@ -45,10 +46,7 @@ local select_levelset_menu_track = context:find_track("1")
 local enter_select_level_set = function()
   level_set_menu:reset()
   level_set_menu:show()
-  local playing_track = jumpman.MusicTrack.get_current_track()
-  if not playing_track or not playing_track.is_playing then
-    select_levelset_menu_track:play_repeating()
-  end
+  main_music_track_slot:play_repeating(select_levelset_menu_track)
   return true
 end
 
@@ -86,10 +84,7 @@ end
 local enter_run_level_set = function(level_set)
   scene:remove_child(scene_root)
 
-  local playing_track = jumpman.MusicTrack.get_current_track()
-  if playing_track and playing_track.is_playing then
-    playing_track:pause()
-  end
+  main_music_track_slot:stop()
 
   if running_level then
     scene:remove_child(running_level.scene_root)

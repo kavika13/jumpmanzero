@@ -25,6 +25,7 @@ class MusicTrack {
     unsigned int start_at_milliseconds = 0,
     unsigned int repeat_at_milliseconds = 0);
   void Pause(System& system);
+  void Unpause(System& system);
   bool GetIsPlaying() const;
 
   MusicTrack& operator=(const MusicTrack&) = delete;

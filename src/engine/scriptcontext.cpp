@@ -20,17 +20,20 @@ ScriptContext::ScriptContext(
 ScriptContext::ScriptContext(
   std::shared_ptr<Graphics::Scene> scene,
   std::shared_ptr<Sound::System> sound_system,
-  std::shared_ptr<Sound::MusicTrack> current_track,
+  std::shared_ptr<Sound::MusicTrackSlot> main_track_slot,
   std::shared_ptr<Input> input)
     : scene_(scene)
     , scene_root_(new Graphics::SceneObject)
     , sound_system_(sound_system)
-    , current_track_(current_track)
+    , main_track_slot_(main_track_slot)
     , input_(input) {
+  if (!main_track_slot_) {
+    main_track_slot_.reset(new Sound::MusicTrackSlot(sound_system_));
+  }
+
   resource_context_ = std::shared_ptr<ResourceContext>(
     new ResourceContext(
-      sound_system,
-      std::bind(&ScriptContext::ScriptFactory, this)));
+      sound_system, std::bind(&ScriptContext::ScriptFactory, this)));
   scene_->objects.push_back(scene_root_);
 }
 
@@ -51,7 +54,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
   }
 
   std::shared_ptr<ScriptContext> result(
-    new ScriptContext(scene_, sound_system_, current_track_, input_));
+    new ScriptContext(scene_, sound_system_, main_track_slot_, input_));
 
   const auto leveldata = LevelData::FromStream(levelfile);
   std::shared_ptr<Objects::Level> level = Objects::Level::Load(
@@ -75,7 +78,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
   }
 
   std::shared_ptr<ScriptContext> result(
-    new ScriptContext(scene_, sound_system_, current_track_, input_));
+    new ScriptContext(scene_, sound_system_, main_track_slot_, input_));
 
   const auto leveldata = LevelData::FromStream(modfile);
   std::shared_ptr<Objects::Level> level = Objects::Level::Load(
@@ -162,44 +165,41 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
     jumpman.new_usertype<MusicTrack>("MusicTrack"
       , "new", sol::no_constructor
 
-      , "get_current_track", [this]() { return current_track_; }
-
-      , "play_once", sol::overload(
-        [this](std::shared_ptr<MusicTrack> track) {
-          track->PlayOnce(*this->sound_system_);
-          this->current_track_ = track;
-        },
-        [this](
-            std::shared_ptr<MusicTrack> track,
-            unsigned int start_at_milliseconds) {
-          track->PlayOnce(*this->sound_system_, start_at_milliseconds);
-          this->current_track_ = track;
-        })
-      , "play_repeating", sol::overload(
-        [this](std::shared_ptr<MusicTrack> track) {
-          track->PlayRepeating(*this->sound_system_);
-          this->current_track_ = track;
-        },
-        [this](
-            std::shared_ptr<MusicTrack> track,
-            unsigned int start_at_milliseconds) {
-          track->PlayRepeating(*this->sound_system_, start_at_milliseconds);
-          this->current_track_ = track;
-        },
-        [this](
-            std::shared_ptr<MusicTrack> track,
-            unsigned int start_at_milliseconds,
-            unsigned int repeat_at_milliseconds) {
-          track->PlayRepeating(
-            *this->sound_system_,
-            start_at_milliseconds,
-            repeat_at_milliseconds);
-          this->current_track_ = track;
-        })
-      , "pause", [this](MusicTrack& track) {
-        track.Pause(*this->sound_system_);
+      , "pause", [this](std::shared_ptr<MusicTrack> track) {
+        track->Pause(*sound_system_);
+      }
+      , "unpause", [this](std::shared_ptr<MusicTrack> track) {
+        track->Unpause(*sound_system_);
       }
       , "is_playing", sol::property(&MusicTrack::GetIsPlaying)
+    );
+
+    using MusicTrackSlot = Jumpman::Sound::MusicTrackSlot;
+
+    jumpman.new_usertype<MusicTrackSlot>("MusicTrackSlot"
+      , "new", sol::no_constructor
+
+      , "play_once", sol::overload(
+        [](MusicTrackSlot& slot, std::shared_ptr<MusicTrack> track) {
+          slot.PlayOnce(track);
+        },
+        static_cast<void(MusicTrackSlot::*)(
+          std::shared_ptr<MusicTrack>, unsigned int)>(
+            &MusicTrackSlot::PlayOnce))
+      , "play_repeating", sol::overload(
+        [](MusicTrackSlot& slot, std::shared_ptr<MusicTrack> track) {
+          slot.PlayRepeating(track);
+        },
+        [](
+            MusicTrackSlot& slot,
+            std::shared_ptr<MusicTrack> track,
+            unsigned int start_at_milliseconds) {
+          slot.PlayRepeating(track, start_at_milliseconds);
+        },
+        static_cast<void(MusicTrackSlot::*)(
+          std::shared_ptr<MusicTrack>, unsigned int, unsigned int)>(
+            &MusicTrackSlot::PlayRepeating))
+      , "stop", &MusicTrackSlot::Stop
     );
 
     jumpman.new_usertype<ResourceContext>("ResourceContext"
@@ -607,9 +607,10 @@ std::shared_ptr<LuaScript> ScriptContext::ScriptFactory() {
           &glm::mix)));
 
     jumpman.set("resource_context", resource_context_);
-    jumpman.set("input", input_);
     jumpman.set("scene", scene_);
     jumpman.set("scene_root", scene_root_);
+    jumpman.set("main_music_track_slot", main_track_slot_);
+    jumpman.set("input", input_);
   });
 
   return result;

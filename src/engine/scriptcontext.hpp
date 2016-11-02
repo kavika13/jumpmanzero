@@ -6,7 +6,7 @@
 #include "engine/graphics/scene.hpp"
 #include "engine/objects/level.hpp"
 #include "engine/sound/system.hpp"
-#include "engine/sound/musictrack.hpp"
+#include "engine/sound/musictrackslot.hpp"
 #include "input.hpp"
 #include "luascript.hpp"
 #include "moddata.hpp"
@@ -32,7 +32,7 @@ class ScriptContext {
   ScriptContext(
     std::shared_ptr<Graphics::Scene> scene,
     std::shared_ptr<Sound::System> sound_system,
-    std::shared_ptr<Sound::MusicTrack> current_track,
+    std::shared_ptr<Sound::MusicTrackSlot> main_track_slot,
     std::shared_ptr<Input> input);
 
   std::shared_ptr<LuaScript> ScriptFactory();
@@ -40,7 +40,7 @@ class ScriptContext {
   std::shared_ptr<ResourceContext> resource_context_;
   std::shared_ptr<Graphics::Scene> scene_;
   std::shared_ptr<Sound::System> sound_system_;
-  std::shared_ptr<Sound::MusicTrack> current_track_;
+  std::shared_ptr<Sound::MusicTrackSlot> main_track_slot_;
   std::shared_ptr<Graphics::SceneObject> scene_root_;
   std::shared_ptr<Input> input_;
   std::shared_ptr<LuaScript> main_script_;
