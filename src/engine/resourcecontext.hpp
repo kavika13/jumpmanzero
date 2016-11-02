@@ -35,7 +35,9 @@ class ResourceContext {
   std::shared_ptr<LuaScript> FindScript(const std::string& tag);
 
   std::shared_ptr<Graphics::Texture> LoadTexture(
-    const std::string& filename, const std::string& tag);
+    const std::string& filename,
+    const std::string& tag,
+    bool enable_colorkey_alpha = false);
   std::shared_ptr<Graphics::Texture> FindTexture(const std::string& tag);
 
   std::shared_ptr<Graphics::Material> LoadMaterial(

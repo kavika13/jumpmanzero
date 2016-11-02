@@ -30,7 +30,7 @@ class Texture {
 
 class Image {
  public:
-  Image(const std::string& filename);
+  Image(const std::string& filename, bool enable_colorkey_alpha);
   Image(const Image&) = delete;
   Image(Image&&) noexcept;
   ~Image();

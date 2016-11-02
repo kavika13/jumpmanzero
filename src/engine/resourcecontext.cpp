@@ -58,13 +58,15 @@ std::shared_ptr<LuaScript> ResourceContext::FindScript(const std::string& tag) {
 }
 
 std::shared_ptr<Graphics::Texture> ResourceContext::LoadTexture(
-    const std::string& filename, const std::string& tag) {
+    const std::string& filename,
+    const std::string& tag,
+    bool enable_colorkey_alpha) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   // TODO: Check errors, do logging
 
   // TODO: Handle colorkey alpha in texture class
   std::shared_ptr<Graphics::Texture> texture(new Graphics::Texture);
-  Graphics::Image image(filename);
+  Graphics::Image image(filename, enable_colorkey_alpha);
 
   glBindTexture(GL_TEXTURE_2D, *texture);
   SDL_Surface* image_data = image;

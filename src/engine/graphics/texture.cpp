@@ -49,7 +49,7 @@ void Texture::Deallocate() {
   }
 }
 
-Image::Image(const std::string& filename) {
+Image::Image(const std::string& filename, bool enable_colorkey_alpha) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Graphics");
   BOOST_LOG_SEV(log, LogSeverity::kTrace) << "Loading image: " << filename;
 
@@ -60,6 +60,21 @@ Image::Image(const std::string& filename) {
       "Error loading image: " + filename + " - " + IMG_GetError());
     BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
     throw std::runtime_error(error_message);
+  }
+
+  if (enable_colorkey_alpha) {
+		int result = SDL_SetColorKey(
+      loaded_surface,
+      SDL_TRUE,
+      SDL_MapRGB(loaded_surface->format, 0xFF, 0xFF, 0xFF));
+
+    if (result < 0) {
+      SDL_FreeSurface(loaded_surface);
+      std::string error_message(
+        "Error setting colorkey alpha: " + filename + " - " + IMG_GetError());
+      BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
+      throw std::runtime_error(error_message);
+    }
   }
 
   // Ensure we're using RGBA

@@ -18,7 +18,9 @@ Level::ObjectRef<Level> Level::Load(
 
   for (const TextureResourceData& texture_resource: data.textures) {
     resource_context.LoadTexture(
-      texture_resource.filename, texture_resource.tag);
+      texture_resource.filename,
+      texture_resource.tag,
+      texture_resource.has_colorkey_alpha);
   }
 
   for (const MaterialResourceData& material_resource: data.materials) {
