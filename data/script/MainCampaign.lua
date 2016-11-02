@@ -21,7 +21,7 @@ local menu_state = StateMachine.new()
 
 local sky_scroller = MaterialScroller.new(
   context:find_material("0"),
-  jumpman.Vector3.new(-0.025, 0.025, 0))
+  jumpman.Vector3.new(-0.025, -0.025, 0))
 
 local level_set_menu = Menu.new(
     menu_state,
