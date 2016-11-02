@@ -220,7 +220,7 @@ void MusicTrack::PlayRepeating(
       << "Setting loop points: " << handle_;
     result = channel_->setLoopPoints(
       repeat_at_milliseconds, FMOD_TIMEUNIT_MS,
-      track_length, FMOD_TIMEUNIT_PCM);
+      track_length - 1, FMOD_TIMEUNIT_PCM);
 
     if (result != FMOD_OK) {
       const std::string error_message =
