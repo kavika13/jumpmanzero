@@ -1,4 +1,3 @@
-#include <unordered_map>
 #include <vector>
 #include <fmod_errors.h>
 #include "engine/logging.hpp"
@@ -7,8 +6,6 @@
 namespace Jumpman {
 
 namespace Sound {
-
-static std::unordered_map<FMOD::Channel*, MusicTrack*> g_callback_map;
 
 MusicTrack::MusicTrack(
   FMOD::System& system, const char* track_data, size_t track_data_length)
@@ -56,7 +53,7 @@ MusicTrack::MusicTrack(MusicTrack&& other) noexcept
     , handle_(other.handle_)
     , channel_(other.channel_) {
   if (channel_) {
-    g_callback_map[channel_] = this;
+    channel_->setUserData(this);
   }
 
   other.is_playing_ = false;
@@ -119,11 +116,12 @@ void MusicTrack::PlayOnce(System& system, unsigned int start_at_milliseconds) {
     void* commandData1,
     void* commandData2) {
       if (controlType == FMOD_CHANNELCONTROL_CHANNEL) {
-        auto iter = g_callback_map.find(
-          reinterpret_cast<FMOD::Channel*>(chanControl));
+        void* user_data;
+        reinterpret_cast<FMOD::Channel*>(chanControl)->getUserData(&user_data);
+        auto track = reinterpret_cast<MusicTrack*>(user_data);
 
-        if (iter != g_callback_map.end()) {
-          iter->second->Callback(
+        if (track) {
+          track->Callback(
             chanControl,
             controlType,
             callbackType,
@@ -134,7 +132,7 @@ void MusicTrack::PlayOnce(System& system, unsigned int start_at_milliseconds) {
 
       return FMOD_OK;
     };
-  g_callback_map[channel_] = this;
+  channel_->setUserData(this);
   result = channel_->setCallback(callback);
 
   if (result != FMOD_OK) {
@@ -310,7 +308,7 @@ MusicTrack& MusicTrack::operator=(MusicTrack&& other) noexcept {
   is_playing_ = other.is_playing_;
 
   if (channel_) {
-    g_callback_map[channel_] = this;
+    channel_->setUserData(this);
   }
 
   other.is_playing_ = false;
@@ -327,7 +325,7 @@ FMOD_RESULT F_CALLBACK MusicTrack::Callback(
     void* commandData1,
     void* commandData2) {
   if (callbackType == FMOD_CHANNELCONTROL_CALLBACK_END) {
-    g_callback_map[channel_] = nullptr;
+    channel_->setUserData(nullptr);
     is_playing_ = false;
     channel_ = nullptr;
   }
@@ -351,7 +349,7 @@ void MusicTrack::Deallocate() noexcept {
   }
 
   if (channel_) {
-    g_callback_map[channel_] = nullptr;
+    channel_->setUserData(nullptr);
   }
 }
 
