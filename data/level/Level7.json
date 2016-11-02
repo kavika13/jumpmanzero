@@ -1939,9 +1939,9 @@
 				"tag" : "5"
 			},
 			{
-				"filename" : "data/texture/clockface.bmp",
+				"filename" : "data/texture/clockface.png",
 				"hasAlphaChannel" : true,
-				"hasColorkeyAlpha" : true,
+				"hasColorkeyAlpha" : false,
 				"tag" : "6"
 			},
 			{
@@ -1963,9 +1963,9 @@
 				"tag" : "9"
 			},
 			{
-				"filename" : "data/texture/StopWatch.bmp",
+				"filename" : "data/texture/StopWatch.png",
 				"hasAlphaChannel" : true,
-				"hasColorkeyAlpha" : true,
+				"hasColorkeyAlpha" : false,
 				"tag" : "10"
 			}
 		]

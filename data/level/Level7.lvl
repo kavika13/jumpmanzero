@@ -12,14 +12,14 @@ R chomp 7 0
 R bonk 7 0
 R ClockHand 2 0
 R Black 3 0
-R clockface 3 1
+R clockface 6 0 1
 R PauseWave 5 2
 R Wave 2 0
 R Sea 2 0
 R wave2 3 1
 R wave1 3 1
 R sea 3 0
-R StopWatch 3 1
+R StopWatch 6 0 1
 O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 200 80 1 0 255 200 80 0 1 -100 -140 80 1 1 255 -140 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 1 4
 O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 3 145 0 0 0 67 145 0 0 0 3 142 0 0 0 67 142 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 11 1
 O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 118 148 0 0 0 158 148 0 0 0 118 145 0 0 0 158 145 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 11 1
