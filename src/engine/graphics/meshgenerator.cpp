@@ -182,52 +182,52 @@ void MeshGenerator::AddSkewedCube(
 
   if (drawtop) {
     AddPretexturedQuad(
-      AppendTexCoord(left_top_back, 0.0f, 1.0f),
-      AppendTexCoord(right_top_back, top_right_tu, 1.0f),
-      AppendTexCoord(left_top_front, 0.0f, 0.5f),
-      AppendTexCoord(right_top_front, top_right_tu, 0.5f));
+      AppendTexCoord(left_top_back, 0.0f, 0.5f),
+      AppendTexCoord(right_top_back, top_right_tu, 0.5f),
+      AppendTexCoord(left_top_front, 0.0f, 0.0f),
+      AppendTexCoord(right_top_front, top_right_tu, 0.0f));
   }
 
   if (drawbottom) {
     AddPretexturedQuad(
-      AppendTexCoord(left_bottom_front, 0.0f, 1.0f),
-      AppendTexCoord(right_bottom_front, top_right_tu, 1.0f),
-      AppendTexCoord(left_bottom_back, 0.0f, 0.5f),
-      AppendTexCoord(right_bottom_back, top_right_tu, 0.5f));
+      AppendTexCoord(left_bottom_front, 0.0f, 0.5f),
+      AppendTexCoord(right_bottom_front, top_right_tu, 0.5f),
+      AppendTexCoord(left_bottom_back, 0.0f, 0.0f),
+      AppendTexCoord(right_bottom_back, top_right_tu, 0.0f));
   }
 
   if (drawleft) {
     AddPretexturedQuad(
       // TODO: Project texture with vertical scale?
-      AppendTexCoord(left_top_back, 0.0f, 1.0f),
-      AppendTexCoord(left_top_front, bottom_left_tu, 1.0f),
-      AppendTexCoord(left_bottom_back, 0.0f, 0.5f),
-      AppendTexCoord(left_bottom_front, bottom_left_tu, 0.5f));
+      AppendTexCoord(left_top_back, 0.0f, 0.5f),
+      AppendTexCoord(left_top_front, bottom_left_tu, 0.5f),
+      AppendTexCoord(left_bottom_back, 0.0f, 0.0f),
+      AppendTexCoord(left_bottom_front, bottom_left_tu, 0.0f));
   }
 
   if (drawright) {
     AddPretexturedQuad(
       // TODO: Project texture with vertical scale?
-      AppendTexCoord(right_top_front, 0.0f, 1.0f),
-      AppendTexCoord(right_top_back, bottom_right_tu, 1.0f),
-      AppendTexCoord(right_bottom_front, 0.0f, 0.5f),
-      AppendTexCoord(right_bottom_back, bottom_right_tu, 0.5f));
+      AppendTexCoord(right_top_front, 0.0f, 0.5f),
+      AppendTexCoord(right_top_back, bottom_right_tu, 0.5f),
+      AppendTexCoord(right_bottom_front, 0.0f, 0.0f),
+      AppendTexCoord(right_bottom_back, bottom_right_tu, 0.0f));
   }
 
   if (drawfront) {
     AddPretexturedQuad(
-      AppendTexCoord(left_top_front, 0.0f, 0.5f),
-      AppendTexCoord(right_top_front, top_right_tu, 0.5f),
-      AppendTexCoord(left_bottom_front, bottom_left_tu, 0.0f),
-      AppendTexCoord(right_bottom_front, bottom_right_tu, 0.0f));
+      AppendTexCoord(left_top_front, 0.0f, 1.0f),
+      AppendTexCoord(right_top_front, top_right_tu, 1.0f),
+      AppendTexCoord(left_bottom_front, bottom_left_tu, 0.5f),
+      AppendTexCoord(right_bottom_front, bottom_right_tu, 0.5f));
   }
 
   if (drawback) {
     AddPretexturedQuad(
-      AppendTexCoord(right_top_back, top_right_tu, 0.5f),
-      AppendTexCoord(left_top_back, 0.0f, 0.5f),
-      AppendTexCoord(right_bottom_back, bottom_right_tu, 0.0f),
-      AppendTexCoord(left_bottom_back, bottom_left_tu, 0.0f));
+      AppendTexCoord(right_top_back, top_right_tu, 1.0f),
+      AppendTexCoord(left_top_back, 0.0f, 1.0f),
+      AppendTexCoord(right_bottom_back, bottom_right_tu, 0.5f),
+      AppendTexCoord(left_bottom_back, bottom_left_tu, 0.5f));
   }
 }
 

@@ -12,7 +12,7 @@ QuadMeshGenerator::QuadMeshGenerator(
   const Vertex v2 = generator.ConvertVertex(data.vertices[2]);
   const Vertex v3 = generator.ConvertVertex(data.vertices[3]);
 
-  generator.AddQuad(v0, v1, v2, v3);
+  generator.AddPretexturedQuad(v0, v1, v2, v3);
 }
 
 };  // namespace Jumpman

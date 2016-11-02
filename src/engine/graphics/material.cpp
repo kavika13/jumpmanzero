@@ -22,13 +22,9 @@ void Material::Activate(const Material* previous_material) {
       || previous_material->shader_program_ != shader_program_) {
     glUseProgram(*shader_program_);
 
-    // Accomodate that textures have down == y coordinate space
-    glm::mat4 texture_transform_matrix =
-      glm::scale(glm::vec3(1.0f, -1.0f, 1.0f))
-      * texture_transform.GetWorldToLocalMatrix();
     glUniformMatrix4fv(
       texture_transform_matrix_param_, 1,
-      GL_FALSE, glm::value_ptr(texture_transform_matrix));
+      GL_FALSE, glm::value_ptr(texture_transform.GetWorldToLocalMatrix()));
 
     for (auto& pair: matrix_parameters_) {
       glUniformMatrix4fv(
