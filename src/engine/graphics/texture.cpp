@@ -44,7 +44,7 @@ void Texture::Deallocate() {
 
   if (handle_) {
     BOOST_LOG_SEV(log, LogSeverity::kDebug)
-      << "Destorying texture: " << handle_;
+      << "Destroying texture: " << handle_;
     glDeleteTextures(1, &handle_);
   }
 }
@@ -102,7 +102,7 @@ void Image::Deallocate() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Graphics");
 
   if (handle_) {
-    BOOST_LOG_SEV(log, LogSeverity::kTrace) << "Destorying image: " << handle_;
+    BOOST_LOG_SEV(log, LogSeverity::kTrace) << "Destroying image: " << handle_;
     SDL_FreeSurface(handle_);
   }
 }
