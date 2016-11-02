@@ -1,6 +1,7 @@
 local context = jumpman.resource_context
 local scene = jumpman.scene
 local scene_root = jumpman.scene_root
+local main_music_track_slot = jumpman.main_music_track_slot
 local input = jumpman.input
 local level = jumpman.level
 
@@ -10,11 +11,16 @@ local camera = scene.camera
 camera.transform:set_translation(80, 80 + 40, -115)
 camera.transform:look_at(80, 80, 0)
 
+local background_track = context:find_track(level.background_track_tag)
+
+main_music_track_slot:play_repeating(background_track, 0, 4000)
+
 function update(elapsed_seconds)
   input:activate_action_set("GameControls")
 
   -- TODO: Remove these temporary testing controls
   if input:get_digital_action_state("toggle_menu").was_just_pressed then
+    background_track:pause()
     return false
   end
 
