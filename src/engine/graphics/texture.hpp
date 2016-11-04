@@ -20,12 +20,16 @@ class Texture {
   Texture& operator=(const Texture&) = delete;
   Texture& operator=(Texture&&) noexcept;
 
+  bool GetIsAlphaBlendingEnabled() const;
+  void SetIsAlphaBlendingEnabled(bool value);
+
   operator GLuint() const;
 
  private:
   void Deallocate();
 
   GLuint handle_;
+  bool is_alpha_blending_enabled_;
 };
 
 class Image {

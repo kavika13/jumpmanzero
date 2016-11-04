@@ -60,17 +60,21 @@ std::shared_ptr<LuaScript> ResourceContext::FindScript(const std::string& tag) {
 std::shared_ptr<Graphics::Texture> ResourceContext::LoadTexture(
     const std::string& filename,
     const std::string& tag,
-    bool enable_colorkey_alpha) {
+    bool enable_colorkey_alpha,
+    bool enable_alpha_blending) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   // TODO: Check errors, do logging
 
-  // TODO: Handle colorkey alpha in texture class
+  // TODO: Move implementation to Texture class
   std::shared_ptr<Graphics::Texture> texture(new Graphics::Texture);
+  texture->SetIsAlphaBlendingEnabled(enable_alpha_blending);
+
   Graphics::Image image(filename, enable_colorkey_alpha);
 
   glBindTexture(GL_TEXTURE_2D, *texture);
   SDL_Surface* image_data = image;
 
+  // TODO: Different filter functions?
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 

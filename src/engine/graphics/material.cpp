@@ -9,6 +9,8 @@ namespace Graphics {
 Material::Material(std::shared_ptr<ShaderProgram> shader_program) noexcept
     : shader_program_(shader_program)
     , current_texture_param_(*shader_program, "current_texture")
+    , is_alpha_test_enabled_param_(*shader_program, "is_alpha_test_enabled")
+    , alpha_test_threshold_param_(*shader_program, "alpha_test_threshold")
     , texture_transform_matrix_param_(
         *shader_program, "texture_transform_matrix")
     , wvp_matrix_param_(*shader_program, "wvp_matrix")
@@ -17,10 +19,19 @@ Material::Material(std::shared_ptr<ShaderProgram> shader_program) noexcept
         *shader_program, "transpose_world_to_local_matrix") {
 }
 
-void Material::Activate(const Material* previous_material) {
+void Material::Activate(
+    const Material* previous_material, bool is_transparent_pass) {
   if (!previous_material
       || previous_material->shader_program_ != shader_program_) {
     glUseProgram(*shader_program_);
+
+    glUniform1i(
+      is_alpha_test_enabled_param_,
+      texture_->GetIsAlphaBlendingEnabled() && !is_transparent_pass);
+
+    if (!is_transparent_pass) {
+      glUniform1f(alpha_test_threshold_param_, 1.0f);
+    }
 
     glUniformMatrix4fv(
       texture_transform_matrix_param_, 1,

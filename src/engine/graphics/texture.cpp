@@ -6,7 +6,8 @@ namespace Jumpman {
 
 namespace Graphics {
 
-Texture::Texture() {
+Texture::Texture()
+    : is_alpha_blending_enabled_(false) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Graphics");
   BOOST_LOG_SEV(log, LogSeverity::kTrace) << "Creating texture";
 
@@ -33,6 +34,14 @@ Texture& Texture::operator=(Texture&& other) noexcept {
   handle_ = other.handle_;
   other.handle_ = 0;
   return *this;
+}
+
+bool Texture::GetIsAlphaBlendingEnabled() const {
+  return is_alpha_blending_enabled_;
+}
+
+void Texture::SetIsAlphaBlendingEnabled(bool value) {
+  is_alpha_blending_enabled_ = value;
 }
 
 Texture::operator GLuint() const {

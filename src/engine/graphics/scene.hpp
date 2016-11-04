@@ -18,7 +18,8 @@ struct MeshComponent {
   void Draw(
     const glm::mat4& wvp_matrix,
     Transform& tranform,
-    const Material* previous_material);
+    const Material* previous_material,
+    bool is_transparent_pass);
 
   std::shared_ptr<TriangleMesh> mesh;
   std::shared_ptr<Material> material;

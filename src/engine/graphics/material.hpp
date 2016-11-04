@@ -19,7 +19,7 @@ class Material {
  public:
   Material(std::shared_ptr<ShaderProgram>) noexcept;
 
-  void Activate(const Material* previous_material);
+  void Activate(const Material* previous_material, bool is_transparent_pass);
 
   void SetTexture(std::shared_ptr<Texture>) noexcept;
   std::shared_ptr<Texture> GetTexture() noexcept;
@@ -39,6 +39,8 @@ class Material {
   std::shared_ptr<ShaderProgram> shader_program_;
   std::shared_ptr<Texture> texture_;
   ShaderUniformParameter current_texture_param_;
+  ShaderUniformParameter is_alpha_test_enabled_param_;
+  ShaderUniformParameter alpha_test_threshold_param_;
   ShaderUniformParameter texture_transform_matrix_param_;
   ShaderUniformParameter wvp_matrix_param_;
   ShaderUniformParameter local_to_world_matrix_param_;

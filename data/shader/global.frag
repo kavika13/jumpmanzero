@@ -15,6 +15,8 @@ struct Material {
 };
 
 uniform sampler2D current_texture;
+uniform bool is_alpha_test_enabled = false;
+uniform float alpha_test_threshold = 1.0;
 uniform mat4 texture_transform_matrix = mat4(1.0);
 
 uniform PointLight pointlight0 = PointLight(  // TODO: Bind from scene
@@ -35,6 +37,14 @@ in vec3 unscaled_normal_v;  // Model transform's scale undone
 out vec4 color;
 
 void main() {
+  vec4 texture_color = texture(
+    current_texture,
+    vec2(texture_transform_matrix * vec4(tex_coord_v, 1.0, 1.0)));
+
+  if (is_alpha_test_enabled && texture_color.a < alpha_test_threshold) {
+    discard;
+  }
+
   vec3 ambient_color = pointlight0.ambient_intensity
     * material.ambient_reflection;
 
@@ -42,10 +52,6 @@ void main() {
   vec3 uninterpolated_normal = normalize(unscaled_normal_v);
   vec3 diffuse_color = max(dot(uninterpolated_normal, light_direction), 0.0)
     * pointlight0.diffuse_intensity * material.diffuse_reflection;
-
-  vec4 texture_color = texture(
-    current_texture,
-    vec2(texture_transform_matrix * vec4(tex_coord_v, 1.0, 1.0)));
 
   // TODO: specular_color
 
