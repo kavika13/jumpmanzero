@@ -135,8 +135,8 @@ struct VineObjectData {
   const float origin_x, top_y, bottom_y, front_z;
 };
 
-bool operator==(const LadderObjectData& lhs, const LadderObjectData& rhs);
-std::ostream& operator<<(std::ostream& stream, const LadderObjectData& val);
+bool operator==(const VineObjectData& lhs, const VineObjectData& rhs);
+std::ostream& operator<<(std::ostream& stream, const VineObjectData& val);
 
 struct LevelData {
   static LevelData FromStream(std::istream& stream);
