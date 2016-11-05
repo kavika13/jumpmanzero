@@ -13,7 +13,12 @@ ScriptContext::ScriptContext(
   std::shared_ptr<Sound::System> sound_system,
   std::shared_ptr<Input> input,
   const std::string& main_script_filename)
-    : ScriptContext(scene, sound_system, nullptr, input) {
+    : ScriptContext(
+        scene,
+        sound_system,
+        std::shared_ptr<Sound::MusicTrackSlot>(
+          new Sound::MusicTrackSlot(sound_system)),
+        input) {
   main_script_ = resource_context_->LoadScript(main_script_filename, "main");
 }
 
@@ -27,10 +32,6 @@ ScriptContext::ScriptContext(
     , sound_system_(sound_system)
     , main_track_slot_(main_track_slot)
     , input_(input) {
-  if (!main_track_slot_) {
-    main_track_slot_.reset(new Sound::MusicTrackSlot(sound_system_));
-  }
-
   resource_context_ = std::shared_ptr<ResourceContext>(
     new ResourceContext(
       sound_system, std::bind(&ScriptContext::ScriptFactory, this)));
