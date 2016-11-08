@@ -1,4 +1,3 @@
-#include <unordered_map>
 #include "leveldata.hpp"
 #include "leveldataserialization.hpp"
 #include "logging.hpp"
@@ -170,7 +169,6 @@ std::ostream& operator<<(std::ostream& stream, const LevelData& data) {
   BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Writing level data to stream";
 
   Json::Value root_node = SerializeLevelData(data);
-
   stream << root_node;
 
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
