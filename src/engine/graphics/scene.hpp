@@ -2,6 +2,7 @@
 #define ENGINE_GRAPHICS_SCENE_HPP_
 
 #include <memory>
+#include <ostream>
 #include <vector>
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/mat4x4.hpp>
@@ -21,11 +22,15 @@ struct MeshComponent {
     const Material* previous_material,
     bool is_transparent_pass);
 
+  friend std::ostream& operator<<(std::ostream&, const MeshComponent&);
+
   std::shared_ptr<TriangleMesh> mesh;
   std::shared_ptr<Material> material;
 };
 
 struct SceneObject {
+  friend std::ostream& operator<<(std::ostream&, const SceneObject&);
+
   bool is_enabled = true;
   Transform transform;
   std::shared_ptr<MeshComponent> mesh_component;
@@ -34,6 +39,8 @@ struct SceneObject {
 
 struct Scene {
   void Draw(double time_since_last_frame);
+
+  friend std::ostream& operator<<(std::ostream&, const Scene&);
 
   // TODO: Support multiple cameras, one active
   ProjectionCamera camera;

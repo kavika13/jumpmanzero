@@ -1,6 +1,7 @@
 #ifndef ENGINE_GRAPHICS_TRANSFORM_HPP_
 #define ENGINE_GRAPHICS_TRANSFORM_HPP_
 
+#include <ostream>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -34,6 +35,8 @@ class Transform {
 
   const glm::mat4& GetLocalToWorldMatrix();
   const glm::mat4& GetWorldToLocalMatrix();
+
+  friend std::ostream& operator<<(std::ostream&, const Transform&);
 
  private:
   void RecalculateMatrices();

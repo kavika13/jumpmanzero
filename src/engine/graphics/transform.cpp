@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include "transform.hpp"
 
@@ -118,6 +119,15 @@ void Transform::RecalculateMatrices() {
     * glm::scale(scale_);
   world_to_local_matrix_ = glm::inverse(local_to_world_matrix_);
   are_matrices_dirty_ = false;
+}
+
+std::ostream& operator<<(std::ostream& stream, const Transform& transform) {
+  return stream
+    << "Transform("
+    << "translation: " << glm::to_string(transform.translation_)
+    << ", orientation: " << glm::to_string(transform.orientation_)
+    << ", scale: " << glm::to_string(transform.scale_)
+    << ")";
 }
 
 };  // namespace Graphics

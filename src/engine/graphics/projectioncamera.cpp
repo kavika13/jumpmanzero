@@ -76,6 +76,16 @@ void ProjectionCamera::RecalculateProjectionMatrix() {
   is_projection_matrix_dirty_ = false;
 }
 
+std::ostream& operator<<(std::ostream& stream, const ProjectionCamera& camera) {
+  return stream
+    << "ProjectionCamera("
+    << "field_of_view_in_radians: " << camera.field_of_view_in_radians_
+    << ", aspect_ratio: " << camera.aspect_ratio_
+    << ", near_clip_plane_distance: " << camera.near_clip_plane_distance_
+    << ", far_clip_plane_distance: " << camera.far_clip_plane_distance_
+    << ")";
+}
+
 };  // namespace Graphics
 
 };  // namespace Jumpman

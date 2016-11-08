@@ -1,6 +1,7 @@
 #ifndef ENGINE_GRAPHICS_PROJECTIONCAMERA_HPP_
 #define ENGINE_GRAPHICS_PROJECTIONCAMERA_HPP_
 
+#include <ostream>
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/mat4x4.hpp>
 #include "transform.hpp"
@@ -30,6 +31,8 @@ class ProjectionCamera {
   const glm::mat4& GetWorldToCameraMatrix();
 
   Transform transform;
+
+  friend std::ostream& operator<<(std::ostream&, const ProjectionCamera&);
 
  private:
   void RecalculateProjectionMatrix();

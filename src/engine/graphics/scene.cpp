@@ -33,6 +33,24 @@ void MeshComponent::Draw(
   mesh->Draw();
 }
 
+std::ostream& operator<<(std::ostream& stream, const MeshComponent& object) {
+  return stream
+    << "MeshComponent("
+    << "mesh: " << (object.mesh ? object.mesh.get() : nullptr)
+    << ", material: " << (object.material ? object.material.get() : nullptr)
+    << ")";
+}
+
+std::ostream& operator<<(std::ostream& stream, const SceneObject& object) {
+  return stream
+    << "SceneObject("
+    << "is_enabled: " << object.is_enabled
+    << ", transform: " << object.transform
+    << ", mesh_component: " << object.mesh_component
+    << ", children_count: " << object.children.size()
+    << ")";
+}
+
 void Scene::Draw(double time_since_last_frame) {
   std::stack<glm::mat4> matrix_stack({
     camera.GetProjectionMatrix() * camera.GetWorldToCameraMatrix()
@@ -88,6 +106,14 @@ void Scene::Draw(double time_since_last_frame) {
   }
 
   glDepthMask(GL_TRUE);
+}
+
+std::ostream& operator<<(std::ostream& stream, const Scene& scene) {
+  return stream
+    << "Scene("
+    << "camera: " << scene.camera
+    << "objects_count: " << scene.objects.size()
+    << ")";
 }
 
 };  // namespace Graphics
