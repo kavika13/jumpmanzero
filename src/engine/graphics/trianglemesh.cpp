@@ -6,8 +6,9 @@ namespace Jumpman {
 
 namespace Graphics {
 
-TriangleMesh::TriangleMesh(const void* buffer_data, size_t buffer_size)
-    : triangle_count_(buffer_size)
+TriangleMesh::TriangleMesh(
+  size_t vertex_count, const void* buffer_data, size_t buffer_size)
+    : vertex_count_(vertex_count)
     , vertex_buffer_(buffer_data, buffer_size)
     , vertex_array_([&]() {
       GLuint index = 0;
@@ -37,7 +38,7 @@ TriangleMesh::TriangleMesh(const void* buffer_data, size_t buffer_size)
 
 void TriangleMesh::Draw() noexcept {
   glBindVertexArray(vertex_array_);
-  glDrawArrays(GL_TRIANGLES, 0, triangle_count_);
+  glDrawArrays(GL_TRIANGLES, 0, vertex_count_);
 }
 
 };  // namespace Graphics

@@ -20,13 +20,16 @@ class TriangleMesh {
  public:
   template <typename T, size_t N>
   explicit TriangleMesh(T buffer_data[N])
-      : TriangleMesh(buffer_data, N * sizeof(T)) {
+      : TriangleMesh(N, buffer_data, N * sizeof(T)) {
     static_assert(N % 3 == 0, "Vertex count is not divisible by three");
   }
 
   template <typename T>
   explicit TriangleMesh(std::vector<T> buffer_data)
-      : TriangleMesh(&buffer_data[0], buffer_data.size() * sizeof(T)) {
+      : TriangleMesh(
+          buffer_data.size(),
+          &buffer_data[0],
+          buffer_data.size() * sizeof(T)) {
     if (buffer_data.size() % 3 != 0) {
       throw std::runtime_error("Vertex count is not divisible by three");
     }
@@ -35,9 +38,10 @@ class TriangleMesh {
   void Draw() noexcept;
 
  private:
-  TriangleMesh(const void* buffer_data, size_t buffer_size);
+  TriangleMesh(
+    size_t vertex_count, const void* buffer_data, size_t buffer_size);
 
-  const size_t triangle_count_;
+  const size_t vertex_count_;
   VertexBuffer vertex_buffer_;
   VertexArray vertex_array_;
 };
