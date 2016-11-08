@@ -360,6 +360,7 @@ local run_mod = function(elapsed_seconds)
     scene_root.is_enabled = true
     -- Call update to let mod hide sub-UI - TODO: Make it so it doesn't have to?
     running_mod:update(elapsed_seconds)
+    running_mod = nil
     menu_state:enter("SelectingTopMenu")  -- TODO: Different menu while in mod?
     return true
   end

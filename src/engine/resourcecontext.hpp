@@ -10,29 +10,12 @@
 #include "engine/sound/musictrack.hpp"
 #include "engine/sound/sound.hpp"
 #include "engine/sound/system.hpp"
-#include "luascript.hpp"
 
 namespace Jumpman {
 
 class ResourceContext {
  public:
-  using ScriptFactory = std::function<std::shared_ptr<LuaScript>()>;
-
-  ResourceContext(
-    std::shared_ptr<Sound::System> sound_system, ScriptFactory script_factory);
-
-  std::shared_ptr<LuaScript> LoadScript(
-    const std::string& filename, const std::string& tag);
-  std::shared_ptr<LuaScript> LoadScript(
-    std::function<void(sol::state&)> add_bindings_for_main_script,
-    const std::string& filename,
-    const std::string& tag);
-  std::shared_ptr<LuaScript> LoadScripts(
-    const std::vector<std::string>& script_dependency_filenames,
-    std::function<void(sol::state&)> add_bindings_for_main_script,
-    const std::string& main_script_filename,
-    const std::string& tag);
-  std::shared_ptr<LuaScript> FindScript(const std::string& tag);
+  ResourceContext(std::shared_ptr<Sound::System> sound_system);
 
   std::shared_ptr<Graphics::Texture> LoadTexture(
     const std::string& filename,
@@ -64,16 +47,13 @@ class ResourceContext {
 
  private:
   std::shared_ptr<Sound::System> sound_system_;
-  const ScriptFactory script_factory_;
 
-  std::vector<std::shared_ptr<LuaScript>> scripts_;
   std::vector<std::shared_ptr<Graphics::Texture>> textures_;
   std::vector<std::shared_ptr<Graphics::Material>> materials_;
   std::vector<std::shared_ptr<Graphics::TriangleMesh>> meshes_;
   std::vector<std::shared_ptr<Sound::Sound>> sounds_;
   std::vector<std::shared_ptr<Sound::MusicTrack>> music_tracks_;
 
-  std::unordered_map<std::string, std::weak_ptr<LuaScript>> tag_to_script_map_;
   std::unordered_map<std::string, std::weak_ptr<Graphics::Texture>>
     tag_to_texture_map_;
   std::unordered_map<std::string, std::weak_ptr<Graphics::Material>>

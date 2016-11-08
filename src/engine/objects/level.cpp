@@ -12,7 +12,6 @@ Level::Level(const LevelData& data)
 
 Level::ObjectRef<Level> Level::Load(
     const LevelData& data,
-    std::function<void(sol::state&)> add_bindings_for_main_script,
     ResourceContext& resource_context) {
   Level::ObjectRef<Level> result(new Level(data));
 
@@ -123,30 +122,7 @@ Level::ObjectRef<Level> Level::Load(
     }
   }
 
-  // Loading scripts last so it can reference resources on initialization
-  std::vector<std::string> script_dependency_filenames;
-  script_dependency_filenames.reserve(data.scripts.size());
-
-  for (const ScriptResourceData& script: data.scripts) {
-    if (script.tag != data.main_script_tag) {
-      script_dependency_filenames.push_back(script.filename);
-    }
-  }
-
-  result->main_script_ = resource_context.LoadScripts(
-    script_dependency_filenames,
-    [&result, &add_bindings_for_main_script](sol::state& state) {
-      state["jumpman"]["level"] = result;
-      add_bindings_for_main_script(state);
-    },
-    data.main_script_filename,
-    data.main_script_tag);
-
   return result;
-}
-
-Level::ObjectRef<LuaScript> Level::GetMainScript() {
-  return main_script_;
 }
 
 size_t Level::NumQuads() const {

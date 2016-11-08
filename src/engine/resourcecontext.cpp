@@ -8,53 +8,8 @@
 
 namespace Jumpman {
 
-ResourceContext::ResourceContext(
-  std::shared_ptr<Sound::System> sound_system,
-  ResourceContext::ScriptFactory script_factory)
-    : sound_system_(sound_system)
-    , script_factory_(script_factory) {
-}
-
-std::shared_ptr<LuaScript> ResourceContext::LoadScript(
-    const std::string& filename, const std::string& tag) {
-  return LoadScripts(
-    std::vector<std::string>(), [](sol::state&){ }, filename, tag);
-}
-
-std::shared_ptr<LuaScript> ResourceContext::LoadScript(
-    std::function<void(sol::state&)> add_bindings_for_main_script,
-    const std::string& filename,
-    const std::string& tag) {
-  return LoadScripts(
-    std::vector<std::string>(), add_bindings_for_main_script, filename, tag);
-}
-
-std::shared_ptr<LuaScript> ResourceContext::LoadScripts(
-    const std::vector<std::string>& script_dependency_filenames,
-    std::function<void(sol::state&)> add_bindings_for_main_script,
-    const std::string& main_script_filename,
-    const std::string& tag) {
-  std::shared_ptr<LuaScript> script = script_factory_();
-
-  for (auto script_filename: script_dependency_filenames) {
-    script->LoadScript(script_filename);
-  }
-
-  script->AddState(add_bindings_for_main_script);
-  script->LoadScript(main_script_filename);
-
-  scripts_.push_back(script);
-  tag_to_script_map_[tag] = script;
-
-  return script;
-}
-
-std::shared_ptr<LuaScript> ResourceContext::FindScript(const std::string& tag) {
-  auto iter = tag_to_script_map_.find(tag);
-  if (iter == tag_to_script_map_.end()) {
-    throw std::runtime_error("Failed to find script with tag: " + tag);
-  }
-  return iter->second.lock();
+ResourceContext::ResourceContext(std::shared_ptr<Sound::System> sound_system)
+    : sound_system_(sound_system) {
 }
 
 std::shared_ptr<Graphics::Texture> ResourceContext::LoadTexture(

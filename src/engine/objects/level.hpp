@@ -27,14 +27,11 @@ class Level {
 
   static ObjectRef<Level> Load(
     const LevelData& data,
-    std::function<void(sol::state&)> add_bindings_for_main_script,
     ResourceContext& resource_context);
 
   const std::string background_track_tag;
   const std::string death_track_tag;
   const std::string end_level_track_tag;
-
-  ObjectRef<LuaScript> GetMainScript();
 
   size_t NumQuads() const;
   size_t NumDonuts() const;
@@ -62,8 +59,6 @@ class Level {
 
   template <typename T>
   using TagObjectMap = std::unordered_map<std::string, std::weak_ptr<T>>;
-
-  ObjectRef<LuaScript> main_script_;
 
   ObjectContainer<QuadObject> quads_;
   ObjectContainer<DonutObject> donuts_;
