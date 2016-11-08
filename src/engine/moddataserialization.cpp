@@ -10,25 +10,34 @@ ModData DeserializeModData(const Json::Value& root_node, sol::state& state) {
 
   ResourceData resource_data = DeserializeResourceData(root_node);
 
-  // TODO: Convert dynamically
-  sol::table custom_data = state.create_table();
-  Json::Value data_node = root_node["data"];
+  std::function<sol::object(const Json::Value&)> convert_node =
+    [&state, &convert_node](const Json::Value& node) -> sol::object {
+      if (node.isNull()) {
+        return sol::make_object(state, sol::nil);
+      } else if (node.isArray()) {
+        sol::table result = state.create_table();
+        for (auto& sub_node: node) {
+          result.add(convert_node(sub_node));
+        }
+        return result;
+      } else if (node.isObject()) {
+        sol::table result = state.create_table();
+        for (auto& key: node.getMemberNames()) {
+          result.set(key, convert_node(node[key]));
+        }
+        return result;
+      } else if (node.isBool()) {
+        return sol::make_object(state, node.asBool());
+      } else if (node.isNumeric()) {
+        return sol::make_object(state, node.asDouble());
+      } else if (node.isString()) {
+        return sol::make_object(state, node.asString());
+      } else {
+        throw std::runtime_error("Unrecognized json type");
+      }
+    };
 
-  for (const auto& leveset_node: data_node) {
-    sol::table levelset_table = state.create_table();
-    levelset_table["title"] = leveset_node["title"].asString();
-
-    sol::table levels_table = state.create_table();
-    for (const auto& level_node: leveset_node["levels"]) {
-      sol::table level_table = state.create_table();
-      level_table["filename"] = level_node["filename"].asString();
-      level_table["title"] = level_node["title"].asString();
-      levels_table.add(level_table);
-    }
-    levelset_table["levels"] = levels_table;
-
-    custom_data.add(levelset_table);
-  }
+  sol::object custom_data = convert_node(root_node["data"]);
 
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
     << "Finished reading level data from json";
