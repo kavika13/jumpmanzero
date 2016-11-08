@@ -1,10 +1,10 @@
 #include <fstream>
 #include <string>
-#include "engine/moddata.hpp"
+#include "engine/modlistdata.hpp"
 #include "catch.hpp"
 
-using ModData = Jumpman::ModData;
-using ModList = Jumpman::ModList;
+using ModListItemData = Jumpman::ModListItemData;
+using ModListData = Jumpman::ModListData;
 
 SCENARIO ("load mod file and verify there are no errors",
           "[resourceloading]") {
@@ -15,12 +15,11 @@ SCENARIO ("load mod file and verify there are no errors",
     std::ifstream mod_file(mod_filename);
 
     WHEN ("the load is done") {
-      auto data = ModData::FromStream(mod_file, mod_filename);
+      auto data = ModListItemData::FromStream(mod_file, mod_filename);
 
       THEN ("correct data to have been parsed") {
         REQUIRE ("Campaign" == data.title);
         REQUIRE ("data/mod/maincampaign.json" == data.filename);
-        REQUIRE (3 == data.data.size());
       }
     }
   }
@@ -35,14 +34,13 @@ SCENARIO ("load mod list and verify there are no errors",
     std::ifstream mod_file(mod_filename);
 
     WHEN ("the load is done") {
-      auto data = ModList::FromStream(mod_file, mod_directory);
+      auto data = ModListData::FromStream(mod_file, mod_directory);
 
       THEN ("correct data to have been parsed") {
-        REQUIRE (1 == data.builtin.size());
-        REQUIRE (0 == data.discovered.size());
-        REQUIRE ("Campaign" == data.builtin[0].title);
-        REQUIRE ("data/mod/maincampaign.json" == data.builtin[0].filename);
-        REQUIRE (3 == data.builtin[0].data.size());
+        REQUIRE (1 == data.builtin_mods.size());
+        REQUIRE (0 == data.discovered_mods.size());
+        REQUIRE ("Campaign" == data.builtin_mods[0].title);
+        REQUIRE ("data/mod/maincampaign.json" == data.builtin_mods[0].filename);
       }
     }
   }

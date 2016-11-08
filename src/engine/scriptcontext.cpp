@@ -3,6 +3,8 @@
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include "engine/objects/level.hpp"
+#include "engine/objects/mod.hpp"
 #include "input.hpp"
 #include "logging.hpp"
 #include "scriptcontext.hpp"
@@ -78,14 +80,14 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
   return result;
 }
 
-std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
+std::shared_ptr<ScriptContext> ScriptContext::LoadMod(
+    const std::string& filename) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
 
-  std::ifstream modfile(moddata.filename);
+  std::ifstream modfile(filename);
 
   if (!modfile) {
-    const std::string error_message = "Failed to open mod file: "
-      + moddata.filename;
+    const std::string error_message = "Failed to open mod file: " + filename;
     BOOST_LOG_SEV(log, LogSeverity::kError) << error_message;
     throw std::runtime_error(error_message);
   }
@@ -94,49 +96,27 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(const ModData& moddata) {
     new ScriptContext(scene_, sound_system_, main_track_slot_, input_));
   sol::state& main_script = result->main_script_;
 
-  const auto leveldata = LevelData::FromStream(modfile);
-  std::shared_ptr<Objects::Level> level = Objects::Level::Load(
-    leveldata, *result->resource_context_);
+  const auto moddata = ModData::FromStream(modfile, main_script);
+  std::shared_ptr<Objects::Mod> mod = Objects::Mod::Load(
+    moddata, *result->resource_context_);
 
-  for (const ScriptResourceData& script: leveldata.scripts) {
-    if (script.tag != leveldata.main_script_tag) {
+  for (const ScriptResourceData& script: moddata.scripts) {
+    if (script.tag != moddata.main_script_tag) {
       main_script.script_file(script.filename);
     }
   }
 
-  main_script["jumpman"]["level"] = level;
+  main_script["jumpman"]["mod"] = mod;
+  main_script["jumpman"]["mod_data"] = moddata.custom_data;
 
-  // TODO: Delegate to a class that knows json and converts dynamically
-  sol::table data_table = main_script.create_table();
-  Json::Value data_node = moddata.data;
-
-  for (const auto& leveset_node: data_node) {
-    sol::table levelset_table = main_script.create_table();
-    levelset_table["title"] = leveset_node["title"].asString();
-
-    sol::table levels_table = main_script.create_table();
-    for (const auto& level_node: leveset_node["levels"]) {
-      sol::table level_table = main_script.create_table();
-      level_table["filename"] = level_node["filename"].asString();
-      level_table["title"] = level_node["title"].asString();
-      levels_table.add(level_table);
-    }
-    levelset_table["levels"] = levels_table;
-
-    data_table.add(levelset_table);
-  }
-
-  main_script["jumpman"]["mod_data"] = data_table;
-
-  main_script.script_file(leveldata.main_script_filename);
+  main_script.script_file(moddata.main_script_filename);
 
   result->update_function_ = main_script["update"];
 
   return result;
 }
 
-// TODO: Not a good interface for this
-ModList ScriptContext::LoadModList() {
+Objects::ModList ScriptContext::LoadModList() {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
 
   // TODO: Don't hard code paths, at least not here
@@ -150,7 +130,9 @@ ModList ScriptContext::LoadModList() {
   }
 
   // TODO: Don't hard code paths, at least not here
-  return ModList::FromStream(modlistfile, "data/mod");
+  auto modlistdata = ModListData::FromStream(modlistfile, "data/mod");
+
+  return Objects::ModList(modlistdata);
 }
 
 sol::state ScriptContext::StateFactory() {
@@ -348,8 +330,8 @@ sol::state ScriptContext::StateFactory() {
   jumpman.new_usertype<ScriptContext>("ScriptContext"
     , "new", sol::no_constructor
 
-    , "load_mod", [this](const ModData& moddata) {
-      return this->LoadMod(moddata);
+    , "load_mod", [this](const std::string& filename) {
+      return this->LoadMod(filename);
     }
     , "load_level", [this](const std::string& filename) {
       return this->LoadLevel(filename);
@@ -537,12 +519,16 @@ sol::state ScriptContext::StateFactory() {
     , "find_vine", &Objects::Level::FindVine
   );
 
-  // TODO: Wrap these types with a safe resource loader - makes new context?
-  jumpman.new_usertype<ModData>("ModData"
+  using ModInfo = Objects::ModInfo;
+
+  jumpman.new_usertype<ModInfo>("ModInfo"
     , "new", sol::no_constructor
 
-    , "title", sol::readonly(&ModData::title)
+    , "title", sol::property(&ModInfo::GetTitle)
+    , "filename", sol::property(&ModInfo::GetFilename)
   );
+
+  using ModList = Objects::ModList;
 
   jumpman.new_usertype<ModList>("ModList"
     , "new", sol::no_constructor
@@ -551,8 +537,20 @@ sol::state ScriptContext::StateFactory() {
       return this->LoadModList();
     })
 
-    , "builtin", sol::readonly(&ModList::builtin)
-    , "discovered", sol::readonly(&ModList::discovered)
+    , "builtin_mods", sol::property(&ModList::GetBuiltinMods)
+    , "discovered_mods", sol::property(&ModList::GetDiscoveredMods)
+  );
+
+  using Mod = Objects::Mod;
+
+  jumpman.new_usertype<Mod>("Mod"
+    , "new", sol::no_constructor
+
+    , "background_track_tag", sol::readonly(&Mod::background_track_tag)
+
+    , "num_quads", sol::property(&Mod::NumQuads)
+    , "quads", sol::property(&Mod::GetQuads)
+    , "find_quad", &Mod::FindQuad
   );
 
   using MeshComponent = Graphics::MeshComponent;

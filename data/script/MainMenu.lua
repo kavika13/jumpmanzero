@@ -183,14 +183,14 @@ local mod_menu = Menu.new(
   7,
   { x = 0, y = 0, z = -15 })
 
-for mod_index = 1, #mod_list.builtin do
-  local mod = mod_list.builtin[mod_index]
-  mod_menu:add_item(mod.title, "RunningMod", "builtin", mod_index)
+for mod_index = 1, #mod_list.builtin_mods do
+  local mod = mod_list.builtin_mods[mod_index]
+  mod_menu:add_item(mod.title, "RunningMod", mod)
 end
 
-for mod_index = 1, #mod_list.discovered do
-  local mod = mod_list.discovered[mod_index]
-  mod_menu:add_item(mod.title, "RunningMod", "discovered", mod_index)
+for mod_index = 1, #mod_list.discovered_mods do
+  local mod = mod_list.discovered_mods[mod_index]
+  mod_menu:add_item(mod.title, "RunningMod", mod)
 end
 
 local title_track = context:find_track("1")
@@ -288,7 +288,7 @@ local enter_select_mod_menu = function()
   zbits:hide()
   top_menu:hide()
 
-  if #mod_list.builtin + #mod_list.discovered == 1 then
+  if #mod_list.builtin_mods + #mod_list.discovered_mods == 1 then
     mod_menu:advance_state()
     return false
   end
@@ -342,13 +342,8 @@ local animate_mod_menu_selected = function(elapsed_seconds)
   return true
 end
 
-local enter_run_mod = function(list_name, mod_index)
-  local mod_lists = {
-    builtin = mod_list.builtin,
-    discovered = mod_list.discovered,
-  }
-  local mod = mod_lists[list_name][mod_index]
-  running_mod = jumpman.ScriptContext.load_mod(mod)
+local enter_run_mod = function(mod)
+  running_mod = jumpman.ScriptContext.load_mod(mod.filename)
   scene_root.is_enabled = false
   mod_menu:hide()
   return true

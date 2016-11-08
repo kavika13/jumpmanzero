@@ -3,12 +3,11 @@ local scene = jumpman.scene
 local scene_root = jumpman.scene_root
 local main_music_track_slot = jumpman.main_music_track_slot
 local input = jumpman.input
-local level = jumpman.level
+local mod = jumpman.mod
 local mod_data = jumpman.mod_data
 
-local scene_objects = load_level_scene_objects(scene_root, level)
+local scene_objects = load_mod_scene_objects(scene_root, mod)
 local char_meshes = load_char_meshes(context)
-local mod_list = jumpman.ModList.load()
 local running_level_set
 local running_level
 local running_level_index = 0

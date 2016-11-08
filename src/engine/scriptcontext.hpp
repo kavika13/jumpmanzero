@@ -5,11 +5,11 @@
 #include <string>
 #include <sol.hpp>
 #include "engine/graphics/scene.hpp"
-#include "engine/objects/level.hpp"
+#include "engine/objects/modlist.hpp"
 #include "engine/sound/system.hpp"
 #include "engine/sound/musictrackslot.hpp"
 #include "input.hpp"
-#include "moddata.hpp"
+#include "modlistdata.hpp"
 #include "resourcecontext.hpp"
 
 namespace Jumpman {
@@ -24,8 +24,8 @@ class ScriptContext {
 
   bool Update(double elapsed_seconds);
 
-  ModList LoadModList();
-  std::shared_ptr<ScriptContext> LoadMod(const ModData& moddata);
+  Objects::ModList LoadModList();
+  std::shared_ptr<ScriptContext> LoadMod(const std::string& filename);
   std::shared_ptr<ScriptContext> LoadLevel(const std::string& filename);
 
  private:

@@ -1,107 +1,47 @@
-#include "logging.hpp"
 #include "moddata.hpp"
+#include "moddataserialization.hpp"
+#include "logging.hpp"
 
 namespace Jumpman {
 
-std::ostream& operator<<(std::ostream& stream, const ModData& data) {
-  stream
-    << "ModData(title: " << data.title
-    << ", filename: " << data.filename
-    << ", data: " << data.data
-    << ")";
-  return stream;
-}
-
 bool operator==(const ModData& lhs, const ModData& rhs) {
-  return lhs.title == rhs.title
-    && lhs.filename == rhs.filename
-    && lhs.data == rhs.data;
+  return true
+    && lhs.main_script_tag == rhs.main_script_tag
+    && lhs.background_track_tag == rhs.background_track_tag
+    && lhs.scripts == rhs.scripts
+    && lhs.textures == rhs.textures
+    && lhs.materials == rhs.materials
+    && lhs.meshes == rhs.meshes
+    && lhs.music == rhs.music
+    && lhs.sounds == rhs.sounds
+    && lhs.quads == rhs.quads
+    && lhs.custom_data == rhs.custom_data
+  ;
 }
 
-ModData ModData::FromStream(std::istream& stream, const std::string& filename) {
-  Json::Value root_node;
-  stream >> root_node;
-
-  std::string title = root_node["title"].asString();
-  Json::Value data_node = root_node["data"];
-
-  return {
-    title,
-    filename,
-    data_node,
-  };
-}
-
-std::ostream& operator<<(std::ostream& stream, const ModList& data) {
-  stream << "ModList(builtin: ";
-
-  for (const auto& builtin_mod: data.builtin) {
-    stream << builtin_mod << ",";  // TODO: Remove extra comma
-  }
-
-  stream << ", discovered: ";
-
-  for (const auto& discovered_mod: data.discovered) {
-    stream << discovered_mod << ",";  // TODO: Remove extra comma
-  }
-
-  stream << ")";
-
-  return stream;
-}
-
-bool operator==(const ModList& lhs, const ModList& rhs) {
-  return lhs.builtin == rhs.builtin
-    && lhs.discovered == rhs.discovered;
-}
-
-ModList ModList::FromStream(
-    std::istream& stream, const std::string& mod_dir_path) {
+ModData ModData::FromStream(std::istream& stream, sol::state& state) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
-  BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Reading mod list from stream";
+  BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Reading mod data from stream";
 
   Json::Value root_node;
   stream >> root_node;
 
   BOOST_LOG_SEV(log, LogSeverity::kTrace) << "Read json data:\n" << root_node;
 
-  Json::Value builtin_node = root_node["builtin"];
+  return DeserializeModData(root_node, state);
+}
 
-  std::vector<ModData> builtin;
+std::ostream& operator<<(std::ostream& stream, const ModData& data) {
+  GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
+  BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Writing mod data to stream";
 
-  for (const auto& mod_path_value: builtin_node) {
-    std::string mod_path = mod_path_value.asString();
-    std::ifstream mod_file(mod_path);
-
-    if (!mod_file) {
-      BOOST_LOG_SEV(log, LogSeverity::kError)
-        << "Failed to open builtin mod at path: " << mod_path;
-      throw std::runtime_error(
-        "Failed to open builtin mod at path: " + mod_path);
-    }
-
-    builtin.push_back(ModData::FromStream(mod_file, mod_path));
-  }
-
-  BOOST_LOG_SEV(log, LogSeverity::kTrace)
-    << "Finished reading builtin mod list";
-
-  BOOST_LOG_SEV(log, LogSeverity::kTrace)
-    << "Discovering user mods in mod directory";
-
-  // TODO: Implement
-  std::vector<ModData> discovered;
-
-  BOOST_LOG_SEV(log, LogSeverity::kTrace)
-    << "Finished discovering user mods in mod directory";
+  Json::Value root_node = SerializeModData(data);
+  stream << root_node;
 
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
-    << "Finished reading mod list from stream";
+    << "Finished writing mod data to stream";
 
-  return {
-    builtin,
-    discovered,
-  };
+  return stream;
 }
 
 };  // namespace Jumpman
