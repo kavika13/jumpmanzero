@@ -13,7 +13,7 @@ VineMeshGenerator::VineMeshGenerator(
   for (
       float lobe_position = 3.0f;
       lobe_position <= height;
-      lobe_position += 3, is_right_side ^= is_right_side) {
+      lobe_position += 3, is_right_side = !is_right_side) {
     if (is_right_side) {
       mesh_generator.AddCube(
         -0.25f, lobe_position, 0.0f,
