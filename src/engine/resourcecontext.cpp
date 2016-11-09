@@ -8,8 +8,11 @@
 
 namespace Jumpman {
 
-ResourceContext::ResourceContext(std::shared_ptr<Sound::System> sound_system)
-    : sound_system_(sound_system) {
+ResourceContext::ResourceContext(
+  const std::string& resource_base_path,
+  std::shared_ptr<Sound::System> sound_system)
+    : resource_base_path_(resource_base_path)
+    , sound_system_(sound_system) {
 }
 
 std::shared_ptr<Graphics::Texture> ResourceContext::LoadTexture(
@@ -24,7 +27,7 @@ std::shared_ptr<Graphics::Texture> ResourceContext::LoadTexture(
   std::shared_ptr<Graphics::Texture> texture(new Graphics::Texture);
   texture->SetIsAlphaBlendingEnabled(enable_alpha_blending);
 
-  Graphics::Image image(filename, enable_colorkey_alpha);
+  Graphics::Image image(resource_base_path_ + filename, enable_colorkey_alpha);
 
   glBindTexture(GL_TEXTURE_2D, *texture);
   SDL_Surface* image_data = image;
@@ -66,7 +69,7 @@ std::shared_ptr<Graphics::Material> ResourceContext::LoadMaterial(
     const std::string& tag) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
 
-  std::ifstream vertexshaderfile(vertex_shader_filename);
+  std::ifstream vertexshaderfile(resource_base_path_ + vertex_shader_filename);
 
   if (!vertexshaderfile) {
     std::string error_message =
@@ -75,7 +78,8 @@ std::shared_ptr<Graphics::Material> ResourceContext::LoadMaterial(
     throw std::runtime_error(error_message);
   }
 
-  std::ifstream fragmentshaderfile(fragment_shader_filename);
+  std::ifstream fragmentshaderfile(
+    resource_base_path_ + fragment_shader_filename);
 
   if (!fragmentshaderfile) {
     std::string error_message =
@@ -144,7 +148,7 @@ std::shared_ptr<Graphics::TriangleMesh> ResourceContext::LoadMesh(
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
     << "Loading mesh: " << filename;
 
-  std::ifstream mesh_file(filename);
+  std::ifstream mesh_file(resource_base_path_ + filename);
 
   if (!mesh_file) {
     std::string error_message = "Failed to open mesh file: " + filename;
@@ -188,7 +192,7 @@ std::shared_ptr<Sound::Sound> ResourceContext::LoadSound(
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
     << "Loading sound: " << filename;
 
-  std::ifstream sound_file(filename);
+  std::ifstream sound_file(resource_base_path_ + filename);
 
   if (!sound_file) {
     const std::string error_message = "Failed to open sound file: " + filename;
@@ -222,7 +226,7 @@ std::shared_ptr<Sound::MusicTrack> ResourceContext::LoadTrack(
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
     << "Loading music track: " << filename;
 
-  std::ifstream track_file(filename);
+  std::ifstream track_file(resource_base_path_ + filename);
 
   if (!track_file) {
     const std::string error_message = "Failed to open music track file: "

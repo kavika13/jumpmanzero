@@ -17,6 +17,7 @@ namespace Jumpman {
 class ScriptContext {
  public:
   ScriptContext(
+    const std::string& resource_base_path,
     std::shared_ptr<Graphics::Scene> scene,
     std::shared_ptr<Sound::System> sound_system,
     std::shared_ptr<Input> input,
@@ -30,6 +31,7 @@ class ScriptContext {
 
  private:
   ScriptContext(
+    const std::string& resource_base_path,
     std::shared_ptr<Graphics::Scene> scene,
     std::shared_ptr<Sound::System> sound_system,
     std::shared_ptr<Sound::MusicTrackSlot> main_track_slot,
@@ -37,6 +39,7 @@ class ScriptContext {
 
   sol::state StateFactory();
 
+  const std::string resource_base_path_;
   std::shared_ptr<ResourceContext> resource_context_;
   std::shared_ptr<Graphics::Scene> scene_;
   std::shared_ptr<Sound::System> sound_system_;

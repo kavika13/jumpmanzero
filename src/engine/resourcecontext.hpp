@@ -15,7 +15,9 @@ namespace Jumpman {
 
 class ResourceContext {
  public:
-  ResourceContext(std::shared_ptr<Sound::System> sound_system);
+  ResourceContext(
+    const std::string& resource_base_path,
+    std::shared_ptr<Sound::System> sound_system);
 
   std::shared_ptr<Graphics::Texture> LoadTexture(
     const std::string& filename,
@@ -46,6 +48,7 @@ class ResourceContext {
   std::shared_ptr<Sound::MusicTrack> FindTrack(const std::string& tag);
 
  private:
+  const std::string resource_base_path_;
   std::shared_ptr<Sound::System> sound_system_;
 
   std::vector<std::shared_ptr<Graphics::Texture>> textures_;

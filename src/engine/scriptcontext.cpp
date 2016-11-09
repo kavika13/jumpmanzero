@@ -12,26 +12,30 @@
 namespace Jumpman {
 
 ScriptContext::ScriptContext(
+  const std::string& resource_base_path,
   std::shared_ptr<Graphics::Scene> scene,
   std::shared_ptr<Sound::System> sound_system,
   std::shared_ptr<Input> input,
   const std::string& main_script_filename)
     : ScriptContext(
+        resource_base_path,
         scene,
         sound_system,
         std::shared_ptr<Sound::MusicTrackSlot>(
           new Sound::MusicTrackSlot(sound_system)),
         input) {
-  main_script_.script_file(main_script_filename);
+  main_script_.script_file(resource_base_path_ + main_script_filename);
   update_function_ = main_script_["update"];
 }
 
 ScriptContext::ScriptContext(
+  const std::string& resource_base_path,
   std::shared_ptr<Graphics::Scene> scene,
   std::shared_ptr<Sound::System> sound_system,
   std::shared_ptr<Sound::MusicTrackSlot> main_track_slot,
   std::shared_ptr<Input> input)
-    : resource_context_(new ResourceContext(sound_system))
+    : resource_base_path_(resource_base_path)
+    , resource_context_(new ResourceContext(resource_base_path, sound_system))
     , scene_(scene)
     , scene_root_(new Graphics::SceneObject)
     , sound_system_(sound_system)
@@ -49,7 +53,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
     const std::string& filename) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
 
-  std::ifstream levelfile(filename);
+  std::ifstream levelfile(resource_base_path_ + filename);
 
   if (!levelfile) {
     const std::string error_message = "Failed to open level file: " + filename;
@@ -58,7 +62,8 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
   }
 
   std::shared_ptr<ScriptContext> result(
-    new ScriptContext(scene_, sound_system_, main_track_slot_, input_));
+    new ScriptContext(
+      resource_base_path_, scene_, sound_system_, main_track_slot_, input_));
   sol::state& main_script = result->main_script_;
 
   const auto leveldata = LevelData::FromStream(levelfile);
@@ -67,13 +72,13 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadLevel(
 
   for (const ScriptResourceData& script: leveldata.scripts) {
     if (script.tag != leveldata.main_script_tag) {
-      main_script.script_file(script.filename);
+      main_script.script_file(resource_base_path_ + script.filename);
     }
   }
 
   main_script["jumpman"]["level"] = level;
 
-  main_script.script_file(leveldata.main_script_filename);
+  main_script.script_file(resource_base_path_ + leveldata.main_script_filename);
 
   result->update_function_ = main_script["update"];
 
@@ -84,7 +89,7 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(
     const std::string& filename) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Engine");
 
-  std::ifstream modfile(filename);
+  std::ifstream modfile(resource_base_path_ + filename);
 
   if (!modfile) {
     const std::string error_message = "Failed to open mod file: " + filename;
@@ -93,7 +98,8 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(
   }
 
   std::shared_ptr<ScriptContext> result(
-    new ScriptContext(scene_, sound_system_, main_track_slot_, input_));
+    new ScriptContext(
+      resource_base_path_, scene_, sound_system_, main_track_slot_, input_));
   sol::state& main_script = result->main_script_;
 
   const auto moddata = ModData::FromStream(modfile, main_script);
@@ -102,14 +108,14 @@ std::shared_ptr<ScriptContext> ScriptContext::LoadMod(
 
   for (const ScriptResourceData& script: moddata.scripts) {
     if (script.tag != moddata.main_script_tag) {
-      main_script.script_file(script.filename);
+      main_script.script_file(resource_base_path_ + script.filename);
     }
   }
 
   main_script["jumpman"]["mod"] = mod;
   main_script["jumpman"]["mod_data"] = moddata.custom_data;
 
-  main_script.script_file(moddata.main_script_filename);
+  main_script.script_file(resource_base_path_ + moddata.main_script_filename);
 
   result->update_function_ = main_script["update"];
 
@@ -121,7 +127,7 @@ Objects::ModList ScriptContext::LoadModList() {
 
   // TODO: Don't hard code paths, at least not here
   const std::string filename("data/mod/knownmods.json");
-  std::ifstream modlistfile(filename);
+  std::ifstream modlistfile(resource_base_path_ + filename);
 
   if (!modlistfile) {
     BOOST_LOG_SEV(log, LogSeverity::kError)
@@ -130,7 +136,8 @@ Objects::ModList ScriptContext::LoadModList() {
   }
 
   // TODO: Don't hard code paths, at least not here
-  auto modlistdata = ModListData::FromStream(modlistfile, "data/mod");
+  auto modlistdata = ModListData::FromStream(
+    modlistfile, resource_base_path_, "data/mod");
 
   return Objects::ModList(modlistdata);
 }

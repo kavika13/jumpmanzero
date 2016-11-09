@@ -104,15 +104,20 @@ GAME_DATA_DIRS += $(GAME_CONFIG_DIR)
 GAME_DATA_DIRS := $(addprefix $(GAME_DATA_DIR)/, $(GAME_DATA_DIRS))
 
 ENGINE_LIB_CPP_SOURCES = $(wildcard $(SOURCE_DIR)/$(ENGINE_LIB_SOURCE_DIR)/*.cpp) $(wildcard $(SOURCE_DIR)/$(ENGINE_LIB_OBJECTS_SOURCE_DIR)/*.cpp) $(wildcard $(SOURCE_DIR)/$(ENGINE_LIB_GRAPHICS_SOURCE_DIR)/*.cpp) $(wildcard $(SOURCE_DIR)/$(ENGINE_LIB_SOUND_SOURCE_DIR)/*.cpp)
+# Mac specific
 ENGINE_LIB_MM_SOURCES = $(wildcard $(SOURCE_DIR)/$(ENGINE_LIB_SOURCE_DIR)/*.mm)
 GAME_BIN_CPP_SOURCES = $(wildcard $(SOURCE_DIR)/$(GAME_BIN_SOURCE_DIR)/*.cpp)
 ENGINE_LIB_TEST_CPP_SOURCES = $(wildcard $(SOURCE_DIR)/$(ENGINE_LIB_TEST_SOURCE_DIR)/*.cpp)
 LEVELCONVERTER_CPP_SOURCES = $(wildcard $(SOURCE_DIR)/$(LEVELCONVERTER_BIN_SOURCE_DIR)/*.cpp)
 MESHCONVERTER_CPP_SOURCES = $(wildcard $(SOURCE_DIR)/$(MESHCONVERTER_BIN_SOURCE_DIR)/*.cpp)
 
+# Mac specific
+ENGINE_LIB_CPP_SOURCES := $(filter-out $(SOURCE_DIR)/$(ENGINE_LIB_SOURCE_DIR)/resourcepath.cpp, $(ENGINE_LIB_CPP_SOURCES))
+
 GAME_DATA_SOURCES = $(wildcard $(GAME_DATA_DIR)/*/*)
 
 ENGINE_LIB_OBJECTS = $(patsubst $(SOURCE_DIR)/%.cpp, %.o, $(ENGINE_LIB_CPP_SOURCES))
+# Mac specific
 ENGINE_LIB_OBJECTS += $(patsubst $(SOURCE_DIR)/%.mm, %.o, $(ENGINE_LIB_MM_SOURCES))
 GAME_BIN_OBJECTS = $(patsubst $(SOURCE_DIR)/%.cpp, %.o, $(GAME_BIN_CPP_SOURCES))
 ENGINE_LIB_TEST_BIN_OBJECTS = $(patsubst $(SOURCE_DIR)/%.cpp, %.o, $(ENGINE_LIB_TEST_CPP_SOURCES))
@@ -273,18 +278,18 @@ $(BUILD_DIR)/debug/$(SDL_IMAGE_FRAMEWORK_BIN): $(SDL_IMAGE_FRAMEWORKS_DIR)/$(SDL
 %/$(GAME_APP)/Contents/Frameworks/$(SDL_IMAGE_FRAMEWORK_BIN): %/$(SDL_IMAGE_FRAMEWORK_BIN) | %/$(GAME_APP)/Contents
 	cp -R $< $@
 
-$(BUILD_DIR)/release/%.o: $(SOURCE_DIR)/%.cpp | $(BUILD_DIR)/release
-	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
-
 # Mac specific
 $(BUILD_DIR)/release/%.o: $(SOURCE_DIR)/%.mm | $(BUILD_DIR)/release
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
-$(BUILD_DIR)/debug/%.o: $(SOURCE_DIR)/%.cpp | $(BUILD_DIR)/debug
+$(BUILD_DIR)/release/%.o: $(SOURCE_DIR)/%.cpp | $(BUILD_DIR)/release
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
 # Mac specific
 $(BUILD_DIR)/debug/%.o: $(SOURCE_DIR)/%.mm | $(BUILD_DIR)/debug
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+
+$(BUILD_DIR)/debug/%.o: $(SOURCE_DIR)/%.cpp | $(BUILD_DIR)/debug
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/release/$(GAME_DATA_DIR)/%: $(GAME_DATA_DIR)/%

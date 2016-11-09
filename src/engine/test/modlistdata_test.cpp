@@ -34,7 +34,7 @@ SCENARIO ("load mod list and verify there are no errors",
     std::ifstream mod_file(mod_filename);
 
     WHEN ("the load is done") {
-      auto data = ModListData::FromStream(mod_file, mod_directory);
+      auto data = ModListData::FromStream(mod_file, "", mod_directory);
 
       THEN ("correct data to have been parsed") {
         REQUIRE (1 == data.builtin_mods.size());

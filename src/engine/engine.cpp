@@ -7,6 +7,7 @@
 #include "engine.hpp"
 #include "input.hpp"
 #include "logging.hpp"
+#include "resourcepath.hpp"
 #include "scriptcontext.hpp"
 
 namespace Jumpman {
@@ -93,12 +94,21 @@ bool Engine::Initialize() {
   glEnable(GL_DEPTH_TEST);  // TODO: Should never error?
   glEnable(GL_CULL_FACE);  // TODO: Should never error?
 
+  const std::string resource_base_path(GetResourcePath());
+
+  BOOST_LOG_SEV(log, LogSeverity::kDebug)
+    << "Resource base path: " << resource_base_path;
+
   data_->scene.reset(new Graphics::Scene);
   data_->sound_system.reset(new Sound::System);
   data_->input.reset(new Input);
   data_->script_context.reset(
     new ScriptContext(
-      data_->scene, data_->sound_system, data_->input, "data/script/main.lua"));
+      resource_base_path,
+      data_->scene,
+      data_->sound_system,
+      data_->input,
+      "data/script/main.lua"));
 
   return true;
 }

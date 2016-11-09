@@ -20,7 +20,9 @@ bool operator==(const ModListItemData& lhs, const ModListItemData& rhs);
 class ModListData {
  public:
   static ModListData FromStream(  // TODO: Take dir search as object instead of path
-    std::istream& stream, const std::string& mod_dir_path);
+    std::istream& stream,
+    const std::string& resource_base_path,
+    const std::string& mod_dir_path);
 
   friend std::ostream& operator<<(std::ostream& stream, const ModListData& list);
 

@@ -56,7 +56,9 @@ bool operator==(const ModListData& lhs, const ModListData& rhs) {
 }
 
 ModListData ModListData::FromStream(
-    std::istream& stream, const std::string& mod_dir_path) {
+    std::istream& stream,
+    const std::string& resource_base_path,
+    const std::string& mod_dir_path) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resource");
   BOOST_LOG_SEV(log, LogSeverity::kDebug) << "Reading mod list from stream";
 
@@ -71,7 +73,7 @@ ModListData ModListData::FromStream(
 
   for (const auto& mod_path_value: builtin_node) {
     std::string mod_path = mod_path_value.asString();
-    std::ifstream mod_file(mod_path);
+    std::ifstream mod_file(resource_base_path + mod_path);
 
     if (!mod_file) {
       BOOST_LOG_SEV(log, LogSeverity::kError)
