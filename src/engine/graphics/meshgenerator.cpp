@@ -236,6 +236,10 @@ std::shared_ptr<TriangleMesh> MeshGenerator::CreateMesh(
   return resource_context.CreateMesh(vertices_, tag);
 }
 
+AxisAlignedBox MeshGenerator::CreateBoundingBox() const noexcept {
+  return AxisAlignedBox::FromPoints(vertices_);
+}
+
 };  // namespace Jumpman
 
 };  // namespace Graphics

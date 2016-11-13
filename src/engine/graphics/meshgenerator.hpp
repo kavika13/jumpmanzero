@@ -2,6 +2,7 @@
 #define ENGINE_GRAPHICS_MESHGENERATOR_HPP_
 
 #include <vector>
+#include "engine/axisalignedbox.hpp"
 #include "engine/leveldata.hpp"
 #include "engine/resourcecontext.hpp"
 #include "trianglemesh.hpp"
@@ -33,6 +34,8 @@ class MeshGenerator {
 
   std::shared_ptr<TriangleMesh> CreateMesh(
     ResourceContext&, const std::string& tag) const;
+
+  AxisAlignedBox CreateBoundingBox() const noexcept;
 
  private:
   std::vector<Vertex> vertices_;

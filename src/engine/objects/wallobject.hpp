@@ -4,6 +4,7 @@
 #include <memory>
 #define GLM_FORCE_LEFT_HANDED
 #include <memory>
+#include "engine/axisalignedbox.hpp"
 #include "engine/leveldata.hpp"
 #include "engine/resourcecontext.hpp"
 
@@ -18,6 +19,8 @@ class WallObject {
   std::shared_ptr<Graphics::TriangleMesh> GetMesh();
   void SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh);
 
+  const AxisAlignedBox& GetBoundingBox() const;
+
   std::shared_ptr<Graphics::Material> GetMaterial();
   void SetMaterial(std::shared_ptr<Graphics::Material> material);
 
@@ -25,6 +28,7 @@ class WallObject {
 
  private:
   std::shared_ptr<Graphics::TriangleMesh> mesh_;
+  AxisAlignedBox bounding_box_;
   std::shared_ptr<Graphics::Material> material_;
 };
 

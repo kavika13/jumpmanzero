@@ -144,6 +144,13 @@ std::shared_ptr<Graphics::TriangleMesh> ResourceContext::CreateMesh(
 
 std::shared_ptr<Graphics::TriangleMesh> ResourceContext::LoadMesh(
     const std::string& filename, const std::string& tag) {
+  return LoadMesh(filename, tag, [](std::vector<Graphics::Vertex>&) { });
+}
+
+std::shared_ptr<Graphics::TriangleMesh> ResourceContext::LoadMesh(
+    const std::string& filename,
+    const std::string& tag,
+    std::function<void (std::vector<Graphics::Vertex>&)> on_vertices_loaded) {
   GET_NAMED_SCOPE_FUNCTION_GLOBAL_LOGGER(log, "Resources");
   BOOST_LOG_SEV(log, LogSeverity::kDebug)
     << "Loading mesh: " << filename;
@@ -173,6 +180,8 @@ std::shared_ptr<Graphics::TriangleMesh> ResourceContext::LoadMesh(
       vertex.tv,
     });
   }
+
+  on_vertices_loaded(vertices);
 
   return CreateMesh(vertices, tag);
 }

@@ -1,9 +1,9 @@
-#ifndef ENGINE_OBJECTS_LADDEROBJECT_HPP_
-#define ENGINE_OBJECTS_LADDEROBJECT_HPP_
+#ifndef ENGINE_OBJECTS_MODELOBJECT_HPP_
+#define ENGINE_OBJECTS_MODELOBJECT_HPP_
 
 #include <memory>
 #define GLM_FORCE_LEFT_HANDED
-#include <memory>
+#include <glm/vec3.hpp>
 #include "engine/axisalignedbox.hpp"
 #include "engine/leveldata.hpp"
 #include "engine/resourcecontext.hpp"
@@ -12,9 +12,10 @@ namespace Jumpman {
 
 namespace Objects {
 
-class LadderObject {
+class ModelObject {
  public:
-  explicit LadderObject(const LadderObjectData& data, ResourceContext&);
+  explicit ModelObject(
+    const std::string& filename, const std::string& tag, ResourceContext&);
 
   std::shared_ptr<Graphics::TriangleMesh> GetMesh();
   void SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh);
@@ -36,4 +37,4 @@ class LadderObject {
 
 };  // namespace Jumpman
 
-#endif  // ENGINE_OBJECTS_LADDEROBJECT_HPP_
+#endif  // ENGINE_OBJECTS_MODELOBJECT_HPP_

@@ -6,6 +6,7 @@
 #include <vector>
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/mat4x4.hpp>
+#include "engine/axisalignedbox.hpp"
 #include "material.hpp"
 #include "projectioncamera.hpp"
 #include "transform.hpp"
@@ -25,6 +26,7 @@ struct MeshComponent {
   friend std::ostream& operator<<(std::ostream&, const MeshComponent&);
 
   std::shared_ptr<TriangleMesh> mesh;
+  AxisAlignedBox bounding_box;
   std::shared_ptr<Material> material;
 };
 

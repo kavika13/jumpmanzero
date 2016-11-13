@@ -12,6 +12,7 @@ DonutObject::DonutObject(
   Graphics::MeshGenerator generator;
   Graphics::DonutMeshGenerator generate_donut_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);
+  bounding_box_ = generator.CreateBoundingBox();
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
@@ -21,6 +22,10 @@ std::shared_ptr<Graphics::TriangleMesh> DonutObject::GetMesh() {
 
 void DonutObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
+}
+
+const AxisAlignedBox& DonutObject::GetBoundingBox() const {
+  return bounding_box_;
 }
 
 std::shared_ptr<Graphics::Material> DonutObject::GetMaterial() {

@@ -37,6 +37,10 @@ class ResourceContext {
 
   std::shared_ptr<Graphics::TriangleMesh> LoadMesh(
     const std::string& filename, const std::string& tag);
+  std::shared_ptr<Graphics::TriangleMesh> LoadMesh(
+    const std::string& filename,
+    const std::string& tag,
+    std::function<void (std::vector<Graphics::Vertex>&)> on_vertices_loaded);
   std::shared_ptr<Graphics::TriangleMesh> FindMesh(const std::string& tag);
 
   std::shared_ptr<Sound::Sound> LoadSound(

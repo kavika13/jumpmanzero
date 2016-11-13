@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include "engine/objects/level.hpp"
+#include "engine/objects/modelobject.hpp"
 #include "engine/objects/mod.hpp"
 #include "input.hpp"
 #include "logging.hpp"
@@ -407,8 +408,6 @@ sol::state ScriptContext::StateFactory() {
     , "find_material", &ResourceContext::FindMaterial
     , "find_sound", &ResourceContext::FindSound
     , "find_track", &ResourceContext::FindTrack
-
-    , "load_mesh", &ResourceContext::LoadMesh
     , "find_mesh", &ResourceContext::FindMesh
   );
 
@@ -428,102 +427,170 @@ sol::state ScriptContext::StateFactory() {
         &Material::SetShaderUniform))
   );
 
-  jumpman.new_usertype<Objects::QuadObject>("Quad"
+  jumpman.new_usertype<AxisAlignedBox>("AxisAlignedBox"
+    , "create_from_extents", &AxisAlignedBox::FromExtents
+    , "create_from_origin", &AxisAlignedBox::FromOrigin
+    , "create_from_boxes",
+      sol::resolve<AxisAlignedBox (const std::vector<AxisAlignedBox>&)>(
+        &AxisAlignedBox::FromBoxes)
+    , "origin", sol::property(
+        &AxisAlignedBox::GetOrigin, &AxisAlignedBox::SetOrigin)
+    , "half_dimensions", sol::property(
+        &AxisAlignedBox::GetHalfDimensions, &AxisAlignedBox::SetHalfDimensions)
+    , "dimensions", sol::property(
+        &AxisAlignedBox::GetDimensions, &AxisAlignedBox::SetDimensions)
+    , "volume", sol::property(&AxisAlignedBox::GetVolume)
+    , "merge", sol::overload(
+      sol::resolve<AxisAlignedBox& (const glm::vec3&)>(&AxisAlignedBox::Merge),
+      sol::resolve<AxisAlignedBox& (const AxisAlignedBox&)>(
+        &AxisAlignedBox::Merge))
+    , "is_intersecting", &AxisAlignedBox::IsIntersecting
+    , "is_intersecting_xy", &AxisAlignedBox::IsIntersectingXY
+    , "contains", sol::overload(
+      sol::resolve<bool (const glm::vec3&) const>(&AxisAlignedBox::Contains),
+      sol::resolve<bool (const AxisAlignedBox&) const>(
+        &AxisAlignedBox::Contains))
+    , "contains_xy", sol::overload(
+      sol::resolve<bool (const glm::vec3&) const>(&AxisAlignedBox::ContainsXY),
+      sol::resolve<bool (const AxisAlignedBox&) const>(
+        &AxisAlignedBox::ContainsXY))
+    , "get_closest_point_to", &AxisAlignedBox::GetClosestPointTo
+    , "get_overlap", &AxisAlignedBox::GetOverlap
+
+    , "min", &AxisAlignedBox::min
+    , "max", &AxisAlignedBox::max
+
+    , sol::meta_function::to_string, [](const AxisAlignedBox& value) {
+      return "AxisAlignedBox("
+        + glm::to_string(value.min)
+        + ", " + glm::to_string(value.max)
+        + ")";
+    }
+  );
+
+  using ModelObject = Objects::ModelObject;
+
+  jumpman.new_usertype<ModelObject>("Model"
+    , "new", sol::no_constructor
+
+    , "new", sol::factories(
+      [this](const std::string& filename, const std::string& tag) {
+        return std::shared_ptr<ModelObject>(
+          new ModelObject(filename, tag, *resource_context_));
+      })
+
+    , "mesh", sol::property(
+        &ModelObject::GetMesh, &ModelObject::SetMesh)
+    , "bounding_box", sol::property(&ModelObject::GetBoundingBox)
+    , "material", sol::property(
+        &ModelObject::GetMaterial, &ModelObject::SetMaterial)
+    , "origin", &ModelObject::origin
+  );
+
+  using QuadObject = Objects::QuadObject;
+
+  jumpman.new_usertype<QuadObject>("Quad"
     , "new", sol::no_constructor
 
     , "mesh", sol::property(
-        &Objects::QuadObject::GetMesh, &Objects::QuadObject::SetMesh)
+        &QuadObject::GetMesh, &QuadObject::SetMesh)
+    , "bounding_box", sol::property(&QuadObject::GetBoundingBox)
     , "material", sol::property(
-        &Objects::QuadObject::GetMaterial,
-        &Objects::QuadObject::SetMaterial)
-    , "origin", &Objects::QuadObject::origin
+        &QuadObject::GetMaterial, &QuadObject::SetMaterial)
+    , "origin", &QuadObject::origin
   );
 
-  jumpman.new_usertype<Objects::DonutObject>("Donut"
+  using DonutObject = Objects::DonutObject;
+
+  jumpman.new_usertype<DonutObject>("Donut"
     , "new", sol::no_constructor
 
-    , "mesh", sol::property(
-        &Objects::DonutObject::GetMesh, &Objects::DonutObject::SetMesh)
+    , "mesh", sol::property(&DonutObject::GetMesh, &DonutObject::SetMesh)
+    , "bounding_box", sol::property(&DonutObject::GetBoundingBox)
     , "material", sol::property(
-        &Objects::DonutObject::GetMaterial,
-        &Objects::DonutObject::SetMaterial)
-    , "origin", &Objects::DonutObject::origin
+        &DonutObject::GetMaterial, &DonutObject::SetMaterial)
+    , "origin", &DonutObject::origin
   );
 
-  jumpman.new_usertype<Objects::PlatformObject>("Platform"
+  using PlatformObject = Objects::PlatformObject;
+
+  jumpman.new_usertype<PlatformObject>("Platform"
     , "new", sol::no_constructor
 
-    , "mesh", sol::property(
-        &Objects::PlatformObject::GetMesh,
-        &Objects::PlatformObject::SetMesh)
+    , "mesh", sol::property(&PlatformObject::GetMesh, &PlatformObject::SetMesh)
+    , "bounding_box", sol::property(&PlatformObject::GetBoundingBox)
     , "material", sol::property(
-        &Objects::PlatformObject::GetMaterial,
-        &Objects::PlatformObject::SetMaterial)
-    , "origin", &Objects::PlatformObject::origin
+        &PlatformObject::GetMaterial, &PlatformObject::SetMaterial)
+    , "origin", &PlatformObject::origin
   );
 
-  jumpman.new_usertype<Objects::WallObject>("Wall"
+  using WallObject = Objects::WallObject;
+
+  jumpman.new_usertype<WallObject>("Wall"
     , "new", sol::no_constructor
 
-    , "mesh", sol::property(
-        &Objects::WallObject::GetMesh, &Objects::WallObject::SetMesh)
+    , "mesh", sol::property(&WallObject::GetMesh, &WallObject::SetMesh)
+    , "bounding_box", sol::property(&WallObject::GetBoundingBox)
     , "material", sol::property(
-        &Objects::WallObject::GetMaterial,
-        &Objects::WallObject::SetMaterial)
-    , "origin", &Objects::WallObject::origin
+        &WallObject::GetMaterial, &WallObject::SetMaterial)
+    , "origin", &WallObject::origin
   );
 
-  jumpman.new_usertype<Objects::LadderObject>("Ladder"
+  using LadderObject = Objects::LadderObject;
+
+  jumpman.new_usertype<LadderObject>("Ladder"
     , "new", sol::no_constructor
 
-    , "mesh", sol::property(
-        &Objects::LadderObject::GetMesh, &Objects::LadderObject::SetMesh)
+    , "mesh", sol::property(&LadderObject::GetMesh, &LadderObject::SetMesh)
+    , "bounding_box", sol::property(&LadderObject::GetBoundingBox)
     , "material", sol::property(
-        &Objects::LadderObject::GetMaterial,
-        &Objects::LadderObject::SetMaterial)
-    , "origin", &Objects::LadderObject::origin
+        &LadderObject::GetMaterial, &LadderObject::SetMaterial)
+    , "origin", &LadderObject::origin
   );
 
-  jumpman.new_usertype<Objects::VineObject>("Vine"
+  using VineObject = Objects::VineObject;
+
+  jumpman.new_usertype<VineObject>("Vine"
     , "new", sol::no_constructor
 
-    , "mesh", sol::property(
-        &Objects::VineObject::GetMesh, &Objects::VineObject::SetMesh)
+    , "mesh", sol::property(&VineObject::GetMesh, &VineObject::SetMesh)
+    , "bounding_box", sol::property(&VineObject::GetBoundingBox)
     , "material", sol::property(
-        &Objects::VineObject::GetMaterial,
-        &Objects::VineObject::SetMaterial)
-    , "origin", &Objects::VineObject::origin
+        &VineObject::GetMaterial, &VineObject::SetMaterial)
+    , "origin", &VineObject::origin
   );
 
-  jumpman.new_usertype<Objects::Level>("Level"
+  using Level = Objects::Level;
+
+  jumpman.new_usertype<Level>("Level"
     , "new", sol::no_constructor
 
     , "background_track_tag", sol::readonly(
-        &Objects::Level::background_track_tag)
-    , "death_track_tag", sol::readonly(&Objects::Level::death_track_tag)
+        &Level::background_track_tag)
+    , "death_track_tag", sol::readonly(&Level::death_track_tag)
     , "end_level_track_tag", sol::readonly(
-        &Objects::Level::end_level_track_tag)
+        &Level::end_level_track_tag)
 
-    , "num_quads", sol::property(&Objects::Level::NumQuads)
-    , "num_donuts", sol::property(&Objects::Level::NumDonuts)
-    , "num_platforms", sol::property(&Objects::Level::NumPlatforms)
-    , "num_walls", sol::property(&Objects::Level::NumWalls)
-    , "num_ladders", sol::property(&Objects::Level::NumLadders)
-    , "num_vines", sol::property(&Objects::Level::NumVines)
+    , "num_quads", sol::property(&Level::NumQuads)
+    , "num_donuts", sol::property(&Level::NumDonuts)
+    , "num_platforms", sol::property(&Level::NumPlatforms)
+    , "num_walls", sol::property(&Level::NumWalls)
+    , "num_ladders", sol::property(&Level::NumLadders)
+    , "num_vines", sol::property(&Level::NumVines)
 
-    , "quads", sol::property(&Objects::Level::GetQuads)
-    , "donuts", sol::property(&Objects::Level::GetDonuts)
-    , "platforms", sol::property(&Objects::Level::GetPlatforms)
-    , "walls", sol::property(&Objects::Level::GetWalls)
-    , "ladders", sol::property(&Objects::Level::GetLadders)
-    , "vines", sol::property(&Objects::Level::GetVines)
+    , "quads", sol::property(&Level::GetQuads)
+    , "donuts", sol::property(&Level::GetDonuts)
+    , "platforms", sol::property(&Level::GetPlatforms)
+    , "walls", sol::property(&Level::GetWalls)
+    , "ladders", sol::property(&Level::GetLadders)
+    , "vines", sol::property(&Level::GetVines)
 
-    , "find_quad", &Objects::Level::FindQuad
-    , "find_donut", &Objects::Level::FindDonut
-    , "find_platform", &Objects::Level::FindPlatform
-    , "find_wall", &Objects::Level::FindWall
-    , "find_ladder", &Objects::Level::FindLadder
-    , "find_vine", &Objects::Level::FindVine
+    , "find_quad", &Level::FindQuad
+    , "find_donut", &Level::FindDonut
+    , "find_platform", &Level::FindPlatform
+    , "find_wall", &Level::FindWall
+    , "find_ladder", &Level::FindLadder
+    , "find_vine", &Level::FindVine
   );
 
   using ModInfo = Objects::ModInfo;
@@ -570,6 +637,7 @@ sol::state ScriptContext::StateFactory() {
     })
 
     , "mesh", &MeshComponent::mesh
+    , "bounding_box", &MeshComponent::bounding_box
     , "material", &MeshComponent::material
   );
 

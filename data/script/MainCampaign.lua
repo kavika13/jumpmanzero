@@ -7,7 +7,7 @@ local mod = jumpman.mod
 local mod_data = jumpman.mod_data
 
 local scene_objects = load_mod_scene_objects(scene_root, mod)
-local char_meshes = load_char_meshes(context)
+local char_models = load_char_models()
 local running_level_set
 local running_level
 local running_level_index = 0
@@ -24,7 +24,7 @@ local sky_scroller = MaterialScroller.new(
 
 local level_set_menu = Menu.new(
     menu_state,
-    char_meshes,
+    char_models,
     scene_root,
     context:find_material("1"),
     context:find_material("3"),

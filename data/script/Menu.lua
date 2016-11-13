@@ -3,7 +3,7 @@ Menu.__index = Menu
 
 function Menu.new(
     state_machine,
-    char_meshes,
+    char_models,
     scene_root,
     selected_material, deselected_material,
     selected_sound, lock_selection_sound,
@@ -15,7 +15,7 @@ function Menu.new(
   self.selected_item_index_ = 1
 
   self.state_machine_ = state_machine
-  self.char_meshes_ = char_meshes
+  self.char_models_ = char_models
   self.scene_root_ = scene_root
   self.selected_material_ = selected_material
   self.deselected_material_ = deselected_material
@@ -46,7 +46,7 @@ end
 function Menu:add_item(message, next_state_name, ...)
   table.insert(self.menu_items_, {
     string = create_string_object(
-      self.char_meshes_, self.scene_root_, message, self.deselected_material_),
+      self.char_models_, self.scene_root_, message, self.deselected_material_),
     select_tween_weight = 1,
     next_state_name = next_state_name,
     next_state_args = {...}

@@ -12,6 +12,7 @@ WallObject::WallObject(
   Graphics::MeshGenerator generator;
   Graphics::WallMeshGenerator generate_wall_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);
+  bounding_box_ = generator.CreateBoundingBox();
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
@@ -21,6 +22,10 @@ std::shared_ptr<Graphics::TriangleMesh> WallObject::GetMesh() {
 
 void WallObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
+}
+
+const AxisAlignedBox& WallObject::GetBoundingBox() const {
+  return bounding_box_;
 }
 
 std::shared_ptr<Graphics::Material> WallObject::GetMaterial() {

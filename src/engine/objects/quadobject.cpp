@@ -12,6 +12,7 @@ QuadObject::QuadObject(
   Graphics::MeshGenerator generator;
   Graphics::QuadMeshGenerator generate_quad_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);
+  bounding_box_ = generator.CreateBoundingBox();
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
@@ -21,6 +22,10 @@ std::shared_ptr<Graphics::TriangleMesh> QuadObject::GetMesh() {
 
 void QuadObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
+}
+
+const AxisAlignedBox& QuadObject::GetBoundingBox() const {
+  return bounding_box_;
 }
 
 std::shared_ptr<Graphics::Material> QuadObject::GetMaterial() {

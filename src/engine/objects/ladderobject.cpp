@@ -12,6 +12,7 @@ LadderObject::LadderObject(
   Graphics::MeshGenerator generator;
   Graphics::LadderMeshGenerator generate_ladder_mesh(data, generator);
   mesh_ = generator.CreateMesh(resource_context, data.tag);
+  bounding_box_ = generator.CreateBoundingBox();
   material_ = resource_context.FindMaterial(data.material_tag);
 }
 
@@ -21,6 +22,10 @@ std::shared_ptr<Graphics::TriangleMesh> LadderObject::GetMesh() {
 
 void LadderObject::SetMesh(std::shared_ptr<Graphics::TriangleMesh> mesh) {
   mesh_ = mesh;
+}
+
+const AxisAlignedBox& LadderObject::GetBoundingBox() const {
+  return bounding_box_;
 }
 
 std::shared_ptr<Graphics::Material> LadderObject::GetMaterial() {

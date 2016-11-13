@@ -26,7 +26,7 @@ local FallingTitle = {}
 FallingTitle.__index = FallingTitle
 
 function FallingTitle.new(
-    char_meshes,
+    char_models,
     message, material,
     starting_heights,
     animation_time,
@@ -35,7 +35,7 @@ function FallingTitle.new(
   local self = create_class_instance(FallingTitle)
 
   self.string_ = create_string_object(
-    char_meshes, scene_root, message, material)
+    char_models, scene_root, message, material)
   self.starting_heights_ = starting_heights
   self.animation_time_ = animation_time or 5.5  -- TODO: Separate fall velocity?
   self.inflate_animation_start_time_ = inflate_animation_start_time or 3.35
@@ -124,7 +124,7 @@ end
 
 -- Begin actual script
 local scene_objects = load_level_scene_objects(scene_root, level)
-local char_meshes = load_char_meshes(context)
+local char_models = load_char_models()
 local mod_list = jumpman.ModList.load()
 local running_mod
 
@@ -139,7 +139,7 @@ local sky_scroller = MaterialScroller.new(
   jumpman.Vector3.new(-0.025, -0.025, 0))
 
 local jumpman_title = FallingTitle.new(
-  char_meshes,
+  char_models,
   "JUMPMAN",
   context:find_material("7"),
   {
@@ -157,7 +157,7 @@ local zbits = ZBits.new(
 
 local top_menu = Menu.new(
     menu_state,
-    char_meshes,
+    char_models,
     scene_root,
     context:find_material("1"),
     context:find_material("2"),
@@ -171,7 +171,7 @@ local top_menu = Menu.new(
 
 local mod_menu = Menu.new(
   menu_state,
-  char_meshes,
+  char_models,
   scene_root,
   context:find_material("1"),
   context:find_material("2"),
