@@ -60,6 +60,8 @@ function load_char_models()
     load_char_model(char)
   end
 
+  char_models_loaded = true
+
   return char_model_cache
 end
 
