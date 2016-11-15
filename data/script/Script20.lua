@@ -8,8 +8,8 @@ local level = jumpman.level
 local scene_objects = load_level_scene_objects(scene_root, level)
 
 local camera = scene.camera
-camera.transform:set_translation(80, 80 + 40, -115)
-camera.transform:look_at(80, 80, 0)
+camera.transform:set_translation(74.5, 138, -115)
+camera.transform:look_at(74.5, 98, 0)
 
 local background_track = context:find_track(level.background_track_tag)
 
