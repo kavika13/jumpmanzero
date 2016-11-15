@@ -97,10 +97,10 @@ void MeshGenerator::AddPretexturedQuad(
 void MeshGenerator::AddQuad(
     const Vertex& v0, const Vertex& v1, const Vertex& v2, const Vertex& v3) {
   // TODO: Normals
-  const Vertex upper_left = AppendTexCoord(v0, 0.0f, 1.0f);
-  const Vertex upper_right = AppendTexCoord(v1, 1.0f, 1.0f);
-  const Vertex lower_left = AppendTexCoord(v2, 0.0f, 0.0f);
-  const Vertex lower_right = AppendTexCoord(v3, 1.0f, 0.0f);
+  const Vertex upper_left = AppendTexCoord(v0, 0.0f, 0.0f);
+  const Vertex upper_right = AppendTexCoord(v1, 1.0f, 0.0f);
+  const Vertex lower_left = AppendTexCoord(v2, 0.0f, 1.0f);
+  const Vertex lower_right = AppendTexCoord(v3, 1.0f, 1.0f);
 
   AddPretexturedQuad(upper_left, upper_right, lower_left, lower_right);
 }
@@ -216,18 +216,18 @@ void MeshGenerator::AddSkewedCube(
 
   if (drawfront) {
     AddPretexturedQuad(
-      AppendTexCoord(left_top_front, 0.0f, 1.0f),
-      AppendTexCoord(right_top_front, top_right_tu, 1.0f),
-      AppendTexCoord(left_bottom_front, bottom_left_tu, 0.5f),
-      AppendTexCoord(right_bottom_front, bottom_right_tu, 0.5f));
+      AppendTexCoord(left_top_front, 0.0f, 0.5f),
+      AppendTexCoord(right_top_front, top_right_tu, 0.5f),
+      AppendTexCoord(left_bottom_front, bottom_left_tu, 1.0f),
+      AppendTexCoord(right_bottom_front, bottom_right_tu, 1.0f));
   }
 
   if (drawback) {
     AddPretexturedQuad(
-      AppendTexCoord(right_top_back, top_right_tu, 1.0f),
-      AppendTexCoord(left_top_back, 0.0f, 1.0f),
-      AppendTexCoord(right_bottom_back, bottom_right_tu, 0.5f),
-      AppendTexCoord(left_bottom_back, bottom_left_tu, 0.5f));
+      AppendTexCoord(right_top_back, top_right_tu, 0.5f),
+      AppendTexCoord(left_top_back, 0.0f, 0.5f),
+      AppendTexCoord(right_bottom_back, bottom_right_tu, 1.0f),
+      AppendTexCoord(left_bottom_back, bottom_left_tu, 1.0f));
   }
 }
 
