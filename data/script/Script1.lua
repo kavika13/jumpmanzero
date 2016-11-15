@@ -44,20 +44,29 @@ function update(elapsed_seconds)
 
   if input:get_digital_action_state("move_up").is_pressed then
     camera.transform:translate(0, translation, 0)
-  elseif input:get_digital_action_state("move_down").is_pressed then
+  end
+
+  if input:get_digital_action_state("move_down").is_pressed then
     camera.transform:translate(0, -translation, 0)
-  elseif input:get_digital_action_state("move_left").is_pressed then
+  end
+
+  if input:get_digital_action_state("move_left").is_pressed then
     camera.transform:translate(-translation, 0, 0)
-  elseif input:get_digital_action_state("move_right").is_pressed then
+  end
+
+  if input:get_digital_action_state("move_right").is_pressed then
     camera.transform:translate(translation, 0, 0)
-  elseif input:get_digital_action_state("debug1").is_pressed then
+  end
+
+  if input:get_digital_action_state("debug1").is_pressed then
     camera.transform:translate(0, 0, translation)
-  elseif input:get_digital_action_state("debug2").is_pressed then
+  end
+
+  if input:get_digital_action_state("debug2").is_pressed then
     camera.transform:translate(0, 0, -translation)
-  elseif input:get_digital_action_state("debug3").was_just_pressed then
-    print(jumpman_character)
-    jumpman_character:debug_show_next_model()
-  elseif input:get_digital_action_state("attack").was_just_pressed then
+  end
+
+  if input:get_digital_action_state("attack").was_just_pressed then
     return false
   end
 
