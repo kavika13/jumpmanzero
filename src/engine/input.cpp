@@ -29,6 +29,9 @@ Input::Input()
       { "jump", DigitalControllerActionState() },
       { "attack", DigitalControllerActionState() },
       { "toggle_menu", DigitalControllerActionState() },
+      { "debug1", DigitalControllerActionState() },
+      { "debug2", DigitalControllerActionState() },
+      { "debug3", DigitalControllerActionState() },
     }
   , analog_set_to_state_map_ {
       { "menu_move", AnalogControllerActionState() },
@@ -94,6 +97,15 @@ void Input::Update() {
               case SDLK_x:
                 on_pressed(digital_set_to_state_map_["menu_select"]);
                 break;
+              case SDLK_1:
+                on_pressed(digital_set_to_state_map_["debug1"]);
+                break;
+              case SDLK_2:
+                on_pressed(digital_set_to_state_map_["debug2"]);
+                break;
+              case SDLK_3:
+                on_pressed(digital_set_to_state_map_["debug3"]);
+                break;
               case SDLK_ESCAPE:
                 on_pressed(digital_set_to_state_map_["menu_cancel"]);
                 on_pressed(digital_set_to_state_map_["toggle_menu"]);
@@ -121,6 +133,15 @@ void Input::Update() {
               case SDLK_z:
               case SDLK_x:
                 on_released(digital_set_to_state_map_["menu_select"]);
+                break;
+              case SDLK_1:
+                on_released(digital_set_to_state_map_["debug1"]);
+                break;
+              case SDLK_2:
+                on_released(digital_set_to_state_map_["debug2"]);
+                break;
+              case SDLK_3:
+                on_released(digital_set_to_state_map_["debug3"]);
                 break;
               case SDLK_ESCAPE:
                 on_released(digital_set_to_state_map_["menu_cancel"]);
@@ -157,6 +178,15 @@ void Input::Update() {
               case SDLK_x:
                 on_pressed(digital_set_to_state_map_["attack"]);
                 break;
+              case SDLK_1:
+                on_pressed(digital_set_to_state_map_["debug1"]);
+                break;
+              case SDLK_2:
+                on_pressed(digital_set_to_state_map_["debug2"]);
+                break;
+              case SDLK_3:
+                on_pressed(digital_set_to_state_map_["debug3"]);
+                break;
               case SDLK_ESCAPE:
                 on_pressed(digital_set_to_state_map_["toggle_menu"]);
                 break;
@@ -185,6 +215,15 @@ void Input::Update() {
               case SDLK_z:
               case SDLK_x:
                 on_released(digital_set_to_state_map_["attack"]);
+                break;
+              case SDLK_1:
+                on_released(digital_set_to_state_map_["debug1"]);
+                break;
+              case SDLK_2:
+                on_released(digital_set_to_state_map_["debug2"]);
+                break;
+              case SDLK_3:
+                on_released(digital_set_to_state_map_["debug3"]);
                 break;
               case SDLK_ESCAPE:
                 on_released(digital_set_to_state_map_["toggle_menu"]);
