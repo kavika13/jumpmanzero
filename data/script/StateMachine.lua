@@ -7,6 +7,7 @@ function StateMachine.new()
   self.states_ = {}
   self.current_state_ = nil
   self.current_state_name_ = nil
+  self.state_stack_ = {}
 
   return self
 end
@@ -47,6 +48,42 @@ function StateMachine:enter(state_name, ...)
 
   if result then
     self.current_state_ = next_state
+    table.remove(self.state_stack_)
+    table.insert(self.state_stack_, next_state)
+  end
+
+  return result
+end
+
+function StateMachine:push(state_name, ...)
+  local next_state = self.states_[state_name]
+
+  if not next_state then
+    error("Invalid state name: " .. state_name)
+  end
+
+  result = next_state.enter(...)
+
+  if result then
+    self.current_state_ = next_state
+    table.insert(self.state_stack_, next_state)
+  end
+
+  return result
+end
+
+function StateMachine:pop(...)
+  local next_state = self.state_stack_[#self.state_stack_ - 1]
+
+  if not next_state then
+    error("Must have parent state to pop from state stack")
+  end
+
+  result = next_state.enter(...)
+
+  if result then
+    self.current_state_ = next_state
+    table.remove(self.state_stack_)
   end
 
   return result
