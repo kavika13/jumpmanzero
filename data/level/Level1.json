@@ -1571,6 +1571,14 @@
 				"tag" : "4"
 			},
 			{
+				"filename": "data/script/StringObject.lua",
+				"tag" : "5"
+			},
+			{
+				"filename": "data/script/JumpmanCharacter.lua",
+				"tag" : "6"
+			},
+			{
 				"filename" : "data/script/Script1.lua",
 				"tag" : "1"
 			}
