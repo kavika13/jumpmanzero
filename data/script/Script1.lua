@@ -24,7 +24,8 @@ local jumpman_character = JumpmanCharacter.new(
   jumpman_character_models,
   scene_root,
   context:find_sound(jumpman_jump_sound_tag),
-  context:find_sound(jumpman_death_bounce_sound_tag))
+  context:find_sound(jumpman_death_bounce_sound_tag),
+  { x = 80, y = 65, z = 9 })
 
 local background_track = context:find_track(level.background_track_tag)
 

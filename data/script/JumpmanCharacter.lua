@@ -83,11 +83,16 @@ function JumpmanCharacter.new(
     jumpman_character_models,
     scene_root,
     jump_sound,
-    death_bounce_sound)
+    death_bounce_sound,
+    origin)
   local self = create_class_instance(JumpmanCharacter)
+
+  origin = origin or { x = 0, y = 0, z = 0 }
+  local spawn_point = jumpman.Vector3.new(origin.x, origin.y, origin.z)
 
   local scene_object = create_scene_object({}, true)
   scene_object.mesh_component = jumpman.MeshComponent.new()
+  scene_object.transform:set_translation(spawn_point)
   scene_root:add_child(scene_object)
 
   self.state_machine_ = state_machine
@@ -96,6 +101,7 @@ function JumpmanCharacter.new(
   self.debug_model_index_ = 1
   self.jump_sound_ = jump_sound
   self.death_bounce_sound_ = death_bounce_sound
+  self.spawn_point_ = spawn_point
 
   state_machine:enter("Stand", self)
 
