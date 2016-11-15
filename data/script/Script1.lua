@@ -12,8 +12,8 @@ local jumpman_character_models = load_jumpman_character_models(
   context:find_material(jumpman_material_tag))
 
 local camera = scene.camera
-camera.transform:set_translation(80, 80 + 40, -115)
-camera.transform:look_at(80, 80, 0)
+camera.transform:set_translation(80, 103, -115)
+camera.transform:look_at(80, 63, 0)
 
 local jumpman_character_state = JumpmanState.new(input)
 
