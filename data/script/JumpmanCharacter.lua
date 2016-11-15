@@ -82,13 +82,12 @@ function JumpmanCharacter.new(
     state_machine,
     jumpman_character_models,
     scene_root,
-    material,
     jump_sound,
     death_bounce_sound)
   local self = create_class_instance(JumpmanCharacter)
 
-  local stand_model = jumpman_character_models["STAND"]
-  local scene_object = create_scene_object(stand_model)
+  local scene_object = create_scene_object({}, true)
+  scene_object.mesh_component = jumpman.MeshComponent.new()
   scene_root:add_child(scene_object)
 
   self.state_machine_ = state_machine
@@ -97,6 +96,8 @@ function JumpmanCharacter.new(
   self.debug_model_index_ = 1
   self.jump_sound_ = jump_sound
   self.death_bounce_sound_ = death_bounce_sound
+
+  state_machine:enter("Stand", self)
 
   return self
 end
@@ -162,8 +163,30 @@ function JumpmanCharacter:debug_show_next_model()
   end
   self.debug_model_index_ = new_index
 
-  self.scene_object_.mesh_component.mesh = self.character_models_[
-    jumpman_character_model_names[new_index]:upper()].mesh
+  local model = self.character_models_[
+    jumpman_character_model_names[new_index]:upper()]
+
+  local mesh_component = self.scene_object_.mesh_component
+  mesh_component.mesh = model.mesh
+  mesh_component.material = model.material
+end
+
+function JumpmanCharacter:set_model(model_name)
+  model_name = model_name:upper()
+
+  local model = self.character_models_[model_name]
+
+  if not model then
+    error("Failed to find character model with name: " .. model_name)
+  end
+
+  local mesh_component = self.scene_object_.mesh_component
+  mesh_component.mesh = model.mesh
+  mesh_component.material = model.material
+end
+
+function JumpmanCharacter:update(elapsed_seconds)
+  self.state_machine_:update(self, elapsed_seconds)
 end
 
 function JumpmanCharacter:hide()

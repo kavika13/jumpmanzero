@@ -11,18 +11,20 @@ local jumpman_material_tag = "0"
 local jumpman_character_models = load_jumpman_character_models(
   context:find_material(jumpman_material_tag))
 
+local camera = scene.camera
+camera.transform:set_translation(80, 80 + 40, -115)
+camera.transform:look_at(80, 80, 0)
+
+local jumpman_character_state = JumpmanState.new(input)
+
 local jumpman_jump_sound_tag = "0"
 local jumpman_death_bounce_sound_tag = "2"
 local jumpman_character = JumpmanCharacter.new(
-  nil,  -- TODO: state_machine
+  jumpman_character_state,
   jumpman_character_models,
   scene_root,
   context:find_sound(jumpman_jump_sound_tag),
   context:find_sound(jumpman_death_bounce_sound_tag))
-
-local camera = scene.camera
-camera.transform:set_translation(80, 80 + 40, -115)
-camera.transform:look_at(80, 80, 0)
 
 local background_track = context:find_track(level.background_track_tag)
 
@@ -66,9 +68,15 @@ function update(elapsed_seconds)
     camera.transform:translate(0, 0, -translation)
   end
 
+  if input:get_digital_action_state("debug3").was_just_pressed then
+    jumpman_character:debug_show_next_model()
+  end
+
   if input:get_digital_action_state("attack").was_just_pressed then
     return false
   end
+
+  jumpman_character:update(elapsed_seconds)
 
   return true
 end

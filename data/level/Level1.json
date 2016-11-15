@@ -1575,8 +1575,16 @@
 				"tag" : "5"
 			},
 			{
-				"filename": "data/script/JumpmanCharacter.lua",
+				"filename": "data/script/StateMachine.lua",
 				"tag" : "6"
+			},
+			{
+				"filename": "data/script/JumpmanState.lua",
+				"tag" : "7"
+			},
+			{
+				"filename": "data/script/JumpmanCharacter.lua",
+				"tag" : "8"
 			},
 			{
 				"filename" : "data/script/Script1.lua",
