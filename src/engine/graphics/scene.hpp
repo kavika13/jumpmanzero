@@ -41,6 +41,9 @@ struct SceneObject {
 
 struct Scene {
   void Draw(double time_since_last_frame);
+  void QueryRayIntersection(
+    glm::vec2 ray,
+    std::function<bool(SceneObject*)> callback_on_intersect);
 
   friend std::ostream& operator<<(std::ostream&, const Scene&);
 
