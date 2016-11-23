@@ -160,10 +160,10 @@ bool AxisAlignedBox::Contains(const AxisAlignedBox& other) const noexcept {
     && glm::all(glm::greaterThanEqual(max, other.max));
 }
 
-bool AxisAlignedBox::ContainsXY(const glm::vec3& point) const noexcept {
+bool AxisAlignedBox::ContainsXY(const glm::vec2& point) const noexcept {
   const glm::vec2& zero = glm::zero<glm::vec2>();
-  return glm::all(glm::lessThan(glm::vec2(min) - glm::vec2(point), zero))
-    && glm::all(glm::greaterThan(glm::vec2(max) - glm::vec2(point), zero));
+  return glm::all(glm::lessThan(glm::vec2(min) - point, zero))
+    && glm::all(glm::greaterThan(glm::vec2(max) - point, zero));
 }
 
 bool AxisAlignedBox::ContainsXY(const AxisAlignedBox& other) const noexcept {

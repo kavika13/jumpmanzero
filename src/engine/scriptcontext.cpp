@@ -451,7 +451,7 @@ sol::state ScriptContext::StateFactory() {
       sol::resolve<bool (const AxisAlignedBox&) const>(
         &AxisAlignedBox::Contains))
     , "contains_xy", sol::overload(
-      sol::resolve<bool (const glm::vec3&) const>(&AxisAlignedBox::ContainsXY),
+      sol::resolve<bool (const glm::vec2&) const>(&AxisAlignedBox::ContainsXY),
       sol::resolve<bool (const AxisAlignedBox&) const>(
         &AxisAlignedBox::ContainsXY))
     , "get_closest_point_to", &AxisAlignedBox::GetClosestPointTo

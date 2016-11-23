@@ -66,7 +66,7 @@ class AxisAlignedBox {
 
   bool Contains(const glm::vec3& point) const noexcept;
   bool Contains(const AxisAlignedBox& other) const noexcept;
-  bool ContainsXY(const glm::vec3& point) const noexcept;
+  bool ContainsXY(const glm::vec2& point) const noexcept;
   bool ContainsXY(const AxisAlignedBox& other) const noexcept;
 
   glm::vec3 GetClosestPointTo(const glm::vec3& point) const noexcept;
