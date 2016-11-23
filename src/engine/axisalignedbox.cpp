@@ -192,11 +192,16 @@ AxisAlignedBox AxisAlignedBox::GetOverlap(
 }
 
 AxisAlignedBox AxisAlignedBox::Transform(
-    Graphics::Transform& transform) const noexcept {
-  auto matrix = transform.GetLocalToWorldMatrix();
+    const glm::mat4& matrix) const noexcept {
   return AxisAlignedBox::FromPoints({
-    matrix * glm::vec4(min, 0.0f),
-    matrix * glm::vec4(max, 0.0f),
+    matrix * glm::vec4(min.x, min.y, min.z, 0.0f),
+    matrix * glm::vec4(min.x, max.y, min.z, 0.0f),
+    matrix * glm::vec4(max.x, min.y, min.z, 0.0f),
+    matrix * glm::vec4(max.x, max.y, min.z, 0.0f),
+    matrix * glm::vec4(min.x, min.y, max.z, 0.0f),
+    matrix * glm::vec4(min.x, max.y, max.z, 0.0f),
+    matrix * glm::vec4(max.x, min.y, max.z, 0.0f),
+    matrix * glm::vec4(max.x, max.y, max.z, 0.0f),
   });
 }
 

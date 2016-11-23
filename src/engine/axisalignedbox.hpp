@@ -3,8 +3,8 @@
 
 #include <vector>
 #define GLM_FORCE_LEFT_HANDED
+#include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
-#include "engine/graphics/transform.hpp"
 
 namespace Jumpman {
 
@@ -73,7 +73,7 @@ class AxisAlignedBox {
 
   AxisAlignedBox GetOverlap(const AxisAlignedBox& other) const noexcept;
 
-  AxisAlignedBox Transform(Graphics::Transform& transform) const noexcept;
+  AxisAlignedBox Transform(const glm::mat4& transform) const noexcept;
 
   glm::vec3 min;
   glm::vec3 max;
