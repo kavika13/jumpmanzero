@@ -4,6 +4,7 @@
 #include <vector>
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/vec3.hpp>
+#include "engine/graphics/transform.hpp"
 
 namespace Jumpman {
 
@@ -44,6 +45,8 @@ class AxisAlignedBox {
     return { min, max };
   }
 
+  bool IsValid() const noexcept;
+
   glm::vec3 GetOrigin() const noexcept;
   void SetOrigin(const glm::vec3& origin) noexcept;
 
@@ -69,6 +72,8 @@ class AxisAlignedBox {
   glm::vec3 GetClosestPointTo(const glm::vec3& point) const noexcept;
 
   AxisAlignedBox GetOverlap(const AxisAlignedBox& other) const noexcept;
+
+  AxisAlignedBox Transform(Graphics::Transform& transform) const noexcept;
 
   glm::vec3 min;
   glm::vec3 max;

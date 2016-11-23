@@ -83,6 +83,10 @@ AxisAlignedBox AxisAlignedBox::FromBoxes(
   return CreateFromBoxes(boxes);
 }
 
+bool AxisAlignedBox::IsValid() const noexcept {
+  return glm::all(glm::lessThan(min, max));
+}
+
 glm::vec3 AxisAlignedBox::GetOrigin() const noexcept {
   return min + (max - min) / 2.0f;
 }
@@ -185,6 +189,15 @@ AxisAlignedBox AxisAlignedBox::GetOverlap(
     glm::max(min, other.min),
     glm::min(max, other.max),
   };
+}
+
+AxisAlignedBox AxisAlignedBox::Transform(
+    Graphics::Transform& transform) const noexcept {
+  auto matrix = transform.GetLocalToWorldMatrix();
+  return AxisAlignedBox::FromPoints({
+    matrix * glm::vec4(min, 0.0f),
+    matrix * glm::vec4(max, 0.0f),
+  });
 }
 
 };  // namespace Jumpman
