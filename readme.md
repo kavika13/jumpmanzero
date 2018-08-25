@@ -1,4 +1,4 @@
-#[Jumpman Zero](http://www.jumpmanzero.com)
+# [Jumpman Zero](http://www.jumpmanzero.com)
 
 A platformer video game with a very old-school theme. Based on the [Jumpman](http://en.wikipedia.org/wiki/Jumpman) series by Randy Glover, released by Epyx in 1983.
 
@@ -10,7 +10,7 @@ Currently Windows is the only supported platform.
 
 ([archive for Jumpman Zero home page](http://web.archive.org/web/20120527012046/http://www.jumpmanzero.com/), since above link is broken)
 
-##About this repository
+## About this repository
 
 [The original home page for the Jumpman Zero project](http://www.jumpmanzero.com) is currently inaccessible. I haven't managed to get in contact with the author yet about this, but [an archive of the Jumpman Zero site](http://web.archive.org/web/20120527012046/http://www.jumpmanzero.com/) is still visible, as is the source code/tools and latest released version of the game.
 
@@ -18,17 +18,17 @@ This repository exists in order to continue Dave's work, and to add Merlyn Morga
 
 It seems from [Dave Campbell's Jumpman Zero developer diary](http://web.archive.org/web/20110713125316/http://www.jumpmanzero.com/pc/diary.htm) that some of his work never got publically released. Maybe some of those features or bug fixes will make it into this development branch at some point.
 
-##Building
+## Building
 
-###Clone this repository
+### Clone this repository
 
 Install Git and follow [the instructions off GitHub](https://help.github.com/articles/working-with-repositories) to clone [the Jumpman Zero repository](https://github.com/kavika13/jumpmanzero). No need to fork it first (unless you want to) - just clone.
 
-###Install Visual Studio
+### Install Visual Studio
 
 2012 is the version I am using
 
-###Install a DirectX SDK
+### Install a DirectX SDK
 
 The simplest way to get a good SDK version is to clone and use [the Jumpman Zero third-party packages repository](https://github.com/kavika13/jumpmanzero-thirdparty). The rest of this section is how I got hold of those packages and a warning about them - use at your own risk!
 
@@ -45,11 +45,11 @@ I got [a copy of the SDK download from google off "FindThatFile.com"](http://www
 
 Apparently when installing you can [ignore the error message: "This Pre-release version of Xaudio2 has expired"](http://forum.thegamecreators.com/?m=forum_view&t=185890&b=22) - this might only apply to the August 2007 SDK though.  I tried that one first.
 
-###Open the Solution in Visual Studio
+### Open the Solution in Visual Studio
 
 The solution is `Jumpman/Jumpman.sln`
 
-###Setup your SDK sources
+### Setup your SDK sources
 
 Point at the DirectX SDK you installed (Include and Libraries folders)
 
