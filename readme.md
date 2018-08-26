@@ -54,7 +54,7 @@ The solution is `Jumpman/Jumpman.sln`
 Point at the DirectX SDK you installed (Include and Libraries folders)
 
 - TODO: Set up these values via user Property Sheets for `DXInstallDir` macro now used by build (see value below).
-- See the "To specify a per-user directory list" section of [the Directories Property Page instructions](http://msdn.microsoft.com/en-us/library/vstudio/ee855621.aspx)
+- See the "To specify a per-user directory list" section of [the archived Directories Property Page instructions](https://web.archive.org/web/20130106025556/http://msdn.microsoft.com/en-us/library/vstudio/ee855621.aspx)
 - Make sure you add the DirectX SDK Include/Lib paths, and add them **before all other paths** - otherwise the Windows SDK versions of the headers might be used instead, and you'll have build problems
 - Make sure you set up the directories for both the Debug and Release builds (if it doesn't automatically do both.  It did both at the same time for me)
 - The library I am using is installed at `C:\Program Files (x86)\Microsoft DirectX 9.0 SDK (October 2004)\`. Create a `DXInstallDir` macro with this value.
