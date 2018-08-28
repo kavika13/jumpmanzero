@@ -21,7 +21,7 @@ dim iPlayerAir
 Sub Main()
 
   dim iLoop
-  dim iTemp 
+  dim iTemp
 
   if iInit=0
     iInit=1
@@ -76,14 +76,19 @@ sub EnforceMovement()
 
   if PlayerGrounded()=0
     if iPlayerAir<2
-      setext(#py,Y1-7)    
+      setext(#py,Y1-7)
       return 0
     end if
   end if
 
   if Y1<Y2 && bNoUp=0
     setext(#py,Y1-5)
+
+    if getext(#pstat)=#JSFALLING
+      setext(#psc,5)
+    end if
   end if
+
   if Y1>Y2 && bNoDown=0
     setext(#py,Y1-7)
   end if
@@ -91,7 +96,7 @@ sub EnforceMovement()
 end sub
 
 sub AllowLongRoll()
-  if getext(#pstat)!=#JSROLL 
+  if getext(#pstat)!=#JSROLL
     return 0
   end if
   if PlayerInBounds()
@@ -105,7 +110,7 @@ sub AllowLongRoll()
   dim iPY
   iPX=getext(#px)
   iPY=getext(#py)
-  
+
   if getext(#psc)>8 && iPY<Y2
     bNoUP=1
     setext(#psc,8)
@@ -128,7 +133,7 @@ sub AllowLongJumps()
   dim iPY
   iPX=getext(#px)
   iPY=getext(#py)
-  
+
   if getext(#psc)>20
     setext(#psc,getext(#psc)+3)
   end if
@@ -147,10 +152,10 @@ sub DisallowBadJumps()
   if PlayerInBounds()
     return 0
   end if
-  if getext(#py)<Y2 
+  if getext(#py)<Y2
     return 0
   end if
-  
+
   if PlayerGrounded()
     bNoDown=1
   end if
@@ -172,7 +177,7 @@ sub PositionChain()
   dim SagLength
   dim SagDrop
   dim DropCenter
-  dim ToCenter 
+  dim ToCenter
 
   dim Angle
 
@@ -222,7 +227,7 @@ sub PositionChain()
 
     iOX=iSX
     iOY=iSY
-  
+
     iLink=iLink+1
   loop
 
@@ -237,15 +242,15 @@ sub PlayerGrounded()
   dim iHit
   dim iPX
   dim iPY
- 
+
   iPX=getext(#px)
   iPY=getext(#py)
-  
+
   iPlat=FindPlatform(iPX,iPY,12,2)
   iHit=getext(#event4)
 
   iPlayerAir=iPY-iHit
-     
+
   if iHit>=iPY
     return 1
   end if

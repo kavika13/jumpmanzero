@@ -4,7 +4,7 @@ include Level24Resources
 dim iInit
 dim iMeshes[30]
 
-dim iFrame 
+dim iFrame
 dim iX
 dim iY
 dim iZ
@@ -19,8 +19,8 @@ dim iAnimate
 Sub Main()
   if iInit=0
     iInit=1
-    iMeshes[1]=NewMesh(#MeshBaboonT1)
-    iMeshes[2]=NewMesh(#MeshBaboonT2)
+    iMeshes[1]=NewMesh(#TextureBaboon)
+    iMeshes[2]=NewMesh(#TextureBark)
     iX=StartX
     iY=StartY
     iZ=0
@@ -82,7 +82,7 @@ sub MoveBaboon()
       iX=iOldX
     end if
   end if
-   
+
   if iX!=iOldX
     iY=iHit
   end if

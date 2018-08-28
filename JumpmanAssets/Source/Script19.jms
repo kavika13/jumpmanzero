@@ -30,7 +30,7 @@ Sub Main()
 
     CreateProp(99,105,80,2)
     CreateProp(101,97,25,2)
-    
+
   end if
 
   ConveyPlatform(1,.04)
@@ -52,11 +52,11 @@ sub ConveyPlatform(iPlat,iDist)
   iPX=getext(#px)
   iPY=getext(#py)
 
-  if getext(#pStat) & JS_JUMPING
+  if getext(#pStat)=#JSJUMPING
     return 0
   end if
 
-  iPN=FindPlatform(iPX,iPY,8,2)
+  iPN=FindPlatform(iPX,iPY,14,2)
   iHit=getext(#event4)
 
   ABSPlatform(iPN)
@@ -66,9 +66,15 @@ sub ConveyPlatform(iPlat,iDist)
 
   if GetExt(#event2)=iPN
     iPX=iPX-iDist*15
+
+    if getext(#pstat)=4096
+      SetExt(#pstat,#JSFALLING)
+      SetExt(#psc,0)
+    end if
+
     SetExt(#px,iPX)
   end if
-  
+
 '  if (iHit+1)>=iPY
 '    iPX=iPX-iDist*15
 '    SetExt(#px,iPX)

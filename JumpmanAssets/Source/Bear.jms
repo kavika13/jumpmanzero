@@ -32,20 +32,20 @@ Sub Main()
 
   setext(#debug,1)
 
-  if iInit=0 
+  if iInit=0
     Initialize()
   end if
-  if iY<0 
+  if iY<0
     ResetPos()
   end if
 
-  setobject(iMeshes[iFrame],0,0,0,0,0,0,3,0)
+  SetProperties(iMeshes[iFrame],0,0,0,0,0,0,3,0)
 
   AdvanceFrame()
 
   MoveBear()
 
-  setobject(iMeshes[iFrame],iX,iY+11,iZ-0.5,0,0,0,3,1)
+  SetProperties(iMeshes[iFrame],iX,iY+11,iZ-0.5,0,0,0,3,1)
 
   dim iCollide
   if iStatus<2
@@ -57,7 +57,7 @@ Sub Main()
     end if
     if iDir=1 || iDir=2
       iCollide=collide(ix-4,iy,ix+4,iy+20)
-    end if    
+    end if
 
     if iCollide
       kill()
@@ -125,7 +125,7 @@ sub CheckForHalt()
   end if
 
   if iDir=1 || iDir=2
-    FindPlatform(iX,iY+3,4)  
+    FindPlatform(iX,iY+3,4)
     iHit=getext(#event4)
     if iHit=iY
       iDir=0
@@ -134,34 +134,34 @@ sub CheckForHalt()
   end if
 
   if iDir=4
-    iPlat1=FindPlatform(iX+6,iY+5,4)  
-    iPlat2=FindPlatform(iX+7,iY+5,4)  
+    iPlat1=FindPlatform(iX+6,iY+5,4)
+    iPlat2=FindPlatform(iX+7,iY+5,4)
     if iPlat1=iPlat2
       return 0
     end if
-    
+
     iHit=getext(#event4)
-    if iHit<0 
+    if iHit<0
       iDir=3
       iXV=0-1.0
-    elseif iHit<iY-4 
+    elseif iHit<iY-4
       iDir=0
       iFallRight=1
     end if
     return 0
   end if
   if iDir=3
-    iPlat1=FindPlatform(iX-6,iY+5,4)  
-    iPlat2=FindPlatform(iX-7,iY+5,4)  
+    iPlat1=FindPlatform(iX-6,iY+5,4)
+    iPlat2=FindPlatform(iX-7,iY+5,4)
     if iPlat1=iPlat2
       return 0
     end if
 
     iHit=getext(#event4)
-    if iHit<0 
+    if iHit<0
       iDir=4
       iXV=1.0
-    elseif iHit<iY-4 
+    elseif iHit<iY-4
       iDir=0
       iFallLeft=1
     end if
@@ -179,7 +179,7 @@ sub CheckForOptions()
   end if
 
   if iLadder>=0
-    iRand=rnd(1,100)    
+    iRand=rnd(1,100)
     absladder(iLadder)
 
     if iLastDir>2
@@ -198,28 +198,28 @@ sub CheckForOptions()
 
     iLadder=0-1
   end if
-  
+
   dim iBelow
 
   iRand=rnd(1,100)
   iBelow=getExt(#py)>(iY+10)
- 
+
   if iRand<10
     iDir=3
     iXV=0-1
   elseif iRand>90
     iDir=4
-    iXV=1    
-  elseif iFallRight && iBelow 
+    iXV=1
+  elseif iFallRight && iBelow
     iDir=3
     iXV=0-1
-  elseif iFallLeft && iBelow 
+  elseif iFallLeft && iBelow
     iDir=4
     iXV=1
   elseif iX<getext(#px)
     iDir=4
     iXV=1
-  else 
+  else
     iDir=3
     iXV=0-1
   end if
@@ -240,13 +240,13 @@ sub MoveBear()
   dim iHit
   dim iPlat
 
-  iPlat=FindPlatform(iX,iY+5,4)  
+  iPlat=FindPlatform(iX,iY+5,4)
   iHit=getext(#event4)
 
   if iAnimate=1
     AdjustZ(iPlat)
   end if
-  if iLadder>=0 
+  if iLadder>=0
     iZ=iLadderZ
   end if
 
@@ -295,7 +295,7 @@ sub MoveBear()
     end if
   end if
 
-  if iXV<0 
+  if iXV<0
     iFrame=iFrame+11
   end if
 end sub
@@ -304,7 +304,7 @@ sub AdjustZ(iPlatNum)
     dim iPlatZ
 
     ABSplatform(iPlatNum)
-    iPlatZ=getsel(#sz1)    
+    iPlatZ=getsel(#sz1)
 
     if iStatus=0 && iDir<3
        iZ=iPlatZ

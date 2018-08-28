@@ -28,7 +28,7 @@ dim iYV
 
 Sub Main()
 
-  if iInit=0 
+  if iInit=0
     iTimeAlive=0
     Initialize()
     iStatus=10
@@ -83,7 +83,7 @@ Sub Main()
 end Sub
 
 sub CheckForChange()
-  if rnd(0,400)>395 
+  if rnd(0,400)>395
     iDir=0
   end if
 
@@ -182,7 +182,7 @@ sub ChangeDirections()
     return 0
   end if
 
-  iRnd=rnd(0,100)  
+  iRnd=rnd(0,100)
   iDir=0-1
   if iRnd>50
     iDir=1
@@ -195,9 +195,9 @@ sub CountDonuts()
   dim iObjects
 
   iDCount=0
-   
+
   iObjects=getext(#objects)
-  iObj=0        
+  iObj=0
 
   while iObj<=iObjects
     iType=getData(iObj,#ObjectType)
@@ -324,7 +324,7 @@ sub MoveDonut()
     AdjustY()
     ProgressHatch()
   end if
-  
+
   if iStatus=2
     iRotate=iRotate+5
     iX=iX+iXV
@@ -352,7 +352,7 @@ sub DestroyMe()
   DeleteMesh(iMeshes[6])
   DeleteMesh(iMeshes[7])
   DeleteMesh(iMeshes[8])
-  DeleteObject(#this)
+  DeleteObject(1000)
 end sub
 
 Sub Initialize()

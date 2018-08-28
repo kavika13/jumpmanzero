@@ -24,7 +24,7 @@ dim Angle
 
 Sub Main()
 
-  if iInit=0 
+  if iInit=0
     Initialize()
   end if
 
@@ -43,18 +43,18 @@ Sub Main()
   Translate(iX,iY+13,9)
   SetProperties(#textureDinosaur,2)
 
-  dim iCollide  
+  dim iCollide
 
-  if iStatus=#Left 
-    iCollide=Collide(iX-14,iY,iX+10,iY+16)
-    if iCollide 
+  if iStatus=#Left
+    iCollide=Collide(iX-14,iY+4,iX+10,iY+16)
+    if iCollide
       Kill()
     end if
   end if
 
   if iStatus=#Right
-    iCollide=Collide(iX-10,iY,iX+14,iY+16)
-    if iCollide 
+    iCollide=Collide(iX-10,iY+4,iX+14,iY+16)
+    if iCollide
       Kill()
     end if
   end if
@@ -89,7 +89,7 @@ sub Move()
       iY=iY+1
     else
       iY=iHit
-    end if   
+    end if
   end if
 
   if iStatus=#Left
@@ -123,7 +123,7 @@ End Sub
 sub Animate()
 
   iSlow=iSlow+1
-  if iSlow>3 
+  if iSlow>3
     iSlow=0
     iSlowFrame=iSlowFrame+1
     if iSlowFrame=4

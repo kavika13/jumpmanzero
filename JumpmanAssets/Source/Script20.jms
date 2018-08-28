@@ -14,7 +14,7 @@ Sub Main()
 
   if iInit=1
     iInit=2
-    while iLoop<7
+    while iLoop<6
       CreateSheep()
       iLoop=iLoop+1
     loop
