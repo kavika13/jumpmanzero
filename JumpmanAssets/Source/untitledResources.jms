@@ -26,3 +26,6 @@ define MeshnjRL4 15
 define MeshnjDead 16
 define MeshnjW1 17
 define MeshnjW2 18
+define SoundJump 0
+define Soundchomp 1
+define Soundbonk 2
