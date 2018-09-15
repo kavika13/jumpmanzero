@@ -48,9 +48,6 @@
     <ClCompile Include="dxutil.cpp">
       <Filter>MS Classes</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>MS Classes</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jumpman.h">
@@ -63,9 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dxutil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

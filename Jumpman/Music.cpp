@@ -1,6 +1,5 @@
-#include "stdafx.h"
-
-#include <windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>  // NOLINT
 #pragma warning( disable:4005 )
 #include <dmusicc.h>
 #pragma warning( default:4005 )

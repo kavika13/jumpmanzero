@@ -143,7 +143,7 @@ struct ScriptContext{
 
 // IN JUMPMAN
 ATOM MyRegisterClass(HINSTANCE hInstance);
-BOOL InitInstance(HINSTANCE, int);
+BOOL InitInstance(HINSTANCE);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine);
 void LoadNextLevel();

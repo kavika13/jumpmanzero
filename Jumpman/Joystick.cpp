@@ -1,4 +1,5 @@
-#include "stdafx.h"  // NOLINT
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>  // NOLINT
 #include <mmsystem.h>  // NOLINT
 
 int JoystickPresent() {

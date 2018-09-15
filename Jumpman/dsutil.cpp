@@ -1,6 +1,3 @@
-#include "stdafx.h"
-
-
 //-----------------------------------------------------------------------------
 // File: DSUtil.cpp
 //
@@ -10,7 +7,8 @@
 //
 // Copyright (c) 1999-2001 Microsoft Corp. All rights reserved.
 //-----------------------------------------------------------------------------
-#include <windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>  // NOLINT
 #include <mmsystem.h>
 #include <dxerr8.h>
 #include <dsound.h>

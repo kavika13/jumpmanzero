@@ -1,4 +1,3 @@
-#include "stdafx.h"  // NOLINT
 #include "./jumpman.h"
 
 #define FCBASECN 2

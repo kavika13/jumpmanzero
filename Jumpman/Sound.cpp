@@ -1,6 +1,5 @@
-#include "stdafx.h"
-
-#include <windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>  // NOLINT
 #include <basetsd.h>
 #include <commdlg.h>
 #include <mmreg.h>

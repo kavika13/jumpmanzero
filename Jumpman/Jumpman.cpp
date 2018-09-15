@@ -1,4 +1,3 @@
-#include "stdafx.h"  // NOLINT
 #include <stdio.h>  // NOLINT
 #include <D3DX8.h>
 #include "./Jumpman.h"
@@ -2414,14 +2413,12 @@ long LoadSettings() {
     return 1;
 }
 
-int APIENTRY _tWinMain(HINSTANCE hInstance,
-                       HINSTANCE hPrevInstance,
-                       LPTSTR lpCmdLine,
-                       int nCmdShow) {
-    miDEBUG = 1;
+int main(int arguments_count, char* arguments[]) {
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	miDEBUG = 1;
     MyRegisterClass(hInstance);
 
-    if (!InitInstance(hInstance, nCmdShow)) {
+    if (!InitInstance(hInstance)) {
         return FALSE;
     }
 
@@ -2461,8 +2458,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
     HANDLE g_hDMusicMessageEvent = NULL;
 
-    if (strlen(lpCmdLine)) {
-        sprintf_s(GameDebugLevel, "%s\\Data\\%s.DAT", GamePath, lpCmdLine);
+    if (arguments_count > 1 && strlen(arguments[1])) {
+        sprintf_s(GameDebugLevel, "%s\\Data\\%s.DAT", GamePath, arguments[1]);
         GameDebugMode = 1;
         LoadNextLevel();
         iLevel = 0;
@@ -2708,7 +2705,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
     return RegisterClassEx(&wcex);
 }
 
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+BOOL InitInstance(HINSTANCE hInstance) {
     hInst = hInstance;
 
     if (FULL_SCREEN) {
@@ -2725,7 +2722,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
         return FALSE;
     }
 
-    ShowWindow(hWnd, nCmdShow);
+    ShowWindow(hWnd, SW_SHOWDEFAULT);
     UpdateWindow(hWnd);
 
     return TRUE;
