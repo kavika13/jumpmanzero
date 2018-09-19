@@ -60,15 +60,17 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;dxerr8.lib;winmm.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;dxerr8.lib;winmm.lib;dxguid.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <IgnoreSpecificDefaultLibraries>libci.lib</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>glfw-3.2.1.bin.WIN32\lib-vc2015</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -86,10 +88,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;dxerr8.lib;winmm.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;dxerr8.lib;winmm.lib;dxguid.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -97,11 +100,14 @@
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <IgnoreSpecificDefaultLibraries>libci.lib</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>glfw-3.2.1.bin.WIN32\lib-vc2015</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Basic3D.cpp" />
+    <ClCompile Include="glad\src\glad.c" />
+    <ClCompile Include="glad\src\glad_wgl.c" />
     <ClCompile Include="Joystick.cpp" />
     <ClCompile Include="Jumpman.cpp" />
     <ClCompile Include="Music.cpp" />
@@ -113,10 +119,17 @@
     <ClCompile Include="dxutil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="glad\include\glad\glad.h" />
+    <ClInclude Include="glad\include\glad\glad_wgl.h" />
+    <ClInclude Include="glad\include\KHR\khrplatform.h" />
+    <ClInclude Include="glfw-3.2.1.bin.WIN32\include\GLFW\glfw3.h" />
+    <ClInclude Include="glfw-3.2.1.bin.WIN32\include\GLFW\glfw3native.h" />
+    <ClInclude Include="handmademath-1.7.0\HandmadeMath.h" />
     <ClInclude Include="Jumpman.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="dmutil.h" />
     <ClInclude Include="dxutil.h" />
+    <ClInclude Include="stb-image-2.19.0\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Jumpman.ico" />

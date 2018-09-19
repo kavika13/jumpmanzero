@@ -1,7 +1,11 @@
 #include <stdio.h>  // NOLINT
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>  // NOLINT
-#include <D3DX8.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define HANDMADE_MATH_IMPLEMENTATION
+#define HANDMADE_MATH_NO_SSE
+#include "HandmadeMath.h"
 #include "./jumpman.h"
 
 #define MAX_TEXTURES 30
@@ -9,15 +13,15 @@
 #define MAX_VERTICES 110000
 
 #pragma comment(lib, "d3d8.lib")
-#pragma comment(lib, "d3dx8.lib")
+
+extern int g_backbuffer_width;
+extern int g_backbuffer_height;
 
 void FatalError(const char* error_msg);
 long init_d3d(HWND hWindow);
 void kill_d3d(void);
 void init_scene(void);
 void kill_scene(void);
-
-HWND g_main_window = NULL;
 
 LPDIRECT3D8 g_D3D = NULL;
 IDirect3DDevice8* g_d3d_device = NULL;
@@ -27,8 +31,119 @@ char RetainTextureFile[MAX_TEXTURES][300];
 long texRequiresAlpha[MAX_TEXTURES];
 long texType[MAX_TEXTURES];
 
-D3DLIGHT8 light;
-D3DXMATRIX view_matrix;
+D3DLIGHT8 g_light;
+hmm_mat4 g_view_matrix;
+
+hmm_mat4 HMM_Mat4(hmm_vec4 column_0, hmm_vec4 column_1, hmm_vec4 column_2, hmm_vec4 column_3) {
+    hmm_mat4 result {
+        column_0[0], column_0[1], column_0[2], column_0[3],
+        column_1[0], column_1[1], column_1[2], column_1[3],
+        column_2[0], column_2[1], column_2[2], column_2[3],
+        column_3[0], column_3[1], column_3[2], column_3[3],
+    };
+    return result;
+}
+
+hmm_mat4 jm_hmm_inverse(hmm_mat4 input) {
+    float coef_00 = input[2][2] * input[3][3] - input[3][2] * input[2][3];
+    float coef_02 = input[1][2] * input[3][3] - input[3][2] * input[1][3];
+    float coef_03 = input[1][2] * input[2][3] - input[2][2] * input[1][3];
+
+    float coef_04 = input[2][1] * input[3][3] - input[3][1] * input[2][3];
+    float coef_06 = input[1][1] * input[3][3] - input[3][1] * input[1][3];
+    float coef_07 = input[1][1] * input[2][3] - input[2][1] * input[1][3];
+
+    float coef_08 = input[2][1] * input[3][2] - input[3][1] * input[2][2];
+    float coef_10 = input[1][1] * input[3][2] - input[3][1] * input[1][2];
+    float coef_11 = input[1][1] * input[2][2] - input[2][1] * input[1][2];
+
+    float coef_12 = input[2][0] * input[3][3] - input[3][0] * input[2][3];
+    float coef_14 = input[1][0] * input[3][3] - input[3][0] * input[1][3];
+    float coef_15 = input[1][0] * input[2][3] - input[2][0] * input[1][3];
+
+    float coef_16 = input[2][0] * input[3][2] - input[3][0] * input[2][2];
+    float coef_18 = input[1][0] * input[3][2] - input[3][0] * input[1][2];
+    float coef_19 = input[1][0] * input[2][2] - input[2][0] * input[1][2];
+
+    float coef_20 = input[2][0] * input[3][1] - input[3][0] * input[2][1];
+    float coef_22 = input[1][0] * input[3][1] - input[3][0] * input[1][1];
+    float coef_23 = input[1][0] * input[2][1] - input[2][0] * input[1][1];
+
+    hmm_vec4 Fac0 = HMM_Vec4(coef_00, coef_00, coef_02, coef_03);
+    hmm_vec4 Fac1 = HMM_Vec4(coef_04, coef_04, coef_06, coef_07);
+    hmm_vec4 Fac2 = HMM_Vec4(coef_08, coef_08, coef_10, coef_11);
+    hmm_vec4 Fac3 = HMM_Vec4(coef_12, coef_12, coef_14, coef_15);
+    hmm_vec4 Fac4 = HMM_Vec4(coef_16, coef_16, coef_18, coef_19);
+    hmm_vec4 Fac5 = HMM_Vec4(coef_20, coef_20, coef_22, coef_23);
+
+    hmm_vec4 Vec0 = HMM_Vec4(input[1][0], input[0][0], input[0][0], input[0][0]);
+    hmm_vec4 Vec1 = HMM_Vec4(input[1][1], input[0][1], input[0][1], input[0][1]);
+    hmm_vec4 Vec2 = HMM_Vec4(input[1][2], input[0][2], input[0][2], input[0][2]);
+    hmm_vec4 Vec3 = HMM_Vec4(input[1][3], input[0][3], input[0][3], input[0][3]);
+
+    hmm_vec4 Inv0(Vec1 * Fac0 - Vec2 * Fac1 + Vec3 * Fac2);
+    hmm_vec4 Inv1(Vec0 * Fac0 - Vec2 * Fac3 + Vec3 * Fac4);
+    hmm_vec4 Inv2(Vec0 * Fac1 - Vec1 * Fac3 + Vec3 * Fac5);
+    hmm_vec4 Inv3(Vec0 * Fac2 - Vec1 * Fac4 + Vec2 * Fac5);
+
+    hmm_vec4 SignA = HMM_Vec4(+1, -1, +1, -1);
+    hmm_vec4 SignB = HMM_Vec4(-1, +1, -1, +1);
+    hmm_mat4 Inverse = HMM_Mat4(Inv0 * SignA, Inv1 * SignB, Inv2 * SignA, Inv3 * SignB);
+
+    hmm_vec4 Row0 = HMM_Vec4(Inverse[0][0], Inverse[1][0], Inverse[2][0], Inverse[3][0]);
+
+    hmm_vec4 Dot0(input[0] * Row0);
+    float Dot1 = (Dot0.X + Dot0.Y) + (Dot0.Z + Dot0.W);
+
+    float OneOverDeterminant = 1.0f / Dot1;
+
+    return Inverse * OneOverDeterminant;
+}
+
+hmm_mat4 HMM_LookAtLH(hmm_vec3 Eye, hmm_vec3 Center, hmm_vec3 Up) {
+    hmm_mat4 Result;
+
+    hmm_vec3 F = HMM_NormalizeVec3(HMM_SubtractVec3(Center, Eye));
+    hmm_vec3 S = HMM_NormalizeVec3(HMM_Cross(Up, F));
+    hmm_vec3 U = HMM_Cross(F, S);
+
+    Result.Elements[0][0] = S.X;
+    Result.Elements[0][1] = U.X;
+    Result.Elements[0][2] = F.X;
+    Result.Elements[0][3] = 0.0f;
+
+    Result.Elements[1][0] = S.Y;
+    Result.Elements[1][1] = U.Y;
+    Result.Elements[1][2] = F.Y;
+    Result.Elements[1][3] = 0.0f;
+
+    Result.Elements[2][0] = S.Z;
+    Result.Elements[2][1] = U.Z;
+    Result.Elements[2][2] = F.Z;
+    Result.Elements[2][3] = 0.0f;
+
+    Result.Elements[3][0] = -HMM_DotVec3(S, Eye);
+    Result.Elements[3][1] = -HMM_DotVec3(U, Eye);
+    Result.Elements[3][2] = -HMM_DotVec3(F, Eye);
+    Result.Elements[3][3] = 1.0f;
+
+    return (Result);
+}
+
+HMM_INLINE hmm_mat4 HMM_PerspectiveFovLH_ZO(float FOV, float AspectRatio, float Near, float Far) {
+    hmm_mat4 Result = HMM_Mat4();
+
+    float TanThetaOver2 = HMM_TanF(FOV * (HMM_PI32 / 360.0f));
+
+    Result.Elements[0][0] = 1.0f / (TanThetaOver2 * AspectRatio);
+    Result.Elements[1][1] = 1.0f / TanThetaOver2;
+    Result.Elements[2][2] = Far / (Far - Near);
+    Result.Elements[2][3] = 1.0f;
+    Result.Elements[3][2] = -(Far * Near) / (Far - Near);
+    Result.Elements[3][3] = 0.0f;
+
+    return (Result);
+}
 
 // #define D3D8T_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_TEX1|D3DFVF_NORMAL|D3DFVF_DIFFUSE)
 #define D3D8T_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_TEX1|D3DFVF_NORMAL)
@@ -49,7 +164,7 @@ long iStart[MAX_OBJECTS];
 long iLength[MAX_OBJECTS];
 long iTEX[MAX_OBJECTS];
 long iVis[MAX_OBJECTS];
-D3DXMATRIX matObject[MAX_OBJECTS];
+hmm_mat4 matObject[MAX_OBJECTS];
 
 long GetDrawnObjects() {
     return DrawnObjects;
@@ -83,38 +198,29 @@ void DeleteMesh(long iMesh) {
 }
 
 void IdentityMatrix(long iObj) {
-    long iReal;
-
-    iReal = iRedirects[iObj];
-    D3DXMatrixIdentity(&matObject[iReal]);
+    long iReal = iRedirects[iObj];
+    hmm_mat4 result {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1,
+    };
+    matObject[iReal] = result;
 }
 
 void PerspectiveMatrix(long iObj) {
-    long iReal;
-    float det;
-    D3DXMATRIX tempMatrix1;
-
-    iReal = iRedirects[iObj];
-    D3DXMatrixInverse(&tempMatrix1, &det, &view_matrix);
-    D3DXMatrixMultiply(&matObject[iReal], &matObject[iReal], &tempMatrix1);
+    long iReal = iRedirects[iObj];
+    matObject[iReal] = jm_hmm_inverse(g_view_matrix) * matObject[iReal];
 }
 
 void TranslateMatrix(long iObj, float fX, float fY, float fZ) {
-    long iReal;
-    D3DXMATRIX tempMatrix1;
-
-    iReal = iRedirects[iObj];
-    D3DXMatrixTranslation(&tempMatrix1, fX, fY, fZ);
-    D3DXMatrixMultiply(&matObject[iReal], &matObject[iReal], &tempMatrix1);
+    long iReal = iRedirects[iObj];
+    matObject[iReal] = HMM_Translate(HMM_Vec3(fX, fY, fZ)) * matObject[iReal];
 }
 
 void ScaleMatrix(long iObj, float fX, float fY, float fZ) {
-    long iReal;
-    D3DXMATRIX tempMatrix1;
-
-    iReal = iRedirects[iObj];
-    D3DXMatrixScaling(&tempMatrix1, fX, fY, fZ);
-    D3DXMatrixMultiply(&matObject[iReal], &matObject[iReal], &tempMatrix1);
+    long iReal = iRedirects[iObj];
+    matObject[iReal] = HMM_Scale(HMM_Vec3(fX, fY, fZ)) * matObject[iReal];
 }
 
 void ScrollTexture(long iObj, float fX, float fY) {
@@ -146,30 +252,18 @@ void ScrollTexture(long iObj, float fX, float fY) {
 }
 
 void RotateMatrixX(long iObj, float fDegrees) {
-    long iReal;
-    D3DXMATRIX tempMatrix1;
-
-    iReal = iRedirects[iObj];
-    D3DXMatrixRotationX(&tempMatrix1, fDegrees * 3.1415f / 180.0f);
-    D3DXMatrixMultiply(&matObject[iReal], &matObject[iReal], &tempMatrix1);
+    long iReal = iRedirects[iObj];
+    matObject[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(1.0f, 0.0f, 0.0f)) * matObject[iReal];
 }
 
 void RotateMatrixY(long iObj, float fDegrees) {
-    long iReal;
-    D3DXMATRIX tempMatrix1;
-
-    iReal = iRedirects[iObj];
-    D3DXMatrixRotationY(&tempMatrix1, fDegrees * 3.1415f / 180.0f);
-    D3DXMatrixMultiply(&matObject[iReal], &matObject[iReal], &tempMatrix1);
+    long iReal = iRedirects[iObj];
+    matObject[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 1.0f, 0.0f)) * matObject[iReal];
 }
 
 void RotateMatrixZ(long iObj, float fDegrees) {
-    long iReal;
-    D3DXMATRIX tempMatrix1;
-
-    iReal = iRedirects[iObj];
-    D3DXMatrixRotationZ(&tempMatrix1, fDegrees * 3.1415f / 180.0f);
-    D3DXMatrixMultiply(&matObject[iReal], &matObject[iReal], &tempMatrix1);
+    long iReal = iRedirects[iObj];
+    matObject[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 0.0f, 1.0f)) * matObject[iReal];
 }
 
 void PrioritizeObject(long o1) {
@@ -193,7 +287,7 @@ void SwapLong(long* l1, long* l2) {
 }
 
 void SwapObjects(long o1, long o2) {
-    D3DXMATRIX mSwap;
+    hmm_mat4 mSwap;
     long iRealO1, iRealO2;
 
     iRealO1 = o1;
@@ -236,27 +330,44 @@ void LoadTexture(int iTex, char* sFile, int iType, int iAlpha) {
     strcpy_s(RetainTextureFile[iTex], sFile);
     texType[iTex] = iType;
 
-    if (iType == 0) {
-        hr = D3DXCreateTextureFromFile(g_d3d_device, sFile, &texData[iTex]);
-    } else if (iType == 1) {
-        hr = D3DXCreateTextureFromFileEx(g_d3d_device,  // Our D3D Device
-                                         sFile,         // Filename of our texture
-                                         D3DX_DEFAULT,  // Width:D3DX_DEFAULT = Take from file
-                                         D3DX_DEFAULT,  // Height:D3DX_DEFAULT = Take from file
-                                         1,             // MipLevels
-                                         0,             // Usage, Is this to be used as a Render Target? 0 == No
-                                         D3DFMT_A8R8G8B8,  // 32-bit with Alpha, everything should support this
-                                         D3DPOOL_MANAGED,  // Pool, let D3D Manage our memory
-                                         D3DX_DEFAULT,  // Filter:Default filtering
-                                         D3DX_DEFAULT,  // MipFilter, used for filtering mipmaps
-                                         0xFFFFFFFF,    // ColourKey
-                                         NULL,          // SourceInfo, returns extra info if we want it (we don't)
-                                         NULL,          // Palette:We're not using one
-                                         &texData[iTex]);  // Our texture goes here.
-    }
+    int width, height, channels_in_file;
+    unsigned char* image_data = stbi_load(sFile, &width, &height, &channels_in_file, 4);
+
+    hr = g_d3d_device->CreateTexture(width, height, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texData[iTex]);
 
     if (FAILED(hr)) {
-        FatalError("Error loading texture");
+        FatalError("Error creating texture resource");  // TODO: Read back error info
+    }
+
+    D3DLOCKED_RECT rect;
+    hr = texData[iTex]->LockRect(0, &rect, NULL, 0);
+
+    if (FAILED(hr)) {
+        FatalError("Error locking texture data");  // TODO: Read back error info
+    }
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            // BGRA
+            ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 0] = image_data[y * rect.Pitch + x * 4 + 2];
+            ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 1] = image_data[y * rect.Pitch + x * 4 + 1];
+            ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 2] = image_data[y * rect.Pitch + x * 4 + 0];
+
+            if (iType == 1 && *((uint32_t*)&image_data[y * rect.Pitch + x * 4 + 0]) == 0xFFFFFFFF) {
+                // Color key alpha, on 0xFFFFFFFF
+                ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 3] = 0x0;
+            } else {
+                ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 3] = image_data[y * rect.Pitch + x * 4 + 3];
+            }
+        }
+    }
+
+    stbi_image_free(image_data);
+
+    hr = texData[iTex]->UnlockRect(0);
+
+    if (FAILED(hr)) {
+        FatalError("Error unlocking texture data");  // TODO: Read back error info
     }
 }
 
@@ -530,10 +641,8 @@ long init_d3d(HWND hWindow) {
 
     if (FULL_SCREEN) {
         d3dpp.Windowed = FALSE;
-//      d3dpp.BackBufferWidth = 640;
-//      d3dpp.BackBufferHeight = 480;
-        d3dpp.BackBufferWidth = FULLSCREEN_RESX;
-        d3dpp.BackBufferHeight = FULLSCREEN_RESY;
+        d3dpp.BackBufferWidth = g_backbuffer_width;
+        d3dpp.BackBufferHeight = g_backbuffer_height;
         d3dpp.BackBufferFormat = D3DFMT_A8R8G8B8;
     } else {
         d3dpp.Windowed = TRUE;
@@ -589,41 +698,40 @@ void SetFog(float iFogStart, float iFogEnd, DWORD Color) {
 }
 
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ) {
-    D3DXMatrixLookAtLH(&view_matrix, &D3DXVECTOR3(iCamX, iCamY, iCamZ), &D3DXVECTOR3(iPoiX, iPoiY, iPoiZ), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
-    g_d3d_device->SetTransform(D3DTS_VIEW, &view_matrix);
+    g_view_matrix = HMM_LookAtLH(HMM_Vec3(iCamX, iCamY, iCamZ), HMM_Vec3(iPoiX, iPoiY, iPoiZ), HMM_Vec3(0.0f, 1.0f, 0.0f));
+    g_d3d_device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&g_view_matrix);
 
-    light.Position = D3DXVECTOR3(iCamX, iCamY + 10.0f, -200.0f);
+    g_light.Position = { iCamX, iCamY + 10.0f, -200.0f };
 
-    light.Diffuse.r = 1.0f;
-    light.Diffuse.g = 1.0f;
-    light.Diffuse.b = 1.0f;
+    g_light.Diffuse.r = 1.0f;
+    g_light.Diffuse.g = 1.0f;
+    g_light.Diffuse.b = 1.0f;
 
-    light.Ambient.r = 1.0f;
-    light.Ambient.g = 1.0f;
-    light.Ambient.b = 1.0f;
+    g_light.Ambient.r = 1.0f;
+    g_light.Ambient.g = 1.0f;
+    g_light.Ambient.b = 1.0f;
 
-    g_d3d_device->SetLight(0, &light);
+    g_d3d_device->SetLight(0, &g_light);
     g_d3d_device->LightEnable(0, TRUE);
 }
 
 void init_scene(void) {
     HRESULT hr;
-    D3DXMATRIX matProj;
 
-    ZeroMemory(&light, sizeof(D3DLIGHT8));
-    light.Type = D3DLIGHT_POINT;
+    ZeroMemory(&g_light, sizeof(D3DLIGHT8));
+    g_light.Type = D3DLIGHT_POINT;
 
-    light.Diffuse.r = 1.0f;
-    light.Diffuse.g = 1.0f;
-    light.Diffuse.b = 1.0f;
+    g_light.Diffuse.r = 1.0f;
+    g_light.Diffuse.g = 1.0f;
+    g_light.Diffuse.b = 1.0f;
 
-    light.Ambient.r = 1.0f;
-    light.Ambient.g = 1.0f;
-    light.Ambient.b = 1.0f;
+    g_light.Ambient.r = 1.0f;
+    g_light.Ambient.g = 1.0f;
+    g_light.Ambient.b = 1.0f;
 
-    light.Range = 1000.0f;
-    light.Position = D3DXVECTOR3(80.0f, 100.0f, -200.0f);
-    light.Attenuation0 = 1.0f;
+    g_light.Range = 1000.0f;
+    g_light.Position = { 80.0f, 100.0f, -200.0f };
+    g_light.Attenuation0 = 1.0f;
 
     g_d3d_device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 //   g_d3d_device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG2);
@@ -655,8 +763,8 @@ void init_scene(void) {
 
     SetPerspective(80.0f, 90.0f, -145.0f, 80.0f, 59.0f, 0.0f);
 
-    D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 640.0f / 480.0f, 1.0f, 300.0f);
-    g_d3d_device->SetTransform(D3DTS_PROJECTION, &matProj);
+    hmm_mat4 matProj = HMM_PerspectiveFovLH_ZO(45.0f, 640.0f / 480.0f, 1.0f, 300.0f);
+    g_d3d_device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&matProj);
 
     hr = g_d3d_device->CreateVertexBuffer(MAX_VERTICES * sizeof(my_vertex), D3DUSAGE_WRITEONLY, D3D8T_CUSTOMVERTEX, D3DPOOL_MANAGED, &g_vb);
     if (FAILED(hr)) {
@@ -735,7 +843,7 @@ long Render(void) {
                 }
             }
 
-            g_d3d_device->SetTransform(D3DTS_WORLD, &matObject[iObject]);
+            g_d3d_device->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&matObject[iObject]);
             g_d3d_device->DrawPrimitive(D3DPT_TRIANGLELIST, iStart[iObject], iLength[iObject] / 3);
         }
     }

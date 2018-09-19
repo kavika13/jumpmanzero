@@ -1,5 +1,8 @@
 #include <stdio.h>  // NOLINT
-#include <D3DX8.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
 #include "./Jumpman.h"
 
 char GameFile[100];
@@ -59,6 +62,10 @@ struct StoreVert {
 
 HINSTANCE hInst;  // current instance
 HWND hWnd;  // main window
+GLFWwindow* g_main_window;
+
+int g_backbuffer_width = FULLSCREEN_RESX;
+int g_backbuffer_height = FULLSCREEN_RESY;
 
 long iFindMesh[100];
 long iOtherMesh[300];
@@ -422,8 +429,6 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     iArg3 = rArg3 / 256;
     rArg4 = SC->Stack[SC->BP + 3];
     iArg4 = rArg4 / 256;
-
-    D3DXMATRIX tempMatrix1;
 
     if (iFunc == EFCHANGEMESH) {
         ChangeMesh(miSelectedMesh, iOtherMesh[iArg1]);
@@ -1824,14 +1829,6 @@ void GetInput() {
     iTKeyAttack = iKeyAttack || iTappedAttack;
     iTappedAttack = 0;
 
-    if (GetAsyncKeyState(VK_CONTROL)) {
-        iTKeyJump = 1;
-    }
-
-    if (GetAsyncKeyState(VK_MENU)) {
-        iTKeyAttack = 1;
-    }
-
     if (miJoystickPresent) {
         long iY, iX, iB;
 
@@ -2061,8 +2058,6 @@ void AnimateDying() {
 void ProgressGame() {
     int iObject;
     int iTemp;
-
-    GetInput();
 
     if (!(iPlayerST & JS_DONE)) {
         if (iPlayerFreeze) {
@@ -2360,8 +2355,6 @@ void LoadMenu() {
 }
 
 void InteractMenu() {
-    GetInput();
-
     long iObject;
     RunScript(&SCLevel, iMainScript);
 
@@ -2413,32 +2406,245 @@ long LoadSettings() {
     return 1;
 }
 
-int main(int arguments_count, char* arguments[]) {
-	HINSTANCE hInstance = GetModuleHandle(NULL);
-	miDEBUG = 1;
-    MyRegisterClass(hInstance);
+static void error_callback(int error, const char* description) {
+    fprintf(stderr, "Error: %s\n", description);
+}
 
-    if (!InitInstance(hInstance)) {
-        return FALSE;
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    switch (action) {
+        case GLFW_PRESS: {
+            switch (key) {
+                case GLFW_KEY_GRAVE_ACCENT: {
+                    iShowFPS = 1;
+                    break;
+                }
+                case GLFW_KEY_UP: {
+                    iTappedUp = iKeyUp = 1;
+                    break;
+                }
+                case GLFW_KEY_DOWN: {
+                    iTappedDown = iKeyDown = 1;
+                    break;
+                }
+                case GLFW_KEY_LEFT: {
+                    iTappedLeft = iKeyLeft = 1;
+                    break;
+                }
+                case GLFW_KEY_RIGHT: {
+                    iTappedRight = iKeyRight = 1;
+                    break;
+                }
+                case GLFW_KEY_SPACE: {
+                    iTappedJump = iKeyJump = 1;
+                    iKeySelect = 1;
+                    break;
+                }
+                case GLFW_KEY_ENTER: {
+                    iKeySelect = 1;
+                    break;
+                }
+                case GLFW_KEY_Q: {
+                    iKeySpecial = 1;
+                    break;
+                }
+                case GLFW_KEY_ESCAPE: {
+                    GameStatus = GS_EXITING;
+                    // TODO: Move cleanup to main loop?
+                    CleanResources();
+                    CleanUpMusic();
+                    CleanUpSounds();
+                    DoCleanUp();
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+                    break;
+                }
+            }
+
+            // Modifier keys
+            if (mods & GLFW_MOD_CONTROL) {
+                iTappedJump = iKeyJump = 1;
+                iKeySelect = 1;
+            }
+
+            if (mods & GLFW_MOD_ALT) {
+                iTappedAttack = iKeyAttack = 1;
+            }
+
+            // Bound keys
+            if (key == GameKeys[0]) {
+                iTappedUp = iKeyUp = 1;
+            }
+
+            if (key == GameKeys[1]) {
+                iTappedDown = iKeyDown = 1;
+            }
+
+            if (key == GameKeys[2]) {
+                iTappedLeft = iKeyLeft = 1;
+            }
+
+            if (key == GameKeys[3]) {
+                iTappedRight = iKeyRight = 1;
+            }
+
+            if (key == GameKeys[4]) {
+                iTappedJump = iKeyJump = 1;
+                iKeySelect = 1;
+            }
+
+            if (key == GameKeys[5]) {
+                iTappedAttack = iKeyAttack = 1;
+            }
+
+            iLastKey = key;
+            break;
+        }
+        case GLFW_RELEASE: {
+            switch (key) {
+                case GLFW_KEY_GRAVE_ACCENT: {
+                    iShowFPS = 0;
+                    break;
+                }
+                case GLFW_KEY_UP: {
+                    iKeyUp = 0;
+                    break;
+                }
+                case GLFW_KEY_DOWN: {
+                    iKeyDown = 0;
+                    break;
+                }
+                case GLFW_KEY_LEFT: {
+                    iKeyLeft = 0;
+                    break;
+                }
+                case GLFW_KEY_RIGHT: {
+                    iKeyRight = 0;
+                    break;
+                }
+                case GLFW_KEY_SPACE: {
+                    iKeyJump = 0;
+                    iKeySelect = 0;
+                    break;
+                }
+                case GLFW_KEY_ENTER: {
+                    iKeySelect = 0;
+                    break;
+                }
+                case GLFW_KEY_Q: {
+                    iKeySpecial = 0;
+                    break;
+                }
+            }
+
+            // Modifier keys
+            if (!(mods & GLFW_MOD_CONTROL)) {
+                iKeyJump = 0;
+                iKeySelect = 0;
+            }
+
+            if (!(mods & GLFW_MOD_ALT)) {
+                iKeyAttack = 0;
+            }
+
+            // Bound keys
+            if (key == GameKeys[0]) {
+                iKeyUp = 0;
+            }
+
+            if (key == GameKeys[1]) {
+                iKeyDown = 0;
+            }
+
+            if (key == GameKeys[2]) {
+                iKeyLeft = 0;
+            }
+
+            if (key == GameKeys[3]) {
+                iKeyRight = 0;
+            }
+
+            if (key == GameKeys[4]) {
+                iKeyJump = 0;
+                iKeySelect = 0;
+            }
+
+            if (key == GameKeys[5]) {
+                iKeyAttack = 0;
+            }
+
+            iLastKey = key;
+            break;
+        }
+    }
+}
+
+void window_focus_callback(GLFWwindow* window, int is_focused) {
+    if(is_focused && GameFrozen) {
+        Reset3d(hWnd);
+    }
+}
+
+int main(int arguments_count, char* arguments[]) {
+    miDEBUG = 1;
+
+    glfwSetErrorCallback(error_callback);
+
+    if (!glfwInit()) {
+        exit(EXIT_FAILURE);
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GLFWmonitor* monitor = NULL;
+
+    if (FULL_SCREEN) {
+        monitor = glfwGetPrimaryMonitor();
+
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+        g_backbuffer_width = mode->width;
+        g_backbuffer_height = mode->height;
+    }
+
+    g_main_window = glfwCreateWindow(g_backbuffer_width, g_backbuffer_height, "Jumpman Zero", monitor, NULL);
+
+    if (!g_main_window) {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
     }
 
     if (FULL_SCREEN) {
-        ShowCursor(0);
+        glfwSetWindowFocusCallback(g_main_window, window_focus_callback);
     }
 
-    MSG msg;
-    BOOL bGotMsg;
+    glfwSetKeyCallback(g_main_window, key_callback);
+    glfwMakeContextCurrent(g_main_window);
+    glfwSwapInterval(1);
+
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+    hWnd = glfwGetWin32Window(g_main_window);
+
+    if (FULL_SCREEN) {
+        glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    }
 
     GetCurrentDirectory(200, GamePath);
 
     GameFrozen = 0;
 
     if (!LoadSettings()) {
-        return 0;
+        exit(EXIT_FAILURE);
     }
 
     if (!Init3D()) {
-        return 0;
+        exit(EXIT_FAILURE);
     }
 
     if (!InitMusic(hWnd)) {
@@ -2450,9 +2656,6 @@ int main(int arguments_count, char* arguments[]) {
     }
 
     miJoystickPresent = JoystickPresent();
-
-    msg.message = WM_NULL;
-    PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
 
     int bDone = 0;
 
@@ -2483,18 +2686,7 @@ int main(int arguments_count, char* arguments[]) {
     iPerfTime = 0;
     iPerfCount = 0;
 
-    while (!bDone) {
-        bGotMsg = PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE);
-
-        if (msg.message == WM_QUIT) {
-            bDone = 1;
-        }
-
-        if (bGotMsg) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
+    while (!glfwWindowShouldClose(g_main_window)) {
         LARGE_INTEGER tTime;
         QueryPerformanceCounter(&tTime);
 
@@ -2515,6 +2707,8 @@ int main(int arguments_count, char* arguments[]) {
 //          iPerfCount = GetDrawnObjects() / 10;
 
             iTime = tTime;
+
+            GetInput();
 
             if (GameStatus == GS_MENU) {
                 LoadMenu();
@@ -2547,11 +2741,16 @@ int main(int arguments_count, char* arguments[]) {
                 }
 
                 DrawGame();
+                // glfwSwapBuffers(g_main_window);
             }
         }
+
+        glfwPollEvents();
     }
 
-    return static_cast<int>(msg.wParam);
+    glfwDestroyWindow(g_main_window);
+    glfwTerminate();
+    exit(EXIT_SUCCESS);
 }
 
 long Init3D() {
@@ -2684,181 +2883,6 @@ void LoadMeshes() {
     iFindMesh[JM_BORED4] = LoadMesh("BORED4.MSH");
     iFindMesh[JM_BORED5] = LoadMesh("BORED5.MSH");
 }
-
-ATOM MyRegisterClass(HINSTANCE hInstance) {
-    WNDCLASSEX wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = (WNDPROC)WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, reinterpret_cast<LPCTSTR>(IDI_JUMPMAN));
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = 0;
-    wcex.lpszClassName = "JumpmanClass";
-    wcex.hIconSm = LoadIcon(wcex.hInstance, reinterpret_cast<LPCTSTR>(IDI_SMALL));
-
-    return RegisterClassEx(&wcex);
-}
-
-BOOL InitInstance(HINSTANCE hInstance) {
-    hInst = hInstance;
-
-    if (FULL_SCREEN) {
-        hWnd = CreateWindow("JumpmanClass", "Jumpman Zero PC", WS_POPUP, CW_USEDEFAULT, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
-//          hWnd = CreateWindow("JumpmanClass", "Jumpman Zero PC", WS_POPUP, 0, 0, 640, 480, NULL, NULL, hInstance, NULL);
-    } else {
-        hWnd = CreateWindow("JumpmanClass", "Jumpman Zero PC", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 640, 480, NULL, NULL, hInstance, NULL);
-//      hWnd = CreateWindow("JumpmanClass", "Jumpman Zero PC", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 160, 160, NULL, NULL, hInstance, NULL);
-    }
-
-//  hWnd = CreateWindow("JumpmanClass", "Jumpman Zero PC", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 800, 600, NULL, NULL, hInstance, NULL);
-
-    if (!hWnd) {
-        return FALSE;
-    }
-
-    ShowWindow(hWnd, SW_SHOWDEFAULT);
-    UpdateWindow(hWnd);
-
-    return TRUE;
-}
-
-void PerformReset(HWND hWindow) {
-    Reset3d(hWindow);
-}
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    int wmId, wmEvent;
-
-    switch (message) {
-    case WM_ACTIVATEAPP:
-        if (wParam && GameFrozen) {
-            PerformReset(hWnd);
-        }
-        break;
-
-    case WM_KEYDOWN:
-        if (wParam == 192) {
-            iShowFPS = 1;
-        }
-
-        if (wParam == 38 || wParam == GameKeys[0]) {
-            iTappedUp = iKeyUp = 1;
-        }
-
-        if (wParam == 40 || wParam == GameKeys[1]) {
-            iTappedDown = iKeyDown = 1;
-        }
-
-        if (wParam == 37 || wParam == GameKeys[2]) {
-            iTappedLeft = iKeyLeft = 1;
-        }
-
-        if (wParam == 39 || wParam == GameKeys[3]) {
-            iTappedRight = iKeyRight = 1;
-        }
-
-        if (wParam == 32 || wParam == GameKeys[4]) {
-            iTappedJump = iKeyJump = 1;
-        }
-
-        if (wParam == GameKeys[5]) {
-            iTappedAttack = iKeyAttack = 1;
-        }
-
-        if (wParam == 32 || wParam == 13 || wParam == GameKeys[4]) {
-            iKeySelect = 1;
-        }
-
-        if (wParam == 81) {
-            iKeySpecial = 1;
-        }
-
-        iLastKey = static_cast<long>(wParam);
-
-        if (wParam == 27) {
-            GameStatus = GS_EXITING;
-            CleanResources();
-            CleanUpMusic();
-            CleanUpSounds();
-            DoCleanUp();
-            PostQuitMessage(0);
-        }
-        break;
-
-    case WM_KEYUP:
-        if (wParam == 192) {
-            iShowFPS = 0;
-        }
-
-        if (wParam == 38 || wParam == GameKeys[0]) {
-            iKeyUp = 0;
-        }
-
-        if (wParam == 40 || wParam == GameKeys[1]) {
-            iKeyDown = 0;
-        }
-
-        if (wParam == 37 || wParam == GameKeys[2]) {
-            iKeyLeft = 0;
-        }
-
-        if (wParam == 39 || wParam == GameKeys[3]) {
-            iKeyRight = 0;
-        }
-
-        if (wParam == 32 || wParam == GameKeys[4]) {
-            iKeyJump = 0;
-        }
-
-        if (wParam == GameKeys[5]) {
-            iKeyAttack = 0;
-        }
-
-        if (wParam == 32 || wParam == 13 || wParam == GameKeys[4]) {
-            iKeySelect = 0;
-        }
-
-        if (wParam == 81) {
-            iKeySpecial = 0;
-        }
-
-        break;
-
-    case WM_COMMAND:
-        wmId = LOWORD(wParam);
-        wmEvent = HIWORD(wParam);
-        // Parse the menu selections:
-        switch (wmId) {
-        case IDM_EXIT:
-            DestroyWindow(hWnd);
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-        }
-        break;
-
-    case WM_DESTROY:
-        GameStatus = GS_EXITING;
-        CleanResources();
-        CleanUpMusic();
-        CleanUpSounds();
-        DoCleanUp();
-        PostQuitMessage(0);
-        break;
-
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-
-    return 0;
-}
-
 
 
 

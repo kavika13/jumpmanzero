@@ -16,6 +16,30 @@
     <Filter Include="MS Classes">
       <UniqueIdentifier>{56aabc99-f8c4-4151-b3ce-0694f30a4f28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\glad">
+      <UniqueIdentifier>{22eb82a2-ae1b-4ca6-96e4-6899e3382f5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad">
+      <UniqueIdentifier>{bc7f2f15-f96c-4ca7-b551-ecb93bf49b66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad\glad">
+      <UniqueIdentifier>{79446c46-fa7d-4c3f-9417-7102d52557f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad\KHR">
+      <UniqueIdentifier>{96477dbb-076a-4863-9c2c-f3acd769fb83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glfw">
+      <UniqueIdentifier>{3734e4b9-f716-4c67-adaf-56a6d170de2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glfw\GLFW">
+      <UniqueIdentifier>{d84d531a-12a1-4369-ad27-7efe5b810c2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\handmademath">
+      <UniqueIdentifier>{c830c3ee-e754-4eef-ae0a-196d07f9eaea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\stb_image">
+      <UniqueIdentifier>{ceecb8cb-7d36-4a31-991f-0fbb2aa92bfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Basic3D.cpp">
@@ -48,6 +72,12 @@
     <ClCompile Include="dxutil.cpp">
       <Filter>MS Classes</Filter>
     </ClCompile>
+    <ClCompile Include="glad\src\glad_wgl.c">
+      <Filter>Source Files\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="glad\src\glad.c">
+      <Filter>Source Files\glad</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jumpman.h">
@@ -61,6 +91,27 @@
     </ClInclude>
     <ClInclude Include="dxutil.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\glad\glad.h">
+      <Filter>Header Files\glad\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\glad\glad_wgl.h">
+      <Filter>Header Files\glad\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\KHR\khrplatform.h">
+      <Filter>Header Files\glad\KHR</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw-3.2.1.bin.WIN32\include\GLFW\glfw3native.h">
+      <Filter>Header Files\glfw\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw-3.2.1.bin.WIN32\include\GLFW\glfw3.h">
+      <Filter>Header Files\glfw\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="handmademath-1.7.0\HandmadeMath.h">
+      <Filter>Header Files\handmademath</Filter>
+    </ClInclude>
+    <ClInclude Include="stb-image-2.19.0\stb_image.h">
+      <Filter>Header Files\stb_image</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
