@@ -40,6 +40,9 @@
     <Filter Include="Header Files\stb_image">
       <UniqueIdentifier>{ceecb8cb-7d36-4a31-991f-0fbb2aa92bfa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\sokol_gfx">
+      <UniqueIdentifier>{de8d7cbf-a5b2-4e3b-8312-06f2a3033c05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Basic3D.cpp">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="stb-image-2.19.0\stb_image.h">
       <Filter>Header Files\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h">
+      <Filter>Header Files\sokol_gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

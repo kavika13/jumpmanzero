@@ -1,6 +1,9 @@
-#include <stdio.h>  // NOLINT
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+// TODO: Remove glfw3native.h once we have changed sound systems
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
 #include "./Jumpman.h"
@@ -60,12 +63,7 @@ struct StoreVert {
     long X, Y, Z, NX, NY, NZ, COLOR, TX, TY;
 };
 
-HINSTANCE hInst;  // current instance
-HWND hWnd;  // main window
 GLFWwindow* g_main_window;
-
-int g_backbuffer_width = FULLSCREEN_RESX;
-int g_backbuffer_height = FULLSCREEN_RESY;
 
 long iFindMesh[100];
 long iOtherMesh[300];
@@ -816,7 +814,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     }
 
     if (iFunc == EFSETFOG) {
-        SetFog(static_cast<float>(iArg1), static_cast<float>(iArg2), D3DCOLOR_XRGB(SC->Stack[SC->BP + 2], SC->Stack[SC->BP + 3], SC->Stack[SC->BP + 4]));
+        SetFog((float)iArg1, (float)iArg2, SC->Stack[SC->BP + 2] & 0xFF, SC->Stack[SC->BP + 3] & 0xFF, SC->Stack[SC->BP + 4] & 0xFF);
     }
 
     WIN32_FIND_DATA FindFileData;
@@ -2197,7 +2195,7 @@ void DrawGame() {
         SetObjectData(iFindMesh[iPlayerM], 0, 1);
     }
 
-    GameFrozen = !Render();
+    Render();
 
     SetObjectData(iFindMesh[iPlayerM], 0, 0);
 }
@@ -2257,12 +2255,17 @@ void GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
 
 void PrepLevel(char* sLevel) {
     Clear3dData();
-    SetFog(0, 0, 0);
+    Begin3dLoad();
+
+    SetFog(0, 0, 0, 0, 0);
 
     iEvent1 = 0;
 
     LoadMeshes();
     LoadLevel(sLevel);
+
+    EndAndCommit3dLoad();
+
     BuildNavigation();
     ResetPlayer(1);
     GameTimeInactive = 0;
@@ -2283,7 +2286,7 @@ void PrepLevel(char* sLevel) {
     iScrollTitle = 1;
     iLoadedLevel = iLevel;
 
-    GameFrozen = !Render();
+    Render();
 
     if (GameMusicOn && miIntroLength != 5550) {
         NewTrack1(msBackMusic, 0, miIntroLength);
@@ -2310,7 +2313,9 @@ void LoadMenu() {
     char sFileName[300];
 
     Clear3dData();
-    SetFog(0, 0, 0);
+    Begin3dLoad();
+
+    SetFog(0, 0, 0, 0, 0);
 
     if (GameMenu == GM_MAIN) {
         sprintf_s(sFileName, "%s\\Data\\MainMenu.DAT", GamePath);
@@ -2352,6 +2357,8 @@ void LoadMenu() {
     }
 
     GameMenuDrawn = GameMenu;
+
+    EndAndCommit3dLoad();
 }
 
 void InteractMenu() {
@@ -2372,7 +2379,7 @@ void InteractMenu() {
     }
 
     SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
-    GameFrozen = !Render();
+    Render();
 }
 
 long LoadSettings() {
@@ -2449,11 +2456,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                 }
                 case GLFW_KEY_ESCAPE: {
                     GameStatus = GS_EXITING;
-                    // TODO: Move cleanup to main loop?
-                    CleanResources();
-                    CleanUpMusic();
-                    CleanUpSounds();
-                    DoCleanUp();
                     glfwSetWindowShouldClose(window, GLFW_TRUE);
                     break;
                 }
@@ -2578,10 +2580,20 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 void window_focus_callback(GLFWwindow* window, int is_focused) {
-    if(is_focused && GameFrozen) {
-        Reset3d(hWnd);
+    if(is_focused) {
+        GameFrozen = 0;
+        Reset3d();
+    } else {
+        GameFrozen = 1;
     }
 }
+
+void window_size_callback(GLFWwindow* window, int width, int height) {
+    ResizeViewport(width, height);
+}
+
+long InitMusic(HWND hWnd);
+long InitSound(HWND hWnd);
 
 int main(int arguments_count, char* arguments[]) {
     miDEBUG = 1;
@@ -2598,6 +2610,8 @@ int main(int arguments_count, char* arguments[]) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWmonitor* monitor = NULL;
+    int target_width = FULLSCREEN_RESX;
+    int target_height = FULLSCREEN_RESY;
 
     if (FULL_SCREEN) {
         monitor = glfwGetPrimaryMonitor();
@@ -2608,32 +2622,34 @@ int main(int arguments_count, char* arguments[]) {
         glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
         glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
-        g_backbuffer_width = mode->width;
-        g_backbuffer_height = mode->height;
+        target_width = mode->width;
+        target_height = mode->height;
     }
 
-    g_main_window = glfwCreateWindow(g_backbuffer_width, g_backbuffer_height, "Jumpman Zero", monitor, NULL);
+    g_main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", monitor, NULL);
 
     if (!g_main_window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    if (FULL_SCREEN) {
-        glfwSetWindowFocusCallback(g_main_window, window_focus_callback);
-    }
-
+    glfwSetWindowFocusCallback(g_main_window, window_focus_callback);
+    glfwSetWindowSizeCallback(g_main_window, window_size_callback);
     glfwSetKeyCallback(g_main_window, key_callback);
     glfwMakeContextCurrent(g_main_window);
     glfwSwapInterval(1);
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    hWnd = glfwGetWin32Window(g_main_window);
+    HWND hWnd = glfwGetWin32Window(g_main_window);
 
     if (FULL_SCREEN) {
         glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    } else {
+        glfwSetWindowSizeLimits(g_main_window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
     }
+
+    ResizeViewport(target_width, target_height);
 
     GetCurrentDirectory(200, GamePath);
 
@@ -2675,11 +2691,6 @@ int main(int arguments_count, char* arguments[]) {
         GameDebugMode = 0;
     }
 
-//  sprintf(GameFile, "%s\\Data\\3 c.jmg", GamePath);
-//  iLevel = 0;
-//  GameStatus = GS_INLEVEL;
-//  LoadNextLevel();
-
     long iPerfCount;
     unsigned long iPerfTime;
 
@@ -2704,7 +2715,6 @@ int main(int arguments_count, char* arguments[]) {
                 iPerfCount = 0;
             }
 
-//          iPerfCount = GetDrawnObjects() / 10;
 
             iTime = tTime;
 
@@ -2740,13 +2750,22 @@ int main(int arguments_count, char* arguments[]) {
                     RunScript(&SCTitle, 1);
                 }
 
-                DrawGame();
-                // glfwSwapBuffers(g_main_window);
+                if (!GameFrozen) {
+                    DrawGame();
+                }
             }
+
+            glfwSwapBuffers(g_main_window);
         }
 
         glfwPollEvents();
     }
+
+    // TODO: Can we just let these drop?
+    CleanResources();
+    CleanUpMusic();
+    CleanUpSounds();
+    DoCleanUp();
 
     glfwDestroyWindow(g_main_window);
     glfwTerminate();
@@ -2793,7 +2812,7 @@ long Init3D() {
     QueryPerformanceCounter(&iTime);
     srand(static_cast<unsigned>(iTime.LowPart));
 
-    if (!InitializeAll(hWnd)) {
+    if (!InitializeAll()) {
         return 0;
     }
 

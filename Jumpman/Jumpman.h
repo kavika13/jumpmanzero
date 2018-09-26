@@ -1,17 +1,10 @@
 #pragma once
 
+#include <stdint.h>
+
 #define FULL_SCREEN 1
 #define FULLSCREEN_RESX 640
 #define FULLSCREEN_RESY 480
-
-#include <D3DX8.h>
-#include "./resource.h"
-
-struct my_vertex{
-    FLOAT x, y, z;
-    FLOAT nx, ny, nz;
-    FLOAT tu, tv;
-};
 
 #define GS_EXITING 0
 #define GS_MENU 1
@@ -142,9 +135,6 @@ struct ScriptContext{
 };
 
 // IN JUMPMAN
-ATOM MyRegisterClass(HINSTANCE hInstance);
-BOOL InitInstance(HINSTANCE);
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine);
 void LoadNextLevel();
 void ProgressGame();
@@ -291,7 +281,7 @@ void CleanUpMusic();
 
 void PauseMusic1();
 void PauseMusic2();
-long InitMusic(HWND hWnd);
+// long InitMusic(HWND hWnd);  // TODO: Remove HWND parameter
 long CheckForStop();
 
 void NewTrack1(char* sFile, long iStart, long iIntro);
@@ -310,16 +300,18 @@ int JoystickPresent();
 
 // IN BASIC3D
 void ChangeMesh(long iMesh, long iNewMesh);
-void SetFog(float iFogStart, float iFogEnd, DWORD Color);
-long GetDrawnObjects();
+void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue);
+long GetObjectsDrawnSinceLastFrameCount();
 void ScrollTexture(long iObj, float fX, float fY);
 void DeleteMesh(long iMesh);
-void ResetContext(ScriptContext* SC);
 void Clear3dData();
 void LoadTexture(int iTex, char* sFile, int iType, int iAlpha);
-long InitializeAll(HWND hWindow);
-long Render();
-void Reset3d(HWND hWindow);
+long InitializeAll();
+void Begin3dLoad();
+void EndAndCommit3dLoad();
+void Render();
+void ResizeViewport(int width, int height);
+void Reset3d();
 void DoCleanUp();
 void CreateObject(long* iParams, long iCount, long* iNum);
 void SetObjectData(long iNum, long iTexture, int iVisible);
@@ -338,6 +330,7 @@ void RotateMatrixY(long iObj, float fDegrees);
 void RotateMatrixZ(long iObj, float fDegrees);
 
 // IN SCRIPT
+void ResetContext(ScriptContext* SC);
 void LoadScript(char* sFileName, ScriptCode* oScript);
 void RunScript(ScriptContext* SC, long iSub);
 int FindScript(ScriptContext* SC, char* sFunc);
@@ -345,5 +338,5 @@ int FindScript(ScriptContext* SC, char* sFunc);
 // IN SOUND
 void DoPlaySound(int iSound);
 void CleanUpSounds();
-long InitSound(HWND hWnd);
+// long InitSound(HWND hWnd);  // TODO: Remove HWND parameter
 void LoadSound(char* sFile, int iSound);

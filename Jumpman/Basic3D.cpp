@@ -1,6 +1,7 @@
-#include <stdio.h>  // NOLINT
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>  // NOLINT
+#include "glad/glad.h"
+#define SOKOL_IMPL
+#define SOKOL_GLCORE33
+#include "sokol_gfx.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define HANDMADE_MATH_IMPLEMENTATION
@@ -12,27 +13,77 @@
 #define MAX_OBJECTS 600
 #define MAX_VERTICES 110000
 
-#pragma comment(lib, "d3d8.lib")
+struct ObjectVertex {
+    float x, y, z;
+    float nx, ny, nz;
+    float tu, tv;
+};
 
-extern int g_backbuffer_width;
-extern int g_backbuffer_height;
+struct Light {
+    hmm_vec3 ambient_color;
+    hmm_vec3 diffuse_color;
+    hmm_vec3 position;
+    float range;
+};
+
+struct Material {
+    hmm_vec3 ambient_tint;
+    hmm_vec3 diffuse_tint;
+};
+
+struct VertexShaderParams {
+    hmm_mat4 local_to_world_matrix;
+    hmm_mat4 local_to_projection_matrix;
+    hmm_mat4 transpose_world_to_local_matrix;
+    hmm_vec2 uv_offset;
+};
+
+struct FragmentShaderParams {
+    hmm_vec3 scene_ambient_color;
+    Material material;
+    Light light;
+};
 
 void FatalError(const char* error_msg);
-long init_d3d(HWND hWindow);
-void kill_d3d(void);
-void init_scene(void);
-void kill_scene(void);
+long init_3d();
+void kill_3d();
+void init_scene();
+void kill_scene();
 
-LPDIRECT3D8 g_D3D = NULL;
-IDirect3DDevice8* g_d3d_device = NULL;
+int g_backbuffer_width;
+int g_backbuffer_height;
+sg_draw_state g_draw_state = { };
+sg_pipeline g_opaque_pipline = { };
+sg_pipeline g_transparent_pipline = { };
+sg_pass_action g_pass_action = { };
+Light g_camera_light;
+Material g_global_material;
+hmm_vec3 g_scene_ambient_color;
 
-LPDIRECT3DTEXTURE8 texData[MAX_TEXTURES];
-char RetainTextureFile[MAX_TEXTURES][300];
-long texRequiresAlpha[MAX_TEXTURES];
-long texType[MAX_TEXTURES];
+sg_image g_textures[MAX_TEXTURES];
+char g_texture_filename[MAX_TEXTURES][300];
+long g_texture_is_alpha_blend_enabled[MAX_TEXTURES];
+long g_texture_is_color_key_alpha_enabled[MAX_TEXTURES];
 
-D3DLIGHT8 g_light;
-hmm_mat4 g_view_matrix;
+hmm_mat4 g_world_to_view_matrix;
+hmm_mat4 g_view_to_projection_matrix;
+
+long g_vertices_to_load_count;
+ObjectVertex* g_vertices_to_load = NULL;
+
+long g_objects_drawn_since_last_frame_count;
+
+long g_object_count;
+
+long g_object_redirects[MAX_OBJECTS];
+long g_object_vertex_start_index[MAX_OBJECTS];
+long g_object_vertex_count[MAX_OBJECTS];
+long g_object_texture_index[MAX_OBJECTS];
+long g_object_is_visible[MAX_OBJECTS];
+hmm_vec2 g_object_uv_offset[MAX_OBJECTS];
+hmm_mat4 g_object_local_to_world_matrix[MAX_OBJECTS];
+
+// Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
 hmm_mat4 HMM_Mat4(hmm_vec4 column_0, hmm_vec4 column_1, hmm_vec4 column_2, hmm_vec4 column_3) {
     hmm_mat4 result {
@@ -44,7 +95,7 @@ hmm_mat4 HMM_Mat4(hmm_vec4 column_0, hmm_vec4 column_1, hmm_vec4 column_2, hmm_v
     return result;
 }
 
-hmm_mat4 jm_hmm_inverse(hmm_mat4 input) {
+hmm_mat4 JM_HMM_Inverse(hmm_mat4 input) {
     float coef_00 = input[2][2] * input[3][3] - input[3][2] * input[2][3];
     float coef_02 = input[1][2] * input[3][3] - input[3][2] * input[1][3];
     float coef_03 = input[1][2] * input[2][3] - input[2][2] * input[1][3];
@@ -69,35 +120,35 @@ hmm_mat4 jm_hmm_inverse(hmm_mat4 input) {
     float coef_22 = input[1][0] * input[3][1] - input[3][0] * input[1][1];
     float coef_23 = input[1][0] * input[2][1] - input[2][0] * input[1][1];
 
-    hmm_vec4 Fac0 = HMM_Vec4(coef_00, coef_00, coef_02, coef_03);
-    hmm_vec4 Fac1 = HMM_Vec4(coef_04, coef_04, coef_06, coef_07);
-    hmm_vec4 Fac2 = HMM_Vec4(coef_08, coef_08, coef_10, coef_11);
-    hmm_vec4 Fac3 = HMM_Vec4(coef_12, coef_12, coef_14, coef_15);
-    hmm_vec4 Fac4 = HMM_Vec4(coef_16, coef_16, coef_18, coef_19);
-    hmm_vec4 Fac5 = HMM_Vec4(coef_20, coef_20, coef_22, coef_23);
+    hmm_vec4 fac_0 = HMM_Vec4(coef_00, coef_00, coef_02, coef_03);
+    hmm_vec4 fac_1 = HMM_Vec4(coef_04, coef_04, coef_06, coef_07);
+    hmm_vec4 fac_2 = HMM_Vec4(coef_08, coef_08, coef_10, coef_11);
+    hmm_vec4 fac_3 = HMM_Vec4(coef_12, coef_12, coef_14, coef_15);
+    hmm_vec4 fac_4 = HMM_Vec4(coef_16, coef_16, coef_18, coef_19);
+    hmm_vec4 fac_5 = HMM_Vec4(coef_20, coef_20, coef_22, coef_23);
 
-    hmm_vec4 Vec0 = HMM_Vec4(input[1][0], input[0][0], input[0][0], input[0][0]);
-    hmm_vec4 Vec1 = HMM_Vec4(input[1][1], input[0][1], input[0][1], input[0][1]);
-    hmm_vec4 Vec2 = HMM_Vec4(input[1][2], input[0][2], input[0][2], input[0][2]);
-    hmm_vec4 Vec3 = HMM_Vec4(input[1][3], input[0][3], input[0][3], input[0][3]);
+    hmm_vec4 vec_0 = HMM_Vec4(input[1][0], input[0][0], input[0][0], input[0][0]);
+    hmm_vec4 vec_1 = HMM_Vec4(input[1][1], input[0][1], input[0][1], input[0][1]);
+    hmm_vec4 vec_2 = HMM_Vec4(input[1][2], input[0][2], input[0][2], input[0][2]);
+    hmm_vec4 vec_3 = HMM_Vec4(input[1][3], input[0][3], input[0][3], input[0][3]);
 
-    hmm_vec4 Inv0(Vec1 * Fac0 - Vec2 * Fac1 + Vec3 * Fac2);
-    hmm_vec4 Inv1(Vec0 * Fac0 - Vec2 * Fac3 + Vec3 * Fac4);
-    hmm_vec4 Inv2(Vec0 * Fac1 - Vec1 * Fac3 + Vec3 * Fac5);
-    hmm_vec4 Inv3(Vec0 * Fac2 - Vec1 * Fac4 + Vec2 * Fac5);
+    hmm_vec4 inv_0(vec_1 * fac_0 - vec_2 * fac_1 + vec_3 * fac_2);
+    hmm_vec4 inv_1(vec_0 * fac_0 - vec_2 * fac_3 + vec_3 * fac_4);
+    hmm_vec4 inv_2(vec_0 * fac_1 - vec_1 * fac_3 + vec_3 * fac_5);
+    hmm_vec4 inv_3(vec_0 * fac_2 - vec_1 * fac_4 + vec_2 * fac_5);
 
-    hmm_vec4 SignA = HMM_Vec4(+1, -1, +1, -1);
-    hmm_vec4 SignB = HMM_Vec4(-1, +1, -1, +1);
-    hmm_mat4 Inverse = HMM_Mat4(Inv0 * SignA, Inv1 * SignB, Inv2 * SignA, Inv3 * SignB);
+    hmm_vec4 sign_a = HMM_Vec4(+1, -1, +1, -1);
+    hmm_vec4 sign_b = HMM_Vec4(-1, +1, -1, +1);
+    hmm_mat4 inverse_matrix = HMM_Mat4(inv_0 * sign_a, inv_1 * sign_b, inv_2 * sign_a, inv_3 * sign_b);
 
-    hmm_vec4 Row0 = HMM_Vec4(Inverse[0][0], Inverse[1][0], Inverse[2][0], Inverse[3][0]);
+    hmm_vec4 row_0 = HMM_Vec4(inverse_matrix[0][0], inverse_matrix[1][0], inverse_matrix[2][0], inverse_matrix[3][0]);
 
-    hmm_vec4 Dot0(input[0] * Row0);
-    float Dot1 = (Dot0.X + Dot0.Y) + (Dot0.Z + Dot0.W);
+    hmm_vec4 dot_0(input[0] * row_0);
+    float dot_1 = (dot_0.X + dot_0.Y) + (dot_0.Z + dot_0.W);
 
-    float OneOverDeterminant = 1.0f / Dot1;
+    float one_over_determinant = 1.0f / dot_1;
 
-    return Inverse * OneOverDeterminant;
+    return inverse_matrix * one_over_determinant;
 }
 
 hmm_mat4 HMM_LookAtLH(hmm_vec3 Eye, hmm_vec3 Center, hmm_vec3 Up) {
@@ -130,51 +181,32 @@ hmm_mat4 HMM_LookAtLH(hmm_vec3 Eye, hmm_vec3 Center, hmm_vec3 Up) {
     return (Result);
 }
 
-HMM_INLINE hmm_mat4 HMM_PerspectiveFovLH_ZO(float FOV, float AspectRatio, float Near, float Far) {
+HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Near, float Far) {
     hmm_mat4 Result = HMM_Mat4();
 
     float TanThetaOver2 = HMM_TanF(FOV * (HMM_PI32 / 360.0f));
 
-    Result.Elements[0][0] = 1.0f / (TanThetaOver2 * AspectRatio);
+    Result.Elements[0][0] = 1.0f / (AspectRatio * TanThetaOver2);
     Result.Elements[1][1] = 1.0f / TanThetaOver2;
-    Result.Elements[2][2] = Far / (Far - Near);
+    Result.Elements[2][2] = (Far + Near) / (Far - Near);
     Result.Elements[2][3] = 1.0f;
-    Result.Elements[3][2] = -(Far * Near) / (Far - Near);
+    Result.Elements[3][2] = -(2.0f * Far * Near) / (Far - Near);
     Result.Elements[3][3] = 0.0f;
 
     return (Result);
 }
 
-// #define D3D8T_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_TEX1|D3DFVF_NORMAL|D3DFVF_DIFFUSE)
-#define D3D8T_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_TEX1|D3DFVF_NORMAL)
+// End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
-D3DPRESENT_PARAMETERS d3dpp;
-
-long CapsFog;
-
-long miVertices;
-IDirect3DVertexBuffer8* g_vb = NULL;
-
-long DrawnObjects;
-
-long miObjects;
-
-long iRedirects[MAX_OBJECTS];
-long iStart[MAX_OBJECTS];
-long iLength[MAX_OBJECTS];
-long iTEX[MAX_OBJECTS];
-long iVis[MAX_OBJECTS];
-hmm_mat4 matObject[MAX_OBJECTS];
-
-long GetDrawnObjects() {
-    return DrawnObjects;
+long GetObjectsDrawnSinceLastFrameCount() {
+    return g_objects_drawn_since_last_frame_count;
 }
 
 long SurfaceObject(long o1) {
     int iLoop = -1;
 
     while (++iLoop < MAX_OBJECTS) {
-        if (iRedirects[iLoop] == o1) {
+        if (g_object_redirects[iLoop] == o1) {
             return iLoop;
         }
     }
@@ -185,94 +217,61 @@ long SurfaceObject(long o1) {
 }
 
 void DeleteMesh(long iMesh) {
-//  long iReal;
-//  iReal = iRedirects[iMesh];
-//  iVis[iReal] = 0;
+    long iReal = g_object_redirects[iMesh];
+    SwapObjects(iReal, g_object_count - 1);
 
-    long iReal;
-    iReal = iRedirects[iMesh];
-    SwapObjects(iReal, miObjects - 1);
-
-    iRedirects[iMesh] = -1;
-    --miObjects;
+    g_object_redirects[iMesh] = -1;
+    --g_object_count;
 }
 
 void IdentityMatrix(long iObj) {
-    long iReal = iRedirects[iObj];
+    long iReal = g_object_redirects[iObj];
     hmm_mat4 result {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
         0, 0, 0, 1,
     };
-    matObject[iReal] = result;
+    g_object_local_to_world_matrix[iReal] = result;
 }
 
 void PerspectiveMatrix(long iObj) {
-    long iReal = iRedirects[iObj];
-    matObject[iReal] = jm_hmm_inverse(g_view_matrix) * matObject[iReal];
+    long iReal = g_object_redirects[iObj];
+    g_object_local_to_world_matrix[iReal] = JM_HMM_Inverse(g_world_to_view_matrix) * g_object_local_to_world_matrix[iReal];
 }
 
 void TranslateMatrix(long iObj, float fX, float fY, float fZ) {
-    long iReal = iRedirects[iObj];
-    matObject[iReal] = HMM_Translate(HMM_Vec3(fX, fY, fZ)) * matObject[iReal];
+    long iReal = g_object_redirects[iObj];
+    g_object_local_to_world_matrix[iReal] = HMM_Translate(HMM_Vec3(fX, fY, fZ)) * g_object_local_to_world_matrix[iReal];
 }
 
 void ScaleMatrix(long iObj, float fX, float fY, float fZ) {
-    long iReal = iRedirects[iObj];
-    matObject[iReal] = HMM_Scale(HMM_Vec3(fX, fY, fZ)) * matObject[iReal];
+    long iReal = g_object_redirects[iObj];
+    g_object_local_to_world_matrix[iReal] = HMM_Scale(HMM_Vec3(fX, fY, fZ)) * g_object_local_to_world_matrix[iReal];
 }
 
 void ScrollTexture(long iObj, float fX, float fY) {
-    long iPlace;
-    long iVertice;
-    long iRNum;
-
-    iRNum = iRedirects[iObj];
-
-    my_vertex* vb_vertices;
-    HRESULT hr;
-
-    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
-
-    if (FAILED(hr)) {
-        FatalError("Error Locking triangle buffer");
-    }
-
-    iVertice = iStart[iRNum];
-
-    iPlace = -1;
-    while (++iPlace < iLength[iRNum]) {
-        vb_vertices[iVertice].tu += fX;
-        vb_vertices[iVertice].tv += fY;
-        ++iVertice;
-    }
-
-    g_vb->Unlock();
+    long iReal = g_object_redirects[iObj];
+    g_object_uv_offset[iReal] = HMM_Add(g_object_uv_offset[iReal], hmm_vec2 { fX, fY });
 }
 
 void RotateMatrixX(long iObj, float fDegrees) {
-    long iReal = iRedirects[iObj];
-    matObject[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(1.0f, 0.0f, 0.0f)) * matObject[iReal];
+    long iReal = g_object_redirects[iObj];
+    g_object_local_to_world_matrix[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(1.0f, 0.0f, 0.0f)) * g_object_local_to_world_matrix[iReal];
 }
 
 void RotateMatrixY(long iObj, float fDegrees) {
-    long iReal = iRedirects[iObj];
-    matObject[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 1.0f, 0.0f)) * matObject[iReal];
+    long iReal = g_object_redirects[iObj];
+    g_object_local_to_world_matrix[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 1.0f, 0.0f)) * g_object_local_to_world_matrix[iReal];
 }
 
 void RotateMatrixZ(long iObj, float fDegrees) {
-    long iReal = iRedirects[iObj];
-    matObject[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 0.0f, 1.0f)) * matObject[iReal];
+    long iReal = g_object_redirects[iObj];
+    g_object_local_to_world_matrix[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 0.0f, 1.0f)) * g_object_local_to_world_matrix[iReal];
 }
 
 void PrioritizeObject(long o1) {
-    long iSwap;
-
-    iSwap = iRedirects[o1];
-
-//  SwapObjects(0, iSwap);
-//  return;
+    long iSwap = g_object_redirects[o1];
 
     while (--iSwap >= 0) {
         SwapObjects(iSwap, iSwap + 1);
@@ -280,155 +279,104 @@ void PrioritizeObject(long o1) {
 }
 
 void SwapLong(long* l1, long* l2) {
-    long iSwap;
-    iSwap = *l1;
+    long iSwap = *l1;
     *l1 = *l2;
     *l2 = iSwap;
 }
 
 void SwapObjects(long o1, long o2) {
-    hmm_mat4 mSwap;
-    long iRealO1, iRealO2;
+    long iRealO1 = o1;
+    long iRealO2 = o2;
 
-    iRealO1 = o1;
-    iRealO2 = o2;
+    hmm_mat4 mSwap = g_object_local_to_world_matrix[iRealO1];
+    g_object_local_to_world_matrix[iRealO1] = g_object_local_to_world_matrix[iRealO2];
+    g_object_local_to_world_matrix[iRealO2] = mSwap;
 
-    mSwap = matObject[iRealO1];
-    matObject[iRealO1] = matObject[iRealO2];
-    matObject[iRealO2] = mSwap;
+    hmm_vec2 temp_uv_offset = g_object_uv_offset[iRealO1];
+    g_object_uv_offset[iRealO1] = g_object_uv_offset[iRealO2];
+    g_object_uv_offset[iRealO2] = temp_uv_offset;
 
-    SwapLong(&iStart[iRealO1], &iStart[iRealO2]);
-    SwapLong(&iLength[iRealO1], &iLength[iRealO2]);
-    SwapLong(&iTEX[iRealO1], &iTEX[iRealO2]);
-    SwapLong(&iVis[iRealO1], &iVis[iRealO2]);
+    SwapLong(&g_object_vertex_start_index[iRealO1], &g_object_vertex_start_index[iRealO2]);
+    SwapLong(&g_object_vertex_count[iRealO1], &g_object_vertex_count[iRealO2]);
+    SwapLong(&g_object_texture_index[iRealO1], &g_object_texture_index[iRealO2]);
+    SwapLong(&g_object_is_visible[iRealO1], &g_object_is_visible[iRealO2]);
 
-    SwapLong(&iRedirects[SurfaceObject(o1)], &iRedirects[SurfaceObject(o2)]);
+    SwapLong(&g_object_redirects[SurfaceObject(o1)], &g_object_redirects[SurfaceObject(o2)]);
 }
 
 void Clear3dData() {
     int iLoop;
 
     for (iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
-        if (texData[iLoop]) {
-            texData[iLoop]->Release();
+        if (g_textures[iLoop].id != SG_INVALID_ID) {
+            sg_destroy_image(g_textures[iLoop]);
         }
-        texData[iLoop] = NULL;
+
+        g_textures[iLoop].id = SG_INVALID_ID;
     }
 
-    miObjects = 0;
+    g_object_count = 0;
 
     for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
-        iRedirects[iLoop] = -1;
+        g_object_redirects[iLoop] = -1;
+        g_object_uv_offset[iLoop] = { 0 };
     }
 
-    miVertices = 0;
+    g_vertices_to_load_count = 0;
 }
 
-void LoadTexture(int iTex, char* sFile, int iType, int iAlpha) {
-    HRESULT hr;
-    texRequiresAlpha[iTex] = iAlpha;
-    strcpy_s(RetainTextureFile[iTex], sFile);
-    texType[iTex] = iType;
+void LoadTexture(int iTex, char* sFile, int image_type, int is_alpha_blend_enabled) {
+    g_texture_is_alpha_blend_enabled[iTex] = is_alpha_blend_enabled;
+    strcpy_s(g_texture_filename[iTex], sFile);
+    g_texture_is_color_key_alpha_enabled[iTex] = image_type == 1 ? 1 : 0;
 
     int width, height, channels_in_file;
     unsigned char* image_data = stbi_load(sFile, &width, &height, &channels_in_file, 4);
 
-    hr = g_d3d_device->CreateTexture(width, height, 0, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &texData[iTex]);
-
-    if (FAILED(hr)) {
-        FatalError("Error creating texture resource");  // TODO: Read back error info
-    }
-
-    D3DLOCKED_RECT rect;
-    hr = texData[iTex]->LockRect(0, &rect, NULL, 0);
-
-    if (FAILED(hr)) {
-        FatalError("Error locking texture data");  // TODO: Read back error info
-    }
-
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            // BGRA
-            ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 0] = image_data[y * rect.Pitch + x * 4 + 2];
-            ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 1] = image_data[y * rect.Pitch + x * 4 + 1];
-            ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 2] = image_data[y * rect.Pitch + x * 4 + 0];
-
-            if (iType == 1 && *((uint32_t*)&image_data[y * rect.Pitch + x * 4 + 0]) == 0xFFFFFFFF) {
-                // Color key alpha, on 0xFFFFFFFF
-                ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 3] = 0x0;
-            } else {
-                ((unsigned char*)rect.pBits)[y * rect.Pitch + x * 4 + 3] = image_data[y * rect.Pitch + x * 4 + 3];
-            }
+    if (image_type == 1) {
+        // Color key alpha, on 0xFFFFFFFF
+        for (int y = 0; y < height; ++y) {
+           for (int x = 0; x < width; ++x) {
+               if (*((uint32_t*)&image_data[y * width * 4 + x * 4 + 0]) == 0xFFFFFFFF) {
+                    image_data[y * width * 4 + x * 4 + 3] = 0x0;
+               }
+           }
         }
     }
 
-    stbi_image_free(image_data);
+    sg_image_desc image_desc = { };
+    image_desc.width = width;
+    image_desc.height = height;
+    image_desc.pixel_format = SG_PIXELFORMAT_RGBA8;
+    // TODO: Diff mipmap level based on iType. 0: full set, 1: only one. Probably have to manually do the resize for each mip level. Use stb_image_resize.h?
+    image_desc.min_filter = SG_FILTER_LINEAR;
+    image_desc.mag_filter = SG_FILTER_LINEAR;
+    image_desc.content.subimage[0][0].ptr = image_data;
+    image_desc.content.subimage[0][0].size = width * height * 4;
 
-    hr = texData[iTex]->UnlockRect(0);
+    g_textures[iTex] = sg_make_image(&image_desc);
 
-    if (FAILED(hr)) {
+    if (g_textures[iTex].id == SG_INVALID_ID) {
         FatalError("Error unlocking texture data");  // TODO: Read back error info
     }
-}
 
-void SetObjectMesh(long* iParams, long iCount, long iNum) {
-    long iPlace;
-    long iVertice;
-    long iRNum;
-
-    iRNum = iRedirects[iNum];
-
-    my_vertex* vb_vertices;
-    HRESULT hr;
-
-    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
-    if (FAILED(hr)) {
-        FatalError("Error Locking triangle buffer");
-    }
-
-    iVertice = iStart[iRNum];
-    iLength[iRNum] = iCount;
-
-    iPlace = -1;
-    while (++iPlace < iCount) {
-        vb_vertices[iVertice].x = iParams[iPlace * 9 + 0] / 256.0f;
-        vb_vertices[iVertice].y = iParams[iPlace * 9 + 1] / 256.0f;
-        vb_vertices[iVertice].z = iParams[iPlace * 9 + 2] / 256.0f;
-        vb_vertices[iVertice].nx = iParams[iPlace * 9 + 3] / 256.0f;
-        vb_vertices[iVertice].ny = iParams[iPlace * 9 + 4] / 256.0f;
-        vb_vertices[iVertice].nz = iParams[iPlace * 9 + 5] / 256.0f;
-        vb_vertices[iVertice].tu = iParams[iPlace * 9 + 7] / 256.0f;
-        vb_vertices[iVertice].tv = iParams[iPlace * 9 + 8] / 256.0f;
-
-        ++iVertice;
-    }
-
-    g_vb->Unlock();
+    stbi_image_free(image_data);
 }
 
 void ChangeMesh(long iMesh, long iNewMesh) {
-    long iObjectToCopy;
-    long iRealMesh;
-
-    iRealMesh = iRedirects[iMesh];
-    iObjectToCopy = iRedirects[iNewMesh];
-
-    iStart[iRealMesh] = iStart[iObjectToCopy];
-    iLength[iRealMesh] = iLength[iObjectToCopy];
+    long iObjectToCopy = g_object_redirects[iNewMesh];
+    long iRealMesh = g_object_redirects[iMesh];
+    g_object_vertex_start_index[iRealMesh] = g_object_vertex_start_index[iObjectToCopy];
+    g_object_vertex_count[iRealMesh] = g_object_vertex_count[iObjectToCopy];
 }
 
 void CopyObject(int iObject, long* iNum) {
-    long iObjectToCopy;
-    long iLoop;
-    long iPlace;
-
-    iObjectToCopy = iRedirects[iObject];
-
-    iLoop = -1;
-    iPlace = -1;
+    long iObjectToCopy = g_object_redirects[iObject];
+    long iLoop = -1;
+    long iPlace = -1;
 
     while (++iLoop < MAX_OBJECTS && iPlace == -1) {
-        if (iRedirects[iLoop] == -1) {
+        if (g_object_redirects[iLoop] == -1) {
             iPlace = iLoop;
         }
     }
@@ -439,435 +387,393 @@ void CopyObject(int iObject, long* iNum) {
     }
 
     *iNum = iPlace;
-    iRedirects[iPlace] = miObjects;
+    g_object_redirects[iPlace] = g_object_count;
 
-    iStart[miObjects] = iStart[iObjectToCopy];
-    iLength[miObjects] = iLength[iObjectToCopy];
+    g_object_vertex_start_index[g_object_count] = g_object_vertex_start_index[iObjectToCopy];
+    g_object_vertex_count[g_object_count] = g_object_vertex_count[iObjectToCopy];
 
     SetObjectData(*iNum, 0, 0);
     IdentityMatrix(*iNum);
 
-    ++miObjects;
+    ++g_object_count;
 }
 
 void CreateObject(long* iParams, long iCount, long* iNum) {
-    long iPlace;
+    *iNum = g_object_count;
+    g_object_redirects[g_object_count] = g_object_count;
+    g_object_vertex_start_index[g_object_count] = g_vertices_to_load_count;
+    g_object_vertex_count[g_object_count] = iCount;
 
-    *iNum = miObjects;
-    iRedirects[miObjects] = miObjects;
-    iStart[miObjects] = miVertices;
-    iLength[miObjects] = iCount;
+    SetObjectData(g_object_count, 0, 0);
+    IdentityMatrix(g_object_count);
 
-    SetObjectData(miObjects, 0, 0);
-    IdentityMatrix(miObjects);
+    long iPlace = -1;
 
-    my_vertex* vb_vertices;
-    HRESULT hr;
-
-    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
-    if (FAILED(hr)) {
-        FatalError("Error Locking triangle buffer");
-    }
-
-    iPlace = -1;
     while (++iPlace < iCount) {
-        vb_vertices[miVertices].x = iParams[iPlace * 9 + 0] / 256.0f;
-        vb_vertices[miVertices].y = iParams[iPlace * 9 + 1] / 256.0f;
-        vb_vertices[miVertices].z = iParams[iPlace * 9 + 2] / 256.0f;
-        vb_vertices[miVertices].nx = iParams[iPlace * 9 + 3] / 256.0f;
-        vb_vertices[miVertices].ny = iParams[iPlace * 9 + 4] / 256.0f;
-        vb_vertices[miVertices].nz = iParams[iPlace * 9 + 5] / 256.0f;
-        vb_vertices[miVertices].tu = iParams[iPlace * 9 + 7] / 256.0f;
-        vb_vertices[miVertices].tv = iParams[iPlace * 9 + 8] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].x = iParams[iPlace * 9 + 0] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].y = iParams[iPlace * 9 + 1] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].z = iParams[iPlace * 9 + 2] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].nx = iParams[iPlace * 9 + 3] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].ny = iParams[iPlace * 9 + 4] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].nz = iParams[iPlace * 9 + 5] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].tu = iParams[iPlace * 9 + 7] / 256.0f;
+        g_vertices_to_load[g_vertices_to_load_count].tv = iParams[iPlace * 9 + 8] / 256.0f;
 
-        ++miVertices;
+        ++g_vertices_to_load_count;
     }
 
-    miObjects = miObjects + 1;
-
-    g_vb->Unlock();
+    g_object_count = g_object_count + 1;
 }
 
 void SetObjectData(long iNum, long iTexture, int iVisible) {
-    long iRNum;
-    iRNum = iRedirects[iNum];
-    iTEX[iRNum] = iTexture;
-    iVis[iRNum] = iVisible;
+    long iRNum = g_object_redirects[iNum];
+    g_object_texture_index[iRNum] = iTexture;
+    g_object_is_visible[iRNum] = iVisible;
+    g_object_uv_offset[iRNum] = { 0 };
 }
 
-void Reset3d(HWND hWindow) {
-    my_vertex* vb_vertices;
-    my_vertex* CopyVertice;
-    HRESULT hr;
-    long i;
-
-    if (g_D3D == NULL) {
-        return;
-    }
-    if (g_vb == NULL) {
-        return;
-    }
-    if (g_d3d_device == NULL) {
-        return;
-    }
-
-    CopyVertice = static_cast<my_vertex*>(malloc(MAX_VERTICES * sizeof(my_vertex)));
-    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
-
-    if (FAILED(hr)) {
-        return;
-    }
-
-    i = -1;
-
-    while (++i < MAX_VERTICES) {
-        CopyVertice[i] = vb_vertices[i];
-    }
-
-    g_vb->Unlock();
-
-    if (g_vb) {
-        g_vb->Release();
-        g_vb = NULL;
-    }
-    if (g_d3d_device) {
-        g_d3d_device->Release();
-        g_d3d_device = NULL;
-    }
-    if (g_D3D) {
-        g_D3D->Release();
-        g_D3D = NULL;
-    }
-
-    D3DDISPLAYMODE display_mode;
-
-    int iLoop = -1;
-    int iLoadTexture[MAX_TEXTURES];
-
-    while (++iLoop < MAX_TEXTURES) {
-        iLoadTexture[iLoop] = (texData[iLoop] != NULL);
-        texData[iLoop] = NULL;
-    }
-
-    g_D3D = Direct3DCreate8(D3D_SDK_VERSION);
-    hr = g_D3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &display_mode);
-
-    if (FAILED(hr)) {
-        return;
-    }
-
-    hr = g_D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_d3d_device);
-
-    if (FAILED(hr)) {
-        return;
-    }
-
-    init_scene();
-
-    iLoop = -1;
-
-    while (++iLoop < MAX_TEXTURES) {
-        if (iLoadTexture[iLoop]) {
-            LoadTexture(iLoop, RetainTextureFile[iLoop], texType[iLoop], texRequiresAlpha[iLoop]);
-        }
-    }
-
-    hr = g_vb->Lock(0, 0, reinterpret_cast<BYTE**>(&vb_vertices), 0);
-
-    if (FAILED(hr)) {
-        return;
-    }
-
-    i = -1;
-
-    while (++i < MAX_VERTICES) {
-        vb_vertices[i] = CopyVertice[i];
-    }
-
-    g_vb->Unlock();
+void ResizeViewport(int width, int height) {
+    g_backbuffer_width = width;
+    g_backbuffer_height = height;
 }
 
-long InitializeAll(HWND hWindow) {
-    if (!init_d3d(hWindow)) {
+void Reset3d() {
+    // TODO: Is there any case where we need to reset the context?
+}
+
+long InitializeAll() {
+    if (!init_3d()) {
         return 0;
     }
 
     init_scene();
 
     return 1;
+}
+
+void Begin3dLoad() {
+    if(g_vertices_to_load) {
+        free(g_vertices_to_load);
+        g_vertices_to_load = NULL;
+    }
+
+    g_vertices_to_load = (ObjectVertex*)malloc(MAX_VERTICES * sizeof(ObjectVertex));
+
+    if(!g_vertices_to_load) {
+        FatalError("Failed to allocate enough memory in order to load model's vertex data");
+    }
+}
+
+void EndAndCommit3dLoad() {
+    sg_update_buffer(g_draw_state.vertex_buffers[0], g_vertices_to_load, MAX_VERTICES * sizeof(ObjectVertex));
+
+    if(g_vertices_to_load) {
+        free(g_vertices_to_load);
+        g_vertices_to_load = NULL;
+    }
 }
 
 void DoCleanUp() {
     kill_scene();
-    kill_d3d();
+    kill_3d();
 }
 
-long init_d3d(HWND hWindow) {
-    HRESULT hr;
-    D3DDISPLAYMODE display_mode;
+long init_3d() {
+    int iLoop = -1;
 
-    int iLoop;
-    iLoop = -1;
     while (++iLoop < MAX_TEXTURES) {
-        texData[iLoop] = NULL;
+        g_textures[iLoop].id = SG_INVALID_ID;
     }
 
     for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
-        iRedirects[iLoop] = -1;
+        g_object_redirects[iLoop] = -1;
     }
 
-    g_D3D = Direct3DCreate8(D3D_SDK_VERSION);
+    for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+        g_object_uv_offset[iLoop] = { 0 };
+    }
 
-    if (!g_D3D) {
-        FatalError("Error getting Direct3D - ensure you have DirectX 8.1 installed.");
+    sg_desc desc = {0};
+    sg_setup(&desc);
+
+    if (!sg_isvalid()) {
         return 0;
-    }
-
-    hr = g_D3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &display_mode);
-
-    if (FAILED(hr)) {
-        FatalError("Error getting display mode\n");
-        return 0;
-    }
-
-    ZeroMemory(&d3dpp, sizeof(d3dpp));
-
-    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    d3dpp.hDeviceWindow = hWindow;
-    d3dpp.BackBufferCount = 1;
-
-    d3dpp.EnableAutoDepthStencil = TRUE;
-    d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-
-    if (FULL_SCREEN) {
-        d3dpp.Windowed = FALSE;
-        d3dpp.BackBufferWidth = g_backbuffer_width;
-        d3dpp.BackBufferHeight = g_backbuffer_height;
-        d3dpp.BackBufferFormat = D3DFMT_A8R8G8B8;
-    } else {
-        d3dpp.Windowed = TRUE;
-        d3dpp.BackBufferFormat = display_mode.Format;
-    }
-
-//  hr = g_D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_d3d_device);
-//  hr = g_D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_d3d_device);
-    hr = g_D3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWindow, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_d3d_device);
-
-    if (FAILED(hr)) {
-        FatalError("Error creating device - ensure that your video card supports 3d acceleration.\n");
-        return 0;
-    }
-
-    D3DCAPS8 dCaps;
-    g_d3d_device->GetDeviceCaps(&dCaps);
-
-    CapsFog = 1;
-    if (!(dCaps.RasterCaps & D3DPRASTERCAPS_ZFOG)) {
-        CapsFog = 0;
     }
 
     return 1;
 }
 
-void kill_d3d(void) {
-    if (g_d3d_device) {
-        g_d3d_device->Release();
-        g_d3d_device = NULL;
-    }
-
-    if (g_D3D) {
-        g_D3D->Release();
-        g_D3D = NULL;
-    }
+void kill_3d() {
+    sg_shutdown();
 }
 
-void SetFog(float iFogStart, float iFogEnd, DWORD Color) {
-    if (!CapsFog) {
-        return;
-    }
-
+void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue) {
     if (iFogStart == 0 && iFogEnd == 0) {
-        g_d3d_device->SetRenderState(D3DRS_FOGENABLE, FALSE);
+        // TODO: These all weren't commented before. Make sure they get into the sokol pipeline def
+        //g_d3d_device->SetRenderState(D3DRS_FOGENABLE, FALSE);
     } else {
-        g_d3d_device->SetRenderState(D3DRS_FOGENABLE, TRUE);
-        g_d3d_device->SetRenderState(D3DRS_FOGCOLOR, Color);
-        g_d3d_device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
-        g_d3d_device->SetRenderState(D3DRS_FOGSTART, *reinterpret_cast<DWORD*>(&iFogStart));
-        g_d3d_device->SetRenderState(D3DRS_FOGEND, *reinterpret_cast<DWORD*>(&iFogEnd));
+        // TODO: These all weren't commented before. Make sure they get into the sokol pipeline def
+        //g_d3d_device->SetRenderState(D3DRS_FOGENABLE, TRUE);
+        //g_d3d_device->SetRenderState(D3DRS_FOGCOLOR, Color);
+        //g_d3d_device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
+        //g_d3d_device->SetRenderState(D3DRS_FOGSTART, *reinterpret_cast<DWORD*>(&iFogStart));
+        //g_d3d_device->SetRenderState(D3DRS_FOGEND, *reinterpret_cast<DWORD*>(&iFogEnd));
     }
 }
 
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ) {
-    g_view_matrix = HMM_LookAtLH(HMM_Vec3(iCamX, iCamY, iCamZ), HMM_Vec3(iPoiX, iPoiY, iPoiZ), HMM_Vec3(0.0f, 1.0f, 0.0f));
-    g_d3d_device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&g_view_matrix);
-
-    g_light.Position = { iCamX, iCamY + 10.0f, -200.0f };
-
-    g_light.Diffuse.r = 1.0f;
-    g_light.Diffuse.g = 1.0f;
-    g_light.Diffuse.b = 1.0f;
-
-    g_light.Ambient.r = 1.0f;
-    g_light.Ambient.g = 1.0f;
-    g_light.Ambient.b = 1.0f;
-
-    g_d3d_device->SetLight(0, &g_light);
-    g_d3d_device->LightEnable(0, TRUE);
+    g_world_to_view_matrix = HMM_LookAtLH(HMM_Vec3(iCamX, iCamY, iCamZ), HMM_Vec3(iPoiX, iPoiY, iPoiZ), HMM_Vec3(0.0f, 1.0f, 0.0f));
+    g_camera_light.position = { iCamX, iCamY + 10.0f, -200.0f };
+    g_camera_light.diffuse_color = { 1.0f, 1.0f, 1.0f };
+    g_camera_light.ambient_color = { 1.0f, 1.0f, 1.0f };
 }
 
-void init_scene(void) {
-    HRESULT hr;
+void init_scene() {
+    g_camera_light = { 0 };
+    g_camera_light.diffuse_color = { 1.0f, 1.0f, 1.0f };
+    g_camera_light.ambient_color = { 1.0f, 1.0f, 1.0f };
+    g_camera_light.position = { 80.0f, 100.0f, -200.0f };
+    g_camera_light.range = 1000.0f;
 
-    ZeroMemory(&g_light, sizeof(D3DLIGHT8));
-    g_light.Type = D3DLIGHT_POINT;
-
-    g_light.Diffuse.r = 1.0f;
-    g_light.Diffuse.g = 1.0f;
-    g_light.Diffuse.b = 1.0f;
-
-    g_light.Ambient.r = 1.0f;
-    g_light.Ambient.g = 1.0f;
-    g_light.Ambient.b = 1.0f;
-
-    g_light.Range = 1000.0f;
-    g_light.Position = { 80.0f, 100.0f, -200.0f };
-    g_light.Attenuation0 = 1.0f;
-
-    g_d3d_device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-//   g_d3d_device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG2);
-
-    g_d3d_device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-    g_d3d_device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
-
-/*
-    g_d3d_device->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_NONE);
-    g_d3d_device->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_NONE);
-*/
-
-    g_d3d_device->SetRenderState(D3DRS_LIGHTING, TRUE);
-    g_d3d_device->SetRenderState(D3DRS_AMBIENT, 0x01010101);
-    g_d3d_device->SetRenderState(D3DRS_ZENABLE, TRUE);
-
-    // SET ALPHA DISABLED
-/*
-    g_d3d_device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-    g_d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-*/
-
-    // SET ALPHA ENABLED
-    g_d3d_device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-    g_d3d_device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-    g_d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-    g_d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-    g_d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+    g_scene_ambient_color = { 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f };
 
     SetPerspective(80.0f, 90.0f, -145.0f, 80.0f, 59.0f, 0.0f);
 
-    hmm_mat4 matProj = HMM_PerspectiveFovLH_ZO(45.0f, 640.0f / 480.0f, 1.0f, 300.0f);
-    g_d3d_device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&matProj);
+    g_view_to_projection_matrix = HMM_PerspectiveLH_NO(45.0f, 640.0f / 480.0f, 1.0f, 300.0f);  // Fixed aspect ratio. Will be letterboxed elsewhere
 
-    hr = g_d3d_device->CreateVertexBuffer(MAX_VERTICES * sizeof(my_vertex), D3DUSAGE_WRITEONLY, D3D8T_CUSTOMVERTEX, D3DPOOL_MANAGED, &g_vb);
-    if (FAILED(hr)) {
-        FatalError("Error creating vertex buffer");
-    }
+    g_global_material = { 0 };
+    g_global_material.ambient_tint = { 0.5f, 0.5f, 0.5f };
+    g_global_material.diffuse_tint = { 0.5f, 0.5f, 0.5f };
 
-    D3DMATERIAL8 mtrl;
-    ZeroMemory(&mtrl, sizeof(D3DMATERIAL8));
-    mtrl.Diffuse.r = 0.5f;
-    mtrl.Diffuse.g = 0.5f;
-    mtrl.Diffuse.b = 0.5f;
-    mtrl.Ambient.r = 0.5f;
-    mtrl.Ambient.g = 0.5f;
-    mtrl.Ambient.b = 0.5f;
-    g_d3d_device->SetMaterial(&mtrl);
+    sg_buffer_desc vbuf_desc = { };
+    vbuf_desc.usage = SG_USAGE_STREAM;
+    vbuf_desc.size = MAX_VERTICES * sizeof(ObjectVertex);
 
-    g_d3d_device->SetVertexShader(D3D8T_CUSTOMVERTEX);
-    g_d3d_device->SetStreamSource(0, g_vb, sizeof(my_vertex));
+    g_draw_state = { };
+    g_draw_state.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
+
+    sg_shader_desc shd_desc = { };
+
+    sg_shader_uniform_block_desc& ub0 = shd_desc.vs.uniform_blocks[0];
+    ub0.size = sizeof(VertexShaderParams);
+    ub0.uniforms[0].name = "local_to_world_matrix";
+    ub0.uniforms[0].type = SG_UNIFORMTYPE_MAT4;
+    ub0.uniforms[1].name = "local_to_projection_matrix";
+    ub0.uniforms[1].type = SG_UNIFORMTYPE_MAT4;
+    ub0.uniforms[2].name = "transpose_world_to_local_matrix";
+    ub0.uniforms[2].type = SG_UNIFORMTYPE_MAT4;
+    ub0.uniforms[3].name = "uv_offset";
+    ub0.uniforms[3].type = SG_UNIFORMTYPE_FLOAT2;
+
+    shd_desc.vs.source =
+        "#version 330\n"
+        "\n"
+        "in vec3 position;\n"
+        "in vec3 normal;\n"
+        "in vec2 texcoord0;\n"
+        "\n"
+        "out vec3 vs_world_position;\n"
+        "out vec3 vs_unscaled_normal;\n"
+        "out vec2 vs_uv;\n"
+        "\n"
+        "uniform mat4 local_to_projection_matrix;\n"
+        "uniform mat4 local_to_world_matrix;\n"
+        "uniform mat4 transpose_world_to_local_matrix;\n"
+        "uniform vec2 uv_offset;\n"
+        "\n"
+        "void main() {\n"
+        "    vec4 pos = vec4(position, 1.0);\n"
+        "    vs_world_position = vec3(local_to_world_matrix * pos);\n"
+        "    vs_unscaled_normal = normalize(vec3(transpose_world_to_local_matrix * vec4(normal, 0.0)));\n"
+        "    vs_uv = texcoord0 + uv_offset;\n"
+        "    gl_Position = local_to_projection_matrix * pos;\n"
+        "}\n";
+
+    shd_desc.fs.images[0].name = "tex";
+    shd_desc.fs.images[0].type = SG_IMAGETYPE_2D;
+
+    sg_shader_uniform_block_desc& fs_ub0 = shd_desc.fs.uniform_blocks[0];
+    fs_ub0.size = sizeof(FragmentShaderParams);
+    fs_ub0.uniforms[0].name = "scene_ambient_color";
+    fs_ub0.uniforms[0].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0.uniforms[1].name = "material_ambient_tint";
+    fs_ub0.uniforms[1].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0.uniforms[2].name = "material_diffuse_tint";
+    fs_ub0.uniforms[2].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0.uniforms[3].name = "light_ambient_color";
+    fs_ub0.uniforms[3].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0.uniforms[4].name = "light_diffuse_color";
+    fs_ub0.uniforms[4].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0.uniforms[5].name = "light_position";
+    fs_ub0.uniforms[5].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0.uniforms[6].name = "light_range";
+    fs_ub0.uniforms[6].type = SG_UNIFORMTYPE_FLOAT;
+
+    // TODO: Fog
+    shd_desc.fs.source =
+        "#version 330\n"
+        "\n"
+        "in vec3 vs_world_position;\n"
+        "in vec3 vs_unscaled_normal;\n"
+        "in vec2 vs_uv;\n"
+        "\n"
+        "out vec4 frag_color;\n"
+        "\n"
+        "uniform sampler2D tex;\n"
+        "\n"
+        "uniform vec3 scene_ambient_color;\n"
+        "\n"
+        "uniform vec3 material_ambient_tint;\n"
+        "uniform vec3 material_diffuse_tint;\n"
+        "\n"
+        "uniform vec3 light_ambient_color;\n"
+        "uniform vec3 light_diffuse_color;\n"
+        "uniform vec3 light_position;\n"
+        "uniform float light_range;\n"
+        "\n"
+        "void main() {\n"
+        "    vec4 albedo = texture(tex, vs_uv);\n"
+        "    float out_alpha = albedo.a;\n"
+        "\n"
+        "    vec3 ambient_color = material_ambient_tint * (scene_ambient_color + light_ambient_color);\n"
+        "\n"
+        "    vec3 diffuse_color = vec3(0.0);\n"
+        "\n"
+        "    if(length(light_position - vs_world_position) < light_range) {\n"
+        "        vec3 light_direction = normalize(light_position - vs_world_position);\n"
+        "        vec3 uninterpolated_normal = normalize(vs_unscaled_normal);\n"
+        "        diffuse_color = material_diffuse_tint *\n"
+        "            light_diffuse_color * max(dot(uninterpolated_normal, light_direction), 0.0);\n"
+        "    }\n"
+        "\n"
+        "    vec3 out_color = (ambient_color + diffuse_color) * albedo.rgb;\n"
+        "    frag_color = vec4(out_color, out_alpha);\n"
+        "}\n";
+
+    sg_shader shd = sg_make_shader(&shd_desc);
+
+    sg_pipeline_desc pip_desc = { };
+
+    pip_desc.layout.buffers[0].stride = sizeof(ObjectVertex);
+    auto& attrs = pip_desc.layout.attrs;
+    attrs[0].name = "position";
+    attrs[0].format = SG_VERTEXFORMAT_FLOAT3;
+    attrs[1].name = "normal";
+    attrs[1].format = SG_VERTEXFORMAT_FLOAT3;
+    attrs[2].name = "texcoord0";
+    attrs[2].format = SG_VERTEXFORMAT_FLOAT2;
+
+    pip_desc.shader = shd;
+
+    pip_desc.depth_stencil.depth_compare_func = SG_COMPAREFUNC_LESS;
+    pip_desc.depth_stencil.depth_write_enabled = true;
+    pip_desc.rasterizer.face_winding = SG_FACEWINDING_CW;
+    pip_desc.rasterizer.cull_mode = SG_CULLMODE_BACK;
+
+    pip_desc.blend.enabled = true;
+    pip_desc.blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
+    pip_desc.blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    pip_desc.blend.color_write_mask = SG_COLORMASK_RGBA;
+
+    g_draw_state.pipeline = g_transparent_pipline = sg_make_pipeline(&pip_desc);
+
+    pip_desc.blend.enabled = false;
+    g_opaque_pipline = sg_make_pipeline(&pip_desc);
+
+    g_pass_action = { };
+    g_pass_action.colors[0].action = SG_ACTION_CLEAR;
+    g_pass_action.colors[0].val[0] = 0.0f;
+    g_pass_action.colors[0].val[1] = 0.0f;
+    g_pass_action.colors[0].val[2] = 0.0f;
+    g_pass_action.colors[0].val[3] = 1.0f;
 }
 
-void kill_scene(void) {
-    int iLoop;
+void kill_scene() {
+    int iLoop = -1;
 
-    iLoop = -1;
     while (++iLoop < MAX_TEXTURES) {
-        if (texData[iLoop]) {
-            texData[iLoop]->Release();
-            texData[iLoop] = NULL;
+        if (g_textures[iLoop].id != SG_INVALID_ID) {
+            sg_destroy_image(g_textures[iLoop]);
+            g_textures[iLoop].id = SG_INVALID_ID;
         }
     }
-
-    if (g_vb) {
-        g_vb->Release();
-        g_vb = NULL;
-    }
 }
 
-long Render(void) {
-    long iObject;
-    long iLastTexture;
-    long iAlphaEnabled;
-    long iReq;
-    HRESULT hr;
+void Render() {
+    sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
-    hr = g_d3d_device->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
-    if (FAILED(hr)) {
-        return 0;
+    float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
+    const float target_aspect_ratio = 640.0f / 480.0f;
+
+    if(backbuffer_aspect_ratio > target_aspect_ratio) {
+        float width_scale = target_aspect_ratio / backbuffer_aspect_ratio;
+        float border_half_width = (g_backbuffer_width - width_scale * g_backbuffer_width) / 2.0f;
+        sg_apply_viewport((int)border_half_width, 0, (int)(g_backbuffer_width - (border_half_width * 2.0f)), g_backbuffer_height, true);
+    } else {
+        float height_scale = backbuffer_aspect_ratio / target_aspect_ratio;
+        float border_half_height = (g_backbuffer_height - height_scale * g_backbuffer_height) / 2.0f;
+        sg_apply_viewport(0, (int)border_half_height, g_backbuffer_width, (int)(g_backbuffer_height - (border_half_height * 2.0f)), true);
     }
 
-    hr = g_d3d_device->BeginScene();
-    if (FAILED(hr)) {
-        return 0;
-    }
+    long iObject = -1;
+    long iLastTexture = -1;
+    long iAlphaEnabled = -1;
+    long iReq = -1;
 
-    DrawnObjects = 0;
-    iObject = -1;
-    iLastTexture = -1;
-    iAlphaEnabled = -1;
+    g_objects_drawn_since_last_frame_count = 0;
 
-    while (++iObject < miObjects) {
-        if (iVis[iObject]) {
-            ++DrawnObjects;
-            if (iLastTexture != iTEX[iObject]) {
-                hr = g_d3d_device->SetTexture(0, texData[iTEX[iObject]]);
-                if (FAILED(hr)) {
-                    MessageBox(0, "Error setting texture!", "Jumpman Zero", 0);
-                }
-                iLastTexture = iTEX[iObject];
-                iReq = texRequiresAlpha[iLastTexture];
+    VertexShaderParams vs_params;
+    FragmentShaderParams fs_params;
+    fs_params.scene_ambient_color = g_scene_ambient_color;
+    fs_params.material = g_global_material;
+    fs_params.light = g_camera_light;
+    bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
+
+    while (++iObject < g_object_count) {
+        if (g_object_is_visible[iObject]) {
+            ++g_objects_drawn_since_last_frame_count;
+
+            if (iLastTexture != g_object_texture_index[iObject]) {
+                g_draw_state.fs_images[0] = g_textures[g_object_texture_index[iObject]];
+
+                iLastTexture = g_object_texture_index[iObject];
+
+                iReq = g_texture_is_alpha_blend_enabled[iLastTexture];
+
                 if (iAlphaEnabled != iReq) {
-                    hr = g_d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, iReq);
-                    if (FAILED(hr)) {
-                        MessageBox(0, "Error setting alpha!", "Jumpman Zero", 0);
+                    if (iReq) {
+                        g_draw_state.pipeline = g_transparent_pipline;
+                    } else {
+                        g_draw_state.pipeline = g_opaque_pipline;
                     }
+
                     iAlphaEnabled = iReq;
                 }
+
+                sg_apply_draw_state(&g_draw_state);
             }
 
-            g_d3d_device->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&matObject[iObject]);
-            g_d3d_device->DrawPrimitive(D3DPT_TRIANGLELIST, iStart[iObject], iLength[iObject] / 3);
+            vs_params.local_to_world_matrix = g_object_local_to_world_matrix[iObject];
+            vs_params.local_to_projection_matrix = g_view_to_projection_matrix * g_world_to_view_matrix * g_object_local_to_world_matrix[iObject];
+            vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[iObject]));
+            vs_params.uv_offset = g_object_uv_offset[iObject];
+            sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, &vs_params, sizeof(vs_params));
+
+            if(!are_fs_params_applied) {
+                sg_apply_uniform_block(SG_SHADERSTAGE_FS, 0, &fs_params, sizeof(fs_params));
+                are_fs_params_applied = true;
+            }
+
+            sg_draw(g_object_vertex_start_index[iObject], g_object_vertex_count[iObject], 1);
         }
     }
 
-    hr = g_d3d_device->EndScene();
-    if (FAILED(hr)) {
-        return 0;
-    }
-
-    hr = g_d3d_device->SetTexture(0, NULL);
-    if (FAILED(hr)) {
-        return 0;
-    }
-
-    hr = g_d3d_device->Present(NULL, NULL, NULL, NULL);
-    if (FAILED(hr)) {
-        return 0;
-    }
-
-    return 1;
+    sg_end_pass();
+    sg_commit();
 }
 
 void FatalError(const char* error_msg) {
     kill_scene();
-    kill_d3d();
+    kill_3d();
     MessageBox(NULL, error_msg, "Jumpman Zero", MB_OK);
 }
