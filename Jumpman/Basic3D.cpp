@@ -42,6 +42,10 @@ struct FragmentShaderParams {
     hmm_vec3 scene_ambient_color;
     Material material;
     Light light;
+    float is_fog_enabled;
+    hmm_vec3 fog_color;
+    float fog_start;
+    float fog_end;
 };
 
 void FatalError(const char* error_msg);
@@ -59,6 +63,10 @@ sg_pass_action g_pass_action = { };
 Light g_camera_light;
 Material g_global_material;
 hmm_vec3 g_scene_ambient_color;
+bool g_is_fog_enabled;
+hmm_vec3 g_fog_color;
+float g_fog_start;
+float g_fog_end;
 
 sg_image g_textures[MAX_TEXTURES];
 char g_texture_filename[MAX_TEXTURES][300];
@@ -509,15 +517,12 @@ void kill_3d() {
 
 void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue) {
     if (iFogStart == 0 && iFogEnd == 0) {
-        // TODO: These all weren't commented before. Make sure they get into the sokol pipeline def
-        //g_d3d_device->SetRenderState(D3DRS_FOGENABLE, FALSE);
+        g_is_fog_enabled = false;
     } else {
-        // TODO: These all weren't commented before. Make sure they get into the sokol pipeline def
-        //g_d3d_device->SetRenderState(D3DRS_FOGENABLE, TRUE);
-        //g_d3d_device->SetRenderState(D3DRS_FOGCOLOR, Color);
-        //g_d3d_device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
-        //g_d3d_device->SetRenderState(D3DRS_FOGSTART, *reinterpret_cast<DWORD*>(&iFogStart));
-        //g_d3d_device->SetRenderState(D3DRS_FOGEND, *reinterpret_cast<DWORD*>(&iFogEnd));
+        g_is_fog_enabled = true;
+        g_fog_color = { red / 255.0f, green / 255.0f, blue / 255.0f };
+        g_fog_start = iFogStart;
+        g_fog_end = iFogEnd;
     }
 }
 
@@ -573,6 +578,7 @@ void init_scene() {
         "in vec2 texcoord0;\n"
         "\n"
         "out vec3 vs_world_position;\n"
+        "out vec3 vs_screen_position;\n"
         "out vec3 vs_unscaled_normal;\n"
         "out vec2 vs_uv;\n"
         "\n"
@@ -584,6 +590,7 @@ void init_scene() {
         "void main() {\n"
         "    vec4 pos = vec4(position, 1.0);\n"
         "    vs_world_position = vec3(local_to_world_matrix * pos);\n"
+        "    vs_screen_position = vec3(local_to_projection_matrix * pos);\n"
         "    vs_unscaled_normal = normalize(vec3(transpose_world_to_local_matrix * vec4(normal, 0.0)));\n"
         "    vs_uv = texcoord0 + uv_offset;\n"
         "    gl_Position = local_to_projection_matrix * pos;\n"
@@ -608,12 +615,20 @@ void init_scene() {
     fs_ub0.uniforms[5].type = SG_UNIFORMTYPE_FLOAT3;
     fs_ub0.uniforms[6].name = "light_range";
     fs_ub0.uniforms[6].type = SG_UNIFORMTYPE_FLOAT;
+    fs_ub0.uniforms[7].name = "is_fog_enabled";
+    fs_ub0.uniforms[7].type = SG_UNIFORMTYPE_FLOAT;
+    fs_ub0.uniforms[8].name = "fog_color";
+    fs_ub0.uniforms[8].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0.uniforms[9].name = "fog_start";
+    fs_ub0.uniforms[9].type = SG_UNIFORMTYPE_FLOAT;
+    fs_ub0.uniforms[10].name = "fog_end";
+    fs_ub0.uniforms[10].type = SG_UNIFORMTYPE_FLOAT;
 
-    // TODO: Fog
     shd_desc.fs.source =
         "#version 330\n"
         "\n"
         "in vec3 vs_world_position;\n"
+        "in vec3 vs_screen_position;\n"
         "in vec3 vs_unscaled_normal;\n"
         "in vec2 vs_uv;\n"
         "\n"
@@ -631,6 +646,11 @@ void init_scene() {
         "uniform vec3 light_position;\n"
         "uniform float light_range;\n"
         "\n"
+        "uniform bool is_fog_enabled;\n"
+        "uniform vec3 fog_color;\n"
+        "uniform float fog_start;\n"
+        "uniform float fog_end;\n"
+        "\n"
         "void main() {\n"
         "    vec4 albedo = texture(tex, vs_uv);\n"
         "    float out_alpha = albedo.a;\n"
@@ -647,6 +667,11 @@ void init_scene() {
         "    }\n"
         "\n"
         "    vec3 out_color = (ambient_color + diffuse_color) * albedo.rgb;\n"
+        "\n"
+        "    if(is_fog_enabled) {\n"
+        "        out_color = mix(fog_color, out_color, clamp((fog_end - vs_screen_position.z) / (fog_end - fog_start), 0.0, 1.0));\n"  // TODO: vs_screen_position.z should be normalized to znear/zfar, which needs to be sent in
+        "    }\n"
+        "\n"
         "    frag_color = vec4(out_color, out_alpha);\n"
         "}\n";
 
@@ -727,6 +752,10 @@ void Render() {
     fs_params.scene_ambient_color = g_scene_ambient_color;
     fs_params.material = g_global_material;
     fs_params.light = g_camera_light;
+    fs_params.is_fog_enabled = g_is_fog_enabled ? 1.0f : 0.0f;
+    fs_params.fog_color = g_fog_color;
+    fs_params.fog_start = g_fog_start;
+    fs_params.fog_end = g_fog_end;
     bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
 
     while (++iObject < g_object_count) {
