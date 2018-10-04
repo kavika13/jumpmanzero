@@ -33,6 +33,7 @@ struct Material {
 
 struct VertexShaderParams {
     hmm_mat4 local_to_world_matrix;
+    hmm_mat4 local_to_view_matrix;
     hmm_mat4 local_to_projection_matrix;
     hmm_mat4 transpose_world_to_local_matrix;
     hmm_vec2 uv_offset;
@@ -563,12 +564,14 @@ void init_scene() {
     ub0.size = sizeof(VertexShaderParams);
     ub0.uniforms[0].name = "local_to_world_matrix";
     ub0.uniforms[0].type = SG_UNIFORMTYPE_MAT4;
-    ub0.uniforms[1].name = "local_to_projection_matrix";
+    ub0.uniforms[1].name = "local_to_view_matrix";
     ub0.uniforms[1].type = SG_UNIFORMTYPE_MAT4;
-    ub0.uniforms[2].name = "transpose_world_to_local_matrix";
+    ub0.uniforms[2].name = "local_to_projection_matrix";
     ub0.uniforms[2].type = SG_UNIFORMTYPE_MAT4;
-    ub0.uniforms[3].name = "uv_offset";
-    ub0.uniforms[3].type = SG_UNIFORMTYPE_FLOAT2;
+    ub0.uniforms[3].name = "transpose_world_to_local_matrix";
+    ub0.uniforms[3].type = SG_UNIFORMTYPE_MAT4;
+    ub0.uniforms[4].name = "uv_offset";
+    ub0.uniforms[4].type = SG_UNIFORMTYPE_FLOAT2;
 
     shd_desc.vs.source =
         "#version 330\n"
@@ -578,19 +581,20 @@ void init_scene() {
         "in vec2 texcoord0;\n"
         "\n"
         "out vec3 vs_world_position;\n"
-        "out vec3 vs_screen_position;\n"
+        "out vec3 vs_view_position;\n"
         "out vec3 vs_unscaled_normal;\n"
         "out vec2 vs_uv;\n"
         "\n"
-        "uniform mat4 local_to_projection_matrix;\n"
         "uniform mat4 local_to_world_matrix;\n"
+        "uniform mat4 local_to_view_matrix;\n"
+        "uniform mat4 local_to_projection_matrix;\n"
         "uniform mat4 transpose_world_to_local_matrix;\n"
         "uniform vec2 uv_offset;\n"
         "\n"
         "void main() {\n"
         "    vec4 pos = vec4(position, 1.0);\n"
         "    vs_world_position = vec3(local_to_world_matrix * pos);\n"
-        "    vs_screen_position = vec3(local_to_projection_matrix * pos);\n"
+        "    vs_view_position = vec3(local_to_view_matrix * pos);\n"
         "    vs_unscaled_normal = normalize(vec3(transpose_world_to_local_matrix * vec4(normal, 0.0)));\n"
         "    vs_uv = texcoord0 + uv_offset;\n"
         "    gl_Position = local_to_projection_matrix * pos;\n"
@@ -628,7 +632,7 @@ void init_scene() {
         "#version 330\n"
         "\n"
         "in vec3 vs_world_position;\n"
-        "in vec3 vs_screen_position;\n"
+        "in vec3 vs_view_position;\n"
         "in vec3 vs_unscaled_normal;\n"
         "in vec2 vs_uv;\n"
         "\n"
@@ -669,7 +673,7 @@ void init_scene() {
         "    vec3 out_color = (ambient_color + diffuse_color) * albedo.rgb;\n"
         "\n"
         "    if(is_fog_enabled) {\n"
-        "        out_color = mix(fog_color, out_color, clamp((fog_end - vs_screen_position.z) / (fog_end - fog_start), 0.0, 1.0));\n"  // TODO: vs_screen_position.z should be normalized to znear/zfar, which needs to be sent in
+        "        out_color = mix(fog_color, out_color, clamp((fog_end - vs_view_position.z) / (fog_end - fog_start), 0.0, 1.0));\n"
         "    }\n"
         "\n"
         "    frag_color = vec4(out_color, out_alpha);\n"
@@ -783,6 +787,7 @@ void Render() {
             }
 
             vs_params.local_to_world_matrix = g_object_local_to_world_matrix[iObject];
+            vs_params.local_to_view_matrix = g_world_to_view_matrix * g_object_local_to_world_matrix[iObject];
             vs_params.local_to_projection_matrix = g_view_to_projection_matrix * g_world_to_view_matrix * g_object_local_to_world_matrix[iObject];
             vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[iObject]));
             vs_params.uv_offset = g_object_uv_offset[iObject];
