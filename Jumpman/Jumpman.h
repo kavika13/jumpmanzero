@@ -313,7 +313,6 @@ void DoCleanUp();
 void CreateObject(long* iParams, long iCount, long* iNum);
 void SetObjectData(long iNum, long iTexture, int iVisible);
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
-void SetObjectMesh(long* iParams, long iCount, long iNum);
 void CopyObject(int iObject, long* iNum);
 void SwapObjects(long o1, long o2);
 void PrioritizeObject(long o1);
