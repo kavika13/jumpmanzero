@@ -276,13 +276,10 @@ long ExtFunction(long iFunc, ScriptContext* SC);
 #define SERVICE_CREDITLINE 155
 
 // IN MUSIC
-int CheckMusicEvent();
 void CleanUpMusic();
 
 void PauseMusic1();
-void PauseMusic2();
 // long InitMusic(HWND hWnd);  // TODO: Remove HWND parameter
-long CheckForStop();
 
 void NewTrack1(char* sFile, long iStart, long iIntro);
 void NewTrack2(char* sFile);
