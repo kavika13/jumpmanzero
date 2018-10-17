@@ -51,29 +51,27 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
 
     int SampleBlock, SampleCount = frameCount;
 
-    for (SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, interleaved_stereo_samples += (SampleBlock * 2)) {
-        if (SampleBlock > SampleCount) SampleBlock = SampleCount;
+    for(SampleBlock = TSF_RENDER_EFFECTSAMPLEBLOCK; SampleCount; SampleCount -= SampleBlock, interleaved_stereo_samples += (SampleBlock * 2)) {
+        if(SampleBlock > SampleCount) SampleBlock = SampleCount;
 
-        if (!track->is_stopping) {
-            for (track->current_playback_timestamp_msec += SampleBlock * (1000.0 / 44100.0); track->current_midi_message && track->current_playback_timestamp_msec >= track->current_midi_message->time; track->current_midi_message = track->current_midi_message->next)
-            {
-                switch (track->current_midi_message->type)
-                {
-                case TML_PROGRAM_CHANGE:
-                    tsf_channel_set_presetnumber(track->sound_font, track->current_midi_message->channel, track->current_midi_message->program, (track->current_midi_message->channel == 9));
-                    break;
-                case TML_NOTE_ON:
-                    tsf_channel_note_on(track->sound_font, track->current_midi_message->channel, track->current_midi_message->key, track->current_midi_message->velocity / 127.0f);
-                    break;
-                case TML_NOTE_OFF:
-                    tsf_channel_note_off(track->sound_font, track->current_midi_message->channel, track->current_midi_message->key);
-                    break;
-                case TML_PITCH_BEND:
-                    tsf_channel_set_pitchwheel(track->sound_font, track->current_midi_message->channel, track->current_midi_message->pitch_bend);
-                    break;
-                case TML_CONTROL_CHANGE:
-                    tsf_channel_midi_control(track->sound_font, track->current_midi_message->channel, track->current_midi_message->control, track->current_midi_message->control_value);
-                    break;
+        if(!track->is_stopping) {
+            for(track->current_playback_timestamp_msec += SampleBlock * (1000.0 / 44100.0); track->current_midi_message && track->current_playback_timestamp_msec >= track->current_midi_message->time; track->current_midi_message = track->current_midi_message->next) {
+                switch (track->current_midi_message->type) {
+                    case TML_PROGRAM_CHANGE:
+                        tsf_channel_set_presetnumber(track->sound_font, track->current_midi_message->channel, track->current_midi_message->program, (track->current_midi_message->channel == 9));
+                        break;
+                    case TML_NOTE_ON:
+                        tsf_channel_note_on(track->sound_font, track->current_midi_message->channel, track->current_midi_message->key, track->current_midi_message->velocity / 127.0f);
+                        break;
+                    case TML_NOTE_OFF:
+                        tsf_channel_note_off(track->sound_font, track->current_midi_message->channel, track->current_midi_message->key);
+                        break;
+                    case TML_PITCH_BEND:
+                        tsf_channel_set_pitchwheel(track->sound_font, track->current_midi_message->channel, track->current_midi_message->pitch_bend);
+                        break;
+                    case TML_CONTROL_CHANGE:
+                        tsf_channel_midi_control(track->sound_font, track->current_midi_message->channel, track->current_midi_message->control, track->current_midi_message->control_value);
+                        break;
                 }
             }
         }
@@ -90,17 +88,17 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
         }
     }
 
-    if (track->is_stopping) {
+    if(track->is_stopping) {
         bool all_voices_are_done = true;
 
-        for (int i = 0; i < track->sound_font->voiceNum; ++i) {
-            if (track->sound_font->voices[i].playingPreset != -1 && track->sound_font->voices[i].ampenv.segment != TSF_SEGMENT_DONE) {
+        for(int i = 0; i < track->sound_font->voiceNum; ++i) {
+            if(track->sound_font->voices[i].playingPreset != -1 && track->sound_font->voices[i].ampenv.segment != TSF_SEGMENT_DONE) {
                 all_voices_are_done = false;
                 break;
             }
         }
 
-        if (all_voices_are_done) {
+        if(all_voices_are_done) {
             SetSoundChannel(sound_channel, NULL);
         }
     }
@@ -120,7 +118,7 @@ static void LoadAndPlayTrack(const char* filename, MusicTrack* track, int start_
     tml_message* tiny_midi_loader = NULL;
     tiny_midi_loader = tml_load_filename(filename);
 
-    if (!tiny_midi_loader) {
+    if(!tiny_midi_loader) {
         // TODO: fprintf(stderr, "Could not load MIDI file\n");
         return;
     }
@@ -131,7 +129,7 @@ static void LoadAndPlayTrack(const char* filename, MusicTrack* track, int start_
     track->current_midi_message = track->first_midi_message = tiny_midi_loader;
     track->current_playback_timestamp_msec = 0.0;
 
-    if (start_time_msec > 0) {
+    if(start_time_msec > 0) {
         SeekTrack(track, start_time_msec);
     }
 
@@ -142,7 +140,7 @@ static void LoadAndPlayTrack(const char* filename, MusicTrack* track, int start_
 static void StopTrack(MusicTrack* track) {
     assert(track);
 
-    for (int i = 0; i < track->sound_font->channels->channelNum; ++i) {
+    for(int i = 0; i < track->sound_font->channels->channelNum; ++i) {
         tsf_channel_note_off_all(track->sound_font, i);
     }
 
@@ -152,7 +150,7 @@ static void StopTrack(MusicTrack* track) {
 bool InitMusic() {
     bool result = InitSoundBuffer();
 
-    if (!result) {
+    if(!result) {
         return false;
     }
 
@@ -170,7 +168,7 @@ bool InitMusic() {
     g_track_2 = { 0 };
     g_track_2.sound_font = tsf_load_filename("Sound/Reality_GMGS_falcomod.sf2");
 
-    if (!g_track_2.sound_font) {
+    if(!g_track_2.sound_font) {
         // TODO: fprintf(stderr, "Could not load SoundFont\n");
         return false;
     }
