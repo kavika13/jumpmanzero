@@ -278,8 +278,8 @@ long ExtFunction(long iFunc, ScriptContext* SC);
 // IN MUSIC
 bool InitMusic();
 void CleanUpMusic();
-void NewTrack1(char* sFile, long iStart, long iIntro);
-void NewTrack2(char* sFile);
+void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigned int loop_start_music_time);
+void NewTrack2(const char* filename);
 void StopMusic1();
 
 // IN UTILITIES

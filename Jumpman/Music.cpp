@@ -179,7 +179,7 @@ bool InitMusic() {
     return true;
 }
 
-void NewTrack1(char* filename, long song_start_music_time, long loop_start_music_time) {
+void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigned int loop_start_music_time) {
     StopTrack(&g_track_1);
     tml_free(g_track_1.first_midi_message);
 
@@ -196,7 +196,7 @@ void NewTrack1(char* filename, long song_start_music_time, long loop_start_music
     LoadAndPlayTrack(filename, &g_track_1, (unsigned int)(song_start_music_time * 500.0 / 768.0), 0, add_track_1_samples);
 }
 
-void NewTrack2(char* filename) {
+void NewTrack2(const char* filename) {
     StopTrack(&g_track_2);
     tml_free(g_track_2.first_midi_message);
 
