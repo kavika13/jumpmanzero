@@ -328,9 +328,3 @@ void ResetContext(ScriptContext* SC);
 void LoadScript(char* sFileName, ScriptCode* oScript);
 void RunScript(ScriptContext* SC, long iSub);
 int FindScript(ScriptContext* SC, char* sFunc);
-
-// IN SOUND
-void DoPlaySound(int iSound);
-void CleanUpSounds();
-// long InitSound(HWND hWnd);  // TODO: Remove HWND parameter
-void LoadSound(char* sFile, int iSound);

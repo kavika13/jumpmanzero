@@ -13,9 +13,6 @@
       <UniqueIdentifier>{43585c62-069d-4e87-86fe-6e161e2230f6}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="MS Classes">
-      <UniqueIdentifier>{56aabc99-f8c4-4151-b3ce-0694f30a4f28}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\glad">
       <UniqueIdentifier>{22eb82a2-ae1b-4ca6-96e4-6899e3382f5f}</UniqueIdentifier>
     </Filter>
@@ -66,17 +63,8 @@
     <ClCompile Include="Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sound.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utilities.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dsutil.cpp">
-      <Filter>MS Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="dxutil.cpp">
-      <Filter>MS Classes</Filter>
     </ClCompile>
     <ClCompile Include="glad\src\glad_wgl.c">
       <Filter>Source Files\glad</Filter>
@@ -87,15 +75,15 @@
     <ClCompile Include="SoundBuffer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Sound.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jumpman.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dxutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="glad\include\glad\glad.h">
@@ -133,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="tiny_sound_font-master-7e646b6\tsf.h">
       <Filter>Header Files\tiny_sound_font</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

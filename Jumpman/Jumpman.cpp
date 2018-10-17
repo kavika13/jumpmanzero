@@ -3,10 +3,8 @@
 #include <stdlib.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-// TODO: Remove glfw3native.h once we have changed sound systems
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include "GLFW/glfw3native.h"
 #include "./Jumpman.h"
+#include "Sound.h"
 
 char GameFile[100];
 char GameTitle[50];
@@ -62,8 +60,6 @@ unsigned long iFrameTime;
 struct StoreVert {
     long X, Y, Z, NX, NY, NZ, COLOR, TX, TY;
 };
-
-GLFWwindow* g_main_window;
 
 long iFindMesh[100];
 long iOtherMesh[300];
@@ -1015,7 +1011,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
     if (iFunc == EFSOUND) {
         if (GameSoundOn) {
-            DoPlaySound(iArg1);
+            PlaySound(iArg1);
         }
     }
 
@@ -1809,7 +1805,7 @@ void GrabDonuts() {
             iPlayerSC = 0;
             iPlayerST = JS_DONE;
         } else if (GameSoundOn) {
-            DoPlaySound(1);
+            PlaySound(1);
         }
     }
 }
@@ -1971,7 +1967,7 @@ void AnimateDying() {
             iPlayerAX = 0;
 
             if (GameSoundOn) {
-                DoPlaySound(2);
+                PlaySound(2);
             }
 
             GetNextPlatform(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY) - 8, 8, 2, &iSupport, &iPlatform);
@@ -2592,8 +2588,6 @@ void window_size_callback(GLFWwindow* window, int width, int height) {
     ResizeViewport(width, height);
 }
 
-long InitSound(HWND hWnd);
-
 int main(int arguments_count, char* arguments[]) {
     miDEBUG = 1;
 
@@ -2625,27 +2619,25 @@ int main(int arguments_count, char* arguments[]) {
         target_height = mode->height;
     }
 
-    g_main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", monitor, NULL);
+    GLFWwindow* main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", monitor, NULL);
 
-    if (!g_main_window) {
+    if (!main_window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowFocusCallback(g_main_window, window_focus_callback);
-    glfwSetWindowSizeCallback(g_main_window, window_size_callback);
-    glfwSetKeyCallback(g_main_window, key_callback);
-    glfwMakeContextCurrent(g_main_window);
+    glfwSetWindowFocusCallback(main_window, window_focus_callback);
+    glfwSetWindowSizeCallback(main_window, window_size_callback);
+    glfwSetKeyCallback(main_window, key_callback);
+    glfwMakeContextCurrent(main_window);
     glfwSwapInterval(1);
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    HWND hWnd = glfwGetWin32Window(g_main_window);
-
     if (FULL_SCREEN) {
-        glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        glfwSetInputMode(main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     } else {
-        glfwSetWindowSizeLimits(g_main_window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
+        glfwSetWindowSizeLimits(main_window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
     }
 
     ResizeViewport(target_width, target_height);
@@ -2666,7 +2658,7 @@ int main(int arguments_count, char* arguments[]) {
         GameMusicOn = 0;
     }
 
-    if (!InitSound(hWnd)) {
+    if (!InitSound()) {
         GameSoundOn = 0;
     }
 
@@ -2696,7 +2688,7 @@ int main(int arguments_count, char* arguments[]) {
     iPerfTime = 0;
     iPerfCount = 0;
 
-    while (!glfwWindowShouldClose(g_main_window)) {
+    while (!glfwWindowShouldClose(main_window)) {
         LARGE_INTEGER tTime;
         QueryPerformanceCounter(&tTime);
 
@@ -2754,7 +2746,7 @@ int main(int arguments_count, char* arguments[]) {
                 }
             }
 
-            glfwSwapBuffers(g_main_window);
+            glfwSwapBuffers(main_window);
         }
 
         glfwPollEvents();
@@ -2766,7 +2758,7 @@ int main(int arguments_count, char* arguments[]) {
     CleanUpSounds();
     DoCleanUp();
 
-    glfwDestroyWindow(g_main_window);
+    glfwDestroyWindow(main_window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
 }
@@ -3000,7 +2992,7 @@ int CheckJumpStart(int iLeft, int iUp, int iRight) {
     iPlayerSC = 0;
 
     if (GameSoundOn) {
-        DoPlaySound(0);
+        PlaySound(0);
     }
 
     MoveJumpmanJumping();

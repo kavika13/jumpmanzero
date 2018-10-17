@@ -38,13 +38,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXInstallDir)Include;$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);</IncludePath>
-    <LibraryPath>$(DXInstallDir)Lib;$(VC_LibraryPath_x86);$(WindowsSdk_71A_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DXInstallDir)Include;$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);</IncludePath>
-    <LibraryPath>$(DXInstallDir)Lib;$(VC_LibraryPath_x86);$(WindowsSdk_71A_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -64,7 +60,7 @@
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;dxerr8.lib;winmm.lib;dxguid.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;winmm.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -92,7 +88,7 @@
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;dxerr8.lib;winmm.lib;dxguid.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;winmm.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -112,11 +108,9 @@
     <ClCompile Include="Jumpman.cpp" />
     <ClCompile Include="Music.cpp" />
     <ClCompile Include="Script.cpp" />
-    <ClCompile Include="Sound.cpp" />
+    <ClCompile Include="Sound.c" />
     <ClCompile Include="SoundBuffer.c" />
     <ClCompile Include="Utilities.cpp" />
-    <ClCompile Include="dsutil.cpp" />
-    <ClCompile Include="dxutil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="glad\include\glad\glad.h" />
@@ -128,8 +122,8 @@
     <ClInclude Include="Jumpman.h" />
     <ClInclude Include="mini_al-0.8.9\mini_al.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="dxutil.h" />
     <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundBuffer.h" />
     <ClInclude Include="stb-image-2.19.0\stb_image.h" />
     <ClInclude Include="tiny_sound_font-master-7e646b6\tml.h" />
