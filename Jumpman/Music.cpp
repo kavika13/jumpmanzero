@@ -106,11 +106,11 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
     return frameCount;
 }
 
-static uint32_t add_track_1_samples(uint32_t frameCount, float* interleaved_stereo_samples) {
+static uint32_t AddTrack1Samples(uint32_t frameCount, float* interleaved_stereo_samples) {
     return AddMidiSamples(0, &g_track_1, frameCount, interleaved_stereo_samples);
 }
 
-static uint32_t add_track_2_samples(uint32_t frameCount, float* interleaved_stereo_samples) {
+static uint32_t AddTrack2Samples(uint32_t frameCount, float* interleaved_stereo_samples) {
     return AddMidiSamples(1, &g_track_2, frameCount, interleaved_stereo_samples);
 }
 
@@ -193,7 +193,7 @@ void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigne
     }
 
     // TODO: Fix. MUSIC_TIME -> msec. Right now is hard-coded to 120 BPM, with no tempo changes (time * 500 / 768)
-    LoadAndPlayTrack(filename, &g_track_1, (unsigned int)(song_start_music_time * 500.0 / 768.0), 0, add_track_1_samples);
+    LoadAndPlayTrack(filename, &g_track_1, (unsigned int)(song_start_music_time * 500.0 / 768.0), 0, AddTrack1Samples);
 }
 
 void NewTrack2(const char* filename) {
@@ -203,7 +203,7 @@ void NewTrack2(const char* filename) {
     g_track_2.loop_start_point_msec = 0;
     g_track_2.is_looped = false;
 
-    LoadAndPlayTrack(filename, &g_track_2, 0, 1, add_track_2_samples);
+    LoadAndPlayTrack(filename, &g_track_2, 0, 1, AddTrack2Samples);
 }
 
 void StopMusic1() {
