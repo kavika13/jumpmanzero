@@ -43,6 +43,12 @@
     <Filter Include="Header Files\sokol_gfx">
       <UniqueIdentifier>{de8d7cbf-a5b2-4e3b-8312-06f2a3033c05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\mini_al">
+      <UniqueIdentifier>{519e74a3-e131-4388-a33a-3ad111b670d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tiny_sound_font">
+      <UniqueIdentifier>{13cb2274-cf21-46ff-9312-ab85d69aee61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Basic3D.cpp">
@@ -66,9 +72,6 @@
     <ClCompile Include="Utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dmutil.cpp">
-      <Filter>MS Classes</Filter>
-    </ClCompile>
     <ClCompile Include="dsutil.cpp">
       <Filter>MS Classes</Filter>
     </ClCompile>
@@ -81,15 +84,15 @@
     <ClCompile Include="glad\src\glad.c">
       <Filter>Source Files\glad</Filter>
     </ClCompile>
+    <ClCompile Include="SoundBuffer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jumpman.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dmutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dxutil.h">
@@ -118,6 +121,18 @@
     </ClInclude>
     <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h">
       <Filter>Header Files\sokol_gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="mini_al-0.8.9\mini_al.h">
+      <Filter>Header Files\mini_al</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_sound_font-master-7e646b6\tml.h">
+      <Filter>Header Files\tiny_sound_font</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_sound_font-master-7e646b6\tsf.h">
+      <Filter>Header Files\tiny_sound_font</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

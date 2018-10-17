@@ -899,7 +899,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
             if (iArg3 == 33 && GameMusicOn != iArg2) {
                 if (iArg2 == 0) {
-                    PauseMusic1();
+                    StopMusic1();
                 } else {
                     NewTrack1(msBackMusic, 0, 0);
                 }
@@ -1025,7 +1025,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
     if (iFunc == EFKILL && !(iPlayerST & JS_DYING)) {
         if (GameMusicOn) {
-            PauseMusic1();
+            StopMusic1();
         }
 
         iPlayerST = JS_DYING;
@@ -1053,7 +1053,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
     if (iFunc == EFWIN) {
         if (GameMusicOn) {
-            PauseMusic1();
+            StopMusic1();
         }
 
         iPlayerSC = 0;
@@ -1803,7 +1803,7 @@ void GrabDonuts() {
 
         if (iWon) {
             if (GameMusicOn) {
-                PauseMusic1();
+                StopMusic1();
             }
 
             iPlayerSC = 0;
@@ -2592,7 +2592,6 @@ void window_size_callback(GLFWwindow* window, int width, int height) {
     ResizeViewport(width, height);
 }
 
-long InitMusic(HWND hWnd);
 long InitSound(HWND hWnd);
 
 int main(int arguments_count, char* arguments[]) {
@@ -2663,7 +2662,7 @@ int main(int arguments_count, char* arguments[]) {
         exit(EXIT_FAILURE);
     }
 
-    if (!InitMusic(hWnd)) {
+    if (!InitMusic()) {
         GameMusicOn = 0;
     }
 
@@ -2939,7 +2938,7 @@ int iIgnoreLadders;
 
 void DoDeathBounce() {
     if (GameMusicOn) {
-        PauseMusic1();
+        StopMusic1();
     }
 
     iPlayerST = JS_DYING;

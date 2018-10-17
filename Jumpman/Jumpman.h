@@ -276,13 +276,11 @@ long ExtFunction(long iFunc, ScriptContext* SC);
 #define SERVICE_CREDITLINE 155
 
 // IN MUSIC
+bool InitMusic();
 void CleanUpMusic();
-
-void PauseMusic1();
-// long InitMusic(HWND hWnd);  // TODO: Remove HWND parameter
-
 void NewTrack1(char* sFile, long iStart, long iIntro);
 void NewTrack2(char* sFile);
+void StopMusic1();
 
 // IN UTILITIES
 long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, long iX3, long iY3, long iX4, long iY4);
