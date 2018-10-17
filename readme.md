@@ -58,3 +58,14 @@ Point at the DirectX SDK you installed (Include and Libraries folders)
 - Make sure you add the DirectX SDK Include/Lib paths, and add them **before all other paths** - otherwise the Windows SDK versions of the headers might be used instead, and you'll have build problems
 - Make sure you set up the directories for both the Debug and Release builds (if it doesn't automatically do both.  It did both at the same time for me)
 - The library I am using is installed at `C:\Program Files (x86)\Microsoft DirectX 9.0 SDK (October 2004)\`. Create a `DXInstallDir` macro with this value.
+
+### Additional credits/software used
+
+- https://github.com/floooh/sokol (sokol_gfx - minimal cross-platform standalone C header for 3D graphics)
+- https://github.com/nothings/stb (stb_image - image loading/decoding from file/memory: JPG, PNG, TGA, BMP, PSD, GIF, HDR, PIC)
+- https://github.com/glfw/glfw (A multi-platform library for OpenGL, OpenGL ES, Vulkan, window and input http://www.glfw.org/)
+- https://github.com/Dav1dde/glad (Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs. https://glad.dav1d.de/)
+- https://github.com/HandmadeMath/Handmade-Math (A simple math library for games and computer graphics)
+- http://falcosoft.hu/softwares.html (for Reality_GMGS_falcomod.sf2 sound font)
+- https://github.com/dr-soft/mini_al (Single file audio playback and capture library)
+- https://github.com/schellingb/TinySoundFont (SoundFont2 synthesizer library in a single C/C++ file)
