@@ -227,8 +227,10 @@ void StopMusic1() {
 }
 
 void CleanUpMusic() {
-    SetSoundChannel(0, NULL);  // Stop channel playback immediately
+    SetSoundChannel(0, NULL);
     SetSoundChannel(1, NULL);
+    tsf_reset(g_track_1.sound_font);
+    tsf_reset(g_track_2.sound_font);
     tsf_close(g_track_1.sound_font);
     tsf_close(g_track_2.sound_font);
     tml_free(g_track_1.first_midi_message);
