@@ -289,10 +289,6 @@ long StringToLong(unsigned char* sString);
 long StringToLong2(unsigned char* sString);
 long FileToString(char* sFileName, unsigned char** sNewBuffer);
 
-// IN JOYSTICK
-void GetJoystickPosition(long* X, long* Y, long* B);
-int JoystickPresent();
-
 // IN BASIC3D
 void ChangeMesh(long iMesh, long iNewMesh);
 void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue);

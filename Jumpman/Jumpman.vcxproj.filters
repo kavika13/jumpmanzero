@@ -51,9 +51,6 @@
     <ClCompile Include="Basic3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Joystick.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Jumpman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

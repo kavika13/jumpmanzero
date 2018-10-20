@@ -38,7 +38,6 @@ long iSitLadE;
 long iSitPlatform;
 float iSitSupport;
 
-int miJoystickPresent;
 int miIntroLength;
 
 char msBackMusic[200];
@@ -589,17 +588,17 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         } else if (iArg1 == EFV_THIS) {
             return SC->ScriptReference * 256;
         } else if (iArg1 == EFV_INPUTLEFT) {
-            return iKeyLeft * 256;
+            return (iKeyLeft || iTKeyLeft ? 1 : 0) * 256;
         } else if (iArg1 == EFV_INPUTRIGHT) {
-            return iKeyRight * 256;
+            return (iKeyRight || iTKeyRight ? 1 : 0) * 256;
         } else if (iArg1 == EFV_INPUTUP) {
-            return iKeyUp * 256;
+            return (iKeyUp || iTKeyUp ? 1 : 0) * 256;
         } else if (iArg1 == EFV_INPUTDOWN) {
-            return iKeyDown * 256;
+            return (iKeyDown || iTKeyDown ? 1 : 0) * 256;
         } else if (iArg1 == EFV_INPUTJUMP) {
-            return iKeyJump * 256;
+            return (iKeyJump || iTKeyJump ? 1 : 0) * 256;
         } else if (iArg1 == EFV_INPUTATTACK) {
-            return iKeyAttack * 256;
+            return (iKeyAttack || iTKeyAttack ? 1 : 0) * 256;
         } else if (iArg1 == EFV_INPUTSELECT) {
             return iKeySelect * 256;
         } else if (iArg1 == EFV_FREEZE) {
@@ -1824,39 +1823,65 @@ void GetInput() {
     iTKeyAttack = iKeyAttack || iTappedAttack;
     iTappedAttack = 0;
 
-    if (miJoystickPresent) {
-        long iY, iX, iB;
+    for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
+        if(glfwJoystickPresent(i) == GLFW_TRUE) {
+            int axis_count;
+            const float* axis_values = glfwGetJoystickAxes(i, &axis_count);
 
-        GetJoystickPosition(&iX, &iY, &iB);
+            if(axis_count > 0) {
+                if(axis_values[0] <= -0.5f) {
+                    iTKeyLeft = 1;
+                }
 
-        if (iX < 15000) {
-            iTKeyLeft = 1;
-        }
+                if(axis_values[0] >= 0.5f) {
+                    iTKeyRight = 1;
+                }
+            }
 
-        if (iX > 47000) {
-            iTKeyRight = 1;
-        }
+            if(axis_count > 1) {
+                if(axis_values[1] <= -0.5f) {
+                    iTKeyUp = 1;
+                }
 
-        if (iY < 15000) {
-            iTKeyUp = 1;
-        }
+                if(axis_values[1] >= 0.5f) {
+                    iTKeyDown = 1;
+                }
+            }
 
-        if (iY > 47000) {
-            iTKeyDown = 1;
-        }
+            int button_count;
+            const unsigned char* button_values = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &button_count);
 
-        if (iB & 1) {
-            iTKeyJump = 1;
-        }
+            if(button_count > 0 && button_values[0] == GLFW_PRESS) {
+                iTKeyJump = 1;
+            }
 
-        if (iB & 2) {
-            iTKeyAttack = 1;
+            if(button_count > 1 && button_values[1] == GLFW_PRESS) {
+                iTKeyAttack = 1;
+            }
+
+            // D-Pad buttons - PS4 values
+            // TODO: Need to map per controller type?
+            if(button_count > 14 && button_values[14] == GLFW_PRESS) {
+                iTKeyUp = 1;
+            }
+
+            if(button_count > 15 && button_values[15] == GLFW_PRESS) {
+                iTKeyRight = 1;
+            }
+
+            if(button_count > 16 && button_values[16] == GLFW_PRESS) {
+                iTKeyDown = 1;
+            }
+
+            if(button_count > 17 && button_values[17] == GLFW_PRESS) {
+                iTKeyLeft = 1;
+            }
         }
     }
 
     ++GameTimeInactive;
 
-    if (iTKeyLeft + iTKeyRight + iTKeyUp + iTKeyDown + iTKeyJump) {
+    if(iTKeyLeft + iTKeyRight + iTKeyUp + iTKeyDown + iTKeyJump) {
         GameTimeInactive = 0;
     }
 
@@ -2667,8 +2692,6 @@ int main(int arguments_count, char* arguments[]) {
         GameMusicOn = 0;
         GameSoundOn = 0;
     }
-
-    miJoystickPresent = JoystickPresent();
 
     int bDone = 0;
 
