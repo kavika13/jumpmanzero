@@ -1851,11 +1851,12 @@ void GetInput() {
             int button_count;
             const unsigned char* button_values = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &button_count);
 
-            if(button_count > 0 && button_values[0] == GLFW_PRESS) {
+            // Face buttons - PS4 values
+            if(button_count > 1 && button_values[1] == GLFW_PRESS) {
                 iTKeyJump = 1;
             }
 
-            if(button_count > 1 && button_values[1] == GLFW_PRESS) {
+            if(button_count > 0 && button_values[0] == GLFW_PRESS) {
                 iTKeyAttack = 1;
             }
 
