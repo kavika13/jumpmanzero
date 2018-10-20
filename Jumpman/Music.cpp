@@ -20,6 +20,30 @@ struct MusicTrack {
 static MusicTrack g_track_1;
 static MusicTrack g_track_2;
 
+static unsigned int MusicTimeToMilliseconds(tml_message* first_midi_message, unsigned int music_time_value) {
+    const double kMUSIC_TIME_PER_QUARTER_NOTE = 768.0;
+
+    tml_message* current_midi_message = first_midi_message;
+    double current_time_ms = 0.0;
+    double remaining_quarter_notes = music_time_value / kMUSIC_TIME_PER_QUARTER_NOTE;
+    double current_tempo_ms_per_quarter_note = 500.0;
+    double target_time_ms = current_time_ms + remaining_quarter_notes * current_tempo_ms_per_quarter_note;
+
+    while (current_midi_message != NULL && current_midi_message->time < target_time_ms) {
+        remaining_quarter_notes -= (current_midi_message->time - current_time_ms) / current_tempo_ms_per_quarter_note;
+        current_time_ms = current_midi_message->time;
+        double new_tempo_ms_per_quarter_note = tml_get_tempo_value(current_midi_message) / 1000.0;
+        current_midi_message = current_midi_message->next;
+
+        if (new_tempo_ms_per_quarter_note != 0) {  // tml_get_tempo_value returns 0 if not a tempo change
+            current_tempo_ms_per_quarter_note = new_tempo_ms_per_quarter_note;
+            target_time_ms = current_time_ms + remaining_quarter_notes * current_tempo_ms_per_quarter_note;
+        }
+    }
+
+    return (unsigned int)target_time_ms;
+}
+
 static void SeekTrack(MusicTrack* track, unsigned int target_timestamp_msec) {
     assert(track);
 
@@ -178,16 +202,14 @@ void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigne
     tml_free(g_track_1.first_midi_message);
 
     if(loop_start_music_time >= 0 && loop_start_music_time != 55000) {
-        // TODO: Fix. MUSIC_TIME -> msec. Right now is hard-coded to 120 BPM, with no tempo changes (time * 500 / 768)
-        g_track_1.loop_start_point_msec = (unsigned int)(loop_start_music_time * 500.0 / 768.0);
+        g_track_1.loop_start_point_msec = MusicTimeToMilliseconds(g_track_1.first_midi_message, loop_start_music_time);
         g_track_1.is_looped = true;
     } else {
         g_track_1.loop_start_point_msec = 0;
         g_track_1.is_looped = false;
     }
 
-    // TODO: Fix. MUSIC_TIME -> msec. Right now is hard-coded to 120 BPM, with no tempo changes (time * 500 / 768)
-    LoadAndPlayTrack(filename, &g_track_1, (unsigned int)(song_start_music_time * 500.0 / 768.0), 0, AddTrack1Samples);
+    LoadAndPlayTrack(filename, &g_track_1, MusicTimeToMilliseconds(g_track_1.first_midi_message, song_start_music_time), 0, AddTrack1Samples);
 }
 
 void NewTrack2(const char* filename) {
