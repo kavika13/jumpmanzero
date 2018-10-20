@@ -163,19 +163,9 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
         }
     }
 
-    if(track->is_stopping) {
-        bool all_voices_are_done = true;
-
-        for(int i = 0; i < track->sound_font->voiceNum; ++i) {
-            if(track->sound_font->voices[i].playingPreset != -1 && track->sound_font->voices[i].ampenv.segment != TSF_SEGMENT_DONE) {
-                all_voices_are_done = false;
-                break;
-            }
-        }
-
-        if(all_voices_are_done) {
-            SetSoundChannel(sound_channel, NULL);
-        }
+    if(track->is_stopping && tsf_active_voice_count(track->sound_font) == 0) {
+        // Unhook callback - TODO: Better name for these callback functions/callback setup functions. "SetSoundChannel" is a little abstract
+        SetSoundChannel(sound_channel, NULL);
     }
 
     return frameCount;
