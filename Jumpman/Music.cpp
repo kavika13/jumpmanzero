@@ -148,12 +148,6 @@ static void StopTrack(MusicTrack* track) {
 }
 
 bool InitMusic() {
-    bool result = InitSoundBuffer();
-
-    if(!result) {
-        return false;
-    }
-
     g_track_1 = { 0 };
     g_track_1.sound_font = tsf_load_filename("Sound/Reality_GMGS_falcomod.sf2");
 
@@ -211,6 +205,8 @@ void StopMusic1() {
 }
 
 void CleanUpMusic() {
+    SetSoundChannel(0, NULL);  // Stop channel playback immediately
+    SetSoundChannel(1, NULL);
     tsf_close(g_track_1.sound_font);
     tsf_close(g_track_2.sound_font);
     tml_free(g_track_1.first_midi_message);

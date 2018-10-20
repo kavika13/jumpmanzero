@@ -37,7 +37,7 @@ static const SoundChannel g_sound_channel_callbacks[kNUM_SOUND_DECODERS] = {
 };
 
 bool InitSound() {
-    return InitSoundBuffer();  // TODO: Should this just be called externally?
+    return true;
 }
 
 void PlaySound(size_t sound_index) {

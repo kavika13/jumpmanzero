@@ -4,6 +4,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "./Jumpman.h"
+#include "SoundBuffer.h"
 #include "Sound.h"
 
 char GameFile[100];
@@ -2654,11 +2655,16 @@ int main(int arguments_count, char* arguments[]) {
         exit(EXIT_FAILURE);
     }
 
-    if (!InitMusic()) {
-        GameMusicOn = 0;
-    }
+    if(InitSoundBuffer()) {
+        if(!InitMusic()) {
+            GameMusicOn = 0;
+        }
 
-    if (!InitSound()) {
+        if(!InitSound()) {
+            GameSoundOn = 0;
+        }
+    } else {
+        GameMusicOn = 0;
         GameSoundOn = 0;
     }
 
@@ -2756,6 +2762,7 @@ int main(int arguments_count, char* arguments[]) {
     CleanResources();
     CleanUpMusic();
     CleanUpSounds();
+    CleanupSoundBuffer();
     DoCleanUp();
 
     glfwDestroyWindow(main_window);
