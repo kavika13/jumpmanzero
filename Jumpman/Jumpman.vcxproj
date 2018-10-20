@@ -56,7 +56,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-7e646b6</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
@@ -84,7 +84,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-7e646b6</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
