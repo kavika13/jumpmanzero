@@ -27,6 +27,8 @@ static mal_uint32 on_send_frames_to_device(mal_device* pDevice, mal_uint32 frame
         g_temporary_sample_buffer_byte_count = buffer_byte_count;
     }
 
+    const float hard_coded_channel_gain = 0.8f;  // TODO: Expose gain interface?
+
     for(size_t i = 0; i < kSoundChannelCount; ++i) {
         memset(g_temporary_sample_buffer, 0, buffer_byte_count);
 
@@ -34,8 +36,8 @@ static mal_uint32 on_send_frames_to_device(mal_device* pDevice, mal_uint32 frame
             g_sound_channels[i](frame_count, g_temporary_sample_buffer);
 
             for(size_t current_frame_index = 0; current_frame_index < frame_count; ++current_frame_index) {
-                output[current_frame_index * 2 + 0] += g_temporary_sample_buffer[current_frame_index * 2 + 0];
-                output[current_frame_index * 2 + 1] += g_temporary_sample_buffer[current_frame_index * 2 + 1];
+                output[current_frame_index * 2 + 0] += g_temporary_sample_buffer[current_frame_index * 2 + 0] * hard_coded_channel_gain;
+                output[current_frame_index * 2 + 1] += g_temporary_sample_buffer[current_frame_index * 2 + 1] * hard_coded_channel_gain;
             }
         }
     }
