@@ -6,14 +6,18 @@
 #include "jumpman.h"
 #include "SoundBuffer.h"
 
+#define kMIDI_CHANNEL_COUNT 16
+
 struct MusicTrack {
     tsf* sound_font;
     double current_playback_timestamp_msec;
     unsigned int loop_start_point_msec;
     unsigned int track_end_point_msec;
+    unsigned int current_tempo_usec_per_quarter_note;
     bool is_looped;
     tml_message* first_midi_message;
     tml_message* current_midi_message;
+    bool is_midi_channel_note_on[kMIDI_CHANNEL_COUNT];
     bool is_stopping;
 };
 
@@ -44,6 +48,16 @@ static unsigned int MusicTimeToMilliseconds(tml_message* first_midi_message, uns
     return (unsigned int)target_time_ms;
 }
 
+static void StopAllNotesWithSustainAndRelease(MusicTrack* track) {
+    for(int i = 0; i < track->sound_font->channels->channelNum; ++i) {
+        tsf_channel_note_off_all(track->sound_font, i);
+    }
+
+    for(int i = 0; i < kMIDI_CHANNEL_COUNT; ++i) {
+        track->is_midi_channel_note_on[i] = false;
+    }
+}
+
 static void SeekTrack(MusicTrack* track, unsigned int target_timestamp_msec) {
     assert(track);
 
@@ -53,6 +67,21 @@ static void SeekTrack(MusicTrack* track, unsigned int target_timestamp_msec) {
         switch (track->current_midi_message->type) {
             case TML_PROGRAM_CHANGE:
                 tsf_channel_set_presetnumber(track->sound_font, track->current_midi_message->channel, track->current_midi_message->program, (track->current_midi_message->channel == 9));
+                break;
+            case TML_SET_TEMPO: {
+                int new_tempo_usec_per_quarter_note = tml_get_tempo_value(track->current_midi_message);
+
+                if(new_tempo_usec_per_quarter_note > 0) {
+                    track->current_tempo_usec_per_quarter_note = new_tempo_usec_per_quarter_note;
+                }
+
+                break;
+            }
+            case TML_NOTE_ON:
+                track->is_midi_channel_note_on[track->current_midi_message->channel] = true;
+                break;
+            case TML_NOTE_OFF:
+                track->is_midi_channel_note_on[track->current_midi_message->channel] = false;
                 break;
             case TML_PITCH_BEND:
                 tsf_channel_set_pitchwheel(track->sound_font, track->current_midi_message->channel, track->current_midi_message->pitch_bend);
@@ -84,10 +113,21 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
                     case TML_PROGRAM_CHANGE:
                         tsf_channel_set_presetnumber(track->sound_font, track->current_midi_message->channel, track->current_midi_message->program, (track->current_midi_message->channel == 9));
                         break;
+                    case TML_SET_TEMPO: {
+                        int new_tempo_usec_per_quarter_note = tml_get_tempo_value(track->current_midi_message);
+
+                        if(new_tempo_usec_per_quarter_note > 0) {
+                            track->current_tempo_usec_per_quarter_note = new_tempo_usec_per_quarter_note;
+                        }
+
+                        break;
+                    }
                     case TML_NOTE_ON:
+                        track->is_midi_channel_note_on[track->current_midi_message->channel] = true;
                         tsf_channel_note_on(track->sound_font, track->current_midi_message->channel, track->current_midi_message->key, track->current_midi_message->velocity / 127.0f);
                         break;
                     case TML_NOTE_OFF:
+                        track->is_midi_channel_note_on[track->current_midi_message->channel] = false;
                         tsf_channel_note_off(track->sound_font, track->current_midi_message->channel, track->current_midi_message->key);
                         break;
                     case TML_PITCH_BEND:
@@ -103,10 +143,21 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
         tsf_render_float(track->sound_font, interleaved_stereo_samples, SampleBlock, 1);
     }
 
-    // TODO: Wait for final note to finish before looping? Might require us to know tempo, and/or MUSIC_TIME -> msec to get it right
     if(!track->current_midi_message && track->current_playback_timestamp_msec > track->track_end_point_msec) {
         if(track->is_looped) {
-            SeekTrack(track, track->loop_start_point_msec);
+            bool are_any_notes_on = false;
+
+            for(size_t i = 0; i < kMIDI_CHANNEL_COUNT; ++i) {
+                are_any_notes_on = track->is_midi_channel_note_on[i];
+            }
+
+            // If notes are still on at end, then wait one quarter note before looping
+            // TODO: Do we need to wait? If not, we can just force all notes immediately to off/to ring out, and immediately loop.
+            //       Not sure there's currently any music files that would exercise this waiting period, so might have to hack one to test
+            if(!are_any_notes_on || track->current_playback_timestamp_msec >= track->track_end_point_msec + track->current_tempo_usec_per_quarter_note / 1000.0) {
+                StopAllNotesWithSustainAndRelease(track);
+                SeekTrack(track, track->loop_start_point_msec);
+            }
         } else {
             track->is_stopping = true;
         }
@@ -163,11 +214,7 @@ static void LoadAndPlayTrack(const char* filename, MusicTrack* track, int start_
 
 static void StopTrack(MusicTrack* track) {
     assert(track);
-
-    for(int i = 0; i < track->sound_font->channels->channelNum; ++i) {
-        tsf_channel_note_off_all(track->sound_font, i);
-    }
-
+    StopAllNotesWithSustainAndRelease(track);
     track->is_stopping = true;
 }
 
