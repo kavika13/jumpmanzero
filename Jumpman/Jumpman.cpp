@@ -2657,7 +2657,12 @@ int main(int arguments_count, char* arguments[]) {
     glfwSetWindowSizeCallback(main_window, window_size_callback);
     glfwSetKeyCallback(main_window, key_callback);
     glfwMakeContextCurrent(main_window);
-    glfwSwapInterval(1);
+
+    if(glfwExtensionSupported("WGL_EXT_swap_control_tear") == GLFW_TRUE || glfwExtensionSupported("GLX_EXT_swap_control_tear") == GLFW_TRUE) {
+        glfwSwapInterval(-1);
+    } else {
+        glfwSwapInterval(1);
+    }
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
