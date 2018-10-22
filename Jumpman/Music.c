@@ -3,12 +3,11 @@
 #include "tsf.h"
 #define TML_IMPLEMENTATION
 #include "tml.h"
-#include "jumpman.h"
 #include "SoundBuffer.h"
 
 #define kMIDI_CHANNEL_COUNT 16
 
-struct MusicTrack {
+typedef struct {
     tsf* sound_font;
     double current_playback_timestamp_msec;
     unsigned int loop_start_point_msec;
@@ -19,7 +18,7 @@ struct MusicTrack {
     tml_message* current_midi_message;
     bool is_midi_channel_note_on[kMIDI_CHANNEL_COUNT];
     bool is_stopping;
-};
+} MusicTrack;
 
 static MusicTrack g_track_1;
 static MusicTrack g_track_2;
@@ -209,7 +208,7 @@ static void StopTrack(MusicTrack* track) {
 }
 
 bool InitMusic() {
-    g_track_1 = { 0 };
+    g_track_1 = (const MusicTrack){ 0 };
     g_track_1.sound_font = tsf_load_filename("Sound/Reality_GMGS_falcomod.sf2");
 
     if(!g_track_1.sound_font) {
@@ -218,9 +217,9 @@ bool InitMusic() {
     }
 
     tsf_channel_set_bank_preset(g_track_1.sound_font, 9, 128, 0);
-    tsf_set_output(g_track_1.sound_font, TSF_STEREO_INTERLEAVED, 44100);
+    tsf_set_output(g_track_1.sound_font, TSF_STEREO_INTERLEAVED, 44100, 0.0f);
 
-    g_track_2 = { 0 };
+    g_track_2 = (const MusicTrack){ 0 };
     g_track_2.sound_font = tsf_load_filename("Sound/Reality_GMGS_falcomod.sf2");
 
     if(!g_track_2.sound_font) {
@@ -229,7 +228,7 @@ bool InitMusic() {
     }
 
     tsf_channel_set_bank_preset(g_track_2.sound_font, 9, 128, 0);
-    tsf_set_output(g_track_2.sound_font, TSF_STEREO_INTERLEAVED, 44100);
+    tsf_set_output(g_track_2.sound_font, TSF_STEREO_INTERLEAVED, 44100, 0.0f);
 
     return true;
 }
@@ -272,6 +271,6 @@ void CleanUpMusic() {
     tsf_close(g_track_2.sound_font);
     tml_free(g_track_1.first_midi_message);
     tml_free(g_track_2.first_midi_message);
-    g_track_1 = { 0 };
-    g_track_2 = { 0 };
+    g_track_1 = (const MusicTrack){ 0 };
+    g_track_2 = (const MusicTrack){ 0 };
 }

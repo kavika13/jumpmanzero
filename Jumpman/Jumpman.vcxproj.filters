@@ -54,9 +54,6 @@
     <ClCompile Include="Jumpman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Music.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -68,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="glad\src\glad.c">
       <Filter>Source Files\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="Music.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoundBuffer.c">
       <Filter>Source Files</Filter>

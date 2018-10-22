@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INCLUDED_JUMPMAN_ZERO_JUMPMAN_H
+#define INCLUDED_JUMPMAN_ZERO_JUMPMAN_H
 
 #include <stdint.h>
 
@@ -270,13 +271,6 @@ long ExtFunction(long iFunc, ScriptContext* SC);
 #define SERVICE_LEVELTITLE 154
 #define SERVICE_CREDITLINE 155
 
-// IN MUSIC
-bool InitMusic();
-void CleanUpMusic();
-void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigned int loop_start_music_time);
-void NewTrack2(const char* filename);
-void StopMusic1();
-
 // IN UTILITIES
 long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, long iX3, long iY3, long iX4, long iY4);
 long StringToInt(unsigned char* sString);
@@ -319,3 +313,5 @@ void ResetContext(ScriptContext* SC);
 void LoadScript(char* sFileName, ScriptCode* oScript);
 void RunScript(ScriptContext* SC, long iSub);
 int FindScript(ScriptContext* SC, char* sFunc);
+
+#endif  // INCLUDED_JUMPMAN_ZERO_JUMPMAN_H

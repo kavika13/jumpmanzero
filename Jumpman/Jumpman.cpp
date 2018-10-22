@@ -6,6 +6,7 @@
 #include "./Jumpman.h"
 #include "SoundBuffer.h"
 #include "Sound.h"
+#include "Music.h"
 
 #define kFULLSCREEN_IS_ENABLED_DEFAULT false
 #define kWINDOW_RESOLUTION_DEFAULT_X 640

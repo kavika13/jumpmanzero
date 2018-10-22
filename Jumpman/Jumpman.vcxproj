@@ -105,7 +105,7 @@
     <ClCompile Include="glad\src\glad.c" />
     <ClCompile Include="glad\src\glad_wgl.c" />
     <ClCompile Include="Jumpman.cpp" />
-    <ClCompile Include="Music.cpp" />
+    <ClCompile Include="Music.c" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="Sound.c" />
     <ClCompile Include="SoundBuffer.c" />
