@@ -17,7 +17,7 @@ void CleanupSoundBuffer();
 void SetSoundChannel(size_t channel_index, SoundChannel new_channel_node);
 
 #if defined(__cplusplus)
-}
+}  // extern "C"
 #endif
 
 #endif  // INCLUDED_JUMPMAN_ZERO_SOUND_BUFFER_H

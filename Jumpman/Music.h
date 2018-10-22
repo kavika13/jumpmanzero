@@ -14,7 +14,7 @@ void NewTrack2(const char* filename);
 void StopMusic1();
 
 #if defined(__cplusplus)
-}
+}  // extern "C"
 #endif
 
 #endif  // INCLUDED_JUMPMAN_ZERO_MUSIC_H

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
-#include "Jumpman.h"
+#include "Script.h"
 #include "Utilities.h"
 
 #define FCBASECN 2
@@ -44,6 +44,12 @@
 #define FCRET 71
 
 #define FCEXT 100
+
+#define EFGET 8
+#define EFGETDATA 45
+
+// TODO: Expose to script.cpp some other way? Like just exposing helper functions for all of them from Jumpman.c
+extern "C" long ExtFunction(long iFunc, ScriptContext* SC);
 
 void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2);
 

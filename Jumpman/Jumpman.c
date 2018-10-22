@@ -8,8 +8,231 @@
 #include "Jumpman.h"
 #include "Main.h"
 #include "Music.h"
+#include "Script.h"
 #include "Sound.h"
 #include "Utilities.h"
+
+#define GS_EXITING 0
+#define GS_MENU 1
+#define GS_INLEVEL 2
+
+#define GM_NONE 0
+#define GM_MAIN 1
+#define GM_OPTIONS 2
+#define GM_SELECTGAME 3
+#define GM_SELECTLEVEL 4
+
+#define JM_STAND 1
+#define JM_LEFT1 2
+#define JM_LEFT2 3
+#define JM_RIGHT1 4
+#define JM_RIGHT2 5
+#define JM_JUMPLEFT 6
+#define JM_JUMPRIGHT 7
+#define JM_JUMPUP 8
+#define JM_VINECLIMB1 9
+#define JM_VINECLIMB2 10
+#define JM_LADDERCLIMB1 11
+#define JM_LADDERCLIMB2 12
+#define JM_KICKLEFT 13
+#define JM_KICKRIGHT 14
+
+#define JM_DIVERIGHT 15
+#define JM_ROLLRIGHT1 16
+#define JM_ROLLRIGHT2 17
+#define JM_ROLLRIGHT3 18
+#define JM_ROLLRIGHT4 19
+
+#define JM_DIVELEFT 20
+#define JM_ROLLLEFT1 21
+#define JM_ROLLLEFT2 22
+#define JM_ROLLLEFT3 23
+#define JM_ROLLLEFT4 24
+
+#define JM_PUNCHLEFT 25
+#define JM_PUNCHRIGHT 26
+#define JM_PUNCHLEFT2 27
+#define JM_PUNCHRIGHT2 28
+#define JM_DYING 29
+#define JM_DEAD 30
+#define JM_STARS 31
+#define JM_SLIDER 32
+#define JM_SLIDERB 33
+#define JM_SLIDEL 34
+#define JM_SLIDELB 35
+#define JM_BORED1 36
+#define JM_BORED2 37
+#define JM_BORED3 38
+#define JM_BORED4 39
+#define JM_BORED5 40
+
+#define JS_NORMAL 0
+#define JS_JUMPING 1
+#define JS_FALLING 8
+#define JS_LADDER 16
+#define JS_ROLL 64
+#define JS_PUNCH 128
+#define JS_DYING 256
+#define JS_DONE 512
+#define JS_VINE 1024
+#define JS_SLIDE 2048
+
+#define JD_UP 1
+#define JD_DOWN 2
+#define JD_LEFT 3
+#define JD_RIGHT 4
+
+#define JA_KICK 1
+#define JA_PUNCH 2
+
+#define NT_Ladder 1
+#define NT_Platform 2
+#define NT_PlatformFallLeft 3
+#define NT_PlatformFallRight 4
+
+#define EFPRINT 1
+#define EFSET 2
+#define EFSETSEL 3
+#define EFGET 8
+#define EFGETSEL 9
+#define EFGETNAVDIR 10
+#define EFSTRCOPY 11
+#define EFSTRCAT 12
+
+#define EFSELECT_PLATFORM 32
+#define EFSELECT_LADDER 33
+#define EFSELECT_DONUT 34
+#define EFABS_PLATFORM 35
+#define EFCOLLIDE 36
+#define EFKILL 37
+#define EFSELECT_VINE 38
+#define EFABS_LADDER 39
+#define EFSPAWN 40
+#define EFNEWMESH 41
+#define EFSETOBJECT 42
+#define EFSOUND 43
+#define EFSETDATA 44
+#define EFGETDATA 45
+#define EFABS_DONUT 46
+#define EFCOLLIDE_WALL 47
+#define EFSELECT_PICTURE 48
+#define EFPRIORITIZE_OBJECT 49
+#define EFSELECT_WALL 51
+#define EFSELECT_OBJECT_MESH 52
+#define EFDELETE_MESH 53
+#define EFDELETE_OBJECT 54
+#define EFWIN 55
+#define EFABS_VINE 56
+#define EFSERVICE 57
+#define EFNEWCHARMESH 58
+#define EFRESETPERSPECTIVE 59
+
+#define EFROTATEX 64
+#define EFROTATEY 65
+#define EFROTATEZ 66
+#define EFTRANSLATE 67
+#define EFIDENTITY 70
+#define EFPERSPECTIVE 71
+#define EFSCALE 72
+#define EFSCROLLTEXTURE 73
+
+#define EFRND 80
+#define EFFINDPLATFORM 81
+#define EFSIN 82
+#define EFCOS 83
+#define EFFINDLADDER 84
+#define EFATAN 85
+#define EFSQR 86
+#define EFFINDVINE 87
+#define EFSETFOG 88
+#define EFCHANGEMESH 89
+
+#define EFV_PX 1
+#define EFV_PY 2
+#define EFV_PZ 3
+#define EFV_PSTAT 4
+#define EFV_PSC 5
+#define EFV_PVISIBLE 6
+#define EFV_PDIR 7
+#define EFV_PACT 8
+
+#define EFV_INPUTLEFT 16
+#define EFV_INPUTRIGHT 17
+#define EFV_INPUTUP 18
+#define EFV_INPUTDOWN 19
+#define EFV_INPUTJUMP 20
+#define EFV_INPUTATTACK 21
+#define EFV_INPUTSELECT 22
+#define EFV_LASTKEY 23
+
+#define EFV_NOROLL 32
+#define EFV_FREEZE 33
+#define EFV_SOUNDON 34
+#define EFV_MUSICON 35
+#define EFV_PERFORMANCE 36
+#define EFV_SHOWFPS 37
+#define EFV_LIVESREMAINING 38
+
+#define EFV_DONUTS 64
+#define EFV_PLATFORMS 65
+#define EFV_LADDERS 66
+#define EFV_VINES 67
+#define EFV_WALLS 68
+#define EFV_TEXTURES 69
+
+#define EFV_EVENT1 128
+#define EFV_EVENT2 129
+#define EFV_EVENT3 130
+#define EFV_EVENT4 131
+#define EFV_COMPOSE 132
+#define EFV_OBJECTS 133
+#define EFV_DEBUG 134
+#define EFV_PERSPECTIVE 135
+#define EFV_LEVELEXTENTX 136
+#define EFV_THIS 137
+
+#define EFS_SX1 1
+#define EFS_SX2 2
+#define EFS_SY1 3
+#define EFS_SY2 4
+#define EFS_SZ1 5
+#define EFS_SZ2 6
+#define EFS_VISIBLE 7
+#define EFS_NUMBER 8
+#define EFS_TEXTURE 9
+#define EFS_EXTRA 10
+#define EFS_THIS 137
+
+#define SERVICE_GAMELIST 128
+#define SERVICE_GAMESTART 129
+#define SERVICE_LOADMENU 130
+#define SERVICE_OPTIONSTRING 142
+#define SERVICE_SETOPTION 143
+#define SERVICE_SAVEOPTIONS 144
+#define SERVICE_LEVELTITLE 154
+#define SERVICE_CREDITLINE 155
+
+typedef struct {
+    int X1, X2, X3, X4;
+    int Y1, Y2, Y3, Y4;
+    int Z1, Z2;
+    int Num;
+    int Visible;
+    char Func[10];
+    int Extra;
+
+    int Navs;
+    int NavTo[10];
+    int NavToType[10];
+    int NavDist;
+    int NavChoice;
+
+    int MeshSize;
+    long* Mesh;
+    long MeshNumber;
+    int Texture;
+    int ObjectNumber;
+} LevelObject;
 
 static void PrepLevel(char* sLevel);
 static void LoadNextLevel();
@@ -22,104 +245,104 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact);
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
 static void MoveJumpman();
 
-char GameFile[100];
-char GameTitle[50];
-long GameStatus;
-long GameMenuDrawn;
-long GameMenu;
-bool g_debug_level_is_specified;
-char g_debug_level_filename[300];
+static char GameFile[100];
+static char GameTitle[50];
+static long GameStatus;
+static long GameMenuDrawn;
+static long GameMenu;
+static bool g_debug_level_is_specified;
+static char g_debug_level_filename[300];
 static int GameLivesRemaining;
 
-long iSitVinAp;
-long iSitVinEx;
-long iSitLadA;
-long iSitLadE;
-long iSitPlatform;
-float iSitSupport;
+static long iSitVinAp;
+static long iSitVinEx;
+static long iSitLadA;
+static long iSitLadE;
+static long iSitPlatform;
+static float iSitSupport;
 
-int miIntroLength;
+static int miIntroLength;
 
-char msBackMusic[200];
-char msDeathMusic[200];
-char msWinMusic[200];
-int miPerspective;
-long miSelectedMesh;
+static char msBackMusic[200];
+static char msDeathMusic[200];
+static char msWinMusic[200];
+static int miPerspective;
+static long miSelectedMesh;
 
-int iLevel;
-int iLoadedLevel;
+static int iLevel;
+static int iLoadedLevel;
 
-int miTextures;
-int miMeshes;
-int miScripts;
+static int miTextures;
+static int miMeshes;
+static int miScripts;
 
 struct StoreVert {
     long X, Y, Z, NX, NY, NZ, COLOR, TX, TY;
 };
 
-long iFindMesh[100];
-long iOtherMesh[300];
-long iCharMesh[100];
+static long iFindMesh[100];
+static long iOtherMesh[300];
+static long iCharMesh[100];
 
-float iPlayerX;
-float iPlayerY;
-float iPlayerOldX;
-float iPlayerOldY;
+static float iPlayerX;
+static float iPlayerY;
+static float iPlayerOldX;
+static float iPlayerOldY;
 
-float iPlayerZ;
-float iPlayerRX;
-int iPlayerAX;
-int iPlayerMX;
-int iPlayerM;
-int iPlayerVisible;
+static float iPlayerZ;
+static float iPlayerRX;
+static int iPlayerAX;
+static int iPlayerMX;
+static int iPlayerM;
+static int iPlayerVisible;
 
-long iPlayerST;
-long iPlayerDIR;
-long iPlayerACT;
+static long iPlayerST;
+static long iPlayerDIR;
+static long iPlayerACT;
 
-int iPlayerAF;
-long iPlayerSC;
-int iPlayerAS;
+static int iPlayerAF;
+static long iPlayerSC;
+static int iPlayerAS;
 
-int iPlayerNoRoll;
-int iPlayerFreeze;
-int iScrollTitle;
+static int iPlayerNoRoll;
+static int iPlayerFreeze;
+static int iScrollTitle;
 
 #define MAX_SCRIPTOBJECTS 60
 
-int iDS;
-LevelObject DS[100];
-int iLS;
-LevelObject LS[50];
-int iPS;
-LevelObject PS[100];
-int iVS;
-LevelObject VS[50];
-int iWS;
-LevelObject WS[50];
-int iAS;
-LevelObject AS[30];
+static int iDS;
+static LevelObject DS[100];
+static int iLS;
+static LevelObject LS[50];
+static int iPS;
+static LevelObject PS[100];
+static int iVS;
+static LevelObject VS[50];
+static int iWS;
+static LevelObject WS[50];
+static int iAS;
+static LevelObject AS[30];
 
 // SCRIPT
-int iMainScript, iDonutScript;
+static int iMainScript, iDonutScript;
 
-long iEvent1, iEvent2, iEvent3, iEvent4;
-LevelObject* loSelected;
+static long iEvent1, iEvent2, iEvent3, iEvent4;
+static LevelObject* loSelected;
 
-long miLevelExtentX;
-long miLevelExtentY;
+static long miLevelExtentX;
+static long miLevelExtentY;
 
-ScriptCode LevelScript;
-ScriptContext SCLevel;
-ScriptCode TitleScript;
-ScriptContext SCTitle;
+static ScriptCode LevelScript;
+static ScriptContext SCLevel;
+static ScriptCode TitleScript;
+static ScriptContext SCTitle;
 
-ScriptCode oObjectScript[5];
-ScriptContext oObject[MAX_SCRIPTOBJECTS];
+static ScriptCode oObjectScript[5];
+static ScriptContext oObject[MAX_SCRIPTOBJECTS];
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
 
-long CollideWall(long iX1, long iY1, long iX2, long iY2) {
+static long CollideWall(long iX1, long iY1, long iX2, long iY2) {
     long iW;
     int iLeft, iRight, iTop, iBottom;
 
@@ -166,7 +389,7 @@ long CollideWall(long iX1, long iY1, long iX2, long iY2) {
     return 0;
 }
 
-void BuildNavigation() {
+static void BuildNavigation() {
     int iLoop;
     int iTest;
     int iType;
@@ -240,7 +463,7 @@ void BuildNavigation() {
     return;
 }
 
-long PlayerCollide(int iArg1, int iArg2, int iArg3, int iArg4) {
+static long PlayerCollide(int iArg1, int iArg2, int iArg3, int iArg4) {
     if (iPlayerST & JS_JUMPING) {
         if (iPlayerX + 4 > iArg1 && iPlayerY + 9 > iArg2 && iPlayerX - 4 < iArg3 && iPlayerY + 4 < iArg4) {
             return 1;
@@ -262,7 +485,7 @@ long PlayerCollide(int iArg1, int iArg2, int iArg3, int iArg4) {
     return 0;
 }
 
-long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
+static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
     int iLoop;
 
     iLoop = -1;
@@ -602,11 +825,11 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
     if (iFunc == EFSET) {
         if (iArg1 == EFV_PX) {
-            iPlayerX = static_cast<float>(rArg2) / 256;
+            iPlayerX = (float)(rArg2) / 256;
         } else if (iArg1 == EFV_PY) {
-            iPlayerY = static_cast<float>(rArg2) / 256;
+            iPlayerY = (float)(rArg2) / 256;
         } else if (iArg1 == EFV_PZ) {
-            iPlayerZ = static_cast<float>(iArg2);
+            iPlayerZ = (float)(iArg2);
         } else if (iArg1 == EFV_PSTAT) {
             iPlayerST = iArg2;
         } else if (iArg1 == EFV_PSC) {
@@ -737,19 +960,19 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         float iFind;
         long iPlat;
         GetNextPlatform(iArg1, iArg2, iArg3, iArg4, &iFind, &iPlat);
-        iEvent4 = static_cast<long>(iFind) * 256;
+        iEvent4 = (long)(iFind) * 256;
         return iPlat;
     }
 
     long iVal;
 
     if (iFunc == EFSIN) {
-        iVal = static_cast<long>(sin(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
+        iVal = (long)(sin(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
         return iVal;
     }
 
     if (iFunc == EFCOS) {
-        iVal = static_cast<long>(cos(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
+        iVal = (long)(cos(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
         return iVal;
     }
 
@@ -757,13 +980,13 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         if (rArg2 == 0) {
             iVal = (rArg1 > 0 ? 90 : 270);
         } else {
-            iVal = static_cast<long>(atan(static_cast<double>(rArg1) / static_cast<double>(rArg2)) * 180.0f / 3.1415f);
+            iVal = (long)(atan((double)(rArg1) / (double)(rArg2)) * 180.0f / 3.1415f);
         }
         return iVal;
     }
 
     if (iFunc == EFSQR) {
-        iVal = static_cast<long>(sqrt(rArg1 / 256.0f));
+        iVal = (long)(sqrt(rArg1 / 256.0f));
         return iVal;
     }
 
@@ -811,10 +1034,10 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
 
     if (iFunc == EFSERVICE) {
         if (iArg1 == SERVICE_LEVELTITLE) {
-            SC->Globals[iArg2] = static_cast<long>(strlen(GameTitle)) * 256;
+            SC->Globals[iArg2] = (long)(strlen(GameTitle)) * 256;
             iLoop = 0;
 
-            while (++iLoop <= static_cast<long>(strlen(GameTitle))) {
+            while (++iLoop <= (long)(strlen(GameTitle))) {
                 SC->Globals[iArg2 + iLoop] = GameTitle[iLoop - 1] * 256;
             }
         }
@@ -888,25 +1111,25 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
                 iKey = GameKeys[iArg3];
 
                 if (iKey >= 'A' && iKey <= 'Z') {
-                    sprintf_s(sName, "%c   ", iKey);
+                    sprintf_s(sName, sizeof(sName), "%c   ", iKey);
                 } else if (iKey >= '0' && iKey <= '9') {
-                    sprintf_s(sName, "%c   ", iKey);
+                    sprintf_s(sName, sizeof(sName), "%c   ", iKey);
                 } else if (iKey == 38) {
-                    sprintf_s(sName, "UP  ");
+                    sprintf_s(sName, sizeof(sName), "UP  ");
                 } else if (iKey == 40) {
-                    sprintf_s(sName, "DOWN");
+                    sprintf_s(sName, sizeof(sName), "DOWN");
                 } else if (iKey == 37) {
-                    sprintf_s(sName, "LEFT");
+                    sprintf_s(sName, sizeof(sName), "LEFT");
                 } else if (iKey == 39) {
-                    sprintf_s(sName, "RGHT");
+                    sprintf_s(sName, sizeof(sName), "RGHT");
                 } else if (iKey == 32) {
-                    sprintf_s(sName, "SPC ");
+                    sprintf_s(sName, sizeof(sName), "SPC ");
                 } else if (iKey == 58) {
-                    sprintf_s(sName, ":   ");
+                    sprintf_s(sName, sizeof(sName), ":   ");
                 } else if (iKey == 46) {
-                    sprintf_s(sName, ".   ");
+                    sprintf_s(sName, sizeof(sName), ".   ");
                 } else if (iKey == 45) {
-                    sprintf_s(sName, "-   ");
+                    sprintf_s(sName, sizeof(sName), "-   ");
                 }
             } else if (iArg3 == 32 || iArg3 == 33) {
                 if (iArg3 == 32) {
@@ -916,9 +1139,9 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
                 }
 
                 if (iKey) {
-                    sprintf_s(sName, "ON  ");
+                    sprintf_s(sName, sizeof(sName), "ON  ");
                 } else {
-                    sprintf_s(sName, "OFF ");
+                    sprintf_s(sName, sizeof(sName), "OFF ");
                 }
             }
 
@@ -939,7 +1162,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
             // TODO: Remove win32 dependency
             iTitle = 0;
             GameLivesRemaining = 7;
-            sprintf_s(sFileName, "%s\\Data\\*.jmg", g_game_base_path);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\*.jmg", g_game_base_path);
             hFind = FindFirstFile(sFileName, &FindFileData);
 
             while (iTitle < iArg2) {
@@ -948,12 +1171,12 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
             }
 
             FindClose(hFind);
-            sprintf_s(GameFile, "%s\\Data\\%s", g_game_base_path, FindFileData.cFileName);
+            sprintf_s(GameFile, sizeof(GameFile), "%s\\Data\\%s", g_game_base_path, FindFileData.cFileName);
             GameStatus = GS_INLEVEL;
         }
 
         if (iArg1 == SERVICE_CREDITLINE) {
-            sprintf_s(sFileName, "%s\\Data\\credits.txt", g_game_base_path);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", g_game_base_path);
             GetFileLine(sName, sizeof(sName), sFileName, iArg2);
             iChar = -1;
 
@@ -967,12 +1190,12 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         if (iArg1 == SERVICE_GAMELIST) {
             // TODO: Remove win32 dependency
             iTitle = 0;
-            sprintf_s(sFileName, "%s\\Data\\*.jmg", g_game_base_path);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\*.jmg", g_game_base_path);
             hFind = FindFirstFile(sFileName, &FindFileData);
 
             while (hFind != INVALID_HANDLE_VALUE) {
                 iChar = -1;
-                sprintf_s(sFile, "%s\\Data\\%s", g_game_base_path, FindFileData.cFileName);
+                sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", g_game_base_path, FindFileData.cFileName);
                 GetFileLine(sName, sizeof(sName), sFile, 0);
 
                 while (sName[++iChar] != 0 && iChar < 18) {
@@ -1020,11 +1243,11 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         char sNum[100];
 
         if (iArg1 == -1) {
-            sprintf_s(sNum, "\n");
+            sprintf_s(sNum, sizeof(sNum), "\n");
         } else if (iArg1 == -2) {
-            sprintf_s(sNum, " ");
+            sprintf_s(sNum, sizeof(sNum), " ");
         } else {
-            sprintf_s(sNum, "%.0f", rArg1 / 256.0f);
+            sprintf_s(sNum, sizeof(sNum), "%.0f", rArg1 / 256.0f);
         }
 
         OutputDebugString(sNum);
@@ -1115,7 +1338,7 @@ static int FindObject(LevelObject* lObj, int iCount, int iFind) {
     return -1;
 }
 
-void CleanResources() {
+static void CleanResources() {
     int iLoop;
 
     iLoop = -1;
@@ -1155,7 +1378,7 @@ void CleanResources() {
     }
 }
 
-void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
+static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     int iCopy;
 
     iCopy = -1;
@@ -1166,7 +1389,7 @@ void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
-void LoadLevel(char* sFileName) {
+static void LoadLevel(char* sFileName) {
     unsigned char* cData;
 
     char sTemp[300];
@@ -1233,47 +1456,47 @@ void LoadLevel(char* sFileName) {
             iArg2 = StringToInt(&cData[iPlace + 4]);
 
             if (iTemp == 1) {
-                sprintf_s(sBuild, "%s\\Sound\\%s.MID", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.MID", g_game_base_path, sTemp);
 
                 if (iArg1 == 1) {
-                    strcpy_s(msBackMusic, sBuild);
+                    strcpy_s(msBackMusic, sizeof(msBackMusic), sBuild);
                     miIntroLength = iArg2 * 10;
                 }
 
                 if (iArg1 == 2) {
-                    strcpy_s(msDeathMusic, sBuild);
+                    strcpy_s(msDeathMusic, sizeof(msDeathMusic), sBuild);
                 }
 
                 if (iArg1 == 3) {
-                    strcpy_s(msWinMusic, sBuild);
+                    strcpy_s(msWinMusic, sizeof(msWinMusic), sBuild);
                 }
             }
 
             if (iTemp == 2) {
-                sprintf_s(sBuild, "%s.MSH", sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s.MSH", sTemp);
                 iOtherMesh[miMeshes] = LoadMesh(sBuild);
                 ++miMeshes;
             }
 
             if (iTemp == 7) {
-                sprintf_s(sBuild, "%s\\Sound\\%s.WAV", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.WAV", g_game_base_path, sTemp);
                 LoadSound(sBuild, iSounds);
                 ++iSounds;
             }
 
             if (iTemp == 3 || iTemp == 4 || iTemp == 6) {
-                sprintf_s(sBuild, "%s\\Data\\%s", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Data\\%s", g_game_base_path, sTemp);
 
                 if (iTemp == 3) {
-                    strcat_s(sBuild, ".BMP");
+                    strcat_s(sBuild, sizeof(sBuild), ".BMP");
                 }
 
                 if (iTemp == 4) {
-                    strcat_s(sBuild, ".JPG");
+                    strcat_s(sBuild, sizeof(sBuild), ".JPG");
                 }
 
                 if (iTemp == 6) {
-                    strcat_s(sBuild, ".PNG");
+                    strcat_s(sBuild, sizeof(sBuild), ".PNG");
                 }
 
                 LoadTexture(miTextures, sBuild, iArg1, (iTemp == 6) || (iTemp == 3 && iArg1 == 1));
@@ -1281,7 +1504,7 @@ void LoadLevel(char* sFileName) {
             }
 
             if (iTemp == 5) {
-                sprintf_s(sBuild, "%s\\Data\\%s.BIN", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Data\\%s.BIN", g_game_base_path, sTemp);
 
                 if (iArg1 == 1) {
                     LoadScript(sBuild, &LevelScript);
@@ -1309,7 +1532,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            AS[iAS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
+            AS[iAS].Mesh = (long*)(malloc(iData * sizeof(long)));
             AS[iAS].MeshSize = iData;
             AS[iAS].ObjectNumber = iAS;
 
@@ -1320,7 +1543,7 @@ void LoadLevel(char* sFileName) {
             }
             iPlace += iNum << 2;
 
-            oData = static_cast<long*>(malloc(AS[iAS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(AS[iAS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&AS[iAS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1351,7 +1574,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            LS[iLS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
+            LS[iLS].Mesh = (long*)(malloc(iData * sizeof(long)));
             LS[iLS].MeshSize = iData;
             LS[iLS].ObjectNumber = iLS;
 
@@ -1363,7 +1586,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = static_cast<long*>(malloc(LS[iLS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(LS[iLS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&LS[iLS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1399,7 +1622,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            WS[iWS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
+            WS[iWS].Mesh = (long*)(malloc(iData * sizeof(long)));
             WS[iWS].MeshSize = iData;
             WS[iWS].ObjectNumber = iWS;
 
@@ -1413,7 +1636,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = static_cast<long*>(malloc(WS[iWS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(WS[iWS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&WS[iWS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1444,7 +1667,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            VS[iVS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
+            VS[iVS].Mesh = (long*)(malloc(iData * sizeof(long)));
             VS[iVS].MeshSize = iData;
             VS[iVS].ObjectNumber = iVS;
 
@@ -1458,7 +1681,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = static_cast<long*>(malloc(VS[iVS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(VS[iVS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&VS[iVS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1487,7 +1710,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            DS[iDS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
+            DS[iDS].Mesh = (long*)(malloc(iData * sizeof(long)));
             DS[iDS].MeshSize = iData;
             DS[iDS].ObjectNumber = iDS;
 
@@ -1501,7 +1724,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = static_cast<long*>(malloc(DS[iDS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(DS[iDS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&DS[iDS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1533,7 +1756,7 @@ void LoadLevel(char* sFileName) {
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            PS[iPS].Mesh = static_cast<long*>(malloc(iData * sizeof(long)));
+            PS[iPS].Mesh = (long*)(malloc(iData * sizeof(long)));
             PS[iPS].MeshSize = iData;
             PS[iPS].ObjectNumber = iPS;
 
@@ -1547,7 +1770,7 @@ void LoadLevel(char* sFileName) {
 
             iPlace += iNum << 2;
 
-            oData = static_cast<long*>(malloc(PS[iPS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(PS[iPS].MeshSize * sizeof(long)));
             iMPlace = 0;
             ComposeObject(&PS[iPS], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
@@ -1574,36 +1797,36 @@ void LoadLevel(char* sFileName) {
         bGood = 1;
 
         if ((iChar >= 'A' && iChar <= 'Z') || (iChar >= '0' && iChar <= '9')) {
-            sprintf_s(sChar, "%c", iChar);
+            sprintf_s(sChar, sizeof(sChar), "%c", iChar);
         } else if (iChar == '.') {
-            sprintf_s(sChar, "Period");
+            sprintf_s(sChar, sizeof(sChar), "Period");
         } else if (iChar == '\'') {
-            sprintf_s(sChar, "Apos");
+            sprintf_s(sChar, sizeof(sChar), "Apos");
         } else if (iChar == '-') {
-            sprintf_s(sChar, "Dash");
+            sprintf_s(sChar, sizeof(sChar), "Dash");
         } else if (iChar == ':') {
-            sprintf_s(sChar, "Colon");
+            sprintf_s(sChar, sizeof(sChar), "Colon");
         } else if (iChar == '%') {
-            sprintf_s(sChar, "Square");
+            sprintf_s(sChar, sizeof(sChar), "Square");
         } else if (iChar == '^') {
-            sprintf_s(sChar, "Jump");
+            sprintf_s(sChar, sizeof(sChar), "Jump");
         } else {
             bGood = 0;
         }
 
         if (bGood) {
-            sprintf_s(sFile, "Char%s.MSH", sChar);
+            sprintf_s(sFile, sizeof(sFile), "Char%s.MSH", sChar);
             iCharMesh[iChar] = LoadMesh(sFile);
         } else {
             iCharMesh[iChar] = -1;
         }
     }
 
-    sprintf_s(sTemp, "%s\\Data\\panel.bmp", g_game_base_path);
+    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\panel.bmp", g_game_base_path);
     LoadTexture(miTextures, sTemp, 0, 0);
     ++miTextures;
 
-    sprintf_s(sTemp, "%s\\Data\\Titles.png", g_game_base_path);
+    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\Titles.png", g_game_base_path);
     LoadTexture(miTextures, sTemp, 0, 0);
     ++miTextures;
 }
@@ -1664,7 +1887,7 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact) {
     }
 }
 
-long PlayerFloor() {
+static long PlayerFloor() {
     long iFloor;
     iFloor = 0;
 
@@ -1675,7 +1898,7 @@ long PlayerFloor() {
     return iFloor;
 }
 
-long PlayerHeight() {
+static long PlayerHeight() {
     long iHeight;
     iHeight = 14;
 
@@ -1722,7 +1945,7 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
             }
 
             iLen = PS[iP].X2 - PS[iP].X1;
-            iH = static_cast<float>(PS[iP].Y1) * abs(PS[iP].X2 - iEX) + static_cast<float>(PS[iP].Y2) * abs(PS[iP].X1 - iEX);
+            iH = (float)(PS[iP].Y1) * abs(PS[iP].X2 - iEX) + (float)(PS[iP].Y2) * abs(PS[iP].X1 - iEX);
             iH /= iLen;
 
             bGood = 0;
@@ -1750,7 +1973,7 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
     }
 }
 
-void GrabDonuts() {
+static void GrabDonuts() {
     int iLoop;
     int iCheck;
     int iWon;
@@ -1793,8 +2016,8 @@ void GrabDonuts() {
     }
 }
 
-void AdjustPlayerZ(int iTargetZ, int iTime) {
-    if (iTime < abs(iTargetZ - static_cast<int>(iPlayerZ))) {
+static void AdjustPlayerZ(int iTargetZ, int iTime) {
+    if (iTime < abs(iTargetZ - (int)(iPlayerZ))) {
         if (iTargetZ < iPlayerZ) {
             --iPlayerZ;
         }
@@ -1805,7 +2028,7 @@ void AdjustPlayerZ(int iTargetZ, int iTime) {
     }
 }
 
-void ResetPlayer(int iNewLevel) {
+static void ResetPlayer(int iNewLevel) {
     long iResetScript;
 
     iResetScript = FindScript(&SCLevel, "reset");
@@ -1822,7 +2045,7 @@ void ResetPlayer(int iNewLevel) {
     }
 }
 
-void AnimateDying() {
+static void AnimateDying() {
     float iSupport;
     long iPlatform;
     int bGrounded;
@@ -1875,10 +2098,10 @@ void AnimateDying() {
         iPlayerY -= 2;
         iPlayerRX = iPlayerAF / -10.0f;
 
-        GetNextPlatform(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), 8, 2, &iSupport, &iPlatform);
+        GetNextPlatform((long)(iPlayerX), (long)(iPlayerY), 8, 2, &iSupport, &iPlatform);
         iSupport -= PlayerFloor();
         bGrounded = (iPlayerY + 4 <= iSupport);
-        AdjustPlayerZ(PS[iPlatform].Z1 - 2, static_cast<int>(iPlayerY - iSupport));
+        AdjustPlayerZ(PS[iPlatform].Z1 - 2, (int)(iPlayerY - iSupport));
 
         if (bGrounded && iPlayerY > -5 && iSupport < iPlayerSC) {
             iPlayerMX = 0;
@@ -1893,7 +2116,7 @@ void AnimateDying() {
                 iPlayerMX = 1;
             }
 
-            iPlayerSC = static_cast<long>(iSupport) - 3;
+            iPlayerSC = (long)(iSupport) - 3;
             iPlayerAS = 0;
             iPlayerAX = 0;
 
@@ -1901,7 +2124,7 @@ void AnimateDying() {
                 PlaySoundEffect(2);
             }
 
-            GetNextPlatform(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY) - 8, 8, 2, &iSupport, &iPlatform);
+            GetNextPlatform((long)(iPlayerX), (long)(iPlayerY) - 8, 8, 2, &iSupport, &iPlatform);
 
             if (iPlatform == -1) {
                 iPlayerAS = 2;
@@ -1966,8 +2189,8 @@ void AnimateDying() {
 
             if (GameLivesRemaining == 0) {
                 iPlayerST = JS_NORMAL;
-                strcpy_s(GameTitle, "");
-                sprintf_s(sTemp, "%s\\Data\\GameOver.DAT", g_game_base_path);
+                strcpy_s(GameTitle, sizeof(GameTitle), "");
+                sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\GameOver.DAT", g_game_base_path);
                 PrepLevel(sTemp);
             } else {
                 ResetPlayer(0);
@@ -2061,7 +2284,7 @@ static void SetGamePerspective() {
     }
 
     if (iTX > miLevelExtentX - 45) {
-        iTX = static_cast<float>(miLevelExtentX - 45);
+        iTX = (float)(miLevelExtentX - 45);
     }
 
     iCamX = (iCamX + iTX) / 2;
@@ -2134,7 +2357,7 @@ static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
     char sTemp[20] = { 0 };
     char* sData;
 
-    iLen = FileToString(GameFile, reinterpret_cast<unsigned char**>(&sData));
+    iLen = FileToString(GameFile, (unsigned char**)(&sData));
     // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function
     TextLine(sData, iLen, sTemp, 20, iLevel * 2 - 1);
     TextLine(sData, iLen, GameTitle, 49, iLevel * 2);
@@ -2166,7 +2389,7 @@ static void PrepLevel(char* sLevel) {
     ProgressGame();
 
     char sFileName[300];
-    sprintf_s(sFileName, "%s\\Data\\Title.BIN", g_game_base_path);
+    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Title.BIN", g_game_base_path);
 
     LoadScript(sFileName, &TitleScript);
     ResetContext(&SCTitle);
@@ -2197,7 +2420,7 @@ static void LoadNextLevel() {
 
 void InitGameDebugLevel(const char* level_name) {
     g_debug_level_is_specified = true;
-    sprintf_s(g_debug_level_filename, "%s\\Data\\%s.DAT", g_game_base_path, level_name);
+    sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "%s\\Data\\%s.DAT", g_game_base_path, level_name);
     g_debug_level_is_specified = 1;
     LoadNextLevel();
     iLevel = 0;
@@ -2216,7 +2439,7 @@ void ExitGame() {
     GameStatus = GS_EXITING;
 }
 
-void LoadMenu() {
+static void LoadJumpmanMenu() {
     if (GameMenuDrawn == GameMenu) {
         return;
     }
@@ -2228,7 +2451,7 @@ void LoadMenu() {
     SetFog(0, 0, 0, 0, 0);
 
     if (GameMenu == GM_MAIN) {
-        sprintf_s(sFileName, "%s\\Data\\MainMenu.DAT", g_game_base_path);
+        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\MainMenu.DAT", g_game_base_path);
         LoadLevel(sFileName);
 
         if (iEvent1 == 10) {
@@ -2245,7 +2468,7 @@ void LoadMenu() {
     }
 
     if (GameMenu == GM_OPTIONS) {
-        sprintf_s(sFileName, "%s\\Data\\Options.DAT", g_game_base_path);
+        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Options.DAT", g_game_base_path);
         LoadLevel(sFileName);
 
         if (iEvent1 == 9) {
@@ -2256,7 +2479,7 @@ void LoadMenu() {
     }
 
     if (GameMenu == GM_SELECTGAME) {
-        sprintf_s(sFileName, "%s\\Data\\SelectGame.DAT", g_game_base_path);
+        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\SelectGame.DAT", g_game_base_path);
         LoadLevel(sFileName);
 
         if (iEvent1 == 9) {
@@ -2271,7 +2494,7 @@ void LoadMenu() {
     EndAndCommit3dLoad();
 }
 
-void InteractMenu() {
+static void InteractMenu() {
     long iObject;
     RunScript(&SCLevel, iMainScript);
 
@@ -2294,7 +2517,7 @@ void InteractMenu() {
 
 void UpdateGame() {
     if (GameStatus == GS_MENU) {
-        LoadMenu();
+        LoadJumpmanMenu();
         InteractMenu();
 
         if (GameStatus == GS_INLEVEL) {
@@ -2377,13 +2600,13 @@ static long LoadMesh(char* sFileName) {
     long iObjectNum;
     int iNums;
 
-    sprintf_s(sFullFile, "%s\\Data\\%s", g_game_base_path, sFileName);
+    sprintf_s(sFullFile, sizeof(sFullFile), "%s\\Data\\%s", g_game_base_path, sFileName);
 
     cData = NULL;
     iNums = FileToString(sFullFile, &cData);
     iNums = iNums / 4;
 
-    oData = static_cast<long*>(malloc(iNums * sizeof(long)));
+    oData = (long*)(malloc(iNums * sizeof(long)));
 
     long iNum;
 
@@ -2479,16 +2702,16 @@ static void LoadMeshes() {
 
 
 
-void MoveJumpmanPunch();
-void MoveJumpmanSlide();
-void MoveJumpmanFalling();
-void MoveJumpmanRoll();
-void MoveJumpmanJumping();
-void MoveJumpmanNormal();
+static void MoveJumpmanPunch();
+static void MoveJumpmanSlide();
+static void MoveJumpmanFalling();
+static void MoveJumpmanRoll();
+static void MoveJumpmanJumping();
+static void MoveJumpmanNormal();
 
-int iIgnoreLadders;
+static int iIgnoreLadders;
 
-void DoDeathBounce() {
+static void DoDeathBounce() {
     if(g_music_is_enabled) {
         StopMusic1();
     }
@@ -2512,7 +2735,7 @@ void DoDeathBounce() {
     }
 }
 
-int CheckWalkOff(int iCenter) {
+static int CheckWalkOff(int iCenter) {
     if (iPlayerX < iCenter && iTKeyRight) {
         return 0;
     }
@@ -2533,7 +2756,7 @@ int CheckWalkOff(int iCenter) {
     return 0;
 }
 
-int CheckJumpStart(int iLeft, int iUp, int iRight) {
+static int CheckJumpStart(int iLeft, int iUp, int iRight) {
     if (!iTKeyJump) {
         return 0;
     }
@@ -2560,10 +2783,10 @@ int CheckJumpStart(int iLeft, int iUp, int iRight) {
     return 1;
 }
 
-void UpdateSituation() {
-    FindVine(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), &iSitVinAp, &iSitVinEx);
-    FindLadder(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), &iSitLadA, &iSitLadE);
-    GetNextPlatform(static_cast<long>(iPlayerX), static_cast<long>(iPlayerY), PlayerHeight(), 2, &iSitSupport, &iSitPlatform);
+static void UpdateSituation() {
+    FindVine((long)(iPlayerX), (long)(iPlayerY), &iSitVinAp, &iSitVinEx);
+    FindLadder((long)(iPlayerX), (long)(iPlayerY), &iSitLadA, &iSitLadE);
+    GetNextPlatform((long)(iPlayerX), (long)(iPlayerY), PlayerHeight(), 2, &iSitSupport, &iSitPlatform);
     iSitSupport -= PlayerFloor();
 
     iEvent2 = -1;
@@ -2573,7 +2796,7 @@ void UpdateSituation() {
     }
 }
 
-void MoveJumpmanVine() {
+static void MoveJumpmanVine() {
     iPlayerST = JS_VINE;
     iPlayerACT = 0;
 
@@ -2606,7 +2829,7 @@ void MoveJumpmanVine() {
 
     if (iPlayerAF & 1) {
         if (iPlayerX + 1 > iVinX && iPlayerX - 1 < iVinX) {
-            iPlayerX = static_cast<float>(iVinX);
+            iPlayerX = (float)(iVinX);
         } else if (iPlayerX < iVinX) {
             ++iPlayerX;
         } else if (iPlayerX > iVinX) {
@@ -2615,7 +2838,7 @@ void MoveJumpmanVine() {
     }
 }
 
-void MoveJumpmanLadder() {
+static void MoveJumpmanLadder() {
     iPlayerST = JS_LADDER;
     iPlayerACT = 0;
     iIgnoreLadders = 1;
@@ -2659,7 +2882,7 @@ void MoveJumpmanLadder() {
     iLadderX = LS[iSitLadA].X1;
 
     if (iPlayerX < iLadderX + 1 && iPlayerX > iLadderX - 1) {
-        iPlayerX = static_cast<float>(iLadderX);
+        iPlayerX = (float)(iLadderX);
     } else if (iPlayerX < iLadderX) {
         iPlayerX += 1;
     } else if (iPlayerX > iLadderX) {
@@ -2667,11 +2890,11 @@ void MoveJumpmanLadder() {
     }
 }
 
-void MoveJumpmanNormal() {
+static void MoveJumpmanNormal() {
     iPlayerST = JS_NORMAL;
     iPlayerACT = 0;
 
-    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, static_cast<int>(iPlayerY - iSitSupport));
+    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
 
     if (iSitVinAp != -1 && !iTKeyLeft && !iTKeyRight && (VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport)) {
         MoveJumpmanVine();
@@ -2763,7 +2986,7 @@ void MoveJumpmanNormal() {
     }
 }
 
-void MoveJumpmanFalling() {
+static void MoveJumpmanFalling() {
     iPlayerST = JS_FALLING;
     iPlayerACT = 0;
 
@@ -2792,7 +3015,7 @@ void MoveJumpmanFalling() {
     }
 }
 
-void MoveJumpmanJumping() {
+static void MoveJumpmanJumping() {
     iPlayerST = JS_JUMPING;
 
     if (iPlayerACT != JA_KICK && iTKeyAttack && ((iPlayerDIR == JD_RIGHT) || (iPlayerDIR == JD_LEFT))) {
@@ -2861,7 +3084,7 @@ void MoveJumpmanJumping() {
     }
 }
 
-void MoveJumpmanSlide() {
+static void MoveJumpmanSlide() {
     iPlayerST = JS_SLIDE;
     iPlayerACT = 0;
 
@@ -2912,7 +3135,7 @@ void MoveJumpmanSlide() {
                 }
             }
 
-            iPlayerX += static_cast<float>(30 - iPlayerSC) / 60.0f+.5f;
+            iPlayerX += (float)(30 - iPlayerSC) / 60.0f+.5f;
         }
 
         if (iPlayerDIR == JD_LEFT) {
@@ -2922,7 +3145,7 @@ void MoveJumpmanSlide() {
                 }
             }
 
-            iPlayerX -= static_cast<float>(30 - iPlayerSC) / 60.0f+.5f;
+            iPlayerX -= (float)(30 - iPlayerSC) / 60.0f+.5f;
         }
     }
 
@@ -2961,7 +3184,7 @@ void MoveJumpmanSlide() {
     }
 }
 
-void MoveJumpmanRoll() {
+static void MoveJumpmanRoll() {
     iPlayerST = JS_ROLL;
     iPlayerACT = 0;
 
@@ -3015,7 +3238,7 @@ void MoveJumpmanRoll() {
         return;
     }
 
-    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, static_cast<int>(iPlayerY - iSitSupport));
+    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
 
     float iVel;
     iVel = 1.3f;
@@ -3061,7 +3284,7 @@ void MoveJumpmanRoll() {
     }
 }
 
-void MoveJumpmanPunch() {
+static void MoveJumpmanPunch() {
     iPlayerST = JS_PUNCH;
     iPlayerACT = JA_PUNCH;
 
@@ -3129,7 +3352,7 @@ static void MoveJumpman() {
     iRep = -1;
 
     while (++iRep < 2) {
-        iCollide = CollideWall(static_cast<long>(iPlayerX) - 2, static_cast<long>(iPlayerY) + 11, static_cast<long>(iPlayerX) + 2, static_cast<long>(iPlayerY) + 9);
+        iCollide = CollideWall((long)(iPlayerX) - 2, (long)(iPlayerY) + 11, (long)(iPlayerX) + 2, (long)(iPlayerY) + 9);
 
         if (iCollide == 1) {
             iPlayerY -= 1;
@@ -3139,7 +3362,7 @@ static void MoveJumpman() {
             }
         }
 
-        iCollide = CollideWall(static_cast<long>(iPlayerX) - 3, static_cast<long>(iPlayerY) + 9, static_cast<long>(iPlayerX) + 3, static_cast<long>(iPlayerY) + 3);
+        iCollide = CollideWall((long)(iPlayerX) - 3, (long)(iPlayerY) + 9, (long)(iPlayerX) + 3, (long)(iPlayerY) + 3);
 
         if (iCollide == 3) {
             ++iPlayerX;

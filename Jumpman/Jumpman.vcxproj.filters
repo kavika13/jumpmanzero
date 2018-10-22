@@ -48,9 +48,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Jumpman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +73,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Basic3D.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Jumpman.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
