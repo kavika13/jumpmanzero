@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
+#define CUTE_FILES_IMPLEMENTATION
+#include <cute_files.h>
 #include "Basic3d.h"
 #include "Jumpman.h"
 #include "Main.h"
@@ -1022,9 +1022,6 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         SetFog((float)iArg1, (float)iArg2, SC->Stack[SC->BP + 2] & 0xFF, SC->Stack[SC->BP + 3] & 0xFF, SC->Stack[SC->BP + 4] & 0xFF);
     }
 
-    // TODO: Remove win32 dependency, possibly expose function in platform layer?
-    WIN32_FIND_DATA FindFileData;
-    HANDLE hFind;
     int iTitle;
     int iChar;
     char sName[100];
@@ -1158,20 +1155,42 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
             GameMenu = iArg2;
         }
 
-        if (iArg1 == SERVICE_GAMESTART) {
-            // TODO: Remove win32 dependency
+        if(iArg1 == SERVICE_GAMESTART) {
             iTitle = 0;
             GameLivesRemaining = 7;
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\*.jmg", g_game_base_path);
-            hFind = FindFirstFile(sFileName, &FindFileData);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", g_game_base_path);
 
-            while (iTitle < iArg2) {
-                FindNextFile(hFind, &FindFileData);
-                ++iTitle;
+            cf_dir_t dir;
+            cf_dir_open(&dir, sFileName);
+
+            cf_file_t file;
+
+            // TODO: Error checking.
+            // Error shouldn't happen since .jmg files are queried before this is run,
+            // but could if file or dir was deleted/locked after campaign menu displayed, but before selected
+
+            while(dir.has_next) {  // Find first result
+                cf_file_t first_file;
+                cf_read_file(&dir, &first_file);
+                cf_dir_next(&dir);
+
+                if(cf_match_ext(&first_file, ".jmg")) {
+                    file = first_file;
+                    break;
+                }
             }
 
-            FindClose(hFind);
-            sprintf_s(GameFile, sizeof(GameFile), "%s\\Data\\%s", g_game_base_path, FindFileData.cFileName);
+            while(dir.has_next && iTitle < iArg2) {
+                cf_read_file(&dir, &file);
+
+                if(cf_match_ext(&file, ".jmg")) {
+                    iTitle = iTitle + 1;
+                }
+
+                cf_dir_next(&dir);
+            }
+
+            sprintf_s(GameFile, sizeof(GameFile), "%s\\Data\\%s", g_game_base_path, file.name);
             GameStatus = GS_INLEVEL;
         }
 
@@ -1187,27 +1206,31 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
             SC->Globals[iArg3] = iChar * 256;
         }
 
-        if (iArg1 == SERVICE_GAMELIST) {
-            // TODO: Remove win32 dependency
+        if(iArg1 == SERVICE_GAMELIST) {
             iTitle = 0;
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\*.jmg", g_game_base_path);
-            hFind = FindFirstFile(sFileName, &FindFileData);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", g_game_base_path);
 
-            while (hFind != INVALID_HANDLE_VALUE) {
-                iChar = -1;
-                sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", g_game_base_path, FindFileData.cFileName);
-                GetFileLine(sName, sizeof(sName), sFile, 0);
+            cf_dir_t dir;
+            cf_dir_open(&dir, sFileName);
 
-                while (sName[++iChar] != 0 && iChar < 18) {
-                    SC->Globals[iArg2 + iTitle * 20 + iChar + 1] = sName[iChar] * 256;
+            while(dir.has_next) {
+                cf_file_t file;
+                cf_read_file(&dir, &file);
+
+                if(cf_match_ext(&file, ".jmg")) {
+                    iChar = -1;
+                    sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", g_game_base_path, file.name);
+                    GetFileLine(sName, sizeof(sName), sFile, 0);
+
+                    while(sName[++iChar] != 0 && iChar < 18) {
+                        SC->Globals[iArg2 + iTitle * 20 + iChar + 1] = sName[iChar] * 256;
+                    }
+
+                    SC->Globals[iArg2 + iTitle * 20] = iChar * 256;
+                    iTitle = iTitle + 1;
                 }
-                SC->Globals[iArg2 + iTitle * 20] = iChar * 256;
-                iTitle = iTitle + 1;
 
-                if (!FindNextFile(hFind, &FindFileData)) {
-                    FindClose(hFind);
-                    hFind = INVALID_HANDLE_VALUE;
-                }
+                cf_dir_next(&dir);
             }
 
             return iTitle;
@@ -1239,7 +1262,6 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     }
 
     if (iFunc == EFPRINT && g_debug_is_enabled) {
-        // TODO: Remove win32 dependency
         char sNum[100];
 
         if (iArg1 == -1) {
@@ -1250,7 +1272,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
             sprintf_s(sNum, sizeof(sNum), "%.0f", rArg1 / 256.0f);
         }
 
-        OutputDebugString(sNum);
+        fprintf(stdout, "%s", sNum);
     }
 
     if (iFunc == EFWIN) {

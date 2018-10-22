@@ -56,7 +56,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
@@ -84,7 +84,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Basic3d.h" />
+    <ClInclude Include="cute_files-6760a7d\cute_files.h" />
     <ClInclude Include="glad\include\glad\glad.h" />
     <ClInclude Include="glad\include\glad\glad_wgl.h" />
     <ClInclude Include="glad\include\KHR\khrplatform.h" />

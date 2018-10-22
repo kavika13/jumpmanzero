@@ -46,6 +46,9 @@
     <Filter Include="Header Files\tiny_sound_font">
       <UniqueIdentifier>{13cb2274-cf21-46ff-9312-ab85d69aee61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cute_files">
+      <UniqueIdentifier>{c324fe4d-7f3f-4765-af0f-d134cdbd223b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad\src\glad_wgl.c">
@@ -139,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="Script.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cute_files-6760a7d\cute_files.h">
+      <Filter>Header Files\cute_files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
