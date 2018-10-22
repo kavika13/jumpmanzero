@@ -48,8 +48,8 @@
 #define EFGET 8
 #define EFGETDATA 45
 
-// TODO: Expose to script.cpp some other way? Like just exposing helper functions for all of them from Jumpman.c
-extern "C" long ExtFunction(long iFunc, ScriptContext* SC);
+// TODO: Expose to script.c some other way? Like just exposing helper functions for all of them from Jumpman.c
+extern long ExtFunction(long iFunc, ScriptContext* SC);
 
 void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2);
 

@@ -107,7 +107,7 @@
     <ClCompile Include="Jumpman.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Music.c" />
-    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="Script.c" />
     <ClCompile Include="Sound.c" />
     <ClCompile Include="SoundBuffer.c" />
     <ClCompile Include="Utilities.c" />
@@ -125,6 +125,7 @@
     <ClInclude Include="mini_al-0.8.9\mini_al.h" />
     <ClInclude Include="Music.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Script.h" />
     <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundBuffer.h" />
