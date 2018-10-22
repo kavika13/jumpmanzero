@@ -269,45 +269,6 @@ long ExtFunction(long iFunc, ScriptContext* SC);  // TODO: Expose to script.cpp 
 #define SERVICE_LEVELTITLE 154
 #define SERVICE_CREDITLINE 155
 
-// IN BASIC3D
-// TODO: Convert whole implemenation to C
-void ChangeMesh(long iMesh, long iNewMesh);
-void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue);
-void ScrollTexture(long iObj, float fX, float fY);
-void DeleteMesh(long iMesh);
-void Clear3dData();
-void LoadTexture(int iTex, char* sFile, int iType, int iAlpha);
-long InitializeAll();
-void Begin3dLoad();
-void EndAndCommit3dLoad();
-void Render();
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-void ResizeViewport(int width, int height);
-void Reset3d();  // TODO: Is this function necessary anymore? Used for resetting context after focus switch
-
-#if defined(__cplusplus)
-}  // extern "C"
-#endif
-
-void DoCleanUp();
-void CreateObject(long* iParams, long iCount, long* iNum);
-void SetObjectData(long iNum, long iTexture, int iVisible);
-void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
-void CopyObject(int iObject, long* iNum);
-void PrioritizeObject(long o1);
-
-void ScaleMatrix(long iObj, float fX, float fY, float fZ);
-void PerspectiveMatrix(long iObj);
-void IdentityMatrix(long iObj);
-void TranslateMatrix(long iObj, float fX, float fY, float fZ);
-void RotateMatrixX(long iObj, float fDegrees);
-void RotateMatrixY(long iObj, float fDegrees);
-void RotateMatrixZ(long iObj, float fDegrees);
-
 // IN SCRIPT
 void ResetContext(ScriptContext* SC);
 void LoadScript(char* sFileName, ScriptCode* oScript);

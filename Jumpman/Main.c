@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "Basic3d.h"
 #include "Jumpman.h"
 #include "Music.h"
 #include "Sound.h"

@@ -4,6 +4,7 @@
 #include <string.h>
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
+#include "Basic3d.h"
 #include "Jumpman.h"
 #include "Main.h"
 #include "Music.h"

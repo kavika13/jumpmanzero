@@ -7,39 +7,39 @@
 #define HANDMADE_MATH_IMPLEMENTATION
 #define HANDMADE_MATH_NO_SSE
 #include "HandmadeMath.h"
-#include "./jumpman.h"
+#include "Basic3d.h"
 
 #define MAX_TEXTURES 30
 #define MAX_OBJECTS 600
 #define MAX_VERTICES 110000
 
-struct ObjectVertex {
+typedef struct {
     float x, y, z;
     float nx, ny, nz;
     float tu, tv;
-};
+} ObjectVertex;
 
-struct Light {
+typedef struct {
     hmm_vec3 ambient_color;
     hmm_vec3 diffuse_color;
     hmm_vec3 position;
     float range;
-};
+} Light;
 
-struct Material {
+typedef struct {
     hmm_vec3 ambient_tint;
     hmm_vec3 diffuse_tint;
-};
+} Material;
 
-struct VertexShaderParams {
+typedef struct {
     hmm_mat4 local_to_world_matrix;
     hmm_mat4 local_to_view_matrix;
     hmm_mat4 local_to_projection_matrix;
     hmm_mat4 transpose_world_to_local_matrix;
     hmm_vec2 uv_offset;
-};
+} VertexShaderParams;
 
-struct FragmentShaderParams {
+typedef struct {
     hmm_vec3 scene_ambient_color;
     Material material;
     Light light;
@@ -47,7 +47,7 @@ struct FragmentShaderParams {
     hmm_vec3 fog_color;
     float fog_start;
     float fog_end;
-};
+} FragmentShaderParams;
 
 static void FatalError(const char* error_msg);
 static long init_3d();
@@ -56,77 +56,77 @@ static void init_scene();
 static void kill_scene();
 static void SwapObjects(long o1, long o2);
 
-int g_backbuffer_width;
-int g_backbuffer_height;
-sg_draw_state g_draw_state = { };
-sg_pipeline g_opaque_pipline = { };
-sg_pipeline g_transparent_pipline = { };
-sg_pass_action g_pass_action = { };
-Light g_camera_light;
-Material g_global_material;
-hmm_vec3 g_scene_ambient_color;
-bool g_is_fog_enabled;
-hmm_vec3 g_fog_color;
-float g_fog_start;
-float g_fog_end;
+static int g_backbuffer_width;
+static int g_backbuffer_height;
+static sg_draw_state g_draw_state = { 0 };
+static sg_pipeline g_opaque_pipline = { 0 };
+static sg_pipeline g_transparent_pipline = { 0 };
+static sg_pass_action g_pass_action = { 0 };
+static Light g_camera_light;
+static Material g_global_material;
+static hmm_vec3 g_scene_ambient_color;
+static bool g_is_fog_enabled;
+static hmm_vec3 g_fog_color;
+static float g_fog_start;
+static float g_fog_end;
 
-sg_image g_textures[MAX_TEXTURES];
-char g_texture_filename[MAX_TEXTURES][300];
-long g_texture_is_alpha_blend_enabled[MAX_TEXTURES];
-long g_texture_is_color_key_alpha_enabled[MAX_TEXTURES];
+static sg_image g_textures[MAX_TEXTURES];
+static char g_texture_filename[MAX_TEXTURES][300];
+static long g_texture_is_alpha_blend_enabled[MAX_TEXTURES];
+static long g_texture_is_color_key_alpha_enabled[MAX_TEXTURES];
 
-hmm_mat4 g_world_to_view_matrix;
-hmm_mat4 g_view_to_projection_matrix;
+static hmm_mat4 g_world_to_view_matrix;
+static hmm_mat4 g_view_to_projection_matrix;
 
-long g_vertices_to_load_count;
-ObjectVertex* g_vertices_to_load = NULL;
+static long g_vertices_to_load_count;
+static ObjectVertex* g_vertices_to_load = NULL;
 
-long g_object_count;
+static long g_object_count;
 
-long g_object_redirects[MAX_OBJECTS];
-long g_object_vertex_start_index[MAX_OBJECTS];
-long g_object_vertex_count[MAX_OBJECTS];
-long g_object_texture_index[MAX_OBJECTS];
-long g_object_is_visible[MAX_OBJECTS];
-hmm_vec2 g_object_uv_offset[MAX_OBJECTS];
-hmm_mat4 g_object_local_to_world_matrix[MAX_OBJECTS];
+static long g_object_redirects[MAX_OBJECTS];
+static long g_object_vertex_start_index[MAX_OBJECTS];
+static long g_object_vertex_count[MAX_OBJECTS];
+static long g_object_texture_index[MAX_OBJECTS];
+static long g_object_is_visible[MAX_OBJECTS];
+static hmm_vec2 g_object_uv_offset[MAX_OBJECTS];
+static hmm_mat4 g_object_local_to_world_matrix[MAX_OBJECTS];
 
 // Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
-hmm_mat4 HMM_Mat4(hmm_vec4 column_0, hmm_vec4 column_1, hmm_vec4 column_2, hmm_vec4 column_3) {
-    hmm_mat4 result {
-        column_0[0], column_0[1], column_0[2], column_0[3],
-        column_1[0], column_1[1], column_1[2], column_1[3],
-        column_2[0], column_2[1], column_2[2], column_2[3],
-        column_3[0], column_3[1], column_3[2], column_3[3],
+static hmm_mat4 HMM_Mat4FromVec4(hmm_vec4 column_0, hmm_vec4 column_1, hmm_vec4 column_2, hmm_vec4 column_3) {
+    hmm_mat4 result = {
+        column_0.Elements[0], column_0.Elements[1], column_0.Elements[2], column_0.Elements[3],
+        column_1.Elements[0], column_1.Elements[1], column_1.Elements[2], column_1.Elements[3],
+        column_2.Elements[0], column_2.Elements[1], column_2.Elements[2], column_2.Elements[3],
+        column_3.Elements[0], column_3.Elements[1], column_3.Elements[2], column_3.Elements[3],
     };
     return result;
 }
 
-hmm_mat4 JM_HMM_Inverse(hmm_mat4 input) {
-    float coef_00 = input[2][2] * input[3][3] - input[3][2] * input[2][3];
-    float coef_02 = input[1][2] * input[3][3] - input[3][2] * input[1][3];
-    float coef_03 = input[1][2] * input[2][3] - input[2][2] * input[1][3];
+static hmm_mat4 JM_HMM_Inverse(hmm_mat4 input) {
+    float coef_00 = input.Elements[2][2] * input.Elements[3][3] - input.Elements[3][2] * input.Elements[2][3];
+    float coef_02 = input.Elements[1][2] * input.Elements[3][3] - input.Elements[3][2] * input.Elements[1][3];
+    float coef_03 = input.Elements[1][2] * input.Elements[2][3] - input.Elements[2][2] * input.Elements[1][3];
 
-    float coef_04 = input[2][1] * input[3][3] - input[3][1] * input[2][3];
-    float coef_06 = input[1][1] * input[3][3] - input[3][1] * input[1][3];
-    float coef_07 = input[1][1] * input[2][3] - input[2][1] * input[1][3];
+    float coef_04 = input.Elements[2][1] * input.Elements[3][3] - input.Elements[3][1] * input.Elements[2][3];
+    float coef_06 = input.Elements[1][1] * input.Elements[3][3] - input.Elements[3][1] * input.Elements[1][3];
+    float coef_07 = input.Elements[1][1] * input.Elements[2][3] - input.Elements[2][1] * input.Elements[1][3];
 
-    float coef_08 = input[2][1] * input[3][2] - input[3][1] * input[2][2];
-    float coef_10 = input[1][1] * input[3][2] - input[3][1] * input[1][2];
-    float coef_11 = input[1][1] * input[2][2] - input[2][1] * input[1][2];
+    float coef_08 = input.Elements[2][1] * input.Elements[3][2] - input.Elements[3][1] * input.Elements[2][2];
+    float coef_10 = input.Elements[1][1] * input.Elements[3][2] - input.Elements[3][1] * input.Elements[1][2];
+    float coef_11 = input.Elements[1][1] * input.Elements[2][2] - input.Elements[2][1] * input.Elements[1][2];
 
-    float coef_12 = input[2][0] * input[3][3] - input[3][0] * input[2][3];
-    float coef_14 = input[1][0] * input[3][3] - input[3][0] * input[1][3];
-    float coef_15 = input[1][0] * input[2][3] - input[2][0] * input[1][3];
+    float coef_12 = input.Elements[2][0] * input.Elements[3][3] - input.Elements[3][0] * input.Elements[2][3];
+    float coef_14 = input.Elements[1][0] * input.Elements[3][3] - input.Elements[3][0] * input.Elements[1][3];
+    float coef_15 = input.Elements[1][0] * input.Elements[2][3] - input.Elements[2][0] * input.Elements[1][3];
 
-    float coef_16 = input[2][0] * input[3][2] - input[3][0] * input[2][2];
-    float coef_18 = input[1][0] * input[3][2] - input[3][0] * input[1][2];
-    float coef_19 = input[1][0] * input[2][2] - input[2][0] * input[1][2];
+    float coef_16 = input.Elements[2][0] * input.Elements[3][2] - input.Elements[3][0] * input.Elements[2][2];
+    float coef_18 = input.Elements[1][0] * input.Elements[3][2] - input.Elements[3][0] * input.Elements[1][2];
+    float coef_19 = input.Elements[1][0] * input.Elements[2][2] - input.Elements[2][0] * input.Elements[1][2];
 
-    float coef_20 = input[2][0] * input[3][1] - input[3][0] * input[2][1];
-    float coef_22 = input[1][0] * input[3][1] - input[3][0] * input[1][1];
-    float coef_23 = input[1][0] * input[2][1] - input[2][0] * input[1][1];
+    float coef_20 = input.Elements[2][0] * input.Elements[3][1] - input.Elements[3][0] * input.Elements[2][1];
+    float coef_22 = input.Elements[1][0] * input.Elements[3][1] - input.Elements[3][0] * input.Elements[1][1];
+    float coef_23 = input.Elements[1][0] * input.Elements[2][1] - input.Elements[2][0] * input.Elements[1][1];
 
     hmm_vec4 fac_0 = HMM_Vec4(coef_00, coef_00, coef_02, coef_03);
     hmm_vec4 fac_1 = HMM_Vec4(coef_04, coef_04, coef_06, coef_07);
@@ -135,31 +135,52 @@ hmm_mat4 JM_HMM_Inverse(hmm_mat4 input) {
     hmm_vec4 fac_4 = HMM_Vec4(coef_16, coef_16, coef_18, coef_19);
     hmm_vec4 fac_5 = HMM_Vec4(coef_20, coef_20, coef_22, coef_23);
 
-    hmm_vec4 vec_0 = HMM_Vec4(input[1][0], input[0][0], input[0][0], input[0][0]);
-    hmm_vec4 vec_1 = HMM_Vec4(input[1][1], input[0][1], input[0][1], input[0][1]);
-    hmm_vec4 vec_2 = HMM_Vec4(input[1][2], input[0][2], input[0][2], input[0][2]);
-    hmm_vec4 vec_3 = HMM_Vec4(input[1][3], input[0][3], input[0][3], input[0][3]);
+    hmm_vec4 vec_0 = HMM_Vec4(input.Elements[1][0], input.Elements[0][0], input.Elements[0][0], input.Elements[0][0]);
+    hmm_vec4 vec_1 = HMM_Vec4(input.Elements[1][1], input.Elements[0][1], input.Elements[0][1], input.Elements[0][1]);
+    hmm_vec4 vec_2 = HMM_Vec4(input.Elements[1][2], input.Elements[0][2], input.Elements[0][2], input.Elements[0][2]);
+    hmm_vec4 vec_3 = HMM_Vec4(input.Elements[1][3], input.Elements[0][3], input.Elements[0][3], input.Elements[0][3]);
 
-    hmm_vec4 inv_0(vec_1 * fac_0 - vec_2 * fac_1 + vec_3 * fac_2);
-    hmm_vec4 inv_1(vec_0 * fac_0 - vec_2 * fac_3 + vec_3 * fac_4);
-    hmm_vec4 inv_2(vec_0 * fac_1 - vec_1 * fac_3 + vec_3 * fac_5);
-    hmm_vec4 inv_3(vec_0 * fac_2 - vec_1 * fac_4 + vec_2 * fac_5);
+    hmm_vec4 inv_0 = HMM_AddVec4(
+        HMM_SubtractVec4(
+            HMM_MultiplyVec4(vec_1, fac_0),
+            HMM_MultiplyVec4(vec_2, fac_1)),
+        HMM_MultiplyVec4(vec_3, fac_2));
+    hmm_vec4 inv_1 = HMM_AddVec4(
+        HMM_SubtractVec4(
+            HMM_MultiplyVec4(vec_0, fac_0),
+            HMM_MultiplyVec4(vec_2, fac_3)),
+        HMM_MultiplyVec4(vec_3, fac_4));
+    hmm_vec4 inv_2 = HMM_AddVec4(
+        HMM_SubtractVec4(
+            HMM_MultiplyVec4(vec_0, fac_1),
+            HMM_MultiplyVec4(vec_1, fac_3)),
+        HMM_MultiplyVec4(vec_3, fac_5));
+    hmm_vec4 inv_3 = HMM_AddVec4(
+        HMM_SubtractVec4(
+            HMM_MultiplyVec4(vec_0, fac_2),
+            HMM_MultiplyVec4(vec_1, fac_4)),
+        HMM_MultiplyVec4(vec_2, fac_5));
 
     hmm_vec4 sign_a = HMM_Vec4(+1, -1, +1, -1);
     hmm_vec4 sign_b = HMM_Vec4(-1, +1, -1, +1);
-    hmm_mat4 inverse_matrix = HMM_Mat4(inv_0 * sign_a, inv_1 * sign_b, inv_2 * sign_a, inv_3 * sign_b);
+    hmm_mat4 inverse_matrix = HMM_Mat4FromVec4(
+        HMM_MultiplyVec4(inv_0, sign_a),
+        HMM_MultiplyVec4(inv_1, sign_b),
+        HMM_MultiplyVec4(inv_2, sign_a),
+        HMM_MultiplyVec4(inv_3, sign_b));
 
-    hmm_vec4 row_0 = HMM_Vec4(inverse_matrix[0][0], inverse_matrix[1][0], inverse_matrix[2][0], inverse_matrix[3][0]);
+    hmm_vec4 row_0 = HMM_Vec4(inverse_matrix.Elements[0][0], inverse_matrix.Elements[1][0], inverse_matrix.Elements[2][0], inverse_matrix.Elements[3][0]);
+    hmm_vec4 input_column_0 = HMM_Vec4(input.Elements[0][0], input.Elements[0][1], input.Elements[0][2], input.Elements[0][3]);
 
-    hmm_vec4 dot_0(input[0] * row_0);
+    hmm_vec4 dot_0 = HMM_MultiplyVec4(input_column_0, row_0);
     float dot_1 = (dot_0.X + dot_0.Y) + (dot_0.Z + dot_0.W);
 
     float one_over_determinant = 1.0f / dot_1;
 
-    return inverse_matrix * one_over_determinant;
+    return HMM_MultiplyMat4f(inverse_matrix, one_over_determinant);
 }
 
-hmm_mat4 HMM_LookAtLH(hmm_vec3 Eye, hmm_vec3 Center, hmm_vec3 Up) {
+static hmm_mat4 HMM_LookAtLH(hmm_vec3 Eye, hmm_vec3 Center, hmm_vec3 Up) {
     hmm_mat4 Result;
 
     hmm_vec3 F = HMM_NormalizeVec3(HMM_SubtractVec3(Center, Eye));
@@ -206,7 +227,7 @@ HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Nea
 
 // End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
-long SurfaceObject(long o1) {
+static long SurfaceObject(long o1) {
     int iLoop = -1;
 
     while (++iLoop < MAX_OBJECTS) {
@@ -230,7 +251,7 @@ void DeleteMesh(long iMesh) {
 
 void IdentityMatrix(long iObj) {
     long iReal = g_object_redirects[iObj];
-    hmm_mat4 result {
+    hmm_mat4 result = {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
@@ -241,37 +262,49 @@ void IdentityMatrix(long iObj) {
 
 void PerspectiveMatrix(long iObj) {
     long iReal = g_object_redirects[iObj];
-    g_object_local_to_world_matrix[iReal] = JM_HMM_Inverse(g_world_to_view_matrix) * g_object_local_to_world_matrix[iReal];
+    g_object_local_to_world_matrix[iReal] = HMM_MultiplyMat4(
+        JM_HMM_Inverse(g_world_to_view_matrix),
+        g_object_local_to_world_matrix[iReal]);
 }
 
 void TranslateMatrix(long iObj, float fX, float fY, float fZ) {
     long iReal = g_object_redirects[iObj];
-    g_object_local_to_world_matrix[iReal] = HMM_Translate(HMM_Vec3(fX, fY, fZ)) * g_object_local_to_world_matrix[iReal];
+    g_object_local_to_world_matrix[iReal] = HMM_MultiplyMat4(
+        HMM_Translate(HMM_Vec3(fX, fY, fZ)),
+        g_object_local_to_world_matrix[iReal]);
 }
 
 void ScaleMatrix(long iObj, float fX, float fY, float fZ) {
     long iReal = g_object_redirects[iObj];
-    g_object_local_to_world_matrix[iReal] = HMM_Scale(HMM_Vec3(fX, fY, fZ)) * g_object_local_to_world_matrix[iReal];
+    g_object_local_to_world_matrix[iReal] = HMM_MultiplyMat4(
+        HMM_Scale(HMM_Vec3(fX, fY, fZ)),
+        g_object_local_to_world_matrix[iReal]);
 }
 
 void ScrollTexture(long iObj, float fX, float fY) {
     long iReal = g_object_redirects[iObj];
-    g_object_uv_offset[iReal] = HMM_Add(g_object_uv_offset[iReal], hmm_vec2 { fX, fY });
+    g_object_uv_offset[iReal] = HMM_AddVec2(g_object_uv_offset[iReal], (const hmm_vec2){ fX, fY });
 }
 
 void RotateMatrixX(long iObj, float fDegrees) {
     long iReal = g_object_redirects[iObj];
-    g_object_local_to_world_matrix[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(1.0f, 0.0f, 0.0f)) * g_object_local_to_world_matrix[iReal];
+    g_object_local_to_world_matrix[iReal] = HMM_MultiplyMat4(
+        HMM_Rotate(fDegrees, HMM_Vec3(1.0f, 0.0f, 0.0f)),
+        g_object_local_to_world_matrix[iReal]);
 }
 
 void RotateMatrixY(long iObj, float fDegrees) {
     long iReal = g_object_redirects[iObj];
-    g_object_local_to_world_matrix[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 1.0f, 0.0f)) * g_object_local_to_world_matrix[iReal];
+    g_object_local_to_world_matrix[iReal] = HMM_MultiplyMat4(
+        HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 1.0f, 0.0f)),
+        g_object_local_to_world_matrix[iReal]);
 }
 
 void RotateMatrixZ(long iObj, float fDegrees) {
     long iReal = g_object_redirects[iObj];
-    g_object_local_to_world_matrix[iReal] = HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 0.0f, 1.0f)) * g_object_local_to_world_matrix[iReal];
+    g_object_local_to_world_matrix[iReal] = HMM_MultiplyMat4(
+        HMM_Rotate(fDegrees, HMM_Vec3(0.0f, 0.0f, 1.0f)),
+        g_object_local_to_world_matrix[iReal]);
 }
 
 void PrioritizeObject(long o1) {
@@ -282,7 +315,7 @@ void PrioritizeObject(long o1) {
     }
 }
 
-void SwapLong(long* l1, long* l2) {
+static void SwapLong(long* l1, long* l2) {
     long iSwap = *l1;
     *l1 = *l2;
     *l2 = iSwap;
@@ -323,7 +356,7 @@ void Clear3dData() {
 
     for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
-        g_object_uv_offset[iLoop] = { 0 };
+        g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
 
     g_vertices_to_load_count = 0;
@@ -331,7 +364,7 @@ void Clear3dData() {
 
 void LoadTexture(int iTex, char* sFile, int image_type, int is_alpha_blend_enabled) {
     g_texture_is_alpha_blend_enabled[iTex] = is_alpha_blend_enabled;
-    strcpy_s(g_texture_filename[iTex], sFile);
+    strcpy_s(g_texture_filename[iTex], sizeof(g_texture_filename[iTex]), sFile);
     g_texture_is_color_key_alpha_enabled[iTex] = image_type == 1 ? 1 : 0;
 
     int width, height, channels_in_file;
@@ -348,7 +381,7 @@ void LoadTexture(int iTex, char* sFile, int image_type, int is_alpha_blend_enabl
         }
     }
 
-    sg_image_desc image_desc = { };
+    sg_image_desc image_desc = { 0 };
     image_desc.width = width;
     image_desc.height = height;
     image_desc.pixel_format = SG_PIXELFORMAT_RGBA8;
@@ -433,26 +466,26 @@ void SetObjectData(long iNum, long iTexture, int iVisible) {
     long iRNum = g_object_redirects[iNum];
     g_object_texture_index[iRNum] = iTexture;
     g_object_is_visible[iRNum] = iVisible;
-    g_object_uv_offset[iRNum] = { 0 };
+    g_object_uv_offset[iRNum] = (const hmm_vec2){ 0 };
 }
 
-extern "C" void ResizeViewport(int width, int height) {
+void ResizeViewport(int width, int height) {
     g_backbuffer_width = width;
     g_backbuffer_height = height;
 }
 
-extern "C" void Reset3d() {
+void Reset3d() {
     // TODO: Is there any case where we need to reset the context?
 }
 
-long InitializeAll() {
+bool InitializeAll() {
     if (!init_3d()) {
-        return 0;
+        return false;
     }
 
     init_scene();
 
-    return 1;
+    return true;
 }
 
 void Begin3dLoad() {
@@ -494,7 +527,7 @@ static long init_3d() {
     }
 
     for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
-        g_object_uv_offset[iLoop] = { 0 };
+        g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
 
     sg_desc desc = {0};
@@ -516,7 +549,7 @@ void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t 
         g_is_fog_enabled = false;
     } else {
         g_is_fog_enabled = true;
-        g_fog_color = { red / 255.0f, green / 255.0f, blue / 255.0f };
+        g_fog_color = (const hmm_vec3){ red / 255.0f, green / 255.0f, blue / 255.0f };
         g_fog_start = iFogStart;
         g_fog_end = iFogEnd;
     }
@@ -524,49 +557,49 @@ void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t 
 
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ) {
     g_world_to_view_matrix = HMM_LookAtLH(HMM_Vec3(iCamX, iCamY, iCamZ), HMM_Vec3(iPoiX, iPoiY, iPoiZ), HMM_Vec3(0.0f, 1.0f, 0.0f));
-    g_camera_light.position = { iCamX, iCamY + 10.0f, -200.0f };
-    g_camera_light.diffuse_color = { 1.0f, 1.0f, 1.0f };
-    g_camera_light.ambient_color = { 1.0f, 1.0f, 1.0f };
+    g_camera_light.position = (const hmm_vec3){ iCamX, iCamY + 10.0f, -200.0f };
+    g_camera_light.diffuse_color = (const hmm_vec3) { 1.0f, 1.0f, 1.0f };
+    g_camera_light.ambient_color = (const hmm_vec3) { 1.0f, 1.0f, 1.0f };
 }
 
 static void init_scene() {
-    g_camera_light = { 0 };
-    g_camera_light.diffuse_color = { 1.0f, 1.0f, 1.0f };
-    g_camera_light.ambient_color = { 1.0f, 1.0f, 1.0f };
-    g_camera_light.position = { 80.0f, 100.0f, -200.0f };
+    g_camera_light = (const Light){ 0 };
+    g_camera_light.diffuse_color = (const hmm_vec3){ 1.0f, 1.0f, 1.0f };
+    g_camera_light.ambient_color = (const hmm_vec3){ 1.0f, 1.0f, 1.0f };
+    g_camera_light.position = (const hmm_vec3){ 80.0f, 100.0f, -200.0f };
     g_camera_light.range = 1000.0f;
 
-    g_scene_ambient_color = { 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f };
+    g_scene_ambient_color = (const hmm_vec3){ 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f };
 
     SetPerspective(80.0f, 90.0f, -145.0f, 80.0f, 59.0f, 0.0f);
 
     g_view_to_projection_matrix = HMM_PerspectiveLH_NO(45.0f, 640.0f / 480.0f, 1.0f, 300.0f);  // Fixed aspect ratio. Will be letterboxed elsewhere
 
-    g_global_material = { 0 };
-    g_global_material.ambient_tint = { 0.5f, 0.5f, 0.5f };
-    g_global_material.diffuse_tint = { 0.5f, 0.5f, 0.5f };
+    g_global_material = (const Material){ 0 };
+    g_global_material.ambient_tint = (const hmm_vec3){ 0.5f, 0.5f, 0.5f };
+    g_global_material.diffuse_tint = (const hmm_vec3){ 0.5f, 0.5f, 0.5f };
 
-    sg_buffer_desc vbuf_desc = { };
+    sg_buffer_desc vbuf_desc = { 0 };
     vbuf_desc.usage = SG_USAGE_STREAM;
     vbuf_desc.size = MAX_VERTICES * sizeof(ObjectVertex);
 
-    g_draw_state = { };
+    g_draw_state = (const sg_draw_state){ 0 };
     g_draw_state.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
 
-    sg_shader_desc shd_desc = { };
+    sg_shader_desc shd_desc = { 0 };
 
-    sg_shader_uniform_block_desc& ub0 = shd_desc.vs.uniform_blocks[0];
-    ub0.size = sizeof(VertexShaderParams);
-    ub0.uniforms[0].name = "local_to_world_matrix";
-    ub0.uniforms[0].type = SG_UNIFORMTYPE_MAT4;
-    ub0.uniforms[1].name = "local_to_view_matrix";
-    ub0.uniforms[1].type = SG_UNIFORMTYPE_MAT4;
-    ub0.uniforms[2].name = "local_to_projection_matrix";
-    ub0.uniforms[2].type = SG_UNIFORMTYPE_MAT4;
-    ub0.uniforms[3].name = "transpose_world_to_local_matrix";
-    ub0.uniforms[3].type = SG_UNIFORMTYPE_MAT4;
-    ub0.uniforms[4].name = "uv_offset";
-    ub0.uniforms[4].type = SG_UNIFORMTYPE_FLOAT2;
+    sg_shader_uniform_block_desc* ub0 = &shd_desc.vs.uniform_blocks[0];
+    ub0->size = sizeof(VertexShaderParams);
+    ub0->uniforms[0].name = "local_to_world_matrix";
+    ub0->uniforms[0].type = SG_UNIFORMTYPE_MAT4;
+    ub0->uniforms[1].name = "local_to_view_matrix";
+    ub0->uniforms[1].type = SG_UNIFORMTYPE_MAT4;
+    ub0->uniforms[2].name = "local_to_projection_matrix";
+    ub0->uniforms[2].type = SG_UNIFORMTYPE_MAT4;
+    ub0->uniforms[3].name = "transpose_world_to_local_matrix";
+    ub0->uniforms[3].type = SG_UNIFORMTYPE_MAT4;
+    ub0->uniforms[4].name = "uv_offset";
+    ub0->uniforms[4].type = SG_UNIFORMTYPE_FLOAT2;
 
     shd_desc.vs.source =
         "#version 330\n"
@@ -598,30 +631,30 @@ static void init_scene() {
     shd_desc.fs.images[0].name = "tex";
     shd_desc.fs.images[0].type = SG_IMAGETYPE_2D;
 
-    sg_shader_uniform_block_desc& fs_ub0 = shd_desc.fs.uniform_blocks[0];
-    fs_ub0.size = sizeof(FragmentShaderParams);
-    fs_ub0.uniforms[0].name = "scene_ambient_color";
-    fs_ub0.uniforms[0].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0.uniforms[1].name = "material_ambient_tint";
-    fs_ub0.uniforms[1].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0.uniforms[2].name = "material_diffuse_tint";
-    fs_ub0.uniforms[2].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0.uniforms[3].name = "light_ambient_color";
-    fs_ub0.uniforms[3].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0.uniforms[4].name = "light_diffuse_color";
-    fs_ub0.uniforms[4].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0.uniforms[5].name = "light_position";
-    fs_ub0.uniforms[5].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0.uniforms[6].name = "light_range";
-    fs_ub0.uniforms[6].type = SG_UNIFORMTYPE_FLOAT;
-    fs_ub0.uniforms[7].name = "is_fog_enabled";
-    fs_ub0.uniforms[7].type = SG_UNIFORMTYPE_FLOAT;
-    fs_ub0.uniforms[8].name = "fog_color";
-    fs_ub0.uniforms[8].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0.uniforms[9].name = "fog_start";
-    fs_ub0.uniforms[9].type = SG_UNIFORMTYPE_FLOAT;
-    fs_ub0.uniforms[10].name = "fog_end";
-    fs_ub0.uniforms[10].type = SG_UNIFORMTYPE_FLOAT;
+    sg_shader_uniform_block_desc* fs_ub0 = &shd_desc.fs.uniform_blocks[0];
+    fs_ub0->size = sizeof(FragmentShaderParams);
+    fs_ub0->uniforms[0].name = "scene_ambient_color";
+    fs_ub0->uniforms[0].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0->uniforms[1].name = "material_ambient_tint";
+    fs_ub0->uniforms[1].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0->uniforms[2].name = "material_diffuse_tint";
+    fs_ub0->uniforms[2].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0->uniforms[3].name = "light_ambient_color";
+    fs_ub0->uniforms[3].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0->uniforms[4].name = "light_diffuse_color";
+    fs_ub0->uniforms[4].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0->uniforms[5].name = "light_position";
+    fs_ub0->uniforms[5].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0->uniforms[6].name = "light_range";
+    fs_ub0->uniforms[6].type = SG_UNIFORMTYPE_FLOAT;
+    fs_ub0->uniforms[7].name = "is_fog_enabled";
+    fs_ub0->uniforms[7].type = SG_UNIFORMTYPE_FLOAT;
+    fs_ub0->uniforms[8].name = "fog_color";
+    fs_ub0->uniforms[8].type = SG_UNIFORMTYPE_FLOAT3;
+    fs_ub0->uniforms[9].name = "fog_start";
+    fs_ub0->uniforms[9].type = SG_UNIFORMTYPE_FLOAT;
+    fs_ub0->uniforms[10].name = "fog_end";
+    fs_ub0->uniforms[10].type = SG_UNIFORMTYPE_FLOAT;
 
     shd_desc.fs.source =
         "#version 330\n"
@@ -676,10 +709,10 @@ static void init_scene() {
 
     sg_shader shd = sg_make_shader(&shd_desc);
 
-    sg_pipeline_desc pip_desc = { };
+    sg_pipeline_desc pip_desc = { 0 };
 
     pip_desc.layout.buffers[0].stride = sizeof(ObjectVertex);
-    auto& attrs = pip_desc.layout.attrs;
+    sg_vertex_attr_desc* attrs = pip_desc.layout.attrs;
     attrs[0].name = "position";
     attrs[0].format = SG_VERTEXFORMAT_FLOAT3;
     attrs[1].name = "normal";
@@ -704,7 +737,7 @@ static void init_scene() {
     pip_desc.blend.enabled = false;
     g_opaque_pipline = sg_make_pipeline(&pip_desc);
 
-    g_pass_action = { };
+    g_pass_action = (const sg_pass_action){ 0 };
     g_pass_action.colors[0].action = SG_ACTION_CLEAR;
     g_pass_action.colors[0].val[0] = 0.0f;
     g_pass_action.colors[0].val[1] = 0.0f;
@@ -778,8 +811,10 @@ void Render() {
             }
 
             vs_params.local_to_world_matrix = g_object_local_to_world_matrix[iObject];
-            vs_params.local_to_view_matrix = g_world_to_view_matrix * g_object_local_to_world_matrix[iObject];
-            vs_params.local_to_projection_matrix = g_view_to_projection_matrix * g_world_to_view_matrix * g_object_local_to_world_matrix[iObject];
+            vs_params.local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[iObject]);
+            vs_params.local_to_projection_matrix = HMM_MultiplyMat4(
+                HMM_MultiplyMat4(g_view_to_projection_matrix, g_world_to_view_matrix),
+                g_object_local_to_world_matrix[iObject]);
             vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[iObject]));
             vs_params.uv_offset = g_object_uv_offset[iObject];
             sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, &vs_params, sizeof(vs_params));
