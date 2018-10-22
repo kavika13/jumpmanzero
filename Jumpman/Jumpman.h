@@ -2,10 +2,6 @@
 
 #include <stdint.h>
 
-#define FULL_SCREEN 1
-#define FULLSCREEN_RESX 640
-#define FULLSCREEN_RESY 480
-
 #define GS_EXITING 0
 #define GS_MENU 1
 #define GS_INLEVEL 2
@@ -135,7 +131,6 @@ struct ScriptContext{
 };
 
 // IN JUMPMAN
-void GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine);
 void LoadNextLevel();
 void ProgressGame();
 void DrawGame();

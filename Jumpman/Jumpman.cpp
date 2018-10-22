@@ -7,6 +7,17 @@
 #include "SoundBuffer.h"
 #include "Sound.h"
 
+#define kFULLSCREEN_IS_ENABLED_DEFAULT false
+#define kWINDOW_RESOLUTION_DEFAULT_X 640
+#define kWINDOW_RESOLUTION_DEFAULT_Y 480
+#define kWINDOW_RESOLUTION_MIN_X 320
+#define kWINDOW_RESOLUTION_MIN_Y 240
+#define kSOUND_EFFECTS_ARE_ENABLED_DEFAULT false
+#define kMUSIC_IS_ENABLED_DEFAULT false
+
+static bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine);
+static void SetFullscreen(bool enable_fullscreen);
+
 char GameFile[100];
 char GameTitle[50];
 long GameStatus;
@@ -20,10 +31,17 @@ long GamePerformance;
 char GamePath[300];
 
 int GameKeys[10];
-int GameSoundOn;
-int GameMusicOn;
+static bool g_fullscreen_is_enabled = kFULLSCREEN_IS_ENABLED_DEFAULT;
+static int g_window_resolution_x = kWINDOW_RESOLUTION_DEFAULT_X;
+static int g_window_resolution_y = kWINDOW_RESOLUTION_DEFAULT_Y;
+static int g_window_pos_x_backup = 0;
+static int g_window_pos_y_backup = 0;
+static bool g_sound_effects_are_enabled = kSOUND_EFFECTS_ARE_ENABLED_DEFAULT;
+static bool g_music_is_enabled = kMUSIC_IS_ENABLED_DEFAULT;
+static bool g_save_settings_is_queued = false;
 int GameLivesRemaining;
 
+static GLFWwindow* g_main_window = NULL;
 int GameFrozen;
 
 int iShowFPS;
@@ -604,9 +622,9 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         } else if (iArg1 == EFV_FREEZE) {
             return iPlayerFreeze * 256;
         } else if (iArg1 == EFV_SOUNDON) {
-            return GameSoundOn * 256;
+            return (g_sound_effects_are_enabled ? 1 : 0) * 256;
         } else if (iArg1 == EFV_MUSICON) {
-            return GameMusicOn * 256;
+            return (g_music_is_enabled ? 1 : 0) * 256;
         } else if (iArg1 == EFV_LASTKEY) {
             return iLastKey * 256;
         } else if (iArg1 == EFV_PERFORMANCE) {
@@ -821,8 +839,6 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     char sFile[300];
     int iKey;
     int iKeyGood;
-    DWORD iWritten;
-    HANDLE hFile;
 
     if (iFunc == EFSERVICE) {
         if (iArg1 == SERVICE_LEVELTITLE) {
@@ -835,12 +851,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         }
 
         if (iArg1 == SERVICE_SAVEOPTIONS) {
-            sprintf_s(sFile, "%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d", GameKeys[0], GameKeys[1], GameKeys[2], GameKeys[3], GameKeys[4], GameKeys[5], GameSoundOn, GameMusicOn);
-            char sFileName[300];
-            sprintf_s(sFileName, "%s\\Data\\Settings.dat", GamePath);
-            hFile = CreateFile(sFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-            WriteFile(hFile, sFile, static_cast<long>(strlen(sFile)), &iWritten, NULL);
-            CloseHandle(hFile);
+            g_save_settings_is_queued = true;
         }
 
         if (iArg1 == SERVICE_SETOPTION) {
@@ -890,16 +901,16 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
             }
 
             if (iArg3 == 32) {
-                GameSoundOn = iArg2;
+                g_sound_effects_are_enabled = iArg2 ? true : false;
             }
 
-            if (iArg3 == 33 && GameMusicOn != iArg2) {
+            if (iArg3 == 33 && (g_music_is_enabled ? 1 : 0) != iArg2) {
                 if (iArg2 == 0) {
                     StopMusic1();
                 } else {
                     NewTrack1(msBackMusic, 0, 0);
                 }
-                GameMusicOn = iArg2;
+                g_music_is_enabled = iArg2 ? true : false;
             }
         }
 
@@ -930,9 +941,9 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
                 }
             } else if (iArg3 == 32 || iArg3 == 33) {
                 if (iArg3 == 32) {
-                    iKey = GameSoundOn;
+                    iKey = g_sound_effects_are_enabled ? 1 : 0;
                 } else {
-                    iKey = GameMusicOn;
+                    iKey = g_music_is_enabled ? 1 : 0;
                 }
 
                 if (iKey) {
@@ -1010,7 +1021,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     }
 
     if (iFunc == EFSOUND) {
-        if (GameSoundOn) {
+        if(g_sound_effects_are_enabled) {
             PlaySound(iArg1);
         }
     }
@@ -1020,7 +1031,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     }
 
     if (iFunc == EFKILL && !(iPlayerST & JS_DYING)) {
-        if (GameMusicOn) {
+        if(g_music_is_enabled) {
             StopMusic1();
         }
 
@@ -1048,7 +1059,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
     }
 
     if (iFunc == EFWIN) {
-        if (GameMusicOn) {
+        if(g_music_is_enabled) {
             StopMusic1();
         }
 
@@ -1798,13 +1809,13 @@ void GrabDonuts() {
         }
 
         if (iWon) {
-            if (GameMusicOn) {
+            if(g_music_is_enabled) {
                 StopMusic1();
             }
 
             iPlayerSC = 0;
             iPlayerST = JS_DONE;
-        } else if (GameSoundOn) {
+        } else if(g_sound_effects_are_enabled) {
             PlaySound(1);
         }
     }
@@ -1993,7 +2004,7 @@ void AnimateDying() {
             iPlayerAS = 0;
             iPlayerAX = 0;
 
-            if (GameSoundOn) {
+            if(g_sound_effects_are_enabled) {
                 PlaySound(2);
             }
 
@@ -2030,7 +2041,7 @@ void AnimateDying() {
         }
 
         if (iPlayerAX == 25) {
-            if (GameMusicOn) {
+            if(g_music_is_enabled) {
                 NewTrack2(msDeathMusic);
             }
         }
@@ -2068,7 +2079,7 @@ void AnimateDying() {
             } else {
                 ResetPlayer(0);
 
-                if (GameMusicOn && miIntroLength != 5550) {
+                if(g_music_is_enabled && miIntroLength != 5550) {
                     NewTrack1(msBackMusic, miIntroLength, miIntroLength);
                 }
             }
@@ -2128,7 +2139,7 @@ void ProgressGame() {
         ++iPlayerSC;
 
         if (iPlayerSC == 30) {
-            if (GameMusicOn) {
+            if(g_music_is_enabled) {
                 NewTrack2(msWinMusic);
             }
         }
@@ -2225,7 +2236,9 @@ void DrawGame() {
 
 // ------------------- OTHER STUFF -------------------------------
 
-void TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
+bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
+    bool is_found = false;
+
     int iLoop;
     int iCR;
     int iChars;
@@ -2237,6 +2250,7 @@ void TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
 
     while (++iLoop < iTextLen) {
         if (iCR == iLine && sText[iLoop] != 13 && iChars < iOutLen - 1) {
+            is_found = true;
             sOut[iChars] = sText[iLoop];
             ++iChars;
             sOut[iChars] = 0;
@@ -2248,32 +2262,42 @@ void TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
         }
 
         if (iCR > iLine) {
-            return;
+            break;
         }
     }
+
+    return is_found;
 }
 
 void GetLevelName(char* sLevel, size_t sLevelSize, int iLevel) {
     int iLen;
-    char sTemp[20];
+    char sTemp[20] = { 0 };
     char* sData;
 
     iLen = FileToString(GameFile, reinterpret_cast<unsigned char**>(&sData));
+    // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function
     TextLine(sData, iLen, sTemp, 20, iLevel * 2 - 1);
     TextLine(sData, iLen, GameTitle, 49, iLevel * 2);
     sprintf_s(sLevel, sLevelSize, "%s\\Data\\%s.DAT", GamePath, sTemp);
     free(sData);
 }
 
-void GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
+static bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
+    bool is_found = false;
     int iLen;
-    char sTemp[20];
+    char sTemp[20] = { 0 };
     char* sData;
 
     iLen = FileToString(sFile, reinterpret_cast<unsigned char**>(&sData));
-    TextLine(sData, iLen, sTemp, 20, iLine);
-    sprintf_s(sOut, sOutSize, "%s", sTemp);
+
+    if(TextLine(sData, iLen, sTemp, 20, iLine)) {
+        is_found = true;
+        sprintf_s(sOut, sOutSize, "%s", sTemp);
+    }
+
     free(sData);
+
+    return is_found;
 }
 
 void PrepLevel(char* sLevel) {
@@ -2311,7 +2335,7 @@ void PrepLevel(char* sLevel) {
 
     Render();
 
-    if (GameMusicOn && miIntroLength != 5550) {
+    if(g_music_is_enabled && miIntroLength != 5550) {
         NewTrack1(msBackMusic, 0, miIntroLength);
     }
 }
@@ -2345,13 +2369,13 @@ void LoadMenu() {
         LoadLevel(sFileName);
 
         if (iEvent1 == 10) {
-            if (GameMusicOn) {
+            if(g_music_is_enabled) {
                 NewTrack1(msBackMusic, 3000, -1);
             }
         }
 
         if (iEvent1 == 100) {
-            if (GameMusicOn) {
+            if(g_music_is_enabled) {
                 NewTrack1(msDeathMusic, 0, -1);
             }
         }
@@ -2362,7 +2386,7 @@ void LoadMenu() {
         LoadLevel(sFileName);
 
         if (iEvent1 == 9) {
-            if (GameMusicOn) {
+            if(g_music_is_enabled) {
                 NewTrack1(msBackMusic, 0, miIntroLength);
             }
         }
@@ -2373,7 +2397,7 @@ void LoadMenu() {
         LoadLevel(sFileName);
 
         if (iEvent1 == 9) {
-            if (GameMusicOn) {
+            if(g_music_is_enabled) {
                 NewTrack1(msBackMusic, 0, miIntroLength);
             }
         }
@@ -2405,7 +2429,7 @@ void InteractMenu() {
     Render();
 }
 
-long LoadSettings() {
+static bool LoadSettings() {
     char sTemp[30];
     int iKey;
     char sFileName[300];
@@ -2416,31 +2440,87 @@ long LoadSettings() {
     long iLen;
     iLen = FileToString(sFileName, reinterpret_cast<unsigned char**>(&sData));
 
-    if (!iLen) {
-        return 0;
+    // TODO: Handle file missing case without an error message - should create it and set defaults instead
+    if(!iLen) {
+        return false;
     }
 
     iKey = -1;
 
-    while (++iKey < 6) {
-        GetFileLine(sTemp, sizeof(sTemp), sFileName, iKey);
-        GameKeys[iKey] = atoi(sTemp);
+    while(++iKey < 6) {
+        if(GetFileLine(sTemp, sizeof(sTemp), sFileName, iKey)) {
+            GameKeys[iKey] = atoi(sTemp);
+        } else {
+            GameKeys[iKey] = 0;
+        }
     }
 
-    GetFileLine(sTemp, sizeof(sTemp), sFileName, 6);
-    GameSoundOn = atoi(sTemp);
+    g_sound_effects_are_enabled = GetFileLine(sTemp, sizeof(sTemp), sFileName, 6)
+        ? (atoi(sTemp) ? true : false)
+        : false;
 
-    GetFileLine(sTemp, sizeof(sTemp), sFileName, 7);
-    GameMusicOn = atoi(sTemp);
+    g_music_is_enabled = GetFileLine(sTemp, sizeof(sTemp), sFileName, 7)
+        ? (atoi(sTemp) ? true : false)
+        : false;
 
-    return 1;
+    g_fullscreen_is_enabled = GetFileLine(sTemp, sizeof(sTemp), sFileName, 8)
+        ? (atoi(sTemp) ? true : false)
+        : false;
+
+    g_window_resolution_x = GetFileLine(sTemp, sizeof(sTemp), sFileName, 9)
+        ? atoi(sTemp)
+        : kWINDOW_RESOLUTION_DEFAULT_X;
+
+    if(g_window_resolution_x < kWINDOW_RESOLUTION_MIN_X) {
+        g_window_resolution_x = kWINDOW_RESOLUTION_MIN_X;
+    }
+
+    g_window_resolution_y = GetFileLine(sTemp, sizeof(sTemp), sFileName, 10)
+        ? atoi(sTemp)
+        : kWINDOW_RESOLUTION_DEFAULT_Y;
+
+    if(g_window_resolution_y < kWINDOW_RESOLUTION_MIN_Y) {
+        g_window_resolution_y = kWINDOW_RESOLUTION_MIN_Y;
+    }
+
+    return true;
 }
 
-static void error_callback(int error, const char* description) {
+static bool SaveSettings() {
+    bool success = true;
+
+    char sFile[300];
+    sprintf_s(sFile, "%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d",
+        GameKeys[0],
+        GameKeys[1],
+        GameKeys[2],
+        GameKeys[3],
+        GameKeys[4],
+        GameKeys[5],
+        g_sound_effects_are_enabled ? 1 : 0,
+        g_music_is_enabled ? 1 : 0,
+        g_fullscreen_is_enabled ? 1 : 0,
+        g_window_resolution_x,
+        g_window_resolution_y);
+
+    char sFileName[300];  // TODO: Is path long enough?
+    sprintf_s(sFileName, "%s\\Data\\Settings.dat", GamePath);
+
+    // TODO: Error handling
+    HANDLE hFile = CreateFile(sFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    DWORD iWritten;
+    WriteFile(hFile, sFile, static_cast<long>(strlen(sFile)), &iWritten, NULL);
+    CloseHandle(hFile);
+
+    return success;
+}
+
+static void ErrorCallback(int error, const char* description) {
     fprintf(stderr, "Error: %s\n", description);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     switch (action) {
         case GLFW_PRESS: {
             switch (key) {
@@ -2470,13 +2550,20 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                     break;
                 }
                 case GLFW_KEY_ENTER: {
-                    iKeySelect = 1;
+                    if(mods & GLFW_MOD_ALT) {
+                        SetFullscreen(!g_fullscreen_is_enabled);
+                    } else {
+                        iKeySelect = 1;
+                    }
                     break;
                 }
                 case GLFW_KEY_Q: {
                     iKeySpecial = 1;
                     break;
                 }
+                case GLFW_KEY_F11:
+                    SetFullscreen(!g_fullscreen_is_enabled);
+                    break;
                 case GLFW_KEY_ESCAPE: {
                     GameStatus = GS_EXITING;
                     glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -2490,9 +2577,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                 iKeySelect = 1;
             }
 
-            if (mods & GLFW_MOD_ALT) {
-                iTappedAttack = iKeyAttack = 1;
+            if(mods & GLFW_MOD_ALT) {
+                if(key != GLFW_KEY_ENTER) {  // Ignore for alt + enter combo
+                    iTappedAttack = iKeyAttack = 1;
+                }
             }
+
 
             // Bound keys
             if (key == GameKeys[0]) {
@@ -2602,7 +2692,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
-void window_focus_callback(GLFWwindow* window, int is_focused) {
+static void WindowFocusCallback(GLFWwindow* window, int is_focused) {
     if(is_focused) {
         GameFrozen = 0;
         Reset3d();
@@ -2611,16 +2701,67 @@ void window_focus_callback(GLFWwindow* window, int is_focused) {
     }
 }
 
-void window_size_callback(GLFWwindow* window, int width, int height) {
+static void WindowSizeCallback(GLFWwindow* window, int width, int height) {
+    if(!g_fullscreen_is_enabled) {
+        g_window_resolution_x = width;
+        g_window_resolution_y = height;
+        g_save_settings_is_queued = true;
+    }
+}
+
+static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     ResizeViewport(width, height);
+}
+
+static void SetFullscreen(bool enable_fullscreen) {
+    g_fullscreen_is_enabled = enable_fullscreen;
+
+    GLFWmonitor* monitor = NULL;
+    int target_pos_x = g_window_pos_x_backup;
+    int target_pos_y = g_window_pos_y_backup;
+    int target_width = g_window_resolution_x;
+    int target_height = g_window_resolution_y;
+
+    if(enable_fullscreen) {
+        monitor = glfwGetPrimaryMonitor();
+
+        glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
+
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+        target_pos_x = 0;
+        target_pos_y = 0;
+        target_width = mode->width;
+        target_height = mode->height;
+    }
+
+    glfwSetWindowMonitor(g_main_window, monitor, target_pos_x, target_pos_y, target_width, target_height, NULL);
+
+    if(enable_fullscreen) {
+        glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    } else {
+        glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    g_save_settings_is_queued = true;
 }
 
 int main(int arguments_count, char* arguments[]) {
     miDEBUG = 1;
 
-    glfwSetErrorCallback(error_callback);
+    GetCurrentDirectory(200, GamePath);
 
-    if (!glfwInit()) {
+    if(!LoadSettings()) {
+        exit(EXIT_FAILURE);
+    }
+
+    glfwSetErrorCallback(ErrorCallback);
+
+    if(!glfwInit()) {
         exit(EXIT_FAILURE);
     }
 
@@ -2629,34 +2770,40 @@ int main(int arguments_count, char* arguments[]) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWmonitor* monitor = NULL;
-    int target_width = FULLSCREEN_RESX;
-    int target_height = FULLSCREEN_RESY;
+    // Creating as window first to get OS default positioning, but setting correct dimensions for first time creation
+    // Will revert back to selected window resolution instead of fullscreen res, even if started in fullscreen
+    int target_width = g_window_resolution_x;
+    int target_height = g_window_resolution_y;
 
-    if (FULL_SCREEN) {
-        monitor = glfwGetPrimaryMonitor();
-
+    if(g_fullscreen_is_enabled) {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-
         target_width = mode->width;
         target_height = mode->height;
     }
 
-    GLFWwindow* main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", monitor, NULL);
+    g_main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", NULL, NULL);
 
-    if (!main_window) {
+    if(!g_main_window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowFocusCallback(main_window, window_focus_callback);
-    glfwSetWindowSizeCallback(main_window, window_size_callback);
-    glfwSetKeyCallback(main_window, key_callback);
-    glfwMakeContextCurrent(main_window);
+    // Now backup window position before switching to fullscreen (if fullscreen dims, will be in upper left, but not offscreen)
+    glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
+
+    if(g_fullscreen_is_enabled) {
+        SetFullscreen(true);
+    }
+
+    ResizeViewport(target_width, target_height);  // Callback not set up yet
+
+    glfwSetWindowSizeLimits(g_main_window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowFocusCallback(g_main_window, WindowFocusCallback);
+    glfwSetWindowSizeCallback(g_main_window, WindowSizeCallback);
+    glfwSetFramebufferSizeCallback(g_main_window, FramebufferSizeCallback);
+    glfwSetKeyCallback(g_main_window, KeyCallback);
+    glfwMakeContextCurrent(g_main_window);
 
     if(glfwExtensionSupported("WGL_EXT_swap_control_tear") == GLFW_TRUE || glfwExtensionSupported("GLX_EXT_swap_control_tear") == GLFW_TRUE) {
         glfwSwapInterval(-1);
@@ -2666,44 +2813,30 @@ int main(int arguments_count, char* arguments[]) {
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    if (FULL_SCREEN) {
-        glfwSetInputMode(main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    } else {
-        glfwSetWindowSizeLimits(main_window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
-    }
-
-    ResizeViewport(target_width, target_height);
-
-    GetCurrentDirectory(200, GamePath);
-
     GameFrozen = 0;
 
-    if (!LoadSettings()) {
-        exit(EXIT_FAILURE);
-    }
-
-    if (!Init3D()) {
+    if(!Init3D()) {
         exit(EXIT_FAILURE);
     }
 
     if(InitSoundBuffer()) {
         if(!InitMusic()) {
-            GameMusicOn = 0;
+            g_music_is_enabled = false;
         }
 
         if(!InitSound()) {
-            GameSoundOn = 0;
+            g_sound_effects_are_enabled = false;
         }
     } else {
-        GameMusicOn = 0;
-        GameSoundOn = 0;
+        g_music_is_enabled = false;
+        g_sound_effects_are_enabled = false;
     }
 
     int bDone = 0;
 
     HANDLE g_hDMusicMessageEvent = NULL;
 
-    if (arguments_count > 1 && strlen(arguments[1])) {
+    if(arguments_count > 1 && strlen(arguments[1])) {
         sprintf_s(GameDebugLevel, "%s\\Data\\%s.DAT", GamePath, arguments[1]);
         GameDebugMode = 1;
         LoadNextLevel();
@@ -2723,18 +2856,18 @@ int main(int arguments_count, char* arguments[]) {
     iPerfTime = 0;
     iPerfCount = 0;
 
-    while (!glfwWindowShouldClose(main_window)) {
+    while(!glfwWindowShouldClose(g_main_window)) {
         LARGE_INTEGER tTime;
         QueryPerformanceCounter(&tTime);
 
-        if (tTime.LowPart - iTime.LowPart > iFrameTime || tTime.LowPart < iTime.LowPart) {
+        if(tTime.LowPart - iTime.LowPart > iFrameTime || tTime.LowPart < iTime.LowPart) {
             ++iPerfCount;
 
-            if ((static_cast<unsigned long>(tTime.LowPart) - iPerfTime) > (iFrameTime * 40) || static_cast<unsigned long>(tTime.LowPart) < iPerfTime) {
+            if((static_cast<unsigned long>(tTime.LowPart) - iPerfTime) > (iFrameTime * 40) || static_cast<unsigned long>(tTime.LowPart) < iPerfTime) {
                 iPerfTime = static_cast<long>(tTime.LowPart);
                 GamePerformance = iPerfCount;
 
-                if (GamePerformance > 99) {
+                if(GamePerformance > 99) {
                     GamePerformance = 99;
                 }
 
@@ -2746,56 +2879,62 @@ int main(int arguments_count, char* arguments[]) {
 
             GetInput();
 
-            if (GameStatus == GS_MENU) {
+            if(GameStatus == GS_MENU) {
                 LoadMenu();
                 InteractMenu();
 
-                if (GameStatus == GS_INLEVEL) {
+                if(GameStatus == GS_INLEVEL) {
                     iLevel = 0;
                     LoadNextLevel();
                 }
             }
 
-            if (GameStatus == GS_INLEVEL) {
-                if (iScrollTitle > 0) {
-                    if (iEvent1 == -100) {
+            if(GameStatus == GS_INLEVEL) {
+                if(iScrollTitle > 0) {
+                    if(iEvent1 == -100) {
                         iScrollTitle = 1000;
                     }
                     ++iScrollTitle;
                     iEvent1 = iScrollTitle;
                     RunScript(&SCTitle, 1);
 
-                    if (iScrollTitle > 600) {
+                    if(iScrollTitle > 600) {
                         iScrollTitle = 0;
                     }
                 } else {
-                    if (!GameFrozen) {
+                    if(!GameFrozen) {
                         ProgressGame();
                     }
 
                     RunScript(&SCTitle, 1);
                 }
 
-                if (!GameFrozen) {
+                if(!GameFrozen) {
                     DrawGame();
                 }
             }
 
-            glfwSwapBuffers(main_window);
+            glfwSwapBuffers(g_main_window);
         }
 
         glfwPollEvents();
+
+        if(g_save_settings_is_queued) {
+            SaveSettings();
+            g_save_settings_is_queued = false;
+        }
     }
 
-    // TODO: Can we just let these drop?
-    CleanResources();
-    CleanUpMusic();
-    CleanUpSounds();
-    CleanupSoundBuffer();
-    DoCleanUp();
+    // Just letting these drop, because we're quitting
+    // CleanResources();
+    // CleanUpMusic();
+    // CleanUpSounds();
+    // CleanupSoundBuffer();
+    // DoCleanUp();
 
-    glfwDestroyWindow(main_window);
-    glfwTerminate();
+    // glfwDestroyWindow(g_main_window);
+    // glfwTerminate();
+
     exit(EXIT_SUCCESS);
 }
 
@@ -2965,7 +3104,7 @@ void MoveJumpmanNormal();
 int iIgnoreLadders;
 
 void DoDeathBounce() {
-    if (GameMusicOn) {
+    if(g_music_is_enabled) {
         StopMusic1();
     }
 
@@ -3027,7 +3166,7 @@ int CheckJumpStart(int iLeft, int iUp, int iRight) {
     iPlayerACT = 0;
     iPlayerSC = 0;
 
-    if (GameSoundOn) {
+    if(g_sound_effects_are_enabled) {
         PlaySound(0);
     }
 
