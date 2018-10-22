@@ -49,11 +49,12 @@ struct FragmentShaderParams {
     float fog_end;
 };
 
-void FatalError(const char* error_msg);
-long init_3d();
-void kill_3d();
-void init_scene();
-void kill_scene();
+static void FatalError(const char* error_msg);
+static long init_3d();
+static void kill_3d();
+static void init_scene();
+static void kill_scene();
+static void SwapObjects(long o1, long o2);
 
 int g_backbuffer_width;
 int g_backbuffer_height;
@@ -79,8 +80,6 @@ hmm_mat4 g_view_to_projection_matrix;
 
 long g_vertices_to_load_count;
 ObjectVertex* g_vertices_to_load = NULL;
-
-long g_objects_drawn_since_last_frame_count;
 
 long g_object_count;
 
@@ -207,10 +206,6 @@ HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Nea
 
 // End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
-long GetObjectsDrawnSinceLastFrameCount() {
-    return g_objects_drawn_since_last_frame_count;
-}
-
 long SurfaceObject(long o1) {
     int iLoop = -1;
 
@@ -293,7 +288,7 @@ void SwapLong(long* l1, long* l2) {
     *l2 = iSwap;
 }
 
-void SwapObjects(long o1, long o2) {
+static void SwapObjects(long o1, long o2) {
     long iRealO1 = o1;
     long iRealO2 = o2;
 
@@ -441,12 +436,12 @@ void SetObjectData(long iNum, long iTexture, int iVisible) {
     g_object_uv_offset[iRNum] = { 0 };
 }
 
-void ResizeViewport(int width, int height) {
+extern "C" void ResizeViewport(int width, int height) {
     g_backbuffer_width = width;
     g_backbuffer_height = height;
 }
 
-void Reset3d() {
+extern "C" void Reset3d() {
     // TODO: Is there any case where we need to reset the context?
 }
 
@@ -487,7 +482,7 @@ void DoCleanUp() {
     kill_3d();
 }
 
-long init_3d() {
+static long init_3d() {
     int iLoop = -1;
 
     while (++iLoop < MAX_TEXTURES) {
@@ -512,7 +507,7 @@ long init_3d() {
     return 1;
 }
 
-void kill_3d() {
+static void kill_3d() {
     sg_shutdown();
 }
 
@@ -534,7 +529,7 @@ void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iP
     g_camera_light.ambient_color = { 1.0f, 1.0f, 1.0f };
 }
 
-void init_scene() {
+static void init_scene() {
     g_camera_light = { 0 };
     g_camera_light.diffuse_color = { 1.0f, 1.0f, 1.0f };
     g_camera_light.ambient_color = { 1.0f, 1.0f, 1.0f };
@@ -717,7 +712,7 @@ void init_scene() {
     g_pass_action.colors[0].val[3] = 1.0f;
 }
 
-void kill_scene() {
+static void kill_scene() {
     int iLoop = -1;
 
     while (++iLoop < MAX_TEXTURES) {
@@ -749,8 +744,6 @@ void Render() {
     long iAlphaEnabled = -1;
     long iReq = -1;
 
-    g_objects_drawn_since_last_frame_count = 0;
-
     VertexShaderParams vs_params;
     FragmentShaderParams fs_params;
     fs_params.scene_ambient_color = g_scene_ambient_color;
@@ -764,8 +757,6 @@ void Render() {
 
     while (++iObject < g_object_count) {
         if (g_object_is_visible[iObject]) {
-            ++g_objects_drawn_since_last_frame_count;
-
             if (iLastTexture != g_object_texture_index[iObject]) {
                 g_draw_state.fs_images[0] = g_textures[g_object_texture_index[iObject]];
 
@@ -806,7 +797,7 @@ void Render() {
     sg_commit();
 }
 
-void FatalError(const char* error_msg) {
+static void FatalError(const char* error_msg) {
     kill_scene();
     kill_3d();
     MessageBox(NULL, error_msg, "Jumpman Zero", MB_OK);

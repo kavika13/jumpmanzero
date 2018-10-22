@@ -40,7 +40,7 @@ bool InitSound() {
     return true;
 }
 
-void PlaySound(size_t sound_index) {
+void PlaySoundEffect(size_t sound_index) {
     assert(sound_index < kNUM_SOUND_DECODERS);
 
     mal_decoder_seek_to_frame(&g_sound_decoders[sound_index], 0);

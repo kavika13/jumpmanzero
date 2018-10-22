@@ -81,7 +81,7 @@
 #define NT_PlatformFallLeft 3
 #define NT_PlatformFallRight 4
 
-struct LevelObject{
+typedef struct {
     int X1, X2, X3, X4;
     int Y1, Y2, Y3, Y4;
     int Z1, Z2;
@@ -101,16 +101,16 @@ struct LevelObject{
     long MeshNumber;
     int Texture;
     int ObjectNumber;
-};
+} LevelObject;
 
-struct ScriptCode{
+typedef struct {
     int Subs;
     int SubStart[50];
     char SubName[50][20];
     long Code[8000];
-};
+} ScriptCode;
 
-struct ScriptContext{
+typedef struct {
     long Done;
 
     long SP;
@@ -129,25 +129,23 @@ struct ScriptContext{
     long Active;
 
     ScriptCode* Script;
-};
+} ScriptContext;
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 // IN JUMPMAN
-void LoadNextLevel();
-void ProgressGame();
-void DrawGame();
 long Init3D();
-void LoadMeshes();
-long LoadMesh(char* sFileName);
-void PrepLevel(char* sLevel);
-int FindObject(LevelObject* lObj, int iCount, int iFind);
-void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
-void FindLadder(long iX, long iY, long* iAbout, long* iExact);
-void FindVine(long iX, long iY, long* iAbout, long* iExact);
-void SetGamePerspective();
-void MoveJumpman();
+void InitGameDebugLevel(const char* level_name);
+void InitGameNormal();
+void UpdateGame();
+void ExitGame();
+long ExtFunction(long iFunc, ScriptContext* SC);  // TODO: Expose to script.cpp some other way?
 
-// EXT FUNCTION
-long ExtFunction(long iFunc, ScriptContext* SC);
+#if defined(__cplusplus)
+}  // extern "C"
+#endif
 
 #define EFPRINT 1
 #define EFSET 2
@@ -271,17 +269,10 @@ long ExtFunction(long iFunc, ScriptContext* SC);
 #define SERVICE_LEVELTITLE 154
 #define SERVICE_CREDITLINE 155
 
-// IN UTILITIES
-long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, long iX3, long iY3, long iX4, long iY4);
-long StringToInt(unsigned char* sString);
-long StringToLong(unsigned char* sString);
-long StringToLong2(unsigned char* sString);
-long FileToString(char* sFileName, unsigned char** sNewBuffer);
-
 // IN BASIC3D
+// TODO: Convert whole implemenation to C
 void ChangeMesh(long iMesh, long iNewMesh);
 void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue);
-long GetObjectsDrawnSinceLastFrameCount();
 void ScrollTexture(long iObj, float fX, float fY);
 void DeleteMesh(long iMesh);
 void Clear3dData();
@@ -290,14 +281,23 @@ long InitializeAll();
 void Begin3dLoad();
 void EndAndCommit3dLoad();
 void Render();
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 void ResizeViewport(int width, int height);
-void Reset3d();
+void Reset3d();  // TODO: Is this function necessary anymore? Used for resetting context after focus switch
+
+#if defined(__cplusplus)
+}  // extern "C"
+#endif
+
 void DoCleanUp();
 void CreateObject(long* iParams, long iCount, long* iNum);
 void SetObjectData(long iNum, long iTexture, int iVisible);
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
 void CopyObject(int iObject, long* iNum);
-void SwapObjects(long o1, long o2);
 void PrioritizeObject(long o1);
 
 void ScaleMatrix(long iObj, float fX, float fY, float fZ);

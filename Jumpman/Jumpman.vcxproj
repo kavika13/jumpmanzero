@@ -105,11 +105,12 @@
     <ClCompile Include="glad\src\glad.c" />
     <ClCompile Include="glad\src\glad_wgl.c" />
     <ClCompile Include="Jumpman.cpp" />
+    <ClCompile Include="Main.c" />
     <ClCompile Include="Music.c" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="Sound.c" />
     <ClCompile Include="SoundBuffer.c" />
-    <ClCompile Include="Utilities.cpp" />
+    <ClCompile Include="Utilities.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="glad\include\glad\glad.h" />
@@ -119,7 +120,9 @@
     <ClInclude Include="glfw-3.2.1.bin.WIN32\include\GLFW\glfw3native.h" />
     <ClInclude Include="handmademath-1.7.0\HandmadeMath.h" />
     <ClInclude Include="Jumpman.h" />
+    <ClInclude Include="Main.h" />
     <ClInclude Include="mini_al-0.8.9\mini_al.h" />
+    <ClInclude Include="Music.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h" />
     <ClInclude Include="Sound.h" />
@@ -127,6 +130,7 @@
     <ClInclude Include="stb-image-2.19.0\stb_image.h" />
     <ClInclude Include="tiny_sound_font-master-7e646b6\tml.h" />
     <ClInclude Include="tiny_sound_font-master-7e646b6\tsf.h" />
+    <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Jumpman.ico" />

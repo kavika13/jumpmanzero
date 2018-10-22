@@ -1,8 +1,9 @@
-#include "./jumpman.h"
 #include <string.h>
 #include <stdlib.h>
 #define WIN32_LEAN_AND_MEAN 1
-#include "windows.h"
+#include <windows.h>
+#include "Jumpman.h"
+#include "Utilities.h"
 
 #define FCBASECN 2
 #define FCSTACKCN 3
@@ -218,6 +219,7 @@ void LoadScript(char* sFileName, ScriptCode* oScript) {
         ++iCodeLine;
 
         if (iCodeLine > 6990) {
+            // TODO: Remove win32 dependency
             MessageBox(0, "Script is too long!", "ERROR", 0);
             break;
         }
