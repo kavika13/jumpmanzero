@@ -1,5 +1,4 @@
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>  // NOLINT
+#include <direct.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -67,28 +66,52 @@ bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
     return is_found;
 }
 
-long FileToString(char* sFileName, unsigned char** sNewBuffer) {
-    // TODO: Remove win32 dependency
-    DWORD iNumRead;
-    BY_HANDLE_FILE_INFORMATION info;
-    HANDLE hFile;
-    long iSize;
-
-    hFile = CreateFile(sFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    GetFileInformationByHandle(hFile, &info);
-    iSize = info.nFileSizeLow;
-    *sNewBuffer = (unsigned char*)(malloc(iSize));
-    ReadFile(hFile, *sNewBuffer, iSize, &iNumRead, NULL);
-    CloseHandle(hFile);
-
-    char sError[300];
-    sprintf_s(sError, sizeof(sError), "Can't find file - %s", sFileName);
-
-    if (!iNumRead) {
-        MessageBox(0, sError, "Jumpman Zero", 0);
+bool GetWorkingDirectoryPath(char* output_path) {
+    if(_getcwd(output_path, 200) == NULL) {
+        // TODO: Proper error handling, handle longer paths, full cross-platform solution, check for unicode support
+        return false;
     }
 
-    return iNumRead;
+    return true;
+}
+
+long FileToString(const char* filename, unsigned char** sNewBuffer) {
+    long length = 0;
+    FILE* input_file = fopen(filename, "rb");
+
+    if(input_file) {
+        fseek(input_file, 0, SEEK_END);
+        length = ftell(input_file);
+        fseek(input_file, 0, SEEK_SET);
+
+        *sNewBuffer = (unsigned char*)malloc(length);
+
+        if(*sNewBuffer) {
+            fread(*sNewBuffer, 1, length, input_file);
+        }
+
+        fclose(input_file);
+    }
+
+    return length;
+}
+
+bool StringToFile(const char* filename, const char* data) {
+    int success = false;
+
+    FILE* output_file = fopen(filename, "wb+");
+
+    if(output_file != NULL) {
+        if(fputs(data, output_file) != EOF) {
+            success = true;
+        }
+
+        if(fclose(output_file) == EOF) {
+            success = false;
+        }
+    }
+
+    return success;
 }
 
 bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {

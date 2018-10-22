@@ -13,7 +13,9 @@ long StringToInt(unsigned char* sString);
 long StringToLong(unsigned char* sString);
 long StringToLong2(unsigned char* sString);
 bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine);
-long FileToString(char* sFileName, unsigned char** sNewBuffer);
+bool GetWorkingDirectoryPath(char* output_path);
+long FileToString(const char* filename, unsigned char** sNewBuffer);
+bool StringToFile(const char* filename, const char* data);
 bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine);
 
 #if defined(__cplusplus)

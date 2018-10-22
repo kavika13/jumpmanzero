@@ -1,10 +1,9 @@
+#include <direct.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include "Basic3d.h"
 #include "Jumpman.h"
 #include "Music.h"
@@ -19,6 +18,8 @@
 #define kWINDOW_RESOLUTION_MIN_Y 240
 #define kSOUND_EFFECTS_ARE_ENABLED_DEFAULT false
 #define kMUSIC_IS_ENABLED_DEFAULT false
+
+static const double kSECONDS_PER_FRAME = 1.0 / 40.0;
 
 // TODO: All these externally visible variables should be static. Maybe pass in state?
 bool g_debug_is_enabled = false;
@@ -51,7 +52,6 @@ static int g_window_pos_x_backup = 0;
 static int g_window_pos_y_backup = 0;
 
 static GLFWwindow* g_main_window = NULL;
-static LARGE_INTEGER iTime;
 
 static bool LoadSettings() {
     char sTemp[30];
@@ -130,12 +130,7 @@ static bool SaveSettings() {
     char sFileName[300];  // TODO: Is path long enough?
     sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Settings.dat", g_game_base_path);
 
-    // TODO: Error handling
-    HANDLE hFile = CreateFile(sFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-
-    DWORD iWritten;
-    WriteFile(hFile, sFile, (long)(strlen(sFile)), &iWritten, NULL);
-    CloseHandle(hFile);
+    success = StringToFile(sFileName, sFile);
 
     return success;
 }
@@ -451,15 +446,20 @@ static void GetInput() {
 int main(int arguments_count, char* arguments[]) {
     g_debug_is_enabled = true;
 
-    GetCurrentDirectory(200, g_game_base_path);
+    if(!GetWorkingDirectoryPath(g_game_base_path)) {
+        // TODO: Proper error handling
+        exit(EXIT_FAILURE);
+    }
 
     if(!LoadSettings()) {
+        // TODO: Proper error handling
         exit(EXIT_FAILURE);
     }
 
     glfwSetErrorCallback(ErrorCallback);
 
     if(!glfwInit()) {
+        // TODO: Proper error handling
         exit(EXIT_FAILURE);
     }
 
@@ -483,6 +483,7 @@ int main(int arguments_count, char* arguments[]) {
     g_main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", NULL, NULL);
 
     if(!g_main_window) {
+        // TODO: Proper error handling
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -514,6 +515,7 @@ int main(int arguments_count, char* arguments[]) {
     g_game_is_frozen = false;
 
     if(!Init3D()) {
+        // TODO: Proper error handling
         exit(EXIT_FAILURE);
     }
 
@@ -530,12 +532,8 @@ int main(int arguments_count, char* arguments[]) {
         g_sound_effects_are_enabled = false;
     }
 
-    LARGE_INTEGER LI;
-    QueryPerformanceFrequency(&LI);
-    unsigned long iFrameTime = LI.LowPart / 40;
-
-    QueryPerformanceCounter(&iTime);
-    srand((unsigned)(iTime.LowPart));
+    double previous_frame_time = glfwGetTime();
+    srand((unsigned)previous_frame_time);  // TODO: Seed prng with something that will actually be unique
 
     int bDone = 0;
 
@@ -545,32 +543,27 @@ int main(int arguments_count, char* arguments[]) {
         InitGameNormal();
     }
 
-    long iPerfCount;
-    unsigned long iPerfTime;
-
-    iPerfTime = 0;
-    iPerfCount = 0;
+    long frame_count_since_last_perf_update = 0;
+    double last_perf_update_time = previous_frame_time;
 
     while(!glfwWindowShouldClose(g_main_window)) {
-        LARGE_INTEGER tTime;
-        QueryPerformanceCounter(&tTime);
+        double current_time = glfwGetTime();
 
-        if(tTime.LowPart - iTime.LowPart > iFrameTime || tTime.LowPart < iTime.LowPart) {
-            ++iPerfCount;
+        if(current_time - previous_frame_time > kSECONDS_PER_FRAME) {
+            ++frame_count_since_last_perf_update;
 
-            if(((unsigned long)(tTime.LowPart) - iPerfTime) > (iFrameTime * 40) || (unsigned long)(tTime.LowPart) < iPerfTime) {
-                iPerfTime = (long)(tTime.LowPart);
-                g_current_fps = iPerfCount;
+            if(current_time - last_perf_update_time >= 1.0) {
+                last_perf_update_time = current_time;
+                g_current_fps = frame_count_since_last_perf_update;
 
                 if(g_current_fps > 99) {
                     g_current_fps = 99;
                 }
 
-                iPerfCount = 0;
+                frame_count_since_last_perf_update = 0;
             }
 
-
-            iTime = tTime;
+            previous_frame_time = current_time;
 
             GetInput();
             UpdateGame();
@@ -581,7 +574,10 @@ int main(int arguments_count, char* arguments[]) {
         glfwPollEvents();
 
         if(g_save_settings_is_queued) {
-            SaveSettings();
+            if(!SaveSettings()) {
+                // TODO: fprintf(stderr, "Failed to save config file\n");
+            }
+
             g_save_settings_is_queued = false;
         }
     }

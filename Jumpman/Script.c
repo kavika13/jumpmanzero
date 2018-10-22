@@ -1,7 +1,5 @@
 #include <string.h>
 #include <stdlib.h>
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
 #include "Script.h"
 #include "Utilities.h"
 
@@ -225,8 +223,7 @@ void LoadScript(char* sFileName, ScriptCode* oScript) {
         ++iCodeLine;
 
         if (iCodeLine > 6990) {
-            // TODO: Remove win32 dependency
-            MessageBox(0, "Script is too long!", "ERROR", 0);
+            // TODO: fprintf(stderr, "Script is too long!\n");
             break;
         }
     }
