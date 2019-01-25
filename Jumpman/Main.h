@@ -21,13 +21,12 @@ extern bool g_music_is_enabled;
 extern bool g_save_settings_is_queued;
 extern bool g_show_fps_is_enabled;
 
-extern long iLastKey;
-extern int iKeyLeft, iTappedLeft, iTKeyLeft;
-extern int iKeyRight, iTappedRight, iTKeyRight;
-extern int iKeyDown, iTappedDown, iTKeyDown;
-extern int iKeyUp, iTappedUp, iTKeyUp;
-extern int iKeyJump, iTappedJump, iTKeyAttack;
-extern int iKeyAttack, iTappedAttack, iTKeyJump;
+extern int iTKeyLeft;
+extern int iTKeyRight;
+extern int iTKeyDown;
+extern int iTKeyUp;
+extern int iTKeyAttack;
+extern int iTKeyJump;
 extern int iKeySelect;
 
 #if defined(__cplusplus)

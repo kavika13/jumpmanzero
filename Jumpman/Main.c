@@ -36,14 +36,12 @@ bool g_music_is_enabled = kMUSIC_IS_ENABLED_DEFAULT;
 bool g_save_settings_is_queued = false;  // TODO: Maybe provide API?
 bool g_show_fps_is_enabled = false;
 
-GameInput g_game_input;
-long iLastKey;  // TODO: Might be harder to map this, since a script uses it
-int iKeyLeft, iTappedLeft, iTKeyLeft;
-int iKeyRight, iTappedRight, iTKeyRight;
-int iKeyDown, iTappedDown, iTKeyDown;
-int iKeyUp, iTappedUp, iTKeyUp;
-int iKeyJump, iTappedJump, iTKeyAttack;
-int iKeyAttack, iTappedAttack, iTKeyJump;
+int iTKeyLeft;
+int iTKeyRight;
+int iTKeyDown;
+int iTKeyUp;
+int iTKeyAttack;
+int iTKeyJump;
 int iKeySelect;
 
 static bool g_fullscreen_is_enabled = kFULLSCREEN_IS_ENABLED_DEFAULT;
@@ -54,7 +52,7 @@ static int g_window_pos_y_backup = 0;
 
 static GLFWwindow* g_main_window = NULL;
 
-static bool LoadSettings() {
+static bool LoadSettings(GameRawInput* game_raw_input) {
     char sTemp[30];
     int iKey;
     char sFileName[300];
@@ -74,9 +72,9 @@ static bool LoadSettings() {
 
     while(++iKey < 6) {
         if(GetFileLine(sTemp, sizeof(sTemp), sFileName, iKey)) {
-            g_game_input.key_bindings[iKey] = atoi(sTemp);
+            game_raw_input->key_bindings[iKey] = atoi(sTemp);
         } else {
-            g_game_input.key_bindings[iKey] = 0;
+            game_raw_input->key_bindings[iKey] = 0;
         }
     }
 
@@ -111,17 +109,17 @@ static bool LoadSettings() {
     return true;
 }
 
-static bool SaveSettings() {
+static bool SaveSettings(GameRawInput* game_raw_input) {
     bool success = true;
 
     char sFile[300];
     sprintf_s(sFile, sizeof(sFile), "%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d",
-        g_game_input.key_bindings[0],
-        g_game_input.key_bindings[1],
-        g_game_input.key_bindings[2],
-        g_game_input.key_bindings[3],
-        g_game_input.key_bindings[4],
-        g_game_input.key_bindings[5],
+        game_raw_input->key_bindings[0],
+        game_raw_input->key_bindings[1],
+        game_raw_input->key_bindings[2],
+        game_raw_input->key_bindings[3],
+        game_raw_input->key_bindings[4],
+        game_raw_input->key_bindings[5],
         g_sound_effects_are_enabled ? 1 : 0,
         g_music_is_enabled ? 1 : 0,
         g_fullscreen_is_enabled ? 1 : 0,
@@ -178,6 +176,8 @@ static void ErrorCallback(int error, const char* description) {
 }
 
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    GameInput* game_input = glfwGetWindowUserPointer(window);
+
     switch (action) {
         case GLFW_PRESS: {
             switch (key) {
@@ -186,23 +186,23 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                     break;
                 }
                 case GLFW_KEY_UP: {
-                    iTappedUp = iKeyUp = 1;
+                    game_input->move_up_action.just_pressed = game_input->move_up_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_DOWN: {
-                    iTappedDown = iKeyDown = 1;
+                    game_input->move_down_action.just_pressed = game_input->move_down_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_LEFT: {
-                    iTappedLeft = iKeyLeft = 1;
+                    game_input->move_left_action.just_pressed = game_input->move_left_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_RIGHT: {
-                    iTappedRight = iKeyRight = 1;
+                    game_input->move_right_action.just_pressed = game_input->move_right_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_SPACE: {
-                    iTappedJump = iKeyJump = 1;
+                    game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
                     iKeySelect = 1;
                     break;
                 }
@@ -226,44 +226,44 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
             // Modifier keys
             if(mods & GLFW_MOD_CONTROL) {
-                iTappedJump = iKeyJump = 1;
+                game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
                 iKeySelect = 1;
             }
 
             if(mods & GLFW_MOD_ALT) {
                 if(key != GLFW_KEY_ENTER) {  // Ignore for alt + enter combo
-                    iTappedAttack = iKeyAttack = 1;
+                    game_input->attack_action.just_pressed = game_input->attack_action.is_pressed = true;
                 }
             }
 
 
             // Bound keys
-            if(key == g_game_input.key_bindings[0]) {
-                iTappedUp = iKeyUp = 1;
+            if(key == game_input->raw_input.key_bindings[0]) {
+                game_input->move_up_action.just_pressed = game_input->move_up_action.is_pressed = true;
             }
 
-            if(key == g_game_input.key_bindings[1]) {
-                iTappedDown = iKeyDown = 1;
+            if(key == game_input->raw_input.key_bindings[1]) {
+                game_input->move_down_action.just_pressed = game_input->move_down_action.is_pressed = true;
             }
 
-            if(key == g_game_input.key_bindings[2]) {
-                iTappedLeft = iKeyLeft = 1;
+            if(key == game_input->raw_input.key_bindings[2]) {
+                game_input->move_left_action.just_pressed = game_input->move_left_action.is_pressed = true;
             }
 
-            if(key == g_game_input.key_bindings[3]) {
-                iTappedRight = iKeyRight = 1;
+            if(key == game_input->raw_input.key_bindings[3]) {
+                game_input->move_right_action.just_pressed = game_input->move_right_action.is_pressed = true;
             }
 
-            if(key == g_game_input.key_bindings[4]) {
-                iTappedJump = iKeyJump = 1;
+            if(key == game_input->raw_input.key_bindings[4]) {
+                game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
                 iKeySelect = 1;
             }
 
-            if(key == g_game_input.key_bindings[5]) {
-                iTappedAttack = iKeyAttack = 1;
+            if(key == game_input->raw_input.key_bindings[5]) {
+                game_input->attack_action.just_pressed = game_input->attack_action.is_pressed = true;
             }
 
-            iLastKey = key;
+            game_input->raw_input.last_key_pressed = key;
             break;
         }
         case GLFW_RELEASE: {
@@ -273,23 +273,23 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                     break;
                 }
                 case GLFW_KEY_UP: {
-                    iKeyUp = 0;
+                    game_input->move_up_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_DOWN: {
-                    iKeyDown = 0;
+                    game_input->move_down_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_LEFT: {
-                    iKeyLeft = 0;
+                    game_input->move_left_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_RIGHT: {
-                    iKeyRight = 0;
+                    game_input->move_right_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_SPACE: {
-                    iKeyJump = 0;
+                    game_input->jump_action.is_pressed = false;
                     iKeySelect = 0;
                     break;
                 }
@@ -301,41 +301,41 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
             // Modifier keys
             if(!(mods & GLFW_MOD_CONTROL)) {
-                iKeyJump = 0;
+                game_input->jump_action.is_pressed = false;
                 iKeySelect = 0;
             }
 
             if(!(mods & GLFW_MOD_ALT)) {
-                iKeyAttack = 0;
+                game_input->attack_action.is_pressed = false;
             }
 
             // Bound keys
-            if(key == g_game_input.key_bindings[0]) {
-                iKeyUp = 0;
+            if(key == game_input->raw_input.key_bindings[0]) {
+                game_input->move_up_action.is_pressed = false;
             }
 
-            if(key == g_game_input.key_bindings[1]) {
-                iKeyDown = 0;
+            if(key == game_input->raw_input.key_bindings[1]) {
+                game_input->move_down_action.is_pressed = false;
             }
 
-            if(key == g_game_input.key_bindings[2]) {
-                iKeyLeft = 0;
+            if(key == game_input->raw_input.key_bindings[2]) {
+                game_input->move_left_action.is_pressed = false;
             }
 
-            if(key == g_game_input.key_bindings[3]) {
-                iKeyRight = 0;
+            if(key == game_input->raw_input.key_bindings[3]) {
+                game_input->move_right_action.is_pressed = false;
             }
 
-            if(key == g_game_input.key_bindings[4]) {
-                iKeyJump = 0;
+            if(key == game_input->raw_input.key_bindings[4]) {
+                game_input->jump_action.is_pressed = false;
                 iKeySelect = 0;
             }
 
-            if(key == g_game_input.key_bindings[5]) {
-                iKeyAttack = 0;
+            if(key == game_input->raw_input.key_bindings[5]) {
+                game_input->attack_action.is_pressed = false;
             }
 
-            iLastKey = key;
+            game_input->raw_input.last_key_pressed = key;
             break;
         }
     }
@@ -362,19 +362,19 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     ResizeViewport(width, height);
 }
 
-static void GetInput() {
-    iTKeyLeft = iKeyLeft || iTappedLeft;
-    iTappedLeft = 0;
-    iTKeyRight = iKeyRight || iTappedRight;
-    iTappedRight = 0;
-    iTKeyUp = iKeyUp || iTappedUp;
-    iTappedUp = 0;
-    iTKeyDown = iKeyDown || iTappedDown;
-    iTappedDown = 0;
-    iTKeyJump = iKeyJump || iTappedJump;
-    iTappedJump = 0;
-    iTKeyAttack = iKeyAttack || iTappedAttack;
-    iTappedAttack = 0;
+static void GetInput(GameInput* game_input) {
+    iTKeyLeft = (game_input->move_left_action.is_pressed || game_input->move_left_action.just_pressed) ? 1 : 0;
+    game_input->move_left_action.just_pressed = false;
+    iTKeyRight = (game_input->move_right_action.is_pressed || game_input->move_right_action.just_pressed) ? 1 : 0;
+    game_input->move_right_action.just_pressed = false;
+    iTKeyUp = (game_input->move_up_action.is_pressed || game_input->move_up_action.just_pressed) ? 1 : 0;
+    game_input->move_up_action.just_pressed = false;
+    iTKeyDown = (game_input->move_down_action.is_pressed || game_input->move_down_action.just_pressed) ? 1 : 0;
+    game_input->move_down_action.just_pressed = false;
+    iTKeyJump = (game_input->jump_action.is_pressed || game_input->jump_action.just_pressed) ? 1 : 0;
+    game_input->jump_action.just_pressed = false;
+    iTKeyAttack = (game_input->attack_action.is_pressed || game_input->attack_action.just_pressed) ? 1 : 0;
+    game_input->attack_action.just_pressed = false;
 
     // TODO: Move this over before this checkin
     for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
@@ -445,6 +445,7 @@ static void GetInput() {
 }
 
 int main(int arguments_count, char* arguments[]) {
+    GameInput game_input = { 0 };
     g_debug_is_enabled = true;
 
     if(!GetWorkingDirectoryPath(g_game_base_path)) {
@@ -452,7 +453,7 @@ int main(int arguments_count, char* arguments[]) {
         exit(EXIT_FAILURE);
     }
 
-    if(!LoadSettings()) {
+    if(!LoadSettings(&game_input.raw_input)) {
         // TODO: Proper error handling
         exit(EXIT_FAILURE);
     }
@@ -488,6 +489,8 @@ int main(int arguments_count, char* arguments[]) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
+
+    glfwSetWindowUserPointer(g_main_window, &game_input);
 
     // Now backup window position before switching to fullscreen (if fullscreen dims, will be in upper left, but not offscreen)
     glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
@@ -539,7 +542,7 @@ int main(int arguments_count, char* arguments[]) {
     int bDone = 0;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(arguments[1], &g_game_input);
+        InitGameDebugLevel(arguments[1], &game_input.raw_input);
     } else {
         InitGameNormal();
     }
@@ -566,8 +569,8 @@ int main(int arguments_count, char* arguments[]) {
 
             previous_frame_time = current_time;
 
-            GetInput();
-            UpdateGame();
+            GetInput(&game_input);
+            UpdateGame(&game_input);
 
             glfwSwapBuffers(g_main_window);
         }
@@ -575,7 +578,7 @@ int main(int arguments_count, char* arguments[]) {
         glfwPollEvents();
 
         if(g_save_settings_is_queued) {
-            if(!SaveSettings()) {
+            if(!SaveSettings(&game_input.raw_input)) {
                 // TODO: fprintf(stderr, "Failed to save config file\n");
             }
 

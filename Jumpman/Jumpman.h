@@ -9,9 +9,9 @@ extern "C" {
 #endif
 
 long Init3D();
-void InitGameDebugLevel(const char* level_name, GameInput* game_input);
+void InitGameDebugLevel(const char* level_name, GameRawInput* game_raw_input);
 void InitGameNormal();
-void UpdateGame();
+void UpdateGame(GameInput* game_input);
 void ExitGame();
 
 #if defined(__cplusplus)
