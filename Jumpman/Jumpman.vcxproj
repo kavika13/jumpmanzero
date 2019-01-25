@@ -121,6 +121,7 @@
     <ClInclude Include="glfw-3.2.1.bin.WIN32\include\GLFW\glfw3.h" />
     <ClInclude Include="glfw-3.2.1.bin.WIN32\include\GLFW\glfw3native.h" />
     <ClInclude Include="handmademath-1.7.0\HandmadeMath.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Jumpman.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="mini_al-0.8.9\mini_al.h" />

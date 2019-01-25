@@ -2,13 +2,14 @@
 #define INCLUDED_JUMPMAN_ZERO_JUMPMAN_H
 
 #include <stdint.h>
+#include "Input.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 long Init3D();
-void InitGameDebugLevel(const char* level_name);
+void InitGameDebugLevel(const char* level_name, GameInput* game_input);
 void InitGameNormal();
 void UpdateGame();
 void ExitGame();

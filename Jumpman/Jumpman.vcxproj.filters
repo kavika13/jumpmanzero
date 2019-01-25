@@ -146,6 +146,9 @@
     <ClInclude Include="cute_files-6760a7d\cute_files.h">
       <Filter>Header Files\cute_files</Filter>
     </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Jumpman.ico">

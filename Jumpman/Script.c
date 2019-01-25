@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include "Input.h"
 #include "Script.h"
 #include "Utilities.h"
 
@@ -47,9 +48,9 @@
 #define EFGETDATA 45
 
 // TODO: Expose to script.c some other way? Like just exposing helper functions for all of them from Jumpman.c
-extern long ExtFunction(long iFunc, ScriptContext* SC);
+extern long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input);
 
-void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2);
+void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameInput* game_input);
 
 void ResetContext(ScriptContext *SC) {
     int iLoop;
@@ -72,7 +73,7 @@ int FindScript(ScriptContext* SC, char* sFunc) {
     return -1;
 }
 
-void RunScript(ScriptContext* SC, long iSub) {
+void RunScript(ScriptContext* SC, long iSub, GameInput* game_input) {
     if(iSub == -1) {
         return;
     }
@@ -90,13 +91,13 @@ void RunScript(ScriptContext* SC, long iSub) {
         iArg1 = SC->Script->Code[SC->IP * 3 + 1];
         iArg2 = SC->Script->Code[SC->IP * 3 + 2];
 
-        RunLine(SC, iFunc, iArg1, iArg2);
+        RunLine(SC, iFunc, iArg1, iArg2, game_input);
 
         ++SC->IP;
     }
 }
 
-void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2) {
+void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameInput* game_input) {
     long iArg1, iArg2;
     iArg1 = rArg1 / 256;
     iArg2 = rArg2 / 256;
@@ -174,9 +175,9 @@ void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2) {
         }
     } else if(iFunc == FCEXT) {
         if(iArg1 == EFGETDATA || iArg1 == EFGET) {
-            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC);
+            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_input);
         } else {
-            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC) * 256;
+            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_input) * 256;
         }
     } else {
         SC->Done = 1;

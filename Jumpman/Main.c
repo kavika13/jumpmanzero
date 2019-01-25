@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Basic3d.h"
+#include "Input.h"
 #include "Jumpman.h"
 #include "Music.h"
 #include "Sound.h"
@@ -35,7 +36,7 @@ bool g_music_is_enabled = kMUSIC_IS_ENABLED_DEFAULT;
 bool g_save_settings_is_queued = false;  // TODO: Maybe provide API?
 bool g_show_fps_is_enabled = false;
 
-int GameKeys[10];
+GameInput g_game_input;
 long iLastKey;  // TODO: Might be harder to map this, since a script uses it
 int iKeyLeft, iTappedLeft, iTKeyLeft;
 int iKeyRight, iTappedRight, iTKeyRight;
@@ -73,9 +74,9 @@ static bool LoadSettings() {
 
     while(++iKey < 6) {
         if(GetFileLine(sTemp, sizeof(sTemp), sFileName, iKey)) {
-            GameKeys[iKey] = atoi(sTemp);
+            g_game_input.key_bindings[iKey] = atoi(sTemp);
         } else {
-            GameKeys[iKey] = 0;
+            g_game_input.key_bindings[iKey] = 0;
         }
     }
 
@@ -115,12 +116,12 @@ static bool SaveSettings() {
 
     char sFile[300];
     sprintf_s(sFile, sizeof(sFile), "%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d",
-        GameKeys[0],
-        GameKeys[1],
-        GameKeys[2],
-        GameKeys[3],
-        GameKeys[4],
-        GameKeys[5],
+        g_game_input.key_bindings[0],
+        g_game_input.key_bindings[1],
+        g_game_input.key_bindings[2],
+        g_game_input.key_bindings[3],
+        g_game_input.key_bindings[4],
+        g_game_input.key_bindings[5],
         g_sound_effects_are_enabled ? 1 : 0,
         g_music_is_enabled ? 1 : 0,
         g_fullscreen_is_enabled ? 1 : 0,
@@ -237,28 +238,28 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 
             // Bound keys
-            if(key == GameKeys[0]) {
+            if(key == g_game_input.key_bindings[0]) {
                 iTappedUp = iKeyUp = 1;
             }
 
-            if(key == GameKeys[1]) {
+            if(key == g_game_input.key_bindings[1]) {
                 iTappedDown = iKeyDown = 1;
             }
 
-            if(key == GameKeys[2]) {
+            if(key == g_game_input.key_bindings[2]) {
                 iTappedLeft = iKeyLeft = 1;
             }
 
-            if(key == GameKeys[3]) {
+            if(key == g_game_input.key_bindings[3]) {
                 iTappedRight = iKeyRight = 1;
             }
 
-            if(key == GameKeys[4]) {
+            if(key == g_game_input.key_bindings[4]) {
                 iTappedJump = iKeyJump = 1;
                 iKeySelect = 1;
             }
 
-            if(key == GameKeys[5]) {
+            if(key == g_game_input.key_bindings[5]) {
                 iTappedAttack = iKeyAttack = 1;
             }
 
@@ -309,28 +310,28 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             }
 
             // Bound keys
-            if(key == GameKeys[0]) {
+            if(key == g_game_input.key_bindings[0]) {
                 iKeyUp = 0;
             }
 
-            if(key == GameKeys[1]) {
+            if(key == g_game_input.key_bindings[1]) {
                 iKeyDown = 0;
             }
 
-            if(key == GameKeys[2]) {
+            if(key == g_game_input.key_bindings[2]) {
                 iKeyLeft = 0;
             }
 
-            if(key == GameKeys[3]) {
+            if(key == g_game_input.key_bindings[3]) {
                 iKeyRight = 0;
             }
 
-            if(key == GameKeys[4]) {
+            if(key == g_game_input.key_bindings[4]) {
                 iKeyJump = 0;
                 iKeySelect = 0;
             }
 
-            if(key == GameKeys[5]) {
+            if(key == g_game_input.key_bindings[5]) {
                 iKeyAttack = 0;
             }
 
@@ -538,7 +539,7 @@ int main(int arguments_count, char* arguments[]) {
     int bDone = 0;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(arguments[1]);
+        InitGameDebugLevel(arguments[1], &g_game_input);
     } else {
         InitGameNormal();
     }
