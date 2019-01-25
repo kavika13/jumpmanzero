@@ -18,7 +18,7 @@ extern char g_game_base_path[300];
 
 extern bool g_sound_effects_are_enabled;
 extern bool g_music_is_enabled;
-extern int g_save_settings_is_queued;
+extern bool g_save_settings_is_queued;
 
 extern int GameKeys[10];
 extern long iLastKey;
