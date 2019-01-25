@@ -19,10 +19,10 @@ extern char g_game_base_path[300];
 extern bool g_sound_effects_are_enabled;
 extern bool g_music_is_enabled;
 extern bool g_save_settings_is_queued;
+extern bool g_show_fps_is_enabled;
 
 extern int GameKeys[10];
 extern long iLastKey;
-extern int iShowFPS;
 extern int iKeyLeft, iTappedLeft, iTKeyLeft;
 extern int iKeyRight, iTappedRight, iTKeyRight;
 extern int iKeyDown, iTappedDown, iTKeyDown;

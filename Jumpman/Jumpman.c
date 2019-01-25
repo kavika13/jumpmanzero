@@ -763,7 +763,7 @@ long ExtFunction(long iFunc, ScriptContext* SC) {
         } else if(iArg1 == EFV_PACT) {
             return iPlayerACT * 256;
         } else if(iArg1 == EFV_SHOWFPS) {
-            return iShowFPS * 256;
+            return g_show_fps_is_enabled ? 256 : 0;
         } else if(iArg1 == EFV_LIVESREMAINING) {
             return GameLivesRemaining * 256;
         } else if(iArg1 == EFV_EVENT1) {

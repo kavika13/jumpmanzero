@@ -33,10 +33,10 @@ char g_game_base_path[300];  // TODO: Maybe expose path util?
 bool g_sound_effects_are_enabled = kSOUND_EFFECTS_ARE_ENABLED_DEFAULT;
 bool g_music_is_enabled = kMUSIC_IS_ENABLED_DEFAULT;
 bool g_save_settings_is_queued = false;  // TODO: Maybe provide API?
+bool g_show_fps_is_enabled = false;
 
 int GameKeys[10];
 long iLastKey;  // TODO: Might be harder to map this, since a script uses it
-int iShowFPS;
 int iKeyLeft, iTappedLeft, iTKeyLeft;
 int iKeyRight, iTappedRight, iTKeyRight;
 int iKeyDown, iTappedDown, iTKeyDown;
@@ -181,7 +181,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
         case GLFW_PRESS: {
             switch (key) {
                 case GLFW_KEY_GRAVE_ACCENT: {
-                    iShowFPS = 1;
+                    g_show_fps_is_enabled = true;
                     break;
                 }
                 case GLFW_KEY_UP: {
@@ -268,7 +268,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
         case GLFW_RELEASE: {
             switch (key) {
                 case GLFW_KEY_GRAVE_ACCENT: {
-                    iShowFPS = 0;
+                    g_show_fps_is_enabled = false;
                     break;
                 }
                 case GLFW_KEY_UP: {
@@ -362,7 +362,8 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 static void GetInput() {
-    iTKeyLeft = iKeyLeft || iTappedLeft; iTappedLeft = 0;
+    iTKeyLeft = iKeyLeft || iTappedLeft;
+    iTappedLeft = 0;
     iTKeyRight = iKeyRight || iTappedRight;
     iTappedRight = 0;
     iTKeyUp = iKeyUp || iTappedUp;
