@@ -42,7 +42,7 @@ static mal_uint32 on_send_frames_to_device(mal_device* pDevice, mal_uint32 frame
         }
     }
 
-    for (size_t current_frame_index = 0; current_frame_index < frame_count; ++current_frame_index) {
+    for(size_t current_frame_index = 0; current_frame_index < frame_count; ++current_frame_index) {
         output[current_frame_index * 2 + 0] = max(-1.0f, min(1.0f, output[current_frame_index * 2 + 0]));
         output[current_frame_index * 2 + 1] = max(-1.0f, min(1.0f, output[current_frame_index * 2 + 1]));
     }

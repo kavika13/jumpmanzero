@@ -144,7 +144,7 @@ static void SetFullscreen(bool enable_fullscreen) {
     int target_width = g_window_resolution_x;
     int target_height = g_window_resolution_y;
 
-    if (enable_fullscreen) {
+    if(enable_fullscreen) {
         monitor = glfwGetPrimaryMonitor();
 
         glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
@@ -163,10 +163,9 @@ static void SetFullscreen(bool enable_fullscreen) {
 
     glfwSetWindowMonitor(g_main_window, monitor, target_pos_x, target_pos_y, target_width, target_height, 0);
 
-    if (enable_fullscreen) {
+    if(enable_fullscreen) {
         glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    }
-    else {
+    } else {
         glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
@@ -225,7 +224,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             }
 
             // Modifier keys
-            if (mods & GLFW_MOD_CONTROL) {
+            if(mods & GLFW_MOD_CONTROL) {
                 iTappedJump = iKeyJump = 1;
                 iKeySelect = 1;
             }
@@ -238,28 +237,28 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 
             // Bound keys
-            if (key == GameKeys[0]) {
+            if(key == GameKeys[0]) {
                 iTappedUp = iKeyUp = 1;
             }
 
-            if (key == GameKeys[1]) {
+            if(key == GameKeys[1]) {
                 iTappedDown = iKeyDown = 1;
             }
 
-            if (key == GameKeys[2]) {
+            if(key == GameKeys[2]) {
                 iTappedLeft = iKeyLeft = 1;
             }
 
-            if (key == GameKeys[3]) {
+            if(key == GameKeys[3]) {
                 iTappedRight = iKeyRight = 1;
             }
 
-            if (key == GameKeys[4]) {
+            if(key == GameKeys[4]) {
                 iTappedJump = iKeyJump = 1;
                 iKeySelect = 1;
             }
 
-            if (key == GameKeys[5]) {
+            if(key == GameKeys[5]) {
                 iTappedAttack = iKeyAttack = 1;
             }
 
@@ -300,38 +299,38 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             }
 
             // Modifier keys
-            if (!(mods & GLFW_MOD_CONTROL)) {
+            if(!(mods & GLFW_MOD_CONTROL)) {
                 iKeyJump = 0;
                 iKeySelect = 0;
             }
 
-            if (!(mods & GLFW_MOD_ALT)) {
+            if(!(mods & GLFW_MOD_ALT)) {
                 iKeyAttack = 0;
             }
 
             // Bound keys
-            if (key == GameKeys[0]) {
+            if(key == GameKeys[0]) {
                 iKeyUp = 0;
             }
 
-            if (key == GameKeys[1]) {
+            if(key == GameKeys[1]) {
                 iKeyDown = 0;
             }
 
-            if (key == GameKeys[2]) {
+            if(key == GameKeys[2]) {
                 iKeyLeft = 0;
             }
 
-            if (key == GameKeys[3]) {
+            if(key == GameKeys[3]) {
                 iKeyRight = 0;
             }
 
-            if (key == GameKeys[4]) {
+            if(key == GameKeys[4]) {
                 iKeyJump = 0;
                 iKeySelect = 0;
             }
 
-            if (key == GameKeys[5]) {
+            if(key == GameKeys[5]) {
                 iKeyAttack = 0;
             }
 
@@ -376,27 +375,27 @@ static void GetInput() {
     iTappedAttack = 0;
 
     // TODO: Move this over before this checkin
-    for (int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
-        if (glfwJoystickPresent(i) == GLFW_TRUE) {
+    for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
+        if(glfwJoystickPresent(i) == GLFW_TRUE) {
             int axis_count;
             const float* axis_values = glfwGetJoystickAxes(i, &axis_count);
 
-            if (axis_count > 0) {
-                if (axis_values[0] <= -0.5f) {
+            if(axis_count > 0) {
+                if(axis_values[0] <= -0.5f) {
                     iTKeyLeft = 1;
                 }
 
-                if (axis_values[0] >= 0.5f) {
+                if(axis_values[0] >= 0.5f) {
                     iTKeyRight = 1;
                 }
             }
 
-            if (axis_count > 1) {
-                if (axis_values[1] <= -0.5f) {
+            if(axis_count > 1) {
+                if(axis_values[1] <= -0.5f) {
                     iTKeyUp = 1;
                 }
 
-                if (axis_values[1] >= 0.5f) {
+                if(axis_values[1] >= 0.5f) {
                     iTKeyDown = 1;
                 }
             }
@@ -405,29 +404,29 @@ static void GetInput() {
             const unsigned char* button_values = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &button_count);
 
             // Face buttons - PS4 values
-            if (button_count > 1 && button_values[1] == GLFW_PRESS) {
+            if(button_count > 1 && button_values[1] == GLFW_PRESS) {
                 iTKeyJump = 1;
             }
 
-            if (button_count > 0 && button_values[0] == GLFW_PRESS) {
+            if(button_count > 0 && button_values[0] == GLFW_PRESS) {
                 iTKeyAttack = 1;
             }
 
             // D-Pad buttons - PS4 values
             // TODO: Need to map per controller type?
-            if (button_count > 14 && button_values[14] == GLFW_PRESS) {
+            if(button_count > 14 && button_values[14] == GLFW_PRESS) {
                 iTKeyUp = 1;
             }
 
-            if (button_count > 15 && button_values[15] == GLFW_PRESS) {
+            if(button_count > 15 && button_values[15] == GLFW_PRESS) {
                 iTKeyRight = 1;
             }
 
-            if (button_count > 16 && button_values[16] == GLFW_PRESS) {
+            if(button_count > 16 && button_values[16] == GLFW_PRESS) {
                 iTKeyDown = 1;
             }
 
-            if (button_count > 17 && button_values[17] == GLFW_PRESS) {
+            if(button_count > 17 && button_values[17] == GLFW_PRESS) {
                 iTKeyLeft = 1;
             }
         }

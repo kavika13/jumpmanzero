@@ -230,8 +230,8 @@ HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Nea
 static long SurfaceObject(long o1) {
     int iLoop = -1;
 
-    while (++iLoop < MAX_OBJECTS) {
-        if (g_object_redirects[iLoop] == o1) {
+    while(++iLoop < MAX_OBJECTS) {
+        if(g_object_redirects[iLoop] == o1) {
             return iLoop;
         }
     }
@@ -310,7 +310,7 @@ void RotateMatrixZ(long iObj, float fDegrees) {
 void PrioritizeObject(long o1) {
     long iSwap = g_object_redirects[o1];
 
-    while (--iSwap >= 0) {
+    while(--iSwap >= 0) {
         SwapObjects(iSwap, iSwap + 1);
     }
 }
@@ -344,8 +344,8 @@ static void SwapObjects(long o1, long o2) {
 void Clear3dData() {
     int iLoop;
 
-    for (iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
-        if (g_textures[iLoop].id != SG_INVALID_ID) {
+    for(iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
+        if(g_textures[iLoop].id != SG_INVALID_ID) {
             sg_destroy_image(g_textures[iLoop]);
         }
 
@@ -354,7 +354,7 @@ void Clear3dData() {
 
     g_object_count = 0;
 
-    for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
@@ -370,11 +370,11 @@ void LoadTexture(int iTex, char* sFile, int image_type, int is_alpha_blend_enabl
     int width, height, channels_in_file;
     unsigned char* image_data = stbi_load(sFile, &width, &height, &channels_in_file, 4);
 
-    if (image_type == 1) {
+    if(image_type == 1) {
         // Color key alpha, on 0xFFFFFFFF
-        for (int y = 0; y < height; ++y) {
-           for (int x = 0; x < width; ++x) {
-               if (*((uint32_t*)&image_data[y * width * 4 + x * 4 + 0]) == 0xFFFFFFFF) {
+        for(int y = 0; y < height; ++y) {
+           for(int x = 0; x < width; ++x) {
+               if(*((uint32_t*)&image_data[y * width * 4 + x * 4 + 0]) == 0xFFFFFFFF) {
                     image_data[y * width * 4 + x * 4 + 3] = 0x0;
                }
            }
@@ -393,7 +393,7 @@ void LoadTexture(int iTex, char* sFile, int image_type, int is_alpha_blend_enabl
 
     g_textures[iTex] = sg_make_image(&image_desc);
 
-    if (g_textures[iTex].id == SG_INVALID_ID) {
+    if(g_textures[iTex].id == SG_INVALID_ID) {
         FatalError("Error unlocking texture data");  // TODO: Read back error info
     }
 
@@ -412,13 +412,13 @@ void CopyObject(int iObject, long* iNum) {
     long iLoop = -1;
     long iPlace = -1;
 
-    while (++iLoop < MAX_OBJECTS && iPlace == -1) {
-        if (g_object_redirects[iLoop] == -1) {
+    while(++iLoop < MAX_OBJECTS && iPlace == -1) {
+        if(g_object_redirects[iLoop] == -1) {
             iPlace = iLoop;
         }
     }
 
-    if (iPlace == -1) {
+    if(iPlace == -1) {
         iPlace = 0;
         MessageBox(0, "Too many objects!", "Jumpman Zero", 0);
     }
@@ -446,7 +446,7 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
 
     long iPlace = -1;
 
-    while (++iPlace < iCount) {
+    while(++iPlace < iCount) {
         g_vertices_to_load[g_vertices_to_load_count].x = iParams[iPlace * 9 + 0] / 256.0f;
         g_vertices_to_load[g_vertices_to_load_count].y = iParams[iPlace * 9 + 1] / 256.0f;
         g_vertices_to_load[g_vertices_to_load_count].z = iParams[iPlace * 9 + 2] / 256.0f;
@@ -479,7 +479,7 @@ void Reset3d() {
 }
 
 bool InitializeAll() {
-    if (!init_3d()) {
+    if(!init_3d()) {
         return false;
     }
 
@@ -518,22 +518,22 @@ void DoCleanUp() {
 static long init_3d() {
     int iLoop = -1;
 
-    while (++iLoop < MAX_TEXTURES) {
+    while(++iLoop < MAX_TEXTURES) {
         g_textures[iLoop].id = SG_INVALID_ID;
     }
 
-    for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
     }
 
-    for (iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
 
     sg_desc desc = {0};
     sg_setup(&desc);
 
-    if (!sg_isvalid()) {
+    if(!sg_isvalid()) {
         return 0;
     }
 
@@ -545,7 +545,7 @@ static void kill_3d() {
 }
 
 void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue) {
-    if (iFogStart == 0 && iFogEnd == 0) {
+    if(iFogStart == 0 && iFogEnd == 0) {
         g_is_fog_enabled = false;
     } else {
         g_is_fog_enabled = true;
@@ -748,8 +748,8 @@ static void init_scene() {
 static void kill_scene() {
     int iLoop = -1;
 
-    while (++iLoop < MAX_TEXTURES) {
-        if (g_textures[iLoop].id != SG_INVALID_ID) {
+    while(++iLoop < MAX_TEXTURES) {
+        if(g_textures[iLoop].id != SG_INVALID_ID) {
             sg_destroy_image(g_textures[iLoop]);
             g_textures[iLoop].id = SG_INVALID_ID;
         }
@@ -788,17 +788,17 @@ void Render() {
     fs_params.fog_end = g_fog_end;
     bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
 
-    while (++iObject < g_object_count) {
-        if (g_object_is_visible[iObject]) {
-            if (iLastTexture != g_object_texture_index[iObject]) {
+    while(++iObject < g_object_count) {
+        if(g_object_is_visible[iObject]) {
+            if(iLastTexture != g_object_texture_index[iObject]) {
                 g_draw_state.fs_images[0] = g_textures[g_object_texture_index[iObject]];
 
                 iLastTexture = g_object_texture_index[iObject];
 
                 iReq = g_texture_is_alpha_blend_enabled[iLastTexture];
 
-                if (iAlphaEnabled != iReq) {
-                    if (iReq) {
+                if(iAlphaEnabled != iReq) {
+                    if(iReq) {
                         g_draw_state.pipeline = g_transparent_pipline;
                     } else {
                         g_draw_state.pipeline = g_opaque_pipline;

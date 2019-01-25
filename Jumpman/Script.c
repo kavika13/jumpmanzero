@@ -54,7 +54,7 @@ void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2);
 void ResetContext(ScriptContext *SC) {
     int iLoop;
 
-    for (iLoop = 0; iLoop < 500; ++iLoop) {
+    for(iLoop = 0; iLoop < 500; ++iLoop) {
         SC->Globals[iLoop] = 0;
     }
 }
@@ -63,8 +63,8 @@ int FindScript(ScriptContext* SC, char* sFunc) {
     int iFind;
     iFind = -1;
 
-    while (++iFind < SC->Script->Subs) {
-        if (strcmp(sFunc, SC->Script->SubName[iFind]) == 0) {
+    while(++iFind < SC->Script->Subs) {
+        if(strcmp(sFunc, SC->Script->SubName[iFind]) == 0) {
             return iFind;
         }
     }
@@ -73,7 +73,7 @@ int FindScript(ScriptContext* SC, char* sFunc) {
 }
 
 void RunScript(ScriptContext* SC, long iSub) {
-    if (iSub == -1) {
+    if(iSub == -1) {
         return;
     }
 
@@ -85,7 +85,7 @@ void RunScript(ScriptContext* SC, long iSub) {
 
     long iFunc, iArg1, iArg2;
 
-    while (!SC->Done) {
+    while(!SC->Done) {
         iFunc = SC->Script->Code[SC->IP * 3 + 0];
         iArg1 = SC->Script->Code[SC->IP * 3 + 1];
         iArg2 = SC->Script->Code[SC->IP * 3 + 2];
@@ -101,79 +101,79 @@ void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2) {
     iArg1 = rArg1 / 256;
     iArg2 = rArg2 / 256;
 
-    if (iFunc == FCBASECN) {
+    if(iFunc == FCBASECN) {
         SC->BP += iArg1;
-    } else if (iFunc == FCSTACKCN) {
+    } else if(iFunc == FCSTACKCN) {
         SC->SP += iArg1;
-    } else if (iFunc == FCMOVBCCN) {
+    } else if(iFunc == FCMOVBCCN) {
         SC->Stack[SC->BP + iArg1] = rArg2;
-    } else if (iFunc == FCMOVSCCN) {
+    } else if(iFunc == FCMOVSCCN) {
         SC->Stack[SC->SP + iArg1] = rArg2;
-    } else if (iFunc == FCMOVBSSC) {
+    } else if(iFunc == FCMOVBSSC) {
         SC->Stack[SC->BP + (SC->Stack[SC->SP + iArg1]) / 256] = SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCMOVSCBC) {
+    } else if(iFunc == FCMOVSCBC) {
         SC->Stack[SC->SP + iArg1] = SC->Stack[SC->BP + iArg2];
-    } else if (iFunc == FCMOVSCSC) {
+    } else if(iFunc == FCMOVSCSC) {
         SC->Stack[SC->SP + iArg1] = SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCADDSCCN) {
+    } else if(iFunc == FCADDSCCN) {
         SC->Stack[SC->SP + iArg1] += rArg2;
-    } else if (iFunc == FCADDSCSC) {
+    } else if(iFunc == FCADDSCSC) {
         SC->Stack[SC->SP + iArg1] += SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCSUBSCSC) {
+    } else if(iFunc == FCSUBSCSC) {
         SC->Stack[SC->SP + iArg1] -= SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCMULSCSC) {
+    } else if(iFunc == FCMULSCSC) {
         SC->Stack[SC->SP + iArg1] = SC->Stack[SC->SP + iArg1] * SC->Stack[SC->SP + iArg2] / 256;
-    } else if (iFunc == FCDIVSCSC) {
+    } else if(iFunc == FCDIVSCSC) {
         SC->Stack[SC->SP + iArg1] = SC->Stack[SC->SP + iArg1] * 256 / SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCBANDSCSC) {
+    } else if(iFunc == FCBANDSCSC) {
         SC->Stack[SC->SP + iArg1] &= SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCMOVSCGS) {
+    } else if(iFunc == FCMOVSCGS) {
         SC->Stack[SC->SP + iArg1] = SC->Globals[SC->Stack[SC->SP + iArg2] / 256];
-    } else if (iFunc == FCMOVSCBS) {
+    } else if(iFunc == FCMOVSCBS) {
         SC->Stack[SC->SP + iArg1] = SC->Stack[SC->BP + SC->Stack[SC->SP + iArg2] / 256];
-    } else if (iFunc == FCMOVGCCN) {
+    } else if(iFunc == FCMOVGCCN) {
         SC->Globals[iArg1] = rArg2;
-    } else if (iFunc == FCMOVGSSC) {
+    } else if(iFunc == FCMOVGSSC) {
         SC->Globals[(SC->Stack[SC->SP + iArg1]) / 256] = SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCMOVSCGC) {
+    } else if(iFunc == FCMOVSCGC) {
         SC->Stack[SC->SP + iArg1] = SC->Globals[iArg2];
-    } else if (iFunc == FCMOVGCSC) {
+    } else if(iFunc == FCMOVGCSC) {
         SC->Globals[iArg1] = SC->Stack[SC->SP + iArg2];
-    } else if (iFunc == FCEQUSCSC) {
+    } else if(iFunc == FCEQUSCSC) {
         SC->Stack[SC->SP + iArg1] = (SC->Stack[SC->SP + iArg1] == SC->Stack[SC->SP + iArg2]) ? 256 : 0;
-    } else if (iFunc == FCNEQSCSC) {
+    } else if(iFunc == FCNEQSCSC) {
         SC->Stack[SC->SP + iArg1] = (SC->Stack[SC->SP + iArg1] != SC->Stack[SC->SP + iArg2]) ? 256 : 0;
-    } else if (iFunc == FCGTSCSC) {
+    } else if(iFunc == FCGTSCSC) {
         SC->Stack[SC->SP + iArg1] = (SC->Stack[SC->SP + iArg1] > SC->Stack[SC->SP + iArg2]) ? 256 : 0;
-    } else if (iFunc == FCGTESCSC) {
+    } else if(iFunc == FCGTESCSC) {
         SC->Stack[SC->SP + iArg1] = (SC->Stack[SC->SP + iArg1] >= SC->Stack[SC->SP + iArg2]) ? 256 : 0;
-    } else if (iFunc == FCORSCSC) {
+    } else if(iFunc == FCORSCSC) {
         SC->Stack[SC->SP + iArg1] = (SC->Stack[SC->SP + iArg1] || SC->Stack[SC->SP + iArg2]) ? 256 : 0;
-    } else if (iFunc == FCANDSCSC) {
+    } else if(iFunc == FCANDSCSC) {
         SC->Stack[SC->SP + iArg1] = (SC->Stack[SC->SP + iArg1] && SC->Stack[SC->SP + iArg2]) ? 256 : 0;
-    } else if (iFunc == FCCALL) {
+    } else if(iFunc == FCCALL) {
         SC->CS[SC->CallStack] = SC->IP;
         ++SC->CallStack;
         SC->IP = iArg1;
-    } else if (iFunc == FCRET) {
+    } else if(iFunc == FCRET) {
         --SC->CallStack;
-        if (SC->CallStack < 0) {
+        if(SC->CallStack < 0) {
             SC->Done = 1;
         } else {
             SC->IP = SC->CS[SC->CallStack];
         }
-    } else if (iFunc == FCJUMP) {
+    } else if(iFunc == FCJUMP) {
         SC->IP = iArg1;
-    } else if (iFunc == FCJUMPZ) {
-        if (SC->Stack[SC->SP] == 0) {
+    } else if(iFunc == FCJUMPZ) {
+        if(SC->Stack[SC->SP] == 0) {
             SC->IP = iArg1;
         }
-    } else if (iFunc == FCJUMPNZ) {
-        if (!SC->Stack[SC->SP]) {
+    } else if(iFunc == FCJUMPNZ) {
+        if(!SC->Stack[SC->SP]) {
             SC->IP = iArg1;
         }
-    } else if (iFunc == FCEXT) {
-        if (iArg1 == EFGETDATA || iArg1 == EFGET) {
+    } else if(iFunc == FCEXT) {
+        if(iArg1 == EFGETDATA || iArg1 == EFGET) {
             SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC);
         } else {
             SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC) * 256;
@@ -202,10 +202,10 @@ void LoadScript(char* sFileName, ScriptCode* oScript) {
     iPlace += 4;
 
     iSub =- 1;
-    while (++iSub < iSubs) {
+    while(++iSub < iSubs) {
         iCopy = -1;
 
-        while (++iCopy < 20) {
+        while(++iCopy < 20) {
             oScript->SubName[iSub][iCopy] = cData[iPlace];
             ++iPlace;
         }
@@ -217,12 +217,12 @@ void LoadScript(char* sFileName, ScriptCode* oScript) {
     int iCodeLine;
 
     iCodeLine = 0;
-    while (iPlace < iLen) {
+    while(iPlace < iLen) {
         oScript->Code[iCodeLine] = StringToLong2(&cData[iPlace]);
         iPlace += 4;
         ++iCodeLine;
 
-        if (iCodeLine > 6990) {
+        if(iCodeLine > 6990) {
             // TODO: fprintf(stderr, "Script is too long!\n");
             break;
         }

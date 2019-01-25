@@ -8,7 +8,7 @@ long StringToLong(unsigned char* sString) {
 
     fTemp = sString[1] * 256.0f + sString[2] + sString[3] / 256.0f;
 
-    if (sString[0]) {
+    if(sString[0]) {
         return (long)(fTemp) * -1;
     } else {
         return (long)(fTemp);
@@ -20,7 +20,7 @@ long StringToLong2(unsigned char* sString) {
 
     fTemp = (sString[0] & 127) * 256.0f * 256.0f * 256.0f + sString[1] * 256.0f * 256.0f + sString[2] * 256.0f + sString[3];
 
-    if (sString[0] & 128) {
+    if(sString[0] & 128) {
         return (long)(fTemp) * -1;
     } else {
         return (long)(fTemp);
@@ -45,20 +45,20 @@ bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
     iLoop = -1;
     sOut[iChars] = 0;
 
-    while (++iLoop < iTextLen) {
-        if (iCR == iLine && sText[iLoop] != 13 && iChars < iOutLen - 1) {
+    while(++iLoop < iTextLen) {
+        if(iCR == iLine && sText[iLoop] != 13 && iChars < iOutLen - 1) {
             is_found = true;
             sOut[iChars] = sText[iLoop];
             ++iChars;
             sOut[iChars] = 0;
         }
 
-        if (sText[iLoop] == 13) {
+        if(sText[iLoop] == 13) {
             ++iCR;
             ++iLoop;
         }
 
-        if (iCR > iLine) {
+        if(iCR > iLine) {
             break;
         }
     }
@@ -122,7 +122,7 @@ bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
 
     iLen = FileToString(sFile, (unsigned char**)(&sData));
 
-    if (TextLine(sData, iLen, sTemp, 20, iLine)) {
+    if(TextLine(sData, iLen, sTemp, 20, iLine)) {
         is_found = true;
         sprintf_s(sOut, sOutSize, "%s", sTemp);
     }
@@ -144,7 +144,7 @@ long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, lon
     iSY = iY0 - iY1;
     det = iBX * iSY - iBY * iSX;
 
-    if (det <= 0) {
+    if(det <= 0) {
         total = total + 1;
     }
 
@@ -154,7 +154,7 @@ long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, lon
     iSY = iY0 - iY2;
     det = iBX * iSY - iBY * iSX;
 
-    if (det <= 0) {
+    if(det <= 0) {
         total = total + 1;
     }
 
@@ -164,7 +164,7 @@ long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, lon
     iSY = iY0 - iY3;
     det = iBX * iSY - iBY * iSX;
 
-    if (det <= 0) {
+    if(det <= 0) {
         total = total + 1;
     }
 
@@ -174,11 +174,11 @@ long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, lon
     iSY = iY0 - iY4;
     det = iBX * iSY - iBY * iSX;
 
-    if (det <= 0) {
+    if(det <= 0) {
         total = total + 1;
     }
 
-    if (total == 4) {
+    if(total == 4) {
         return 1;
     }
 
