@@ -18,7 +18,7 @@ typedef struct {
 } GameAction;
 
 typedef struct {
-	GameRawInput raw_input;
+    GameRawInput raw_input;
     GameAction move_left_action;
     GameAction move_right_action;
     GameAction move_down_action;
