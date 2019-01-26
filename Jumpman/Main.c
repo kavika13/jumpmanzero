@@ -7,6 +7,7 @@
 #include "Basic3d.h"
 #include "Input.h"
 #include "Jumpman.h"
+#include "Main.h"
 #include "Music.h"
 #include "Sound.h"
 #include "SoundBuffer.h"
@@ -32,7 +33,6 @@ char g_game_base_path[300];  // TODO: Maybe expose path util?
 
 bool g_sound_effects_are_enabled = kSOUND_EFFECTS_ARE_ENABLED_DEFAULT;
 bool g_music_is_enabled = kMUSIC_IS_ENABLED_DEFAULT;
-bool g_save_settings_is_queued = false;  // TODO: Maybe provide API?
 bool g_show_fps_is_enabled = false;
 
 static bool g_fullscreen_is_enabled = kFULLSCREEN_IS_ENABLED_DEFAULT;
@@ -40,6 +40,7 @@ static int g_window_resolution_x = kWINDOW_RESOLUTION_DEFAULT_X;
 static int g_window_resolution_y = kWINDOW_RESOLUTION_DEFAULT_Y;
 static int g_window_pos_x_backup = 0;
 static int g_window_pos_y_backup = 0;
+static bool g_save_settings_is_queued = false;
 
 static GLFWwindow* g_main_window = NULL;
 
@@ -100,7 +101,7 @@ static bool LoadSettings(GameRawInput* game_raw_input) {
     return true;
 }
 
-static bool SaveSettings(GameRawInput* game_raw_input) {
+static bool SaveSettings_(GameRawInput* game_raw_input) {
     bool success = true;
 
     char sFile[300];
@@ -159,7 +160,7 @@ static void SetFullscreen(bool enable_fullscreen) {
         glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
-    g_save_settings_is_queued = true;
+    SaveSettings();
 }
 
 static void ErrorCallback(int error, const char* description) {
@@ -345,7 +346,7 @@ static void WindowSizeCallback(GLFWwindow* window, int width, int height) {
     if(!g_fullscreen_is_enabled) {
         g_window_resolution_x = width;
         g_window_resolution_y = height;
-        g_save_settings_is_queued = true;
+        SaveSettings();
     }
 }
 
@@ -419,6 +420,10 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
     game_current_input->jump_action.just_pressed = game_current_input->jump_action.is_pressed && !game_prev_input->jump_action.is_pressed;
     game_current_input->attack_action.just_pressed = game_current_input->attack_action.is_pressed && !game_prev_input->attack_action.is_pressed;
     game_current_input->select_action.just_pressed = game_current_input->select_action.is_pressed && !game_prev_input->select_action.is_pressed;
+}
+
+void SaveSettings() {
+    g_save_settings_is_queued = true;
 }
 
 int main(int arguments_count, char* arguments[]) {
@@ -558,7 +563,7 @@ int main(int arguments_count, char* arguments[]) {
         glfwPollEvents();
 
         if(g_save_settings_is_queued) {
-            if(!SaveSettings(&game_current_input.raw_input)) {
+            if(!SaveSettings_(&game_current_input.raw_input)) {
                 // TODO: fprintf(stderr, "Failed to save config file\n");
             }
 

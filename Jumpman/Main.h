@@ -20,6 +20,8 @@ extern bool g_music_is_enabled;
 extern bool g_save_settings_is_queued;
 extern bool g_show_fps_is_enabled;
 
+void SaveSettings();
+
 #if defined(__cplusplus)
 }  // extern "C"
 #endif

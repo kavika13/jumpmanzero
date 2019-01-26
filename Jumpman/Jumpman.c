@@ -1042,7 +1042,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         }
 
         if(iArg1 == SERVICE_SAVEOPTIONS) {
-            g_save_settings_is_queued = true;
+            SaveSettings();
         }
 
         if(iArg1 == SERVICE_SETOPTION) {
