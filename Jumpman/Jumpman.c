@@ -235,9 +235,9 @@ typedef struct {
     int ObjectNumber;
 } LevelObject;
 
-static void PrepLevel(char* sLevel, GameInput* game_input, GameRawInput* input_bindings);
-static void LoadNextLevel(GameInput* game_input, GameRawInput* input_bindings);
-static long LoadMesh(char* sFileName);
+static void PrepLevel(char* sLevel, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings);
+static void LoadNextLevel(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings);
+static long LoadMesh(const char* base_path, char* sFileName);
 static void LoadMeshes();
 static void SetGamePerspective();
 static int FindObject(LevelObject* lObj, int iCount, int iFind);
@@ -620,7 +620,7 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
     return iChoice;
 }
 
-long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawInput* input_bindings) {
+long ExtFunction(long iFunc, ScriptContext* SC, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     long iArg1, iArg2, iArg3, iArg4;
     long rArg1, rArg2, rArg3, rArg4;
     long iLoop;
@@ -765,7 +765,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
         } else if(iArg1 == EFV_PACT) {
             return iPlayerACT * 256;
         } else if(iArg1 == EFV_SHOWFPS) {
-            return g_show_fps_is_enabled ? 256 : 0;
+            return game_settings->show_fps_is_enabled ? 256 : 0;
         } else if(iArg1 == EFV_LIVESREMAINING) {
             return GameLivesRemaining * 256;
         } else if(iArg1 == EFV_EVENT1) {
@@ -777,7 +777,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
         } else if(iArg1 == EFV_EVENT4) {
             return iEvent4;
         } else if(iArg1 == EFV_DEBUG) {
-            return (g_debug_is_enabled ? 1 : 0) * 256;
+            return (game_settings->debug_is_enabled ? 1 : 0) * 256;
         } else if(iArg1 == EFV_PERSPECTIVE) {
             return miPerspective * 256;
         } else if(iArg1 == EFV_OBJECTS) {
@@ -815,13 +815,13 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
         } else if(iArg1 == EFV_FREEZE) {
             return iPlayerFreeze * 256;
         } else if(iArg1 == EFV_SOUNDON) {
-            return (g_sound_effects_are_enabled ? 1 : 0) * 256;
+            return (game_settings->sound_effects_are_enabled ? 1 : 0) * 256;
         } else if(iArg1 == EFV_MUSICON) {
-            return (g_music_is_enabled ? 1 : 0) * 256;
+            return (game_settings->music_is_enabled ? 1 : 0) * 256;
         } else if(iArg1 == EFV_LASTKEY) {
             return input_bindings->last_key_pressed * 256;
         } else if(iArg1 == EFV_PERFORMANCE) {
-            return g_current_fps * 256;
+            return game_settings->current_fps * 256;
         }
     }
 
@@ -851,7 +851,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
         } else if(iArg1 == EFV_PERSPECTIVE) {
             miPerspective = iArg2;
         } else if(iArg1 == EFV_DEBUG) {
-            g_debug_is_enabled = iArg2 ? true : false;
+            game_settings->debug_is_enabled = iArg2 ? true : false;
         } else if(iArg1 == EFV_LEVELEXTENTX) {
             miLevelExtentX = iArg2;
         } else if(iArg1 == EFV_NOROLL) {
@@ -1092,16 +1092,16 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
             }
 
             if(iArg3 == 32) {
-                g_sound_effects_are_enabled = iArg2 ? true : false;
+                game_settings->sound_effects_are_enabled = iArg2 ? true : false;
             }
 
-            if(iArg3 == 33 && (g_music_is_enabled ? 1 : 0) != iArg2) {
+            if(iArg3 == 33 && (game_settings->music_is_enabled ? 1 : 0) != iArg2) {
                 if(iArg2 == 0) {
                     StopMusic1();
                 } else {
                     NewTrack1(msBackMusic, 0, 0);
                 }
-                g_music_is_enabled = iArg2 ? true : false;
+                game_settings->music_is_enabled = iArg2 ? true : false;
             }
         }
 
@@ -1132,9 +1132,9 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
                 }
             } else if(iArg3 == 32 || iArg3 == 33) {
                 if(iArg3 == 32) {
-                    iKey = g_sound_effects_are_enabled ? 1 : 0;
+                    iKey = game_settings->sound_effects_are_enabled ? 1 : 0;
                 } else {
-                    iKey = g_music_is_enabled ? 1 : 0;
+                    iKey = game_settings->music_is_enabled ? 1 : 0;
                 }
 
                 if(iKey) {
@@ -1160,7 +1160,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
         if(iArg1 == SERVICE_GAMESTART) {
             iTitle = 0;
             GameLivesRemaining = 7;
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", g_game_base_path);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", game_settings->game_base_path);
 
             cf_dir_t dir;
             cf_dir_open(&dir, sFileName);
@@ -1192,12 +1192,12 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
                 cf_dir_next(&dir);
             }
 
-            sprintf_s(GameFile, sizeof(GameFile), "%s\\Data\\%s", g_game_base_path, file.name);
+            sprintf_s(GameFile, sizeof(GameFile), "%s\\Data\\%s", game_settings->game_base_path, file.name);
             GameStatus = GS_INLEVEL;
         }
 
         if(iArg1 == SERVICE_CREDITLINE) {
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", g_game_base_path);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", game_settings->game_base_path);
             GetFileLine(sName, sizeof(sName), sFileName, iArg2);
             iChar = -1;
 
@@ -1210,7 +1210,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
 
         if(iArg1 == SERVICE_GAMELIST) {
             iTitle = 0;
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", g_game_base_path);
+            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", game_settings->game_base_path);
 
             cf_dir_t dir;
             cf_dir_open(&dir, sFileName);
@@ -1221,7 +1221,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
 
                 if(cf_match_ext(&file, ".jmg")) {
                     iChar = -1;
-                    sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", g_game_base_path, file.name);
+                    sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", game_settings->game_base_path, file.name);
                     GetFileLine(sName, sizeof(sName), sFile, 0);
 
                     while(sName[++iChar] != 0 && iChar < 18) {
@@ -1240,7 +1240,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
     }
 
     if(iFunc == EFSOUND) {
-        if(g_sound_effects_are_enabled) {
+        if(game_settings->sound_effects_are_enabled) {
             PlaySoundEffect(iArg1);
         }
     }
@@ -1250,7 +1250,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
     }
 
     if(iFunc == EFKILL && !(iPlayerST & JS_DYING)) {
-        if(g_music_is_enabled) {
+        if(game_settings->music_is_enabled) {
             StopMusic1();
         }
 
@@ -1263,7 +1263,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
         iPlayerSC = 1000;
     }
 
-    if(iFunc == EFPRINT && g_debug_is_enabled) {
+    if(iFunc == EFPRINT && game_settings->debug_is_enabled) {
         char sNum[100];
 
         if(iArg1 == -1) {
@@ -1278,7 +1278,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawIn
     }
 
     if(iFunc == EFWIN) {
-        if(g_music_is_enabled) {
+        if(game_settings->music_is_enabled) {
             StopMusic1();
         }
 
@@ -1413,7 +1413,7 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
-static void LoadLevel(char* sFileName) {
+static void LoadLevel(const char* base_path, char* sFileName) {
     unsigned char* cData;
 
     char sTemp[300];
@@ -1480,7 +1480,7 @@ static void LoadLevel(char* sFileName) {
             iArg2 = StringToInt(&cData[iPlace + 4]);
 
             if(iTemp == 1) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.MID", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.MID", base_path, sTemp);
 
                 if(iArg1 == 1) {
                     strcpy_s(msBackMusic, sizeof(msBackMusic), sBuild);
@@ -1498,18 +1498,18 @@ static void LoadLevel(char* sFileName) {
 
             if(iTemp == 2) {
                 sprintf_s(sBuild, sizeof(sBuild), "%s.MSH", sTemp);
-                iOtherMesh[miMeshes] = LoadMesh(sBuild);
+                iOtherMesh[miMeshes] = LoadMesh(base_path, sBuild);
                 ++miMeshes;
             }
 
             if(iTemp == 7) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.WAV", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.WAV", base_path, sTemp);
                 LoadSound(sBuild, iSounds);
                 ++iSounds;
             }
 
             if(iTemp == 3 || iTemp == 4 || iTemp == 6) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s\\Data\\%s", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Data\\%s", base_path, sTemp);
 
                 if(iTemp == 3) {
                     strcat_s(sBuild, sizeof(sBuild), ".BMP");
@@ -1528,7 +1528,7 @@ static void LoadLevel(char* sFileName) {
             }
 
             if(iTemp == 5) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s\\Data\\%s.BIN", g_game_base_path, sTemp);
+                sprintf_s(sBuild, sizeof(sBuild), "%s\\Data\\%s.BIN", base_path, sTemp);
 
                 if(iArg1 == 1) {
                     LoadScript(sBuild, &LevelScript);
@@ -1840,17 +1840,17 @@ static void LoadLevel(char* sFileName) {
 
         if(bGood) {
             sprintf_s(sFile, sizeof(sFile), "Char%s.MSH", sChar);
-            iCharMesh[iChar] = LoadMesh(sFile);
+            iCharMesh[iChar] = LoadMesh(base_path, sFile);
         } else {
             iCharMesh[iChar] = -1;
         }
     }
 
-    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\panel.bmp", g_game_base_path);
+    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\panel.bmp", base_path);
     LoadTexture(miTextures, sTemp, 0, 0);
     ++miTextures;
 
-    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\Titles.png", g_game_base_path);
+    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\Titles.png", base_path);
     LoadTexture(miTextures, sTemp, 0, 0);
     ++miTextures;
 }
@@ -1997,7 +1997,7 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
     }
 }
 
-static void GrabDonuts(GameInput* game_input, GameRawInput* input_bindings) {
+static void GrabDonuts(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     int iLoop;
     int iCheck;
     int iWon;
@@ -2013,7 +2013,7 @@ static void GrabDonuts(GameInput* game_input, GameRawInput* input_bindings) {
             iGot = 1;
 
             iEvent1 = DS[iLoop].Num;
-            RunScript(&SCLevel, iDonutScript, game_input, input_bindings);
+            RunScript(&SCLevel, iDonutScript, game_settings, game_input, input_bindings);
         }
     }
 
@@ -2028,13 +2028,13 @@ static void GrabDonuts(GameInput* game_input, GameRawInput* input_bindings) {
         }
 
         if(iWon) {
-            if(g_music_is_enabled) {
+            if(game_settings->music_is_enabled) {
                 StopMusic1();
             }
 
             iPlayerSC = 0;
             iPlayerST = JS_DONE;
-        } else if(g_sound_effects_are_enabled) {
+        } else if(game_settings->sound_effects_are_enabled) {
             PlaySoundEffect(1);
         }
     }
@@ -2052,11 +2052,11 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
     }
 }
 
-static void ResetPlayer(int iNewLevel, GameInput* game_input, GameRawInput* input_bindings) {
+static void ResetPlayer(int iNewLevel, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     long iResetScript;
 
     iResetScript = FindScript(&SCLevel, "reset");
-    RunScript(&SCLevel, iResetScript, game_input, input_bindings);
+    RunScript(&SCLevel, iResetScript, game_settings, game_input, input_bindings);
 
     int iObj;
     iObj = -1;
@@ -2064,12 +2064,12 @@ static void ResetPlayer(int iNewLevel, GameInput* game_input, GameRawInput* inpu
     while(++iObj < MAX_SCRIPTOBJECTS) {
         if(oObject[iObj].Active) {
             iResetScript = FindScript(&oObject[iObj], "resetpos");
-            RunScript(&oObject[iObj], iResetScript, game_input, input_bindings);
+            RunScript(&oObject[iObj], iResetScript, game_settings, game_input, input_bindings);
         }
     }
 }
 
-static void AnimateDying(GameInput* game_input, GameRawInput* input_bindings) {
+static void AnimateDying(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     float iSupport;
     long iPlatform;
     int bGrounded;
@@ -2144,7 +2144,7 @@ static void AnimateDying(GameInput* game_input, GameRawInput* input_bindings) {
             iPlayerAS = 0;
             iPlayerAX = 0;
 
-            if(g_sound_effects_are_enabled) {
+            if(game_settings->sound_effects_are_enabled) {
                 PlaySoundEffect(2);
             }
 
@@ -2181,7 +2181,7 @@ static void AnimateDying(GameInput* game_input, GameRawInput* input_bindings) {
         }
 
         if(iPlayerAX == 25) {
-            if(g_music_is_enabled) {
+            if(game_settings->music_is_enabled) {
                 NewTrack2(msDeathMusic);
             }
         }
@@ -2214,12 +2214,12 @@ static void AnimateDying(GameInput* game_input, GameRawInput* input_bindings) {
             if(GameLivesRemaining == 0) {
                 iPlayerST = JS_NORMAL;
                 strcpy_s(GameTitle, sizeof(GameTitle), "");
-                sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\GameOver.DAT", g_game_base_path);
-                PrepLevel(sTemp, game_input, input_bindings);
+                sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\GameOver.DAT", game_settings->game_base_path);
+                PrepLevel(sTemp, game_settings, game_input, input_bindings);
             } else {
-                ResetPlayer(0, game_input, input_bindings);
+                ResetPlayer(0, game_settings, game_input, input_bindings);
 
-                if(g_music_is_enabled && miIntroLength != 5550) {
+                if(game_settings->music_is_enabled && miIntroLength != 5550) {
                     NewTrack1(msBackMusic, miIntroLength, miIntroLength);
                 }
             }
@@ -2227,7 +2227,7 @@ static void AnimateDying(GameInput* game_input, GameRawInput* input_bindings) {
     }
 }
 
-static void ProgressGame(GameInput* game_input, GameRawInput* input_bindings) {
+static void ProgressGame(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     int iObject;
     int iTemp;
 
@@ -2244,34 +2244,34 @@ static void ProgressGame(GameInput* game_input, GameRawInput* input_bindings) {
             ++iPlayerAF;
             iPlayerRX = 0;
             iPlayerM = JM_STAND;
-            MoveJumpman(game_input);
+            MoveJumpman(game_settings, game_input);
 
             if(iPlayerM == JM_STAND && iPlayerVisible && g_game_time_inactive > 400) {
                 iTemp = (g_game_time_inactive % 400) / 6;
                 iTemp = iTemp > 10 ? 2 : iTemp & 1;
                 iPlayerM = JM_BORED1 + iTemp;
             }
-            GrabDonuts(game_input, input_bindings);
+            GrabDonuts(game_settings, game_input, input_bindings);
         }
 
         if((iPlayerST & JS_DYING) && !iPlayerFreeze) {
-            AnimateDying(game_input, input_bindings);
-            GrabDonuts(game_input, input_bindings);
+            AnimateDying(game_settings, game_input, input_bindings);
+            GrabDonuts(game_settings, game_input, input_bindings);
         }
 
         SetGamePerspective();
 
-        RunScript(&SCLevel, iMainScript, game_input, input_bindings);
+        RunScript(&SCLevel, iMainScript, game_settings, game_input, input_bindings);
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
             if(oObject[iObject].Active == 1) {
-                RunScript(&oObject[iObject], 1, game_input, input_bindings);
+                RunScript(&oObject[iObject], 1, game_settings, game_input, input_bindings);
             }
         }
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
             if(oObject[iObject].Active == 2) {
-                RunScript(&oObject[iObject], 1, game_input, input_bindings);
+                RunScript(&oObject[iObject], 1, game_settings, game_input, input_bindings);
                 oObject[iObject].Active = 1;
             }
         }
@@ -2279,13 +2279,13 @@ static void ProgressGame(GameInput* game_input, GameRawInput* input_bindings) {
         ++iPlayerSC;
 
         if(iPlayerSC == 30) {
-            if(g_music_is_enabled) {
+            if(game_settings->music_is_enabled) {
                 NewTrack2(msWinMusic);
             }
         }
 
         if(iPlayerSC == 300) {
-            LoadNextLevel(game_input, input_bindings);
+            LoadNextLevel(game_settings, game_input, input_bindings);
         }
     }
 }
@@ -2376,7 +2376,7 @@ static void DrawGame() {
 
 // ------------------- OTHER STUFF -------------------------------
 
-static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
+static void GetLevelFilename(const char* base_path, char* sLevel, size_t sLevelSize, int iLevel) {
     int iLen;
     char sTemp[20] = { 0 };
     char* sData;
@@ -2385,11 +2385,11 @@ static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
     // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function
     TextLine(sData, iLen, sTemp, 20, iLevel * 2 - 1);
     TextLine(sData, iLen, GameTitle, 49, iLevel * 2);
-    sprintf_s(sLevel, sLevelSize, "%s\\Data\\%s.DAT", g_game_base_path, sTemp);
+    sprintf_s(sLevel, sLevelSize, "%s\\Data\\%s.DAT", base_path, sTemp);
     free(sData);
 }
 
-static void PrepLevel(char* sLevel, GameInput* game_input, GameRawInput* input_bindings) {
+static void PrepLevel(char* sLevel, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     Clear3dData();
     Begin3dLoad();
 
@@ -2397,23 +2397,23 @@ static void PrepLevel(char* sLevel, GameInput* game_input, GameRawInput* input_b
 
     iEvent1 = 0;
 
-    LoadMeshes();
-    LoadLevel(sLevel);
+    LoadMeshes(game_settings->game_base_path);
+    LoadLevel(game_settings->game_base_path, sLevel);
 
     EndAndCommit3dLoad();
 
     BuildNavigation();
-    ResetPlayer(1, game_input, input_bindings);
+    ResetPlayer(1, game_settings, game_input, input_bindings);
     g_game_time_inactive = 0;
 
-    ProgressGame(game_input, input_bindings);
-    ProgressGame(game_input, input_bindings);
-    ProgressGame(game_input, input_bindings);
-    ProgressGame(game_input, input_bindings);
-    ProgressGame(game_input, input_bindings);
+    ProgressGame(game_settings, game_input, input_bindings);
+    ProgressGame(game_settings, game_input, input_bindings);
+    ProgressGame(game_settings, game_input, input_bindings);
+    ProgressGame(game_settings, game_input, input_bindings);
+    ProgressGame(game_settings, game_input, input_bindings);
 
     char sFileName[300];
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Title.BIN", g_game_base_path);
+    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Title.BIN", game_settings->game_base_path);
 
     LoadScript(sFileName, &TitleScript);
     ResetContext(&SCTitle);
@@ -2424,29 +2424,29 @@ static void PrepLevel(char* sLevel, GameInput* game_input, GameRawInput* input_b
 
     Render();
 
-    if(g_music_is_enabled && miIntroLength != 5550) {
+    if(game_settings->music_is_enabled && miIntroLength != 5550) {
         NewTrack1(msBackMusic, 0, miIntroLength);
     }
 }
 
-static void LoadNextLevel(GameInput* game_input, GameRawInput* input_bindings) {
+static void LoadNextLevel(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     char sLevel[200];
 
     if(g_debug_level_is_specified) {
         GameLivesRemaining = 5;
-        PrepLevel(g_debug_level_filename, game_input, input_bindings);
+        PrepLevel(g_debug_level_filename, game_settings, game_input, input_bindings);
     } else {
         ++iLevel;
-        GetLevelFilename(sLevel, sizeof(sLevel), iLevel);
-        PrepLevel(sLevel, game_input, input_bindings);
+        GetLevelFilename(game_settings->game_base_path, sLevel, sizeof(sLevel), iLevel);
+        PrepLevel(sLevel, game_settings, game_input, input_bindings);
     }
 }
 
-void InitGameDebugLevel(const char* level_name, GameInput* game_input, GameRawInput* input_bindings) {
+void InitGameDebugLevel(const char* level_name, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     g_debug_level_is_specified = true;
-    sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "%s\\Data\\%s.DAT", g_game_base_path, level_name);
+    sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "%s\\Data\\%s.DAT", game_settings->game_base_path, level_name);
     g_debug_level_is_specified = 1;
-    LoadNextLevel(game_input, input_bindings);
+    LoadNextLevel(game_settings, game_input, input_bindings);
     iLevel = 0;
     GameStatus = GS_INLEVEL;
 }
@@ -2463,7 +2463,7 @@ void ExitGame() {
     GameStatus = GS_EXITING;
 }
 
-static void LoadJumpmanMenu() {
+static void LoadJumpmanMenu(GameSettings* game_settings) {
     if(GameMenuDrawn == GameMenu) {
         return;
     }
@@ -2475,39 +2475,39 @@ static void LoadJumpmanMenu() {
     SetFog(0, 0, 0, 0, 0);
 
     if(GameMenu == GM_MAIN) {
-        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\MainMenu.DAT", g_game_base_path);
-        LoadLevel(sFileName);
+        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\MainMenu.DAT", game_settings->game_base_path);
+        LoadLevel(game_settings->game_base_path, sFileName);
 
         if(iEvent1 == 10) {
-            if(g_music_is_enabled) {
+            if(game_settings->music_is_enabled) {
                 NewTrack1(msBackMusic, 3000, -1);
             }
         }
 
         if(iEvent1 == 100) {
-            if(g_music_is_enabled) {
+            if(game_settings->music_is_enabled) {
                 NewTrack1(msDeathMusic, 0, -1);
             }
         }
     }
 
     if(GameMenu == GM_OPTIONS) {
-        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Options.DAT", g_game_base_path);
-        LoadLevel(sFileName);
+        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Options.DAT", game_settings->game_base_path);
+        LoadLevel(game_settings->game_base_path, sFileName);
 
         if(iEvent1 == 9) {
-            if(g_music_is_enabled) {
+            if(game_settings->music_is_enabled) {
                 NewTrack1(msBackMusic, 0, miIntroLength);
             }
         }
     }
 
     if(GameMenu == GM_SELECTGAME) {
-        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\SelectGame.DAT", g_game_base_path);
-        LoadLevel(sFileName);
+        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\SelectGame.DAT", game_settings->game_base_path);
+        LoadLevel(game_settings->game_base_path, sFileName);
 
         if(iEvent1 == 9) {
-            if(g_music_is_enabled) {
+            if(game_settings->music_is_enabled) {
                 NewTrack1(msBackMusic, 0, miIntroLength);
             }
         }
@@ -2518,19 +2518,19 @@ static void LoadJumpmanMenu() {
     EndAndCommit3dLoad();
 }
 
-static void InteractMenu(GameInput* game_input, GameRawInput* input_bindings) {
+static void InteractMenu(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     long iObject;
-    RunScript(&SCLevel, iMainScript, game_input, input_bindings);
+    RunScript(&SCLevel, iMainScript, game_settings, game_input, input_bindings);
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(oObject[iObject].Active == 1) {
-            RunScript(&oObject[iObject], 1, game_input, input_bindings);
+            RunScript(&oObject[iObject], 1, game_settings, game_input, input_bindings);
         }
     }
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(oObject[iObject].Active == 2) {
-            RunScript(&oObject[iObject], 1, game_input, input_bindings);
+            RunScript(&oObject[iObject], 1, game_settings, game_input, input_bindings);
             oObject[iObject].Active = 1;
         }
     }
@@ -2539,7 +2539,7 @@ static void InteractMenu(GameInput* game_input, GameRawInput* input_bindings) {
     Render();
 }
 
-void UpdateGame(GameInput* game_input, GameRawInput* input_bindings) {
+void UpdateGame(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     ++g_game_time_inactive;
 
     if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || game_input->move_up_action.is_pressed || game_input->move_down_action.is_pressed || game_input->jump_action.is_pressed) {
@@ -2547,12 +2547,12 @@ void UpdateGame(GameInput* game_input, GameRawInput* input_bindings) {
     }
 
     if(GameStatus == GS_MENU) {
-        LoadJumpmanMenu();
-        InteractMenu(game_input, input_bindings);
+        LoadJumpmanMenu(game_settings);
+        InteractMenu(game_settings, game_input, input_bindings);
 
         if(GameStatus == GS_INLEVEL) {
             iLevel = 0;
-            LoadNextLevel(game_input, input_bindings);
+            LoadNextLevel(game_settings, game_input, input_bindings);
         }
     }
 
@@ -2563,20 +2563,20 @@ void UpdateGame(GameInput* game_input, GameRawInput* input_bindings) {
             }
             ++iScrollTitle;
             iEvent1 = iScrollTitle;
-            RunScript(&SCTitle, 1, game_input, input_bindings);
+            RunScript(&SCTitle, 1, game_settings, game_input, input_bindings);
 
             if(iScrollTitle > 600) {
                 iScrollTitle = 0;
             }
         } else {
-            if(!g_game_is_frozen) {
-                ProgressGame(game_input, input_bindings);
+            if(!game_settings->game_is_frozen) {
+                ProgressGame(game_settings, game_input, input_bindings);
             }
 
-            RunScript(&SCTitle, 1, game_input, input_bindings);
+            RunScript(&SCTitle, 1, game_settings, game_input, input_bindings);
         }
 
-        if(!g_game_is_frozen) {
+        if(!game_settings->game_is_frozen) {
             DrawGame();
         }
     }
@@ -2609,14 +2609,14 @@ long Init3D() {
     return 1;
 }
 
-static long LoadMesh(char* sFileName) {
+static long LoadMesh(const char* base_path, char* sFileName) {
     unsigned char* cData;
     long* oData;
     char sFullFile[300];
     long iObjectNum;
     int iNums;
 
-    sprintf_s(sFullFile, sizeof(sFullFile), "%s\\Data\\%s", g_game_base_path, sFileName);
+    sprintf_s(sFullFile, sizeof(sFullFile), "%s\\Data\\%s", base_path, sFileName);
 
     cData = NULL;
     iNums = FileToString(sFullFile, &cData);
@@ -2640,57 +2640,57 @@ static long LoadMesh(char* sFileName) {
     return iObjectNum;
 }
 
-static void LoadMeshes() {
-    iFindMesh[JM_STAND] = LoadMesh("Stand.MSH");
-    iFindMesh[JM_LEFT1] = LoadMesh("Left1.MSH");
-    iFindMesh[JM_LEFT2] = LoadMesh("Left2.MSH");
-    iFindMesh[JM_RIGHT1] = LoadMesh("Right1.MSH");
-    iFindMesh[JM_RIGHT2] = LoadMesh("Right2.MSH");
+static void LoadMeshes(const char* base_path) {
+    iFindMesh[JM_STAND] = LoadMesh(base_path, "Stand.MSH");
+    iFindMesh[JM_LEFT1] = LoadMesh(base_path, "Left1.MSH");
+    iFindMesh[JM_LEFT2] = LoadMesh(base_path, "Left2.MSH");
+    iFindMesh[JM_RIGHT1] = LoadMesh(base_path, "Right1.MSH");
+    iFindMesh[JM_RIGHT2] = LoadMesh(base_path, "Right2.MSH");
 
-    iFindMesh[JM_JUMPUP] = LoadMesh("JumpUp.MSH");
-    iFindMesh[JM_JUMPLEFT] = LoadMesh("JumpLeft.MSH");
-    iFindMesh[JM_JUMPRIGHT] = LoadMesh("JumpRight.MSH");
+    iFindMesh[JM_JUMPUP] = LoadMesh(base_path, "JumpUp.MSH");
+    iFindMesh[JM_JUMPLEFT] = LoadMesh(base_path, "JumpLeft.MSH");
+    iFindMesh[JM_JUMPRIGHT] = LoadMesh(base_path, "JumpRight.MSH");
 
-    iFindMesh[JM_VINECLIMB1] = LoadMesh("RopeClimb1.MSH");
-    iFindMesh[JM_VINECLIMB2] = LoadMesh("RopeClimb2.MSH");
+    iFindMesh[JM_VINECLIMB1] = LoadMesh(base_path, "RopeClimb1.MSH");
+    iFindMesh[JM_VINECLIMB2] = LoadMesh(base_path, "RopeClimb2.MSH");
 
-    iFindMesh[JM_LADDERCLIMB1] = LoadMesh("LadderClimb1.MSH");
-    iFindMesh[JM_LADDERCLIMB2] = LoadMesh("LadderClimb2.MSH");
+    iFindMesh[JM_LADDERCLIMB1] = LoadMesh(base_path, "LadderClimb1.MSH");
+    iFindMesh[JM_LADDERCLIMB2] = LoadMesh(base_path, "LadderClimb2.MSH");
 
-    iFindMesh[JM_KICKLEFT] = LoadMesh("KickLeft.MSH");
-    iFindMesh[JM_KICKRIGHT] = LoadMesh("KickRight.MSH");
+    iFindMesh[JM_KICKLEFT] = LoadMesh(base_path, "KickLeft.MSH");
+    iFindMesh[JM_KICKRIGHT] = LoadMesh(base_path, "KickRight.MSH");
 
-    iFindMesh[JM_DIVERIGHT] = LoadMesh("DiveRight.MSH");
-    iFindMesh[JM_ROLLRIGHT1] = LoadMesh("RollRight1.MSH");
-    iFindMesh[JM_ROLLRIGHT2] = LoadMesh("RollRight2.MSH");
-    iFindMesh[JM_ROLLRIGHT3] = LoadMesh("RollRight3.MSH");
-    iFindMesh[JM_ROLLRIGHT4] = LoadMesh("RollRight4.MSH");
+    iFindMesh[JM_DIVERIGHT] = LoadMesh(base_path, "DiveRight.MSH");
+    iFindMesh[JM_ROLLRIGHT1] = LoadMesh(base_path, "RollRight1.MSH");
+    iFindMesh[JM_ROLLRIGHT2] = LoadMesh(base_path, "RollRight2.MSH");
+    iFindMesh[JM_ROLLRIGHT3] = LoadMesh(base_path, "RollRight3.MSH");
+    iFindMesh[JM_ROLLRIGHT4] = LoadMesh(base_path, "RollRight4.MSH");
 
-    iFindMesh[JM_DIVELEFT] = LoadMesh("DiveLeft.MSH");
-    iFindMesh[JM_ROLLLEFT1] = LoadMesh("RollLEFT1.MSH");
-    iFindMesh[JM_ROLLLEFT2] = LoadMesh("RollLEFT2.MSH");
-    iFindMesh[JM_ROLLLEFT3] = LoadMesh("RollLEFT3.MSH");
-    iFindMesh[JM_ROLLLEFT4] = LoadMesh("RollLEFT4.MSH");
+    iFindMesh[JM_DIVELEFT] = LoadMesh(base_path, "DiveLeft.MSH");
+    iFindMesh[JM_ROLLLEFT1] = LoadMesh(base_path, "RollLEFT1.MSH");
+    iFindMesh[JM_ROLLLEFT2] = LoadMesh(base_path, "RollLEFT2.MSH");
+    iFindMesh[JM_ROLLLEFT3] = LoadMesh(base_path, "RollLEFT3.MSH");
+    iFindMesh[JM_ROLLLEFT4] = LoadMesh(base_path, "RollLEFT4.MSH");
 
-    iFindMesh[JM_PUNCHLEFT] = LoadMesh("PunchLeft.MSH");
-    iFindMesh[JM_PUNCHRIGHT] = LoadMesh("PunchRight.MSH");
-    iFindMesh[JM_PUNCHLEFT2] = LoadMesh("PunchLeft2.MSH");
-    iFindMesh[JM_PUNCHRIGHT2] = LoadMesh("PunchRight2.MSH");
+    iFindMesh[JM_PUNCHLEFT] = LoadMesh(base_path, "PunchLeft.MSH");
+    iFindMesh[JM_PUNCHRIGHT] = LoadMesh(base_path, "PunchRight.MSH");
+    iFindMesh[JM_PUNCHLEFT2] = LoadMesh(base_path, "PunchLeft2.MSH");
+    iFindMesh[JM_PUNCHRIGHT2] = LoadMesh(base_path, "PunchRight2.MSH");
 
-    iFindMesh[JM_DYING] = LoadMesh("Dying.MSH");
-    iFindMesh[JM_DEAD] = LoadMesh("Dead.MSH");
-    iFindMesh[JM_STARS] = LoadMesh("Stars.MSH");
+    iFindMesh[JM_DYING] = LoadMesh(base_path, "Dying.MSH");
+    iFindMesh[JM_DEAD] = LoadMesh(base_path, "Dead.MSH");
+    iFindMesh[JM_STARS] = LoadMesh(base_path, "Stars.MSH");
 
-    iFindMesh[JM_SLIDER] = LoadMesh("SlideR.MSH");
-    iFindMesh[JM_SLIDERB] = LoadMesh("SlideRB.MSH");
-    iFindMesh[JM_SLIDEL] = LoadMesh("SlideL.MSH");
-    iFindMesh[JM_SLIDELB] = LoadMesh("SlideLB.MSH");
+    iFindMesh[JM_SLIDER] = LoadMesh(base_path, "SlideR.MSH");
+    iFindMesh[JM_SLIDERB] = LoadMesh(base_path, "SlideRB.MSH");
+    iFindMesh[JM_SLIDEL] = LoadMesh(base_path, "SlideL.MSH");
+    iFindMesh[JM_SLIDELB] = LoadMesh(base_path, "SlideLB.MSH");
 
-    iFindMesh[JM_BORED1] = LoadMesh("BORED1.MSH");
-    iFindMesh[JM_BORED2] = LoadMesh("BORED2.MSH");
-    iFindMesh[JM_BORED3] = LoadMesh("BORED3.MSH");
-    iFindMesh[JM_BORED4] = LoadMesh("BORED4.MSH");
-    iFindMesh[JM_BORED5] = LoadMesh("BORED5.MSH");
+    iFindMesh[JM_BORED1] = LoadMesh(base_path, "BORED1.MSH");
+    iFindMesh[JM_BORED2] = LoadMesh(base_path, "BORED2.MSH");
+    iFindMesh[JM_BORED3] = LoadMesh(base_path, "BORED3.MSH");
+    iFindMesh[JM_BORED4] = LoadMesh(base_path, "BORED4.MSH");
+    iFindMesh[JM_BORED5] = LoadMesh(base_path, "BORED5.MSH");
 }
 
 
@@ -2727,8 +2727,8 @@ static void MoveJumpmanNormal();
 
 static int iIgnoreLadders;
 
-static void DoDeathBounce() {
-    if(g_music_is_enabled) {
+static void DoDeathBounce(GameSettings* game_settings) {
+    if(game_settings->music_is_enabled) {
         StopMusic1();
     }
 
@@ -2751,7 +2751,7 @@ static void DoDeathBounce() {
     }
 }
 
-static int CheckWalkOff(int iCenter, GameInput* game_input) {
+static int CheckWalkOff(int iCenter, GameSettings* game_settings, GameInput* game_input) {
     if(iPlayerX < iCenter && game_input->move_right_action.is_pressed) {
         return 0;
     }
@@ -2765,14 +2765,14 @@ static int CheckWalkOff(int iCenter, GameInput* game_input) {
     }
 
     if(iPlayerY <= iSitSupport && (game_input->move_left_action.is_pressed != game_input->move_right_action.is_pressed)) {
-        MoveJumpmanNormal(game_input);
+        MoveJumpmanNormal(game_settings, game_input);
         return 1;
     }
 
     return 0;
 }
 
-static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input) {
+static int CheckJumpStart(int iLeft, int iUp, int iRight, GameSettings* game_settings, GameInput* game_input) {
     if(!game_input->jump_action.is_pressed) {
         return 0;
     }
@@ -2790,11 +2790,11 @@ static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input)
     iPlayerACT = 0;
     iPlayerSC = 0;
 
-    if(g_sound_effects_are_enabled) {
+    if(game_settings->sound_effects_are_enabled) {
         PlaySoundEffect(0);
     }
 
-    MoveJumpmanJumping(game_input);
+    MoveJumpmanJumping(game_settings, game_input);
 
     return 1;
 }
@@ -2812,7 +2812,7 @@ static void UpdateSituation() {
     }
 }
 
-static void MoveJumpmanVine(GameInput* game_input) {
+static void MoveJumpmanVine(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_VINE;
     iPlayerACT = 0;
 
@@ -2821,11 +2821,11 @@ static void MoveJumpmanVine(GameInput* game_input) {
         return;
     }
 
-    if(CheckJumpStart(1, 0, 1, game_input)) {
+    if(CheckJumpStart(1, 0, 1, game_settings, game_input)) {
         return;
     }
 
-    if(CheckWalkOff(VS[iSitVinAp].X1, game_input)) {
+    if(CheckWalkOff(VS[iSitVinAp].X1, game_settings, game_input)) {
         return;
     }
 
@@ -2835,7 +2835,7 @@ static void MoveJumpmanVine(GameInput* game_input) {
     if(VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport - 1) {
         --iPlayerY;
     } else {
-        MoveJumpmanNormal(game_input);
+        MoveJumpmanNormal(game_settings, game_input);
         return;
     }
 
@@ -2854,7 +2854,7 @@ static void MoveJumpmanVine(GameInput* game_input) {
     }
 }
 
-static void MoveJumpmanLadder(GameInput* game_input) {
+static void MoveJumpmanLadder(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_LADDER;
     iPlayerACT = 0;
     iIgnoreLadders = 1;
@@ -2865,12 +2865,12 @@ static void MoveJumpmanLadder(GameInput* game_input) {
     }
 
     if(iSitSupport >= iPlayerY || (LS[iSitLadA].X1 < iPlayerX + 2 && LS[iSitLadA].X1 > iPlayerX - 2)) {
-        if(CheckJumpStart(1, 0, 1, game_input)) {
+        if(CheckJumpStart(1, 0, 1, game_settings, game_input)) {
             return;
         }
     }
 
-    if(CheckWalkOff(LS[iSitLadA].X1, game_input)) {
+    if(CheckWalkOff(LS[iSitLadA].X1, game_settings, game_input)) {
         return;
     }
 
@@ -2906,38 +2906,38 @@ static void MoveJumpmanLadder(GameInput* game_input) {
     }
 }
 
-static void MoveJumpmanNormal(GameInput* game_input) {
+static void MoveJumpmanNormal(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_NORMAL;
     iPlayerACT = 0;
 
     AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
 
     if(iSitVinAp != -1 && !game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed && (VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport)) {
-        MoveJumpmanVine(game_input);
+        MoveJumpmanVine(game_settings, game_input);
         return;
     }
 
     if(iSitSupport > iPlayerY - 2 && (PS[iSitPlatform].Extra == 1 || PS[iSitPlatform].Extra == 2)) {
-        MoveJumpmanSlide(game_input);
+        MoveJumpmanSlide(game_settings, game_input);
         return;
     }
 
     if(iSitLadA != -1 && !iIgnoreLadders && (game_input->move_up_action.is_pressed != game_input->move_down_action.is_pressed)) {
         if((!game_input->move_right_action.is_pressed || iPlayerX < LS[iSitLadA].X1 + 1) && (!game_input->move_left_action.is_pressed || iPlayerX > LS[iSitLadA].X1 - 1)) {
             if(game_input->move_up_action.is_pressed && LS[iSitLadA].Y1 - 5 > iPlayerY) {
-                MoveJumpmanLadder(game_input);
+                MoveJumpmanLadder(game_settings, game_input);
                 return;
             }
 
             if(game_input->move_down_action.is_pressed && (LS[iSitLadA].Y2 < iSitSupport - 3 || iSitSupport < iPlayerY - 1)) {
-                MoveJumpmanLadder(game_input);
+                MoveJumpmanLadder(game_settings, game_input);
                 return;
             }
         }
     }
 
     if(iPlayerY <= iSitSupport + 1) {
-        if(CheckJumpStart(1, 1, 1, game_input)) {
+        if(CheckJumpStart(1, 1, 1, game_settings, game_input)) {
             return;
         }
     }
@@ -2960,7 +2960,7 @@ static void MoveJumpmanNormal(GameInput* game_input) {
         iPlayerY = iSitSupport;
     } else if(iSitSupport < iPlayerY - 4) {
         iPlayerSC = 0;
-        MoveJumpmanFalling(game_input);
+        MoveJumpmanFalling(game_settings, game_input);
         return;
     } else if(iSitSupport < iPlayerY - 1) {
         --iPlayerY;
@@ -3002,7 +3002,7 @@ static void MoveJumpmanNormal(GameInput* game_input) {
     }
 }
 
-static void MoveJumpmanFalling(GameInput* game_input) {
+static void MoveJumpmanFalling(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_FALLING;
     iPlayerACT = 0;
 
@@ -3021,17 +3021,17 @@ static void MoveJumpmanFalling(GameInput* game_input) {
 
     if(iPlayerY <= iSitSupport && PS[iSitPlatform].Extra != 3) {
         if(iPlayerSC < 10) {
-            MoveJumpmanNormal(game_input);
+            MoveJumpmanNormal(game_settings, game_input);
             return;
         } else {
             iPlayerACT = 0;
-            DoDeathBounce();
+            DoDeathBounce(game_settings);
             return;
         }
     }
 }
 
-static void MoveJumpmanJumping(GameInput* game_input) {
+static void MoveJumpmanJumping(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_JUMPING;
 
     if(iPlayerACT != JA_KICK && game_input->attack_action.is_pressed && ((iPlayerDIR == JD_RIGHT) || (iPlayerDIR == JD_LEFT))) {
@@ -3039,32 +3039,32 @@ static void MoveJumpmanJumping(GameInput* game_input) {
     }
 
     if(iSitLadE != -1 && !game_input->attack_action.is_pressed && (iPlayerSC > 15 || !game_input->jump_action.is_pressed || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
-        MoveJumpmanLadder(game_input);
+        MoveJumpmanLadder(game_settings, game_input);
         return;
     }
 
     if(iSitVinEx != -1 && !game_input->attack_action.is_pressed && (iPlayerSC > 10 || !game_input->jump_action.is_pressed || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
-        MoveJumpmanVine(game_input);
+        MoveJumpmanVine(game_settings, game_input);
         return;
     }
 
     if(iPlayerSC > 50) {
         if(iSitLadA != -1) {
-            MoveJumpmanLadder(game_input);
+            MoveJumpmanLadder(game_settings, game_input);
             return;
         }
 
         if(iSitVinAp != -1) {
-            MoveJumpmanVine(game_input);
+            MoveJumpmanVine(game_settings, game_input);
             return;
         }
 
-        MoveJumpmanNormal(game_input);
+        MoveJumpmanNormal(game_settings, game_input);
         return;
     }
 
     if(iPlayerY < iSitSupport && iPlayerSC > 6 && (!game_input->jump_action.is_pressed || iPlayerSC > 12)) {
-        MoveJumpmanNormal(game_input);
+        MoveJumpmanNormal(game_settings, game_input);
         return;
     }
 
@@ -3096,11 +3096,11 @@ static void MoveJumpmanJumping(GameInput* game_input) {
 
     if(game_input->move_down_action.is_pressed && !iPlayerNoRoll && (iPlayerDIR == JD_RIGHT || iPlayerDIR == JD_LEFT)) {
         iPlayerSC = 0;
-        MoveJumpmanRoll(game_input);
+        MoveJumpmanRoll(game_settings, game_input);
     }
 }
 
-static void MoveJumpmanSlide(GameInput* game_input) {
+static void MoveJumpmanSlide(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_SLIDE;
     iPlayerACT = 0;
 
@@ -3112,7 +3112,7 @@ static void MoveJumpmanSlide(GameInput* game_input) {
     iExtra = PS[iSitPlatform].Extra;
 
     if(!iExtra && iPlayerY <= iSitSupport) {
-        MoveJumpmanNormal(game_input);
+        MoveJumpmanNormal(game_settings, game_input);
         return;
     }
 
@@ -3120,7 +3120,7 @@ static void MoveJumpmanSlide(GameInput* game_input) {
         ++iPlayerSC;
 
         if(iPlayerSC > 30) {
-            MoveJumpmanNormal(game_input);
+            MoveJumpmanNormal(game_settings, game_input);
             return;
         }
     } else {
@@ -3129,7 +3129,7 @@ static void MoveJumpmanSlide(GameInput* game_input) {
 
     if(iPlayerY < iSitSupport + 1) {
         if(iExtra == 1) {
-            if(CheckJumpStart(0, 0, 1, game_input)) {
+            if(CheckJumpStart(0, 0, 1, game_settings, game_input)) {
                 return;
             }
             ++iPlayerX;
@@ -3137,7 +3137,7 @@ static void MoveJumpmanSlide(GameInput* game_input) {
         }
 
         if(iExtra == 2) {
-            if(CheckJumpStart(1, 0, 0, game_input)) {
+            if(CheckJumpStart(1, 0, 0, game_settings, game_input)) {
                 return;
             }
             --iPlayerX;
@@ -3146,7 +3146,7 @@ static void MoveJumpmanSlide(GameInput* game_input) {
     } else {
         if(iPlayerDIR == JD_RIGHT) {
             if(iPlayerSC < 6) {
-                if(CheckJumpStart(0, 0, 1, game_input)) {
+                if(CheckJumpStart(0, 0, 1, game_settings, game_input)) {
                     return;
                 }
             }
@@ -3156,7 +3156,7 @@ static void MoveJumpmanSlide(GameInput* game_input) {
 
         if(iPlayerDIR == JD_LEFT) {
             if(iPlayerSC < 6) {
-                if(CheckJumpStart(1, 0, 0, game_input)) {
+                if(CheckJumpStart(1, 0, 0, game_settings, game_input)) {
                     return;
                 }
             }
@@ -3200,7 +3200,7 @@ static void MoveJumpmanSlide(GameInput* game_input) {
     }
 }
 
-static void MoveJumpmanRoll(GameInput* game_input) {
+static void MoveJumpmanRoll(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_ROLL;
     iPlayerACT = 0;
 
@@ -3208,7 +3208,7 @@ static void MoveJumpmanRoll(GameInput* game_input) {
         ++iPlayerSC;
 
         if(iPlayerSC > 50) {
-            MoveJumpmanNormal(game_input);
+            MoveJumpmanNormal(game_settings, game_input);
             return;
         }
     } else {
@@ -3216,23 +3216,23 @@ static void MoveJumpmanRoll(GameInput* game_input) {
     }
 
     if(iPlayerY <= iSitSupport && (PS[iSitPlatform].Extra == 1 || PS[iSitPlatform].Extra == 2)) {
-        MoveJumpmanSlide(game_input);
+        MoveJumpmanSlide(game_settings, game_input);
         return;
     }
 
     if(iPlayerY <= iSitSupport) {
         if(iPlayerDIR == JD_RIGHT && !game_input->move_right_action.is_pressed) {
-            MoveJumpmanNormal(game_input);
+            MoveJumpmanNormal(game_settings, game_input);
             return;
         }
 
         if(iPlayerDIR == JD_LEFT && !game_input->move_left_action.is_pressed) {
-            MoveJumpmanNormal(game_input);
+            MoveJumpmanNormal(game_settings, game_input);
             return;
         }
 
         if(!game_input->move_down_action.is_pressed) {
-            if(CheckJumpStart(1, 1, 1, game_input)) {
+            if(CheckJumpStart(1, 1, 1, game_settings, game_input)) {
                 return;
             }
         }
@@ -3240,17 +3240,17 @@ static void MoveJumpmanRoll(GameInput* game_input) {
 
     if((!game_input->jump_action.is_pressed) && (iPlayerY <= iSitSupport+.1) && game_input->attack_action.is_pressed) {
         iPlayerSC = 0;
-        MoveJumpmanPunch(game_input);
+        MoveJumpmanPunch(game_settings, game_input);
         return;
     }
 
     if(iSitLadE != -1 && iSitSupport < iPlayerY && (iPlayerSC > 10)) {
-        MoveJumpmanLadder(game_input);
+        MoveJumpmanLadder(game_settings, game_input);
         return;
     }
 
     if(iSitVinEx != -1 && iSitSupport < iPlayerY && (iPlayerSC > 10)) {
-        MoveJumpmanVine(game_input);
+        MoveJumpmanVine(game_settings, game_input);
         return;
     }
 
@@ -3300,12 +3300,12 @@ static void MoveJumpmanRoll(GameInput* game_input) {
     }
 }
 
-static void MoveJumpmanPunch(GameInput* game_input) {
+static void MoveJumpmanPunch(GameSettings* game_settings, GameInput* game_input) {
     iPlayerST = JS_PUNCH;
     iPlayerACT = JA_PUNCH;
 
     if(iPlayerSC > 20 || (iPlayerSC < 12 && iPlayerY < iSitSupport - 2) || (iPlayerSC > 11 && iPlayerY <= iSitSupport)) {
-        MoveJumpmanNormal(game_input);
+        MoveJumpmanNormal(game_settings, game_input);
         return;
     }
 
@@ -3330,7 +3330,7 @@ static void MoveJumpmanPunch(GameInput* game_input) {
     }
 }
 
-static void MoveJumpman(GameInput* game_input) {
+static void MoveJumpman(GameSettings* game_settings, GameInput* game_input) {
     iPlayerOldX = iPlayerX;
     iPlayerOldY = iPlayerY;
 
@@ -3339,26 +3339,26 @@ static void MoveJumpman(GameInput* game_input) {
     UpdateSituation();
 
     if(iPlayerST == JS_VINE) {
-        MoveJumpmanVine(game_input);
+        MoveJumpmanVine(game_settings, game_input);
     } else if(iPlayerST == JS_LADDER) {
-        MoveJumpmanLadder(game_input);
+        MoveJumpmanLadder(game_settings, game_input);
     } else if(iPlayerST == JS_NORMAL) {
-        MoveJumpmanNormal(game_input);
+        MoveJumpmanNormal(game_settings, game_input);
     } else if(iPlayerST == JS_FALLING) {
-        MoveJumpmanFalling(game_input);
+        MoveJumpmanFalling(game_settings, game_input);
     } else if(iPlayerST == JS_JUMPING) {
-        MoveJumpmanJumping(game_input);
+        MoveJumpmanJumping(game_settings, game_input);
     } else if(iPlayerST == JS_SLIDE) {
-        MoveJumpmanSlide(game_input);
+        MoveJumpmanSlide(game_settings, game_input);
     } else if(iPlayerST == JS_ROLL) {
-        MoveJumpmanRoll(game_input);
+        MoveJumpmanRoll(game_settings, game_input);
     } else if(iPlayerST == JS_PUNCH) {
-        MoveJumpmanPunch(game_input);
+        MoveJumpmanPunch(game_settings, game_input);
     }
 
     if(iPlayerY < 0) {
         iPlayerACT = 0;
-        DoDeathBounce();
+        DoDeathBounce(game_settings);
         return;
     }
 

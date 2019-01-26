@@ -2,6 +2,7 @@
 #define INCLUDED_JUMPMAN_ZERO_SCRIPT_H
 
 #include "Input.h"
+#include "Jumpman.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -37,7 +38,7 @@ typedef struct {
 
 void ResetContext(ScriptContext* SC);
 void LoadScript(char* sFileName, ScriptCode* oScript);
-void RunScript(ScriptContext* SC, long iSub, GameInput* game_input, GameRawInput* input_bindings);
+void RunScript(ScriptContext* SC, long iSub, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings);
 int FindScript(ScriptContext* SC, char* sFunc);
 
 #if defined(__cplusplus)

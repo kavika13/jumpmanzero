@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "Input.h"
+#include "Jumpman.h"
 #include "Script.h"
 #include "Utilities.h"
 
@@ -48,9 +49,9 @@
 #define EFGETDATA 45
 
 // TODO: Expose to script.c some other way? Like just exposing helper functions for all of them from Jumpman.c
-extern long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawInput* input_bindings);
+extern long ExtFunction(long iFunc, ScriptContext* SC, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings);
 
-void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameInput* game_input, GameRawInput* input_bindings);
+void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings);
 
 void ResetContext(ScriptContext *SC) {
     int iLoop;
@@ -73,7 +74,7 @@ int FindScript(ScriptContext* SC, char* sFunc) {
     return -1;
 }
 
-void RunScript(ScriptContext* SC, long iSub, GameInput* game_input, GameRawInput* input_bindings) {
+void RunScript(ScriptContext* SC, long iSub, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     if(iSub == -1) {
         return;
     }
@@ -91,13 +92,13 @@ void RunScript(ScriptContext* SC, long iSub, GameInput* game_input, GameRawInput
         iArg1 = SC->Script->Code[SC->IP * 3 + 1];
         iArg2 = SC->Script->Code[SC->IP * 3 + 2];
 
-        RunLine(SC, iFunc, iArg1, iArg2, game_input, input_bindings);
+        RunLine(SC, iFunc, iArg1, iArg2, game_settings, game_input, input_bindings);
 
         ++SC->IP;
     }
 }
 
-void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameInput* game_input, GameRawInput* input_bindings) {
+void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings) {
     long iArg1, iArg2;
     iArg1 = rArg1 / 256;
     iArg2 = rArg2 / 256;
@@ -175,9 +176,9 @@ void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameInput* g
         }
     } else if(iFunc == FCEXT) {
         if(iArg1 == EFGETDATA || iArg1 == EFGET) {
-            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_input, input_bindings);
+            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_settings, game_input, input_bindings);
         } else {
-            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_input, input_bindings) * 256;
+            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_settings, game_input, input_bindings) * 256;
         }
     } else {
         SC->Done = 1;
