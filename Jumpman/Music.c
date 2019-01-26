@@ -3,6 +3,7 @@
 #include "tsf.h"
 #define TML_IMPLEMENTATION
 #include "tml.h"
+#include "Music.h"
 #include "SoundBuffer.h"
 
 #define kMIDI_CHANNEL_COUNT 16
@@ -20,8 +21,13 @@ typedef struct {
     bool is_stopping;
 } MusicTrack;
 
+static bool g_music_is_initialized = false;
+static bool g_music_is_enabled = false;
 static MusicTrack g_track_1;
 static MusicTrack g_track_2;
+static char g_current_track_filename[200] = { 0 };  // TODO: Is this path long enough?
+static unsigned int g_current_track_song_start_music_time = 0;
+static unsigned int g_current_track_loop_start_music_time = 0;
 
 static unsigned int MusicTimeToMilliseconds(tml_message* first_midi_message, unsigned int music_time_value) {
     const double kMUSIC_TIME_PER_QUARTER_NOTE = 768.0;
@@ -208,6 +214,10 @@ static void StopTrack(MusicTrack* track) {
 }
 
 bool InitMusic() {
+    if(g_music_is_initialized) {
+        return true;
+    }
+
     g_track_1 = (const MusicTrack){ 0 };
     g_track_1.sound_font = tsf_load_filename("Sound/Reality_GMGS_falcomod.sf2");
 
@@ -230,10 +240,44 @@ bool InitMusic() {
     tsf_channel_set_bank_preset(g_track_2.sound_font, 9, 128, 0);
     tsf_set_output(g_track_2.sound_font, TSF_STEREO_INTERLEAVED, 44100, 0.0f);
 
+    g_music_is_initialized = true;
+
     return true;
 }
 
+bool GetIsMusicEnabled() {
+    return g_music_is_enabled;
+}
+
+void SetIsMusicEnabled(bool is_enabled) {
+    if(g_music_is_enabled != is_enabled) {
+        g_music_is_enabled = is_enabled;
+
+        if(g_music_is_initialized) {
+            // TODO: Handle track 2?
+            if(is_enabled) {
+                NewTrack1(g_current_track_filename, g_current_track_song_start_music_time, g_current_track_loop_start_music_time);
+            } else {
+                StopMusic1();
+            }
+        }
+    }
+}
+
 void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigned int loop_start_music_time) {
+    if(!g_music_is_initialized) {
+        return;
+    }
+
+    // Enable setting track even if music is not enabled, so we can start the track if we set it enabled again
+    strcpy_s(g_current_track_filename, sizeof(g_current_track_filename), filename);
+    g_current_track_song_start_music_time = song_start_music_time;
+    g_current_track_loop_start_music_time = loop_start_music_time;
+
+    if(!g_music_is_enabled) {
+        return;
+    }
+
     StopTrack(&g_track_1);
     tml_free(g_track_1.first_midi_message);
 
@@ -245,10 +289,27 @@ void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigne
         g_track_1.is_looped = false;
     }
 
+    static char g_current_track_filename[200] = { 0 };  // TODO: Is this path long enough?
+    static unsigned int g_current_track_song_start_music_time = 0;
+    static unsigned int g_current_track_loop_start_music_time = 0;
+
     LoadAndPlayTrack(filename, &g_track_1, MusicTimeToMilliseconds(g_track_1.first_midi_message, song_start_music_time), 0, AddTrack1Samples);
 }
 
 void NewTrack2(const char* filename) {
+    if(!g_music_is_initialized) {
+        return;
+    }
+
+    // Enable setting track even if music is not enabled, so we can start the track if we set it enabled again
+    strcpy_s(g_current_track_filename, sizeof(g_current_track_filename), filename);
+    g_current_track_song_start_music_time = 0;
+    g_current_track_loop_start_music_time = 0;
+
+    if(!g_music_is_enabled) {
+        return;
+    }
+
     StopTrack(&g_track_2);
     tml_free(g_track_2.first_midi_message);
 
@@ -259,10 +320,27 @@ void NewTrack2(const char* filename) {
 }
 
 void StopMusic1() {
+    if(!g_music_is_initialized) {
+        return;
+    }
+
+    // Enable stopping track even if music is not enabled
+    g_current_track_filename[0] = '\0';
+    g_current_track_song_start_music_time = 0;
+    g_current_track_loop_start_music_time = 0;
+
+    if(!g_music_is_enabled) {
+        return;
+    }
+
     StopTrack(&g_track_1);
 }
 
 void CleanUpMusic() {
+    if(!g_music_is_initialized) {
+        return;
+    }
+
     SetSoundChannel(0, NULL);
     SetSoundChannel(1, NULL);
     tsf_reset(g_track_1.sound_font);
@@ -273,4 +351,6 @@ void CleanUpMusic() {
     tml_free(g_track_2.first_midi_message);
     g_track_1 = (const MusicTrack){ 0 };
     g_track_2 = (const MusicTrack){ 0 };
+
+    g_music_is_initialized = false;
 }

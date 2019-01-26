@@ -8,6 +8,8 @@ extern "C" {
 #endif
 
 bool InitMusic();
+bool GetIsMusicEnabled();
+void SetIsMusicEnabled(bool is_enabled);
 void CleanUpMusic();
 void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigned int loop_start_music_time);
 void NewTrack2(const char* filename);

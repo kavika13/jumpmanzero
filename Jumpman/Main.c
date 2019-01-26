@@ -14,7 +14,6 @@
 #include "Utilities.h"
 
 typedef struct {
-    GameSettings settings;
     GameInput current_input;
 } GameState;
 
@@ -28,21 +27,27 @@ typedef struct {
 
 static const double kSECONDS_PER_FRAME = 1.0 / 40.0;
 
+static bool g_debug_is_enabled = false;
+static char g_game_base_path[300];
+static int g_key_bindings[6];
+static long g_last_key_pressed = 0;
 static bool g_fullscreen_is_enabled = kFULLSCREEN_IS_ENABLED_DEFAULT;
 static int g_window_resolution_x = kWINDOW_RESOLUTION_DEFAULT_X;
 static int g_window_resolution_y = kWINDOW_RESOLUTION_DEFAULT_Y;
 static int g_window_pos_x_backup = 0;
 static int g_window_pos_y_backup = 0;
 static bool g_save_settings_is_queued = false;
+static bool g_game_is_frozen = false;
+static long g_current_fps = 0;
 
 static GLFWwindow* g_main_window = NULL;
 
-static bool LoadSettings(GameSettings* game_settings, GameRawInput* game_raw_input) {
+static bool LoadSettings(bool* sound_is_initially_enabled, bool* music_is_initially_enabled) {
     char sTemp[30];
     int iKey;
     char sFileName[300];
 
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Settings.DAT", game_settings->game_base_path);
+    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Settings.DAT", g_game_base_path);
 
     char* sData;
     long iLen;
@@ -57,17 +62,17 @@ static bool LoadSettings(GameSettings* game_settings, GameRawInput* game_raw_inp
 
     while(++iKey < 6) {
         if(GetFileLine(sTemp, sizeof(sTemp), sFileName, iKey)) {
-            game_raw_input->key_bindings[iKey] = atoi(sTemp);
+            g_key_bindings[iKey] = atoi(sTemp);
         } else {
-            game_raw_input->key_bindings[iKey] = 0;
+            g_key_bindings[iKey] = 0;
         }
     }
 
-    game_settings->sound_effects_are_enabled = GetFileLine(sTemp, sizeof(sTemp), sFileName, 6)
+    *sound_is_initially_enabled = GetFileLine(sTemp, sizeof(sTemp), sFileName, 6)
         ? (atoi(sTemp) ? true : false)
         : false;
 
-    game_settings->music_is_enabled = GetFileLine(sTemp, sizeof(sTemp), sFileName, 7)
+    *music_is_initially_enabled = GetFileLine(sTemp, sizeof(sTemp), sFileName, 7)
         ? (atoi(sTemp) ? true : false)
         : false;
 
@@ -94,25 +99,25 @@ static bool LoadSettings(GameSettings* game_settings, GameRawInput* game_raw_inp
     return true;
 }
 
-static bool SaveSettings_(GameSettings* game_settings, GameRawInput* game_raw_input) {
+static bool SaveSettings_() {
     bool success = true;
 
     char sFile[300];
     sprintf_s(sFile, sizeof(sFile), "%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d",
-        game_raw_input->key_bindings[0],
-        game_raw_input->key_bindings[1],
-        game_raw_input->key_bindings[2],
-        game_raw_input->key_bindings[3],
-        game_raw_input->key_bindings[4],
-        game_raw_input->key_bindings[5],
-        game_settings->sound_effects_are_enabled ? 1 : 0,
-        game_settings->music_is_enabled ? 1 : 0,
+        g_key_bindings[0],
+        g_key_bindings[1],
+        g_key_bindings[2],
+        g_key_bindings[3],
+        g_key_bindings[4],
+        g_key_bindings[5],
+        GetIsSoundEnabled() ? 1 : 0,
+        GetIsMusicEnabled() ? 1 : 0,
         g_fullscreen_is_enabled ? 1 : 0,
         g_window_resolution_x,
         g_window_resolution_y);
 
     char sFileName[300];  // TODO: Is path long enough?
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Settings.dat", game_settings->game_base_path);
+    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Settings.dat", g_game_base_path);
 
     success = StringToFile(sFileName, sFile);
 
@@ -163,13 +168,12 @@ static void ErrorCallback(int error, const char* description) {
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     GameState* game_state = glfwGetWindowUserPointer(window);
     GameInput* game_current_input = &game_state->current_input;
-    GameSettings* game_settings = &game_state->settings;
 
     switch(action) {
         case GLFW_PRESS: {
             switch(key) {
                 case GLFW_KEY_GRAVE_ACCENT: {
-                    game_settings->show_fps_is_enabled = true;
+                    game_current_input->debug_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_UP: {
@@ -225,38 +229,38 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 
             // Bound keys
-            if(key == game_current_input->raw_input.key_bindings[0]) {
+            if(key == g_key_bindings[0]) {
                 game_current_input->move_up_action.is_pressed = true;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[1]) {
+            if(key == g_key_bindings[1]) {
                 game_current_input->move_down_action.is_pressed = true;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[2]) {
+            if(key == g_key_bindings[2]) {
                 game_current_input->move_left_action.is_pressed = true;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[3]) {
+            if(key == g_key_bindings[3]) {
                 game_current_input->move_right_action.is_pressed = true;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[4]) {
+            if(key == g_key_bindings[4]) {
                 game_current_input->jump_action.is_pressed = true;
                 game_current_input->select_action.is_pressed = true;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[5]) {
+            if(key == g_key_bindings[5]) {
                 game_current_input->attack_action.is_pressed = true;
             }
 
-            game_current_input->raw_input.last_key_pressed = key;
+            g_last_key_pressed = key;
             break;
         }
         case GLFW_RELEASE: {
             switch(key) {
                 case GLFW_KEY_GRAVE_ACCENT: {
-                    game_settings->show_fps_is_enabled = false;
+                    game_current_input->debug_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_UP: {
@@ -297,46 +301,43 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             }
 
             // Bound keys
-            if(key == game_current_input->raw_input.key_bindings[0]) {
+            if(key == g_key_bindings[0]) {
                 game_current_input->move_up_action.is_pressed = false;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[1]) {
+            if(key == g_key_bindings[1]) {
                 game_current_input->move_down_action.is_pressed = false;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[2]) {
+            if(key == g_key_bindings[2]) {
                 game_current_input->move_left_action.is_pressed = false;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[3]) {
+            if(key == g_key_bindings[3]) {
                 game_current_input->move_right_action.is_pressed = false;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[4]) {
+            if(key == g_key_bindings[4]) {
                 game_current_input->jump_action.is_pressed = false;
                 game_current_input->select_action.is_pressed = false;
             }
 
-            if(key == game_current_input->raw_input.key_bindings[5]) {
+            if(key == g_key_bindings[5]) {
                 game_current_input->attack_action.is_pressed = false;
             }
 
-            game_current_input->raw_input.last_key_pressed = key;
+            g_last_key_pressed = key;
             break;
         }
     }
 }
 
 static void WindowFocusCallback(GLFWwindow* window, int is_focused) {
-    GameState* game_state = glfwGetWindowUserPointer(window);
-    GameSettings* game_settings = &game_state->settings;
-
     if(is_focused) {
-        game_settings->game_is_frozen = false;
+        g_game_is_frozen = false;
         Reset3d();
     } else {
-        game_settings->game_is_frozen = true;
+        g_game_is_frozen = true;
     }
 }
 
@@ -418,6 +419,35 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
     game_current_input->jump_action.just_pressed = game_current_input->jump_action.is_pressed && !game_prev_input->jump_action.is_pressed;
     game_current_input->attack_action.just_pressed = game_current_input->attack_action.is_pressed && !game_prev_input->attack_action.is_pressed;
     game_current_input->select_action.just_pressed = game_current_input->select_action.is_pressed && !game_prev_input->select_action.is_pressed;
+    game_current_input->debug_action.just_pressed = game_current_input->debug_action.is_pressed && !game_prev_input->debug_action.is_pressed;
+}
+
+bool IsDebugEnabled() {
+    return g_debug_is_enabled;
+}
+
+void SetDebugEnabled(bool is_enabled) {
+    g_debug_is_enabled = is_enabled;
+}
+
+bool IsGameFrozen() {
+    return g_game_is_frozen;
+}
+
+long GetCurrentFps() {
+    return g_current_fps;
+}
+
+long GetLastKeyPressed() {
+    return g_last_key_pressed;
+}
+
+int GetKeyBinding(size_t binding_index) {
+    return g_key_bindings[binding_index];
+}
+
+void SetKeyBinding(size_t binding_index, int value) {
+    g_key_bindings[binding_index] = value;
 }
 
 void SaveSettings() {
@@ -426,14 +456,17 @@ void SaveSettings() {
 
 int main(int arguments_count, char* arguments[]) {
     GameState game_state = { 0 };
-    game_state.settings.debug_is_enabled = true;
+    g_debug_is_enabled = true;
 
-    if(!GetWorkingDirectoryPath(game_state.settings.game_base_path)) {
+    if(!GetWorkingDirectoryPath(g_game_base_path)) {
         // TODO: Proper error handling
         exit(EXIT_FAILURE);
     }
 
-    if(!LoadSettings(&game_state.settings, &game_state.current_input.raw_input)) {
+    bool sound_is_initially_enabled = false;
+    bool music_is_initially_enabled = false;
+
+    if(!LoadSettings(&sound_is_initially_enabled, &music_is_initially_enabled)) {
         // TODO: Proper error handling
         exit(EXIT_FAILURE);
     }
@@ -496,7 +529,7 @@ int main(int arguments_count, char* arguments[]) {
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    game_state.settings.game_is_frozen = false;
+    g_game_is_frozen = false;
 
     if(!Init3D()) {
         // TODO: Proper error handling
@@ -505,15 +538,23 @@ int main(int arguments_count, char* arguments[]) {
 
     if(InitSoundBuffer()) {
         if(!InitMusic()) {
-            game_state.settings.music_is_enabled = false;
+            music_is_initially_enabled = false;
         }
 
         if(!InitSound()) {
-            game_state.settings.sound_effects_are_enabled = false;
+            sound_is_initially_enabled = false;
         }
     } else {
-        game_state.settings.music_is_enabled = false;
-        game_state.settings.sound_effects_are_enabled = false;
+        music_is_initially_enabled = false;
+        sound_is_initially_enabled = false;
+    }
+
+    if(music_is_initially_enabled) {
+        SetIsMusicEnabled(true);
+    }
+
+    if(sound_is_initially_enabled) {
+        SetIsSoundEnabled(true);
     }
 
     double previous_frame_time = glfwGetTime();
@@ -522,7 +563,7 @@ int main(int arguments_count, char* arguments[]) {
     int bDone = 0;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(arguments[1], &game_state.settings, &game_state.current_input, &game_state.current_input.raw_input);
+        InitGameDebugLevel(g_game_base_path, arguments[1], &game_state.current_input);
     } else {
         InitGameNormal();
     }
@@ -539,10 +580,10 @@ int main(int arguments_count, char* arguments[]) {
 
             if(current_time - last_perf_update_time >= 1.0) {
                 last_perf_update_time = current_time;
-                game_state.settings.current_fps = frame_count_since_last_perf_update;
+                g_current_fps = frame_count_since_last_perf_update;
 
-                if(game_state.settings.current_fps > 99) {
-                    game_state.settings.current_fps = 99;
+                if(g_current_fps > 99) {
+                    g_current_fps = 99;
                 }
 
                 frame_count_since_last_perf_update = 0;
@@ -552,7 +593,7 @@ int main(int arguments_count, char* arguments[]) {
 
             GetInput(&game_state.current_input, &game_prev_input);
             GameInput processed_input = game_state.current_input;
-            UpdateGame(&game_state.settings, &processed_input, &game_state.current_input.raw_input);
+            UpdateGame(g_game_base_path, &processed_input);
             game_prev_input = game_state.current_input;
 
             glfwSwapBuffers(g_main_window);
@@ -561,7 +602,7 @@ int main(int arguments_count, char* arguments[]) {
         glfwPollEvents();
 
         if(g_save_settings_is_queued) {
-            if(!SaveSettings_(&game_state.settings, &game_state.current_input.raw_input)) {
+            if(!SaveSettings_()) {
                 // TODO: fprintf(stderr, "Failed to save config file\n");
             }
 

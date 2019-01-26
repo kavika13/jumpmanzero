@@ -8,22 +8,10 @@
 extern "C" {
 #endif
 
-typedef struct {
-    bool debug_is_enabled;
-    bool game_is_frozen;
-    long current_fps;
-
-    char game_base_path[300];
-
-    bool sound_effects_are_enabled;
-    bool music_is_enabled;
-    bool show_fps_is_enabled;
-} GameSettings;
-
 long Init3D();
-void InitGameDebugLevel(const char* level_name, GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings);
+void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input);
 void InitGameNormal();
-void UpdateGame(GameSettings* game_settings, GameInput* game_input, GameRawInput* input_bindings);
+void UpdateGame(const char* base_path, GameInput* game_input);
 void ExitGame();
 
 #if defined(__cplusplus)

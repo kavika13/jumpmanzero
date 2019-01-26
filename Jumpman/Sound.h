@@ -9,6 +9,8 @@ extern "C" {
 #endif
 
 bool InitSound();
+bool GetIsSoundEnabled();
+void SetIsSoundEnabled(bool is_enabled);
 void CleanUpSounds();
 bool LoadSound(const char* filename, size_t sound_index);
 void PlaySoundEffect(size_t sound_index);
