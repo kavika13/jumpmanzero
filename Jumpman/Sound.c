@@ -1,4 +1,7 @@
 #include <assert.h>
+// No AVX2 or greater for better backward compatibility
+#define MAL_NO_AVX2
+#define MAL_NO_AVX512
 #include "mini_al.h"
 #include "SoundBuffer.h"
 #include "Sound.h"
