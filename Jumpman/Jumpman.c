@@ -802,15 +802,15 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_INPUTRIGHT) {
             return game_input->move_right_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_INPUTUP) {
-            return (iTKeyUp ? 1 : 0) * 256;
+            return game_input->move_up_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_INPUTDOWN) {
-            return (iTKeyDown ? 1 : 0) * 256;
+            return game_input->move_down_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_INPUTJUMP) {
-            return (iTKeyJump ? 1 : 0) * 256;
+            return game_input->jump_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_INPUTATTACK) {
-            return (iTKeyAttack ? 1 : 0) * 256;
+            return game_input->attack_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_INPUTSELECT) {
-            return iKeySelect * 256;
+            return game_input->select_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_FREEZE) {
             return iPlayerFreeze * 256;
         } else if(iArg1 == EFV_SOUNDON) {
@@ -2753,7 +2753,7 @@ static int CheckWalkOff(int iCenter, GameInput* game_input) {
         return 0;
     }
 
-    if(iTKeyDown && iPlayerY < iSitSupport - 2) {
+    if(game_input->move_down_action.is_pressed && iPlayerY < iSitSupport - 2) {
         return 0;
     }
 
@@ -2766,7 +2766,7 @@ static int CheckWalkOff(int iCenter, GameInput* game_input) {
 }
 
 static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input) {
-    if(!iTKeyJump) {
+    if(!game_input->jump_action.is_pressed) {
         return 0;
     }
 
@@ -2870,14 +2870,14 @@ static void MoveJumpmanLadder(GameInput* game_input) {
     iPlayerM = JM_JUMPUP;
     AdjustPlayerZ(LS[iSitLadA].Z1 - 3, 0);
 
-    if(iTKeyUp && LS[iSitLadA].Y1 - 5 > iPlayerY) {
+    if(game_input->move_up_action.is_pressed && LS[iSitLadA].Y1 - 5 > iPlayerY) {
         ++iPlayerY;
         iPlayerM = (iPlayerAF & 2) ? JM_LADDERCLIMB2 : JM_LADDERCLIMB1;
-    } else if(iTKeyUp && !iTKeyDown) {
+    } else if(game_input->move_up_action.is_pressed && !game_input->move_down_action.is_pressed) {
         iPlayerM = (iPlayerAF & 2) ? JM_LADDERCLIMB2 : JM_LADDERCLIMB1;
     }
 
-    if(iTKeyDown && (LS[iSitLadA].Y2 < iSitSupport - 3 || iPlayerY > iSitSupport)) {
+    if(game_input->move_down_action.is_pressed && (LS[iSitLadA].Y2 < iSitSupport - 3 || iPlayerY > iSitSupport)) {
         --iPlayerY;
         iPlayerM = (iPlayerAF & 2) ? JM_LADDERCLIMB2 : JM_LADDERCLIMB1;
 
@@ -2915,14 +2915,14 @@ static void MoveJumpmanNormal(GameInput* game_input) {
         return;
     }
 
-    if(iSitLadA != -1 && !iIgnoreLadders && (iTKeyUp != iTKeyDown)) {
+    if(iSitLadA != -1 && !iIgnoreLadders && (game_input->move_up_action.is_pressed != game_input->move_down_action.is_pressed)) {
         if((!game_input->move_right_action.is_pressed || iPlayerX < LS[iSitLadA].X1 + 1) && (!game_input->move_left_action.is_pressed || iPlayerX > LS[iSitLadA].X1 - 1)) {
-            if(iTKeyUp && LS[iSitLadA].Y1 - 5 > iPlayerY) {
+            if(game_input->move_up_action.is_pressed && LS[iSitLadA].Y1 - 5 > iPlayerY) {
                 MoveJumpmanLadder(game_input);
                 return;
             }
 
-            if(iTKeyDown && (LS[iSitLadA].Y2 < iSitSupport - 3 || iSitSupport < iPlayerY - 1)) {
+            if(game_input->move_down_action.is_pressed && (LS[iSitLadA].Y2 < iSitSupport - 3 || iSitSupport < iPlayerY - 1)) {
                 MoveJumpmanLadder(game_input);
                 return;
             }
@@ -3027,16 +3027,16 @@ static void MoveJumpmanFalling(GameInput* game_input) {
 static void MoveJumpmanJumping(GameInput* game_input) {
     iPlayerST = JS_JUMPING;
 
-    if(iPlayerACT != JA_KICK && iTKeyAttack && ((iPlayerDIR == JD_RIGHT) || (iPlayerDIR == JD_LEFT))) {
+    if(iPlayerACT != JA_KICK && game_input->attack_action.is_pressed && ((iPlayerDIR == JD_RIGHT) || (iPlayerDIR == JD_LEFT))) {
         iPlayerACT = JA_KICK;
     }
 
-    if(iSitLadE != -1 && !iTKeyAttack && (iPlayerSC > 15 || !iTKeyJump || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
+    if(iSitLadE != -1 && !game_input->attack_action.is_pressed && (iPlayerSC > 15 || !game_input->jump_action.is_pressed || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
         MoveJumpmanLadder(game_input);
         return;
     }
 
-    if(iSitVinEx != -1 && !iTKeyAttack && (iPlayerSC > 10 || !iTKeyJump || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
+    if(iSitVinEx != -1 && !game_input->attack_action.is_pressed && (iPlayerSC > 10 || !game_input->jump_action.is_pressed || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
         MoveJumpmanVine(game_input);
         return;
     }
@@ -3056,7 +3056,7 @@ static void MoveJumpmanJumping(GameInput* game_input) {
         return;
     }
 
-    if(iPlayerY < iSitSupport && iPlayerSC > 6 && (!iTKeyJump || iPlayerSC > 12)) {
+    if(iPlayerY < iSitSupport && iPlayerSC > 6 && (!game_input->jump_action.is_pressed || iPlayerSC > 12)) {
         MoveJumpmanNormal(game_input);
         return;
     }
@@ -3087,7 +3087,7 @@ static void MoveJumpmanJumping(GameInput* game_input) {
         iPlayerM = (iPlayerACT == JA_KICK) ? JM_KICKRIGHT : JM_JUMPRIGHT;
     }
 
-    if(iTKeyDown && !iPlayerNoRoll && (iPlayerDIR == JD_RIGHT || iPlayerDIR == JD_LEFT)) {
+    if(game_input->move_down_action.is_pressed && !iPlayerNoRoll && (iPlayerDIR == JD_RIGHT || iPlayerDIR == JD_LEFT)) {
         iPlayerSC = 0;
         MoveJumpmanRoll(game_input);
     }
@@ -3224,14 +3224,14 @@ static void MoveJumpmanRoll(GameInput* game_input) {
             return;
         }
 
-        if(!iTKeyDown) {
+        if(!game_input->move_down_action.is_pressed) {
             if(CheckJumpStart(1, 1, 1, game_input)) {
                 return;
             }
         }
     }
 
-    if((!iTKeyJump) && (iPlayerY <= iSitSupport+.1) && iTKeyAttack) {
+    if((!game_input->jump_action.is_pressed) && (iPlayerY <= iSitSupport+.1) && game_input->attack_action.is_pressed) {
         iPlayerSC = 0;
         MoveJumpmanPunch(game_input);
         return;

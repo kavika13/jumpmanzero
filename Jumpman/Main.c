@@ -36,12 +36,6 @@ bool g_music_is_enabled = kMUSIC_IS_ENABLED_DEFAULT;
 bool g_save_settings_is_queued = false;  // TODO: Maybe provide API?
 bool g_show_fps_is_enabled = false;
 
-int iTKeyDown;
-int iTKeyUp;
-int iTKeyAttack;
-int iTKeyJump;
-int iKeySelect;
-
 static bool g_fullscreen_is_enabled = kFULLSCREEN_IS_ENABLED_DEFAULT;
 static int g_window_resolution_x = kWINDOW_RESOLUTION_DEFAULT_X;
 static int g_window_resolution_y = kWINDOW_RESOLUTION_DEFAULT_Y;
@@ -201,14 +195,14 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                 }
                 case GLFW_KEY_SPACE: {
                     game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
-                    iKeySelect = 1;
+                    game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_ENTER: {
                     if(mods & GLFW_MOD_ALT) {
                         SetFullscreen(!g_fullscreen_is_enabled);
                     } else {
-                        iKeySelect = 1;
+                        game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
                     }
                     break;
                 }
@@ -225,7 +219,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             // Modifier keys
             if(mods & GLFW_MOD_CONTROL) {
                 game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
-                iKeySelect = 1;
+                game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
             }
 
             if(mods & GLFW_MOD_ALT) {
@@ -254,7 +248,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
             if(key == game_input->raw_input.key_bindings[4]) {
                 game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
-                iKeySelect = 1;
+                game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
             }
 
             if(key == game_input->raw_input.key_bindings[5]) {
@@ -288,11 +282,11 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                 }
                 case GLFW_KEY_SPACE: {
                     game_input->jump_action.is_pressed = false;
-                    iKeySelect = 0;
+                    game_input->select_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_ENTER: {
-                    iKeySelect = 0;
+                    game_input->select_action.is_pressed = false;
                     break;
                 }
             }
@@ -300,7 +294,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             // Modifier keys
             if(!(mods & GLFW_MOD_CONTROL)) {
                 game_input->jump_action.is_pressed = false;
-                iKeySelect = 0;
+                game_input->select_action.is_pressed = false;
             }
 
             if(!(mods & GLFW_MOD_ALT)) {
@@ -326,7 +320,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
             if(key == game_input->raw_input.key_bindings[4]) {
                 game_input->jump_action.is_pressed = false;
-                iKeySelect = 0;
+                game_input->select_action.is_pressed = false;
             }
 
             if(key == game_input->raw_input.key_bindings[5]) {
@@ -364,14 +358,11 @@ static void GetInput(GameInput* game_input) {
     // TODO: Properly handle just_pressed
     game_input->move_left_action.just_pressed = false;
     game_input->move_right_action.just_pressed = false;
-    iTKeyUp = (game_input->move_up_action.is_pressed || game_input->move_up_action.just_pressed) ? 1 : 0;
     game_input->move_up_action.just_pressed = false;
-    iTKeyDown = (game_input->move_down_action.is_pressed || game_input->move_down_action.just_pressed) ? 1 : 0;
     game_input->move_down_action.just_pressed = false;
-    iTKeyJump = (game_input->jump_action.is_pressed || game_input->jump_action.just_pressed) ? 1 : 0;
     game_input->jump_action.just_pressed = false;
-    iTKeyAttack = (game_input->attack_action.is_pressed || game_input->attack_action.just_pressed) ? 1 : 0;
     game_input->attack_action.just_pressed = false;
+    game_input->select_action.just_pressed = false;
 
     // TODO: Move this over before this checkin
     for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
@@ -391,11 +382,11 @@ static void GetInput(GameInput* game_input) {
 
             if(axis_count > 1) {
                 if(axis_values[1] <= -0.5f) {
-                    iTKeyUp = 1;
+                    game_input->move_up_action.is_pressed = true;
                 }
 
                 if(axis_values[1] >= 0.5f) {
-                    iTKeyDown = 1;
+                    game_input->move_down_action.is_pressed = true;
                 }
             }
 
@@ -404,17 +395,17 @@ static void GetInput(GameInput* game_input) {
 
             // Face buttons - PS4 values
             if(button_count > 1 && button_values[1] == GLFW_PRESS) {
-                iTKeyJump = 1;
+                game_input->jump_action.is_pressed = true;
             }
 
             if(button_count > 0 && button_values[0] == GLFW_PRESS) {
-                iTKeyAttack = 1;
+                game_input->attack_action.is_pressed = true;
             }
 
             // D-Pad buttons - PS4 values
             // TODO: Need to map per controller type?
             if(button_count > 14 && button_values[14] == GLFW_PRESS) {
-                iTKeyUp = 1;
+                game_input->move_up_action.is_pressed = true;
             }
 
             if(button_count > 15 && button_values[15] == GLFW_PRESS) {
@@ -422,7 +413,7 @@ static void GetInput(GameInput* game_input) {
             }
 
             if(button_count > 16 && button_values[16] == GLFW_PRESS) {
-                iTKeyDown = 1;
+                game_input->move_down_action.is_pressed = true;
             }
 
             if(button_count > 17 && button_values[17] == GLFW_PRESS) {
@@ -434,11 +425,11 @@ static void GetInput(GameInput* game_input) {
     ++g_game_time_inactive;
 
     // TODO: Move this check to Jumpman.h? Is it based on input actions, or whether they're actually valid actions at the time?
-    if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || (iTKeyUp + iTKeyDown + iTKeyJump != 0)) {
+    if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || game_input->move_up_action.is_pressed || game_input->move_down_action.is_pressed || game_input->jump_action.is_pressed) {
         g_game_time_inactive = 0;
     }
 
-    iTKeyAttack = 0;
+    game_input->attack_action.is_pressed = false;
 }
 
 int main(int arguments_count, char* arguments[]) {
