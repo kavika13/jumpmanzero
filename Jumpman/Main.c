@@ -26,7 +26,6 @@ static const double kSECONDS_PER_FRAME = 1.0 / 40.0;
 bool g_debug_is_enabled = false;
 
 bool g_game_is_frozen;
-long g_game_time_inactive;
 long g_current_fps;
 
 char g_game_base_path[300];  // TODO: Maybe expose path util?
@@ -411,13 +410,6 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
                 game_current_input->move_left_action.is_pressed = true;
             }
         }
-    }
-
-    ++g_game_time_inactive;
-
-    // TODO: Move this check to Jumpman.h? Is it based on input actions, or whether they're actually valid actions at the time?
-    if(game_current_input->move_left_action.is_pressed + game_current_input->move_right_action.is_pressed || game_current_input->move_up_action.is_pressed || game_current_input->move_down_action.is_pressed || game_current_input->jump_action.is_pressed) {
-        g_game_time_inactive = 0;
     }
 
     game_current_input->move_left_action.just_pressed = game_current_input->move_left_action.is_pressed && !game_prev_input->move_left_action.is_pressed;

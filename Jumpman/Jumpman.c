@@ -254,6 +254,7 @@ static long GameMenu;
 static bool g_debug_level_is_specified;
 static char g_debug_level_filename[300];
 static int GameLivesRemaining;
+static long g_game_time_inactive;
 
 static long iSitVinAp;
 static long iSitVinEx;
@@ -2539,6 +2540,12 @@ static void InteractMenu(GameInput* game_input) {
 }
 
 void UpdateGame(GameInput* game_input) {
+    ++g_game_time_inactive;
+
+    if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || game_input->move_up_action.is_pressed || game_input->move_down_action.is_pressed || game_input->jump_action.is_pressed) {
+        g_game_time_inactive = 0;
+    }
+
     if(GameStatus == GS_MENU) {
         LoadJumpmanMenu();
         InteractMenu(game_input);

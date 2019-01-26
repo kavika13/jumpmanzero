@@ -11,7 +11,6 @@ extern "C" {
 extern bool g_debug_is_enabled;
 
 extern bool g_game_is_frozen;
-extern long g_game_time_inactive;
 extern long g_current_fps;
 
 extern char g_game_base_path[300];
