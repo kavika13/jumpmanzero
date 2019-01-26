@@ -524,7 +524,7 @@ int main(int arguments_count, char* arguments[]) {
     int bDone = 0;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(arguments[1], &game_current_input);
+        InitGameDebugLevel(arguments[1], &game_current_input, &game_current_input.raw_input);
     } else {
         InitGameNormal();
     }
@@ -554,7 +554,7 @@ int main(int arguments_count, char* arguments[]) {
 
             GetInput(&game_current_input, &game_prev_input);
             GameInput processed_input = game_current_input;
-            UpdateGame(&processed_input);
+            UpdateGame(&processed_input, &game_current_input.raw_input);
             game_prev_input = game_current_input;
 
             glfwSwapBuffers(g_main_window);

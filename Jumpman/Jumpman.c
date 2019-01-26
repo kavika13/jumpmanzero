@@ -235,8 +235,8 @@ typedef struct {
     int ObjectNumber;
 } LevelObject;
 
-static void PrepLevel(char* sLevel, GameInput* game_input);
-static void LoadNextLevel(GameInput* game_input);
+static void PrepLevel(char* sLevel, GameInput* game_input, GameRawInput* input_bindings);
+static void LoadNextLevel(GameInput* game_input, GameRawInput* input_bindings);
 static long LoadMesh(char* sFileName);
 static void LoadMeshes();
 static void SetGamePerspective();
@@ -620,7 +620,7 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
     return iChoice;
 }
 
-long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
+long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input, GameRawInput* input_bindings) {
     long iArg1, iArg2, iArg3, iArg4;
     long rArg1, rArg2, rArg3, rArg4;
     long iLoop;
@@ -819,7 +819,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_MUSICON) {
             return (g_music_is_enabled ? 1 : 0) * 256;
         } else if(iArg1 == EFV_LASTKEY) {
-            return game_input->raw_input.last_key_pressed * 256;
+            return input_bindings->last_key_pressed * 256;
         } else if(iArg1 == EFV_PERFORMANCE) {
             return g_current_fps * 256;
         }
@@ -1081,13 +1081,13 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                 iLoop = -1;
 
                 while(++iLoop < 6) {
-                    if(iArg2 != iLoop && game_input->raw_input.key_bindings[iLoop] == iKey) {
+                    if(iArg2 != iLoop && input_bindings->key_bindings[iLoop] == iKey) {
                         iKeyGood = 0;
                     }
                 }
 
                 if(iKeyGood) {
-                    game_input->raw_input.key_bindings[iArg3] = iKey;
+                    input_bindings->key_bindings[iArg3] = iKey;
                 }
             }
 
@@ -1107,7 +1107,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
         if(iArg1 == SERVICE_OPTIONSTRING) {
             if(iArg3 >= 0 && iArg3 <= 5) {
-                iKey = game_input->raw_input.key_bindings[iArg3];
+                iKey = input_bindings->key_bindings[iArg3];
 
                 if(iKey >= 'A' && iKey <= 'Z') {
                     sprintf_s(sName, sizeof(sName), "%c   ", iKey);
@@ -1997,7 +1997,7 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
     }
 }
 
-static void GrabDonuts(GameInput* game_input) {
+static void GrabDonuts(GameInput* game_input, GameRawInput* input_bindings) {
     int iLoop;
     int iCheck;
     int iWon;
@@ -2013,7 +2013,7 @@ static void GrabDonuts(GameInput* game_input) {
             iGot = 1;
 
             iEvent1 = DS[iLoop].Num;
-            RunScript(&SCLevel, iDonutScript, game_input);
+            RunScript(&SCLevel, iDonutScript, game_input, input_bindings);
         }
     }
 
@@ -2052,11 +2052,11 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
     }
 }
 
-static void ResetPlayer(int iNewLevel, GameInput* game_input) {
+static void ResetPlayer(int iNewLevel, GameInput* game_input, GameRawInput* input_bindings) {
     long iResetScript;
 
     iResetScript = FindScript(&SCLevel, "reset");
-    RunScript(&SCLevel, iResetScript, game_input);
+    RunScript(&SCLevel, iResetScript, game_input, input_bindings);
 
     int iObj;
     iObj = -1;
@@ -2064,12 +2064,12 @@ static void ResetPlayer(int iNewLevel, GameInput* game_input) {
     while(++iObj < MAX_SCRIPTOBJECTS) {
         if(oObject[iObj].Active) {
             iResetScript = FindScript(&oObject[iObj], "resetpos");
-            RunScript(&oObject[iObj], iResetScript, game_input);
+            RunScript(&oObject[iObj], iResetScript, game_input, input_bindings);
         }
     }
 }
 
-static void AnimateDying(GameInput* game_input) {
+static void AnimateDying(GameInput* game_input, GameRawInput* input_bindings) {
     float iSupport;
     long iPlatform;
     int bGrounded;
@@ -2215,9 +2215,9 @@ static void AnimateDying(GameInput* game_input) {
                 iPlayerST = JS_NORMAL;
                 strcpy_s(GameTitle, sizeof(GameTitle), "");
                 sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\GameOver.DAT", g_game_base_path);
-                PrepLevel(sTemp, game_input);
+                PrepLevel(sTemp, game_input, input_bindings);
             } else {
-                ResetPlayer(0, game_input);
+                ResetPlayer(0, game_input, input_bindings);
 
                 if(g_music_is_enabled && miIntroLength != 5550) {
                     NewTrack1(msBackMusic, miIntroLength, miIntroLength);
@@ -2227,7 +2227,7 @@ static void AnimateDying(GameInput* game_input) {
     }
 }
 
-static void ProgressGame(GameInput* game_input) {
+static void ProgressGame(GameInput* game_input, GameRawInput* input_bindings) {
     int iObject;
     int iTemp;
 
@@ -2251,27 +2251,27 @@ static void ProgressGame(GameInput* game_input) {
                 iTemp = iTemp > 10 ? 2 : iTemp & 1;
                 iPlayerM = JM_BORED1 + iTemp;
             }
-            GrabDonuts(game_input);
+            GrabDonuts(game_input, input_bindings);
         }
 
         if((iPlayerST & JS_DYING) && !iPlayerFreeze) {
-            AnimateDying(game_input);
-            GrabDonuts(game_input);
+            AnimateDying(game_input, input_bindings);
+            GrabDonuts(game_input, input_bindings);
         }
 
         SetGamePerspective();
 
-        RunScript(&SCLevel, iMainScript, game_input);
+        RunScript(&SCLevel, iMainScript, game_input, input_bindings);
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
             if(oObject[iObject].Active == 1) {
-                RunScript(&oObject[iObject], 1, game_input);
+                RunScript(&oObject[iObject], 1, game_input, input_bindings);
             }
         }
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
             if(oObject[iObject].Active == 2) {
-                RunScript(&oObject[iObject], 1, game_input);
+                RunScript(&oObject[iObject], 1, game_input, input_bindings);
                 oObject[iObject].Active = 1;
             }
         }
@@ -2285,7 +2285,7 @@ static void ProgressGame(GameInput* game_input) {
         }
 
         if(iPlayerSC == 300) {
-            LoadNextLevel(game_input);
+            LoadNextLevel(game_input, input_bindings);
         }
     }
 }
@@ -2389,7 +2389,7 @@ static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
     free(sData);
 }
 
-static void PrepLevel(char* sLevel, GameInput* game_input) {
+static void PrepLevel(char* sLevel, GameInput* game_input, GameRawInput* input_bindings) {
     Clear3dData();
     Begin3dLoad();
 
@@ -2403,14 +2403,14 @@ static void PrepLevel(char* sLevel, GameInput* game_input) {
     EndAndCommit3dLoad();
 
     BuildNavigation();
-    ResetPlayer(1, game_input);
+    ResetPlayer(1, game_input, input_bindings);
     g_game_time_inactive = 0;
 
-    ProgressGame(game_input);
-    ProgressGame(game_input);
-    ProgressGame(game_input);
-    ProgressGame(game_input);
-    ProgressGame(game_input);
+    ProgressGame(game_input, input_bindings);
+    ProgressGame(game_input, input_bindings);
+    ProgressGame(game_input, input_bindings);
+    ProgressGame(game_input, input_bindings);
+    ProgressGame(game_input, input_bindings);
 
     char sFileName[300];
     sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Title.BIN", g_game_base_path);
@@ -2429,24 +2429,24 @@ static void PrepLevel(char* sLevel, GameInput* game_input) {
     }
 }
 
-static void LoadNextLevel(GameInput* game_input) {
+static void LoadNextLevel(GameInput* game_input, GameRawInput* input_bindings) {
     char sLevel[200];
 
     if(g_debug_level_is_specified) {
         GameLivesRemaining = 5;
-        PrepLevel(g_debug_level_filename, game_input);
+        PrepLevel(g_debug_level_filename, game_input, input_bindings);
     } else {
         ++iLevel;
         GetLevelFilename(sLevel, sizeof(sLevel), iLevel);
-        PrepLevel(sLevel, game_input);
+        PrepLevel(sLevel, game_input, input_bindings);
     }
 }
 
-void InitGameDebugLevel(const char* level_name, GameInput* game_input) {
+void InitGameDebugLevel(const char* level_name, GameInput* game_input, GameRawInput* input_bindings) {
     g_debug_level_is_specified = true;
     sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "%s\\Data\\%s.DAT", g_game_base_path, level_name);
     g_debug_level_is_specified = 1;
-    LoadNextLevel(game_input);
+    LoadNextLevel(game_input, input_bindings);
     iLevel = 0;
     GameStatus = GS_INLEVEL;
 }
@@ -2518,19 +2518,19 @@ static void LoadJumpmanMenu() {
     EndAndCommit3dLoad();
 }
 
-static void InteractMenu(GameInput* game_input) {
+static void InteractMenu(GameInput* game_input, GameRawInput* input_bindings) {
     long iObject;
-    RunScript(&SCLevel, iMainScript, game_input);
+    RunScript(&SCLevel, iMainScript, game_input, input_bindings);
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(oObject[iObject].Active == 1) {
-            RunScript(&oObject[iObject], 1, game_input);
+            RunScript(&oObject[iObject], 1, game_input, input_bindings);
         }
     }
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(oObject[iObject].Active == 2) {
-            RunScript(&oObject[iObject], 1, game_input);
+            RunScript(&oObject[iObject], 1, game_input, input_bindings);
             oObject[iObject].Active = 1;
         }
     }
@@ -2539,7 +2539,7 @@ static void InteractMenu(GameInput* game_input) {
     Render();
 }
 
-void UpdateGame(GameInput* game_input) {
+void UpdateGame(GameInput* game_input, GameRawInput* input_bindings) {
     ++g_game_time_inactive;
 
     if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || game_input->move_up_action.is_pressed || game_input->move_down_action.is_pressed || game_input->jump_action.is_pressed) {
@@ -2548,11 +2548,11 @@ void UpdateGame(GameInput* game_input) {
 
     if(GameStatus == GS_MENU) {
         LoadJumpmanMenu();
-        InteractMenu(game_input);
+        InteractMenu(game_input, input_bindings);
 
         if(GameStatus == GS_INLEVEL) {
             iLevel = 0;
-            LoadNextLevel(game_input);
+            LoadNextLevel(game_input, input_bindings);
         }
     }
 
@@ -2563,17 +2563,17 @@ void UpdateGame(GameInput* game_input) {
             }
             ++iScrollTitle;
             iEvent1 = iScrollTitle;
-            RunScript(&SCTitle, 1, game_input);
+            RunScript(&SCTitle, 1, game_input, input_bindings);
 
             if(iScrollTitle > 600) {
                 iScrollTitle = 0;
             }
         } else {
             if(!g_game_is_frozen) {
-                ProgressGame(game_input);
+                ProgressGame(game_input, input_bindings);
             }
 
-            RunScript(&SCTitle, 1, game_input);
+            RunScript(&SCTitle, 1, game_input, input_bindings);
         }
 
         if(!g_game_is_frozen) {
