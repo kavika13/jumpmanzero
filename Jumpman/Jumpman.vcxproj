@@ -58,6 +58,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>legacy_stdio_definitions.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -86,6 +87,7 @@
       <DebugInformationFormat />
       <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>legacy_stdio_definitions.lib;opengl32.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
