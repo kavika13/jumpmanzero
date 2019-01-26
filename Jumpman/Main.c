@@ -165,9 +165,9 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
     GameInput* game_current_input = &game_state->current_input;
     GameSettings* game_settings = &game_state->settings;
 
-    switch (action) {
+    switch(action) {
         case GLFW_PRESS: {
-            switch (key) {
+            switch(key) {
                 case GLFW_KEY_GRAVE_ACCENT: {
                     game_settings->show_fps_is_enabled = true;
                     break;
@@ -254,7 +254,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             break;
         }
         case GLFW_RELEASE: {
-            switch (key) {
+            switch(key) {
                 case GLFW_KEY_GRAVE_ACCENT: {
                     game_settings->show_fps_is_enabled = false;
                     break;

@@ -63,7 +63,7 @@ static void SeekTrack(MusicTrack* track, unsigned int target_timestamp_msec) {
     track->current_midi_message = track->first_midi_message;
 
     while(track->current_midi_message && (track->current_midi_message->time < target_timestamp_msec)) {
-        switch (track->current_midi_message->type) {
+        switch(track->current_midi_message->type) {
             case TML_PROGRAM_CHANGE:
                 tsf_channel_set_presetnumber(track->sound_font, track->current_midi_message->channel, track->current_midi_message->program, (track->current_midi_message->channel == 9));
                 break;
@@ -108,7 +108,7 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
 
         if(!track->is_stopping) {
             for(track->current_playback_timestamp_msec += SampleBlock * (1000.0 / 44100.0); track->current_midi_message && track->current_playback_timestamp_msec >= track->current_midi_message->time; track->current_midi_message = track->current_midi_message->next) {
-                switch (track->current_midi_message->type) {
+                switch(track->current_midi_message->type) {
                     case TML_PROGRAM_CHANGE:
                         tsf_channel_set_presetnumber(track->sound_font, track->current_midi_message->channel, track->current_midi_message->program, (track->current_midi_message->channel == 9));
                         break;
