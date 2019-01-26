@@ -48,9 +48,9 @@
 #define EFGETDATA 45
 
 // TODO: Expose to script.c some other way? Like just exposing helper functions for all of them from Jumpman.c
-extern long ExtFunction(long iFunc, ScriptContext* SC, GameRawInput* game_raw_input);
+extern long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input);
 
-void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameRawInput* game_raw_input);
+void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameInput* game_input);
 
 void ResetContext(ScriptContext *SC) {
     int iLoop;
@@ -73,7 +73,7 @@ int FindScript(ScriptContext* SC, char* sFunc) {
     return -1;
 }
 
-void RunScript(ScriptContext* SC, long iSub, GameRawInput* game_raw_input) {
+void RunScript(ScriptContext* SC, long iSub, GameInput* game_input) {
     if(iSub == -1) {
         return;
     }
@@ -91,13 +91,13 @@ void RunScript(ScriptContext* SC, long iSub, GameRawInput* game_raw_input) {
         iArg1 = SC->Script->Code[SC->IP * 3 + 1];
         iArg2 = SC->Script->Code[SC->IP * 3 + 2];
 
-        RunLine(SC, iFunc, iArg1, iArg2, game_raw_input);
+        RunLine(SC, iFunc, iArg1, iArg2, game_input);
 
         ++SC->IP;
     }
 }
 
-void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameRawInput* game_raw_input) {
+void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameInput* game_input) {
     long iArg1, iArg2;
     iArg1 = rArg1 / 256;
     iArg2 = rArg2 / 256;
@@ -175,9 +175,9 @@ void RunLine(ScriptContext* SC, long iFunc, long rArg1, long rArg2, GameRawInput
         }
     } else if(iFunc == FCEXT) {
         if(iArg1 == EFGETDATA || iArg1 == EFGET) {
-            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_raw_input);
+            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_input);
         } else {
-            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_raw_input) * 256;
+            SC->Stack[SC->BP - 1] = ExtFunction(iArg1, SC, game_input) * 256;
         }
     } else {
         SC->Done = 1;

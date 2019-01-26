@@ -235,8 +235,8 @@ typedef struct {
     int ObjectNumber;
 } LevelObject;
 
-static void PrepLevel(char* sLevel, GameRawInput* game_raw_input);
-static void LoadNextLevel(GameRawInput* game_raw_input);
+static void PrepLevel(char* sLevel, GameInput* game_input);
+static void LoadNextLevel(GameInput* game_input);
 static long LoadMesh(char* sFileName);
 static void LoadMeshes();
 static void SetGamePerspective();
@@ -619,7 +619,7 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
     return iChoice;
 }
 
-long ExtFunction(long iFunc, ScriptContext* SC, GameRawInput* game_raw_input) {
+long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     long iArg1, iArg2, iArg3, iArg4;
     long rArg1, rArg2, rArg3, rArg4;
     long iLoop;
@@ -798,9 +798,9 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameRawInput* game_raw_input) {
         } else if(iArg1 == EFV_THIS) {
             return SC->ScriptReference * 256;
         } else if(iArg1 == EFV_INPUTLEFT) {
-            return (iTKeyLeft ? 1 : 0) * 256;
+            return game_input->move_left_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_INPUTRIGHT) {
-            return (iTKeyRight ? 1 : 0) * 256;
+            return game_input->move_right_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_INPUTUP) {
             return (iTKeyUp ? 1 : 0) * 256;
         } else if(iArg1 == EFV_INPUTDOWN) {
@@ -818,7 +818,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameRawInput* game_raw_input) {
         } else if(iArg1 == EFV_MUSICON) {
             return (g_music_is_enabled ? 1 : 0) * 256;
         } else if(iArg1 == EFV_LASTKEY) {
-            return game_raw_input->last_key_pressed * 256;
+            return game_input->raw_input.last_key_pressed * 256;
         } else if(iArg1 == EFV_PERFORMANCE) {
             return g_current_fps * 256;
         }
@@ -1080,13 +1080,13 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameRawInput* game_raw_input) {
                 iLoop = -1;
 
                 while(++iLoop < 6) {
-                    if(iArg2 != iLoop && game_raw_input->key_bindings[iLoop] == iKey) {
+                    if(iArg2 != iLoop && game_input->raw_input.key_bindings[iLoop] == iKey) {
                         iKeyGood = 0;
                     }
                 }
 
                 if(iKeyGood) {
-                    game_raw_input->key_bindings[iArg3] = iKey;
+                    game_input->raw_input.key_bindings[iArg3] = iKey;
                 }
             }
 
@@ -1106,7 +1106,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameRawInput* game_raw_input) {
 
         if(iArg1 == SERVICE_OPTIONSTRING) {
             if(iArg3 >= 0 && iArg3 <= 5) {
-                iKey = game_raw_input->key_bindings[iArg3];
+                iKey = game_input->raw_input.key_bindings[iArg3];
 
                 if(iKey >= 'A' && iKey <= 'Z') {
                     sprintf_s(sName, sizeof(sName), "%c   ", iKey);
@@ -1996,7 +1996,7 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
     }
 }
 
-static void GrabDonuts(GameRawInput* game_raw_input) {
+static void GrabDonuts(GameInput* game_input) {
     int iLoop;
     int iCheck;
     int iWon;
@@ -2012,7 +2012,7 @@ static void GrabDonuts(GameRawInput* game_raw_input) {
             iGot = 1;
 
             iEvent1 = DS[iLoop].Num;
-            RunScript(&SCLevel, iDonutScript, game_raw_input);
+            RunScript(&SCLevel, iDonutScript, game_input);
         }
     }
 
@@ -2051,11 +2051,11 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
     }
 }
 
-static void ResetPlayer(int iNewLevel, GameRawInput* game_raw_input) {
+static void ResetPlayer(int iNewLevel, GameInput* game_input) {
     long iResetScript;
 
     iResetScript = FindScript(&SCLevel, "reset");
-    RunScript(&SCLevel, iResetScript, game_raw_input);
+    RunScript(&SCLevel, iResetScript, game_input);
 
     int iObj;
     iObj = -1;
@@ -2063,12 +2063,12 @@ static void ResetPlayer(int iNewLevel, GameRawInput* game_raw_input) {
     while(++iObj < MAX_SCRIPTOBJECTS) {
         if(oObject[iObj].Active) {
             iResetScript = FindScript(&oObject[iObj], "resetpos");
-            RunScript(&oObject[iObj], iResetScript, game_raw_input);
+            RunScript(&oObject[iObj], iResetScript, game_input);
         }
     }
 }
 
-static void AnimateDying(GameRawInput* game_raw_input) {
+static void AnimateDying(GameInput* game_input) {
     float iSupport;
     long iPlatform;
     int bGrounded;
@@ -2214,9 +2214,9 @@ static void AnimateDying(GameRawInput* game_raw_input) {
                 iPlayerST = JS_NORMAL;
                 strcpy_s(GameTitle, sizeof(GameTitle), "");
                 sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\GameOver.DAT", g_game_base_path);
-                PrepLevel(sTemp, game_raw_input);
+                PrepLevel(sTemp, game_input);
             } else {
-                ResetPlayer(0, game_raw_input);
+                ResetPlayer(0, game_input);
 
                 if(g_music_is_enabled && miIntroLength != 5550) {
                     NewTrack1(msBackMusic, miIntroLength, miIntroLength);
@@ -2226,7 +2226,7 @@ static void AnimateDying(GameRawInput* game_raw_input) {
     }
 }
 
-static void ProgressGame(GameRawInput* game_raw_input) {
+static void ProgressGame(GameInput* game_input) {
     int iObject;
     int iTemp;
 
@@ -2243,34 +2243,34 @@ static void ProgressGame(GameRawInput* game_raw_input) {
             ++iPlayerAF;
             iPlayerRX = 0;
             iPlayerM = JM_STAND;
-            MoveJumpman();
+            MoveJumpman(game_input);
 
             if(iPlayerM == JM_STAND && iPlayerVisible && g_game_time_inactive > 400) {
                 iTemp = (g_game_time_inactive % 400) / 6;
                 iTemp = iTemp > 10 ? 2 : iTemp & 1;
                 iPlayerM = JM_BORED1 + iTemp;
             }
-            GrabDonuts(game_raw_input);
+            GrabDonuts(game_input);
         }
 
         if((iPlayerST & JS_DYING) && !iPlayerFreeze) {
-            AnimateDying(game_raw_input);
-            GrabDonuts(game_raw_input);
+            AnimateDying(game_input);
+            GrabDonuts(game_input);
         }
 
         SetGamePerspective();
 
-        RunScript(&SCLevel, iMainScript, game_raw_input);
+        RunScript(&SCLevel, iMainScript, game_input);
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
             if(oObject[iObject].Active == 1) {
-                RunScript(&oObject[iObject], 1, game_raw_input);
+                RunScript(&oObject[iObject], 1, game_input);
             }
         }
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
             if(oObject[iObject].Active == 2) {
-                RunScript(&oObject[iObject], 1, game_raw_input);
+                RunScript(&oObject[iObject], 1, game_input);
                 oObject[iObject].Active = 1;
             }
         }
@@ -2284,7 +2284,7 @@ static void ProgressGame(GameRawInput* game_raw_input) {
         }
 
         if(iPlayerSC == 300) {
-            LoadNextLevel(game_raw_input);
+            LoadNextLevel(game_input);
         }
     }
 }
@@ -2388,7 +2388,7 @@ static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
     free(sData);
 }
 
-static void PrepLevel(char* sLevel, GameRawInput* game_raw_input) {
+static void PrepLevel(char* sLevel, GameInput* game_input) {
     Clear3dData();
     Begin3dLoad();
 
@@ -2402,14 +2402,14 @@ static void PrepLevel(char* sLevel, GameRawInput* game_raw_input) {
     EndAndCommit3dLoad();
 
     BuildNavigation();
-    ResetPlayer(1, game_raw_input);
+    ResetPlayer(1, game_input);
     g_game_time_inactive = 0;
 
-    ProgressGame(game_raw_input);
-    ProgressGame(game_raw_input);
-    ProgressGame(game_raw_input);
-    ProgressGame(game_raw_input);
-    ProgressGame(game_raw_input);
+    ProgressGame(game_input);
+    ProgressGame(game_input);
+    ProgressGame(game_input);
+    ProgressGame(game_input);
+    ProgressGame(game_input);
 
     char sFileName[300];
     sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Title.BIN", g_game_base_path);
@@ -2428,24 +2428,24 @@ static void PrepLevel(char* sLevel, GameRawInput* game_raw_input) {
     }
 }
 
-static void LoadNextLevel(GameRawInput* game_raw_input) {
+static void LoadNextLevel(GameInput* game_input) {
     char sLevel[200];
 
     if(g_debug_level_is_specified) {
         GameLivesRemaining = 5;
-        PrepLevel(g_debug_level_filename, game_raw_input);
+        PrepLevel(g_debug_level_filename, game_input);
     } else {
         ++iLevel;
         GetLevelFilename(sLevel, sizeof(sLevel), iLevel);
-        PrepLevel(sLevel, game_raw_input);
+        PrepLevel(sLevel, game_input);
     }
 }
 
-void InitGameDebugLevel(const char* level_name, GameRawInput* game_raw_input) {
+void InitGameDebugLevel(const char* level_name, GameInput* game_input) {
     g_debug_level_is_specified = true;
     sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "%s\\Data\\%s.DAT", g_game_base_path, level_name);
     g_debug_level_is_specified = 1;
-    LoadNextLevel(game_raw_input);
+    LoadNextLevel(game_input);
     iLevel = 0;
     GameStatus = GS_INLEVEL;
 }
@@ -2517,19 +2517,19 @@ static void LoadJumpmanMenu() {
     EndAndCommit3dLoad();
 }
 
-static void InteractMenu(GameRawInput* game_raw_input) {
+static void InteractMenu(GameInput* game_input) {
     long iObject;
-    RunScript(&SCLevel, iMainScript, game_raw_input);
+    RunScript(&SCLevel, iMainScript, game_input);
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(oObject[iObject].Active == 1) {
-            RunScript(&oObject[iObject], 1, game_raw_input);
+            RunScript(&oObject[iObject], 1, game_input);
         }
     }
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(oObject[iObject].Active == 2) {
-            RunScript(&oObject[iObject], 1, game_raw_input);
+            RunScript(&oObject[iObject], 1, game_input);
             oObject[iObject].Active = 1;
         }
     }
@@ -2541,11 +2541,11 @@ static void InteractMenu(GameRawInput* game_raw_input) {
 void UpdateGame(GameInput* game_input) {
     if(GameStatus == GS_MENU) {
         LoadJumpmanMenu();
-        InteractMenu(&game_input->raw_input);
+        InteractMenu(game_input);
 
         if(GameStatus == GS_INLEVEL) {
             iLevel = 0;
-            LoadNextLevel(&game_input->raw_input);
+            LoadNextLevel(game_input);
         }
     }
 
@@ -2556,17 +2556,17 @@ void UpdateGame(GameInput* game_input) {
             }
             ++iScrollTitle;
             iEvent1 = iScrollTitle;
-            RunScript(&SCTitle, 1, &game_input->raw_input);
+            RunScript(&SCTitle, 1, game_input);
 
             if(iScrollTitle > 600) {
                 iScrollTitle = 0;
             }
         } else {
             if(!g_game_is_frozen) {
-                ProgressGame(&game_input->raw_input);
+                ProgressGame(game_input);
             }
 
-            RunScript(&SCTitle, 1, &game_input->raw_input);
+            RunScript(&SCTitle, 1, game_input);
         }
 
         if(!g_game_is_frozen) {
@@ -2744,12 +2744,12 @@ static void DoDeathBounce() {
     }
 }
 
-static int CheckWalkOff(int iCenter) {
-    if(iPlayerX < iCenter && iTKeyRight) {
+static int CheckWalkOff(int iCenter, GameInput* game_input) {
+    if(iPlayerX < iCenter && game_input->move_right_action.is_pressed) {
         return 0;
     }
 
-    if(iPlayerX > iCenter && iTKeyLeft) {
+    if(iPlayerX > iCenter && game_input->move_left_action.is_pressed) {
         return 0;
     }
 
@@ -2757,22 +2757,22 @@ static int CheckWalkOff(int iCenter) {
         return 0;
     }
 
-    if(iPlayerY <= iSitSupport && (iTKeyLeft != iTKeyRight)) {
-        MoveJumpmanNormal();
+    if(iPlayerY <= iSitSupport && (game_input->move_left_action.is_pressed != game_input->move_right_action.is_pressed)) {
+        MoveJumpmanNormal(game_input);
         return 1;
     }
 
     return 0;
 }
 
-static int CheckJumpStart(int iLeft, int iUp, int iRight) {
+static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input) {
     if(!iTKeyJump) {
         return 0;
     }
 
-    if(iLeft && iTKeyLeft && !iTKeyRight) {
+    if(iLeft && game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed) {
         iPlayerDIR = JD_LEFT;
-    } else if(iRight && iTKeyRight && !iTKeyLeft) {
+    } else if(iRight && game_input->move_right_action.is_pressed && !game_input->move_left_action.is_pressed) {
         iPlayerDIR = JD_RIGHT;
     } else if(iUp) {
         iPlayerDIR = JD_UP;
@@ -2787,7 +2787,7 @@ static int CheckJumpStart(int iLeft, int iUp, int iRight) {
         PlaySoundEffect(0);
     }
 
-    MoveJumpmanJumping();
+    MoveJumpmanJumping(game_input);
 
     return 1;
 }
@@ -2805,7 +2805,7 @@ static void UpdateSituation() {
     }
 }
 
-static void MoveJumpmanVine() {
+static void MoveJumpmanVine(GameInput* game_input) {
     iPlayerST = JS_VINE;
     iPlayerACT = 0;
 
@@ -2814,11 +2814,11 @@ static void MoveJumpmanVine() {
         return;
     }
 
-    if(CheckJumpStart(1, 0, 1)) {
+    if(CheckJumpStart(1, 0, 1, game_input)) {
         return;
     }
 
-    if(CheckWalkOff(VS[iSitVinAp].X1)) {
+    if(CheckWalkOff(VS[iSitVinAp].X1, game_input)) {
         return;
     }
 
@@ -2828,7 +2828,7 @@ static void MoveJumpmanVine() {
     if(VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport - 1) {
         --iPlayerY;
     } else {
-        MoveJumpmanNormal();
+        MoveJumpmanNormal(game_input);
         return;
     }
 
@@ -2847,7 +2847,7 @@ static void MoveJumpmanVine() {
     }
 }
 
-static void MoveJumpmanLadder() {
+static void MoveJumpmanLadder(GameInput* game_input) {
     iPlayerST = JS_LADDER;
     iPlayerACT = 0;
     iIgnoreLadders = 1;
@@ -2858,12 +2858,12 @@ static void MoveJumpmanLadder() {
     }
 
     if(iSitSupport >= iPlayerY || (LS[iSitLadA].X1 < iPlayerX + 2 && LS[iSitLadA].X1 > iPlayerX - 2)) {
-        if(CheckJumpStart(1, 0, 1)) {
+        if(CheckJumpStart(1, 0, 1, game_input)) {
             return;
         }
     }
 
-    if(CheckWalkOff(LS[iSitLadA].X1)) {
+    if(CheckWalkOff(LS[iSitLadA].X1, game_input)) {
         return;
     }
 
@@ -2899,48 +2899,48 @@ static void MoveJumpmanLadder() {
     }
 }
 
-static void MoveJumpmanNormal() {
+static void MoveJumpmanNormal(GameInput* game_input) {
     iPlayerST = JS_NORMAL;
     iPlayerACT = 0;
 
     AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
 
-    if(iSitVinAp != -1 && !iTKeyLeft && !iTKeyRight && (VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport)) {
-        MoveJumpmanVine();
+    if(iSitVinAp != -1 && !game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed && (VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport)) {
+        MoveJumpmanVine(game_input);
         return;
     }
 
     if(iSitSupport > iPlayerY - 2 && (PS[iSitPlatform].Extra == 1 || PS[iSitPlatform].Extra == 2)) {
-        MoveJumpmanSlide();
+        MoveJumpmanSlide(game_input);
         return;
     }
 
     if(iSitLadA != -1 && !iIgnoreLadders && (iTKeyUp != iTKeyDown)) {
-        if((!iTKeyRight || iPlayerX < LS[iSitLadA].X1 + 1) && (!iTKeyLeft || iPlayerX > LS[iSitLadA].X1 - 1)) {
+        if((!game_input->move_right_action.is_pressed || iPlayerX < LS[iSitLadA].X1 + 1) && (!game_input->move_left_action.is_pressed || iPlayerX > LS[iSitLadA].X1 - 1)) {
             if(iTKeyUp && LS[iSitLadA].Y1 - 5 > iPlayerY) {
-                MoveJumpmanLadder();
+                MoveJumpmanLadder(game_input);
                 return;
             }
 
             if(iTKeyDown && (LS[iSitLadA].Y2 < iSitSupport - 3 || iSitSupport < iPlayerY - 1)) {
-                MoveJumpmanLadder();
+                MoveJumpmanLadder(game_input);
                 return;
             }
         }
     }
 
     if(iPlayerY <= iSitSupport + 1) {
-        if(CheckJumpStart(1, 1, 1)) {
+        if(CheckJumpStart(1, 1, 1, game_input)) {
             return;
         }
     }
 
-    if(iTKeyLeft && !iTKeyRight) {
+    if(game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed) {
         iPlayerM = (iPlayerAF & 2) ? JM_LEFT1 : JM_LEFT2;
         --iPlayerX;
     }
 
-    if(iTKeyRight && !iTKeyLeft) {
+    if(game_input->move_right_action.is_pressed && !game_input->move_left_action.is_pressed) {
         iPlayerM = (iPlayerAF & 2) ? JM_RIGHT1 : JM_RIGHT2;
         ++iPlayerX;
     }
@@ -2953,7 +2953,7 @@ static void MoveJumpmanNormal() {
         iPlayerY = iSitSupport;
     } else if(iSitSupport < iPlayerY - 4) {
         iPlayerSC = 0;
-        MoveJumpmanFalling();
+        MoveJumpmanFalling(game_input);
         return;
     } else if(iSitSupport < iPlayerY - 1) {
         --iPlayerY;
@@ -2995,7 +2995,7 @@ static void MoveJumpmanNormal() {
     }
 }
 
-static void MoveJumpmanFalling() {
+static void MoveJumpmanFalling(GameInput* game_input) {
     iPlayerST = JS_FALLING;
     iPlayerACT = 0;
 
@@ -3014,7 +3014,7 @@ static void MoveJumpmanFalling() {
 
     if(iPlayerY <= iSitSupport && PS[iSitPlatform].Extra != 3) {
         if(iPlayerSC < 10) {
-            MoveJumpmanNormal();
+            MoveJumpmanNormal(game_input);
             return;
         } else {
             iPlayerACT = 0;
@@ -3024,40 +3024,40 @@ static void MoveJumpmanFalling() {
     }
 }
 
-static void MoveJumpmanJumping() {
+static void MoveJumpmanJumping(GameInput* game_input) {
     iPlayerST = JS_JUMPING;
 
     if(iPlayerACT != JA_KICK && iTKeyAttack && ((iPlayerDIR == JD_RIGHT) || (iPlayerDIR == JD_LEFT))) {
         iPlayerACT = JA_KICK;
     }
 
-    if(iSitLadE != -1 && !iTKeyAttack && (iPlayerSC > 15 || !iTKeyJump || ((iPlayerDIR == JD_RIGHT) && iTKeyLeft) || ((iPlayerDIR == JD_LEFT) && iTKeyRight) )) {
-        MoveJumpmanLadder();
+    if(iSitLadE != -1 && !iTKeyAttack && (iPlayerSC > 15 || !iTKeyJump || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
+        MoveJumpmanLadder(game_input);
         return;
     }
 
-    if(iSitVinEx != -1 && !iTKeyAttack && (iPlayerSC > 10 || !iTKeyJump || ((iPlayerDIR == JD_RIGHT) && iTKeyLeft) || ((iPlayerDIR == JD_LEFT) && iTKeyRight) )) {
-        MoveJumpmanVine();
+    if(iSitVinEx != -1 && !iTKeyAttack && (iPlayerSC > 10 || !iTKeyJump || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
+        MoveJumpmanVine(game_input);
         return;
     }
 
     if(iPlayerSC > 50) {
         if(iSitLadA != -1) {
-            MoveJumpmanLadder();
+            MoveJumpmanLadder(game_input);
             return;
         }
 
         if(iSitVinAp != -1) {
-            MoveJumpmanVine();
+            MoveJumpmanVine(game_input);
             return;
         }
 
-        MoveJumpmanNormal();
+        MoveJumpmanNormal(game_input);
         return;
     }
 
     if(iPlayerY < iSitSupport && iPlayerSC > 6 && (!iTKeyJump || iPlayerSC > 12)) {
-        MoveJumpmanNormal();
+        MoveJumpmanNormal(game_input);
         return;
     }
 
@@ -3089,11 +3089,11 @@ static void MoveJumpmanJumping() {
 
     if(iTKeyDown && !iPlayerNoRoll && (iPlayerDIR == JD_RIGHT || iPlayerDIR == JD_LEFT)) {
         iPlayerSC = 0;
-        MoveJumpmanRoll();
+        MoveJumpmanRoll(game_input);
     }
 }
 
-static void MoveJumpmanSlide() {
+static void MoveJumpmanSlide(GameInput* game_input) {
     iPlayerST = JS_SLIDE;
     iPlayerACT = 0;
 
@@ -3105,7 +3105,7 @@ static void MoveJumpmanSlide() {
     iExtra = PS[iSitPlatform].Extra;
 
     if(!iExtra && iPlayerY <= iSitSupport) {
-        MoveJumpmanNormal();
+        MoveJumpmanNormal(game_input);
         return;
     }
 
@@ -3113,7 +3113,7 @@ static void MoveJumpmanSlide() {
         ++iPlayerSC;
 
         if(iPlayerSC > 30) {
-            MoveJumpmanNormal();
+            MoveJumpmanNormal(game_input);
             return;
         }
     } else {
@@ -3122,7 +3122,7 @@ static void MoveJumpmanSlide() {
 
     if(iPlayerY < iSitSupport + 1) {
         if(iExtra == 1) {
-            if(CheckJumpStart(0, 0, 1)) {
+            if(CheckJumpStart(0, 0, 1, game_input)) {
                 return;
             }
             ++iPlayerX;
@@ -3130,7 +3130,7 @@ static void MoveJumpmanSlide() {
         }
 
         if(iExtra == 2) {
-            if(CheckJumpStart(1, 0, 0)) {
+            if(CheckJumpStart(1, 0, 0, game_input)) {
                 return;
             }
             --iPlayerX;
@@ -3139,7 +3139,7 @@ static void MoveJumpmanSlide() {
     } else {
         if(iPlayerDIR == JD_RIGHT) {
             if(iPlayerSC < 6) {
-                if(CheckJumpStart(0, 0, 1)) {
+                if(CheckJumpStart(0, 0, 1, game_input)) {
                     return;
                 }
             }
@@ -3149,7 +3149,7 @@ static void MoveJumpmanSlide() {
 
         if(iPlayerDIR == JD_LEFT) {
             if(iPlayerSC < 6) {
-                if(CheckJumpStart(1, 0, 0)) {
+                if(CheckJumpStart(1, 0, 0, game_input)) {
                     return;
                 }
             }
@@ -3193,7 +3193,7 @@ static void MoveJumpmanSlide() {
     }
 }
 
-static void MoveJumpmanRoll() {
+static void MoveJumpmanRoll(GameInput* game_input) {
     iPlayerST = JS_ROLL;
     iPlayerACT = 0;
 
@@ -3201,7 +3201,7 @@ static void MoveJumpmanRoll() {
         ++iPlayerSC;
 
         if(iPlayerSC > 50) {
-            MoveJumpmanNormal();
+            MoveJumpmanNormal(game_input);
             return;
         }
     } else {
@@ -3209,23 +3209,23 @@ static void MoveJumpmanRoll() {
     }
 
     if(iPlayerY <= iSitSupport && (PS[iSitPlatform].Extra == 1 || PS[iSitPlatform].Extra == 2)) {
-        MoveJumpmanSlide();
+        MoveJumpmanSlide(game_input);
         return;
     }
 
     if(iPlayerY <= iSitSupport) {
-        if(iPlayerDIR == JD_RIGHT && !iTKeyRight) {
-            MoveJumpmanNormal();
+        if(iPlayerDIR == JD_RIGHT && !game_input->move_right_action.is_pressed) {
+            MoveJumpmanNormal(game_input);
             return;
         }
 
-        if(iPlayerDIR == JD_LEFT && !iTKeyLeft) {
-            MoveJumpmanNormal();
+        if(iPlayerDIR == JD_LEFT && !game_input->move_left_action.is_pressed) {
+            MoveJumpmanNormal(game_input);
             return;
         }
 
         if(!iTKeyDown) {
-            if(CheckJumpStart(1, 1, 1)) {
+            if(CheckJumpStart(1, 1, 1, game_input)) {
                 return;
             }
         }
@@ -3233,17 +3233,17 @@ static void MoveJumpmanRoll() {
 
     if((!iTKeyJump) && (iPlayerY <= iSitSupport+.1) && iTKeyAttack) {
         iPlayerSC = 0;
-        MoveJumpmanPunch();
+        MoveJumpmanPunch(game_input);
         return;
     }
 
     if(iSitLadE != -1 && iSitSupport < iPlayerY && (iPlayerSC > 10)) {
-        MoveJumpmanLadder();
+        MoveJumpmanLadder(game_input);
         return;
     }
 
     if(iSitVinEx != -1 && iSitSupport < iPlayerY && (iPlayerSC > 10)) {
-        MoveJumpmanVine();
+        MoveJumpmanVine(game_input);
         return;
     }
 
@@ -3293,12 +3293,12 @@ static void MoveJumpmanRoll() {
     }
 }
 
-static void MoveJumpmanPunch() {
+static void MoveJumpmanPunch(GameInput* game_input) {
     iPlayerST = JS_PUNCH;
     iPlayerACT = JA_PUNCH;
 
     if(iPlayerSC > 20 || (iPlayerSC < 12 && iPlayerY < iSitSupport - 2) || (iPlayerSC > 11 && iPlayerY <= iSitSupport)) {
-        MoveJumpmanNormal();
+        MoveJumpmanNormal(game_input);
         return;
     }
 
@@ -3323,7 +3323,7 @@ static void MoveJumpmanPunch() {
     }
 }
 
-static void MoveJumpman() {
+static void MoveJumpman(GameInput* game_input) {
     iPlayerOldX = iPlayerX;
     iPlayerOldY = iPlayerY;
 
@@ -3332,21 +3332,21 @@ static void MoveJumpman() {
     UpdateSituation();
 
     if(iPlayerST == JS_VINE) {
-        MoveJumpmanVine();
+        MoveJumpmanVine(game_input);
     } else if(iPlayerST == JS_LADDER) {
-        MoveJumpmanLadder();
+        MoveJumpmanLadder(game_input);
     } else if(iPlayerST == JS_NORMAL) {
-        MoveJumpmanNormal();
+        MoveJumpmanNormal(game_input);
     } else if(iPlayerST == JS_FALLING) {
-        MoveJumpmanFalling();
+        MoveJumpmanFalling(game_input);
     } else if(iPlayerST == JS_JUMPING) {
-        MoveJumpmanJumping();
+        MoveJumpmanJumping(game_input);
     } else if(iPlayerST == JS_SLIDE) {
-        MoveJumpmanSlide();
+        MoveJumpmanSlide(game_input);
     } else if(iPlayerST == JS_ROLL) {
-        MoveJumpmanRoll();
+        MoveJumpmanRoll(game_input);
     } else if(iPlayerST == JS_PUNCH) {
-        MoveJumpmanPunch();
+        MoveJumpmanPunch(game_input);
     }
 
     if(iPlayerY < 0) {

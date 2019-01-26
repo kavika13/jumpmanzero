@@ -21,8 +21,6 @@ extern bool g_music_is_enabled;
 extern bool g_save_settings_is_queued;
 extern bool g_show_fps_is_enabled;
 
-extern int iTKeyLeft;
-extern int iTKeyRight;
 extern int iTKeyDown;
 extern int iTKeyUp;
 extern int iTKeyAttack;

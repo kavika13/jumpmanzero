@@ -37,7 +37,7 @@ typedef struct {
 
 void ResetContext(ScriptContext* SC);
 void LoadScript(char* sFileName, ScriptCode* oScript);
-void RunScript(ScriptContext* SC, long iSub, GameRawInput* game_raw_input);
+void RunScript(ScriptContext* SC, long iSub, GameInput* game_input);
 int FindScript(ScriptContext* SC, char* sFunc);
 
 #if defined(__cplusplus)

@@ -36,8 +36,6 @@ bool g_music_is_enabled = kMUSIC_IS_ENABLED_DEFAULT;
 bool g_save_settings_is_queued = false;  // TODO: Maybe provide API?
 bool g_show_fps_is_enabled = false;
 
-int iTKeyLeft;
-int iTKeyRight;
 int iTKeyDown;
 int iTKeyUp;
 int iTKeyAttack;
@@ -363,9 +361,8 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 static void GetInput(GameInput* game_input) {
-    iTKeyLeft = (game_input->move_left_action.is_pressed || game_input->move_left_action.just_pressed) ? 1 : 0;
+    // TODO: Properly handle just_pressed
     game_input->move_left_action.just_pressed = false;
-    iTKeyRight = (game_input->move_right_action.is_pressed || game_input->move_right_action.just_pressed) ? 1 : 0;
     game_input->move_right_action.just_pressed = false;
     iTKeyUp = (game_input->move_up_action.is_pressed || game_input->move_up_action.just_pressed) ? 1 : 0;
     game_input->move_up_action.just_pressed = false;
@@ -384,11 +381,11 @@ static void GetInput(GameInput* game_input) {
 
             if(axis_count > 0) {
                 if(axis_values[0] <= -0.5f) {
-                    iTKeyLeft = 1;
+                    game_input->move_left_action.is_pressed = true;
                 }
 
                 if(axis_values[0] >= 0.5f) {
-                    iTKeyRight = 1;
+                    game_input->move_right_action.is_pressed = true;
                 }
             }
 
@@ -421,7 +418,7 @@ static void GetInput(GameInput* game_input) {
             }
 
             if(button_count > 15 && button_values[15] == GLFW_PRESS) {
-                iTKeyRight = 1;
+                game_input->move_right_action.is_pressed = true;
             }
 
             if(button_count > 16 && button_values[16] == GLFW_PRESS) {
@@ -429,7 +426,7 @@ static void GetInput(GameInput* game_input) {
             }
 
             if(button_count > 17 && button_values[17] == GLFW_PRESS) {
-                iTKeyLeft = 1;
+                game_input->move_left_action.is_pressed = true;
             }
         }
     }
@@ -437,7 +434,7 @@ static void GetInput(GameInput* game_input) {
     ++g_game_time_inactive;
 
     // TODO: Move this check to Jumpman.h? Is it based on input actions, or whether they're actually valid actions at the time?
-    if(iTKeyLeft + iTKeyRight + iTKeyUp + iTKeyDown + iTKeyJump) {
+    if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || (iTKeyUp + iTKeyDown + iTKeyJump != 0)) {
         g_game_time_inactive = 0;
     }
 
@@ -542,7 +539,7 @@ int main(int arguments_count, char* arguments[]) {
     int bDone = 0;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(arguments[1], &game_input.raw_input);
+        InitGameDebugLevel(arguments[1], &game_input);
     } else {
         InitGameNormal();
     }
