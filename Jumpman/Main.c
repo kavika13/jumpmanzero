@@ -168,7 +168,7 @@ static void ErrorCallback(int error, const char* description) {
 }
 
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    GameInput* game_input = glfwGetWindowUserPointer(window);
+    GameInput* game_current_input = glfwGetWindowUserPointer(window);
 
     switch (action) {
         case GLFW_PRESS: {
@@ -178,31 +178,31 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                     break;
                 }
                 case GLFW_KEY_UP: {
-                    game_input->move_up_action.just_pressed = game_input->move_up_action.is_pressed = true;
+                    game_current_input->move_up_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_DOWN: {
-                    game_input->move_down_action.just_pressed = game_input->move_down_action.is_pressed = true;
+                    game_current_input->move_down_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_LEFT: {
-                    game_input->move_left_action.just_pressed = game_input->move_left_action.is_pressed = true;
+                    game_current_input->move_left_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_RIGHT: {
-                    game_input->move_right_action.just_pressed = game_input->move_right_action.is_pressed = true;
+                    game_current_input->move_right_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_SPACE: {
-                    game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
-                    game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
+                    game_current_input->jump_action.is_pressed = true;
+                    game_current_input->select_action.is_pressed = true;
                     break;
                 }
                 case GLFW_KEY_ENTER: {
                     if(mods & GLFW_MOD_ALT) {
                         SetFullscreen(!g_fullscreen_is_enabled);
                     } else {
-                        game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
+                        game_current_input->select_action.is_pressed = true;
                     }
                     break;
                 }
@@ -218,44 +218,44 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
             // Modifier keys
             if(mods & GLFW_MOD_CONTROL) {
-                game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
-                game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
+                game_current_input->jump_action.is_pressed = true;
+                game_current_input->select_action.is_pressed = true;
             }
 
             if(mods & GLFW_MOD_ALT) {
                 if(key != GLFW_KEY_ENTER) {  // Ignore for alt + enter combo
-                    game_input->attack_action.just_pressed = game_input->attack_action.is_pressed = true;
+                    game_current_input->attack_action.is_pressed = true;
                 }
             }
 
 
             // Bound keys
-            if(key == game_input->raw_input.key_bindings[0]) {
-                game_input->move_up_action.just_pressed = game_input->move_up_action.is_pressed = true;
+            if(key == game_current_input->raw_input.key_bindings[0]) {
+                game_current_input->move_up_action.is_pressed = true;
             }
 
-            if(key == game_input->raw_input.key_bindings[1]) {
-                game_input->move_down_action.just_pressed = game_input->move_down_action.is_pressed = true;
+            if(key == game_current_input->raw_input.key_bindings[1]) {
+                game_current_input->move_down_action.is_pressed = true;
             }
 
-            if(key == game_input->raw_input.key_bindings[2]) {
-                game_input->move_left_action.just_pressed = game_input->move_left_action.is_pressed = true;
+            if(key == game_current_input->raw_input.key_bindings[2]) {
+                game_current_input->move_left_action.is_pressed = true;
             }
 
-            if(key == game_input->raw_input.key_bindings[3]) {
-                game_input->move_right_action.just_pressed = game_input->move_right_action.is_pressed = true;
+            if(key == game_current_input->raw_input.key_bindings[3]) {
+                game_current_input->move_right_action.is_pressed = true;
             }
 
-            if(key == game_input->raw_input.key_bindings[4]) {
-                game_input->jump_action.just_pressed = game_input->jump_action.is_pressed = true;
-                game_input->select_action.just_pressed = game_input->select_action.is_pressed = true;
+            if(key == game_current_input->raw_input.key_bindings[4]) {
+                game_current_input->jump_action.is_pressed = true;
+                game_current_input->select_action.is_pressed = true;
             }
 
-            if(key == game_input->raw_input.key_bindings[5]) {
-                game_input->attack_action.just_pressed = game_input->attack_action.is_pressed = true;
+            if(key == game_current_input->raw_input.key_bindings[5]) {
+                game_current_input->attack_action.is_pressed = true;
             }
 
-            game_input->raw_input.last_key_pressed = key;
+            game_current_input->raw_input.last_key_pressed = key;
             break;
         }
         case GLFW_RELEASE: {
@@ -265,69 +265,69 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                     break;
                 }
                 case GLFW_KEY_UP: {
-                    game_input->move_up_action.is_pressed = false;
+                    game_current_input->move_up_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_DOWN: {
-                    game_input->move_down_action.is_pressed = false;
+                    game_current_input->move_down_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_LEFT: {
-                    game_input->move_left_action.is_pressed = false;
+                    game_current_input->move_left_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_RIGHT: {
-                    game_input->move_right_action.is_pressed = false;
+                    game_current_input->move_right_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_SPACE: {
-                    game_input->jump_action.is_pressed = false;
-                    game_input->select_action.is_pressed = false;
+                    game_current_input->jump_action.is_pressed = false;
+                    game_current_input->select_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_ENTER: {
-                    game_input->select_action.is_pressed = false;
+                    game_current_input->select_action.is_pressed = false;
                     break;
                 }
             }
 
             // Modifier keys
             if(!(mods & GLFW_MOD_CONTROL)) {
-                game_input->jump_action.is_pressed = false;
-                game_input->select_action.is_pressed = false;
+                game_current_input->jump_action.is_pressed = false;
+                game_current_input->select_action.is_pressed = false;
             }
 
             if(!(mods & GLFW_MOD_ALT)) {
-                game_input->attack_action.is_pressed = false;
+                game_current_input->attack_action.is_pressed = false;
             }
 
             // Bound keys
-            if(key == game_input->raw_input.key_bindings[0]) {
-                game_input->move_up_action.is_pressed = false;
+            if(key == game_current_input->raw_input.key_bindings[0]) {
+                game_current_input->move_up_action.is_pressed = false;
             }
 
-            if(key == game_input->raw_input.key_bindings[1]) {
-                game_input->move_down_action.is_pressed = false;
+            if(key == game_current_input->raw_input.key_bindings[1]) {
+                game_current_input->move_down_action.is_pressed = false;
             }
 
-            if(key == game_input->raw_input.key_bindings[2]) {
-                game_input->move_left_action.is_pressed = false;
+            if(key == game_current_input->raw_input.key_bindings[2]) {
+                game_current_input->move_left_action.is_pressed = false;
             }
 
-            if(key == game_input->raw_input.key_bindings[3]) {
-                game_input->move_right_action.is_pressed = false;
+            if(key == game_current_input->raw_input.key_bindings[3]) {
+                game_current_input->move_right_action.is_pressed = false;
             }
 
-            if(key == game_input->raw_input.key_bindings[4]) {
-                game_input->jump_action.is_pressed = false;
-                game_input->select_action.is_pressed = false;
+            if(key == game_current_input->raw_input.key_bindings[4]) {
+                game_current_input->jump_action.is_pressed = false;
+                game_current_input->select_action.is_pressed = false;
             }
 
-            if(key == game_input->raw_input.key_bindings[5]) {
-                game_input->attack_action.is_pressed = false;
+            if(key == game_current_input->raw_input.key_bindings[5]) {
+                game_current_input->attack_action.is_pressed = false;
             }
 
-            game_input->raw_input.last_key_pressed = key;
+            game_current_input->raw_input.last_key_pressed = key;
             break;
         }
     }
@@ -354,16 +354,7 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     ResizeViewport(width, height);
 }
 
-static void GetInput(GameInput* game_input) {
-    // TODO: Properly handle just_pressed
-    game_input->move_left_action.just_pressed = false;
-    game_input->move_right_action.just_pressed = false;
-    game_input->move_up_action.just_pressed = false;
-    game_input->move_down_action.just_pressed = false;
-    game_input->jump_action.just_pressed = false;
-    game_input->attack_action.just_pressed = false;
-    game_input->select_action.just_pressed = false;
-
+static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) {
     // TODO: Move this over before this checkin
     for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
         if(glfwJoystickPresent(i) == GLFW_TRUE) {
@@ -372,21 +363,21 @@ static void GetInput(GameInput* game_input) {
 
             if(axis_count > 0) {
                 if(axis_values[0] <= -0.5f) {
-                    game_input->move_left_action.is_pressed = true;
+                    game_current_input->move_left_action.is_pressed = true;
                 }
 
                 if(axis_values[0] >= 0.5f) {
-                    game_input->move_right_action.is_pressed = true;
+                    game_current_input->move_right_action.is_pressed = true;
                 }
             }
 
             if(axis_count > 1) {
                 if(axis_values[1] <= -0.5f) {
-                    game_input->move_up_action.is_pressed = true;
+                    game_current_input->move_up_action.is_pressed = true;
                 }
 
                 if(axis_values[1] >= 0.5f) {
-                    game_input->move_down_action.is_pressed = true;
+                    game_current_input->move_down_action.is_pressed = true;
                 }
             }
 
@@ -395,29 +386,29 @@ static void GetInput(GameInput* game_input) {
 
             // Face buttons - PS4 values
             if(button_count > 1 && button_values[1] == GLFW_PRESS) {
-                game_input->jump_action.is_pressed = true;
+                game_current_input->jump_action.is_pressed = true;
             }
 
             if(button_count > 0 && button_values[0] == GLFW_PRESS) {
-                game_input->attack_action.is_pressed = true;
+                game_current_input->attack_action.is_pressed = true;
             }
 
             // D-Pad buttons - PS4 values
             // TODO: Need to map per controller type?
             if(button_count > 14 && button_values[14] == GLFW_PRESS) {
-                game_input->move_up_action.is_pressed = true;
+                game_current_input->move_up_action.is_pressed = true;
             }
 
             if(button_count > 15 && button_values[15] == GLFW_PRESS) {
-                game_input->move_right_action.is_pressed = true;
+                game_current_input->move_right_action.is_pressed = true;
             }
 
             if(button_count > 16 && button_values[16] == GLFW_PRESS) {
-                game_input->move_down_action.is_pressed = true;
+                game_current_input->move_down_action.is_pressed = true;
             }
 
             if(button_count > 17 && button_values[17] == GLFW_PRESS) {
-                game_input->move_left_action.is_pressed = true;
+                game_current_input->move_left_action.is_pressed = true;
             }
         }
     }
@@ -425,15 +416,21 @@ static void GetInput(GameInput* game_input) {
     ++g_game_time_inactive;
 
     // TODO: Move this check to Jumpman.h? Is it based on input actions, or whether they're actually valid actions at the time?
-    if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || game_input->move_up_action.is_pressed || game_input->move_down_action.is_pressed || game_input->jump_action.is_pressed) {
+    if(game_current_input->move_left_action.is_pressed + game_current_input->move_right_action.is_pressed || game_current_input->move_up_action.is_pressed || game_current_input->move_down_action.is_pressed || game_current_input->jump_action.is_pressed) {
         g_game_time_inactive = 0;
     }
 
-    game_input->attack_action.is_pressed = false;
+    game_current_input->move_left_action.just_pressed = game_current_input->move_left_action.is_pressed && !game_prev_input->move_left_action.is_pressed;
+    game_current_input->move_right_action.just_pressed = game_current_input->move_right_action.is_pressed && !game_prev_input->move_right_action.is_pressed;
+    game_current_input->move_down_action.just_pressed = game_current_input->move_down_action.is_pressed && !game_prev_input->move_down_action.is_pressed;
+    game_current_input->move_up_action.just_pressed = game_current_input->move_up_action.is_pressed && !game_prev_input->move_up_action.is_pressed;
+    game_current_input->jump_action.just_pressed = game_current_input->jump_action.is_pressed && !game_prev_input->jump_action.is_pressed;
+    game_current_input->attack_action.just_pressed = game_current_input->attack_action.is_pressed && !game_prev_input->attack_action.is_pressed;
+    game_current_input->select_action.just_pressed = game_current_input->select_action.is_pressed && !game_prev_input->select_action.is_pressed;
 }
 
 int main(int arguments_count, char* arguments[]) {
-    GameInput game_input = { 0 };
+    GameInput game_current_input = { 0 };
     g_debug_is_enabled = true;
 
     if(!GetWorkingDirectoryPath(g_game_base_path)) {
@@ -441,7 +438,7 @@ int main(int arguments_count, char* arguments[]) {
         exit(EXIT_FAILURE);
     }
 
-    if(!LoadSettings(&game_input.raw_input)) {
+    if(!LoadSettings(&game_current_input.raw_input)) {
         // TODO: Proper error handling
         exit(EXIT_FAILURE);
     }
@@ -478,7 +475,7 @@ int main(int arguments_count, char* arguments[]) {
         exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowUserPointer(g_main_window, &game_input);
+    glfwSetWindowUserPointer(g_main_window, &game_current_input);
 
     // Now backup window position before switching to fullscreen (if fullscreen dims, will be in upper left, but not offscreen)
     glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
@@ -530,13 +527,14 @@ int main(int arguments_count, char* arguments[]) {
     int bDone = 0;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(arguments[1], &game_input);
+        InitGameDebugLevel(arguments[1], &game_current_input);
     } else {
         InitGameNormal();
     }
 
     long frame_count_since_last_perf_update = 0;
     double last_perf_update_time = previous_frame_time;
+    GameInput game_prev_input = game_current_input;
 
     while(!glfwWindowShouldClose(g_main_window)) {
         double current_time = glfwGetTime();
@@ -557,8 +555,10 @@ int main(int arguments_count, char* arguments[]) {
 
             previous_frame_time = current_time;
 
-            GetInput(&game_input);
-            UpdateGame(&game_input);
+            GetInput(&game_current_input, &game_prev_input);
+            GameInput processed_input = game_current_input;
+            UpdateGame(&processed_input);
+            game_prev_input = game_current_input;
 
             glfwSwapBuffers(g_main_window);
         }
@@ -566,7 +566,7 @@ int main(int arguments_count, char* arguments[]) {
         glfwPollEvents();
 
         if(g_save_settings_is_queued) {
-            if(!SaveSettings(&game_input.raw_input)) {
+            if(!SaveSettings(&game_current_input.raw_input)) {
                 // TODO: fprintf(stderr, "Failed to save config file\n");
             }
 
