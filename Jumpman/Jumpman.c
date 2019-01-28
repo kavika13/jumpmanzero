@@ -1407,7 +1407,10 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
-static void LoadLevel(const char* base_path, char* sFileName) {
+static void LoadLevel(const char* base_path, const char* filename) {
+    char full_path[300];
+    sprintf_s(full_path, sizeof(full_path), "%s\\%s", base_path, filename);
+
     unsigned char* cData;
 
     char sTemp[300];
@@ -1453,7 +1456,7 @@ static void LoadLevel(const char* base_path, char* sFileName) {
     iAS = 0;
 
     cData = NULL;
-    iLen = FileToString(sFileName, &cData);
+    iLen = FileToString(full_path, &cData);
 
     iPlace = 0;
 
@@ -2067,7 +2070,6 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
     float iSupport;
     long iPlatform;
     int bGrounded;
-    char sTemp[300];
 
     iEvent2 = -1;
 
@@ -2204,8 +2206,7 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
             if(GameLivesRemaining == 0) {
                 iPlayerST = JS_NORMAL;
                 strcpy_s(GameTitle, sizeof(GameTitle), "");
-                sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\GameOver.DAT", base_path);
-                PrepLevel(base_path, sTemp, game_input);
+                PrepLevel(base_path, "Data\\GameOver.DAT", game_input);
             } else {
                 ResetPlayer(0, game_input);
 
@@ -2366,7 +2367,7 @@ static void DrawGame() {
 
 // ------------------- OTHER STUFF -------------------------------
 
-static void GetLevelFilename(const char* base_path, char* sLevel, size_t sLevelSize, int iLevel) {
+static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
     int iLen;
     char sTemp[20] = { 0 };
     char* sData;
@@ -2375,7 +2376,7 @@ static void GetLevelFilename(const char* base_path, char* sLevel, size_t sLevelS
     // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function
     TextLine(sData, iLen, sTemp, 20, iLevel * 2 - 1);
     TextLine(sData, iLen, GameTitle, 49, iLevel * 2);
-    sprintf_s(sLevel, sLevelSize, "%s\\Data\\%s.DAT", base_path, sTemp);
+    sprintf_s(sLevel, sLevelSize, "Data\\%s.DAT", sTemp);
     free(sData);
 }
 
@@ -2424,14 +2425,14 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
         PrepLevel(base_path, g_debug_level_filename, game_input);
     } else {
         ++iLevel;
-        GetLevelFilename(base_path, sLevel, sizeof(sLevel), iLevel);
+        GetLevelFilename(sLevel, sizeof(sLevel), iLevel);
         PrepLevel(base_path, sLevel, game_input);
     }
 }
 
 void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input) {
     g_debug_level_is_specified = true;
-    sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "%s\\Data\\%s.DAT", base_path, level_name);
+    sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "Data\\%s.DAT", level_name);
     g_debug_level_is_specified = 1;
     LoadNextLevel(base_path, game_input);
     iLevel = 0;
@@ -2443,7 +2444,7 @@ void InitGameNormal() {
     GameStatus = GS_MENU;
     GameMenuDrawn = GM_NONE;
     GameMenu = GM_MAIN;
-    g_debug_level_is_specified = 0;
+    g_debug_level_is_specified = false;
 }
 
 void ExitGame() {
@@ -2455,16 +2456,13 @@ static void LoadJumpmanMenu(const char* base_path) {
         return;
     }
 
-    char sFileName[300];
-
     Clear3dData();
     Begin3dLoad();
 
     SetFog(0, 0, 0, 0, 0);
 
     if(GameMenu == GM_MAIN) {
-        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\MainMenu.DAT", base_path);
-        LoadLevel(base_path, sFileName);
+        LoadLevel(base_path, "Data\\MainMenu.DAT");
 
         if(iEvent1 == 10) {
             NewTrack1(msBackMusic, 3000, -1);
@@ -2476,8 +2474,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     }
 
     if(GameMenu == GM_OPTIONS) {
-        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Options.DAT", base_path);
-        LoadLevel(base_path, sFileName);
+        LoadLevel(base_path, "Data\\Options.DAT");
 
         if(iEvent1 == 9) {
             NewTrack1(msBackMusic, 0, miIntroLength);
@@ -2485,8 +2482,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     }
 
     if(GameMenu == GM_SELECTGAME) {
-        sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\SelectGame.DAT", base_path);
-        LoadLevel(base_path, sFileName);
+        LoadLevel(base_path, "Data\\SelectGame.DAT");
 
         if(iEvent1 == 9) {
             NewTrack1(msBackMusic, 0, miIntroLength);
