@@ -13,69 +13,6 @@
 #include "Sound.h"
 #include "Utilities.h"
 
-#define JM_STAND 1
-#define JM_LEFT1 2
-#define JM_LEFT2 3
-#define JM_RIGHT1 4
-#define JM_RIGHT2 5
-#define JM_JUMPLEFT 6
-#define JM_JUMPRIGHT 7
-#define JM_JUMPUP 8
-#define JM_VINECLIMB1 9
-#define JM_VINECLIMB2 10
-#define JM_LADDERCLIMB1 11
-#define JM_LADDERCLIMB2 12
-#define JM_KICKLEFT 13
-#define JM_KICKRIGHT 14
-
-#define JM_DIVERIGHT 15
-#define JM_ROLLRIGHT1 16
-#define JM_ROLLRIGHT2 17
-#define JM_ROLLRIGHT3 18
-#define JM_ROLLRIGHT4 19
-
-#define JM_DIVELEFT 20
-#define JM_ROLLLEFT1 21
-#define JM_ROLLLEFT2 22
-#define JM_ROLLLEFT3 23
-#define JM_ROLLLEFT4 24
-
-#define JM_PUNCHLEFT 25
-#define JM_PUNCHRIGHT 26
-#define JM_PUNCHLEFT2 27
-#define JM_PUNCHRIGHT2 28
-#define JM_DYING 29
-#define JM_DEAD 30
-#define JM_STARS 31
-#define JM_SLIDER 32
-#define JM_SLIDERB 33
-#define JM_SLIDEL 34
-#define JM_SLIDELB 35
-#define JM_BORED1 36
-#define JM_BORED2 37
-#define JM_BORED3 38
-#define JM_BORED4 39
-#define JM_BORED5 40
-
-#define JS_NORMAL 0
-#define JS_JUMPING 1
-#define JS_FALLING 8
-#define JS_LADDER 16
-#define JS_ROLL 64
-#define JS_PUNCH 128
-#define JS_DYING 256
-#define JS_DONE 512
-#define JS_VINE 1024
-#define JS_SLIDE 2048
-
-#define JD_UP 1
-#define JD_DOWN 2
-#define JD_LEFT 3
-#define JD_RIGHT 4
-
-#define JA_KICK 1
-#define JA_PUNCH 2
-
 #define NT_Ladder 1
 #define NT_Platform 2
 #define NT_PlatformFallLeft 3
@@ -218,6 +155,87 @@ typedef enum {
 } GameMenuState;
 
 typedef enum {
+    kPlayerStateNormal = 0,
+    kPlayerStateJumping = 1,
+    kPlayerStateFalling = 8,
+    kPlayerStateLadder = 16,
+    kPlayerStateRoll = 64,
+    kPlayerStatePunch = 128,
+    kPlayerStateDying = 256,
+    kPlayerStateDone = 512,
+    kPlayerStateVine = 1024,
+    kPlayerStateSlide = 2048,
+} PlayerState;
+
+typedef enum {
+    kPlayerDirectionUp = 1,
+    kPlayerDirectionDown = 2,
+    kPlayerDirectionLeft = 3,
+    kPlayerDirectionRight = 4,
+} PlayerDirection;
+
+typedef enum {
+    kPlayerSpecialActionNone = 0,
+    kPlayerSpecialActionKick = 1,
+    kPlayerSpecialActionPunch = 2,
+} PlayerSpecialAction;
+
+#define MAX_PLAYER_MESHES 100
+
+typedef enum {
+    kPlayerMeshStand = 1,
+    kPlayerMeshLeft1 = 2,
+    kPlayerMeshLeft2 = 3,
+    kPlayerMeshRight1 = 4,
+    kPlayerMeshRight2 = 5,
+    kPlayerMeshJumpLeft = 6,
+    kPlayerMeshJumpRight = 7,
+    kPlayerMeshJumpUp = 8,
+    kPlayerMeshVineClimb1 = 9,
+    kPlayerMeshVineClimb2 = 10,
+    kPlayerMeshLadderClimb1 = 11,
+    kPlayerMeshLadderClimb2 = 12,
+    kPlayerMeshKickLeft = 13,
+    kPlayerMeshKickRight = 14,
+
+    kPlayerMeshDiveRight = 15,
+    kPlayerMeshRollRight1 = 16,
+    kPlayerMeshRollRight2 = 17,
+    kPlayerMeshRollRight3 = 18,
+    kPlayerMeshRollRight4 = 19,
+
+    kPlayerMeshDiveLeft = 20,
+    kPlayerMeshRollLeft1 = 21,
+    kPlayerMeshRollLeft2 = 22,
+    kPlayerMeshRollLeft3 = 23,
+    kPlayerMeshRollLeft4 = 24,
+
+    kPlayerMeshPunchLeft = 25,
+    kPlayerMeshPunchRight = 26,
+    kPlayerMeshPunchLeft2 = 27,
+    kPlayerMeshPunchRight2 = 28,
+    kPlayerMeshDying = 29,
+    kPlayerMeshDead = 30,
+    kPlayerMeshStars = 31,
+    kPlayerMeshSlideR = 32,
+    kPlayerMeshSlideRB = 33,
+    kPlayerMeshSlideL = 34,
+    kPlayerMeshSlideLB = 35,
+    kPlayerMeshBored1 = 36,
+    kPlayerMeshBored2 = 37,
+    kPlayerMeshBored3 = 38,
+    kPlayerMeshBored4 = 39,
+    kPlayerMeshBored5 = 40,
+} PlayerMesh;
+
+typedef enum {
+    kPlayerDyingAnimationStateBouncing = 0,
+    kPlayerDyingAnimationStateFalling = 1,
+    kPlayerDyingAnimationStateFinalBounce = 2,
+    kPlayerDyingAnimationStateSpinningStars = 10,
+} PlayerDyingAnimationState;
+
+typedef enum {
     kCameraModeNormal = 0,
     kCameraModeCloseUp = 1,
     kCameraModeFar = 2,
@@ -262,8 +280,8 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact);
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
 static void MoveJumpman(GameInput* game_input);
 
-static char g_level_list_filename[100];
-static char g_level_title[50];
+static char g_level_set_filename[100];
+static char g_level_current_title[50];
 static GameStatus g_game_status;
 static GameMenuState g_current_game_menu_state;
 static GameMenuState g_target_game_menu_state;
@@ -272,12 +290,12 @@ static char g_debug_level_filename[300];
 static int g_remaining_life_count;
 static long g_game_time_inactive;
 
-static long iSitVinAp;
-static long iSitVinEx;
-static long iSitLadA;
-static long iSitLadE;
-static long iSitPlatform;
-static float iSitSupport;
+static long g_player_current_close_vine_index;
+static long g_player_current_exact_vine_index;
+static long g_player_current_close_ladder_index;
+static long g_player_current_exact_ladder_index;
+static long g_player_current_platform_index;
+static float g_player_current_platform_y;
 
 static int g_music_loop_start_music_time;  // TODO: I think it gets specified in milliseconds, but it should be in music time, due to the API that was used before
 
@@ -285,78 +303,80 @@ static char g_music_background_track_filename[200];
 static char g_music_death_track_filename[200];
 static char g_music_win_track_filename[200];
 static CameraMode g_current_camera_mode;
-static long miSelectedMesh;
 
-static int iLevel;
-static int iLoadedLevel;
+static int g_level_current_index;
 
-static int miTextures;
-static int miMeshes;
-static int miScripts;
+static int g_loaded_texture_count;
+static int g_loaded_mesh_count;
+static int g_loaded_script_count;
 
 struct StoreVert {
     long X, Y, Z, NX, NY, NZ, COLOR, TX, TY;
 };
 
-static long iFindMesh[100];
-static long iOtherMesh[300];
-static long iCharMesh[100];
+#define MAX_SCRIPT_MESHES 300
+#define MAX_LETTER_MESHES 300
 
-static float iPlayerX;
-static float iPlayerY;
-static float iPlayerOldX;
-static float iPlayerOldY;
+static long g_player_mesh_indices[MAX_PLAYER_MESHES];
+static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
+static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
-static float iPlayerZ;
-static float iPlayerRX;
-static int iPlayerAX;
-static int iPlayerMX;
-static int iPlayerM;
-static int iPlayerVisible;
+static float g_player_current_position_x;
+static float g_player_current_position_y;
+static float g_player_old_position_x;
+static float g_player_old_position_y;
 
-static long iPlayerST;
-static long iPlayerDIR;
-static long iPlayerACT;
+static float g_player_current_position_z;
+static float g_player_current_rotation_x_radians;
+static int g_player_velocity_x;
+static PlayerMesh g_player_current_mesh;
+static bool g_player_is_visible;
 
-static int iPlayerAF;
-static long iPlayerSC;
-static int iPlayerAS;
+static PlayerState g_player_current_state;
+static PlayerDirection g_player_current_direction;
+static PlayerSpecialAction g_player_current_special_action;
 
-static int iPlayerNoRoll;
-static int iPlayerFreeze;
-static int iScrollTitle;
+static int g_player_absolute_frame_count;
+static long g_player_current_state_frame_count;
+static PlayerDyingAnimationState g_player_dying_animation_state;
+static int g_player_dying_animation_state_frame_count;
+
+static int g_player_no_roll_cooldown_frame_count;
+static int g_player_freeze_cooldown_frame_count;
+static int g_level_scroll_title_animation_frame_count;
 
 #define MAX_SCRIPTOBJECTS 60
 
-static int iDS;
-static LevelObject DS[100];
-static int iLS;
-static LevelObject LS[50];
-static int iPS;
-static LevelObject PS[100];
-static int iVS;
-static LevelObject VS[50];
-static int iWS;
-static LevelObject WS[50];
-static int iAS;
-static LevelObject AS[30];
+static int g_donut_object_count;
+static LevelObject g_donut_objects[100];
+static int g_ladder_object_count;
+static LevelObject g_ladder_objects[50];
+static int g_platform_object_count;
+static LevelObject g_platform_objects[100];
+static int g_vine_object_count;
+static LevelObject g_vine_objects[50];
+static int g_wall_object_count;
+static LevelObject g_wall_objects[50];
+static int g_backdrop_object_count;
+static LevelObject g_backdrop_objects[30];
 
 // SCRIPT
-static int iMainScript, iDonutScript;
+static int g_script_main_subroutine_handle, g_script_donut_subroutine_handle;
 
-static long iEvent1, iEvent2, iEvent3, iEvent4;
-static LevelObject* loSelected;
+static long g_script_event_data_1, g_script_event_data_2, g_script_event_data_3, g_script_event_data_4;
+static LevelObject* g_script_selected_level_object;
+static long g_script_selected_mesh_index;
 
-static long miLevelExtentX;
-static long miLevelExtentY;
+static long g_level_extent_x;
+static long g_level_extent_y;
 
-static ScriptCode LevelScript;
-static ScriptContext SCLevel;
-static ScriptCode TitleScript;
-static ScriptContext SCTitle;
+static ScriptCode g_script_level_script_code;
+static ScriptContext g_script_level_script_context;
+static ScriptCode g_script_title_script_code;
+static ScriptContext g_script_title_script_context;
 
-static ScriptCode oObjectScript[5];
-static ScriptContext oObject[MAX_SCRIPTOBJECTS];
+static ScriptCode g_script_object_script_codes[5];
+static ScriptContext g_script_object_script_contexts[MAX_SCRIPTOBJECTS];
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
 
@@ -370,23 +390,23 @@ static long CollideWall(long iX1, long iY1, long iX2, long iY2) {
     iTop = 0;
     iBottom = 0;
 
-    while(++iW < iWS) {
-        if(PointInQuad(iX1, iY1, WS[iW].X1, WS[iW].Y1, WS[iW].X2, WS[iW].Y2, WS[iW].X3, WS[iW].Y3, WS[iW].X4, WS[iW].Y4)) {
+    while(++iW < g_wall_object_count) {
+        if(PointInQuad(iX1, iY1, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
             ++iLeft;
             ++iTop;
         }
 
-        if(PointInQuad(iX2, iY1, WS[iW].X1, WS[iW].Y1, WS[iW].X2, WS[iW].Y2, WS[iW].X3, WS[iW].Y3, WS[iW].X4, WS[iW].Y4)) {
+        if(PointInQuad(iX2, iY1, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
             ++iRight;
             ++iTop;
         }
 
-        if(PointInQuad(iX1, iY2, WS[iW].X1, WS[iW].Y1, WS[iW].X2, WS[iW].Y2, WS[iW].X3, WS[iW].Y3, WS[iW].X4, WS[iW].Y4)) {
+        if(PointInQuad(iX1, iY2, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
             ++iLeft;
             ++iBottom;
         }
 
-        if(PointInQuad(iX2, iY2, WS[iW].X1, WS[iW].Y1, WS[iW].X2, WS[iW].Y2, WS[iW].X3, WS[iW].Y3, WS[iW].X4, WS[iW].Y4)) {
+        if(PointInQuad(iX2, iY2, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
             ++iRight;
             ++iBottom;
         }
@@ -419,60 +439,60 @@ static void BuildNavigation() {
 
     iLoop = -1;
 
-    while(++iLoop < iLS) {
-        LS[iLoop].Navs = 0;
+    while(++iLoop < g_ladder_object_count) {
+        g_ladder_objects[iLoop].Navs = 0;
     }
 
     iLoop = -1;
 
-    while(++iLoop < iPS) {
-        PS[iLoop].Navs = 0;
+    while(++iLoop < g_platform_object_count) {
+        g_platform_objects[iLoop].Navs = 0;
 
-        GetNextPlatform(PS[iLoop].X1 - 4, PS[iLoop].Y1, 4, 2, &iHeight, &iPlatform);
+        GetNextPlatform(g_platform_objects[iLoop].X1 - 4, g_platform_objects[iLoop].Y1, 4, 2, &iHeight, &iPlatform);
 
         if(iPlatform >= 0) {
             iType = NT_Platform;
 
-            if(iHeight < PS[iLoop].Y1 - 4) {
+            if(iHeight < g_platform_objects[iLoop].Y1 - 4) {
                 iType = NT_PlatformFallLeft;
             }
 
-            PS[iLoop].NavTo[PS[iLoop].Navs] = iPlatform;
-            PS[iLoop].NavToType[PS[iLoop].Navs] = iType;
-            ++PS[iLoop].Navs;
+            g_platform_objects[iLoop].NavTo[g_platform_objects[iLoop].Navs] = iPlatform;
+            g_platform_objects[iLoop].NavToType[g_platform_objects[iLoop].Navs] = iType;
+            ++g_platform_objects[iLoop].Navs;
         }
 
-        GetNextPlatform(PS[iLoop].X2 + 4, PS[iLoop].Y2, 4, 2, &iHeight, &iPlatform);
+        GetNextPlatform(g_platform_objects[iLoop].X2 + 4, g_platform_objects[iLoop].Y2, 4, 2, &iHeight, &iPlatform);
 
         if(iPlatform >= 0) {
             iType = NT_Platform;
 
-            if(iHeight < PS[iLoop].Y2 - 4) {
+            if(iHeight < g_platform_objects[iLoop].Y2 - 4) {
                 iType = NT_PlatformFallRight;
             }
 
-            PS[iLoop].NavTo[PS[iLoop].Navs] = iPlatform;
-            PS[iLoop].NavToType[PS[iLoop].Navs] = iType;
-            ++PS[iLoop].Navs;
+            g_platform_objects[iLoop].NavTo[g_platform_objects[iLoop].Navs] = iPlatform;
+            g_platform_objects[iLoop].NavToType[g_platform_objects[iLoop].Navs] = iType;
+            ++g_platform_objects[iLoop].Navs;
         }
 
         iTest = -1;
 
-        while(++iTest < iLS) {
-            if(PS[iLoop].X1 < LS[iTest].X1 && PS[iLoop].X2 > LS[iTest].X1) {
-                iEX = LS[iTest].X1;
-                iLen = PS[iLoop].X2 - PS[iLoop].X1;
-                iH = PS[iLoop].Y1 * abs(PS[iLoop].X2 - iEX) + PS[iLoop].Y2 * abs(PS[iLoop].X1 - iEX);
+        while(++iTest < g_ladder_object_count) {
+            if(g_platform_objects[iLoop].X1 < g_ladder_objects[iTest].X1 && g_platform_objects[iLoop].X2 > g_ladder_objects[iTest].X1) {
+                iEX = g_ladder_objects[iTest].X1;
+                iLen = g_platform_objects[iLoop].X2 - g_platform_objects[iLoop].X1;
+                iH = g_platform_objects[iLoop].Y1 * abs(g_platform_objects[iLoop].X2 - iEX) + g_platform_objects[iLoop].Y2 * abs(g_platform_objects[iLoop].X1 - iEX);
                 iH /= iLen;
 
-                if(iH < LS[iTest].Y1 + 2 && iH > LS[iTest].Y2 - 2) {
-                    PS[iLoop].NavTo[PS[iLoop].Navs] = iTest;
-                    PS[iLoop].NavToType[PS[iLoop].Navs] = NT_Ladder;
-                    ++PS[iLoop].Navs;
+                if(iH < g_ladder_objects[iTest].Y1 + 2 && iH > g_ladder_objects[iTest].Y2 - 2) {
+                    g_platform_objects[iLoop].NavTo[g_platform_objects[iLoop].Navs] = iTest;
+                    g_platform_objects[iLoop].NavToType[g_platform_objects[iLoop].Navs] = NT_Ladder;
+                    ++g_platform_objects[iLoop].Navs;
 
-                    LS[iTest].NavTo[LS[iTest].Navs] = iLoop;
-                    LS[iTest].NavToType[LS[iTest].Navs] = NT_Platform;
-                    ++LS[iTest].Navs;
+                    g_ladder_objects[iTest].NavTo[g_ladder_objects[iTest].Navs] = iLoop;
+                    g_ladder_objects[iTest].NavToType[g_ladder_objects[iTest].Navs] = NT_Platform;
+                    ++g_ladder_objects[iTest].Navs;
                 }
             }
         }
@@ -482,20 +502,20 @@ static void BuildNavigation() {
 }
 
 static long PlayerCollide(int iArg1, int iArg2, int iArg3, int iArg4) {
-    if(iPlayerST & JS_JUMPING) {
-        if(iPlayerX + 4 > iArg1 && iPlayerY + 9 > iArg2 && iPlayerX - 4 < iArg3 && iPlayerY + 4 < iArg4) {
+    if(g_player_current_state & kPlayerStateJumping) {
+        if(g_player_current_position_x + 4 > iArg1 && g_player_current_position_y + 9 > iArg2 && g_player_current_position_x - 4 < iArg3 && g_player_current_position_y + 4 < iArg4) {
             return 1;
         }
-    } else if((iPlayerST & JS_ROLL) && iPlayerAF < 12) {
-        if(iPlayerX + 4 > iArg1 && iPlayerY + 7 > iArg2 && iPlayerX - 4 < iArg3 && iPlayerY + 3 < iArg4) {
+    } else if((g_player_current_state & kPlayerStateRoll) && g_player_absolute_frame_count < 12) {
+        if(g_player_current_position_x + 4 > iArg1 && g_player_current_position_y + 7 > iArg2 && g_player_current_position_x - 4 < iArg3 && g_player_current_position_y + 3 < iArg4) {
             return 1;
         }
-    } else if(iPlayerST & JS_ROLL) {
-        if(iPlayerX + 3 > iArg1 && iPlayerY + 7 > iArg2 && iPlayerX - 3 < iArg3 && iPlayerY < iArg4) {
+    } else if(g_player_current_state & kPlayerStateRoll) {
+        if(g_player_current_position_x + 3 > iArg1 && g_player_current_position_y + 7 > iArg2 && g_player_current_position_x - 3 < iArg3 && g_player_current_position_y < iArg4) {
             return 1;
         }
     } else {
-        if(iPlayerX + 2 > iArg1 && iPlayerY + 9 > iArg2 && iPlayerX - 2 < iArg3 && iPlayerY + 2 < iArg4) {
+        if(g_player_current_position_x + 2 > iArg1 && g_player_current_position_y + 9 > iArg2 && g_player_current_position_x - 2 < iArg3 && g_player_current_position_y + 2 < iArg4) {
             return 1;
         }
     }
@@ -508,14 +528,14 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
 
     iLoop = -1;
 
-    while(++iLoop < iPS) {
-        PS[iLoop].NavDist = 5000;
+    while(++iLoop < g_platform_object_count) {
+        g_platform_objects[iLoop].NavDist = 5000;
     }
 
     iLoop = -1;
 
-    while(++iLoop < iLS) {
-        LS[iLoop].NavDist = 5000;
+    while(++iLoop < g_ladder_object_count) {
+        g_ladder_objects[iLoop].NavDist = 5000;
     }
 
     if(iFrom < 0 || iTo < 0) {
@@ -523,11 +543,11 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
     }
 
     if(iFromType == NT_Ladder) {
-        LS[iFrom].NavDist = 0;
+        g_ladder_objects[iFrom].NavDist = 0;
     }
 
     if(iFromType == NT_Platform) {
-        PS[iFrom].NavDist = 0;
+        g_platform_objects[iFrom].NavDist = 0;
     }
 
     int iRep;
@@ -542,20 +562,20 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
     while(++iRep < 50 && !iDone) {
         iLoop = -1;
 
-        while(++iLoop < iLS) {
-            if(LS[iLoop].NavDist < 5000) {
+        while(++iLoop < g_ladder_object_count) {
+            if(g_ladder_objects[iLoop].NavDist < 5000) {
                 iNav = -1;
 
-                while(++iNav < LS[iLoop].Navs) {
-                    if(LS[iLoop].NavToType[iNav] == NT_Platform) {
-                        iNavTo = LS[iLoop].NavTo[iNav];
+                while(++iNav < g_ladder_objects[iLoop].Navs) {
+                    if(g_ladder_objects[iLoop].NavToType[iNav] == NT_Platform) {
+                        iNavTo = g_ladder_objects[iLoop].NavTo[iNav];
 
-                        if(PS[iNavTo].NavDist > LS[iLoop].NavDist + 1) {
-                            PS[iNavTo].NavDist = LS[iLoop].NavDist + 1;
-                            PS[iNavTo].NavChoice = LS[iLoop].NavChoice;
+                        if(g_platform_objects[iNavTo].NavDist > g_ladder_objects[iLoop].NavDist + 1) {
+                            g_platform_objects[iNavTo].NavDist = g_ladder_objects[iLoop].NavDist + 1;
+                            g_platform_objects[iNavTo].NavChoice = g_ladder_objects[iLoop].NavChoice;
 
-                            if(LS[iLoop].NavDist == 0) {
-                                PS[iNavTo].NavChoice = iNavTo;
+                            if(g_ladder_objects[iLoop].NavDist == 0) {
+                                g_platform_objects[iNavTo].NavChoice = iNavTo;
                             }
                         }
                     }
@@ -565,46 +585,46 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
 
         iLoop = -1;
 
-        while(++iLoop < iPS) {
-            if(PS[iLoop].NavDist < 5000) {
+        while(++iLoop < g_platform_object_count) {
+            if(g_platform_objects[iLoop].NavDist < 5000) {
                 int iNavType;
                 iNav = -1;
 
-                while(++iNav < PS[iLoop].Navs) {
-                    iNavType = PS[iLoop].NavToType[iNav];
+                while(++iNav < g_platform_objects[iLoop].Navs) {
+                    iNavType = g_platform_objects[iLoop].NavToType[iNav];
 
                     if(iNavType != NT_Ladder) {
-                        iNavTo = PS[iLoop].NavTo[iNav];
+                        iNavTo = g_platform_objects[iLoop].NavTo[iNav];
 
-                        if(PS[iNavTo].NavDist > PS[iLoop].NavDist + 1) {
-                            PS[iNavTo].NavDist = PS[iLoop].NavDist + 1;
-                            PS[iNavTo].NavChoice = PS[iLoop].NavChoice;
+                        if(g_platform_objects[iNavTo].NavDist > g_platform_objects[iLoop].NavDist + 1) {
+                            g_platform_objects[iNavTo].NavDist = g_platform_objects[iLoop].NavDist + 1;
+                            g_platform_objects[iNavTo].NavChoice = g_platform_objects[iLoop].NavChoice;
 
-                            if(PS[iLoop].NavDist == 0) {
+                            if(g_platform_objects[iLoop].NavDist == 0) {
                                 if(iNavType == NT_Platform) {
-                                    PS[iNavTo].NavChoice = iNavTo;
+                                    g_platform_objects[iNavTo].NavChoice = iNavTo;
                                 }
 
                                 if(iNavType == NT_PlatformFallLeft) {
-                                    PS[iNavTo].NavChoice = iNavTo + 2000;
+                                    g_platform_objects[iNavTo].NavChoice = iNavTo + 2000;
                                 }
 
                                 if(iNavType == NT_PlatformFallRight) {
-                                    PS[iNavTo].NavChoice = iNavTo + 3000;
+                                    g_platform_objects[iNavTo].NavChoice = iNavTo + 3000;
                                 }
                             }
                         }
                     }
 
                     if(iNavType == NT_Ladder) {
-                        iNavTo = PS[iLoop].NavTo[iNav];
+                        iNavTo = g_platform_objects[iLoop].NavTo[iNav];
 
-                        if(LS[iNavTo].NavDist > PS[iLoop].NavDist + 1) {
-                            LS[iNavTo].NavDist = PS[iLoop].NavDist + 1;
-                            LS[iNavTo].NavChoice = PS[iLoop].NavChoice;
+                        if(g_ladder_objects[iNavTo].NavDist > g_platform_objects[iLoop].NavDist + 1) {
+                            g_ladder_objects[iNavTo].NavDist = g_platform_objects[iLoop].NavDist + 1;
+                            g_ladder_objects[iNavTo].NavChoice = g_platform_objects[iLoop].NavChoice;
 
-                            if(PS[iLoop].NavDist == 0) {
-                                LS[iNavTo].NavChoice = iNavTo + 1000;
+                            if(g_platform_objects[iLoop].NavDist == 0) {
+                                g_ladder_objects[iNavTo].NavChoice = iNavTo + 1000;
                             }
                         }
                     }
@@ -612,11 +632,11 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
             }
         }
 
-        if(iToType == NT_Ladder && LS[iTo].NavDist < 5000) {
+        if(iToType == NT_Ladder && g_ladder_objects[iTo].NavDist < 5000) {
             iDone = 1;
         }
 
-        if(iToType != NT_Ladder && PS[iTo].NavDist < 5000) {
+        if(iToType != NT_Ladder && g_platform_objects[iTo].NavDist < 5000) {
             iDone = 1;
         }
     }
@@ -626,11 +646,11 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
     }
 
     if(iToType == NT_Ladder) {
-        iChoice = LS[iTo].NavChoice;
+        iChoice = g_ladder_objects[iTo].NavChoice;
     }
 
     if(iToType != NT_Ladder) {
-        iChoice = PS[iTo].NavChoice;
+        iChoice = g_platform_objects[iTo].NavChoice;
     }
 
     return iChoice;
@@ -652,90 +672,90 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     iArg4 = rArg4 / 256;
 
     if(iFunc == EFCHANGEMESH) {
-        ChangeMesh(miSelectedMesh, iOtherMesh[iArg1]);
+        ChangeMesh(g_script_selected_mesh_index, g_script_mesh_indices[iArg1]);
     }
 
     if(iFunc == EFIDENTITY) {
-        IdentityMatrix(miSelectedMesh);
+        IdentityMatrix(g_script_selected_mesh_index);
     }
 
     if(iFunc == EFPERSPECTIVE) {
-        PerspectiveMatrix(miSelectedMesh);
+        PerspectiveMatrix(g_script_selected_mesh_index);
     }
 
     if(iFunc == EFTRANSLATE) {
-        TranslateMatrix(miSelectedMesh, rArg1 / 256.0f, rArg2 / 256.0f, rArg3 / 256.0f);
+        TranslateMatrix(g_script_selected_mesh_index, rArg1 / 256.0f, rArg2 / 256.0f, rArg3 / 256.0f);
     }
 
     if(iFunc == EFSCALE) {
-        ScaleMatrix(miSelectedMesh, rArg1 / 256.0f, rArg2 / 256.0f, rArg3 / 256.0f);
+        ScaleMatrix(g_script_selected_mesh_index, rArg1 / 256.0f, rArg2 / 256.0f, rArg3 / 256.0f);
     }
 
     if(iFunc == EFROTATEX) {
-        RotateMatrixX(miSelectedMesh, rArg1 / 256.0f);
+        RotateMatrixX(g_script_selected_mesh_index, rArg1 / 256.0f);
     }
 
     if(iFunc == EFROTATEY) {
-        RotateMatrixY(miSelectedMesh, rArg1 / 256.0f);
+        RotateMatrixY(g_script_selected_mesh_index, rArg1 / 256.0f);
     }
 
     if(iFunc == EFROTATEZ) {
-        RotateMatrixZ(miSelectedMesh, rArg1 / 256.0f);
+        RotateMatrixZ(g_script_selected_mesh_index, rArg1 / 256.0f);
     }
 
     if(iFunc == EFSCROLLTEXTURE) {
-        ScrollTexture(miSelectedMesh, rArg1 / 4096.0f, rArg2 / 4096.0f);
+        ScrollTexture(g_script_selected_mesh_index, rArg1 / 4096.0f, rArg2 / 4096.0f);
     }
 
     if(iFunc == EFSETSEL) {
         if(iArg1 == EFS_SX1) {
-            loSelected->X1 = iArg2;
+            g_script_selected_level_object->X1 = iArg2;
         } else if(iArg1 == EFS_SX2) {
-            loSelected->X2 = iArg2;
+            g_script_selected_level_object->X2 = iArg2;
         } else if(iArg1 == EFS_SY1) {
-            loSelected->Y1 = iArg2;
+            g_script_selected_level_object->Y1 = iArg2;
         } else if(iArg1 == EFS_SY2) {
-            loSelected->Y2 = iArg2;
+            g_script_selected_level_object->Y2 = iArg2;
         } else if(iArg1 == EFS_SZ1) {
-            loSelected->Z1 = iArg2;
+            g_script_selected_level_object->Z1 = iArg2;
         } else if(iArg1 == EFS_SZ2) {
-            loSelected->Z2 = iArg2;
+            g_script_selected_level_object->Z2 = iArg2;
         } else if(iArg1 == EFS_VISIBLE) {
-            loSelected->Visible = iArg2;
+            g_script_selected_level_object->Visible = iArg2;
         } else if(iArg1 == EFS_NUMBER) {
-            loSelected->Num = iArg2;
+            g_script_selected_level_object->Num = iArg2;
         } else if(iArg1 == EFS_TEXTURE) {
-            loSelected->Texture = iArg2;
+            g_script_selected_level_object->Texture = iArg2;
         } else if(iArg1 == EFS_EXTRA) {
-            loSelected->Extra = iArg2;
+            g_script_selected_level_object->Extra = iArg2;
         }
 
-        SetObjectData(miSelectedMesh, loSelected->Texture, loSelected->Visible);
+        SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
     }
 
     if(iFunc == EFGETSEL) {
         if(iArg1 == EFS_SX1) {
-            return loSelected->X1;
+            return g_script_selected_level_object->X1;
         } else if(iArg1 == EFS_SX2) {
-            return loSelected->X2;
+            return g_script_selected_level_object->X2;
         } else if(iArg1 == EFS_SY1) {
-            return loSelected->Y1;
+            return g_script_selected_level_object->Y1;
         } else if(iArg1 == EFS_SY2) {
-            return loSelected->Y2;
+            return g_script_selected_level_object->Y2;
         } else if(iArg1 == EFS_SZ1) {
-            return loSelected->Z1;
+            return g_script_selected_level_object->Z1;
         } else if(iArg1 == EFS_SZ2) {
-            return loSelected->Z2;
+            return g_script_selected_level_object->Z2;
         } else if(iArg1 == EFS_VISIBLE) {
-            return loSelected->Visible;
+            return g_script_selected_level_object->Visible;
         } else if(iArg1 == EFS_NUMBER) {
-            return loSelected->Num;
+            return g_script_selected_level_object->Num;
         } else if(iArg1 == EFS_TEXTURE) {
-            return loSelected->Texture;
+            return g_script_selected_level_object->Texture;
         } else if(iArg1 == EFS_EXTRA) {
-            return loSelected->Extra;
+            return g_script_selected_level_object->Extra;
         } else if(iArg1 == EFS_THIS) {
-            return loSelected->ObjectNumber;
+            return g_script_selected_level_object->ObjectNumber;
         }
     }
 
@@ -767,31 +787,31 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
     if(iFunc == EFGET) {
         if(iArg1 == EFV_PX) {
-            return (long)(iPlayerX * 256.0f);
+            return (long)(g_player_current_position_x * 256.0f);
         } else if(iArg1 == EFV_PY) {
-            return (long)(iPlayerY * 256.0f);
+            return (long)(g_player_current_position_y * 256.0f);
         } else if(iArg1 == EFV_PZ) {
-            return (long)(iPlayerZ * 256.0f);
+            return (long)(g_player_current_position_z * 256.0f);
         } else if(iArg1 == EFV_PSTAT) {
-            return iPlayerST * 256;
+            return g_player_current_state * 256;
         } else if(iArg1 == EFV_PSC) {
-            return iPlayerSC * 256;
+            return g_player_current_state_frame_count * 256;
         } else if(iArg1 == EFV_PDIR) {
-            return iPlayerDIR * 256;
+            return g_player_current_direction * 256;
         } else if(iArg1 == EFV_PACT) {
-            return iPlayerACT * 256;
+            return g_player_current_special_action * 256;
         } else if(iArg1 == EFV_SHOWFPS) {
             return game_input->debug_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_LIVESREMAINING) {
             return g_remaining_life_count * 256;
         } else if(iArg1 == EFV_EVENT1) {
-            return iEvent1 * 256;
+            return g_script_event_data_1 * 256;
         } else if(iArg1 == EFV_EVENT2) {
-            return iEvent2 * 256;
+            return g_script_event_data_2 * 256;
         } else if(iArg1 == EFV_EVENT3) {
-            return iEvent3;
+            return g_script_event_data_3;
         } else if(iArg1 == EFV_EVENT4) {
-            return iEvent4;
+            return g_script_event_data_4;
         } else if(iArg1 == EFV_DEBUG) {
             return IsDebugEnabled() ? 256 : 0;
         } else if(iArg1 == EFV_PERSPECTIVE) {
@@ -799,19 +819,19 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_OBJECTS) {
             return MAX_SCRIPTOBJECTS * 256;
         } else if(iArg1 == EFV_DONUTS) {
-            return iDS * 256;
+            return g_donut_object_count * 256;
         } else if(iArg1 == EFV_TEXTURES) {
-            return miTextures * 256;
+            return g_loaded_texture_count * 256;
         } else if(iArg1 == EFV_PLATFORMS) {
-            return iPS * 256;
+            return g_platform_object_count * 256;
         } else if(iArg1 == EFV_LADDERS) {
-            return iLS * 256;
+            return g_ladder_object_count * 256;
         } else if(iArg1 == EFV_VINES) {
-            return iVS * 256;
+            return g_vine_object_count * 256;
         } else if(iArg1 == EFV_WALLS) {
-            return iWS * 256;
+            return g_wall_object_count * 256;
         } else if(iArg1 == EFV_LEVELEXTENTX) {
-            return miLevelExtentX * 256;
+            return g_level_extent_x * 256;
         } else if(iArg1 == EFV_THIS) {
             return SC->ScriptReference * 256;
         } else if(iArg1 == EFV_INPUTLEFT) {
@@ -829,7 +849,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_INPUTSELECT) {
             return game_input->select_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_FREEZE) {
-            return iPlayerFreeze * 256;
+            return g_player_freeze_cooldown_frame_count * 256;
         } else if(iArg1 == EFV_SOUNDON) {
             return GetIsSoundEnabled() ? 256 : 0;
         } else if(iArg1 == EFV_MUSICON) {
@@ -843,39 +863,39 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
     if(iFunc == EFSET) {
         if(iArg1 == EFV_PX) {
-            iPlayerX = (float)(rArg2) / 256;
+            g_player_current_position_x = (float)(rArg2) / 256;
         } else if(iArg1 == EFV_PY) {
-            iPlayerY = (float)(rArg2) / 256;
+            g_player_current_position_y = (float)(rArg2) / 256;
         } else if(iArg1 == EFV_PZ) {
-            iPlayerZ = (float)(iArg2);
+            g_player_current_position_z = (float)(iArg2);
         } else if(iArg1 == EFV_PSTAT) {
-            iPlayerST = iArg2;
+            g_player_current_state = iArg2;
         } else if(iArg1 == EFV_PSC) {
-            iPlayerSC = iArg2;
+            g_player_current_state_frame_count = iArg2;
         } else if(iArg1 == EFV_PDIR) {
-            iPlayerDIR = iArg2;
+            g_player_current_direction = iArg2;
         } else if(iArg1 == EFV_PACT) {
-            iPlayerACT = iArg2;
+            g_player_current_special_action = iArg2;
         } else if(iArg1 == EFV_EVENT1) {
-            iEvent1 = iArg2;
+            g_script_event_data_1 = iArg2;
         } else if(iArg1 == EFV_EVENT2) {
-            iEvent2 = iArg2;
+            g_script_event_data_2 = iArg2;
         } else if(iArg1 == EFV_EVENT3) {
-            iEvent3 = iArg2;
+            g_script_event_data_3 = iArg2;
         } else if(iArg1 == EFV_EVENT4) {
-            iEvent4 = iArg2;
+            g_script_event_data_4 = iArg2;
         } else if(iArg1 == EFV_PERSPECTIVE) {
             g_current_camera_mode = iArg2;
         } else if(iArg1 == EFV_DEBUG) {
             SetDebugEnabled(iArg2 ? true : false);
         } else if(iArg1 == EFV_LEVELEXTENTX) {
-            miLevelExtentX = iArg2;
+            g_level_extent_x = iArg2;
         } else if(iArg1 == EFV_NOROLL) {
-            iPlayerNoRoll = iArg2;
+            g_player_no_roll_cooldown_frame_count = iArg2;
         } else if(iArg1 == EFV_FREEZE) {
-            iPlayerFreeze = iArg2;
+            g_player_freeze_cooldown_frame_count = iArg2;
         } else if(iArg1 == EFV_PVISIBLE) {
-            iPlayerVisible = iArg2;
+            g_player_is_visible = iArg2 == 1 ? true : false;
         } else if(iArg1 == EFV_LIVESREMAINING) {
             g_remaining_life_count = iArg2;
         }
@@ -888,7 +908,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         iLoop = -1;
 
         while(++iLoop < MAX_SCRIPTOBJECTS) {
-            if(!oObject[iLoop].Active && iNewObject == -1) {
+            if(!g_script_object_script_contexts[iLoop].Active && iNewObject == -1) {
                 iNewObject = iLoop;
             }
         }
@@ -897,19 +917,19 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
             iNewObject = 0;
         }
 
-        ResetContext(&oObject[iNewObject], SC->game_base_path);
-        oObject[iNewObject].Script = &oObjectScript[iArg1];
-        oObject[iNewObject].ScriptNumber = iArg1;
-        oObject[iNewObject].ScriptReference = iNewObject;
-        oObject[iNewObject].Active = 2;
+        ResetContext(&g_script_object_script_contexts[iNewObject], SC->game_base_path);
+        g_script_object_script_contexts[iNewObject].Script = &g_script_object_script_codes[iArg1];
+        g_script_object_script_contexts[iNewObject].ScriptNumber = iArg1;
+        g_script_object_script_contexts[iNewObject].ScriptReference = iNewObject;
+        g_script_object_script_contexts[iNewObject].Active = 2;
 
         return iNewObject;
     }
 
     if(iFunc == EFNEWMESH) {
         long iNew;
-        CopyObject(iOtherMesh[iArg1], &iNew);
-        miSelectedMesh = iNew;
+        CopyObject(g_script_mesh_indices[iArg1], &iNew);
+        g_script_selected_mesh_index = iNew;
         return iNew;
     }
 
@@ -920,9 +940,9 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
             iArg1 += 65 - 97;
         }
 
-        if(iCharMesh[iArg1] >= 0) {
-            CopyObject(iCharMesh[iArg1], &iNew);
-            miSelectedMesh = iNew;
+        if(g_letter_mesh_indices[iArg1] >= 0) {
+            CopyObject(g_letter_mesh_indices[iArg1], &iNew);
+            g_script_selected_mesh_index = iNew;
             return iNew;
         } else {
             return -1;
@@ -930,27 +950,27 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     }
 
     if(iFunc == EFSETOBJECT) {
-        SetObjectData(miSelectedMesh, iArg1, iArg2);
+        SetObjectData(g_script_selected_mesh_index, iArg1, iArg2);
     }
 
     if(iFunc == EFPRIORITIZE_OBJECT) {
-        PrioritizeObject(miSelectedMesh);
+        PrioritizeObject(g_script_selected_mesh_index);
     }
 
     if(iFunc == EFSETDATA) {
-        oObject[iArg1].Globals[iArg2] = rArg3;
+        g_script_object_script_contexts[iArg1].Globals[iArg2] = rArg3;
     }
 
     if(iFunc == EFGETDATA) {
         if(iArg2 == 1000) {
-            if(oObject[iArg1].Active) {
-                return oObject[iArg1].ScriptNumber * 256;
+            if(g_script_object_script_contexts[iArg1].Active) {
+                return g_script_object_script_contexts[iArg1].ScriptNumber * 256;
             } else {
                 return -256;
             }
         }
 
-        return oObject[iArg1].Globals[iArg2];
+        return g_script_object_script_contexts[iArg1].Globals[iArg2];
     }
 
     if(iFunc == EFRND) {
@@ -962,14 +982,14 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     if(iFunc == EFFINDLADDER) {
         long iLadA, iLadE;
         FindLadder(iArg1, iArg2, &iLadA, &iLadE);
-        iEvent4 = iLadA * 256;
+        g_script_event_data_4 = iLadA * 256;
         return iLadE;
     }
 
     if(iFunc == EFFINDVINE) {
         long iVinAp, iVinEx;
         FindVine(iArg1, iArg2, &iVinAp, &iVinEx);
-        iEvent4 = iVinAp * 256;
+        g_script_event_data_4 = iVinAp * 256;
 
         return iVinEx;
     }
@@ -978,7 +998,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         float iFind;
         long iPlat;
         GetNextPlatform(iArg1, iArg2, iArg3, iArg4, &iFind, &iPlat);
-        iEvent4 = (long)(iFind) * 256;
+        g_script_event_data_4 = (long)(iFind) * 256;
         return iPlat;
     }
 
@@ -1010,26 +1030,26 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     }
 
     if(iFunc == EFABS_PLATFORM) {
-        loSelected = &PS[iArg1];
-        miSelectedMesh = loSelected->MeshNumber;
+        g_script_selected_level_object = &g_platform_objects[iArg1];
+        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
         return 0;
     }
 
     if(iFunc == EFABS_LADDER) {
-        loSelected = &LS[iArg1];
-        miSelectedMesh = loSelected->MeshNumber;
+        g_script_selected_level_object = &g_ladder_objects[iArg1];
+        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
         return 0;
     }
 
     if(iFunc == EFABS_DONUT) {
-        loSelected = &DS[iArg1];
-        miSelectedMesh = loSelected->MeshNumber;
+        g_script_selected_level_object = &g_donut_objects[iArg1];
+        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
         return 0;
     }
 
     if(iFunc == EFABS_VINE) {
-        loSelected = &VS[iArg1];
-        miSelectedMesh = loSelected->MeshNumber;
+        g_script_selected_level_object = &g_vine_objects[iArg1];
+        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
         return 0;
     }
 
@@ -1050,11 +1070,11 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
     if(iFunc == EFSERVICE) {
         if(iArg1 == SERVICE_LEVELTITLE) {
-            SC->Globals[iArg2] = (long)(strlen(g_level_title)) * 256;
+            SC->Globals[iArg2] = (long)(strlen(g_level_current_title)) * 256;
             iLoop = 0;
 
-            while(++iLoop <= (long)(strlen(g_level_title))) {
-                SC->Globals[iArg2 + iLoop] = g_level_title[iLoop - 1] * 256;
+            while(++iLoop <= (long)(strlen(g_level_current_title))) {
+                SC->Globals[iArg2 + iLoop] = g_level_current_title[iLoop - 1] * 256;
             }
         }
 
@@ -1170,7 +1190,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         }
 
         if(iArg1 == SERVICE_LOADMENU) {
-            iEvent1 = iEvent1 - 1;
+            g_script_event_data_1 = g_script_event_data_1 - 1;
             g_game_status = kGameStatusMenu;
             g_target_game_menu_state = iArg2;
         }
@@ -1210,7 +1230,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                 cf_dir_next(&dir);
             }
 
-            sprintf_s(g_level_list_filename, sizeof(g_level_list_filename), "%s\\Data\\%s", SC->game_base_path, file.name);
+            sprintf_s(g_level_set_filename, sizeof(g_level_set_filename), "%s\\Data\\%s", SC->game_base_path, file.name);
             g_game_status = kGameStatusInLevel;
         }
 
@@ -1262,18 +1282,18 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     }
 
     if(iFunc == EFCOLLIDE) {
-        return PlayerCollide(iArg1, iArg2, iArg3, iArg4) && !(iPlayerST == JS_DYING);
+        return PlayerCollide(iArg1, iArg2, iArg3, iArg4) && !(g_player_current_state == kPlayerStateDying);
     }
 
-    if(iFunc == EFKILL && !(iPlayerST & JS_DYING)) {
+    if(iFunc == EFKILL && !(g_player_current_state & kPlayerStateDying)) {
         StopMusic1();
-        iPlayerST = JS_DYING;
-        iPlayerACT = 0;
-        iPlayerAS = 1;
-        iPlayerAX = 0;
-        iPlayerMX = 0;
-        iPlayerAF = iPlayerSC;
-        iPlayerSC = 1000;
+        g_player_current_state = kPlayerStateDying;
+        g_player_current_special_action = kPlayerSpecialActionNone;
+        g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
+        g_player_dying_animation_state_frame_count = 0;
+        g_player_velocity_x = 0;
+        g_player_absolute_frame_count = g_player_current_state_frame_count;
+        g_player_current_state_frame_count = 1000;
     }
 
     if(iFunc == EFPRINT && IsDebugEnabled()) {
@@ -1292,12 +1312,12 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
     if(iFunc == EFWIN) {
         StopMusic1();
-        iPlayerSC = 0;
-        iPlayerST = JS_DONE;
+        g_player_current_state_frame_count = 0;
+        g_player_current_state = kPlayerStateDone;
     }
 
     if(iFunc == EFSELECT_OBJECT_MESH) {
-        miSelectedMesh = iArg1;
+        g_script_selected_mesh_index = iArg1;
     }
 
     if(iFunc == EFDELETE_MESH) {
@@ -1308,7 +1328,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         if(iArg1 == 1000) {
             SC->Active = 0;
         } else {
-            oObject[iArg1].Active = 0;
+            g_script_object_script_contexts[iArg1].Active = 0;
         }
     }
 
@@ -1320,36 +1340,36 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         int iObj;
 
         if(iFunc == EFSELECT_WALL) {
-            iObj = FindObject(WS, iWS, iArg1);
-            loSelected = &WS[iObj];
+            iObj = FindObject(g_wall_objects, g_wall_object_count, iArg1);
+            g_script_selected_level_object = &g_wall_objects[iObj];
         }
 
         if(iFunc == EFSELECT_PLATFORM) {
-            iObj = FindObject(PS, iPS, iArg1);
-            loSelected = &PS[iObj];
+            iObj = FindObject(g_platform_objects, g_platform_object_count, iArg1);
+            g_script_selected_level_object = &g_platform_objects[iObj];
         }
 
         if(iFunc == EFSELECT_VINE) {
-            iObj = FindObject(VS, iVS, iArg1);
-            loSelected = &VS[iObj];
+            iObj = FindObject(g_vine_objects, g_vine_object_count, iArg1);
+            g_script_selected_level_object = &g_vine_objects[iObj];
         }
 
         if(iFunc == EFSELECT_LADDER) {
-            iObj = FindObject(LS, iLS, iArg1);
-            loSelected = &LS[iObj];
+            iObj = FindObject(g_ladder_objects, g_ladder_object_count, iArg1);
+            g_script_selected_level_object = &g_ladder_objects[iObj];
         }
 
         if(iFunc == EFSELECT_DONUT) {
-            iObj = FindObject(DS, iDS, iArg1);
-            loSelected = &DS[iObj];
+            iObj = FindObject(g_donut_objects, g_donut_object_count, iArg1);
+            g_script_selected_level_object = &g_donut_objects[iObj];
         }
 
         if(iFunc == EFSELECT_PICTURE) {
-            iObj = FindObject(AS, iAS, iArg1);
-            loSelected = &AS[iObj];
+            iObj = FindObject(g_backdrop_objects, g_backdrop_object_count, iArg1);
+            g_script_selected_level_object = &g_backdrop_objects[iObj];
         }
 
-        miSelectedMesh = loSelected->MeshNumber;
+        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
 
         if(iObj < 0) {
             return -1;
@@ -1377,38 +1397,38 @@ static void CleanResources() {
 
     iLoop = -1;
 
-    while(++iLoop < iPS) {
-        free(PS[iLoop].Mesh);
+    while(++iLoop < g_platform_object_count) {
+        free(g_platform_objects[iLoop].Mesh);
     }
 
     iLoop = -1;
 
-    while(++iLoop < iLS) {
-        free(LS[iLoop].Mesh);
+    while(++iLoop < g_ladder_object_count) {
+        free(g_ladder_objects[iLoop].Mesh);
     }
 
     iLoop = -1;
 
-    while(++iLoop < iDS) {
-        free(DS[iLoop].Mesh);
+    while(++iLoop < g_donut_object_count) {
+        free(g_donut_objects[iLoop].Mesh);
     }
 
     iLoop = -1;
 
-    while(++iLoop < iVS) {
-        free(VS[iLoop].Mesh);
+    while(++iLoop < g_vine_object_count) {
+        free(g_vine_objects[iLoop].Mesh);
     }
 
     iLoop = -1;
 
-    while(++iLoop < iWS) {
-        free(WS[iLoop].Mesh);
+    while(++iLoop < g_wall_object_count) {
+        free(g_wall_objects[iLoop].Mesh);
     }
 
     iLoop = -1;
 
-    while(++iLoop < iAS) {
-        free(AS[iLoop].Mesh);
+    while(++iLoop < g_backdrop_object_count) {
+        free(g_backdrop_objects[iLoop].Mesh);
     }
 }
 
@@ -1445,31 +1465,31 @@ static void LoadLevel(const char* base_path, const char* filename) {
     long iMPlace;
     int iSounds;
 
-    iPlayerFreeze = 0;
-    iPlayerNoRoll = 0;
-    iPlayerVisible = 1;
+    g_player_freeze_cooldown_frame_count = 0;
+    g_player_no_roll_cooldown_frame_count = 0;
+    g_player_is_visible = true;
 
-    miLevelExtentX = 160;
-    miLevelExtentY = 160;
+    g_level_extent_x = 160;
+    g_level_extent_y = 160;
 
     g_current_camera_mode = kCameraModeNormal;
-    miTextures = 0;
-    miMeshes = 0;
-    miScripts = 0;
+    g_loaded_texture_count = 0;
+    g_loaded_mesh_count = 0;
+    g_loaded_script_count = 0;
     iSounds = 0;
 
     iLoop = -1;
 
     while(++iLoop < MAX_SCRIPTOBJECTS) {
-        oObject[iLoop].Active = 0;
+        g_script_object_script_contexts[iLoop].Active = 0;
     }
 
-    iPS = 0;
-    iLS = 0;
-    iDS = 0;
-    iVS = 0;
-    iWS = 0;
-    iAS = 0;
+    g_platform_object_count = 0;
+    g_ladder_object_count = 0;
+    g_donut_object_count = 0;
+    g_vine_object_count = 0;
+    g_wall_object_count = 0;
+    g_backdrop_object_count = 0;
 
     cData = NULL;
     iLen = FileToString(full_path, &cData);
@@ -1512,8 +1532,8 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             if(iTemp == 2) {
                 sprintf_s(sBuild, sizeof(sBuild), "%s.MSH", sTemp);
-                iOtherMesh[miMeshes] = LoadMesh(base_path, sBuild);
-                ++miMeshes;
+                g_script_mesh_indices[g_loaded_mesh_count] = LoadMesh(base_path, sBuild);
+                ++g_loaded_mesh_count;
             }
 
             if(iTemp == 7) {
@@ -1537,22 +1557,22 @@ static void LoadLevel(const char* base_path, const char* filename) {
                     strcat_s(sBuild, sizeof(sBuild), ".PNG");
                 }
 
-                LoadTexture(miTextures, sBuild, iArg1, (iTemp == 6) || (iTemp == 3 && iArg1 == 1));
-                ++miTextures;
+                LoadTexture(g_loaded_texture_count, sBuild, iArg1, (iTemp == 6) || (iTemp == 3 && iArg1 == 1));
+                ++g_loaded_texture_count;
             }
 
             if(iTemp == 5) {
                 sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.BIN", sTemp);
 
                 if(iArg1 == 1) {
-                    LoadScript(base_path, sBuild, &LevelScript);
-                    ResetContext(&SCLevel, base_path);
-                    SCLevel.Script = &LevelScript;
-                    iMainScript = FindScript(&SCLevel, "main");
-                    iDonutScript = FindScript(&SCLevel, "donut");
+                    LoadScript(base_path, sBuild, &g_script_level_script_code);
+                    ResetContext(&g_script_level_script_context, base_path);
+                    g_script_level_script_context.Script = &g_script_level_script_code;
+                    g_script_main_subroutine_handle = FindScript(&g_script_level_script_context, "main");
+                    g_script_donut_subroutine_handle = FindScript(&g_script_level_script_context, "donut");
                 } else {
-                    LoadScript(base_path, sBuild, &oObjectScript[miScripts]);
-                    ++miScripts;
+                    LoadScript(base_path, sBuild, &g_script_object_script_codes[g_loaded_script_count]);
+                    ++g_loaded_script_count;
                 }
             }
 
@@ -1560,265 +1580,265 @@ static void LoadLevel(const char* base_path, const char* filename) {
         } else if(cData[iPlace] == 'A' && cData[iPlace + 1] == 0) {
             iPlace += 10;
 
-            AS[iAS].Texture = StringToInt(&cData[iPlace + 0]);
-            AS[iAS].X1 = StringToInt(&cData[iPlace + 2]);
-            AS[iAS].Y1 = StringToInt(&cData[iPlace + 4]);
-            AS[iAS].Num = StringToInt(&cData[iPlace + 6]);
-            AS[iAS].Visible = 1;
+            g_backdrop_objects[g_backdrop_object_count].Texture = StringToInt(&cData[iPlace + 0]);
+            g_backdrop_objects[g_backdrop_object_count].X1 = StringToInt(&cData[iPlace + 2]);
+            g_backdrop_objects[g_backdrop_object_count].Y1 = StringToInt(&cData[iPlace + 4]);
+            g_backdrop_objects[g_backdrop_object_count].Num = StringToInt(&cData[iPlace + 6]);
+            g_backdrop_objects[g_backdrop_object_count].Visible = 1;
             iPlace += 20;
 
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            AS[iAS].Mesh = (long*)(malloc(iData * sizeof(long)));
-            AS[iAS].MeshSize = iData;
-            AS[iAS].ObjectNumber = iAS;
+            g_backdrop_objects[g_backdrop_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
+            g_backdrop_objects[g_backdrop_object_count].MeshSize = iData;
+            g_backdrop_objects[g_backdrop_object_count].ObjectNumber = g_backdrop_object_count;
 
             iNum = -1;
 
             while(++iNum < iData) {
-                AS[iAS].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
+                g_backdrop_objects[g_backdrop_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
             }
 
             iPlace += iNum << 2;
 
-            oData = (long*)(malloc(AS[iAS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(g_backdrop_objects[g_backdrop_object_count].MeshSize * sizeof(long)));
             iMPlace = 0;
-            ComposeObject(&AS[iAS], oData, &iMPlace);
+            ComposeObject(&g_backdrop_objects[g_backdrop_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, AS[iAS].Texture, AS[iAS].Visible);
+            SetObjectData(iNum, g_backdrop_objects[g_backdrop_object_count].Texture, g_backdrop_objects[g_backdrop_object_count].Visible);
 
-            AS[iAS].MeshNumber = iNum;
+            g_backdrop_objects[g_backdrop_object_count].MeshNumber = iNum;
             free(oData);
 
-            ++iAS;
+            ++g_backdrop_object_count;
         } else if(cData[iPlace] == 'L' && cData[iPlace + 1] == 0) {
             iLoop = -1;
 
             while(++iLoop < 8) {
-                LS[iLS].Func[iLoop] = cData[iPlace + 2 + iLoop];
+                g_ladder_objects[g_ladder_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
             }
 
             iPlace += 10;
 
-            LS[iLS].Visible = 1;
-            LS[iLS].X1 = StringToInt(&cData[iPlace + 0]);
-            LS[iLS].Y1 = StringToInt(&cData[iPlace + 2]);
-            LS[iLS].Y2 = StringToInt(&cData[iPlace + 4]);
-            LS[iLS].Z1 = StringToInt(&cData[iPlace + 6]);
-            LS[iLS].Z2 = StringToInt(&cData[iPlace + 8]);
-            LS[iLS].Num = StringToInt(&cData[iPlace + 10]);
-            LS[iLS].Texture = StringToInt(&cData[iPlace + 12]);
+            g_ladder_objects[g_ladder_object_count].Visible = 1;
+            g_ladder_objects[g_ladder_object_count].X1 = StringToInt(&cData[iPlace + 0]);
+            g_ladder_objects[g_ladder_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
+            g_ladder_objects[g_ladder_object_count].Y2 = StringToInt(&cData[iPlace + 4]);
+            g_ladder_objects[g_ladder_object_count].Z1 = StringToInt(&cData[iPlace + 6]);
+            g_ladder_objects[g_ladder_object_count].Z2 = StringToInt(&cData[iPlace + 8]);
+            g_ladder_objects[g_ladder_object_count].Num = StringToInt(&cData[iPlace + 10]);
+            g_ladder_objects[g_ladder_object_count].Texture = StringToInt(&cData[iPlace + 12]);
             iPlace += 20;
 
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            LS[iLS].Mesh = (long*)(malloc(iData * sizeof(long)));
-            LS[iLS].MeshSize = iData;
-            LS[iLS].ObjectNumber = iLS;
+            g_ladder_objects[g_ladder_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
+            g_ladder_objects[g_ladder_object_count].MeshSize = iData;
+            g_ladder_objects[g_ladder_object_count].ObjectNumber = g_ladder_object_count;
 
             iNum = -1;
 
             while(++iNum < iData) {
-                LS[iLS].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
+                g_ladder_objects[g_ladder_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
             }
 
             iPlace += iNum << 2;
 
-            oData = (long*)(malloc(LS[iLS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(g_ladder_objects[g_ladder_object_count].MeshSize * sizeof(long)));
             iMPlace = 0;
-            ComposeObject(&LS[iLS], oData, &iMPlace);
+            ComposeObject(&g_ladder_objects[g_ladder_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, LS[iLS].Texture, LS[iLS].Visible);
-            LS[iLS].MeshNumber = iNum;
+            SetObjectData(iNum, g_ladder_objects[g_ladder_object_count].Texture, g_ladder_objects[g_ladder_object_count].Visible);
+            g_ladder_objects[g_ladder_object_count].MeshNumber = iNum;
             free(oData);
 
-            ++iLS;
+            ++g_ladder_object_count;
         } else if(cData[iPlace] == 'W' && cData[iPlace + 1] == 0) {
             iLoop = -1;
 
             while(++iLoop < 8) {
-                WS[iWS].Func[iLoop] = cData[iPlace + 2 + iLoop];
+                g_wall_objects[g_wall_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
             }
 
             iPlace += 10;
 
-            WS[iWS].Visible = 1;
-            WS[iWS].X1 = StringToInt(&cData[iPlace + 0]);
-            WS[iWS].Y1 = StringToInt(&cData[iPlace + 2]);
-            WS[iWS].X2 = StringToInt(&cData[iPlace + 4]);
-            WS[iWS].Y2 = StringToInt(&cData[iPlace + 6]);
-            WS[iWS].X3 = StringToInt(&cData[iPlace + 8]);
-            WS[iWS].Y3 = StringToInt(&cData[iPlace + 10]);
-            WS[iWS].X4 = StringToInt(&cData[iPlace + 12]);
-            WS[iWS].Y4 = StringToInt(&cData[iPlace + 14]);
+            g_wall_objects[g_wall_object_count].Visible = 1;
+            g_wall_objects[g_wall_object_count].X1 = StringToInt(&cData[iPlace + 0]);
+            g_wall_objects[g_wall_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
+            g_wall_objects[g_wall_object_count].X2 = StringToInt(&cData[iPlace + 4]);
+            g_wall_objects[g_wall_object_count].Y2 = StringToInt(&cData[iPlace + 6]);
+            g_wall_objects[g_wall_object_count].X3 = StringToInt(&cData[iPlace + 8]);
+            g_wall_objects[g_wall_object_count].Y3 = StringToInt(&cData[iPlace + 10]);
+            g_wall_objects[g_wall_object_count].X4 = StringToInt(&cData[iPlace + 12]);
+            g_wall_objects[g_wall_object_count].Y4 = StringToInt(&cData[iPlace + 14]);
 
-            WS[iWS].Num = StringToInt(&cData[iPlace + 16]);
-            WS[iWS].Texture = StringToInt(&cData[iPlace + 18]);
+            g_wall_objects[g_wall_object_count].Num = StringToInt(&cData[iPlace + 16]);
+            g_wall_objects[g_wall_object_count].Texture = StringToInt(&cData[iPlace + 18]);
 
             iPlace += 20;
 
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            WS[iWS].Mesh = (long*)(malloc(iData * sizeof(long)));
-            WS[iWS].MeshSize = iData;
-            WS[iWS].ObjectNumber = iWS;
+            g_wall_objects[g_wall_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
+            g_wall_objects[g_wall_object_count].MeshSize = iData;
+            g_wall_objects[g_wall_object_count].ObjectNumber = g_wall_object_count;
 
             long iNum;
 
             iNum = -1;
 
             while(++iNum < iData) {
-                WS[iWS].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
+                g_wall_objects[g_wall_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
             }
 
             iPlace += iNum << 2;
 
-            oData = (long*)(malloc(WS[iWS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(g_wall_objects[g_wall_object_count].MeshSize * sizeof(long)));
             iMPlace = 0;
-            ComposeObject(&WS[iWS], oData, &iMPlace);
+            ComposeObject(&g_wall_objects[g_wall_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, WS[iWS].Texture, WS[iWS].Visible);
-            WS[iWS].MeshNumber = iNum;
+            SetObjectData(iNum, g_wall_objects[g_wall_object_count].Texture, g_wall_objects[g_wall_object_count].Visible);
+            g_wall_objects[g_wall_object_count].MeshNumber = iNum;
             free(oData);
 
-            ++iWS;
+            ++g_wall_object_count;
         } else if(cData[iPlace] == 'V' && cData[iPlace + 1] == 0) {
             iLoop = -1;
 
             while(++iLoop < 8) {
-                VS[iVS].Func[iLoop] = cData[iPlace + 2 + iLoop];
+                g_vine_objects[g_vine_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
             }
 
             iPlace += 10;
 
-            VS[iVS].Visible = 1;
-            VS[iVS].X1 = StringToInt(&cData[iPlace + 0]);
-            VS[iVS].Y1 = StringToInt(&cData[iPlace + 2]);
-            VS[iVS].Y2 = StringToInt(&cData[iPlace + 4]);
-            VS[iVS].Z1 = StringToInt(&cData[iPlace + 6]);
-            VS[iVS].Z2 = StringToInt(&cData[iPlace + 8]);
-            VS[iVS].Num = StringToInt(&cData[iPlace + 10]);
-            VS[iVS].Texture = StringToInt(&cData[iPlace + 12]);
+            g_vine_objects[g_vine_object_count].Visible = 1;
+            g_vine_objects[g_vine_object_count].X1 = StringToInt(&cData[iPlace + 0]);
+            g_vine_objects[g_vine_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
+            g_vine_objects[g_vine_object_count].Y2 = StringToInt(&cData[iPlace + 4]);
+            g_vine_objects[g_vine_object_count].Z1 = StringToInt(&cData[iPlace + 6]);
+            g_vine_objects[g_vine_object_count].Z2 = StringToInt(&cData[iPlace + 8]);
+            g_vine_objects[g_vine_object_count].Num = StringToInt(&cData[iPlace + 10]);
+            g_vine_objects[g_vine_object_count].Texture = StringToInt(&cData[iPlace + 12]);
             iPlace += 20;
 
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            VS[iVS].Mesh = (long*)(malloc(iData * sizeof(long)));
-            VS[iVS].MeshSize = iData;
-            VS[iVS].ObjectNumber = iVS;
+            g_vine_objects[g_vine_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
+            g_vine_objects[g_vine_object_count].MeshSize = iData;
+            g_vine_objects[g_vine_object_count].ObjectNumber = g_vine_object_count;
 
             long iNum;
 
             iNum = -1;
 
             while(++iNum < iData) {
-                VS[iVS].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
+                g_vine_objects[g_vine_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
             }
 
             iPlace += iNum << 2;
 
-            oData = (long*)(malloc(VS[iVS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(g_vine_objects[g_vine_object_count].MeshSize * sizeof(long)));
             iMPlace = 0;
-            ComposeObject(&VS[iVS], oData, &iMPlace);
+            ComposeObject(&g_vine_objects[g_vine_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, VS[iVS].Texture, VS[iVS].Visible);
-            VS[iVS].MeshNumber = iNum;
+            SetObjectData(iNum, g_vine_objects[g_vine_object_count].Texture, g_vine_objects[g_vine_object_count].Visible);
+            g_vine_objects[g_vine_object_count].MeshNumber = iNum;
             free(oData);
 
-            ++iVS;
+            ++g_vine_object_count;
         } else if(cData[iPlace] == 'D' && cData[iPlace + 1] == 0) {
             iLoop = -1;
 
             while(++iLoop < 8) {
-                DS[iDS].Func[iLoop] = cData[iPlace + 2 + iLoop];
+                g_donut_objects[g_donut_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
             }
 
             iPlace += 10;
 
-            DS[iDS].Visible = 1;
-            DS[iDS].X1 = StringToInt(&cData[iPlace + 0]);
-            DS[iDS].Y1 = StringToInt(&cData[iPlace + 2]);
-            DS[iDS].Z1 = StringToInt(&cData[iPlace + 4]);
-            DS[iDS].Num = StringToInt(&cData[iPlace + 6]);
-            DS[iDS].Texture = StringToInt(&cData[iPlace + 8]);
+            g_donut_objects[g_donut_object_count].Visible = 1;
+            g_donut_objects[g_donut_object_count].X1 = StringToInt(&cData[iPlace + 0]);
+            g_donut_objects[g_donut_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
+            g_donut_objects[g_donut_object_count].Z1 = StringToInt(&cData[iPlace + 4]);
+            g_donut_objects[g_donut_object_count].Num = StringToInt(&cData[iPlace + 6]);
+            g_donut_objects[g_donut_object_count].Texture = StringToInt(&cData[iPlace + 8]);
             iPlace += 20;
 
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            DS[iDS].Mesh = (long*)(malloc(iData * sizeof(long)));
-            DS[iDS].MeshSize = iData;
-            DS[iDS].ObjectNumber = iDS;
+            g_donut_objects[g_donut_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
+            g_donut_objects[g_donut_object_count].MeshSize = iData;
+            g_donut_objects[g_donut_object_count].ObjectNumber = g_donut_object_count;
 
             long iNum;
 
             iNum = -1;
 
             while(++iNum < iData) {
-                DS[iDS].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
+                g_donut_objects[g_donut_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
             }
 
             iPlace += iNum << 2;
 
-            oData = (long*)(malloc(DS[iDS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(g_donut_objects[g_donut_object_count].MeshSize * sizeof(long)));
             iMPlace = 0;
-            ComposeObject(&DS[iDS], oData, &iMPlace);
+            ComposeObject(&g_donut_objects[g_donut_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, DS[iDS].Texture, DS[iDS].Visible);
-            DS[iDS].MeshNumber = iNum;
+            SetObjectData(iNum, g_donut_objects[g_donut_object_count].Texture, g_donut_objects[g_donut_object_count].Visible);
+            g_donut_objects[g_donut_object_count].MeshNumber = iNum;
             free(oData);
 
-            ++iDS;
+            ++g_donut_object_count;
         } else if(cData[iPlace] == 'P' && cData[iPlace + 1] == 0) {
             iLoop = -1;
 
             while(++iLoop < 8) {
-                PS[iPS].Func[iLoop] = cData[iPlace + 2 + iLoop];
+                g_platform_objects[g_platform_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
             }
 
             iPlace += 10;
 
-            PS[iPS].Visible = 1;
-            PS[iPS].X1 = StringToInt(&cData[iPlace + 0]);
-            PS[iPS].Y1 = StringToInt(&cData[iPlace + 2]);
-            PS[iPS].X2 = StringToInt(&cData[iPlace + 4]);
-            PS[iPS].Y2 = StringToInt(&cData[iPlace + 6]);
-            PS[iPS].Z1 = StringToInt(&cData[iPlace + 8]);
-            PS[iPS].Extra = StringToInt(&cData[iPlace + 10]);
-            PS[iPS].Num = StringToInt(&cData[iPlace + 12]);
-            PS[iPS].Texture = StringToInt(&cData[iPlace + 14]);
+            g_platform_objects[g_platform_object_count].Visible = 1;
+            g_platform_objects[g_platform_object_count].X1 = StringToInt(&cData[iPlace + 0]);
+            g_platform_objects[g_platform_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
+            g_platform_objects[g_platform_object_count].X2 = StringToInt(&cData[iPlace + 4]);
+            g_platform_objects[g_platform_object_count].Y2 = StringToInt(&cData[iPlace + 6]);
+            g_platform_objects[g_platform_object_count].Z1 = StringToInt(&cData[iPlace + 8]);
+            g_platform_objects[g_platform_object_count].Extra = StringToInt(&cData[iPlace + 10]);
+            g_platform_objects[g_platform_object_count].Num = StringToInt(&cData[iPlace + 12]);
+            g_platform_objects[g_platform_object_count].Texture = StringToInt(&cData[iPlace + 14]);
             iPlace += 20;
 
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
 
-            PS[iPS].Mesh = (long*)(malloc(iData * sizeof(long)));
-            PS[iPS].MeshSize = iData;
-            PS[iPS].ObjectNumber = iPS;
+            g_platform_objects[g_platform_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
+            g_platform_objects[g_platform_object_count].MeshSize = iData;
+            g_platform_objects[g_platform_object_count].ObjectNumber = g_platform_object_count;
 
             long iNum;
 
             iNum = -1;
 
             while(++iNum < iData) {
-                PS[iPS].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
+                g_platform_objects[g_platform_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
             }
 
             iPlace += iNum << 2;
 
-            oData = (long*)(malloc(PS[iPS].MeshSize * sizeof(long)));
+            oData = (long*)(malloc(g_platform_objects[g_platform_object_count].MeshSize * sizeof(long)));
             iMPlace = 0;
-            ComposeObject(&PS[iPS], oData, &iMPlace);
+            ComposeObject(&g_platform_objects[g_platform_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, PS[iPS].Texture, PS[iPS].Visible);
-            PS[iPS].MeshNumber = iNum;
+            SetObjectData(iNum, g_platform_objects[g_platform_object_count].Texture, g_platform_objects[g_platform_object_count].Visible);
+            g_platform_objects[g_platform_object_count].MeshNumber = iNum;
             free(oData);
 
-            ++iPS;
+            ++g_platform_object_count;
         } else {
             return;
         }
@@ -1833,7 +1853,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
     iChar = -1;
 
-    while(++iChar < 100) {
+    while(++iChar < MAX_LETTER_MESHES) {
         bGood = 1;
 
         if((iChar >= 'A' && iChar <= 'Z') || (iChar >= '0' && iChar <= '9')) {
@@ -1856,19 +1876,19 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
         if(bGood) {
             sprintf_s(sFile, sizeof(sFile), "Char%s.MSH", sChar);
-            iCharMesh[iChar] = LoadMesh(base_path, sFile);
+            g_letter_mesh_indices[iChar] = LoadMesh(base_path, sFile);
         } else {
-            iCharMesh[iChar] = -1;
+            g_letter_mesh_indices[iChar] = -1;
         }
     }
 
     sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\panel.bmp", base_path);
-    LoadTexture(miTextures, sTemp, 0, 0);
-    ++miTextures;
+    LoadTexture(g_loaded_texture_count, sTemp, 0, 0);
+    ++g_loaded_texture_count;
 
     sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\Titles.png", base_path);
-    LoadTexture(miTextures, sTemp, 0, 0);
-    ++miTextures;
+    LoadTexture(g_loaded_texture_count, sTemp, 0, 0);
+    ++g_loaded_texture_count;
 }
 
 static void FindVine(long iX, long iY, long* iAbout, long* iExact) {
@@ -1879,13 +1899,13 @@ static void FindVine(long iX, long iY, long* iAbout, long* iExact) {
 
     iV = -1;
 
-    while(++iV < iVS) {
-        if(*iAbout == -1 || VS[*iAbout].Y1 < VS[iV].Y1) {
-            if(VS[iV].Y1 - 3 > iY && VS[iV].Y2 - 9 < iY) {
-                if(VS[iV].X1 - 3 < iX && VS[iV].X1 + 3 > iX) {
+    while(++iV < g_vine_object_count) {
+        if(*iAbout == -1 || g_vine_objects[*iAbout].Y1 < g_vine_objects[iV].Y1) {
+            if(g_vine_objects[iV].Y1 - 3 > iY && g_vine_objects[iV].Y2 - 9 < iY) {
+                if(g_vine_objects[iV].X1 - 3 < iX && g_vine_objects[iV].X1 + 3 > iX) {
                     *iAbout = iV;
 
-                    if(VS[iV].X1 == iX) {
+                    if(g_vine_objects[iV].X1 == iX) {
                         *iExact = iV;
                     }
                 }
@@ -1905,10 +1925,10 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact) {
     iBestDif = 1000;
     iL = -1;
 
-    while(++iL < iLS) {
-        if(*iAbout == -1 || LS[*iAbout].Y1 < LS[iL].Y1) {
-            if(LS[iL].Y1 - 3 > iY && LS[iL].Y2 - 9 < iY) {
-                iDiff = LS[iL].X1 - iX;
+    while(++iL < g_ladder_object_count) {
+        if(*iAbout == -1 || g_ladder_objects[*iAbout].Y1 < g_ladder_objects[iL].Y1) {
+            if(g_ladder_objects[iL].Y1 - 3 > iY && g_ladder_objects[iL].Y2 - 9 < iY) {
+                iDiff = g_ladder_objects[iL].X1 - iX;
 
                 if(iDiff < 0) {
                     iDiff *= -1;
@@ -1931,7 +1951,7 @@ static long PlayerFloor() {
     long iFloor;
     iFloor = 0;
 
-    if((iPlayerST & JS_JUMPING) && (iPlayerSC < 12)) {
+    if((g_player_current_state & kPlayerStateJumping) && (g_player_current_state_frame_count < 12)) {
         iFloor = 4;
     }
 
@@ -1942,15 +1962,15 @@ static long PlayerHeight() {
     long iHeight;
     iHeight = 14;
 
-    if((iPlayerST & JS_ROLL)) {
+    if((g_player_current_state & kPlayerStateRoll)) {
         iHeight = 7;
     }
 
-    if((iPlayerST & JS_PUNCH)) {
+    if((g_player_current_state & kPlayerStatePunch)) {
         iHeight = 9;
     }
 
-    if((iPlayerST & JS_DYING)) {
+    if((g_player_current_state & kPlayerStateDying)) {
         iHeight = 7;
     }
 
@@ -1967,35 +1987,35 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
 
     *iPlatform = -1;
     *iSupport = -1;
-    iEvent3 = 0;
+    g_script_event_data_3 = 0;
 
     iP = -1;
     iExtra = 0;
 
-    while(++iP < iPS) {
-        if(PS[iP].X1 <= iX + iWide && PS[iP].X2 >= iX - iWide) {
+    while(++iP < g_platform_object_count) {
+        if(g_platform_objects[iP].X1 <= iX + iWide && g_platform_objects[iP].X2 >= iX - iWide) {
             iEX = iX;
 
-            if(iEX < PS[iP].X1) {
-                iEX = PS[iP].X1;
+            if(iEX < g_platform_objects[iP].X1) {
+                iEX = g_platform_objects[iP].X1;
             }
 
-            if(iEX > PS[iP].X2) {
-                iEX = PS[iP].X2;
+            if(iEX > g_platform_objects[iP].X2) {
+                iEX = g_platform_objects[iP].X2;
             }
 
-            iLen = PS[iP].X2 - PS[iP].X1;
-            iH = (float)(PS[iP].Y1) * abs(PS[iP].X2 - iEX) + (float)(PS[iP].Y2) * abs(PS[iP].X1 - iEX);
+            iLen = g_platform_objects[iP].X2 - g_platform_objects[iP].X1;
+            iH = (float)(g_platform_objects[iP].Y1) * abs(g_platform_objects[iP].X2 - iEX) + (float)(g_platform_objects[iP].Y2) * abs(g_platform_objects[iP].X1 - iEX);
             iH /= iLen;
 
             bGood = 0;
 
-            if(PS[iP].Extra == 3) {
+            if(g_platform_objects[iP].Extra == 3) {
                 if(iH < iY + 1.5 && iH >= iY) {
                     bGood = 1;
                 }
 
-                if(iPlayerST == JS_ROLL && iPlayerSC < 6) {
+                if(g_player_current_state == kPlayerStateRoll && g_player_current_state_frame_count < 6) {
                     bGood = 0;
                 }
             } else {
@@ -2007,7 +2027,7 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
             if(bGood && (iH > *iSupport || (iH == *iSupport && (iExtra == 1 || iExtra == 2)))) {
                 *iSupport = iH;
                 *iPlatform = iP;
-                iExtra = PS[iP].Extra;
+                iExtra = g_platform_objects[iP].Extra;
             }
         }
     }
@@ -2022,14 +2042,14 @@ static void GrabDonuts(GameInput* game_input) {
     iLoop = -1;
     iGot = 0;
 
-    while(++iLoop < iDS) {
-        if(DS[iLoop].Visible && PlayerCollide(DS[iLoop].X1 - 3, DS[iLoop].Y1 - 4, DS[iLoop].X1 + 3, DS[iLoop].Y1 + 2)) {
-            DS[iLoop].Visible = 0;
-            SetObjectData(DS[iLoop].MeshNumber, DS[iLoop].Texture, 0);
+    while(++iLoop < g_donut_object_count) {
+        if(g_donut_objects[iLoop].Visible && PlayerCollide(g_donut_objects[iLoop].X1 - 3, g_donut_objects[iLoop].Y1 - 4, g_donut_objects[iLoop].X1 + 3, g_donut_objects[iLoop].Y1 + 2)) {
+            g_donut_objects[iLoop].Visible = 0;
+            SetObjectData(g_donut_objects[iLoop].MeshNumber, g_donut_objects[iLoop].Texture, 0);
             iGot = 1;
 
-            iEvent1 = DS[iLoop].Num;
-            RunScript(&SCLevel, iDonutScript, game_input);
+            g_script_event_data_1 = g_donut_objects[iLoop].Num;
+            RunScript(&g_script_level_script_context, g_script_donut_subroutine_handle, game_input);
         }
     }
 
@@ -2037,16 +2057,16 @@ static void GrabDonuts(GameInput* game_input) {
         iCheck = -1;
         iWon = 1;
 
-        while(++iCheck < iDS) {
-            if(DS[iCheck].Visible) {
+        while(++iCheck < g_donut_object_count) {
+            if(g_donut_objects[iCheck].Visible) {
                 iWon = 0;
             }
         }
 
         if(iWon) {
             StopMusic1();
-            iPlayerSC = 0;
-            iPlayerST = JS_DONE;
+            g_player_current_state_frame_count = 0;
+            g_player_current_state = kPlayerStateDone;
         } else {
             PlaySoundEffect(1);
         }
@@ -2054,13 +2074,13 @@ static void GrabDonuts(GameInput* game_input) {
 }
 
 static void AdjustPlayerZ(int iTargetZ, int iTime) {
-    if(iTime < abs(iTargetZ - (int)(iPlayerZ))) {
-        if(iTargetZ < iPlayerZ) {
-            --iPlayerZ;
+    if(iTime < abs(iTargetZ - (int)(g_player_current_position_z))) {
+        if(iTargetZ < g_player_current_position_z) {
+            --g_player_current_position_z;
         }
 
-        if(iTargetZ > iPlayerZ) {
-            ++iPlayerZ;
+        if(iTargetZ > g_player_current_position_z) {
+            ++g_player_current_position_z;
         }
     }
 }
@@ -2068,16 +2088,16 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
 static void ResetPlayer(int iNewLevel, GameInput* game_input) {
     long iResetScript;
 
-    iResetScript = FindScript(&SCLevel, "reset");
-    RunScript(&SCLevel, iResetScript, game_input);
+    iResetScript = FindScript(&g_script_level_script_context, "reset");
+    RunScript(&g_script_level_script_context, iResetScript, game_input);
 
     int iObj;
     iObj = -1;
 
     while(++iObj < MAX_SCRIPTOBJECTS) {
-        if(oObject[iObj].Active) {
-            iResetScript = FindScript(&oObject[iObj], "resetpos");
-            RunScript(&oObject[iObj], iResetScript, game_input);
+        if(g_script_object_script_contexts[iObj].Active) {
+            iResetScript = FindScript(&g_script_object_script_contexts[iObj], "resetpos");
+            RunScript(&g_script_object_script_contexts[iObj], iResetScript, game_input);
         }
     }
 }
@@ -2087,141 +2107,140 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
     long iPlatform;
     int bGrounded;
 
-    iEvent2 = -1;
+    g_script_event_data_2 = -1;
 
-    if(iPlayerAS == 0) {
-        iPlayerM = JM_JUMPUP;
+    if(g_player_dying_animation_state == kPlayerDyingAnimationStateBouncing) {
+        g_player_current_mesh = kPlayerMeshJumpUp;
 
-        ++iPlayerAX;
+        ++g_player_dying_animation_state_frame_count;
 
-        if(iPlayerAX < 5 || iPlayerAX == 6) {
-            ++iPlayerY;
+        if(g_player_dying_animation_state_frame_count < 5 || g_player_dying_animation_state_frame_count == 6) {
+            ++g_player_current_position_y;
         }
 
-        if(iPlayerAX > 10 || iPlayerAX == 8) {
-            --iPlayerY;
+        if(g_player_dying_animation_state_frame_count > 10 || g_player_dying_animation_state_frame_count == 8) {
+            --g_player_current_position_y;
         }
 
-        if(iPlayerAX > 15) {
-            iPlayerAS = 1;
+        if(g_player_dying_animation_state_frame_count > 15) {
+            g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
         }
 
-        ++iPlayerAF;
+        ++g_player_absolute_frame_count;
 
-        if(iPlayerSC < 10) {
-            ++iPlayerAF;
+        if(g_player_current_state_frame_count < 10) {
+            ++g_player_absolute_frame_count;
         }
 
-        if(iPlayerSC < 5) {
-            ++iPlayerAF;
+        if(g_player_current_state_frame_count < 5) {
+            ++g_player_absolute_frame_count;
         }
 
-        if(iPlayerSC < 0) {
-            ++iPlayerAF;
-            iPlayerM = JM_DEAD;
+        if(g_player_current_state_frame_count < 0) {
+            ++g_player_absolute_frame_count;
+            g_player_current_mesh = kPlayerMeshDead;
         }
 
-        iPlayerRX = iPlayerAF / -10.0f;
+        g_player_current_rotation_x_radians = g_player_absolute_frame_count / -10.0f;
 
-        if(iPlayerAF & 1) {
-            iPlayerX += iPlayerMX;
+        if(g_player_absolute_frame_count & 1) {
+            g_player_current_position_x += g_player_velocity_x;
         }
     }
 
-    if(iPlayerAS == 1) {
-        iPlayerM = JM_JUMPUP;
-        ++iPlayerAF;
-        iPlayerY -= 2;
-        iPlayerRX = iPlayerAF / -10.0f;
+    if(g_player_dying_animation_state == kPlayerDyingAnimationStateFalling) {
+        g_player_current_mesh = kPlayerMeshJumpUp;
+        ++g_player_absolute_frame_count;
+        g_player_current_position_y -= 2;
+        g_player_current_rotation_x_radians = g_player_absolute_frame_count / -10.0f;
 
-        GetNextPlatform((long)(iPlayerX), (long)(iPlayerY), 8, 2, &iSupport, &iPlatform);
+        GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y), 8, 2, &iSupport, &iPlatform);
         iSupport -= PlayerFloor();
-        bGrounded = (iPlayerY + 4 <= iSupport);
-        AdjustPlayerZ(PS[iPlatform].Z1 - 2, (int)(iPlayerY - iSupport));
+        bGrounded = (g_player_current_position_y + 4 <= iSupport);
+        AdjustPlayerZ(g_platform_objects[iPlatform].Z1 - 2, (int)(g_player_current_position_y - iSupport));
 
-        if(bGrounded && iPlayerY > -5 && iSupport < iPlayerSC) {
-            iPlayerMX = 0;
+        if(bGrounded && g_player_current_position_y > -5 && iSupport < g_player_current_state_frame_count) {
+            g_player_velocity_x = 0;
             int iRand;
             iRand = rand();
 
-            if((iRand & 3) == 1 && iPlayerY > 30 && iPlayerX > 30) {
-                iPlayerMX = -1;
+            if((iRand & 3) == 1 && g_player_current_position_y > 30 && g_player_current_position_x > 30) {
+                g_player_velocity_x = -1;
             }
 
-            if((iRand & 3) == 2 && iPlayerY > 30 && iPlayerX < 130) {
-                iPlayerMX = 1;
+            if((iRand & 3) == 2 && g_player_current_position_y > 30 && g_player_current_position_x < 130) {
+                g_player_velocity_x = 1;
             }
 
-            iPlayerSC = (long)(iSupport) - 3;
-            iPlayerAS = 0;
-            iPlayerAX = 0;
+            g_player_current_state_frame_count = (long)(iSupport) - 3;
+            g_player_dying_animation_state = kPlayerDyingAnimationStateBouncing;
+            g_player_dying_animation_state_frame_count = 0;
 
             PlaySoundEffect(2);
 
-            GetNextPlatform((long)(iPlayerX), (long)(iPlayerY) - 8, 8, 2, &iSupport, &iPlatform);
+            GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y) - 8, 8, 2, &iSupport, &iPlatform);
 
             if(iPlatform == -1) {
-                iPlayerAS = 2;
-                iPlayerAX = 0;
-                iPlayerAF = 0;
+                g_player_dying_animation_state = kPlayerDyingAnimationStateFinalBounce;
+                g_player_dying_animation_state_frame_count = 0;
+                g_player_absolute_frame_count = 0;
             }
         }
 
-        if(iPlayerY < -2 && iPlayerAS == 1) {
-            iPlayerAS = 2;
-            iPlayerAF = 0;
+        if(g_player_current_position_y < -2 && g_player_dying_animation_state == kPlayerDyingAnimationStateFalling) {
+            g_player_dying_animation_state = kPlayerDyingAnimationStateFinalBounce;
+            g_player_absolute_frame_count = 0;
         }
     }
 
-    if(iPlayerAS == 2) {
-        iPlayerM = JM_DEAD;
+    if(g_player_dying_animation_state == kPlayerDyingAnimationStateFinalBounce) {
+        g_player_current_mesh = kPlayerMeshDead;
 
-        ++iPlayerAX;
+        ++g_player_dying_animation_state_frame_count;
 
-        if(iPlayerAX < 10 || iPlayerAX == 12 || iPlayerAX == 14) {
-            ++iPlayerY;
+        if(g_player_dying_animation_state_frame_count < 10 || g_player_dying_animation_state_frame_count == 12 || g_player_dying_animation_state_frame_count == 14) {
+            ++g_player_current_position_y;
         }
 
-        if(iPlayerAX > 20 || iPlayerAX == 18 || iPlayerAX == 16) {
-            --iPlayerY;
+        if(g_player_dying_animation_state_frame_count > 20 || g_player_dying_animation_state_frame_count == 18 || g_player_dying_animation_state_frame_count == 16) {
+            --g_player_current_position_y;
         }
 
-        if(iPlayerAX == 10 || iPlayerAX == 12 || iPlayerAX == 17 || iPlayerAX == 20) {
-            --iPlayerZ;
+        if(g_player_dying_animation_state_frame_count == 10 || g_player_dying_animation_state_frame_count == 12 || g_player_dying_animation_state_frame_count == 17 || g_player_dying_animation_state_frame_count == 20) {
+            --g_player_current_position_z;
         }
 
-        if(iPlayerAX == 25) {
+        if(g_player_dying_animation_state_frame_count == 25) {
             NewTrack2(g_music_death_track_filename);
         }
 
-        iPlayerAF += 4;
-        iPlayerRX = iPlayerAF / -10.0f;
+        g_player_absolute_frame_count += 4;
+        g_player_current_rotation_x_radians = g_player_absolute_frame_count / -10.0f;
 
-        if(iPlayerAX > 30) {
-            iPlayerAS = 10;
-            iPlayerAF = 0;
-            iPlayerRX = 0;
-            iPlayerAS = 10;
+        if(g_player_dying_animation_state_frame_count > 30) {
+            g_player_dying_animation_state = kPlayerDyingAnimationStateSpinningStars;
+            g_player_absolute_frame_count = 0;
+            g_player_current_rotation_x_radians = 0;
         }
     }
 
-    if(iPlayerAS == 10) {
-        IdentityMatrix(iFindMesh[JM_STARS]);
-        RotateMatrixY(iFindMesh[JM_STARS], iPlayerAF * 180.0f / 50.0f);
-        TranslateMatrix(iFindMesh[JM_STARS], iPlayerX, iPlayerY + 12, iPlayerZ + 1);
-        SetObjectData(iFindMesh[JM_STARS], 0, 1);
+    if(g_player_dying_animation_state == kPlayerDyingAnimationStateSpinningStars) {
+        IdentityMatrix(g_player_mesh_indices[kPlayerMeshStars]);
+        RotateMatrixY(g_player_mesh_indices[kPlayerMeshStars], g_player_absolute_frame_count * 180.0f / 50.0f);
+        TranslateMatrix(g_player_mesh_indices[kPlayerMeshStars], g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z + 1);
+        SetObjectData(g_player_mesh_indices[kPlayerMeshStars], 0, 1);
 
-        ++iPlayerAF;
-        iPlayerRX = 0.1f;
-        iPlayerM = JM_DEAD;
+        ++g_player_absolute_frame_count;
+        g_player_current_rotation_x_radians = 0.1f;
+        g_player_current_mesh = kPlayerMeshDead;
 
-        if(iPlayerAF == 85) {
-            SetObjectData(iFindMesh[JM_STARS], 0, 0);
+        if(g_player_absolute_frame_count == 85) {
+            SetObjectData(g_player_mesh_indices[kPlayerMeshStars], 0, 0);
             g_remaining_life_count = g_remaining_life_count - 1;
 
             if(g_remaining_life_count == 0) {
-                iPlayerST = JS_NORMAL;
-                strcpy_s(g_level_title, sizeof(g_level_title), "");
+                g_player_current_state = kPlayerStateNormal;
+                strcpy_s(g_level_current_title, sizeof(g_level_current_title), "");
                 PrepLevel(base_path, "Data\\GameOver.DAT", game_input);
             } else {
                 ResetPlayer(0, game_input);
@@ -2238,59 +2257,59 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
     int iObject;
     int iTemp;
 
-    if(!(iPlayerST & JS_DONE)) {
-        if(iPlayerFreeze) {
-            --iPlayerFreeze;
+    if(!(g_player_current_state & kPlayerStateDone)) {
+        if(g_player_freeze_cooldown_frame_count) {
+            --g_player_freeze_cooldown_frame_count;
         }
 
-        if(iPlayerNoRoll) {
-            --iPlayerNoRoll;
+        if(g_player_no_roll_cooldown_frame_count) {
+            --g_player_no_roll_cooldown_frame_count;
         }
 
-        if(!(iPlayerST & JS_DYING) && !iPlayerFreeze) {
-            ++iPlayerAF;
-            iPlayerRX = 0;
-            iPlayerM = JM_STAND;
+        if(!(g_player_current_state & kPlayerStateDying) && g_player_freeze_cooldown_frame_count == 0) {
+            ++g_player_absolute_frame_count;
+            g_player_current_rotation_x_radians = 0;
+            g_player_current_mesh = kPlayerMeshStand;
             MoveJumpman(game_input);
 
-            if(iPlayerM == JM_STAND && iPlayerVisible && g_game_time_inactive > 400) {
+            if(g_player_current_mesh == kPlayerMeshStand && g_player_is_visible && g_game_time_inactive > 400) {
                 iTemp = (g_game_time_inactive % 400) / 6;
                 iTemp = iTemp > 10 ? 2 : iTemp & 1;
-                iPlayerM = JM_BORED1 + iTemp;
+                g_player_current_mesh = kPlayerMeshBored1 + iTemp;
             }
 
             GrabDonuts(game_input);
         }
 
-        if((iPlayerST & JS_DYING) && !iPlayerFreeze) {
+        if((g_player_current_state & kPlayerStateDying) && g_player_freeze_cooldown_frame_count == 0) {
             AnimateDying(game_input, base_path);
             GrabDonuts(game_input);
         }
 
         SetGamePerspective();
 
-        RunScript(&SCLevel, iMainScript, game_input);
+        RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-            if(oObject[iObject].Active == 1) {
-                RunScript(&oObject[iObject], 1, game_input);
+            if(g_script_object_script_contexts[iObject].Active == 1) {
+                RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
             }
         }
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-            if(oObject[iObject].Active == 2) {
-                RunScript(&oObject[iObject], 1, game_input);
-                oObject[iObject].Active = 1;
+            if(g_script_object_script_contexts[iObject].Active == 2) {
+                RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
+                g_script_object_script_contexts[iObject].Active = 1;
             }
         }
     } else {
-        ++iPlayerSC;
+        ++g_player_current_state_frame_count;
 
-        if(iPlayerSC == 30) {
+        if(g_player_current_state_frame_count == 30) {
             NewTrack2(g_music_win_track_filename);
         }
 
-        if(iPlayerSC == 300) {
+        if(g_player_current_state_frame_count == 300) {
             LoadNextLevel(base_path, game_input);
         }
     }
@@ -2301,21 +2320,21 @@ static void SetGamePerspective() {
     static float iPX, iPY;
     float iTX, iTY;
 
-    if(iPlayerX > -50) {
-        iPX = iPlayerX;
+    if(g_player_current_position_x > -50) {
+        iPX = g_player_current_position_x;
     }
 
-    iPY = iPlayerY;
+    iPY = g_player_current_position_y;
 
-    iTX = iPX / 2 + miLevelExtentX / 4;
+    iTX = iPX / 2 + g_level_extent_x / 4;
     iTY = iPY;
 
     if(iTX < 35) {
         iTX = 35;
     }
 
-    if(iTX > miLevelExtentX - 45) {
-        iTX = (float)(miLevelExtentX - 45);
+    if(iTX > g_level_extent_x - 45) {
+        iTX = (float)(g_level_extent_x - 45);
     }
 
     iCamX = (iCamX + iTX) / 2;
@@ -2334,7 +2353,7 @@ static void SetGamePerspective() {
     }
 
     if(g_current_camera_mode == kCameraModeCloseUp) {
-        SetPerspective(iPlayerX, iCamY + 35.0f, -95.0f, iPlayerX, iCamY + 7, 0.0f);
+        SetPerspective(g_player_current_position_x, iCamY + 35.0f, -95.0f, g_player_current_position_x, iCamY + 7, 0.0f);
     }
 
     if(g_current_camera_mode == kCameraModeFar) {
@@ -2344,11 +2363,11 @@ static void SetGamePerspective() {
     if(g_current_camera_mode == kCameraModeNotSureWhatThisIs) {
         // TODO: What should this mode be named? When is it used?
         //       Old comment - SetPerspective(0, 0.0f, -185.0f, 0, 0, 0.0f);  - Should this be ignored?
-        SetPerspective(iPlayerX, iCamY / 2 + 60.0f, -110, iPlayerX, iCamY / 2 + 32.0f, 0);
+        SetPerspective(g_player_current_position_x, iCamY / 2 + 60.0f, -110, g_player_current_position_x, iCamY / 2 + 32.0f, 0);
     }
 
     if(g_current_camera_mode == kCameraModeSpaceLevel) {
-        SetPerspective(iPlayerX, iCamY / 2 + 60.0f, -110, iPlayerX, iCamY / 2 + 32.0f, 0);
+        SetPerspective(g_player_current_position_x, iCamY / 2 + 60.0f, -110, g_player_current_position_x, iCamY / 2 + 32.0f, 0);
     }
 
     if(g_current_camera_mode == kCameraModeEndingLevel) {
@@ -2360,39 +2379,39 @@ static void SetGamePerspective() {
     }
 
     if(g_current_camera_mode == kCameraModeFlat) {
-        SetPerspective(iPlayerX, iPlayerY, -75.0f, iPlayerX, iPlayerY, 0.0f);
+        SetPerspective(g_player_current_position_x, g_player_current_position_y, -75.0f, g_player_current_position_x, g_player_current_position_y, 0.0f);
     }
 
     if(g_current_camera_mode == kCameraModeFarAbove) {
-        SetPerspective(iPlayerX, iPlayerY + 60, -95.0f, iPlayerX, iPlayerY, 0.0f);
+        SetPerspective(g_player_current_position_x, g_player_current_position_y + 60, -95.0f, g_player_current_position_x, g_player_current_position_y, 0.0f);
     }
 }
 
 static void DrawGame() {
-    IdentityMatrix(iFindMesh[iPlayerM]);
-    RotateMatrixX(iFindMesh[iPlayerM], iPlayerRX * 180.0f / 3.14f);
-    TranslateMatrix(iFindMesh[iPlayerM], iPlayerX, iPlayerY + 6, iPlayerZ + 1);
+    IdentityMatrix(g_player_mesh_indices[g_player_current_mesh]);
+    RotateMatrixX(g_player_mesh_indices[g_player_current_mesh], g_player_current_rotation_x_radians * 180.0f / 3.14f);
+    TranslateMatrix(g_player_mesh_indices[g_player_current_mesh], g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
 
-    if(iPlayerVisible) {
-        SetObjectData(iFindMesh[iPlayerM], 0, 1);
+    if(g_player_is_visible) {
+        SetObjectData(g_player_mesh_indices[g_player_current_mesh], 0, 1);
     }
 
     Render();
 
-    SetObjectData(iFindMesh[iPlayerM], 0, 0);
+    SetObjectData(g_player_mesh_indices[g_player_current_mesh], 0, 0);
 }
 
 // ------------------- OTHER STUFF -------------------------------
 
-static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
+static void GetLevelFilename(char* sLevel, size_t sLevelSize, int level_index) {
     int iLen;
     char sTemp[20] = { 0 };
     char* sData;
 
-    iLen = FileToString(g_level_list_filename, (unsigned char**)(&sData));
+    iLen = FileToString(g_level_set_filename, (unsigned char**)(&sData));
     // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function
-    TextLine(sData, iLen, sTemp, 20, iLevel * 2 - 1);
-    TextLine(sData, iLen, g_level_title, 49, iLevel * 2);
+    TextLine(sData, iLen, sTemp, 20, level_index * 2 - 1);
+    TextLine(sData, iLen, g_level_current_title, 49, level_index * 2);
     sprintf_s(sLevel, sLevelSize, "Data\\%s.DAT", sTemp);
     free(sData);
 }
@@ -2403,7 +2422,7 @@ static void PrepLevel(const char* base_path, char* sLevel, GameInput* game_input
 
     SetFog(0, 0, 0, 0, 0);
 
-    iEvent1 = 0;
+    g_script_event_data_1 = 0;
 
     LoadMeshes(base_path);
     LoadLevel(base_path, sLevel);
@@ -2420,12 +2439,11 @@ static void PrepLevel(const char* base_path, char* sLevel, GameInput* game_input
     ProgressGame(base_path, game_input);
     ProgressGame(base_path, game_input);
 
-    LoadScript(base_path, "Data\\Title.BIN", &TitleScript);
-    ResetContext(&SCTitle, base_path);
-    SCTitle.Script = &TitleScript;
+    LoadScript(base_path, "Data\\Title.BIN", &g_script_title_script_code);
+    ResetContext(&g_script_title_script_context, base_path);
+    g_script_title_script_context.Script = &g_script_title_script_code;
 
-    iScrollTitle = 1;
-    iLoadedLevel = iLevel;
+    g_level_scroll_title_animation_frame_count = 1;
 
     Render();
 
@@ -2441,8 +2459,8 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
         g_remaining_life_count = 5;
         PrepLevel(base_path, g_debug_level_filename, game_input);
     } else {
-        ++iLevel;
-        GetLevelFilename(sLevel, sizeof(sLevel), iLevel);
+        ++g_level_current_index;
+        GetLevelFilename(sLevel, sizeof(sLevel), g_level_current_index);
         PrepLevel(base_path, sLevel, game_input);
     }
 }
@@ -2450,14 +2468,14 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
 void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input) {
     g_debug_level_is_specified = true;
     sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "Data\\%s.DAT", level_name);
-    g_debug_level_is_specified = 1;
+    g_debug_level_is_specified = true;
     LoadNextLevel(base_path, game_input);
-    iLevel = 0;
+    g_level_current_index = 0;
     g_game_status = kGameStatusInLevel;
 }
 
 void InitGameNormal() {
-    iEvent1 = 10;
+    g_script_event_data_1 = 10;
     g_game_status = kGameStatusMenu;
     g_current_game_menu_state = kGameMenuStateNone;
     g_target_game_menu_state = kGameMenuStateMain;
@@ -2481,11 +2499,11 @@ static void LoadJumpmanMenu(const char* base_path) {
     if(g_target_game_menu_state == kGameMenuStateMain) {
         LoadLevel(base_path, "Data\\MainMenu.DAT");
 
-        if(iEvent1 == 10) {
+        if(g_script_event_data_1 == 10) {
             NewTrack1(g_music_background_track_filename, 3000, -1);
         }
 
-        if(iEvent1 == 100) {
+        if(g_script_event_data_1 == 100) {
             NewTrack1(g_music_death_track_filename, 0, -1);
         }
     }
@@ -2493,7 +2511,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     if(g_target_game_menu_state == kGameMenuStateOptions) {
         LoadLevel(base_path, "Data\\Options.DAT");
 
-        if(iEvent1 == 9) {
+        if(g_script_event_data_1 == 9) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
         }
     }
@@ -2501,7 +2519,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     if(g_target_game_menu_state == kGameMenuStateSelectGame) {
         LoadLevel(base_path, "Data\\SelectGame.DAT");
 
-        if(iEvent1 == 9) {
+        if(g_script_event_data_1 == 9) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
         }
     }
@@ -2513,18 +2531,18 @@ static void LoadJumpmanMenu(const char* base_path) {
 
 static void InteractMenu(GameInput* game_input) {
     long iObject;
-    RunScript(&SCLevel, iMainScript, game_input);
+    RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-        if(oObject[iObject].Active == 1) {
-            RunScript(&oObject[iObject], 1, game_input);
+        if(g_script_object_script_contexts[iObject].Active == 1) {
+            RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
         }
     }
 
     for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-        if(oObject[iObject].Active == 2) {
-            RunScript(&oObject[iObject], 1, game_input);
-            oObject[iObject].Active = 1;
+        if(g_script_object_script_contexts[iObject].Active == 2) {
+            RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
+            g_script_object_script_contexts[iObject].Active = 1;
         }
     }
 
@@ -2544,30 +2562,30 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
         InteractMenu(game_input);
 
         if(g_game_status == kGameStatusInLevel) {
-            iLevel = 0;
+            g_level_current_index = 0;
             LoadNextLevel(base_path, game_input);
         }
     }
 
     if(g_game_status == kGameStatusInLevel) {
-        if(iScrollTitle > 0) {
-            if(iEvent1 == -100) {
-                iScrollTitle = 1000;
+        if(g_level_scroll_title_animation_frame_count > 0) {
+            if(g_script_event_data_1 == -100) {
+                g_level_scroll_title_animation_frame_count = 1000;
             }
 
-            ++iScrollTitle;
-            iEvent1 = iScrollTitle;
-            RunScript(&SCTitle, 1, game_input);
+            ++g_level_scroll_title_animation_frame_count;
+            g_script_event_data_1 = g_level_scroll_title_animation_frame_count;
+            RunScript(&g_script_title_script_context, 1, game_input);
 
-            if(iScrollTitle > 600) {
-                iScrollTitle = 0;
+            if(g_level_scroll_title_animation_frame_count > 600) {
+                g_level_scroll_title_animation_frame_count = 0;
             }
         } else {
             if(!IsGameFrozen()) {
                 ProgressGame(base_path, game_input);
             }
 
-            RunScript(&SCTitle, 1, game_input);
+            RunScript(&g_script_title_script_context, 1, game_input);
         }
 
         if(!IsGameFrozen()) {
@@ -2579,21 +2597,21 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
 long Init3D() {
     int iLoop;
 
-    iPlayerST = 0;
-    iPlayerSC = 0;
+    g_player_current_state = 0;
+    g_player_current_state_frame_count = 0;
 
-    iPlayerRX = 0;
+    g_player_current_rotation_x_radians = 0;
 
     iLoop = -1;
 
-    while(++iLoop < 100) {
-        iFindMesh[iLoop] = 0;
+    while(++iLoop < MAX_PLAYER_MESHES) {
+        g_player_mesh_indices[iLoop] = 0;
     }
 
     iLoop = -1;
 
-    while(++iLoop < 300) {
-        iOtherMesh[iLoop] = 0;
+    while(++iLoop < MAX_SCRIPT_MESHES) {
+        g_script_mesh_indices[iLoop] = 0;
     }
 
     if(!InitializeAll()) {
@@ -2635,56 +2653,56 @@ static long LoadMesh(const char* base_path, char* sFileName) {
 }
 
 static void LoadMeshes(const char* base_path) {
-    iFindMesh[JM_STAND] = LoadMesh(base_path, "Stand.MSH");
-    iFindMesh[JM_LEFT1] = LoadMesh(base_path, "Left1.MSH");
-    iFindMesh[JM_LEFT2] = LoadMesh(base_path, "Left2.MSH");
-    iFindMesh[JM_RIGHT1] = LoadMesh(base_path, "Right1.MSH");
-    iFindMesh[JM_RIGHT2] = LoadMesh(base_path, "Right2.MSH");
+    g_player_mesh_indices[kPlayerMeshStand] = LoadMesh(base_path, "Stand.MSH");
+    g_player_mesh_indices[kPlayerMeshLeft1] = LoadMesh(base_path, "Left1.MSH");
+    g_player_mesh_indices[kPlayerMeshLeft2] = LoadMesh(base_path, "Left2.MSH");
+    g_player_mesh_indices[kPlayerMeshRight1] = LoadMesh(base_path, "Right1.MSH");
+    g_player_mesh_indices[kPlayerMeshRight2] = LoadMesh(base_path, "Right2.MSH");
 
-    iFindMesh[JM_JUMPUP] = LoadMesh(base_path, "JumpUp.MSH");
-    iFindMesh[JM_JUMPLEFT] = LoadMesh(base_path, "JumpLeft.MSH");
-    iFindMesh[JM_JUMPRIGHT] = LoadMesh(base_path, "JumpRight.MSH");
+    g_player_mesh_indices[kPlayerMeshJumpUp] = LoadMesh(base_path, "JumpUp.MSH");
+    g_player_mesh_indices[kPlayerMeshJumpLeft] = LoadMesh(base_path, "JumpLeft.MSH");
+    g_player_mesh_indices[kPlayerMeshJumpRight] = LoadMesh(base_path, "JumpRight.MSH");
 
-    iFindMesh[JM_VINECLIMB1] = LoadMesh(base_path, "RopeClimb1.MSH");
-    iFindMesh[JM_VINECLIMB2] = LoadMesh(base_path, "RopeClimb2.MSH");
+    g_player_mesh_indices[kPlayerMeshVineClimb1] = LoadMesh(base_path, "RopeClimb1.MSH");
+    g_player_mesh_indices[kPlayerMeshVineClimb2] = LoadMesh(base_path, "RopeClimb2.MSH");
 
-    iFindMesh[JM_LADDERCLIMB1] = LoadMesh(base_path, "LadderClimb1.MSH");
-    iFindMesh[JM_LADDERCLIMB2] = LoadMesh(base_path, "LadderClimb2.MSH");
+    g_player_mesh_indices[kPlayerMeshLadderClimb1] = LoadMesh(base_path, "LadderClimb1.MSH");
+    g_player_mesh_indices[kPlayerMeshLadderClimb2] = LoadMesh(base_path, "LadderClimb2.MSH");
 
-    iFindMesh[JM_KICKLEFT] = LoadMesh(base_path, "KickLeft.MSH");
-    iFindMesh[JM_KICKRIGHT] = LoadMesh(base_path, "KickRight.MSH");
+    g_player_mesh_indices[kPlayerMeshKickLeft] = LoadMesh(base_path, "KickLeft.MSH");
+    g_player_mesh_indices[kPlayerMeshKickRight] = LoadMesh(base_path, "KickRight.MSH");
 
-    iFindMesh[JM_DIVERIGHT] = LoadMesh(base_path, "DiveRight.MSH");
-    iFindMesh[JM_ROLLRIGHT1] = LoadMesh(base_path, "RollRight1.MSH");
-    iFindMesh[JM_ROLLRIGHT2] = LoadMesh(base_path, "RollRight2.MSH");
-    iFindMesh[JM_ROLLRIGHT3] = LoadMesh(base_path, "RollRight3.MSH");
-    iFindMesh[JM_ROLLRIGHT4] = LoadMesh(base_path, "RollRight4.MSH");
+    g_player_mesh_indices[kPlayerMeshDiveRight] = LoadMesh(base_path, "DiveRight.MSH");
+    g_player_mesh_indices[kPlayerMeshRollRight1] = LoadMesh(base_path, "RollRight1.MSH");
+    g_player_mesh_indices[kPlayerMeshRollRight2] = LoadMesh(base_path, "RollRight2.MSH");
+    g_player_mesh_indices[kPlayerMeshRollRight3] = LoadMesh(base_path, "RollRight3.MSH");
+    g_player_mesh_indices[kPlayerMeshRollRight4] = LoadMesh(base_path, "RollRight4.MSH");
 
-    iFindMesh[JM_DIVELEFT] = LoadMesh(base_path, "DiveLeft.MSH");
-    iFindMesh[JM_ROLLLEFT1] = LoadMesh(base_path, "RollLEFT1.MSH");
-    iFindMesh[JM_ROLLLEFT2] = LoadMesh(base_path, "RollLEFT2.MSH");
-    iFindMesh[JM_ROLLLEFT3] = LoadMesh(base_path, "RollLEFT3.MSH");
-    iFindMesh[JM_ROLLLEFT4] = LoadMesh(base_path, "RollLEFT4.MSH");
+    g_player_mesh_indices[kPlayerMeshDiveLeft] = LoadMesh(base_path, "DiveLeft.MSH");
+    g_player_mesh_indices[kPlayerMeshRollLeft1] = LoadMesh(base_path, "RollLEFT1.MSH");
+    g_player_mesh_indices[kPlayerMeshRollLeft2] = LoadMesh(base_path, "RollLEFT2.MSH");
+    g_player_mesh_indices[kPlayerMeshRollLeft3] = LoadMesh(base_path, "RollLEFT3.MSH");
+    g_player_mesh_indices[kPlayerMeshRollLeft4] = LoadMesh(base_path, "RollLEFT4.MSH");
 
-    iFindMesh[JM_PUNCHLEFT] = LoadMesh(base_path, "PunchLeft.MSH");
-    iFindMesh[JM_PUNCHRIGHT] = LoadMesh(base_path, "PunchRight.MSH");
-    iFindMesh[JM_PUNCHLEFT2] = LoadMesh(base_path, "PunchLeft2.MSH");
-    iFindMesh[JM_PUNCHRIGHT2] = LoadMesh(base_path, "PunchRight2.MSH");
+    g_player_mesh_indices[kPlayerMeshPunchLeft] = LoadMesh(base_path, "PunchLeft.MSH");
+    g_player_mesh_indices[kPlayerMeshPunchRight] = LoadMesh(base_path, "PunchRight.MSH");
+    g_player_mesh_indices[kPlayerMeshPunchLeft2] = LoadMesh(base_path, "PunchLeft2.MSH");
+    g_player_mesh_indices[kPlayerMeshPunchRight2] = LoadMesh(base_path, "PunchRight2.MSH");
 
-    iFindMesh[JM_DYING] = LoadMesh(base_path, "Dying.MSH");
-    iFindMesh[JM_DEAD] = LoadMesh(base_path, "Dead.MSH");
-    iFindMesh[JM_STARS] = LoadMesh(base_path, "Stars.MSH");
+    g_player_mesh_indices[kPlayerMeshDying] = LoadMesh(base_path, "Dying.MSH");
+    g_player_mesh_indices[kPlayerMeshDead] = LoadMesh(base_path, "Dead.MSH");
+    g_player_mesh_indices[kPlayerMeshStars] = LoadMesh(base_path, "Stars.MSH");
 
-    iFindMesh[JM_SLIDER] = LoadMesh(base_path, "SlideR.MSH");
-    iFindMesh[JM_SLIDERB] = LoadMesh(base_path, "SlideRB.MSH");
-    iFindMesh[JM_SLIDEL] = LoadMesh(base_path, "SlideL.MSH");
-    iFindMesh[JM_SLIDELB] = LoadMesh(base_path, "SlideLB.MSH");
+    g_player_mesh_indices[kPlayerMeshSlideR] = LoadMesh(base_path, "SlideR.MSH");
+    g_player_mesh_indices[kPlayerMeshSlideRB] = LoadMesh(base_path, "SlideRB.MSH");
+    g_player_mesh_indices[kPlayerMeshSlideL] = LoadMesh(base_path, "SlideL.MSH");
+    g_player_mesh_indices[kPlayerMeshSlideLB] = LoadMesh(base_path, "SlideLB.MSH");
 
-    iFindMesh[JM_BORED1] = LoadMesh(base_path, "BORED1.MSH");
-    iFindMesh[JM_BORED2] = LoadMesh(base_path, "BORED2.MSH");
-    iFindMesh[JM_BORED3] = LoadMesh(base_path, "BORED3.MSH");
-    iFindMesh[JM_BORED4] = LoadMesh(base_path, "BORED4.MSH");
-    iFindMesh[JM_BORED5] = LoadMesh(base_path, "BORED5.MSH");
+    g_player_mesh_indices[kPlayerMeshBored1] = LoadMesh(base_path, "BORED1.MSH");
+    g_player_mesh_indices[kPlayerMeshBored2] = LoadMesh(base_path, "BORED2.MSH");
+    g_player_mesh_indices[kPlayerMeshBored3] = LoadMesh(base_path, "BORED3.MSH");
+    g_player_mesh_indices[kPlayerMeshBored4] = LoadMesh(base_path, "BORED4.MSH");
+    g_player_mesh_indices[kPlayerMeshBored5] = LoadMesh(base_path, "BORED5.MSH");
 }
 
 
@@ -2723,39 +2741,39 @@ static int iIgnoreLadders;
 
 static void DoDeathBounce() {
     StopMusic1();
-    iPlayerST = JS_DYING;
-    iPlayerAS = 1;
-    iPlayerAX = 0;
-    iPlayerMX = 0;
-    iPlayerAF = iPlayerSC;
-    iPlayerSC = 1000;
+    g_player_current_state = kPlayerStateDying;
+    g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
+    g_player_dying_animation_state_frame_count = 0;
+    g_player_velocity_x = 0;
+    g_player_absolute_frame_count = g_player_current_state_frame_count;
+    g_player_current_state_frame_count = 1000;
 
     int iRand;
     iRand = rand();
 
-    if((iRand & 7) == 1 && iPlayerX > 30) {
-        iPlayerMX = -1;
+    if((iRand & 7) == 1 && g_player_current_position_x > 30) {
+        g_player_velocity_x = -1;
     }
 
-    if((iRand & 7) == 2 && iPlayerX < 130) {
-        iPlayerMX = 1;
+    if((iRand & 7) == 2 && g_player_current_position_x < 130) {
+        g_player_velocity_x = 1;
     }
 }
 
 static int CheckWalkOff(int iCenter, GameInput* game_input) {
-    if(iPlayerX < iCenter && game_input->move_right_action.is_pressed) {
+    if(g_player_current_position_x < iCenter && game_input->move_right_action.is_pressed) {
         return 0;
     }
 
-    if(iPlayerX > iCenter && game_input->move_left_action.is_pressed) {
+    if(g_player_current_position_x > iCenter && game_input->move_left_action.is_pressed) {
         return 0;
     }
 
-    if(game_input->move_down_action.is_pressed && iPlayerY < iSitSupport - 2) {
+    if(game_input->move_down_action.is_pressed && g_player_current_position_y < g_player_current_platform_y - 2) {
         return 0;
     }
 
-    if(iPlayerY <= iSitSupport && (game_input->move_left_action.is_pressed != game_input->move_right_action.is_pressed)) {
+    if(g_player_current_position_y <= g_player_current_platform_y && (game_input->move_left_action.is_pressed != game_input->move_right_action.is_pressed)) {
         MoveJumpmanNormal(game_input);
         return 1;
     }
@@ -2769,17 +2787,17 @@ static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input)
     }
 
     if(iLeft && game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed) {
-        iPlayerDIR = JD_LEFT;
+        g_player_current_direction = kPlayerDirectionLeft;
     } else if(iRight && game_input->move_right_action.is_pressed && !game_input->move_left_action.is_pressed) {
-        iPlayerDIR = JD_RIGHT;
+        g_player_current_direction = kPlayerDirectionRight;
     } else if(iUp) {
-        iPlayerDIR = JD_UP;
+        g_player_current_direction = kPlayerDirectionUp;
     } else {
         return 0;
     }
 
-    iPlayerACT = 0;
-    iPlayerSC = 0;
+    g_player_current_special_action = kPlayerSpecialActionNone;
+    g_player_current_state_frame_count = 0;
 
     PlaySoundEffect(0);
 
@@ -2789,24 +2807,24 @@ static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input)
 }
 
 static void UpdateSituation() {
-    FindVine((long)(iPlayerX), (long)(iPlayerY), &iSitVinAp, &iSitVinEx);
-    FindLadder((long)(iPlayerX), (long)(iPlayerY), &iSitLadA, &iSitLadE);
-    GetNextPlatform((long)(iPlayerX), (long)(iPlayerY), PlayerHeight(), 2, &iSitSupport, &iSitPlatform);
-    iSitSupport -= PlayerFloor();
+    FindVine((long)(g_player_current_position_x), (long)(g_player_current_position_y), &g_player_current_close_vine_index, &g_player_current_exact_vine_index);
+    FindLadder((long)(g_player_current_position_x), (long)(g_player_current_position_y), &g_player_current_close_ladder_index, &g_player_current_exact_ladder_index);
+    GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y), PlayerHeight(), 2, &g_player_current_platform_y, &g_player_current_platform_index);
+    g_player_current_platform_y -= PlayerFloor();
 
-    iEvent2 = -1;
+    g_script_event_data_2 = -1;
 
-    if(iSitSupport >= iPlayerY) {
-        iEvent2 = iSitPlatform;
+    if(g_player_current_platform_y >= g_player_current_position_y) {
+        g_script_event_data_2 = g_player_current_platform_index;
     }
 }
 
 static void MoveJumpmanVine(GameInput* game_input) {
-    iPlayerST = JS_VINE;
-    iPlayerACT = 0;
+    g_player_current_state = kPlayerStateVine;
+    g_player_current_special_action = kPlayerSpecialActionNone;
 
-    if(iSitVinAp == -1) {
-        iPlayerST = JS_NORMAL;
+    if(g_player_current_close_vine_index == -1) {
+        g_player_current_state = kPlayerStateNormal;
         return;
     }
 
@@ -2814,15 +2832,15 @@ static void MoveJumpmanVine(GameInput* game_input) {
         return;
     }
 
-    if(CheckWalkOff(VS[iSitVinAp].X1, game_input)) {
+    if(CheckWalkOff(g_vine_objects[g_player_current_close_vine_index].X1, game_input)) {
         return;
     }
 
-    iPlayerM = (iPlayerAF & 2) ? JM_VINECLIMB1 : JM_VINECLIMB2;
-    AdjustPlayerZ(VS[iSitVinAp].Z1 - 3, 0);
+    g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshVineClimb1 : kPlayerMeshVineClimb2;
+    AdjustPlayerZ(g_vine_objects[g_player_current_close_vine_index].Z1 - 3, 0);
 
-    if(VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport - 1) {
-        --iPlayerY;
+    if(g_vine_objects[g_player_current_close_vine_index].Y2 < g_player_current_platform_y - 2 || g_player_current_position_y > g_player_current_platform_y - 1) {
+        --g_player_current_position_y;
     } else {
         MoveJumpmanNormal(game_input);
         return;
@@ -2830,190 +2848,190 @@ static void MoveJumpmanVine(GameInput* game_input) {
 
     long iVinX;
 
-    iVinX = VS[iSitVinAp].X1;
+    iVinX = g_vine_objects[g_player_current_close_vine_index].X1;
 
-    if(iPlayerAF & 1) {
-        if(iPlayerX + 1 > iVinX && iPlayerX - 1 < iVinX) {
-            iPlayerX = (float)(iVinX);
-        } else if(iPlayerX < iVinX) {
-            ++iPlayerX;
-        } else if(iPlayerX > iVinX) {
-            --iPlayerX;
+    if(g_player_absolute_frame_count & 1) {
+        if(g_player_current_position_x + 1 > iVinX && g_player_current_position_x - 1 < iVinX) {
+            g_player_current_position_x = (float)(iVinX);
+        } else if(g_player_current_position_x < iVinX) {
+            ++g_player_current_position_x;
+        } else if(g_player_current_position_x > iVinX) {
+            --g_player_current_position_x;
         }
     }
 }
 
 static void MoveJumpmanLadder(GameInput* game_input) {
-    iPlayerST = JS_LADDER;
-    iPlayerACT = 0;
+    g_player_current_state = kPlayerStateLadder;
+    g_player_current_special_action = kPlayerSpecialActionNone;
     iIgnoreLadders = 1;
 
-    if(iSitLadA == -1) {
-        iPlayerST = JS_NORMAL;
+    if(g_player_current_close_ladder_index == -1) {
+        g_player_current_state = kPlayerStateNormal;
         return;
     }
 
-    if(iSitSupport >= iPlayerY || (LS[iSitLadA].X1 < iPlayerX + 2 && LS[iSitLadA].X1 > iPlayerX - 2)) {
+    if(g_player_current_platform_y >= g_player_current_position_y || (g_ladder_objects[g_player_current_close_ladder_index].X1 < g_player_current_position_x + 2 && g_ladder_objects[g_player_current_close_ladder_index].X1 > g_player_current_position_x - 2)) {
         if(CheckJumpStart(1, 0, 1, game_input)) {
             return;
         }
     }
 
-    if(CheckWalkOff(LS[iSitLadA].X1, game_input)) {
+    if(CheckWalkOff(g_ladder_objects[g_player_current_close_ladder_index].X1, game_input)) {
         return;
     }
 
-    iPlayerM = JM_JUMPUP;
-    AdjustPlayerZ(LS[iSitLadA].Z1 - 3, 0);
+    g_player_current_mesh = kPlayerMeshJumpUp;
+    AdjustPlayerZ(g_ladder_objects[g_player_current_close_ladder_index].Z1 - 3, 0);
 
-    if(game_input->move_up_action.is_pressed && LS[iSitLadA].Y1 - 5 > iPlayerY) {
-        ++iPlayerY;
-        iPlayerM = (iPlayerAF & 2) ? JM_LADDERCLIMB2 : JM_LADDERCLIMB1;
+    if(game_input->move_up_action.is_pressed && g_ladder_objects[g_player_current_close_ladder_index].Y1 - 5 > g_player_current_position_y) {
+        ++g_player_current_position_y;
+        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLadderClimb2 : kPlayerMeshLadderClimb1;
     } else if(game_input->move_up_action.is_pressed && !game_input->move_down_action.is_pressed) {
-        iPlayerM = (iPlayerAF & 2) ? JM_LADDERCLIMB2 : JM_LADDERCLIMB1;
+        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLadderClimb2 : kPlayerMeshLadderClimb1;
     }
 
-    if(game_input->move_down_action.is_pressed && (LS[iSitLadA].Y2 < iSitSupport - 3 || iPlayerY > iSitSupport)) {
-        --iPlayerY;
-        iPlayerM = (iPlayerAF & 2) ? JM_LADDERCLIMB2 : JM_LADDERCLIMB1;
+    if(game_input->move_down_action.is_pressed && (g_ladder_objects[g_player_current_close_ladder_index].Y2 < g_player_current_platform_y - 3 || g_player_current_position_y > g_player_current_platform_y)) {
+        --g_player_current_position_y;
+        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLadderClimb2 : kPlayerMeshLadderClimb1;
 
-        if(LS[iSitLadA].Y2 >= iSitSupport - 3 && iPlayerY < iSitSupport) {
-            iPlayerY = iSitSupport;
+        if(g_ladder_objects[g_player_current_close_ladder_index].Y2 >= g_player_current_platform_y - 3 && g_player_current_position_y < g_player_current_platform_y) {
+            g_player_current_position_y = g_player_current_platform_y;
         }
     }
 
     long iLadderX;
 
-    iLadderX = LS[iSitLadA].X1;
+    iLadderX = g_ladder_objects[g_player_current_close_ladder_index].X1;
 
-    if(iPlayerX < iLadderX + 1 && iPlayerX > iLadderX - 1) {
-        iPlayerX = (float)(iLadderX);
-    } else if(iPlayerX < iLadderX) {
-        iPlayerX += 1;
-    } else if(iPlayerX > iLadderX) {
-        iPlayerX -= 1;
+    if(g_player_current_position_x < iLadderX + 1 && g_player_current_position_x > iLadderX - 1) {
+        g_player_current_position_x = (float)(iLadderX);
+    } else if(g_player_current_position_x < iLadderX) {
+        g_player_current_position_x += 1;
+    } else if(g_player_current_position_x > iLadderX) {
+        g_player_current_position_x -= 1;
     }
 }
 
 static void MoveJumpmanNormal(GameInput* game_input) {
-    iPlayerST = JS_NORMAL;
-    iPlayerACT = 0;
+    g_player_current_state = kPlayerStateNormal;
+    g_player_current_special_action = kPlayerSpecialActionNone;
 
-    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
+    AdjustPlayerZ(g_platform_objects[g_player_current_platform_index].Z1 - 2, (int)(g_player_current_position_y - g_player_current_platform_y));
 
-    if(iSitVinAp != -1 && !game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed && (VS[iSitVinAp].Y2 < iSitSupport - 2 || iPlayerY > iSitSupport)) {
+    if(g_player_current_close_vine_index != -1 && !game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed && (g_vine_objects[g_player_current_close_vine_index].Y2 < g_player_current_platform_y - 2 || g_player_current_position_y > g_player_current_platform_y)) {
         MoveJumpmanVine(game_input);
         return;
     }
 
-    if(iSitSupport > iPlayerY - 2 && (PS[iSitPlatform].Extra == 1 || PS[iSitPlatform].Extra == 2)) {
+    if(g_player_current_platform_y > g_player_current_position_y - 2 && (g_platform_objects[g_player_current_platform_index].Extra == 1 || g_platform_objects[g_player_current_platform_index].Extra == 2)) {
         MoveJumpmanSlide(game_input);
         return;
     }
 
-    if(iSitLadA != -1 && !iIgnoreLadders && (game_input->move_up_action.is_pressed != game_input->move_down_action.is_pressed)) {
-        if((!game_input->move_right_action.is_pressed || iPlayerX < LS[iSitLadA].X1 + 1) && (!game_input->move_left_action.is_pressed || iPlayerX > LS[iSitLadA].X1 - 1)) {
-            if(game_input->move_up_action.is_pressed && LS[iSitLadA].Y1 - 5 > iPlayerY) {
+    if(g_player_current_close_ladder_index != -1 && !iIgnoreLadders && (game_input->move_up_action.is_pressed != game_input->move_down_action.is_pressed)) {
+        if((!game_input->move_right_action.is_pressed || g_player_current_position_x < g_ladder_objects[g_player_current_close_ladder_index].X1 + 1) && (!game_input->move_left_action.is_pressed || g_player_current_position_x > g_ladder_objects[g_player_current_close_ladder_index].X1 - 1)) {
+            if(game_input->move_up_action.is_pressed && g_ladder_objects[g_player_current_close_ladder_index].Y1 - 5 > g_player_current_position_y) {
                 MoveJumpmanLadder(game_input);
                 return;
             }
 
-            if(game_input->move_down_action.is_pressed && (LS[iSitLadA].Y2 < iSitSupport - 3 || iSitSupport < iPlayerY - 1)) {
+            if(game_input->move_down_action.is_pressed && (g_ladder_objects[g_player_current_close_ladder_index].Y2 < g_player_current_platform_y - 3 || g_player_current_platform_y < g_player_current_position_y - 1)) {
                 MoveJumpmanLadder(game_input);
                 return;
             }
         }
     }
 
-    if(iPlayerY <= iSitSupport + 1) {
+    if(g_player_current_position_y <= g_player_current_platform_y + 1) {
         if(CheckJumpStart(1, 1, 1, game_input)) {
             return;
         }
     }
 
     if(game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed) {
-        iPlayerM = (iPlayerAF & 2) ? JM_LEFT1 : JM_LEFT2;
-        --iPlayerX;
+        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLeft1 : kPlayerMeshLeft2;
+        --g_player_current_position_x;
     }
 
     if(game_input->move_right_action.is_pressed && !game_input->move_left_action.is_pressed) {
-        iPlayerM = (iPlayerAF & 2) ? JM_RIGHT1 : JM_RIGHT2;
-        ++iPlayerX;
+        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshRight1 : kPlayerMeshRight2;
+        ++g_player_current_position_x;
     }
 
     int iClimbing;
 
     iClimbing = 0;
 
-    if(iSitSupport < iPlayerY + 1 && iSitSupport > iPlayerY - 1) {
-        iPlayerY = iSitSupport;
-    } else if(iSitSupport < iPlayerY - 4) {
-        iPlayerSC = 0;
+    if(g_player_current_platform_y < g_player_current_position_y + 1 && g_player_current_platform_y > g_player_current_position_y - 1) {
+        g_player_current_position_y = g_player_current_platform_y;
+    } else if(g_player_current_platform_y < g_player_current_position_y - 4) {
+        g_player_current_state_frame_count = 0;
         MoveJumpmanFalling(game_input);
         return;
-    } else if(iSitSupport < iPlayerY - 1) {
-        --iPlayerY;
-    } else if(iSitSupport > iPlayerY + 3) {
-        iPlayerM = (iPlayerAF & 2) ? JM_VINECLIMB1 : JM_VINECLIMB2;
-        ++iPlayerY;
+    } else if(g_player_current_platform_y < g_player_current_position_y - 1) {
+        --g_player_current_position_y;
+    } else if(g_player_current_platform_y > g_player_current_position_y + 3) {
+        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshVineClimb1 : kPlayerMeshVineClimb2;
+        ++g_player_current_position_y;
         iClimbing = 1;
-    } else if(iSitSupport > iPlayerY + 1) {
-        ++iPlayerY;
+    } else if(g_player_current_platform_y > g_player_current_position_y + 1) {
+        ++g_player_current_position_y;
         iClimbing = 1;
     } else {
-        iPlayerY = iSitSupport;
+        g_player_current_position_y = g_player_current_platform_y;
     }
 
     UpdateSituation();
 
-    if(iSitSupport < iPlayerY - 5 && iClimbing) {
-        iPlayerX = iPlayerOldX;
+    if(g_player_current_platform_y < g_player_current_position_y - 5 && iClimbing) {
+        g_player_current_position_x = g_player_old_position_x;
     }
 
-    if(PS[iSitPlatform].Extra == 2) {
-        if(iPlayerX > iPlayerOldX) {
-            iPlayerX = iPlayerOldX;
+    if(g_platform_objects[g_player_current_platform_index].Extra == 2) {
+        if(g_player_current_position_x > g_player_old_position_x) {
+            g_player_current_position_x = g_player_old_position_x;
         }
 
-        if(iPlayerY > iPlayerOldY) {
-            iPlayerY = iPlayerOldY;
+        if(g_player_current_position_y > g_player_old_position_y) {
+            g_player_current_position_y = g_player_old_position_y;
         }
     }
 
-    if(PS[iSitPlatform].Extra == 1) {
-        if(iPlayerX < iPlayerOldX) {
-            iPlayerX = iPlayerOldX;
+    if(g_platform_objects[g_player_current_platform_index].Extra == 1) {
+        if(g_player_current_position_x < g_player_old_position_x) {
+            g_player_current_position_x = g_player_old_position_x;
         }
 
-        if(iPlayerY > iPlayerOldY) {
-            iPlayerY = iPlayerOldY;
+        if(g_player_current_position_y > g_player_old_position_y) {
+            g_player_current_position_y = g_player_old_position_y;
         }
     }
 }
 
 static void MoveJumpmanFalling(GameInput* game_input) {
-    iPlayerST = JS_FALLING;
-    iPlayerACT = 0;
+    g_player_current_state = kPlayerStateFalling;
+    g_player_current_special_action = kPlayerSpecialActionNone;
 
-    --iPlayerY;
-    ++iPlayerSC;
-    iPlayerRX = iPlayerSC / -10.0f;
-    iPlayerM = JM_JUMPUP;
+    --g_player_current_position_y;
+    ++g_player_current_state_frame_count;
+    g_player_current_rotation_x_radians = g_player_current_state_frame_count / -10.0f;
+    g_player_current_mesh = kPlayerMeshJumpUp;
 
-    if(iPlayerSC > 10) {
-        iPlayerY -= .5;
+    if(g_player_current_state_frame_count > 10) {
+        g_player_current_position_y -= .5;
     }
 
-    if(iPlayerSC > 20) {
-        iPlayerY -= .5;
+    if(g_player_current_state_frame_count > 20) {
+        g_player_current_position_y -= .5;
     }
 
-    if(iPlayerY <= iSitSupport && PS[iSitPlatform].Extra != 3) {
-        if(iPlayerSC < 10) {
+    if(g_player_current_position_y <= g_player_current_platform_y && g_platform_objects[g_player_current_platform_index].Extra != 3) {
+        if(g_player_current_state_frame_count < 10) {
             MoveJumpmanNormal(game_input);
             return;
         } else {
-            iPlayerACT = 0;
+            g_player_current_special_action = kPlayerSpecialActionNone;
             DoDeathBounce();
             return;
         }
@@ -3021,29 +3039,29 @@ static void MoveJumpmanFalling(GameInput* game_input) {
 }
 
 static void MoveJumpmanJumping(GameInput* game_input) {
-    iPlayerST = JS_JUMPING;
+    g_player_current_state = kPlayerStateJumping;
 
-    if(iPlayerACT != JA_KICK && game_input->attack_action.is_pressed && ((iPlayerDIR == JD_RIGHT) || (iPlayerDIR == JD_LEFT))) {
-        iPlayerACT = JA_KICK;
+    if(g_player_current_special_action != kPlayerSpecialActionKick && game_input->attack_action.is_pressed && ((g_player_current_direction == kPlayerDirectionRight) || (g_player_current_direction == kPlayerDirectionLeft))) {
+        g_player_current_special_action = kPlayerSpecialActionKick;
     }
 
-    if(iSitLadE != -1 && !game_input->attack_action.is_pressed && (iPlayerSC > 15 || !game_input->jump_action.is_pressed || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
+    if(g_player_current_exact_ladder_index != -1 && !game_input->attack_action.is_pressed && (g_player_current_state_frame_count > 15 || !game_input->jump_action.is_pressed || ((g_player_current_direction == kPlayerDirectionRight) && game_input->move_left_action.is_pressed) || ((g_player_current_direction == kPlayerDirectionLeft) && game_input->move_right_action.is_pressed) )) {
         MoveJumpmanLadder(game_input);
         return;
     }
 
-    if(iSitVinEx != -1 && !game_input->attack_action.is_pressed && (iPlayerSC > 10 || !game_input->jump_action.is_pressed || ((iPlayerDIR == JD_RIGHT) && game_input->move_left_action.is_pressed) || ((iPlayerDIR == JD_LEFT) && game_input->move_right_action.is_pressed) )) {
+    if(g_player_current_exact_vine_index != -1 && !game_input->attack_action.is_pressed && (g_player_current_state_frame_count > 10 || !game_input->jump_action.is_pressed || ((g_player_current_direction == kPlayerDirectionRight) && game_input->move_left_action.is_pressed) || ((g_player_current_direction == kPlayerDirectionLeft) && game_input->move_right_action.is_pressed) )) {
         MoveJumpmanVine(game_input);
         return;
     }
 
-    if(iPlayerSC > 50) {
-        if(iSitLadA != -1) {
+    if(g_player_current_state_frame_count > 50) {
+        if(g_player_current_close_ladder_index != -1) {
             MoveJumpmanLadder(game_input);
             return;
         }
 
-        if(iSitVinAp != -1) {
+        if(g_player_current_close_vine_index != -1) {
             MoveJumpmanVine(game_input);
             return;
         }
@@ -3052,78 +3070,73 @@ static void MoveJumpmanJumping(GameInput* game_input) {
         return;
     }
 
-    if(iPlayerY < iSitSupport && iPlayerSC > 6 && (!game_input->jump_action.is_pressed || iPlayerSC > 12)) {
+    if(g_player_current_position_y < g_player_current_platform_y && g_player_current_state_frame_count > 6 && (!game_input->jump_action.is_pressed || g_player_current_state_frame_count > 12)) {
         MoveJumpmanNormal(game_input);
         return;
     }
 
-    ++iPlayerSC;
+    ++g_player_current_state_frame_count;
 
-    if(iPlayerSC == 1) {
-        iPlayerY += 1;
+    if(g_player_current_state_frame_count == 1) {
+        g_player_current_position_y += 1;
     }
 
-    if(iPlayerSC < 5 || iPlayerSC == 6 || iPlayerSC == 8 || iPlayerSC == 10 || iPlayerSC == 12) {
-        iPlayerY += 1;
+    if(g_player_current_state_frame_count < 5 || g_player_current_state_frame_count == 6 || g_player_current_state_frame_count == 8 || g_player_current_state_frame_count == 10 || g_player_current_state_frame_count == 12) {
+        g_player_current_position_y += 1;
     }
 
-    if(iPlayerSC > 26 || iPlayerSC == 25 || iPlayerSC == 23 || iPlayerSC == 20 || iPlayerSC == 17) {
-        iPlayerY -= 1;
+    if(g_player_current_state_frame_count > 26 || g_player_current_state_frame_count == 25 || g_player_current_state_frame_count == 23 || g_player_current_state_frame_count == 20 || g_player_current_state_frame_count == 17) {
+        g_player_current_position_y -= 1;
     }
 
-    iPlayerM = JM_JUMPUP;
+    g_player_current_mesh = kPlayerMeshJumpUp;
 
-    if(iPlayerDIR == JD_LEFT) {
-        --iPlayerX;
-        iPlayerM = (iPlayerACT == JA_KICK) ? JM_KICKLEFT : JM_JUMPLEFT;
+    if(g_player_current_direction == kPlayerDirectionLeft) {
+        --g_player_current_position_x;
+        g_player_current_mesh = (g_player_current_special_action == kPlayerSpecialActionKick) ? kPlayerMeshKickLeft : kPlayerMeshJumpLeft;
     }
 
-    if(iPlayerDIR == JD_RIGHT) {
-        ++iPlayerX;
-        iPlayerM = (iPlayerACT == JA_KICK) ? JM_KICKRIGHT : JM_JUMPRIGHT;
+    if(g_player_current_direction == kPlayerDirectionRight) {
+        ++g_player_current_position_x;
+        g_player_current_mesh = (g_player_current_special_action == kPlayerSpecialActionKick) ? kPlayerMeshKickRight : kPlayerMeshJumpRight;
     }
 
-    if(game_input->move_down_action.is_pressed && !iPlayerNoRoll && (iPlayerDIR == JD_RIGHT || iPlayerDIR == JD_LEFT)) {
-        iPlayerSC = 0;
+    if(game_input->move_down_action.is_pressed && g_player_no_roll_cooldown_frame_count == 0 && (g_player_current_direction == kPlayerDirectionRight || g_player_current_direction == kPlayerDirectionLeft)) {
+        g_player_current_state_frame_count = 0;
         MoveJumpmanRoll(game_input);
     }
 }
 
 static void MoveJumpmanSlide(GameInput* game_input) {
-    iPlayerST = JS_SLIDE;
-    iPlayerACT = 0;
+    g_player_current_state = kPlayerStateSlide;
+    g_player_current_special_action = kPlayerSpecialActionNone;
 
-    long iExtra;
-    long iOldPlayerM;
+    long iExtra = g_platform_objects[g_player_current_platform_index].Extra;
 
-    iOldPlayerM = iPlayerM;
-
-    iExtra = PS[iSitPlatform].Extra;
-
-    if(!iExtra && iPlayerY <= iSitSupport) {
+    if(!iExtra && g_player_current_position_y <= g_player_current_platform_y) {
         MoveJumpmanNormal(game_input);
         return;
     }
 
-    if(iPlayerY > iSitSupport + 3) {
-        ++iPlayerSC;
+    if(g_player_current_position_y > g_player_current_platform_y + 3) {
+        ++g_player_current_state_frame_count;
 
-        if(iPlayerSC > 30) {
+        if(g_player_current_state_frame_count > 30) {
             MoveJumpmanNormal(game_input);
             return;
         }
     } else {
-        iPlayerSC = 0;
+        g_player_current_state_frame_count = 0;
     }
 
-    if(iPlayerY < iSitSupport + 1) {
+    if(g_player_current_position_y < g_player_current_platform_y + 1) {
         if(iExtra == 1) {
             if(CheckJumpStart(0, 0, 1, game_input)) {
                 return;
             }
 
-            ++iPlayerX;
-            iPlayerDIR = JD_RIGHT;
+            ++g_player_current_position_x;
+            g_player_current_direction = kPlayerDirectionRight;
         }
 
         if(iExtra == 2) {
@@ -3131,93 +3144,93 @@ static void MoveJumpmanSlide(GameInput* game_input) {
                 return;
             }
 
-            --iPlayerX;
-            iPlayerDIR = JD_LEFT;
+            --g_player_current_position_x;
+            g_player_current_direction = kPlayerDirectionLeft;
         }
     } else {
-        if(iPlayerDIR == JD_RIGHT) {
-            if(iPlayerSC < 6) {
+        if(g_player_current_direction == kPlayerDirectionRight) {
+            if(g_player_current_state_frame_count < 6) {
                 if(CheckJumpStart(0, 0, 1, game_input)) {
                     return;
                 }
             }
 
-            iPlayerX += (float)(30 - iPlayerSC) / 60.0f+.5f;
+            g_player_current_position_x += (float)(30 - g_player_current_state_frame_count) / 60.0f + 0.5f;
         }
 
-        if(iPlayerDIR == JD_LEFT) {
-            if(iPlayerSC < 6) {
+        if(g_player_current_direction == kPlayerDirectionLeft) {
+            if(g_player_current_state_frame_count < 6) {
                 if(CheckJumpStart(1, 0, 0, game_input)) {
                     return;
                 }
             }
 
-            iPlayerX -= (float)(30 - iPlayerSC) / 60.0f+.5f;
+            g_player_current_position_x -= (float)(30 - g_player_current_state_frame_count) / 60.0f + 0.5f;
         }
     }
 
-    if(iPlayerDIR == JD_RIGHT) {
-        iPlayerM = JM_SLIDER;
+    if(g_player_current_direction == kPlayerDirectionRight) {
+        g_player_current_mesh = kPlayerMeshSlideR;
 
-        if(((iPlayerAF & 7) == 1) || ((iPlayerAF & 7) == 2) || ((iPlayerAF & 7) == 4) || ((iPlayerAF & 7) == 5)) {
-            iPlayerM = JM_SLIDERB;
+        if(((g_player_absolute_frame_count & 7) == 1) || ((g_player_absolute_frame_count & 7) == 2) || ((g_player_absolute_frame_count & 7) == 4) || ((g_player_absolute_frame_count & 7) == 5)) {
+            g_player_current_mesh = kPlayerMeshSlideRB;
         }
     } else {
-        iPlayerM = JM_SLIDEL;
+        g_player_current_mesh = kPlayerMeshSlideL;
 
-        if(((iPlayerAF & 7) == 1) || ((iPlayerAF & 7) == 2) || ((iPlayerAF & 7) == 4) || ((iPlayerAF & 7) == 5)) {
-            iPlayerM = JM_SLIDELB;
+        if(((g_player_absolute_frame_count & 7) == 1) || ((g_player_absolute_frame_count & 7) == 2) || ((g_player_absolute_frame_count & 7) == 4) || ((g_player_absolute_frame_count & 7) == 5)) {
+            g_player_current_mesh = kPlayerMeshSlideLB;
         }
     }
 
-    if(iPlayerY < iSitSupport + 2 && iPlayerY > iSitSupport - 2) {
-        iPlayerY = iSitSupport;
+    if(g_player_current_position_y < g_player_current_platform_y + 2 && g_player_current_position_y > g_player_current_platform_y - 2) {
+        g_player_current_position_y = g_player_current_platform_y;
     }
 
-    if(iPlayerY < iSitSupport) {
-        ++iPlayerY;
+    if(g_player_current_position_y < g_player_current_platform_y) {
+        ++g_player_current_position_y;
     }
 
-    if(iPlayerY < iSitSupport) {
-        ++iPlayerY;
+    if(g_player_current_position_y < g_player_current_platform_y) {
+        ++g_player_current_position_y;
     }
 
-    if(iPlayerY > iSitSupport) {
-        --iPlayerY;
+    if(g_player_current_position_y > g_player_current_platform_y) {
+        --g_player_current_position_y;
     }
 
-    if(iPlayerY > iSitSupport) {
-        --iPlayerY;
+    if(g_player_current_position_y > g_player_current_platform_y) {
+        --g_player_current_position_y;
     }
 }
 
 static void MoveJumpmanRoll(GameInput* game_input) {
-    iPlayerST = JS_ROLL;
-    iPlayerACT = 0;
+    g_player_current_state = kPlayerStateRoll;
+    g_player_current_special_action = kPlayerSpecialActionNone;
 
-    if(iPlayerSC < 7 || iPlayerY > iSitSupport + 1) {
-        ++iPlayerSC;
+    if(g_player_current_state_frame_count < 7 || g_player_current_position_y > g_player_current_platform_y + 1) {
+        ++g_player_current_state_frame_count;
 
-        if(iPlayerSC > 50) {
+        if(g_player_current_state_frame_count > 50) {
             MoveJumpmanNormal(game_input);
             return;
         }
     } else {
-        iPlayerSC = 7;
+        g_player_current_state_frame_count = 7;
     }
 
-    if(iPlayerY <= iSitSupport && (PS[iSitPlatform].Extra == 1 || PS[iSitPlatform].Extra == 2)) {
+    if(g_player_current_position_y <= g_player_current_platform_y && (g_platform_objects[g_player_current_platform_index].Extra == 1 || g_platform_objects[g_player_current_platform_index].Extra == 2)) {
         MoveJumpmanSlide(game_input);
         return;
     }
 
-    if(iPlayerY <= iSitSupport) {
-        if(iPlayerDIR == JD_RIGHT && !game_input->move_right_action.is_pressed) {
+    if(g_player_current_position_y <= g_player_current_platform_y) {
+        if(g_player_current_direction == kPlayerDirectionRight && !game_input->move_right_action.is_pressed) {
             MoveJumpmanNormal(game_input);
             return;
         }
 
-        if(iPlayerDIR == JD_LEFT && !game_input->move_left_action.is_pressed) {
+        if(g_player_current_direction == kPlayerDirectionLeft && !game_input->move_left_action.is_pressed) {
             MoveJumpmanNormal(game_input);
             return;
         }
@@ -3229,126 +3242,126 @@ static void MoveJumpmanRoll(GameInput* game_input) {
         }
     }
 
-    if((!game_input->jump_action.is_pressed) && (iPlayerY <= iSitSupport+.1) && game_input->attack_action.is_pressed) {
-        iPlayerSC = 0;
+    if((!game_input->jump_action.is_pressed) && (g_player_current_position_y <= g_player_current_platform_y + 0.1) && game_input->attack_action.is_pressed) {
+        g_player_current_state_frame_count = 0;
         MoveJumpmanPunch(game_input);
         return;
     }
 
-    if(iSitLadE != -1 && iSitSupport < iPlayerY && (iPlayerSC > 10)) {
+    if(g_player_current_exact_ladder_index != -1 && g_player_current_platform_y < g_player_current_position_y && (g_player_current_state_frame_count > 10)) {
         MoveJumpmanLadder(game_input);
         return;
     }
 
-    if(iSitVinEx != -1 && iSitSupport < iPlayerY && (iPlayerSC > 10)) {
+    if(g_player_current_exact_vine_index != -1 && g_player_current_platform_y < g_player_current_position_y && (g_player_current_state_frame_count > 10)) {
         MoveJumpmanVine(game_input);
         return;
     }
 
-    AdjustPlayerZ(PS[iSitPlatform].Z1 - 2, (int)(iPlayerY - iSitSupport));
+    AdjustPlayerZ(g_platform_objects[g_player_current_platform_index].Z1 - 2, (int)(g_player_current_position_y - g_player_current_platform_y));
 
     float iVel;
     iVel = 1.3f;
 
-    if(iPlayerSC > 8) {
+    if(g_player_current_state_frame_count > 8) {
         iVel = 1;
     }
 
-    if(iPlayerSC > 25) {
+    if(g_player_current_state_frame_count > 25) {
         iVel = .7f;
     }
 
-    if(iPlayerSC > 38) {
+    if(g_player_current_state_frame_count > 38) {
         iVel = .3f;
     }
 
-    if(iPlayerDIR == JD_LEFT) {
-        iPlayerX -= iVel;
-        iPlayerM = JM_ROLLLEFT1 + ((iPlayerAF & 6) >> 1);
+    if(g_player_current_direction == kPlayerDirectionLeft) {
+        g_player_current_position_x -= iVel;
+        g_player_current_mesh = kPlayerMeshRollLeft1 + ((g_player_absolute_frame_count & 6) >> 1);
 
-        if(iPlayerSC < 6) {
-            iPlayerM = JM_DIVELEFT;
+        if(g_player_current_state_frame_count < 6) {
+            g_player_current_mesh = kPlayerMeshDiveLeft;
         }
     }
 
-    if(iPlayerDIR == JD_RIGHT) {
-        iPlayerX += iVel;
-        iPlayerM = JM_ROLLRIGHT1 + ((iPlayerAF & 6) >> 1);
+    if(g_player_current_direction == kPlayerDirectionRight) {
+        g_player_current_position_x += iVel;
+        g_player_current_mesh = kPlayerMeshRollRight1 + ((g_player_absolute_frame_count & 6) >> 1);
 
-        if(iPlayerSC < 6) {
-            iPlayerM = JM_DIVERIGHT;
+        if(g_player_current_state_frame_count < 6) {
+            g_player_current_mesh = kPlayerMeshDiveRight;
         }
     }
 
     UpdateSituation();
 
-    if(iSitSupport < iPlayerY + 1 && iSitSupport > iPlayerY - 1) {
-        iPlayerY = iSitSupport;
-    } else if(iSitSupport < iPlayerY) {
-        --iPlayerY;
-    } else if(iSitSupport > iPlayerY) {
-        ++iPlayerY;
+    if(g_player_current_platform_y < g_player_current_position_y + 1 && g_player_current_platform_y > g_player_current_position_y - 1) {
+        g_player_current_position_y = g_player_current_platform_y;
+    } else if(g_player_current_platform_y < g_player_current_position_y) {
+        --g_player_current_position_y;
+    } else if(g_player_current_platform_y > g_player_current_position_y) {
+        ++g_player_current_position_y;
     }
 }
 
 static void MoveJumpmanPunch(GameInput* game_input) {
-    iPlayerST = JS_PUNCH;
-    iPlayerACT = JA_PUNCH;
+    g_player_current_state = kPlayerStatePunch;
+    g_player_current_special_action = kPlayerSpecialActionPunch;
 
-    if(iPlayerSC > 20 || (iPlayerSC < 12 && iPlayerY < iSitSupport - 2) || (iPlayerSC > 11 && iPlayerY <= iSitSupport)) {
+    if(g_player_current_state_frame_count > 20 || (g_player_current_state_frame_count < 12 && g_player_current_position_y < g_player_current_platform_y - 2) || (g_player_current_state_frame_count > 11 && g_player_current_position_y <= g_player_current_platform_y)) {
         MoveJumpmanNormal(game_input);
         return;
     }
 
-    ++iPlayerSC;
+    ++g_player_current_state_frame_count;
 
-    if(iPlayerSC < 3) {
-        iPlayerM = (iPlayerDIR == JD_RIGHT) ? JM_PUNCHRIGHT : JM_PUNCHLEFT;
+    if(g_player_current_state_frame_count < 3) {
+        g_player_current_mesh = (g_player_current_direction == kPlayerDirectionRight) ? kPlayerMeshPunchRight : kPlayerMeshPunchLeft;
     } else {
-        iPlayerM = (iPlayerDIR == JD_RIGHT) ? JM_PUNCHRIGHT2 : JM_PUNCHLEFT2;
+        g_player_current_mesh = (g_player_current_direction == kPlayerDirectionRight) ? kPlayerMeshPunchRight2 : kPlayerMeshPunchLeft2;
     }
 
-    if(iPlayerSC < 11 && iPlayerSC != 9) {
-        ++iPlayerY;
+    if(g_player_current_state_frame_count < 11 && g_player_current_state_frame_count != 9) {
+        ++g_player_current_position_y;
     }
 
-    if(iPlayerSC > 12 && iPlayerSC != 14) {
-        --iPlayerY;
+    if(g_player_current_state_frame_count > 12 && g_player_current_state_frame_count != 14) {
+        --g_player_current_position_y;
     }
 
-    if(iPlayerSC < 4 || iPlayerSC == 5 || iPlayerSC == 7) {
-        iPlayerX += (iPlayerDIR == JD_RIGHT) ? 1 : -1;
+    if(g_player_current_state_frame_count < 4 || g_player_current_state_frame_count == 5 || g_player_current_state_frame_count == 7) {
+        g_player_current_position_x += (g_player_current_direction == kPlayerDirectionRight) ? 1 : -1;
     }
 }
 
 static void MoveJumpman(GameInput* game_input) {
-    iPlayerOldX = iPlayerX;
-    iPlayerOldY = iPlayerY;
+    g_player_old_position_x = g_player_current_position_x;
+    g_player_old_position_y = g_player_current_position_y;
 
     iIgnoreLadders = 0;
 
     UpdateSituation();
 
-    if(iPlayerST == JS_VINE) {
+    if(g_player_current_state == kPlayerStateVine) {
         MoveJumpmanVine(game_input);
-    } else if(iPlayerST == JS_LADDER) {
+    } else if(g_player_current_state == kPlayerStateLadder) {
         MoveJumpmanLadder(game_input);
-    } else if(iPlayerST == JS_NORMAL) {
+    } else if(g_player_current_state == kPlayerStateNormal) {
         MoveJumpmanNormal(game_input);
-    } else if(iPlayerST == JS_FALLING) {
+    } else if(g_player_current_state == kPlayerStateFalling) {
         MoveJumpmanFalling(game_input);
-    } else if(iPlayerST == JS_JUMPING) {
+    } else if(g_player_current_state == kPlayerStateJumping) {
         MoveJumpmanJumping(game_input);
-    } else if(iPlayerST == JS_SLIDE) {
+    } else if(g_player_current_state == kPlayerStateSlide) {
         MoveJumpmanSlide(game_input);
-    } else if(iPlayerST == JS_ROLL) {
+    } else if(g_player_current_state == kPlayerStateRoll) {
         MoveJumpmanRoll(game_input);
-    } else if(iPlayerST == JS_PUNCH) {
+    } else if(g_player_current_state == kPlayerStatePunch) {
         MoveJumpmanPunch(game_input);
     }
 
-    if(iPlayerY < 0) {
-        iPlayerACT = 0;
+    if(g_player_current_position_y < 0) {
+        g_player_current_special_action = kPlayerSpecialActionNone;
         DoDeathBounce();
         return;
     }
@@ -3359,39 +3372,39 @@ static void MoveJumpman(GameInput* game_input) {
     iRep = -1;
 
     while(++iRep < 2) {
-        iCollide = CollideWall((long)(iPlayerX) - 2, (long)(iPlayerY) + 11, (long)(iPlayerX) + 2, (long)(iPlayerY) + 9);
+        iCollide = CollideWall((long)(g_player_current_position_x) - 2, (long)(g_player_current_position_y) + 11, (long)(g_player_current_position_x) + 2, (long)(g_player_current_position_y) + 9);
 
         if(iCollide == 1) {
-            iPlayerY -= 1;
+            g_player_current_position_y -= 1;
 
-            if((iPlayerST == JS_JUMPING) && iPlayerSC < 15) {
-                iPlayerSC = 15;
+            if((g_player_current_state == kPlayerStateJumping) && g_player_current_state_frame_count < 15) {
+                g_player_current_state_frame_count = 15;
             }
         }
 
-        iCollide = CollideWall((long)(iPlayerX) - 3, (long)(iPlayerY) + 9, (long)(iPlayerX) + 3, (long)(iPlayerY) + 3);
+        iCollide = CollideWall((long)(g_player_current_position_x) - 3, (long)(g_player_current_position_y) + 9, (long)(g_player_current_position_x) + 3, (long)(g_player_current_position_y) + 3);
 
         if(iCollide == 3) {
-            ++iPlayerX;
+            ++g_player_current_position_x;
 
-            if(iPlayerST == JS_JUMPING && iPlayerSC < 15) {
-                iPlayerSC = 16;
+            if(g_player_current_state == kPlayerStateJumping && g_player_current_state_frame_count < 15) {
+                g_player_current_state_frame_count = 16;
             }
 
-            if(iPlayerST != JS_JUMPING && iPlayerY > iSitSupport - 1 && iPlayerY >= iPlayerOldY) {
-                --iPlayerY;
+            if(g_player_current_state != kPlayerStateJumping && g_player_current_position_y > g_player_current_platform_y - 1 && g_player_current_position_y >= g_player_old_position_y) {
+                --g_player_current_position_y;
             }
         }
 
         if(iCollide == 4) {
-            --iPlayerX;
+            --g_player_current_position_x;
 
-            if(iPlayerST == JS_JUMPING && iPlayerSC < 15) {
-                iPlayerSC = 16;
+            if(g_player_current_state == kPlayerStateJumping && g_player_current_state_frame_count < 15) {
+                g_player_current_state_frame_count = 16;
             }
 
-            if(iPlayerST != JS_JUMPING && iPlayerY > iSitSupport - 1 && iPlayerY >= iPlayerOldY) {
-                --iPlayerY;
+            if(g_player_current_state != kPlayerStateJumping && g_player_current_position_y > g_player_current_platform_y - 1 && g_player_current_position_y >= g_player_old_position_y) {
+                --g_player_current_position_y;
             }
         }
     }
