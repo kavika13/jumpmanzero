@@ -13,16 +13,6 @@
 #include "Sound.h"
 #include "Utilities.h"
 
-#define GS_EXITING 0
-#define GS_MENU 1
-#define GS_INLEVEL 2
-
-#define GM_NONE 0
-#define GM_MAIN 1
-#define GM_OPTIONS 2
-#define GM_SELECTGAME 3
-#define GM_SELECTLEVEL 4
-
 #define JM_STAND 1
 #define JM_LEFT1 2
 #define JM_LEFT2 3
@@ -213,6 +203,32 @@
 #define SERVICE_LEVELTITLE 154
 #define SERVICE_CREDITLINE 155
 
+typedef enum {
+    kGameStatusExiting = 0,
+    kGameStatusMenu = 1,
+    kGameStatusInLevel = 2,
+} GameStatus;
+
+typedef enum {
+    kGameMenuStateNone = 0,
+    kGameMenuStateMain = 1,
+    kGameMenuStateOptions = 2,
+    kGameMenuStateSelectGame = 3,
+    kGameMenuStateSelectLevel = 4,
+} GameMenuState;
+
+typedef enum {
+    kCameraModeNormal = 0,
+    kCameraModeCloseUp = 1,
+    kCameraModeFar = 2,
+    kCameraModeNotSureWhatThisIs = 3,  // TODO: What should this mode be named? When is it used?
+    kCameraModeSpaceLevel = 4,
+    kCameraModeEndingLevel = 5,
+    kCameraModeAbove = 20,
+    kCameraModeFlat = 21,
+    kCameraModeFarAbove = 22,
+} CameraMode;
+
 typedef struct {
     int X1, X2, X3, X4;
     int Y1, Y2, Y3, Y4;
@@ -246,14 +262,14 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact);
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
 static void MoveJumpman(GameInput* game_input);
 
-static char GameFile[100];
-static char GameTitle[50];
-static long GameStatus;
-static long GameMenuDrawn;
-static long GameMenu;
+static char g_level_list_filename[100];
+static char g_level_title[50];
+static GameStatus g_game_status;
+static GameMenuState g_current_game_menu_state;
+static GameMenuState g_target_game_menu_state;
 static bool g_debug_level_is_specified;
 static char g_debug_level_filename[300];
-static int GameLivesRemaining;
+static int g_remaining_life_count;
 static long g_game_time_inactive;
 
 static long iSitVinAp;
@@ -263,12 +279,12 @@ static long iSitLadE;
 static long iSitPlatform;
 static float iSitSupport;
 
-static int miIntroLength;
+static int g_music_loop_start_music_time;  // TODO: I think it gets specified in milliseconds, but it should be in music time, due to the API that was used before
 
-static char msBackMusic[200];
-static char msDeathMusic[200];
-static char msWinMusic[200];
-static int miPerspective;
+static char g_music_background_track_filename[200];
+static char g_music_death_track_filename[200];
+static char g_music_win_track_filename[200];
+static CameraMode g_current_camera_mode;
 static long miSelectedMesh;
 
 static int iLevel;
@@ -767,7 +783,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_SHOWFPS) {
             return game_input->debug_action.is_pressed ? 256 : 0;
         } else if(iArg1 == EFV_LIVESREMAINING) {
-            return GameLivesRemaining * 256;
+            return g_remaining_life_count * 256;
         } else if(iArg1 == EFV_EVENT1) {
             return iEvent1 * 256;
         } else if(iArg1 == EFV_EVENT2) {
@@ -779,7 +795,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_DEBUG) {
             return IsDebugEnabled() ? 256 : 0;
         } else if(iArg1 == EFV_PERSPECTIVE) {
-            return miPerspective * 256;
+            return g_current_camera_mode * 256;
         } else if(iArg1 == EFV_OBJECTS) {
             return MAX_SCRIPTOBJECTS * 256;
         } else if(iArg1 == EFV_DONUTS) {
@@ -849,7 +865,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_EVENT4) {
             iEvent4 = iArg2;
         } else if(iArg1 == EFV_PERSPECTIVE) {
-            miPerspective = iArg2;
+            g_current_camera_mode = iArg2;
         } else if(iArg1 == EFV_DEBUG) {
             SetDebugEnabled(iArg2 ? true : false);
         } else if(iArg1 == EFV_LEVELEXTENTX) {
@@ -861,7 +877,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         } else if(iArg1 == EFV_PVISIBLE) {
             iPlayerVisible = iArg2;
         } else if(iArg1 == EFV_LIVESREMAINING) {
-            GameLivesRemaining = iArg2;
+            g_remaining_life_count = iArg2;
         }
 
         return 0;
@@ -1034,11 +1050,11 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
     if(iFunc == EFSERVICE) {
         if(iArg1 == SERVICE_LEVELTITLE) {
-            SC->Globals[iArg2] = (long)(strlen(GameTitle)) * 256;
+            SC->Globals[iArg2] = (long)(strlen(g_level_title)) * 256;
             iLoop = 0;
 
-            while(++iLoop <= (long)(strlen(GameTitle))) {
-                SC->Globals[iArg2 + iLoop] = GameTitle[iLoop - 1] * 256;
+            while(++iLoop <= (long)(strlen(g_level_title))) {
+                SC->Globals[iArg2 + iLoop] = g_level_title[iLoop - 1] * 256;
             }
         }
 
@@ -1100,7 +1116,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                 if(iArg2 == 0) {
                     StopMusic1();
                 } else {
-                    NewTrack1(msBackMusic, 0, 0);
+                    NewTrack1(g_music_background_track_filename, 0, 0);
                 }
 
                 SetIsMusicEnabled(iArg2 ? true : false);
@@ -1155,13 +1171,13 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
         if(iArg1 == SERVICE_LOADMENU) {
             iEvent1 = iEvent1 - 1;
-            GameStatus = GS_MENU;
-            GameMenu = iArg2;
+            g_game_status = kGameStatusMenu;
+            g_target_game_menu_state = iArg2;
         }
 
         if(iArg1 == SERVICE_GAMESTART) {
             iTitle = 0;
-            GameLivesRemaining = 7;
+            g_remaining_life_count = 7;
             sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", SC->game_base_path);
 
             cf_dir_t dir;
@@ -1194,8 +1210,8 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                 cf_dir_next(&dir);
             }
 
-            sprintf_s(GameFile, sizeof(GameFile), "%s\\Data\\%s", SC->game_base_path, file.name);
-            GameStatus = GS_INLEVEL;
+            sprintf_s(g_level_list_filename, sizeof(g_level_list_filename), "%s\\Data\\%s", SC->game_base_path, file.name);
+            g_game_status = kGameStatusInLevel;
         }
 
         if(iArg1 == SERVICE_CREDITLINE) {
@@ -1436,7 +1452,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
     miLevelExtentX = 160;
     miLevelExtentY = 160;
 
-    miPerspective = 0;
+    g_current_camera_mode = kCameraModeNormal;
     miTextures = 0;
     miMeshes = 0;
     miScripts = 0;
@@ -1481,16 +1497,16 @@ static void LoadLevel(const char* base_path, const char* filename) {
                 sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.MID", base_path, sTemp);
 
                 if(iArg1 == 1) {
-                    strcpy_s(msBackMusic, sizeof(msBackMusic), sBuild);
-                    miIntroLength = iArg2 * 10;
+                    strcpy_s(g_music_background_track_filename, sizeof(g_music_background_track_filename), sBuild);
+                    g_music_loop_start_music_time = iArg2 * 10;
                 }
 
                 if(iArg1 == 2) {
-                    strcpy_s(msDeathMusic, sizeof(msDeathMusic), sBuild);
+                    strcpy_s(g_music_death_track_filename, sizeof(g_music_death_track_filename), sBuild);
                 }
 
                 if(iArg1 == 3) {
-                    strcpy_s(msWinMusic, sizeof(msWinMusic), sBuild);
+                    strcpy_s(g_music_win_track_filename, sizeof(g_music_win_track_filename), sBuild);
                 }
             }
 
@@ -2175,7 +2191,7 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
         }
 
         if(iPlayerAX == 25) {
-            NewTrack2(msDeathMusic);
+            NewTrack2(g_music_death_track_filename);
         }
 
         iPlayerAF += 4;
@@ -2201,17 +2217,17 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
 
         if(iPlayerAF == 85) {
             SetObjectData(iFindMesh[JM_STARS], 0, 0);
-            GameLivesRemaining = GameLivesRemaining - 1;
+            g_remaining_life_count = g_remaining_life_count - 1;
 
-            if(GameLivesRemaining == 0) {
+            if(g_remaining_life_count == 0) {
                 iPlayerST = JS_NORMAL;
-                strcpy_s(GameTitle, sizeof(GameTitle), "");
+                strcpy_s(g_level_title, sizeof(g_level_title), "");
                 PrepLevel(base_path, "Data\\GameOver.DAT", game_input);
             } else {
                 ResetPlayer(0, game_input);
 
-                if(miIntroLength != 5550) {
-                    NewTrack1(msBackMusic, miIntroLength, miIntroLength);
+                if(g_music_loop_start_music_time != 5550) {
+                    NewTrack1(g_music_background_track_filename, g_music_loop_start_music_time, g_music_loop_start_music_time);
                 }
             }
         }
@@ -2271,7 +2287,7 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
         ++iPlayerSC;
 
         if(iPlayerSC == 30) {
-            NewTrack2(msWinMusic);
+            NewTrack2(g_music_win_track_filename);
         }
 
         if(iPlayerSC == 300) {
@@ -2313,42 +2329,43 @@ static void SetGamePerspective() {
         iCamY = iTY;
     }
 
-// PerspectiveNormal
-    if(miPerspective == 0) {
+    if(g_current_camera_mode == kCameraModeNormal) {
         SetPerspective(iCamX, iCamY + 40.0f, -115.0f, iCamX, iCamY, 0.0f);
     }
 
-// PerspectiveCloseUp
-    if(miPerspective == 1) {
+    if(g_current_camera_mode == kCameraModeCloseUp) {
         SetPerspective(iPlayerX, iCamY + 35.0f, -95.0f, iPlayerX, iCamY + 7, 0.0f);
     }
 
-// Far
-    if(miPerspective == 2) {
+    if(g_current_camera_mode == kCameraModeFar) {
         SetPerspective(80, iCamY + 50, -195.0f, 80, iCamY, 0);
     }
 
-//  SetPerspective(0, 0.0f, -185.0f, 0, 0, 0.0f);
-    if(miPerspective == 3) {
+    if(g_current_camera_mode == kCameraModeNotSureWhatThisIs) {
+        // TODO: What should this mode be named? When is it used?
+        //       Old comment - SetPerspective(0, 0.0f, -185.0f, 0, 0, 0.0f);  - Should this be ignored?
         SetPerspective(iPlayerX, iCamY / 2 + 60.0f, -110, iPlayerX, iCamY / 2 + 32.0f, 0);
     }
 
-// SpaceLevel
-    if(miPerspective == 4) {
+    if(g_current_camera_mode == kCameraModeSpaceLevel) {
         SetPerspective(iPlayerX, iCamY / 2 + 60.0f, -110, iPlayerX, iCamY / 2 + 32.0f, 0);
     }
 
-// Fixed (for ending)
-    if(miPerspective == 5) {
+    if(g_current_camera_mode == kCameraModeEndingLevel) {
         SetPerspective(70, 110, -60, 100, 90, 0);
     }
 
-// Above
-//  SetPerspective(80, 150, 0.0f, 80, 80, 30);
-// STRAIGHT
-//  SetPerspective(iPlayerX, iPlayerY, -75.0f, iPlayerX, iPlayerY, 0.0f);
-// QUITE ABOVE
-//  SetPerspective(iPlayerX, iPlayerY + 60, -95.0f, iPlayerX, iPlayerY, 0.0f);
+    if(g_current_camera_mode == kCameraModeAbove) {
+        SetPerspective(80, 150, 0.0f, 80, 80, 30);
+    }
+
+    if(g_current_camera_mode == kCameraModeFlat) {
+        SetPerspective(iPlayerX, iPlayerY, -75.0f, iPlayerX, iPlayerY, 0.0f);
+    }
+
+    if(g_current_camera_mode == kCameraModeFarAbove) {
+        SetPerspective(iPlayerX, iPlayerY + 60, -95.0f, iPlayerX, iPlayerY, 0.0f);
+    }
 }
 
 static void DrawGame() {
@@ -2372,10 +2389,10 @@ static void GetLevelFilename(char* sLevel, size_t sLevelSize, int iLevel) {
     char sTemp[20] = { 0 };
     char* sData;
 
-    iLen = FileToString(GameFile, (unsigned char**)(&sData));
+    iLen = FileToString(g_level_list_filename, (unsigned char**)(&sData));
     // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function
     TextLine(sData, iLen, sTemp, 20, iLevel * 2 - 1);
-    TextLine(sData, iLen, GameTitle, 49, iLevel * 2);
+    TextLine(sData, iLen, g_level_title, 49, iLevel * 2);
     sprintf_s(sLevel, sLevelSize, "Data\\%s.DAT", sTemp);
     free(sData);
 }
@@ -2412,8 +2429,8 @@ static void PrepLevel(const char* base_path, char* sLevel, GameInput* game_input
 
     Render();
 
-    if(miIntroLength != 5550) {
-        NewTrack1(msBackMusic, 0, miIntroLength);
+    if(g_music_loop_start_music_time != 5550) {
+        NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
     }
 }
 
@@ -2421,7 +2438,7 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
     char sLevel[200];
 
     if(g_debug_level_is_specified) {
-        GameLivesRemaining = 5;
+        g_remaining_life_count = 5;
         PrepLevel(base_path, g_debug_level_filename, game_input);
     } else {
         ++iLevel;
@@ -2436,23 +2453,23 @@ void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput
     g_debug_level_is_specified = 1;
     LoadNextLevel(base_path, game_input);
     iLevel = 0;
-    GameStatus = GS_INLEVEL;
+    g_game_status = kGameStatusInLevel;
 }
 
 void InitGameNormal() {
     iEvent1 = 10;
-    GameStatus = GS_MENU;
-    GameMenuDrawn = GM_NONE;
-    GameMenu = GM_MAIN;
+    g_game_status = kGameStatusMenu;
+    g_current_game_menu_state = kGameMenuStateNone;
+    g_target_game_menu_state = kGameMenuStateMain;
     g_debug_level_is_specified = false;
 }
 
 void ExitGame() {
-    GameStatus = GS_EXITING;
+    g_game_status = kGameStatusExiting;
 }
 
 static void LoadJumpmanMenu(const char* base_path) {
-    if(GameMenuDrawn == GameMenu) {
+    if(g_current_game_menu_state == g_target_game_menu_state) {
         return;
     }
 
@@ -2461,35 +2478,35 @@ static void LoadJumpmanMenu(const char* base_path) {
 
     SetFog(0, 0, 0, 0, 0);
 
-    if(GameMenu == GM_MAIN) {
+    if(g_target_game_menu_state == kGameMenuStateMain) {
         LoadLevel(base_path, "Data\\MainMenu.DAT");
 
         if(iEvent1 == 10) {
-            NewTrack1(msBackMusic, 3000, -1);
+            NewTrack1(g_music_background_track_filename, 3000, -1);
         }
 
         if(iEvent1 == 100) {
-            NewTrack1(msDeathMusic, 0, -1);
+            NewTrack1(g_music_death_track_filename, 0, -1);
         }
     }
 
-    if(GameMenu == GM_OPTIONS) {
+    if(g_target_game_menu_state == kGameMenuStateOptions) {
         LoadLevel(base_path, "Data\\Options.DAT");
 
         if(iEvent1 == 9) {
-            NewTrack1(msBackMusic, 0, miIntroLength);
+            NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
         }
     }
 
-    if(GameMenu == GM_SELECTGAME) {
+    if(g_target_game_menu_state == kGameMenuStateSelectGame) {
         LoadLevel(base_path, "Data\\SelectGame.DAT");
 
         if(iEvent1 == 9) {
-            NewTrack1(msBackMusic, 0, miIntroLength);
+            NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
         }
     }
 
-    GameMenuDrawn = GameMenu;
+    g_current_game_menu_state = g_target_game_menu_state;
 
     EndAndCommit3dLoad();
 }
@@ -2522,17 +2539,17 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
         g_game_time_inactive = 0;
     }
 
-    if(GameStatus == GS_MENU) {
+    if(g_game_status == kGameStatusMenu) {
         LoadJumpmanMenu(base_path);
         InteractMenu(game_input);
 
-        if(GameStatus == GS_INLEVEL) {
+        if(g_game_status == kGameStatusInLevel) {
             iLevel = 0;
             LoadNextLevel(base_path, game_input);
         }
     }
 
-    if(GameStatus == GS_INLEVEL) {
+    if(g_game_status == kGameStatusInLevel) {
         if(iScrollTitle > 0) {
             if(iEvent1 == -100) {
                 iScrollTitle = 1000;
