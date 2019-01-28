@@ -13,11 +13,6 @@
 #include "Sound.h"
 #include "Utilities.h"
 
-#define NT_Ladder 1
-#define NT_Platform 2
-#define NT_PlatformFallLeft 3
-#define NT_PlatformFallRight 4
-
 #define EFPRINT 1
 #define EFSET 2
 #define EFSETSEL 3
@@ -236,6 +231,13 @@ typedef enum {
 } PlayerDyingAnimationState;
 
 typedef enum {
+    kNavigationTypeLadder = 1,
+    kNavigationTypePlatform = 2,
+    kNavigationTypePlatformFallLeft = 3,
+    kNavigationTypePlatformFallRight = 4,
+} NavigationType;
+
+typedef enum {
     kCameraModeNormal = 0,
     kCameraModeCloseUp = 1,
     kCameraModeFar = 2,
@@ -258,7 +260,7 @@ typedef struct {
 
     int Navs;
     int NavTo[10];
-    int NavToType[10];
+    NavigationType NavToType[10];
     int NavDist;
     int NavChoice;
 
@@ -423,71 +425,59 @@ static long CollideWall(long iX1, long iY1, long iX2, long iY2) {
 }
 
 static void BuildNavigation() {
-    int iLoop;
-    int iTest;
-    int iType;
-    float iHeight;
-    long iPlatform;
-    long iEX;
-    long iLen;
-    long iH;
-
-    iLoop = -1;
-
-    while(++iLoop < g_ladder_object_count) {
-        g_ladder_objects[iLoop].Navs = 0;
+    for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
+        g_ladder_objects[ladder_index].Navs = 0;
     }
 
-    iLoop = -1;
+    for(int platform_index = 0; platform_index < g_platform_object_count; ++platform_index) {
+        g_platform_objects[platform_index].Navs = 0;
 
-    while(++iLoop < g_platform_object_count) {
-        g_platform_objects[iLoop].Navs = 0;
+        float next_platform_y;
+        long next_platform_index;
+        GetNextPlatform(g_platform_objects[platform_index].X1 - 4, g_platform_objects[platform_index].Y1, 4, 2, &next_platform_y, &next_platform_index);
 
-        GetNextPlatform(g_platform_objects[iLoop].X1 - 4, g_platform_objects[iLoop].Y1, 4, 2, &iHeight, &iPlatform);
+        if(next_platform_index >= 0) {
+            NavigationType nav_type = kNavigationTypePlatform;
 
-        if(iPlatform >= 0) {
-            iType = NT_Platform;
-
-            if(iHeight < g_platform_objects[iLoop].Y1 - 4) {
-                iType = NT_PlatformFallLeft;
+            if(next_platform_y < g_platform_objects[platform_index].Y1 - 4) {
+                nav_type = kNavigationTypePlatformFallLeft;
             }
 
-            g_platform_objects[iLoop].NavTo[g_platform_objects[iLoop].Navs] = iPlatform;
-            g_platform_objects[iLoop].NavToType[g_platform_objects[iLoop].Navs] = iType;
-            ++g_platform_objects[iLoop].Navs;
+            g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].Navs] = next_platform_index;
+            g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].Navs] = nav_type;
+            ++g_platform_objects[platform_index].Navs;
         }
 
-        GetNextPlatform(g_platform_objects[iLoop].X2 + 4, g_platform_objects[iLoop].Y2, 4, 2, &iHeight, &iPlatform);
+        GetNextPlatform(g_platform_objects[platform_index].X2 + 4, g_platform_objects[platform_index].Y2, 4, 2, &next_platform_y, &next_platform_index);
 
-        if(iPlatform >= 0) {
-            iType = NT_Platform;
+        if(next_platform_index >= 0) {
+            NavigationType nav_type = kNavigationTypePlatform;
 
-            if(iHeight < g_platform_objects[iLoop].Y2 - 4) {
-                iType = NT_PlatformFallRight;
+            if(next_platform_y < g_platform_objects[platform_index].Y2 - 4) {
+                nav_type = kNavigationTypePlatformFallRight;
             }
 
-            g_platform_objects[iLoop].NavTo[g_platform_objects[iLoop].Navs] = iPlatform;
-            g_platform_objects[iLoop].NavToType[g_platform_objects[iLoop].Navs] = iType;
-            ++g_platform_objects[iLoop].Navs;
+            g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].Navs] = next_platform_index;
+            g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].Navs] = nav_type;
+            ++g_platform_objects[platform_index].Navs;
         }
 
-        iTest = -1;
+        for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
+            if(g_platform_objects[platform_index].X1 < g_ladder_objects[ladder_index].X1 && g_platform_objects[platform_index].X2 > g_ladder_objects[ladder_index].X1) {
+                long ladder_pos_x = g_ladder_objects[ladder_index].X1;
+                long platform_length = g_platform_objects[platform_index].X2 - g_platform_objects[platform_index].X1;
+                // TODO: the platform_height variable name might not be quite correct. Seems to correlate ladder's position with platform height and platform length, then compare to ladder bottom/top
+                long platform_height = g_platform_objects[platform_index].Y1 * abs(g_platform_objects[platform_index].X2 - ladder_pos_x) + g_platform_objects[platform_index].Y2 * abs(g_platform_objects[platform_index].X1 - ladder_pos_x);
+                platform_height /= platform_length;
 
-        while(++iTest < g_ladder_object_count) {
-            if(g_platform_objects[iLoop].X1 < g_ladder_objects[iTest].X1 && g_platform_objects[iLoop].X2 > g_ladder_objects[iTest].X1) {
-                iEX = g_ladder_objects[iTest].X1;
-                iLen = g_platform_objects[iLoop].X2 - g_platform_objects[iLoop].X1;
-                iH = g_platform_objects[iLoop].Y1 * abs(g_platform_objects[iLoop].X2 - iEX) + g_platform_objects[iLoop].Y2 * abs(g_platform_objects[iLoop].X1 - iEX);
-                iH /= iLen;
+                if(platform_height < g_ladder_objects[ladder_index].Y1 + 2 && platform_height > g_ladder_objects[ladder_index].Y2 - 2) {
+                    g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].Navs] = ladder_index;
+                    g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].Navs] = kNavigationTypeLadder;
+                    ++g_platform_objects[platform_index].Navs;
 
-                if(iH < g_ladder_objects[iTest].Y1 + 2 && iH > g_ladder_objects[iTest].Y2 - 2) {
-                    g_platform_objects[iLoop].NavTo[g_platform_objects[iLoop].Navs] = iTest;
-                    g_platform_objects[iLoop].NavToType[g_platform_objects[iLoop].Navs] = NT_Ladder;
-                    ++g_platform_objects[iLoop].Navs;
-
-                    g_ladder_objects[iTest].NavTo[g_ladder_objects[iTest].Navs] = iLoop;
-                    g_ladder_objects[iTest].NavToType[g_ladder_objects[iTest].Navs] = NT_Platform;
-                    ++g_ladder_objects[iTest].Navs;
+                    g_ladder_objects[ladder_index].NavTo[g_ladder_objects[ladder_index].Navs] = platform_index;
+                    g_ladder_objects[ladder_index].NavToType[g_ladder_objects[ladder_index].Navs] = kNavigationTypePlatform;
+                    ++g_ladder_objects[ladder_index].Navs;
                 }
             }
         }
@@ -518,58 +508,41 @@ static long PlayerCollide(int iArg1, int iArg2, int iArg3, int iArg4) {
     return 0;
 }
 
-static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
-    int iLoop;
-
-    iLoop = -1;
-
-    while(++iLoop < g_platform_object_count) {
-        g_platform_objects[iLoop].NavDist = 5000;
+static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, NavigationType nav_to_type) {
+    for(int platform_index = 0; platform_index < g_platform_object_count; ++platform_index) {
+        g_platform_objects[platform_index].NavDist = 5000;
     }
 
-    iLoop = -1;
-
-    while(++iLoop < g_ladder_object_count) {
-        g_ladder_objects[iLoop].NavDist = 5000;
+    for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
+        g_ladder_objects[ladder_index].NavDist = 5000;
     }
 
     if(iFrom < 0 || iTo < 0) {
         return -1;
     }
 
-    if(iFromType == NT_Ladder) {
+    if(nav_from_type == kNavigationTypeLadder) {
         g_ladder_objects[iFrom].NavDist = 0;
     }
 
-    if(iFromType == NT_Platform) {
+    if(nav_from_type == kNavigationTypePlatform) {
         g_platform_objects[iFrom].NavDist = 0;
     }
 
-    int iRep;
-    int iNav;
-    int iDone;
-    int iNavTo;
-    int iChoice;
+    bool is_done = false;
 
-    iDone = 0;
-    iRep = -1;
+    for(int repeat_count = 0; repeat_count < 50 && !is_done; ++repeat_count) {
+        for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
+            if(g_ladder_objects[ladder_index].NavDist < 5000) {
+                for(int nav_index = 0; nav_index < g_ladder_objects[ladder_index].Navs; ++nav_index) {
+                    if(g_ladder_objects[ladder_index].NavToType[nav_index] == kNavigationTypePlatform) {
+                        int iNavTo = g_ladder_objects[ladder_index].NavTo[nav_index];
 
-    while(++iRep < 50 && !iDone) {
-        iLoop = -1;
+                        if(g_platform_objects[iNavTo].NavDist > g_ladder_objects[ladder_index].NavDist + 1) {
+                            g_platform_objects[iNavTo].NavDist = g_ladder_objects[ladder_index].NavDist + 1;
+                            g_platform_objects[iNavTo].NavChoice = g_ladder_objects[ladder_index].NavChoice;
 
-        while(++iLoop < g_ladder_object_count) {
-            if(g_ladder_objects[iLoop].NavDist < 5000) {
-                iNav = -1;
-
-                while(++iNav < g_ladder_objects[iLoop].Navs) {
-                    if(g_ladder_objects[iLoop].NavToType[iNav] == NT_Platform) {
-                        iNavTo = g_ladder_objects[iLoop].NavTo[iNav];
-
-                        if(g_platform_objects[iNavTo].NavDist > g_ladder_objects[iLoop].NavDist + 1) {
-                            g_platform_objects[iNavTo].NavDist = g_ladder_objects[iLoop].NavDist + 1;
-                            g_platform_objects[iNavTo].NavChoice = g_ladder_objects[iLoop].NavChoice;
-
-                            if(g_ladder_objects[iLoop].NavDist == 0) {
+                            if(g_ladder_objects[ladder_index].NavDist == 0) {
                                 g_platform_objects[iNavTo].NavChoice = iNavTo;
                             }
                         }
@@ -578,47 +551,44 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
             }
         }
 
-        iLoop = -1;
+        for(int platform_index = 0; platform_index < g_platform_object_count; ++platform_index) {
+            if(g_platform_objects[platform_index].NavDist < 5000) {
+                NavigationType nav_type;
 
-        while(++iLoop < g_platform_object_count) {
-            if(g_platform_objects[iLoop].NavDist < 5000) {
-                int iNavType;
-                iNav = -1;
+                for(int nav_index = 0; nav_index < g_platform_objects[platform_index].Navs; ++nav_index) {
+                    nav_type = g_platform_objects[platform_index].NavToType[nav_index];
 
-                while(++iNav < g_platform_objects[iLoop].Navs) {
-                    iNavType = g_platform_objects[iLoop].NavToType[iNav];
+                    if(nav_type != kNavigationTypeLadder) {
+                        int iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
 
-                    if(iNavType != NT_Ladder) {
-                        iNavTo = g_platform_objects[iLoop].NavTo[iNav];
+                        if(g_platform_objects[iNavTo].NavDist > g_platform_objects[platform_index].NavDist + 1) {
+                            g_platform_objects[iNavTo].NavDist = g_platform_objects[platform_index].NavDist + 1;
+                            g_platform_objects[iNavTo].NavChoice = g_platform_objects[platform_index].NavChoice;
 
-                        if(g_platform_objects[iNavTo].NavDist > g_platform_objects[iLoop].NavDist + 1) {
-                            g_platform_objects[iNavTo].NavDist = g_platform_objects[iLoop].NavDist + 1;
-                            g_platform_objects[iNavTo].NavChoice = g_platform_objects[iLoop].NavChoice;
-
-                            if(g_platform_objects[iLoop].NavDist == 0) {
-                                if(iNavType == NT_Platform) {
+                            if(g_platform_objects[platform_index].NavDist == 0) {
+                                if(nav_type == kNavigationTypePlatform) {
                                     g_platform_objects[iNavTo].NavChoice = iNavTo;
                                 }
 
-                                if(iNavType == NT_PlatformFallLeft) {
+                                if(nav_type == kNavigationTypePlatformFallLeft) {
                                     g_platform_objects[iNavTo].NavChoice = iNavTo + 2000;
                                 }
 
-                                if(iNavType == NT_PlatformFallRight) {
+                                if(nav_type == kNavigationTypePlatformFallRight) {
                                     g_platform_objects[iNavTo].NavChoice = iNavTo + 3000;
                                 }
                             }
                         }
                     }
 
-                    if(iNavType == NT_Ladder) {
-                        iNavTo = g_platform_objects[iLoop].NavTo[iNav];
+                    if(nav_type == kNavigationTypeLadder) {
+                        int iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
 
-                        if(g_ladder_objects[iNavTo].NavDist > g_platform_objects[iLoop].NavDist + 1) {
-                            g_ladder_objects[iNavTo].NavDist = g_platform_objects[iLoop].NavDist + 1;
-                            g_ladder_objects[iNavTo].NavChoice = g_platform_objects[iLoop].NavChoice;
+                        if(g_ladder_objects[iNavTo].NavDist > g_platform_objects[platform_index].NavDist + 1) {
+                            g_ladder_objects[iNavTo].NavDist = g_platform_objects[platform_index].NavDist + 1;
+                            g_ladder_objects[iNavTo].NavChoice = g_platform_objects[platform_index].NavChoice;
 
-                            if(g_platform_objects[iLoop].NavDist == 0) {
+                            if(g_platform_objects[platform_index].NavDist == 0) {
                                 g_ladder_objects[iNavTo].NavChoice = iNavTo + 1000;
                             }
                         }
@@ -627,24 +597,26 @@ static long GetNavDir(long iFrom, long iTo, long iFromType, long iToType) {
             }
         }
 
-        if(iToType == NT_Ladder && g_ladder_objects[iTo].NavDist < 5000) {
-            iDone = 1;
+        if(nav_to_type == kNavigationTypeLadder && g_ladder_objects[iTo].NavDist < 5000) {
+            is_done = true;
         }
 
-        if(iToType != NT_Ladder && g_platform_objects[iTo].NavDist < 5000) {
-            iDone = 1;
+        if(nav_to_type != kNavigationTypeLadder && g_platform_objects[iTo].NavDist < 5000) {
+            is_done = true;
         }
     }
 
-    if(iDone == 0) {
+    if(!is_done) {
         return -1;
     }
 
-    if(iToType == NT_Ladder) {
+    int iChoice;
+
+    if(nav_to_type == kNavigationTypeLadder) {
         iChoice = g_ladder_objects[iTo].NavChoice;
     }
 
-    if(iToType != NT_Ladder) {
+    if(nav_to_type != kNavigationTypeLadder) {
         iChoice = g_platform_objects[iTo].NavChoice;
     }
 
@@ -1375,8 +1347,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 }
 
 static int FindObject(LevelObject* lObj, int iCount, int iFind) {
-    int iLoop;
-    iLoop = -1;
+    int iLoop = -1;
 
     while(++iLoop < iCount) {
         if(lObj[iLoop].Num == iFind) {
@@ -1388,9 +1359,7 @@ static int FindObject(LevelObject* lObj, int iCount, int iFind) {
 }
 
 static void CleanResources() {
-    int iLoop;
-
-    iLoop = -1;
+    int iLoop = -1;
 
     while(++iLoop < g_platform_object_count) {
         free(g_platform_objects[iLoop].Mesh);
@@ -1428,9 +1397,7 @@ static void CleanResources() {
 }
 
 static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
-    int iCopy;
-
-    iCopy = -1;
+    int iCopy = -1;
 
     while(++iCopy < lObj->MeshSize) {
         oData[*iPlace] = lObj->Mesh[iCopy];
