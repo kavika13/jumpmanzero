@@ -269,7 +269,7 @@ typedef struct {
     int ObjectNumber;
 } LevelObject;
 
-static void PrepLevel(const char* base_path, char* sLevel, GameInput* game_input);
+static void PrepLevel(const char* base_path, const char* level_filename, GameInput* game_input);
 static void LoadNextLevel(const char* base_path, GameInput* game_input);
 static long LoadMesh(const char* base_path, char* sFileName);
 static void LoadMeshes(const char* base_path);
@@ -280,7 +280,8 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact);
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
 static void MoveJumpman(GameInput* game_input);
 
-static char g_level_set_filename[100];
+static char g_level_set_current_set_filename[100];
+static int g_level_set_current_level_index;
 static char g_level_current_title[50];
 static GameStatus g_game_status;
 static GameMenuState g_current_game_menu_state;
@@ -303,8 +304,6 @@ static char g_music_background_track_filename[200];
 static char g_music_death_track_filename[200];
 static char g_music_win_track_filename[200];
 static CameraMode g_current_camera_mode;
-
-static int g_level_current_index;
 
 static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
@@ -1226,7 +1225,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                 cf_dir_next(&dir);
             }
 
-            sprintf_s(g_level_set_filename, sizeof(g_level_set_filename), "%s\\Data\\%s", SC->game_base_path, file.name);
+            sprintf_s(g_level_set_current_set_filename, sizeof(g_level_set_current_set_filename), "%s\\Data\\%s", SC->game_base_path, file.name);
             g_game_status = kGameStatusInLevel;
         }
 
@@ -2399,20 +2398,21 @@ static void DrawGame() {
 
 // ------------------- OTHER STUFF -------------------------------
 
-static void GetLevelFilename(char* sLevel, size_t sLevelSize, int level_index) {
+static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filename_size, char* level_title, size_t level_title_size, int level_set_index) {
     int iLen;
     char sTemp[20] = { 0 };
     char* sData;
 
-    iLen = FileToString(g_level_set_filename, (unsigned char**)(&sData));
-    // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function
-    TextLine(sData, iLen, sTemp, 20, level_index * 2 - 1);
-    TextLine(sData, iLen, g_level_current_title, 49, level_index * 2);
-    sprintf_s(sLevel, sLevelSize, "Data\\%s.DAT", sTemp);
+    iLen = FileToString(g_level_set_current_set_filename, (unsigned char**)(&sData));
+    // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function.
+    //       Return error if we exceed buffer lengths (maybe same check)
+    TextLine(sData, iLen, sTemp, 20, level_set_index * 2 - 1);
+    TextLine(sData, iLen, level_title, level_title_size, level_set_index * 2);
+    sprintf_s(level_filename, level_filename_size, "Data\\%s.DAT", sTemp);
     free(sData);
 }
 
-static void PrepLevel(const char* base_path, char* sLevel, GameInput* game_input) {
+static void PrepLevel(const char* base_path, const char* level_filename, GameInput* game_input) {
     Clear3dData();
     Begin3dLoad();
 
@@ -2421,7 +2421,7 @@ static void PrepLevel(const char* base_path, char* sLevel, GameInput* game_input
     g_script_event_data_1 = 0;
 
     LoadMeshes(base_path);
-    LoadLevel(base_path, sLevel);
+    LoadLevel(base_path, level_filename);
 
     EndAndCommit3dLoad();
 
@@ -2449,15 +2449,16 @@ static void PrepLevel(const char* base_path, char* sLevel, GameInput* game_input
 }
 
 static void LoadNextLevel(const char* base_path, GameInput* game_input) {
-    char sLevel[200];
-
     if(g_debug_level_is_specified) {
         g_remaining_life_count = 5;
         PrepLevel(base_path, g_debug_level_filename, game_input);
     } else {
-        ++g_level_current_index;
-        GetLevelFilename(sLevel, sizeof(sLevel), g_level_current_index);
-        PrepLevel(base_path, sLevel, game_input);
+        char level_filename[200];
+        char level_title[50];
+        ++g_level_set_current_level_index;
+        GetLevelInCurrentLevelSet(level_filename, sizeof(level_filename), level_title, sizeof(level_title), g_level_set_current_level_index);
+        strcpy_s(g_level_current_title, sizeof(g_level_current_title), level_title);
+        PrepLevel(base_path, level_filename, game_input);
     }
 }
 
@@ -2466,7 +2467,7 @@ void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput
     sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "Data\\%s.DAT", level_name);
     g_debug_level_is_specified = true;
     LoadNextLevel(base_path, game_input);
-    g_level_current_index = 0;
+    g_level_set_current_level_index = 0;
     g_game_status = kGameStatusInLevel;
 }
 
@@ -2558,7 +2559,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
         InteractMenu(game_input);
 
         if(g_game_status == kGameStatusInLevel) {
-            g_level_current_index = 0;
+            g_level_set_current_level_index = 0;
             LoadNextLevel(base_path, game_input);
         }
     }
