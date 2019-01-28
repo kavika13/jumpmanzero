@@ -310,10 +310,6 @@ static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
 static int g_loaded_script_count;
 
-struct StoreVert {
-    long X, Y, Z, NX, NY, NZ, COLOR, TX, TY;
-};
-
 #define MAX_SCRIPT_MESHES 300
 #define MAX_LETTER_MESHES 300
 
