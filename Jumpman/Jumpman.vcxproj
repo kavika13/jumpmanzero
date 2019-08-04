@@ -56,7 +56,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -89,7 +89,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>glad\include;glfw-3.2.1.bin.WIN32\include;handmademath-1.7.0;stb-image-2.19.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -155,6 +155,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lua-5.3.5-static\lua-5.3.5-static.vcxproj">
+      <Project>{28b5f807-54b6-411f-9fd9-4f7e22cabb3b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Jumpman", "Jumpman\Jumpman.vcxproj", "{6B934F67-0959-4EE9-B2DF-16F7F0470840}"
+	ProjectSection(ProjectDependencies) = postProject
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B} = {28B5F807-54B6-411F-9FD9-4F7E22CABB3B}
+	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanGraphics", "JumpmanGraphics\JumpmanGraphics.vbproj", "{90A13BBE-E346-4B4C-B435-04693566ADC7}"
 EndProject
@@ -16,6 +19,8 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanLevelLib", "JumpmanLevelLib\JumpmanLevelLib.vbproj", "{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JumpmanLevelCompiler", "JumpmanLevelCompiler\JumpmanLevelCompiler.csproj", "{22D92A38-029B-4545-B8AF-BF6C7803B082}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua-5.3.5-static", "lua-5.3.5-static\lua-5.3.5-static.vcxproj", "{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,8 +112,21 @@ Global
 		{22D92A38-029B-4545-B8AF-BF6C7803B082}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{22D92A38-029B-4545-B8AF-BF6C7803B082}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{22D92A38-029B-4545-B8AF-BF6C7803B082}.Release|Win32.ActiveCfg = Release|Any CPU
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Debug|Win32.Build.0 = Debug|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Release|Any CPU.ActiveCfg = Release|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Release|Win32.ActiveCfg = Release|Win32
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40F18F40-C7D5-411A-923D-2619993EC437}
 	EndGlobalSection
 EndGlobal
