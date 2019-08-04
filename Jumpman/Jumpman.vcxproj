@@ -70,6 +70,10 @@
       <AdditionalLibraryDirectories>glfw-3.2.1.bin.WIN32\lib-vc2015</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
+    <CustomBuildStep>
+      <Command>COPY $(ProjectDir)glfw-3.2.1.bin.WIN32\lib-vc2015\glfw3.dll $(ProjectDir)..\JumpmanAssets\glfw3.dll</Command>
+      <Outputs>$(ProjectDir)..\JumpmanAssets\glfw3.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -101,6 +105,10 @@
       <AdditionalLibraryDirectories>glfw-3.2.1.bin.WIN32\lib-vc2015</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
+    <CustomBuildStep>
+      <Command>COPY $(ProjectDir)glfw-3.2.1.bin.WIN32\lib-vc2015\glfw3.dll $(ProjectDir)..\JumpmanAssets\glfw3.dll</Command>
+      <Outputs>$(ProjectDir)..\JumpmanAssets\glfw3.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Basic3D.c" />
