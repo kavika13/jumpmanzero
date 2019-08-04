@@ -283,7 +283,9 @@ void ScaleMatrix(long iObj, float fX, float fY, float fZ) {
 
 void ScrollTexture(long iObj, float fX, float fY) {
     long iReal = g_object_redirects[iObj];
-    g_object_uv_offset[iReal] = HMM_AddVec2(g_object_uv_offset[iReal], (const hmm_vec2){ fX, fY });
+    g_object_uv_offset[iReal] = HMM_AddVec2(
+        HMM_Vec2(fX, fY),
+        g_object_uv_offset[iReal]);
 }
 
 void RotateMatrixX(long iObj, float fDegrees) {
