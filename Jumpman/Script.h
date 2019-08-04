@@ -33,7 +33,7 @@ typedef struct {
     long Active;
 
     ScriptCode* Script;
-    char game_base_path[300];
+    char game_base_path[300];  // TODO: This doesn't have to be per-script
 } ScriptContext;
 
 void ResetContext(ScriptContext* script_context, const char* base_path);

@@ -5,6 +5,9 @@
 #include <string.h>
 #define CUTE_FILES_IMPLEMENTATION
 #include <cute_files.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 #include "Basic3d.h"
 #include "Jumpman.h"
 #include "Main.h"
@@ -342,6 +345,7 @@ static int g_player_no_roll_cooldown_frame_count;
 static int g_player_freeze_cooldown_frame_count;
 static int g_level_scroll_title_animation_frame_count;
 
+#define MAX_OBJECTSCRIPTS 5
 #define MAX_SCRIPTOBJECTS 60
 
 static int g_donut_object_count;
@@ -367,12 +371,17 @@ static long g_script_selected_mesh_index;
 static long g_level_extent_x;
 static long g_level_extent_y;
 
+static bool g_script_level_script_is_lua = false;
 static ScriptCode g_script_level_script_code;
 static ScriptContext g_script_level_script_context;
+static lua_State* g_script_level_script_lua_state = NULL;
+static char g_script_level_script_base_path[300];  // TODO: Need a constant for this? Also, bigger? Also, is it necessary?
+
 static ScriptCode g_script_title_script_code;
 static ScriptContext g_script_title_script_context;
 
-static ScriptCode g_script_object_script_codes[5];
+static bool g_script_object_script_is_lua[MAX_OBJECTSCRIPTS] = { false, false, false, false, false };
+static ScriptCode g_script_object_script_codes[MAX_OBJECTSCRIPTS];
 static ScriptContext g_script_object_script_contexts[MAX_SCRIPTOBJECTS];
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
@@ -884,6 +893,9 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
             iNewObject = 0;
         }
 
+        assert(iArg1 < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
+        // TODO: If it's a lua script, should load the file again to make the "new context"?
+        //       Also, might need to unload the old context
         ResetContext(&g_script_object_script_contexts[iNewObject], SC->game_base_path);
         g_script_object_script_contexts[iNewObject].Script = &g_script_object_script_codes[iArg1];
         g_script_object_script_contexts[iNewObject].ScriptNumber = iArg1;
@@ -1405,6 +1417,391 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
+static int get_current_camera_mode(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_current_camera_mode);
+    return 1;
+}
+
+static int get_donut_object_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_donut_object_count);
+    return 1;
+}
+
+static int get_ladder_object_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_ladder_object_count);
+    return 1;
+}
+
+static int get_level_extent_x(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_level_extent_x);
+    return 1;
+}
+
+static int get_loaded_texture_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_loaded_texture_count);
+    return 1;
+}
+
+static int get_platform_object_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_platform_object_count);
+    return 1;
+}
+
+static int get_player_current_direction(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_current_direction);
+    return 1;
+}
+
+static int get_player_current_position_x(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_current_position_x);
+    return 1;
+}
+
+static int get_player_current_position_y(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_current_position_y);
+    return 1;
+}
+
+static int get_player_current_position_z(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_current_position_z);
+    return 1;
+}
+
+static int get_player_current_special_action(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_current_special_action);
+    return 1;
+}
+
+static int get_player_current_state(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_current_state);
+    return 1;
+}
+
+static int get_player_current_state_frame_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_current_state_frame_count);
+    return 1;
+}
+
+static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_freeze_cooldown_frame_count);
+    return 1;
+}
+
+static int get_player_is_visible(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_is_visible);
+    return 1;
+}
+
+static int get_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_player_no_roll_cooldown_frame_count);
+    return 1;
+}
+
+static int get_remaining_life_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_remaining_life_count);
+    return 1;
+}
+
+static int get_script_event_data_1(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_event_data_1);
+    return 1;
+}
+
+static int get_script_event_data_2(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_event_data_2);
+    return 1;
+}
+
+static int get_script_event_data_3(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_event_data_3);
+    return 1;
+}
+
+static int get_script_event_data_4(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_event_data_4);
+    return 1;
+}
+
+static int get_vine_object_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_vine_object_count);
+    return 1;
+}
+
+static int get_wall_object_count(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_wall_object_count);
+    return 1;
+}
+
+static int set_current_camera_mode(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_current_camera_mode = (CameraMode)arg1;
+    return 0;
+}
+
+static int set_level_extent_x(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_level_extent_x = (int)arg1;
+    return 0;
+}
+
+static int set_player_current_direction(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_current_direction = arg1;
+    return 0;
+}
+
+static int set_player_current_position_x(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_current_position_x = (float)arg1;
+    return 0;
+}
+
+static int set_player_current_position_y(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_current_position_y = (float)arg1;
+    return 0;
+}
+
+static int set_player_current_position_z(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_current_position_z = (float)arg1;
+    return 0;
+}
+
+static int set_player_current_special_action(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_current_special_action = arg1;
+    return 0;
+}
+
+static int set_player_current_state(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_current_state = arg1;
+    return 0;
+}
+
+static int set_player_current_state_frame_count(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_current_state_frame_count = (long)arg1;
+    return 0;
+}
+
+static int set_player_freeze_cooldown_frame_count(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_freeze_cooldown_frame_count = (int)arg1;
+    return 0;
+}
+
+static int set_player_is_visible(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_is_visible = arg1;
+    return 0;
+}
+
+static int set_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_player_no_roll_cooldown_frame_count = (int)arg1;
+    return 0;
+}
+
+static int set_remaining_life_count(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_remaining_life_count = (int)arg1;
+    return 0;
+}
+
+static int set_script_event_data_1(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_event_data_1 = (long)arg1;
+    return 0;
+}
+
+static int set_script_event_data_2(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_event_data_2 = (long)arg1;
+    return 0;
+}
+
+static int set_script_event_data_3(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_event_data_3 = (long)arg1;
+    return 0;
+}
+
+static int set_script_event_data_4(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_event_data_4 = (long)arg1;
+    return 0;
+}
+
+static int spawn_object(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+
+    long iNewObject = -1;
+
+    for(long iLoop = 0; iLoop < MAX_SCRIPTOBJECTS; ++iLoop) {
+        if(!g_script_object_script_contexts[iLoop].Active && iNewObject == -1) {
+            iNewObject = iLoop;
+        }
+    }
+
+    if(iNewObject < 0) {
+        iNewObject = 0;
+    }
+
+    long iArg1 = (long)arg1;
+    assert(iArg1 < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
+    // TODO: If it's a lua script, should load the file again to make the "new context"?
+    //       Also, might need to unload the old context
+    ResetContext(&g_script_object_script_contexts[iNewObject], g_script_level_script_base_path);  // TODO: Can this happen in an object script? Does the base path need to be per-script?
+    g_script_object_script_contexts[iNewObject].Script = &g_script_object_script_codes[iArg1];
+    g_script_object_script_contexts[iNewObject].ScriptNumber = iArg1;
+    g_script_object_script_contexts[iNewObject].ScriptReference = iNewObject;
+    g_script_object_script_contexts[iNewObject].Active = 2;
+
+    lua_pushnumber(lua_state, iNewObject);
+
+    return 1;
+}
+
+static int play_sound_effect(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    PlaySoundEffect((size_t)arg1);
+    return 0;
+}
+
+static void RegisterLuaScriptFunctions(lua_State* lua_state) {
+    lua_pushcfunction(lua_state, get_current_camera_mode);
+    lua_setglobal(lua_state, "get_current_camera_mode");
+    lua_pushcfunction(lua_state, get_donut_object_count);
+    lua_setglobal(lua_state, "get_donut_object_count");
+    lua_pushcfunction(lua_state, get_ladder_object_count);
+    lua_setglobal(lua_state, "get_ladder_object_count");
+    lua_pushcfunction(lua_state, get_level_extent_x);
+    lua_setglobal(lua_state, "get_level_extent_x");
+    lua_pushcfunction(lua_state, get_loaded_texture_count);
+    lua_setglobal(lua_state, "get_loaded_texture_count");
+    lua_pushcfunction(lua_state, get_platform_object_count);
+    lua_setglobal(lua_state, "get_platform_object_count");
+    lua_pushcfunction(lua_state, get_player_current_direction);
+    lua_setglobal(lua_state, "get_player_current_direction");
+    lua_pushcfunction(lua_state, get_player_current_position_x);
+    lua_setglobal(lua_state, "get_player_current_position_x");
+    lua_pushcfunction(lua_state, get_player_current_position_y);
+    lua_setglobal(lua_state, "get_player_current_position_y");
+    lua_pushcfunction(lua_state, get_player_current_position_z);
+    lua_setglobal(lua_state, "get_player_current_position_z");
+    lua_pushcfunction(lua_state, get_player_current_special_action);
+    lua_setglobal(lua_state, "get_player_current_special_action");
+    lua_pushcfunction(lua_state, get_player_current_state);
+    lua_setglobal(lua_state, "get_player_current_state");
+    lua_pushcfunction(lua_state, get_player_current_state_frame_count);
+    lua_setglobal(lua_state, "get_player_current_state_frame_count");
+    lua_pushcfunction(lua_state, get_player_freeze_cooldown_frame_count);
+    lua_setglobal(lua_state, "get_player_freeze_cooldown_frame_count");
+    lua_pushcfunction(lua_state, get_player_is_visible);
+    lua_setglobal(lua_state, "get_player_is_visible");
+    lua_pushcfunction(lua_state, get_player_no_roll_cooldown_frame_count);
+    lua_setglobal(lua_state, "get_player_no_roll_cooldown_frame_count");
+    lua_pushcfunction(lua_state, get_remaining_life_count);
+    lua_setglobal(lua_state, "get_remaining_life_count");
+    lua_pushcfunction(lua_state, get_script_event_data_1);
+    lua_setglobal(lua_state, "get_script_event_data_1");
+    lua_pushcfunction(lua_state, get_script_event_data_2);
+    lua_setglobal(lua_state, "get_script_event_data_2");
+    lua_pushcfunction(lua_state, get_script_event_data_3);
+    lua_setglobal(lua_state, "get_script_event_data_3");
+    lua_pushcfunction(lua_state, get_script_event_data_4);
+    lua_setglobal(lua_state, "get_script_event_data_4");
+    lua_pushcfunction(lua_state, get_vine_object_count);
+    lua_setglobal(lua_state, "get_vine_object_count");
+    lua_pushcfunction(lua_state, get_wall_object_count);
+    lua_setglobal(lua_state, "get_wall_object_count");
+    lua_pushcfunction(lua_state, set_current_camera_mode);
+    lua_setglobal(lua_state, "set_current_camera_mode");
+    lua_pushcfunction(lua_state, set_level_extent_x);
+    lua_setglobal(lua_state, "set_level_extent_x");
+    lua_pushcfunction(lua_state, set_player_current_direction);
+    lua_setglobal(lua_state, "set_player_current_direction");
+    lua_pushcfunction(lua_state, set_player_current_position_x);
+    lua_setglobal(lua_state, "set_player_current_position_x");
+    lua_pushcfunction(lua_state, set_player_current_position_y);
+    lua_setglobal(lua_state, "set_player_current_position_y");
+    lua_pushcfunction(lua_state, set_player_current_position_z);
+    lua_setglobal(lua_state, "set_player_current_position_z");
+    lua_pushcfunction(lua_state, set_player_current_special_action);
+    lua_setglobal(lua_state, "set_player_current_special_action");
+    lua_pushcfunction(lua_state, set_player_current_state);
+    lua_setglobal(lua_state, "set_player_current_state");
+    lua_pushcfunction(lua_state, set_player_current_state_frame_count);
+    lua_setglobal(lua_state, "set_player_current_state_frame_count");
+    lua_pushcfunction(lua_state, set_player_freeze_cooldown_frame_count);
+    lua_setglobal(lua_state, "set_player_freeze_cooldown_frame_count");
+    lua_pushcfunction(lua_state, set_player_is_visible);
+    lua_setglobal(lua_state, "set_player_is_visible");
+    lua_pushcfunction(lua_state, set_player_no_roll_cooldown_frame_count);
+    lua_setglobal(lua_state, "set_player_no_roll_cooldown_frame_count");
+    lua_pushcfunction(lua_state, set_remaining_life_count);
+    lua_setglobal(lua_state, "set_remaining_life_count");
+    lua_pushcfunction(lua_state, set_script_event_data_1);
+    lua_setglobal(lua_state, "set_script_event_data_1");
+    lua_pushcfunction(lua_state, set_script_event_data_2);
+    lua_setglobal(lua_state, "set_script_event_data_2");
+    lua_pushcfunction(lua_state, set_script_event_data_3);
+    lua_setglobal(lua_state, "set_script_event_data_3");
+    lua_pushcfunction(lua_state, set_script_event_data_4);
+    lua_setglobal(lua_state, "set_script_event_data_4");
+
+    lua_pushcfunction(lua_state, spawn_object);
+    lua_setglobal(lua_state, "spawn_object");
+    lua_pushcfunction(lua_state, play_sound_effect);
+    lua_setglobal(lua_state, "play_sound_effect");
+}
+
+static void LoadLuaScript(const char* base_path, const char* filename, lua_State** new_lua_state) {
+    assert(new_lua_state != NULL);  // TODO: Error handling
+
+    char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
+    sprintf_s(full_filename, sizeof(full_filename), "%s\\%s", base_path, filename);
+
+    lua_State* new_state;
+    new_state = luaL_newstate();
+    assert(new_state != NULL);  // TODO: Error handling
+
+    luaL_openlibs(new_state);
+    int load_file_result = luaL_loadfile(new_state, full_filename);
+    if(load_file_result != 0) {
+        const char* error_message = lua_tostring(new_state, -1);
+        assert(false);  // TODO: Error handling
+    }
+
+    RegisterLuaScriptFunctions(new_state);
+
+    // TODO: Should we run the script here?
+
+    *new_lua_state = new_state;
+    // TODO: How do we close state later? Do we care?
+}
+
+static void InitializeLuaScript(lua_State* lua_state) {
+    // TODO: Should this just get merged into LoadLuaScript? It's supposed to be the equivalent of ResetContext.
+    //       Not sure how to have a separate context for Object scripts, unless just the script filename get shared,
+    //       and it just loads a lua script for each object context.
+    //       In which case, separating InitializeLuaScript from LoadLuaScript might make no sense.
+    if(lua_pcall(lua_state, 0, 0, 0) != 0) {
+        assert(false);  // TODO: Error handling
+    }
+}
+
+static void CallLuaFunction(lua_State* lua_state, const char* function_name) {
+    lua_getglobal(lua_state, function_name);
+    assert(lua_isfunction(lua_state, -1) != 0);  // TODO: Error handling
+
+    if(lua_pcall(lua_state, 0, 0, 0) != 0) {
+        assert(false);  // TODO: Error handling
+    }
+}
+
 static void LoadLevel(const char* base_path, const char* filename) {
     char full_path[300];
     sprintf_s(full_path, sizeof(full_path), "%s\\%s", base_path, filename);
@@ -1524,17 +1921,36 @@ static void LoadLevel(const char* base_path, const char* filename) {
             }
 
             if(iTemp == 5) {
-                sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.BIN", sTemp);
-
                 if(iArg1 == 1) {
+                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.BIN", sTemp);
+                    g_script_level_script_is_lua = false;
                     LoadScript(base_path, sBuild, &g_script_level_script_code);
                     ResetContext(&g_script_level_script_context, base_path);
                     g_script_level_script_context.Script = &g_script_level_script_code;
                     g_script_main_subroutine_handle = FindScript(&g_script_level_script_context, "main");
                     g_script_donut_subroutine_handle = FindScript(&g_script_level_script_context, "donut");
-                } else {
+                } else if(iArg1 == 2) {
+                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.BIN", sTemp);
+                    assert(g_loaded_script_count < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
                     LoadScript(base_path, sBuild, &g_script_object_script_codes[g_loaded_script_count]);
                     ++g_loaded_script_count;
+                } else if(iArg1 == 3) {
+                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.LUA", sTemp);
+                    g_script_level_script_is_lua = true;
+                    // TODO: Should it auto-unload the old script?
+                    LoadLuaScript(base_path, sBuild, &g_script_level_script_lua_state);
+                    strcpy_s(g_script_level_script_base_path, sizeof(g_script_level_script_base_path), base_path);  // TODO: Necessary?
+                    InitializeLuaScript(g_script_level_script_lua_state);
+                    // TODO: Can remove this comment later, when script mode 1 is gone.
+                    //       Don't need to grab functions here, because there's no way in Lua to precache it, I think
+                } else if(iArg1 == 4) {
+                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.LUA", sTemp);
+                    assert(g_loaded_script_count < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
+                    // TODO: Load as Lua script, or maybe just capture the filename so we can load it later and "make the context"?
+                    // LoadScript(base_path, sBuild, &g_script_object_script_codes[g_loaded_script_count]);
+                    ++g_loaded_script_count;
+                } else {
+                    // TODO: Log error, do something to signal to game that it can't load the level
                 }
             }
 
@@ -2011,7 +2427,12 @@ static void GrabDonuts(GameInput* game_input) {
             iGot = 1;
 
             g_script_event_data_1 = g_donut_objects[iLoop].Num;
-            RunScript(&g_script_level_script_context, g_script_donut_subroutine_handle, game_input);
+
+            if(g_script_level_script_is_lua) {
+                CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut");  // TODO: Extfunction is going to need game_input passed to it
+            } else {
+                RunScript(&g_script_level_script_context, g_script_donut_subroutine_handle, game_input);
+            }
         }
     }
 
@@ -2048,17 +2469,17 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
 }
 
 static void ResetPlayer(int iNewLevel, GameInput* game_input) {
-    long iResetScript;
+    if(g_script_level_script_is_lua) {
+        CallLuaFunction(g_script_level_script_lua_state, "reset");  // TODO: Extfunction is going to need game_input passed to it
+    } else {
+        long iResetScript = FindScript(&g_script_level_script_context, "reset");
+        RunScript(&g_script_level_script_context, iResetScript, game_input);
+    }
 
-    iResetScript = FindScript(&g_script_level_script_context, "reset");
-    RunScript(&g_script_level_script_context, iResetScript, game_input);
-
-    int iObj;
-    iObj = -1;
-
-    while(++iObj < MAX_SCRIPTOBJECTS) {
+    // TODO: Handle for Lua object scripts
+    for(int iObj = 0; iObj < MAX_SCRIPTOBJECTS; ++iObj) {
         if(g_script_object_script_contexts[iObj].Active) {
-            iResetScript = FindScript(&g_script_object_script_contexts[iObj], "resetpos");
+            long iResetScript = FindScript(&g_script_object_script_contexts[iObj], "resetpos");
             RunScript(&g_script_object_script_contexts[iObj], iResetScript, game_input);
         }
     }
@@ -2250,7 +2671,11 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
 
         SetGamePerspective();
 
-        RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
+        if(g_script_level_script_is_lua) {
+            CallLuaFunction(g_script_level_script_lua_state, "update");  // TODO: Extfunction is going to need game_input passed to it
+        } else {
+            RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
+        }
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
             if(g_script_object_script_contexts[iObject].Active == 1) {
@@ -2494,16 +2919,20 @@ static void LoadJumpmanMenu(const char* base_path) {
 }
 
 static void InteractMenu(GameInput* game_input) {
-    long iObject;
-    RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
+    if(g_script_level_script_is_lua) {
+        // TODO: Implement
+        CallLuaFunction(g_script_level_script_lua_state, "update");  // TODO: Extfunction is going to need game_input passed to it
+    } else {
+        RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
+    }
 
-    for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
+    for(long iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(g_script_object_script_contexts[iObject].Active == 1) {
             RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
         }
     }
 
-    for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
+    for(long iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
         if(g_script_object_script_contexts[iObject].Active == 2) {
             RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
             g_script_object_script_contexts[iObject].Active = 1;

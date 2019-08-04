@@ -61,6 +61,7 @@ void ResetContext(ScriptContext* script_context, const char* base_path) {
         script_context->Globals[iLoop] = 0;
     }
 
+    // TODO: We don't need to copy this in for each script
     strcpy_s(script_context->game_base_path, sizeof(script_context->game_base_path), base_path);
 }
 
