@@ -1417,222 +1417,450 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
+// script 3d object utility functions
+
+static int script_selected_mesh_change_mesh(lua_State* lua_state) {
+    double new_mesh_index_arg = luaL_checknumber(lua_state, 1);
+    ChangeMesh(g_script_selected_mesh_index, g_script_mesh_indices[(size_t)new_mesh_index_arg]);
+    return 0;
+}
+
+static int script_selected_mesh_set_identity_matrix(lua_State* lua_state) {
+    IdentityMatrix(g_script_selected_mesh_index);
+    return 0;
+}
+
+static int script_selected_mesh_set_perspective_matrix(lua_State* lua_state) {
+    PerspectiveMatrix(g_script_selected_mesh_index);
+    return 0;
+}
+
+static int script_selected_mesh_translate_matrix(lua_State* lua_state) {
+    double arg_x = luaL_checknumber(lua_state, 1);
+    double arg_y = luaL_checknumber(lua_state, 2);
+    double arg_z = luaL_checknumber(lua_state, 3);
+    TranslateMatrix(g_script_selected_mesh_index, (float)arg_x, (float)arg_y, (float)arg_z);
+    return 0;
+}
+
+static int script_selected_mesh_scale_matrix(lua_State* lua_state) {
+    double arg_x = luaL_checknumber(lua_state, 1);
+    double arg_y = luaL_checknumber(lua_state, 2);
+    double arg_z = luaL_checknumber(lua_state, 3);
+    ScaleMatrix(g_script_selected_mesh_index, (float)arg_x, (float)arg_y, (float)arg_z);
+    return 0;
+}
+
+static int script_selected_mesh_rotate_matrix_x(lua_State* lua_state) {
+    double arg_degrees = luaL_checknumber(lua_state, 1);
+    RotateMatrixX(g_script_selected_mesh_index, (float)arg_degrees);
+    return 0;
+}
+
+static int script_selected_mesh_rotate_matrix_y(lua_State* lua_state) {
+    double arg_degrees = luaL_checknumber(lua_state, 1);
+    RotateMatrixY(g_script_selected_mesh_index, (float)arg_degrees);
+    return 0;
+}
+
+static int script_selected_mesh_rotate_matrix_z(lua_State* lua_state) {
+    double arg_degrees = luaL_checknumber(lua_state, 1);
+    RotateMatrixZ(g_script_selected_mesh_index, (float)arg_degrees);
+    return 0;
+}
+
+static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
+    double arg_x = luaL_checknumber(lua_state, 1);
+    double arg_y = luaL_checknumber(lua_state, 2);
+    // TODO: Remove pre-multiplication from scripts, and divide from here
+    ScrollTexture(g_script_selected_mesh_index, (float)arg_x / 16.0f, (float)arg_y / 16.0f);
+    return 0;
+}
+
+// script script_selected_level_object accessors
+
+static int get_script_selected_level_object_extra(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Extra);
+    return 1;
+}
+
+static int get_script_selected_level_object_number(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sNumber) function, aka EFGETSEL(EFS_NUMBER)
+    lua_pushnumber(lua_state, g_script_selected_level_object->Num);
+    return 1;
+}
+
+static int get_script_selected_level_object_texture(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Texture);
+    return 1;
+}
+
+static int get_script_selected_level_object_this(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
+    return 1;
+}
+
+static int get_script_selected_level_object_visible(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Visible);
+    return 1;
+}
+
+static int get_script_selected_level_object_x1(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->X1);
+    return 1;
+}
+
+static int get_script_selected_level_object_x2(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->X2);
+    return 1;
+}
+
+static int get_script_selected_level_object_y1(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
+    return 1;
+}
+
+static int get_script_selected_level_object_y2(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Y2);
+    return 1;
+}
+
+static int get_script_selected_level_object_z1(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Z1);
+    return 1;
+}
+
+static int get_script_selected_level_object_z2(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Z2);
+    return 1;
+}
+
+static int set_script_selected_level_object_extra(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Extra = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_number(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Num = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_texture(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Texture = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_visible(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Visible = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_x1(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->X1 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_x2(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->X2 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_y1(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Y1 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_y2(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Y2 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_z1(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Z1 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_z2(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Z2 = (int)arg1;
+    return 0;
+}
+
+// script global variable accessors
+
 static int get_current_camera_mode(lua_State* lua_state) {
+    // Replacement for jms GetExt(#perspective) function, aka EFGET(EFV_PERSPECTIVE)
     lua_pushnumber(lua_state, g_current_camera_mode);
     return 1;
 }
 
 static int get_donut_object_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#donuts) function, aka EFGET(EFV_DONUTS)
     lua_pushnumber(lua_state, g_donut_object_count);
     return 1;
 }
 
 static int get_ladder_object_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#ladders) function, aka EFGET(EFV_LADDERS)
     lua_pushnumber(lua_state, g_ladder_object_count);
     return 1;
 }
 
 static int get_level_extent_x(lua_State* lua_state) {
+    // Replacement for jms GetExt(#levelextentx) function, aka EFGET(EFV_LEVELEXTENTX)
     lua_pushnumber(lua_state, g_level_extent_x);
     return 1;
 }
 
 static int get_loaded_texture_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#textures) function, aka EFGET(EFV_TEXTURES)
     lua_pushnumber(lua_state, g_loaded_texture_count);
     return 1;
 }
 
 static int get_platform_object_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#platforms) function, aka EFGET(EFV_PLATFORMS)
     lua_pushnumber(lua_state, g_platform_object_count);
     return 1;
 }
 
 static int get_player_current_direction(lua_State* lua_state) {
+    // Replacement for jms GetExt(#pdir) function, aka EFGET(EFV_PDIR)
     lua_pushnumber(lua_state, g_player_current_direction);
     return 1;
 }
 
 static int get_player_current_position_x(lua_State* lua_state) {
+    // Replacement for jms GetExt(#px) function, aka EFGET(EFV_PX)
     lua_pushnumber(lua_state, g_player_current_position_x);
     return 1;
 }
 
 static int get_player_current_position_y(lua_State* lua_state) {
+    // Replacement for jms GetExt(#py) function, aka EFGET(EFV_PY)
     lua_pushnumber(lua_state, g_player_current_position_y);
     return 1;
 }
 
 static int get_player_current_position_z(lua_State* lua_state) {
+    // Replacement for jms GetExt(#pz) function, aka EFGET(EFV_PZ)
     lua_pushnumber(lua_state, g_player_current_position_z);
     return 1;
 }
 
 static int get_player_current_special_action(lua_State* lua_state) {
+    // Replacement for jms GetExt(#pact) function, aka EFGET(EFV_PACT)
     lua_pushnumber(lua_state, g_player_current_special_action);
     return 1;
 }
 
 static int get_player_current_state(lua_State* lua_state) {
+    // Replacement for jms GetExt(#pstat) function, aka EFGET(EFV_PSTAT)
     lua_pushnumber(lua_state, g_player_current_state);
     return 1;
 }
 
 static int get_player_current_state_frame_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#psc) function, aka EFGET(EFV_PSC)
     lua_pushnumber(lua_state, g_player_current_state_frame_count);
     return 1;
 }
 
 static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#freeze) function, aka EFGET(EFV_FREEZE)
     lua_pushnumber(lua_state, g_player_freeze_cooldown_frame_count);
     return 1;
 }
 
 static int get_player_is_visible(lua_State* lua_state) {
+    // Replacement for jms GetExt(#pvisible) function, aka EFGET(EFV_PVISIBLE)
     lua_pushnumber(lua_state, g_player_is_visible);
     return 1;
 }
 
 static int get_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#noroll) function, aka EFGET(EFV_NOROLL)
     lua_pushnumber(lua_state, g_player_no_roll_cooldown_frame_count);
     return 1;
 }
 
 static int get_remaining_life_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#livesremaining) function, aka EFGET(EFV_LIVESREMAINING)
     lua_pushnumber(lua_state, g_remaining_life_count);
     return 1;
 }
 
 static int get_script_event_data_1(lua_State* lua_state) {
+    // Replacement for jms GetExt(#event1) function, aka EFGET(EFV_EVENT1)
     lua_pushnumber(lua_state, g_script_event_data_1);
     return 1;
 }
 
 static int get_script_event_data_2(lua_State* lua_state) {
+    // Replacement for jms GetExt(#event2) function, aka EFGET(EFV_EVENT2)
     lua_pushnumber(lua_state, g_script_event_data_2);
     return 1;
 }
 
 static int get_script_event_data_3(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_event_data_3);
+    // Replacement for jms GetExt(#event3) function, aka EFGET(EFV_EVENT3)
+    // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
+    lua_pushnumber(lua_state, g_script_event_data_3 / 256.0);
     return 1;
 }
 
 static int get_script_event_data_4(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_event_data_4);
+    // Replacement for jms GetExt(#event4) function, aka EFGET(EFV_EVENT4)
+    // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
+    lua_pushnumber(lua_state, g_script_event_data_4 / 256.0);
     return 1;
 }
 
 static int get_vine_object_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#vines) function, aka EFGET(EFV_VINES)
     lua_pushnumber(lua_state, g_vine_object_count);
     return 1;
 }
 
 static int get_wall_object_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#walls) function, aka EFGET(EFV_WALLS)
     lua_pushnumber(lua_state, g_wall_object_count);
     return 1;
 }
 
 static int set_current_camera_mode(lua_State* lua_state) {
+    // Replacement for jms SetExt(#perspective) function, aka EFSET(EFV_PERSPECTIVE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_current_camera_mode = (CameraMode)arg1;
     return 0;
 }
 
 static int set_level_extent_x(lua_State* lua_state) {
+    // Replacement for jms SetExt(#levelextentx) function, aka EFSET(EFV_LEVELEXTENTX)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_level_extent_x = (int)arg1;
     return 0;
 }
 
 static int set_player_current_direction(lua_State* lua_state) {
+    // Replacement for jms SetExt(#pdir) function, aka EFSET(EFV_PDIR)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_direction = arg1;
     return 0;
 }
 
 static int set_player_current_position_x(lua_State* lua_state) {
+    // Replacement for jms SetExt(#px) function, aka EFSET(EFV_PX)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_x = (float)arg1;
     return 0;
 }
 
 static int set_player_current_position_y(lua_State* lua_state) {
+    // Replacement for jms SetExt(#py) function, aka EFSET(EFV_PY)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_y = (float)arg1;
     return 0;
 }
 
 static int set_player_current_position_z(lua_State* lua_state) {
+    // Replacement for jms SetExt(#pz) function, aka EFSET(EFV_PZ)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_z = (float)arg1;
     return 0;
 }
 
 static int set_player_current_special_action(lua_State* lua_state) {
+    // Replacement for jms SetExt(#pact) function, aka EFSET(EFV_PACT)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_special_action = arg1;
     return 0;
 }
 
 static int set_player_current_state(lua_State* lua_state) {
+    // Replacement for jms SetExt(#pstat) function, aka EFSET(EFV_PSTAT)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_state = arg1;
     return 0;
 }
 
 static int set_player_current_state_frame_count(lua_State* lua_state) {
+    // Replacement for jms SetExt(#psc) function, aka EFSET(EFV_PSC)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_state_frame_count = (long)arg1;
     return 0;
 }
 
 static int set_player_freeze_cooldown_frame_count(lua_State* lua_state) {
+    // Replacement for jms SetExt(#freeze) function, aka EFSET(EFV_FREEZE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_freeze_cooldown_frame_count = (int)arg1;
     return 0;
 }
 
 static int set_player_is_visible(lua_State* lua_state) {
+    // Replacement for jms SetExt(#pvisible) function, aka EFSET(EFV_PVISIBLE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_is_visible = arg1;
     return 0;
 }
 
 static int set_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
+    // Replacement for jms SetExt(#noroll) function, aka EFSET(EFV_NOROLL)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_no_roll_cooldown_frame_count = (int)arg1;
     return 0;
 }
 
 static int set_remaining_life_count(lua_State* lua_state) {
+    // Replacement for jms SetExt(#livesremaining) function, aka EFSET(EFV_LIVESREMAINING)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_remaining_life_count = (int)arg1;
     return 0;
 }
 
 static int set_script_event_data_1(lua_State* lua_state) {
+    // Replacement for jms SetExt(#event1) function, aka EFSET(EFV_EVENT1)
     double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_event_data_1 = (long)arg1;
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_event_data_1 = (long)arg1 * 256;
     return 0;
 }
 
 static int set_script_event_data_2(lua_State* lua_state) {
+    // Replacement for jms SetExt(#event2) function, aka EFSET(EFV_EVENT2)
     double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_event_data_2 = (long)arg1;
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_event_data_2 = (long)arg1 * 256;
     return 0;
 }
 
 static int set_script_event_data_3(lua_State* lua_state) {
+    // Replacement for jms SetExt(#event3) function, aka EFSET(EFV_EVENT3)
     double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_event_data_3 = (long)arg1;
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_event_data_3 = (long)arg1 * 256;
     return 0;
 }
 
 static int set_script_event_data_4(lua_State* lua_state) {
+    // Replacement for jms SetExt(#event4) function, aka EFSET(EFV_EVENT4)
     double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_event_data_4 = (long)arg1;
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_event_data_4 = (long)arg1 * 256;
     return 0;
 }
+
+// script utility functions
 
 static int spawn_object(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
@@ -1640,6 +1868,7 @@ static int spawn_object(lua_State* lua_state) {
     long iNewObject = -1;
 
     for(long iLoop = 0; iLoop < MAX_SCRIPTOBJECTS; ++iLoop) {
+        // TODO: Work differently if using Lua script
         if(!g_script_object_script_contexts[iLoop].Active && iNewObject == -1) {
             iNewObject = iLoop;
         }
@@ -1664,13 +1893,251 @@ static int spawn_object(lua_State* lua_state) {
     return 1;
 }
 
+static int set_object_visual_data(lua_State* lua_state) {
+    // Replacement for jms SetProperties function, aka EFSETOBJECT
+    double texture_index = luaL_checknumber(lua_state, 1);
+    double is_visible = luaL_checknumber(lua_state, 2);
+    SetObjectData(g_script_selected_mesh_index, (long)texture_index, (int)is_visible);
+    return 0;
+}
+
+static int prioritize_object(lua_State* lua_state) {
+    PrioritizeObject(g_script_selected_mesh_index);
+    return 0;
+}
+
+static int get_object_global_data(lua_State* lua_state) {
+    // Replacement for jms GetData function, aka EFGETDATA
+    double arg1 = luaL_checknumber(lua_state, 1);
+    double arg2 = luaL_checknumber(lua_state, 2);
+
+    if((long)arg2 == 1000) {
+        if(g_script_object_script_contexts[(size_t)arg1].Active) {
+            lua_pushnumber(lua_state, g_script_object_script_contexts[(size_t)arg1].ScriptNumber);
+        } else {
+            lua_pushnumber(lua_state, -256);
+        }
+    } else {
+        // TODO: If we decide to divide here - Once sub-scripts use lua, don't divide. In fact, might pass data differently
+        lua_pushnumber(lua_state, g_script_object_script_contexts[(size_t)arg1].Globals[(size_t)arg2]);  // TODO: Divide by 256.0f?
+    }
+
+    return 1;
+}
+
+static int set_object_global_data(lua_State* lua_state) {
+    // Replacement for jms SetData function, aka EFSETDATA
+    double script_index = luaL_checknumber(lua_state, 1);
+    double global_index = luaL_checknumber(lua_state, 2);
+    double value = luaL_checknumber(lua_state, 3);
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_object_script_contexts[(size_t)script_index].Globals[(size_t)global_index] = (long)(value * 256.0);
+    return 0;
+}
+
+static int script_find_ladder(lua_State* lua_state) {
+    // Replacement for jms FindLadder function, aka EFFINDLADDER
+    double ladder_x_arg = luaL_checknumber(lua_state, 1);
+    double ladder_y_arg = luaL_checknumber(lua_state, 2);
+    long iLadA, iLadE;
+    FindLadder((long)ladder_x_arg, (long)ladder_y_arg, &iLadA, &iLadE);
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_event_data_4 = iLadA * 256;
+    lua_pushnumber(lua_state, iLadE);
+    return 1;
+}
+
+static int script_find_vine(lua_State* lua_state) {
+    // Replacement for jms FindVine function, aka EFFINDVINE
+    double vine_x_arg = luaL_checknumber(lua_state, 1);
+    double vine_y_arg = luaL_checknumber(lua_state, 2);
+    long iVinAp, iVinEx;
+    FindVine((long)vine_x_arg, (long)vine_y_arg, &iVinAp, &iVinEx);
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_event_data_4 = iVinAp * 256;
+    lua_pushnumber(lua_state, iVinEx);
+    return 1;
+}
+
+static int script_find_platform(lua_State* lua_state) {
+    // Replacement for jms FindPlatform function, aka EFFINDPLATFORM
+    double plat_x_arg = luaL_checknumber(lua_state, 1);
+    double plat_y_arg = luaL_checknumber(lua_state, 2);
+    double height_arg = luaL_checknumber(lua_state, 3);
+    double width_arg = luaL_checknumber(lua_state, 4);
+    float iFind;
+    long iPlat;
+    GetNextPlatform((long)plat_x_arg, (long)plat_y_arg, (long)height_arg, (long)width_arg, &iFind, &iPlat);
+    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
+    g_script_event_data_4 = (long)(iFind) * 256;
+    lua_pushnumber(lua_state, iPlat);
+    return 1;
+}
+
+// TODO: Rename these abs functions. They select an object and mesh?  Do other things select the same object, but not the mesh?
+static int script_abs_platform(lua_State* lua_state) {
+    // Replacement for jms AbsPlatform function, aka EFABS_PLATFORM
+    double platform_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_platform_objects[(size_t)platform_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_abs_ladder(lua_State* lua_state) {
+    // Replacement for jms AbsLadder function, aka EFABS_LADDER
+    double ladder_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_ladder_objects[(size_t)ladder_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_abs_donut(lua_State* lua_state) {
+    // Replacement for jms AbsDonut function, aka EFABS_DONUT
+    double donut_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_donut_objects[(size_t)donut_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_abs_vine(lua_State* lua_state) {
+    // Replacement for jms AbsVine function, aka EFABS_VINE
+    double vine_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_collide_wall(lua_State* lua_state) {
+    double arg_x1 = luaL_checknumber(lua_state, 1);
+    double arg_y1 = luaL_checknumber(lua_state, 2);
+    double arg_x2 = luaL_checknumber(lua_state, 3);
+    double arg_y2 = luaL_checknumber(lua_state, 4);
+    long result = CollideWall((long)arg_x1, (long)arg_y1, (long)arg_x2, (long)arg_y2);
+    lua_pushnumber(lua_state, result);
+    return 1;
+}
+
 static int play_sound_effect(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     PlaySoundEffect((size_t)arg1);
     return 0;
 }
 
+static int script_select_platform(lua_State* lua_state) {
+    // Replacement for jms SelectPlatform function, aka EFSELECT_PLATFORM
+    double new_object_index = luaL_checknumber(lua_state, 1);
+    int object_index = FindObject(g_platform_objects, g_platform_object_count, (int)new_object_index);
+    g_script_selected_level_object = &g_platform_objects[object_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_select_ladder(lua_State* lua_state) {
+    // Replacement for jms SelectLadder function, aka EFSELECT_LADDER
+    double new_object_index = luaL_checknumber(lua_state, 1);
+    int object_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)new_object_index);
+    g_script_selected_level_object = &g_ladder_objects[object_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_select_donut(lua_State* lua_state) {
+    // Replacement for jms SelectDonut function, aka EFSELECT_DONUT
+    double new_object_index = luaL_checknumber(lua_state, 1);
+    int object_index = FindObject(g_donut_objects, g_donut_object_count, (int)new_object_index);
+    g_script_selected_level_object = &g_donut_objects[object_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_select_vine(lua_State* lua_state) {
+    // Replacement for jms SelectVine function, aka EFSELECT_VINE
+    double new_object_index = luaL_checknumber(lua_state, 1);
+    int object_index = FindObject(g_vine_objects, g_vine_object_count, (int)new_object_index);
+    g_script_selected_level_object = &g_vine_objects[object_index];
+    return 0;
+}
+
+static int script_select_picture(lua_State* lua_state) {
+    // Replacement for jms SelectPicture function, aka EFSELECT_PICTURE
+    double new_object_index = luaL_checknumber(lua_state, 1);
+    int object_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)new_object_index);
+    g_script_selected_level_object = &g_backdrop_objects[object_index];
+    return 0;
+}
+
+static int script_select_wall(lua_State* lua_state) {
+    // Replacement for jms SelectWall function, aka EFSELECT_WALL
+    double new_object_index = luaL_checknumber(lua_state, 1);
+    int object_index = FindObject(g_wall_objects, g_wall_object_count, (int)new_object_index);
+    g_script_selected_level_object = &g_wall_objects[object_index];
+    return 0;
+}
+
 static void RegisterLuaScriptFunctions(lua_State* lua_state) {
+    // TODO: Remove the word "script" when exposing these functions?
+    lua_pushcfunction(lua_state, script_selected_mesh_change_mesh);
+    lua_setglobal(lua_state, "script_selected_mesh_change_mesh");
+    lua_pushcfunction(lua_state, script_selected_mesh_set_identity_matrix);
+    lua_setglobal(lua_state, "script_selected_mesh_set_identity_matrix");
+    lua_pushcfunction(lua_state, script_selected_mesh_set_perspective_matrix);
+    lua_setglobal(lua_state, "script_selected_mesh_set_perspective_matrix");
+    lua_pushcfunction(lua_state, script_selected_mesh_translate_matrix);
+    lua_setglobal(lua_state, "script_selected_mesh_translate_matrix");
+    lua_pushcfunction(lua_state, script_selected_mesh_scale_matrix);
+    lua_setglobal(lua_state, "script_selected_mesh_scale_matrix");
+    lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_x);
+    lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_x");
+    lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_y);
+    lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_y");
+    lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_z);
+    lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_z");
+    lua_pushcfunction(lua_state, script_selected_mesh_scroll_texture);
+    lua_setglobal(lua_state, "script_selected_mesh_scroll_texture");
+
+    lua_pushcfunction(lua_state, get_script_selected_level_object_extra);
+    lua_setglobal(lua_state, "get_script_selected_level_object_extra");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_number);
+    lua_setglobal(lua_state, "get_script_selected_level_object_number");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_texture);
+    lua_setglobal(lua_state, "get_script_selected_level_object_texture");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_this);
+    lua_setglobal(lua_state, "get_script_selected_level_object_this");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_visible);
+    lua_setglobal(lua_state, "get_script_selected_level_object_visible");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_x1);
+    lua_setglobal(lua_state, "get_script_selected_level_object_x1");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_x2);
+    lua_setglobal(lua_state, "get_script_selected_level_object_x2");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_y1);
+    lua_setglobal(lua_state, "get_script_selected_level_object_y1");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_y2);
+    lua_setglobal(lua_state, "get_script_selected_level_object_y2");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_z1);
+    lua_setglobal(lua_state, "get_script_selected_level_object_z1");
+    lua_pushcfunction(lua_state, get_script_selected_level_object_z2);
+    lua_setglobal(lua_state, "get_script_selected_level_object_z2");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_extra);
+    lua_setglobal(lua_state, "set_script_selected_level_object_extra");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_number);
+    lua_setglobal(lua_state, "set_script_selected_level_object_number");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_texture);
+    lua_setglobal(lua_state, "set_script_selected_level_object_texture");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_visible);
+    lua_setglobal(lua_state, "set_script_selected_level_object_visible");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_x1);
+    lua_setglobal(lua_state, "set_script_selected_level_object_x1");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_x2);
+    lua_setglobal(lua_state, "set_script_selected_level_object_x2");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_y1);
+    lua_setglobal(lua_state, "set_script_selected_level_object_y1");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_y2);
+    lua_setglobal(lua_state, "set_script_selected_level_object_y2");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_z1);
+    lua_setglobal(lua_state, "set_script_selected_level_object_z1");
+    lua_pushcfunction(lua_state, set_script_selected_level_object_z2);
+    lua_setglobal(lua_state, "set_script_selected_level_object_z2");
+
     lua_pushcfunction(lua_state, get_current_camera_mode);
     lua_setglobal(lua_state, "get_current_camera_mode");
     lua_pushcfunction(lua_state, get_donut_object_count);
@@ -1754,8 +2221,45 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, spawn_object);
     lua_setglobal(lua_state, "spawn_object");
+    lua_pushcfunction(lua_state, set_object_visual_data);
+    lua_setglobal(lua_state, "set_object_visual_data");
+    lua_pushcfunction(lua_state, prioritize_object);
+    lua_setglobal(lua_state, "prioritize_object");
+    lua_pushcfunction(lua_state, get_object_global_data);
+    lua_setglobal(lua_state, "get_object_global_data");
+    lua_pushcfunction(lua_state, set_object_global_data);
+    lua_setglobal(lua_state, "set_object_global_data");
+    lua_pushcfunction(lua_state, script_find_ladder);
+    lua_setglobal(lua_state, "find_ladder");
+    lua_pushcfunction(lua_state, script_find_vine);
+    lua_setglobal(lua_state, "find_vine");
+    lua_pushcfunction(lua_state, script_find_platform);
+    lua_setglobal(lua_state, "find_platform");
+    lua_pushcfunction(lua_state, script_abs_platform);
+    lua_setglobal(lua_state, "abs_platform");
+    lua_pushcfunction(lua_state, script_abs_ladder);
+    lua_setglobal(lua_state, "abs_ladder");
+    lua_pushcfunction(lua_state, script_abs_donut);
+    lua_setglobal(lua_state, "abs_donut");
+    lua_pushcfunction(lua_state, script_abs_vine);
+    lua_setglobal(lua_state, "abs_vine");
+    lua_pushcfunction(lua_state, script_collide_wall);
+    lua_setglobal(lua_state, "collide_wall");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
+
+    lua_pushcfunction(lua_state, script_select_platform);
+    lua_setglobal(lua_state, "select_platform");
+    lua_pushcfunction(lua_state, script_select_ladder);
+    lua_setglobal(lua_state, "select_ladder");
+    lua_pushcfunction(lua_state, script_select_donut);
+    lua_setglobal(lua_state, "select_donut");
+    lua_pushcfunction(lua_state, script_select_vine);
+    lua_setglobal(lua_state, "select_vine");
+    lua_pushcfunction(lua_state, script_select_picture);
+    lua_setglobal(lua_state, "select_picture");
+    lua_pushcfunction(lua_state, script_select_wall);
+    lua_setglobal(lua_state, "select_wall");
 }
 
 static void LoadLuaScript(const char* base_path, const char* filename, lua_State** new_lua_state) {
@@ -1795,10 +2299,13 @@ static void InitializeLuaScript(lua_State* lua_state) {
 
 static void CallLuaFunction(lua_State* lua_state, const char* function_name) {
     lua_getglobal(lua_state, function_name);
-    assert(lua_isfunction(lua_state, -1) != 0);  // TODO: Error handling
 
-    if(lua_pcall(lua_state, 0, 0, 0) != 0) {
-        assert(false);  // TODO: Error handling
+    // TODO: Error handling when calling invalid functions?
+    if(lua_isfunction(lua_state, -1) != 0) {
+        if (lua_pcall(lua_state, 0, 0, 0) != 0) {
+            const char* error_message = lua_tostring(lua_state, -1);
+            assert(false);  // TODO: Error handling
+        }
     }
 }
 
@@ -2678,12 +3185,14 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
         }
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
+            // TODO: Work differently if using Lua script
             if(g_script_object_script_contexts[iObject].Active == 1) {
                 RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
             }
         }
 
         for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
+            // TODO: Work differently if using Lua script
             if(g_script_object_script_contexts[iObject].Active == 2) {
                 RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
                 g_script_object_script_contexts[iObject].Active = 1;
@@ -2927,12 +3436,14 @@ static void InteractMenu(GameInput* game_input) {
     }
 
     for(long iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
+        // TODO: Work differently if using Lua script
         if(g_script_object_script_contexts[iObject].Active == 1) {
             RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
         }
     }
 
     for(long iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
+        // TODO: Work differently if using Lua script
         if(g_script_object_script_contexts[iObject].Active == 2) {
             RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
             g_script_object_script_contexts[iObject].Active = 1;
