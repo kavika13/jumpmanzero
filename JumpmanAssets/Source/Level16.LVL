@@ -22,7 +22,7 @@ R TurtGR2 2 0 0
 R TurtS1 2 0 0
 R TurtSH1 2 0 0
 R TurtSH2 2 0 0
-R Script16 5 1 0
+R Script16 5 3 0
 R Turtle 5 2 0
 O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 250 80 1 0 255 250 80 0 1 -100 -140 80 1 1 255 -140 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 1 4 
 O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 128 8 0 0 0 151 8 0 0 0 128 5 0 0 0 151 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
