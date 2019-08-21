@@ -2063,6 +2063,7 @@ static int script_select_vine(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_vine_objects, g_vine_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_vine_objects[object_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -2071,6 +2072,7 @@ static int script_select_picture(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_backdrop_objects[object_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -2079,6 +2081,7 @@ static int script_select_wall(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_wall_objects, g_wall_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_wall_objects[object_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
