@@ -1928,8 +1928,8 @@ static int get_object_global_data(lua_State* lua_state) {
             lua_pushnumber(lua_state, -256);
         }
     } else {
-        // TODO: If we decide to divide here - Once sub-scripts use lua, don't divide. In fact, might pass data differently
-        lua_pushnumber(lua_state, g_script_object_script_contexts[(size_t)arg1].Globals[(size_t)arg2]);  // TODO: Divide by 256.0f?
+        // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
+        lua_pushnumber(lua_state, g_script_object_script_contexts[(size_t)arg1].Globals[(size_t)arg2] / 256.0);
     }
 
     return 1;
