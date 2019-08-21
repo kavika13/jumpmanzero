@@ -38,7 +38,7 @@ static unsigned int MusicTimeToMilliseconds(tml_message* first_midi_message, uns
     double current_tempo_ms_per_quarter_note = 500.0;
     double target_time_ms = current_time_ms + remaining_quarter_notes * current_tempo_ms_per_quarter_note;
 
-    while(current_midi_message != NULL && current_midi_message->time < target_time_ms) {
+    while(current_midi_message != NULL && current_midi_message->time < target_time_ms) {  // Todo: For some reason this line sometimes, intermittently, hits an access violation?
         remaining_quarter_notes -= (current_midi_message->time - current_time_ms) / current_tempo_ms_per_quarter_note;
         current_time_ms = current_midi_message->time;
         double new_tempo_ms_per_quarter_note = tml_get_tempo_value(current_midi_message) / 1000.0;
