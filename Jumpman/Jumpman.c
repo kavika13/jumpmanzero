@@ -1871,6 +1871,7 @@ static int set_script_event_data_4(lua_State* lua_state) {
 // script utility functions
 
 static int spawn_object(lua_State* lua_state) {
+    // Replacement for jms Spawn(int script_index) function, aka EFSPAWN
     double arg1 = luaL_checknumber(lua_state, 1);
 
     long iNewObject = -1;
@@ -1910,6 +1911,7 @@ static int set_object_visual_data(lua_State* lua_state) {
 }
 
 static int prioritize_object(lua_State* lua_state) {
+    // Replacement for jms PrioritizeObject() function, aka EFPRIORITIZE_OBJECT
     PrioritizeObject(g_script_selected_mesh_index);
     return 0;
 }
@@ -2016,6 +2018,8 @@ static int script_abs_vine(lua_State* lua_state) {
 }
 
 static int script_collide_wall(lua_State* lua_state) {
+    // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
+    // Replacement for jms CollideWall(int x1, int y1, int x2, int y2) function, aka EFCOLLIDE_WALL
     double arg_x1 = luaL_checknumber(lua_state, 1);
     double arg_y1 = luaL_checknumber(lua_state, 2);
     double arg_x2 = luaL_checknumber(lua_state, 3);
@@ -2026,6 +2030,7 @@ static int script_collide_wall(lua_State* lua_state) {
 }
 
 static int play_sound_effect(lua_State* lua_state) {
+    // Replacement for jms Sound(int sound_effect_slot_index) function, aka EFSOUND
     double arg1 = luaL_checknumber(lua_state, 1);
     PlaySoundEffect((size_t)arg1);
     return 0;
