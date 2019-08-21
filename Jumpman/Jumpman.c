@@ -1416,22 +1416,26 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
 // script 3d object utility functions
 
 static int script_selected_mesh_change_mesh(lua_State* lua_state) {
+    // Replacement for jms ChangeMesh(int new_mesh_index) function, aka EFCHANGEMESH
     double new_mesh_index_arg = luaL_checknumber(lua_state, 1);
     ChangeMesh(g_script_selected_mesh_index, g_script_mesh_indices[(size_t)new_mesh_index_arg]);
     return 0;
 }
 
 static int script_selected_mesh_set_identity_matrix(lua_State* lua_state) {
+    // Replacement for jms Identity() function, aka EFIDENTITY
     IdentityMatrix(g_script_selected_mesh_index);
     return 0;
 }
 
 static int script_selected_mesh_set_perspective_matrix(lua_State* lua_state) {
+    // Replacement for jms Perspective() function, aka EFPERSPECTIVE
     PerspectiveMatrix(g_script_selected_mesh_index);
     return 0;
 }
 
 static int script_selected_mesh_translate_matrix(lua_State* lua_state) {
+    // Replacement for jms Translate(float x, float y, float z) function, aka EFTRANSLATE
     double arg_x = luaL_checknumber(lua_state, 1);
     double arg_y = luaL_checknumber(lua_state, 2);
     double arg_z = luaL_checknumber(lua_state, 3);
@@ -1440,6 +1444,7 @@ static int script_selected_mesh_translate_matrix(lua_State* lua_state) {
 }
 
 static int script_selected_mesh_scale_matrix(lua_State* lua_state) {
+    // Replacement for jms Scale(float x, float y, float z) function, aka EFSCALE
     double arg_x = luaL_checknumber(lua_state, 1);
     double arg_y = luaL_checknumber(lua_state, 2);
     double arg_z = luaL_checknumber(lua_state, 3);
@@ -1448,24 +1453,28 @@ static int script_selected_mesh_scale_matrix(lua_State* lua_state) {
 }
 
 static int script_selected_mesh_rotate_matrix_x(lua_State* lua_state) {
+    // Replacement for jms RotateX(float degrees) function, aka EFROTATEX
     double arg_degrees = luaL_checknumber(lua_state, 1);
     RotateMatrixX(g_script_selected_mesh_index, (float)arg_degrees);
     return 0;
 }
 
 static int script_selected_mesh_rotate_matrix_y(lua_State* lua_state) {
+    // Replacement for jms RotateY(float degrees) function, aka EFROTATEY
     double arg_degrees = luaL_checknumber(lua_state, 1);
     RotateMatrixY(g_script_selected_mesh_index, (float)arg_degrees);
     return 0;
 }
 
 static int script_selected_mesh_rotate_matrix_z(lua_State* lua_state) {
+    // Replacement for jms RotateZ(float degrees) function, aka EFROTATEZ
     double arg_degrees = luaL_checknumber(lua_state, 1);
     RotateMatrixZ(g_script_selected_mesh_index, (float)arg_degrees);
     return 0;
 }
 
 static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
+    // Replacement for jms ScrollTexture(float x_translation, float y_translation) function, aka EFSCROLLTEXTURE
     double arg_x = luaL_checknumber(lua_state, 1);
     double arg_y = luaL_checknumber(lua_state, 2);
     // TODO: Remove pre-multiplication from scripts, and divide from here
@@ -1476,6 +1485,7 @@ static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
 // script script_selected_level_object accessors
 
 static int get_script_selected_level_object_extra(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sExtra) function, aka EFGETSEL(EFS_EXTRA)
     lua_pushnumber(lua_state, g_script_selected_level_object->Extra);
     return 1;
 }
@@ -1487,11 +1497,13 @@ static int get_script_selected_level_object_number(lua_State* lua_state) {
 }
 
 static int get_script_selected_level_object_texture(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sTexture) function, aka EFGETSEL(EFS_TEXTURE)
     lua_pushnumber(lua_state, g_script_selected_level_object->Texture);
     return 1;
 }
 
 static int get_script_selected_level_object_this(lua_State* lua_state) {
+    // Replacement for jms GetSel(#this) function, aka EFGETSEL(EFS_THIS)
     lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
     return 1;
 }
@@ -1890,7 +1902,7 @@ static int spawn_object(lua_State* lua_state) {
 }
 
 static int set_object_visual_data(lua_State* lua_state) {
-    // Replacement for jms SetProperties function, aka EFSETOBJECT
+    // Replacement for jms SetProperties(int new_texture_index, int new_is_visible) function, aka EFSETOBJECT
     double texture_index = luaL_checknumber(lua_state, 1);
     double is_visible = luaL_checknumber(lua_state, 2);
     SetObjectData(g_script_selected_mesh_index, (long)texture_index, (int)is_visible);
@@ -1903,7 +1915,7 @@ static int prioritize_object(lua_State* lua_state) {
 }
 
 static int get_object_global_data(lua_State* lua_state) {
-    // Replacement for jms GetData function, aka EFGETDATA
+    // Replacement for jms GetData(int script_index, int global_index) function, aka EFGETDATA
     double arg1 = luaL_checknumber(lua_state, 1);
     double arg2 = luaL_checknumber(lua_state, 2);
 
@@ -1922,7 +1934,7 @@ static int get_object_global_data(lua_State* lua_state) {
 }
 
 static int set_object_global_data(lua_State* lua_state) {
-    // Replacement for jms SetData function, aka EFSETDATA
+    // Replacement for jms SetData(int script_index, int global_index, float value) function, aka EFSETDATA
     double script_index = luaL_checknumber(lua_state, 1);
     double global_index = luaL_checknumber(lua_state, 2);
     double value = luaL_checknumber(lua_state, 3);
@@ -1932,7 +1944,7 @@ static int set_object_global_data(lua_State* lua_state) {
 }
 
 static int script_find_ladder(lua_State* lua_state) {
-    // Replacement for jms FindLadder function, aka EFFINDLADDER
+    // Replacement for jms FindLadder(int pos_x, int pos_y) function, aka EFFINDLADDER
     double ladder_x_arg = luaL_checknumber(lua_state, 1);
     double ladder_y_arg = luaL_checknumber(lua_state, 2);
     long iLadA, iLadE;
@@ -1944,7 +1956,7 @@ static int script_find_ladder(lua_State* lua_state) {
 }
 
 static int script_find_vine(lua_State* lua_state) {
-    // Replacement for jms FindVine function, aka EFFINDVINE
+    // Replacement for jms FindVine(int pos_x, int pos_y) function, aka EFFINDVINE
     double vine_x_arg = luaL_checknumber(lua_state, 1);
     double vine_y_arg = luaL_checknumber(lua_state, 2);
     long iVinAp, iVinEx;
@@ -1956,7 +1968,7 @@ static int script_find_vine(lua_State* lua_state) {
 }
 
 static int script_find_platform(lua_State* lua_state) {
-    // Replacement for jms FindPlatform function, aka EFFINDPLATFORM
+    // Replacement for jms FindPlatform(int pos_x, int pos_y) function, aka EFFINDPLATFORM
     double plat_x_arg = luaL_checknumber(lua_state, 1);
     double plat_y_arg = luaL_checknumber(lua_state, 2);
     double height_arg = luaL_checknumber(lua_state, 3);
@@ -1972,7 +1984,7 @@ static int script_find_platform(lua_State* lua_state) {
 
 // TODO: Rename these abs functions. They select an object and mesh?  Do other things select the same object, but not the mesh?
 static int script_abs_platform(lua_State* lua_state) {
-    // Replacement for jms AbsPlatform function, aka EFABS_PLATFORM
+    // Replacement for jms AbsPlatform(int platform_index) function, aka EFABS_PLATFORM
     double platform_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_platform_objects[(size_t)platform_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -1980,7 +1992,7 @@ static int script_abs_platform(lua_State* lua_state) {
 }
 
 static int script_abs_ladder(lua_State* lua_state) {
-    // Replacement for jms AbsLadder function, aka EFABS_LADDER
+    // Replacement for jms AbsLadder(int ladder_index) function, aka EFABS_LADDER
     double ladder_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_ladder_objects[(size_t)ladder_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -1988,7 +2000,7 @@ static int script_abs_ladder(lua_State* lua_state) {
 }
 
 static int script_abs_donut(lua_State* lua_state) {
-    // Replacement for jms AbsDonut function, aka EFABS_DONUT
+    // Replacement for jms AbsDonut(int donut_index) function, aka EFABS_DONUT
     double donut_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_donut_objects[(size_t)donut_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -1996,7 +2008,7 @@ static int script_abs_donut(lua_State* lua_state) {
 }
 
 static int script_abs_vine(lua_State* lua_state) {
-    // Replacement for jms AbsVine function, aka EFABS_VINE
+    // Replacement for jms AbsVine(int vine_index) function, aka EFABS_VINE
     double vine_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -2020,7 +2032,7 @@ static int play_sound_effect(lua_State* lua_state) {
 }
 
 static int script_select_platform(lua_State* lua_state) {
-    // Replacement for jms SelectPlatform function, aka EFSELECT_PLATFORM
+    // Replacement for jms SelectPlatform(int platform_index) function, aka EFSELECT_PLATFORM
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_platform_objects, g_platform_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_platform_objects[object_index];
@@ -2029,7 +2041,7 @@ static int script_select_platform(lua_State* lua_state) {
 }
 
 static int script_select_ladder(lua_State* lua_state) {
-    // Replacement for jms SelectLadder function, aka EFSELECT_LADDER
+    // Replacement for jms SelectLadder(int ladder_index) function, aka EFSELECT_LADDER
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_ladder_objects[object_index];
@@ -2038,7 +2050,7 @@ static int script_select_ladder(lua_State* lua_state) {
 }
 
 static int script_select_donut(lua_State* lua_state) {
-    // Replacement for jms SelectDonut function, aka EFSELECT_DONUT
+    // Replacement for jms SelectDonut(int donut_index) function, aka EFSELECT_DONUT
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_donut_objects, g_donut_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_donut_objects[object_index];
@@ -2047,7 +2059,7 @@ static int script_select_donut(lua_State* lua_state) {
 }
 
 static int script_select_vine(lua_State* lua_state) {
-    // Replacement for jms SelectVine function, aka EFSELECT_VINE
+    // Replacement for jms SelectVine(int vine_index) function, aka EFSELECT_VINE
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_vine_objects, g_vine_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_vine_objects[object_index];
@@ -2055,7 +2067,7 @@ static int script_select_vine(lua_State* lua_state) {
 }
 
 static int script_select_picture(lua_State* lua_state) {
-    // Replacement for jms SelectPicture function, aka EFSELECT_PICTURE
+    // Replacement for jms SelectPicture(int picture_index) function, aka EFSELECT_PICTURE
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_backdrop_objects[object_index];
@@ -2063,7 +2075,7 @@ static int script_select_picture(lua_State* lua_state) {
 }
 
 static int script_select_wall(lua_State* lua_state) {
-    // Replacement for jms SelectWall function, aka EFSELECT_WALL
+    // Replacement for jms SelectWall(int wall_index) function, aka EFSELECT_WALL
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_wall_objects, g_wall_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_wall_objects[object_index];
