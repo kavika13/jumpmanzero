@@ -633,19 +633,14 @@ static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, Naviga
 }
 
 long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
-    long iArg1, iArg2, iArg3, iArg4;
-    long rArg1, rArg2, rArg3, rArg4;
-    long iLoop;
-    char sFileName[300];
-
-    rArg1 = SC->Stack[SC->BP + 0];
-    iArg1 = rArg1 / 256;
-    rArg2 = SC->Stack[SC->BP + 1];
-    iArg2 = rArg2 / 256;
-    rArg3 = SC->Stack[SC->BP + 2];
-    iArg3 = rArg3 / 256;
-    rArg4 = SC->Stack[SC->BP + 3];
-    iArg4 = rArg4 / 256;
+    long rArg1 = SC->Stack[SC->BP + 0];
+    long iArg1 = rArg1 / 256;
+    long rArg2 = SC->Stack[SC->BP + 1];
+    long iArg2 = rArg2 / 256;
+    long rArg3 = SC->Stack[SC->BP + 2];
+    long iArg3 = rArg3 / 256;
+    long rArg4 = SC->Stack[SC->BP + 3];
+    long iArg4 = rArg4 / 256;
 
     if(iFunc == EFCHANGEMESH) {
         ChangeMesh(g_script_selected_mesh_index, g_script_mesh_indices[iArg1]);
@@ -740,21 +735,18 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     }
 
     if(iFunc == EFSTRCOPY) {
-        iLoop = -1;
+        long iLoop = -1;
 
         while(++iLoop <= iArg2) {
             SC->Globals[iArg1 + iLoop] = SC->Stack[SC->SP + iLoop + 1];
         }
     }
 
-    int iLen1;
-    int iLen2;
-
     if(iFunc == EFSTRCAT) {
-        iLen1 = SC->Globals[iArg1] / 256;
-        iLen2 = SC->Globals[iArg2] / 256;
+        int iLen1 = SC->Globals[iArg1] / 256;
+        int iLen2 = SC->Globals[iArg2] / 256;
         SC->Globals[iArg1] = (iLen1 + iLen2) * 256;
-        iLoop = 0;
+        long iLoop = 0;
 
         while(++iLoop <= iLen2) {
             SC->Globals[iArg1 + iLen1 + iLoop] = SC->Globals[iArg2 + iLoop];
@@ -881,7 +873,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
     if(iFunc == EFSPAWN) {
         long iNewObject = -1;
-        iLoop = -1;
+        long iLoop = -1;
 
         while(++iLoop < MAX_SCRIPTOBJECTS) {
             if(!g_script_object_script_contexts[iLoop].Active && iNewObject == -1) {
@@ -981,19 +973,19 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         return iPlat;
     }
 
-    long iVal;
-
     if(iFunc == EFSIN) {
-        iVal = (long)(sin(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
+        long iVal = (long)(sin(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
         return iVal;
     }
 
     if(iFunc == EFCOS) {
-        iVal = (long)(cos(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
+        long iVal = (long)(cos(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
         return iVal;
     }
 
     if(iFunc == EFATAN) {
+        long iVal;
+
         if(rArg2 == 0) {
             iVal = (rArg1 > 0 ? 90 : 270);
         } else {
@@ -1004,7 +996,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
     }
 
     if(iFunc == EFSQR) {
-        iVal = (long)(sqrt(rArg1 / 256.0f));
+        long iVal = (long)(sqrt(rArg1 / 256.0f));
         return iVal;
     }
 
@@ -1040,17 +1032,10 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         SetFog((float)iArg1, (float)iArg2, SC->Stack[SC->BP + 2] & 0xFF, SC->Stack[SC->BP + 3] & 0xFF, SC->Stack[SC->BP + 4] & 0xFF);
     }
 
-    int iTitle;
-    int iChar;
-    char sName[100];
-    char sFile[300];
-    int iKey;
-    int iKeyGood;
-
     if(iFunc == EFSERVICE) {
         if(iArg1 == SERVICE_LEVELTITLE) {
             SC->Globals[iArg2] = (long)(strlen(g_level_current_title)) * 256;
-            iLoop = 0;
+            long iLoop = 0;
 
             while(++iLoop <= (long)(strlen(g_level_current_title))) {
                 SC->Globals[iArg2 + iLoop] = g_level_current_title[iLoop - 1] * 256;
@@ -1063,8 +1048,8 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
         if(iArg1 == SERVICE_SETOPTION) {
             if(iArg3 >= 0 && iArg3 <= 5) {
-                iKeyGood = 0;
-                iKey = iArg2;
+                int iKeyGood = 0;
+                int iKey = iArg2;
 
                 if(iKey == 38 && iArg3 == 0) {
                     iKeyGood = 1;
@@ -1094,7 +1079,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                     iKeyGood = 1;
                 }
 
-                iLoop = -1;
+                long iLoop = -1;
 
                 while(++iLoop < 6) {
                     if(iArg2 != iLoop && GetKeyBinding(iLoop) == iKey) {
@@ -1123,8 +1108,11 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         }
 
         if(iArg1 == SERVICE_OPTIONSTRING) {
+            int iKey;
+            char sName[100];
+
             if(iArg3 >= 0 && iArg3 <= 5) {
-                iKey = GetKeyBinding(iArg3);
+                int iKey = GetKeyBinding(iArg3);
 
                 if(iKey >= 'A' && iKey <= 'Z') {
                     sprintf_s(sName, sizeof(sName), "%c   ", iKey);
@@ -1175,7 +1163,8 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         }
 
         if(iArg1 == SERVICE_GAMESTART) {
-            iTitle = 0;
+            char sFileName[300];
+            int iTitle = 0;
             g_remaining_life_count = 7;
             sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", SC->game_base_path);
 
@@ -1214,9 +1203,12 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         }
 
         if(iArg1 == SERVICE_CREDITLINE) {
+            char sFileName[300];
+            char sName[100];
+
             sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", SC->game_base_path);
             GetFileLine(sName, sizeof(sName), sFileName, iArg2);
-            iChar = -1;
+            int iChar = -1;
 
             while(sName[++iChar] != 0 && iChar < 18) {
                 SC->Globals[iArg3 + iChar + 1] = sName[iChar] * 256;
@@ -1226,7 +1218,8 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
         }
 
         if(iArg1 == SERVICE_GAMELIST) {
-            iTitle = 0;
+            char sFileName[300];
+            int iTitle = 0;
             sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", SC->game_base_path);
 
             cf_dir_t dir;
@@ -1237,7 +1230,10 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                 cf_read_file(&dir, &file);
 
                 if(cf_match_ext(&file, ".jmg")) {
-                    iChar = -1;
+                    int iChar = -1;
+                    char sFile[300];
+                    char sName[100];
+
                     sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", SC->game_base_path, file.name);
                     GetFileLine(sName, sizeof(sName), sFile, 0);
 
