@@ -18,7 +18,7 @@ R RunDonut1 2 0 0
 R RunDonut2 2 0 0
 R RunDonut3 2 0 0
 R RunDonut 3 0 0
-R Script10 5 1 0
+R Script10 5 3 0
 R RunDonut 5 2 0
 R RunDonutHatch1 2 0 0
 R RunDonutHatch2 2 0 0
