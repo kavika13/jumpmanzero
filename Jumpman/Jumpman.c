@@ -1902,6 +1902,16 @@ static int spawn_object(lua_State* lua_state) {
     return 1;
 }
 
+static int new_mesh(lua_State* lua_state) {
+    // Replacement for jms NewMesh(int script_mesh_index) function, aka EFNEWMESH
+    double script_mesh_index = luaL_checknumber(lua_state, 1);
+    long iNew;
+    CopyObject(g_script_mesh_indices[(size_t)script_mesh_index], &iNew);
+    g_script_selected_mesh_index = iNew;
+    lua_pushnumber(lua_state, iNew);
+    return 1;
+}
+
 static int set_object_visual_data(lua_State* lua_state) {
     // Replacement for jms SetProperties(int new_texture_index, int new_is_visible) function, aka EFSETOBJECT
     double texture_index = luaL_checknumber(lua_state, 1);
@@ -2045,6 +2055,58 @@ static int play_sound_effect(lua_State* lua_state) {
     // Replacement for jms Sound(int sound_effect_slot_index) function, aka EFSOUND
     double arg1 = luaL_checknumber(lua_state, 1);
     PlaySoundEffect((size_t)arg1);
+    return 0;
+}
+
+static int is_player_colliding_with_rect(lua_State* lua_state) {
+    // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
+    // Replacement for jms Collide(int x1, int y1, int x2, int y2) function, aka EFCOLLIDE
+    double arg_x1 = luaL_checknumber(lua_state, 1);
+    double arg_y1 = luaL_checknumber(lua_state, 2);
+    double arg_x2 = luaL_checknumber(lua_state, 3);
+    double arg_y2 = luaL_checknumber(lua_state, 4);
+    long result = PlayerCollide((int)arg_x1, (int)arg_y1, (int)arg_x2, (int)arg_y2) &&
+        !(g_player_current_state == kPlayerStateDying);
+    lua_pushboolean(lua_state, result);
+    return 1;
+}
+
+static int script_win(lua_State* lua_state) {
+    // Replacement for jms win() function, aka EFWIN
+    StopMusic1();
+    g_player_current_state_frame_count = 0;
+    g_player_current_state = kPlayerStateDone;
+    return 0;
+}
+
+static int script_select_object_mesh(lua_State* lua_state) {
+    // Replacement for jms SelectObjectMesh(int mesh_index) function, aka EFSELECT_OBJECT_MESH
+    double mesh_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_mesh_index = (long)mesh_index;
+    return 0;
+}
+
+static int script_delete_mesh(lua_State* lua_state) {
+    // Replacement for jms DeleteMesh(int mesh_index) function, aka EFDELETE_MESH
+    double mesh_index = luaL_checknumber(lua_state, 1);
+    DeleteMesh((long)mesh_index);
+    return 0;
+}
+
+static int script_delete_object(lua_State* lua_state) {
+    // Replacement for jms DeleteObject(int object_index) function, aka EFDELETE_OBJECT
+    double object_index = luaL_checknumber(lua_state, 1);
+    if((long)object_index == 1000) {
+        // SC->Active = 0;  // TODO: How do we do this?
+    } else {
+        g_script_object_script_contexts[(size_t)object_index].Active = 0;
+    }
+    return 0;
+}
+
+static int script_reset_perspective(lua_State* lua_state) {
+    // Replacement for jms ResetPerspective() function, aka EFRESETPERSPECTIVE
+    SetGamePerspective();
     return 0;
 }
 
@@ -2249,6 +2311,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, spawn_object);
     lua_setglobal(lua_state, "spawn_object");
+    lua_pushcfunction(lua_state, new_mesh);
+    lua_setglobal(lua_state, "new_mesh");
     lua_pushcfunction(lua_state, set_object_visual_data);
     lua_setglobal(lua_state, "set_object_visual_data");
     lua_pushcfunction(lua_state, prioritize_object);
@@ -2277,7 +2341,18 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "collide_wall");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
-
+    lua_pushcfunction(lua_state, is_player_colliding_with_rect);
+    lua_setglobal(lua_state, "is_player_colliding_with_rect");
+    lua_pushcfunction(lua_state, script_win);
+    lua_setglobal(lua_state, "win");
+    lua_pushcfunction(lua_state, script_select_object_mesh);
+    lua_setglobal(lua_state, "select_object_mesh");
+    lua_pushcfunction(lua_state, script_delete_mesh);
+    lua_setglobal(lua_state, "delete_mesh");
+    lua_pushcfunction(lua_state, script_delete_object);
+    lua_setglobal(lua_state, "delete_object");
+    lua_pushcfunction(lua_state, script_reset_perspective);
+    lua_setglobal(lua_state, "reset_perspective");
     lua_pushcfunction(lua_state, script_select_platform);
     lua_setglobal(lua_state, "select_platform");
     lua_pushcfunction(lua_state, script_select_ladder);
