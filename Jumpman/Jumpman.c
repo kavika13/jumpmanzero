@@ -3067,6 +3067,8 @@ static void GrabDonuts(GameInput* game_input) {
             g_script_event_data_1 = g_donut_objects[iLoop].Num;
 
             if(g_script_level_script_is_lua) {
+                // TODO: Pass g_donut_objects[iLoop].Num instead of just setting it in g_script_event_data_1
+                //       Also, maybe get rid of those script event data passing stuff alltogether
                 CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut");  // TODO: Extfunction is going to need game_input passed to it
             } else {
                 RunScript(&g_script_level_script_context, g_script_donut_subroutine_handle, game_input);
