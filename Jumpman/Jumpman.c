@@ -2030,6 +2030,9 @@ static int script_find_platform(lua_State* lua_state) {
 }
 
 // TODO: Rename these abs functions. They select an object and mesh?  Do other things select the same object, but not the mesh?
+//       I believe they select by absolute index in that object type, so you can loop through all of them
+//       So maybe it should be "select_xyz_at_index" or something, and the other should be called "select_xyz_with_object_num"?
+//       Or maybe we should get rid of these "selection" things to begin with, and just have functions to query the right index, then manipulate objects via index
 // TODO: Maybe return the id instead of global "selected" state for all these
 static int script_abs_platform(lua_State* lua_state) {
     // Replacement for jms AbsPlatform(int platform_index) function, aka EFABS_PLATFORM
