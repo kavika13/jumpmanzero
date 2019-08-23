@@ -1482,7 +1482,7 @@ static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
     return 0;
 }
 
-// script script_selected_level_object accessors
+// script script_selected_level_object accessors (getters)
 
 static int get_script_selected_level_object_extra(lua_State* lua_state) {
     // Replacement for jms GetSel(#sExtra) function, aka EFGETSEL(EFS_EXTRA)
@@ -1509,95 +1509,114 @@ static int get_script_selected_level_object_this(lua_State* lua_state) {
 }
 
 static int get_script_selected_level_object_visible(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sVisible) function, aka EFGETSEL(EFS_VISIBLE)
     lua_pushnumber(lua_state, g_script_selected_level_object->Visible);
     return 1;
 }
 
 static int get_script_selected_level_object_x1(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sX1) function, aka EFGETSEL(EFS_SX1)
     lua_pushnumber(lua_state, g_script_selected_level_object->X1);
     return 1;
 }
 
 static int get_script_selected_level_object_x2(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sX2) function, aka EFGETSEL(EFS_SX2)
     lua_pushnumber(lua_state, g_script_selected_level_object->X2);
     return 1;
 }
 
 static int get_script_selected_level_object_y1(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sY1) function, aka EFGETSEL(EFS_SY1)
     lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
     return 1;
 }
 
 static int get_script_selected_level_object_y2(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sY2) function, aka EFGETSEL(EFS_SY2)
     lua_pushnumber(lua_state, g_script_selected_level_object->Y2);
     return 1;
 }
 
 static int get_script_selected_level_object_z1(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sZ1) function, aka EFGETSEL(EFS_SZ1)
     lua_pushnumber(lua_state, g_script_selected_level_object->Z1);
     return 1;
 }
 
 static int get_script_selected_level_object_z2(lua_State* lua_state) {
+    // Replacement for jms GetSel(#sZ2) function, aka EFGETSEL(EFS_SZ2)
     lua_pushnumber(lua_state, g_script_selected_level_object->Z2);
     return 1;
 }
 
+// script script_selected_level_object accessors (setters)
+
 static int set_script_selected_level_object_extra(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sExtra) function, aka EFSETSEL(EFS_EXTRA)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Extra = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_number(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sNumber) function, aka EFSETSEL(EFS_NUMBER)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Num = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_texture(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sTexture) function, aka EFSETSEL(EFS_TEXTURE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Texture = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_visible(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sVisible) function, aka EFSETSEL(EFS_VISIBLE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Visible = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_x1(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sX1) function, aka EFSETSEL(EFS_SX1)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->X1 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_x2(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sX2) function, aka EFSETSEL(EFS_SX2)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->X2 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_y1(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sY1) function, aka EFSETSEL(EFS_SY1)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Y1 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_y2(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sY2) function, aka EFSETSEL(EFS_SY2)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Y2 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_z1(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sZ1) function, aka EFSETSEL(EFS_SZ1)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Z1 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_z2(lua_State* lua_state) {
+    // Replacement for jms SetSel(#sZ2) function, aka EFSETSEL(EFS_SZ2)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Z2 = (int)arg1;
     return 0;
