@@ -1483,6 +1483,7 @@ static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
 }
 
 // script script_selected_level_object accessors (getters)
+// TODO: Maybe pass in the id instead of global "selected" state for all these
 
 static int get_script_selected_level_object_extra(lua_State* lua_state) {
     // Replacement for jms GetSel(#sExtra) function, aka EFGETSEL(EFS_EXTRA)
@@ -1551,6 +1552,7 @@ static int get_script_selected_level_object_z2(lua_State* lua_state) {
 }
 
 // script script_selected_level_object accessors (setters)
+// TODO: Maybe pass in the id instead of global "selected" state for all these
 
 static int set_script_selected_level_object_extra(lua_State* lua_state) {
     // Replacement for jms SetSel(#sExtra) function, aka EFSETSEL(EFS_EXTRA)
@@ -2028,6 +2030,7 @@ static int script_find_platform(lua_State* lua_state) {
 }
 
 // TODO: Rename these abs functions. They select an object and mesh?  Do other things select the same object, but not the mesh?
+// TODO: Maybe return the id instead of global "selected" state for all these
 static int script_abs_platform(lua_State* lua_state) {
     // Replacement for jms AbsPlatform(int platform_index) function, aka EFABS_PLATFORM
     double platform_index = luaL_checknumber(lua_state, 1);
@@ -2100,6 +2103,7 @@ static int script_win(lua_State* lua_state) {
     return 0;
 }
 
+// TODO: Maybe return the id instead of global "selected" state for this
 static int script_select_object_mesh(lua_State* lua_state) {
     // Replacement for jms SelectObjectMesh(int mesh_index) function, aka EFSELECT_OBJECT_MESH
     double mesh_index = luaL_checknumber(lua_state, 1);
@@ -2131,6 +2135,7 @@ static int script_reset_perspective(lua_State* lua_state) {
     return 0;
 }
 
+// TODO: Maybe return the id instead of global "selected" state for all these
 static int script_select_platform(lua_State* lua_state) {
     // Replacement for jms SelectPlatform(int platform_index) function, aka EFSELECT_PLATFORM
     double new_object_index = luaL_checknumber(lua_state, 1);
