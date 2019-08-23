@@ -1570,6 +1570,7 @@ static int set_script_selected_level_object_texture(lua_State* lua_state) {
     // Replacement for jms SetSel(#sTexture) function, aka EFSETSEL(EFS_TEXTURE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Texture = (int)arg1;
+    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
     return 0;
 }
 
@@ -1577,6 +1578,7 @@ static int set_script_selected_level_object_visible(lua_State* lua_state) {
     // Replacement for jms SetSel(#sVisible) function, aka EFSETSEL(EFS_VISIBLE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Visible = (int)arg1;
+    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
     return 0;
 }
 
