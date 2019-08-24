@@ -2095,6 +2095,24 @@ static int script_find_platform(lua_State* lua_state) {
     return 1;
 }
 
+static int script_sin(lua_State* lua_state) {
+    // Replacement for jms sin(double degrees) function, aka EFSIN
+    // Note: The original would also multiply the result by arg2, but intentionally not doing that
+    double degrees_arg = luaL_checknumber(lua_state, 1);
+    double result = sin(degrees_arg * 3.141592653589793 / 180.0);
+    lua_pushnumber(lua_state, result);
+    return 1;
+}
+
+static int script_cos(lua_State* lua_state) {
+    // Replacement for jms cos(double degrees) function, aka EFCOS
+    // Note: The original would also multiply the result by arg2, but intentionally not doing that
+    double degrees_arg = luaL_checknumber(lua_state, 1);
+    double result = cos(degrees_arg * 3.141592653589793 / 180.0);
+    lua_pushnumber(lua_state, result);
+    return 1;
+}
+
 // TODO: Rename these abs functions. They select an object and mesh?  Do other things select the same object, but not the mesh?
 //       I believe they select by absolute index in that object type, so you can loop through all of them
 //       So maybe it should be "select_xyz_at_index" or something, and the other should be called "select_xyz_with_object_num"?
@@ -2424,6 +2442,10 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_vine");
     lua_pushcfunction(lua_state, script_find_platform);
     lua_setglobal(lua_state, "find_platform");
+    lua_pushcfunction(lua_state, script_sin);
+    lua_setglobal(lua_state, "sin");
+    lua_pushcfunction(lua_state, script_cos);
+    lua_setglobal(lua_state, "cos");
     lua_pushcfunction(lua_state, script_abs_platform);
     lua_setglobal(lua_state, "abs_platform");
     lua_pushcfunction(lua_state, script_abs_ladder);
