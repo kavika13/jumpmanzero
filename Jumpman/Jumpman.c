@@ -1626,7 +1626,7 @@ static int set_script_selected_level_object_z2(lua_State* lua_state) {
     return 0;
 }
 
-// script global variable accessors
+// script global variable accessors (getters)
 
 static int get_current_camera_mode(lua_State* lua_state) {
     // Replacement for jms GetExt(#perspective) function, aka EFGET(EFV_PERSPECTIVE)
@@ -1768,6 +1768,50 @@ static int get_wall_object_count(lua_State* lua_state) {
     return 1;
 }
 
+static int get_is_debug_enabled(lua_State* lua_state) {
+    // Replacement for jms GetExt(#debug) function, aka EFGET(EFV_DEBUG)
+    lua_pushboolean(lua_state, IsDebugEnabled());
+    return 1;
+}
+
+static int get_script_object_count(lua_State* lua_state) {
+    // Replacement for jms GetExt(#objects) function, aka EFGET(EFV_OBJECTS)
+    lua_pushnumber(lua_state, MAX_SCRIPTOBJECTS);
+    return 1;
+}
+
+// static int get_current_script_index(lua_State* lua_state) {  // TODO: Name?
+//    // Replacement for jms GetExt(#this) function, aka EFGET(EFV_THIS)
+//    lua_pushnumber(lua_state, SC->ScriptReference);
+//    return 1;
+// }
+
+static int get_is_sound_enabled(lua_State* lua_state) {
+    // Replacement for jms GetExt(#soundon) function, aka EFGET(EFV_SOUNDON)
+    lua_pushboolean(lua_state, GetIsSoundEnabled());
+    return 1;
+}
+
+static int get_is_music_enabled(lua_State* lua_state) {
+    // Replacement for jms GetExt(#musicon) function, aka EFGET(EFV_MUSICON)
+    lua_pushboolean(lua_state, GetIsMusicEnabled());
+    return 1;
+}
+
+static int get_last_key_pressed(lua_State* lua_state) {
+    // Replacement for jms GetExt(#lastKey) function, aka EFGET(EFV_LASTKEY)
+    lua_pushnumber(lua_state, GetLastKeyPressed());
+    return 1;
+}
+
+static int get_current_fps(lua_State* lua_state) {
+    // Replacement for jms GetExt(#performance) function, aka EFGET(EFV_PERFORMANCE)
+    lua_pushnumber(lua_state, GetCurrentFps());
+    return 1;
+}
+
+// script global variable accessors (setters)
+
 static int set_current_camera_mode(lua_State* lua_state) {
     // Replacement for jms SetExt(#perspective) function, aka EFSET(EFV_PERSPECTIVE)
     double arg1 = luaL_checknumber(lua_state, 1);
@@ -1888,6 +1932,28 @@ static int set_script_event_data_4(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
     g_script_event_data_4 = (long)arg1 * 256;
+    return 0;
+}
+
+static bool TryGetLuaCFunctionBooleanArgAtIndex(lua_State* lua_state, int arg_index, bool* result) {
+    luaL_checktype(lua_state, arg_index, LUA_TBOOLEAN);
+    bool success = lua_isboolean(lua_state, arg_index) != 0;
+
+    if(success) {
+        *result = lua_toboolean(lua_state, arg_index);
+    }
+
+    return success;
+}
+
+static int set_is_debug_enabled(lua_State* lua_state) {
+    // Replacement for jms SetExt(#debug) function, aka EFSET(EFV_DEBUG)
+    bool argument;
+
+    if(TryGetLuaCFunctionBooleanArgAtIndex(lua_state, 1, &argument)) {
+        SetDebugEnabled(argument);
+    }
+
     return 0;
 }
 
@@ -2431,12 +2497,42 @@ static void InitializeLuaScript(lua_State* lua_state) {
     }
 }
 
-static void CallLuaFunction(lua_State* lua_state, const char* function_name) {
+static void PushGameActionAsTable(lua_State* lua_state, GameAction* game_action) {
+    lua_newtable(lua_state);
+    lua_pushboolean(lua_state, game_action->is_pressed);
+    lua_setfield(lua_state, -2, "is_pressed");
+    lua_pushboolean(lua_state, game_action->just_pressed);
+    lua_setfield(lua_state, -2, "just_pressed");
+}
+
+static void PushGameInputAsTable(lua_State* lua_state, GameInput* game_input) {
+    lua_newtable(lua_state);
+    PushGameActionAsTable(lua_state, &game_input->move_left_action);
+    lua_setfield(lua_state, -2, "move_left_action");
+    PushGameActionAsTable(lua_state, &game_input->move_right_action);
+    lua_setfield(lua_state, -2, "move_right_action");
+    PushGameActionAsTable(lua_state, &game_input->move_down_action);
+    lua_setfield(lua_state, -2, "move_down_action");
+    PushGameActionAsTable(lua_state, &game_input->move_up_action);
+    lua_setfield(lua_state, -2, "move_up_action");
+    PushGameActionAsTable(lua_state, &game_input->jump_action);
+    lua_setfield(lua_state, -2, "jump_action");
+    PushGameActionAsTable(lua_state, &game_input->attack_action);
+    lua_setfield(lua_state, -2, "attack_action");
+    PushGameActionAsTable(lua_state, &game_input->select_action);
+    lua_setfield(lua_state, -2, "select_action");
+    PushGameActionAsTable(lua_state, &game_input->debug_action);
+    lua_setfield(lua_state, -2, "debug_action");
+}
+
+static void CallLuaFunction(lua_State* lua_state, const char* function_name, GameInput* game_input) {
     lua_getglobal(lua_state, function_name);
 
     // TODO: Error handling when calling invalid functions?
     if(lua_isfunction(lua_state, -1) != 0) {
-        if (lua_pcall(lua_state, 0, 0, 0) != 0) {
+        PushGameInputAsTable(lua_state, game_input);
+
+        if(lua_pcall(lua_state, 1, 0, 0) != 0) {
             const char* error_message = lua_tostring(lua_state, -1);
             assert(false);  // TODO: Error handling
         }
@@ -3072,7 +3168,7 @@ static void GrabDonuts(GameInput* game_input) {
             if(g_script_level_script_is_lua) {
                 // TODO: Pass g_donut_objects[iLoop].Num instead of just setting it in g_script_event_data_1
                 //       Also, maybe get rid of those script event data passing stuff alltogether
-                CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut");  // TODO: Extfunction is going to need game_input passed to it
+                CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut", game_input);
             } else {
                 RunScript(&g_script_level_script_context, g_script_donut_subroutine_handle, game_input);
             }
@@ -3113,7 +3209,7 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
 
 static void ResetPlayer(int iNewLevel, GameInput* game_input) {
     if(g_script_level_script_is_lua) {
-        CallLuaFunction(g_script_level_script_lua_state, "reset");  // TODO: Extfunction is going to need game_input passed to it
+        CallLuaFunction(g_script_level_script_lua_state, "reset", game_input);
     } else {
         long iResetScript = FindScript(&g_script_level_script_context, "reset");
         RunScript(&g_script_level_script_context, iResetScript, game_input);
@@ -3315,7 +3411,7 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
         SetGamePerspective();
 
         if(g_script_level_script_is_lua) {
-            CallLuaFunction(g_script_level_script_lua_state, "update");  // TODO: Extfunction is going to need game_input passed to it
+            CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
         } else {
             RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
         }
@@ -3566,7 +3662,7 @@ static void LoadJumpmanMenu(const char* base_path) {
 static void InteractMenu(GameInput* game_input) {
     if(g_script_level_script_is_lua) {
         // TODO: Implement
-        CallLuaFunction(g_script_level_script_lua_state, "update");  // TODO: Extfunction is going to need game_input passed to it
+        CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
     } else {
         RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
     }
