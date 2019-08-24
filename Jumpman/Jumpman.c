@@ -1511,7 +1511,7 @@ static int get_script_selected_level_object_this(lua_State* lua_state) {
 
 static int get_script_selected_level_object_visible(lua_State* lua_state) {
     // Replacement for jms GetSel(#sVisible) function, aka EFGETSEL(EFS_VISIBLE)
-    lua_pushnumber(lua_state, g_script_selected_level_object->Visible);
+    lua_pushboolean(lua_state, g_script_selected_level_object->Visible);
     return 1;
 }
 

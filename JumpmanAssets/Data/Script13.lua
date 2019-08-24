@@ -192,9 +192,9 @@ function ResetVisible(visibility_bitmask)
         local iPlat = get_script_selected_level_object_number();
 
         if visibility_bitmask == 1 then
-            set_object_visual_data(resources.TextureInvisible, get_script_selected_level_object_visible());
+            set_object_visual_data(resources.TextureInvisible, get_script_selected_level_object_visible() and 1 or 0);
         else
-            set_object_visual_data(resources.TextureRedMetal, get_script_selected_level_object_visible());
+            set_object_visual_data(resources.TextureRedMetal, get_script_selected_level_object_visible() and 1 or 0);
         end
     end
 end
