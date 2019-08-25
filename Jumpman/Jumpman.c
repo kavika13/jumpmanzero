@@ -2162,6 +2162,17 @@ static int script_collide_wall(lua_State* lua_state) {
     return 1;
 }
 
+static int script_set_fog(lua_State* lua_state) {
+    // Replacement for jms SetFog(float fog_start, float fog_end, int red, int green, int blue) function, aka EFSETFOG
+    lua_Number fog_start_arg = luaL_checknumber(lua_state, 1);
+    lua_Number fog_end_arg = luaL_checknumber(lua_state, 2);
+    lua_Integer red_arg = luaL_checkinteger(lua_state, 3);
+    lua_Integer green_arg = luaL_checkinteger(lua_state, 4);
+    lua_Integer blue_arg = luaL_checkinteger(lua_state, 5);
+    SetFog((float)fog_start_arg, (float)fog_end_arg, red_arg & 0xFF, green_arg & 0xFF, blue_arg & 0xFF);
+    return 0;
+}
+
 static int play_sound_effect(lua_State* lua_state) {
     // Replacement for jms Sound(int sound_effect_slot_index) function, aka EFSOUND
     double arg1 = luaL_checknumber(lua_state, 1);
@@ -2456,6 +2467,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "abs_vine");
     lua_pushcfunction(lua_state, script_collide_wall);
     lua_setglobal(lua_state, "collide_wall");
+    lua_pushcfunction(lua_state, script_set_fog);
+    lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
     lua_pushcfunction(lua_state, is_player_colliding_with_rect);
