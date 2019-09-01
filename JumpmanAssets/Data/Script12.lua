@@ -1,14 +1,4 @@
--- TODO: Move this into a shared file, and check for other/better impls,
---       in case there are any (haven't looked)
-function make_read_only(tbl)
-    return setmetatable({}, {
-        __index = tbl,
-        __newindex = function(t, key, value)
-            error("attempting to change constant " ..
-                   tostring(key) .. " to " .. tostring(value), 2)
-        end
-    })
-end
+local read_only = require "Data/read_only";
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {
@@ -24,7 +14,7 @@ local player_state = {
     JSDYING = 256,
     JSVINE = 1024,
 }
-player_state = make_read_only(player_state)
+player_state = read_only.make_table_read_only(player_state)
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -46,7 +36,7 @@ local resources = {
     TextureBigHive = 6,
     SoundBee = 4,
 }
-resources = make_read_only(resources)
+resources = read_only.make_table_read_only(resources)
 
 local is_initialized, collected_donut_count = false, 0;
 

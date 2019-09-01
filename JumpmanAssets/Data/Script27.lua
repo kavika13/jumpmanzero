@@ -1,14 +1,4 @@
--- TODO: Move this into a shared file, and check for other/better impls,
---       in case there are any (haven't looked)
-function make_read_only(tbl)
-    return setmetatable({}, {
-        __index = tbl,
-        __newindex = function(t, key, value)
-            error("attempting to change constant " ..
-                   tostring(key) .. " to " .. tostring(value), 2)
-        end
-    });
-end
+local read_only = require "Data/read_only";
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {
@@ -24,7 +14,7 @@ local player_state = {
     JSDYING = 256,
     JSVINE = 1024,
 }
-player_state = make_read_only(player_state);
+player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local camera_mode = {
@@ -35,7 +25,7 @@ local camera_mode = {
     PerspectiveFollow = 4,
     PerspectiveFixed = 5,
 }
-camera_mode = make_read_only(camera_mode);
+camera_mode = read_only.make_table_read_only(camera_mode);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -76,7 +66,7 @@ local resources = {
     TextureLightning = 13,
     TextureClearBlue = 14,
 }
-resources = make_read_only(resources);
+resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
 local blob_properties = {
@@ -89,7 +79,7 @@ local blob_properties = {
     BlobIFrame = 6,
     BlobIAngle = 7,
 }
-blob_properties = make_read_only(blob_properties);
+blob_properties = read_only.make_table_read_only(blob_properties);
 
 -- TODO: Separate file?
 z_donut_properties = {
@@ -106,7 +96,7 @@ z_donut_properties = {
     ZDonutIBlastTime = 30,
     ZDonutNoStop = 31,
 }
-z_donut_properties = make_read_only(z_donut_properties);
+z_donut_properties = read_only.make_table_read_only(z_donut_properties);
 
 -- TODO: Separate file?
 local beam_properties = {
@@ -137,7 +127,7 @@ local beam_properties = {
     BeamIShowBlast = 24,
     BeamICollideDir = 25,
 }
-beam_properties = make_read_only(beam_properties);
+beam_properties = read_only.make_table_read_only(beam_properties);
 
 local kPLAY_AREA_CIRCUMFERENCE = 281;
 
