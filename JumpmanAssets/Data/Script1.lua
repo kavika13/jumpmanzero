@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local bullet_module = loadfile("Data/bullet.lua");
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {
@@ -45,30 +46,8 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local bullet_properties = {
-    BulletIFiring = 0,
-    BulletResMesh1 = 1,
-    BulletResMesh2 = 2,
-    BulletResTexture = 3,
-    BulletIInit = 4,
-    BulletIX = 5,
-    BulletIY = 6,
-    BulletIZ = 7,
-    BulletIXV = 8,
-    BulletIYV = 9,
-    BulletIMesh1 = 10,
-    BulletIMesh2 = 11,
-    BulletISlow = 12,
-    BulletIOut = 13,
-    BulletISpin1 = 14,
-    BulletISpin2 = 15,
-    BulletWait = 16,
-    BulletIMaxx = 17,
-}
-bullet_properties = read_only.make_table_read_only(bullet_properties);
-
 local g_is_initialized = false;
+local bullets = {};
 
 local g_is_object_1_moving = false;
 local g_object_1_animation_frame = 0;
@@ -86,17 +65,21 @@ function update()
     if not g_is_initialized then
         g_is_initialized = true;
 
-        local iTemp = spawn_object(resources.ScriptBullet);
-        set_object_global_data(iTemp, bullet_properties.BulletWait, 100);
-        set_object_global_data(iTemp, bullet_properties.BulletResMesh1, resources.MeshBullet1);
-        set_object_global_data(iTemp, bullet_properties.BulletResMesh2, resources.MeshBullet2);
-        set_object_global_data(iTemp, bullet_properties.BulletResTexture, resources.TextureBullet);
+        local iTemp = bullet_module();
+        iTemp.FramesToWait = 100;
+        iTemp.Mesh1Index = resources.MeshBullet1;
+        iTemp.Mesh2Index = resources.MeshBullet2;
+        iTemp.TextureIndex = resources.TextureBullet;
+        iTemp.FireSoundIndex = resources.SoundFire;
+        table.insert(bullets, iTemp);
 
-        iTemp = spawn_object(resources.ScriptBullet);
-        set_object_global_data(iTemp, bullet_properties.BulletWait, 30);
-        set_object_global_data(iTemp, bullet_properties.BulletResMesh1, resources.MeshBullet1);
-        set_object_global_data(iTemp, bullet_properties.BulletResMesh2, resources.MeshBullet2);
-        set_object_global_data(iTemp, bullet_properties.BulletResTexture, resources.TextureBullet);
+        iTemp = bullet_module();
+        iTemp.FramesToWait = 30;
+        iTemp.Mesh1Index = resources.MeshBullet1;
+        iTemp.Mesh2Index = resources.MeshBullet2;
+        iTemp.TextureIndex = resources.TextureBullet;
+        iTemp.FireSoundIndex = resources.SoundFire;
+        table.insert(bullets, iTemp);
     end
 
     if g_is_object_1_moving then
@@ -173,6 +156,10 @@ function update()
             script_selected_mesh_translate_matrix(1000, 0, 0);
         end
     end
+
+    for _, bullet in ipairs(bullets) do
+        bullet.update();
+    end
 end
 
 function MoveLadder(iLadder, iPos)
@@ -233,4 +220,8 @@ function reset()
     set_player_current_position_y(65);
     set_player_current_position_z(9);
     set_player_current_state(player_state.JSNORMAL);
+
+    for _, bullet in ipairs(bullets) do
+        bullet.reset_pos();
+    end
 end
