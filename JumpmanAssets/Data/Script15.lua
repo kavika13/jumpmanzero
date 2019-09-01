@@ -39,29 +39,6 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
-local bullet_properties = {
-    BulletIFiring = 0,
-    BulletResMesh1 = 1,
-    BulletResMesh2 = 2,
-    BulletResTexture = 3,
-    BulletIInit = 4,
-    BulletIX = 5,
-    BulletIY = 6,
-    BulletIZ = 7,
-    BulletIXV = 8,
-    BulletIYV = 9,
-    BulletIMesh1 = 10,
-    BulletIMesh2 = 11,
-    BulletISlow = 12,
-    BulletIOut = 13,
-    BulletISpin1 = 14,
-    BulletISpin2 = 15,
-    BulletWait = 16,
-    BulletIMaxX = 17,
-}
-bullet_properties = read_only.make_table_read_only(bullet_properties);
-
--- TODO: Separate file?
 local z_plat_properties = {
     ZPlatICount = 0,
     ZPlatStatus = 1,

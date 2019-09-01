@@ -47,7 +47,7 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
-local bullets = {};
+local g_bullets = {};
 
 local g_is_object_1_moving = false;
 local g_object_1_animation_frame = 0;
@@ -71,7 +71,7 @@ function update()
         iTemp.Mesh2Index = resources.MeshBullet2;
         iTemp.TextureIndex = resources.TextureBullet;
         iTemp.FireSoundIndex = resources.SoundFire;
-        table.insert(bullets, iTemp);
+        table.insert(g_bullets, iTemp);
 
         iTemp = bullet_module();
         iTemp.FramesToWait = 30;
@@ -79,7 +79,7 @@ function update()
         iTemp.Mesh2Index = resources.MeshBullet2;
         iTemp.TextureIndex = resources.TextureBullet;
         iTemp.FireSoundIndex = resources.SoundFire;
-        table.insert(bullets, iTemp);
+        table.insert(g_bullets, iTemp);
     end
 
     if g_is_object_1_moving then
@@ -157,7 +157,7 @@ function update()
         end
     end
 
-    for _, bullet in ipairs(bullets) do
+    for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
 end
@@ -221,7 +221,7 @@ function reset()
     set_player_current_position_z(9);
     set_player_current_state(player_state.JSNORMAL);
 
-    for _, bullet in ipairs(bullets) do
+    for _, bullet in ipairs(g_bullets) do
         bullet.reset_pos();
     end
 end

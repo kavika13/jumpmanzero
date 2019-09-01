@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local bullet_module = loadfile("Data/bullet.lua");
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {
@@ -66,40 +67,20 @@ local run_donut_properties = {
 }
 run_donut_properties = read_only.make_table_read_only(run_donut_properties);
 
--- TODO: Separate file?
-local bullet_properties = {
-    BulletIFiring = 0,
-    BulletResMesh1 = 1,
-    BulletResMesh2 = 2,
-    BulletResTexture = 3,
-    BulletIInit = 4,
-    BulletIX = 5,
-    BulletIY = 6,
-    BulletIZ = 7,
-    BulletIXV = 8,
-    BulletIYV = 9,
-    BulletIMesh1 = 10,
-    BulletIMesh2 = 11,
-    BulletISlow = 12,
-    BulletIOut = 13,
-    BulletISpin1 = 14,
-    BulletISpin2 = 15,
-    BulletWait = 16,
-    BulletIMaxX = 17,
-}
-bullet_properties = read_only.make_table_read_only(bullet_properties);
-
 local is_initialized = false;
+local g_bullets = {};
 
 function update()
     if not is_initialized then
         is_initialized = true;
 
-        local iTemp = spawn_object(resources.ScriptBullet);
-        set_object_global_data(iTemp, bullet_properties.BulletWait, 100);
-        set_object_global_data(iTemp, bullet_properties.BulletResMesh1, resources.MeshBullet1);
-        set_object_global_data(iTemp, bullet_properties.BulletResMesh2, resources.MeshBullet2);
-        set_object_global_data(iTemp, bullet_properties.BulletResTexture, resources.TextureBullet);
+        local iTemp = bullet_module();
+        iTemp.FramesToWait = 100;
+        iTemp.Mesh1Index = resources.MeshBullet1;
+        iTemp.Mesh2Index = resources.MeshBullet2;
+        iTemp.TextureIndex = resources.TextureBullet;
+        iTemp.FireSoundIndex = resources.SoundFire;
+        table.insert(g_bullets, iTemp);
 
         local iX = 40;
 
@@ -118,6 +99,10 @@ function update()
             iX = iX + 20;
         end
     end
+
+    for _, bullet in ipairs(g_bullets) do
+        bullet.update();
+    end
 end
 
 function reset()
@@ -125,4 +110,8 @@ function reset()
     set_player_current_position_y(4);
     set_player_current_position_z(2);
     set_player_current_state(player_state.JSNORMAL);
+
+    for _, bullet in ipairs(g_bullets) do
+        bullet.reset_pos();
+    end
 end
