@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local baboon_module = loadfile("Data/baboon.lua");
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {
@@ -48,59 +49,21 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local baboon_properties = {
-    BaboonIInit = 0,
-    BaboonIMeshes = 1,
-    BaboonIFrame = 32,
-    BaboonIX = 33,
-    BaboonIY = 34,
-    BaboonIZ = 35,
-    BaboonIYV = 36,
-    BaboonISlow = 37,
-    BaboonStartX = 38,
-    BaboonStartY = 39,
-    BaboonIAnimate = 40,
-}
-baboon_properties = read_only.make_table_read_only(baboon_properties);
-
 local g_is_initialized = false;
+local baboons = {};
 
 local g_hang_animation_current_frame;
 local g_hang_animation_next_frame_counter = 0;
 local iHangMesh = {};
 
-function update(game_input)
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_hang_animation_current_frame = 1;
-
-        FixHangPlatforms();
-
-        set_level_extent_x(260);
-
-        StartBaboon(76, 170);
-        StartBaboon(207, 90);
-        StartBaboon(138, 70);
-        StartBaboon(187, 30);
-        StartBaboon(227, 60);
-        StartBaboon(177, 120);
-        StartBaboon(32, 160);
-
-        StartBaboon(64, 60);
-        StartBaboon(84, 70);
-    end
-
-    CheckHanging(game_input);
+local function StartBaboon(iX, iY);
+    local new_baboon = baboon_module();
+    new_baboon.StartX = iX - 2.5;
+    new_baboon.StartY = iY;
+    table.insert(baboons, new_baboon);
 end
 
-function StartBaboon(iX, iY);
-    local iBab = spawn_object(resources.ScriptBaboon);
-    set_object_global_data(iBab, baboon_properties.BaboonStartX, iX - 2.5);
-    set_object_global_data(iBab, baboon_properties.BaboonStartY, iY);
-end
-
-function CheckHanging(game_input)
+local function CheckHanging(game_input)
     for iDraw = 0, 19 do
         if iHangMesh[iDraw] and iHangMesh[iDraw] > 0 then
             select_object_mesh(iHangMesh[iDraw]);
@@ -162,7 +125,7 @@ function CheckHanging(game_input)
     end
 end
 
-function FixHangPlatforms()
+local function FixHangPlatforms()
     local platform_count = get_platform_object_count();
 
     for iPlat = 0, platform_count - 1 do
@@ -202,6 +165,34 @@ function FixHangPlatforms()
 
     iHangMesh[14] = new_mesh(resources.MeshHangL4);
     prioritize_object();
+end
+
+function update(game_input)
+    if not g_is_initialized then
+        g_is_initialized = true;
+        g_hang_animation_current_frame = 1;
+
+        FixHangPlatforms();
+
+        set_level_extent_x(260);
+
+        StartBaboon(76, 170);
+        StartBaboon(207, 90);
+        StartBaboon(138, 70);
+        StartBaboon(187, 30);
+        StartBaboon(227, 60);
+        StartBaboon(177, 120);
+        StartBaboon(32, 160);
+
+        StartBaboon(64, 60);
+        StartBaboon(84, 70);
+    end
+
+    CheckHanging(game_input);
+
+    for _, baboon in ipairs(baboons) do
+        baboon.update();
+    end
 end
 
 function reset()
