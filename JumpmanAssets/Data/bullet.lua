@@ -143,6 +143,14 @@ local function CheckOOB()
 end
 
 function Module.update()
+    if not g_is_initialized then
+        g_is_initialized = true;
+        g_mesh_index_1 = new_mesh(Module.Mesh1Index);
+        g_mesh_index_2 = new_mesh(Module.Mesh2Index);
+        g_maximum_pos_x = get_level_extent_x() + 40;
+        RestartBullet();
+    end
+
     if Module.FramesToWait > 0 then
         Module.FramesToWait = Module.FramesToWait - 1;
         return;
@@ -150,14 +158,6 @@ function Module.update()
 
     if get_player_freeze_cooldown_frame_count() ~= 0 then
         RestartBullet();
-    end
-
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_mesh_index_1 = new_mesh(Module.Mesh1Index);
-        g_mesh_index_2 = new_mesh(Module.Mesh2Index);
-        RestartBullet();
-        g_maximum_pos_x = get_level_extent_x() + 40;
     end
 
     g_pos_z_correction_current_frame_index = g_pos_z_correction_current_frame_index + 1;
