@@ -1,16 +1,8 @@
--- TODO: Move this into a shared file, and check for other/better impls,
---       in case there are any (haven't looked)
-function make_read_only(tbl)
-    return setmetatable({}, {
-        __index = tbl,
-        __newindex = function(t, key, value)
-            error("attempting to change constant " ..
-                   tostring(key) .. " to " .. tostring(value), 2)
-        end
-    });
-end
+local read_only = require "Data/read_only";
+local prop_module = loadfile("Data/prop.lua");
+local whomper_module = loadfile("Data/whomper.lua");
 
--- TODO: Move this into a shared file, split into separate tables by type
+-- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
     JSJUMPING = 1,
@@ -24,89 +16,13 @@ local player_state = {
     JSDYING = 256,
     JSVINE = 1024,
 }
-player_state = make_read_only(player_state);
-
--- TODO: Auto-generate this table as separate file, and import it here?
-local resources = {
-    TextureJumpman = 0,
-    TextureConveyor = 1,
-    TextureWaterBack = 2,
-    TextureRedMetal = 3,
-    TextureDarkSky = 4,
-    SoundJump = 0,
-    Soundchomp = 1,
-    Soundbonk = 2,
-    SoundFire = 3,
-    ScriptBullet = 0,
-    MeshBullet1 = 0,
-    MeshBullet2 = 1,
-    TextureBullet = 5,
-    MeshWhomper = 2,
-    Meshprop = 3,
-    TextureBoringGray = 6,
-    ScriptWhomper = 1,
-    ScriptProp = 2,
-    TextureConveyor = 7,
-}
-resources = make_read_only(resources);
-
--- TODO: Separate file?
-local whomper_properties = {
-    WhomperInit = 0,
-    WhomperMesh = 1,
-    WhomperX = 2,
-    WhomperY = 3,
-    WhomperR = 4,
-    WhomperRV = 5,
-}
-whomper_properties = make_read_only(whomper_properties);
-
--- TODO: Separate file?
-local propeller_properties = {
-    PropInit = 0,
-    PropMesh = 1,
-    PropX = 2,
-    PropY = 3,
-    PropZ = 4,
-    PropR = 5,
-}
-propeller_properties = make_read_only(propeller_properties);
+player_state = read_only.make_table_read_only(player_state);
 
 local is_initialized = false;
+local propellers = {};
+local whompers = {};
 
-function update()
-    if not is_initialized then
-        is_initialized = true;
-
-        CreateWhomper(86, 28, 50, 3);
-        CreateWhomper(100, 28, 0, 3);
-        CreateWhomper(114, 28, 1, -3);
-        CreateWhomper(128, 28, -90, 1);
-
-        CreateWhomper(55, 143, 0, 3);
-        CreateWhomper(73, 143, 50, 3);
-        CreateWhomper(95, 143, -50, -3);
-
-        CreateProp(34, 90, 80, 5);
-        CreateProp(34, 90, 120, 5);
-
-        CreateProp(60, 46, 90, 2);
-        CreateProp(60, 56, 90, 2);
-
-        CreateProp(120, 46, 335, 2);
-        CreateProp(120, 46, 25, 2);
-
-        CreateProp(99, 105, 80, 2);
-        CreateProp(101, 97, 25, 2);
-    end
-
-    ConveyPlatform(1, 0.04);
-    ConveyPlatform(2, -0.02);
-    ConveyPlatform(3, 0.04);
-    ConveyPlatform(4, -0.04);
-end
-
-function ConveyPlatform(iPlat, iDist)
+local function ConveyPlatform(iPlat, iDist)
     select_platform(iPlat)
     script_selected_mesh_scroll_texture(iDist * 16, 0)
 
@@ -145,20 +61,62 @@ function ConveyPlatform(iPlat, iDist)
     -- end
 end
 
-function CreateProp(iX, iY, iR, iZ)
-    local iProp = spawn_object(resources.ScriptProp);
-    set_object_global_data(iProp, propeller_properties.PropX, iX);
-    set_object_global_data(iProp, propeller_properties.PropY, iY);
-    set_object_global_data(iProp, propeller_properties.PropR, iR);
-    set_object_global_data(iProp, propeller_properties.PropZ, iZ);
+local function CreateProp(iX, iY, iR, iZ)
+    local new_prop = prop_module();
+    new_prop.iX = iX;
+    new_prop.iY = iY;
+    new_prop.iR = iR;
+    new_prop.iZ = iZ;
+    table.insert(propellers, new_prop);
 end
 
-function CreateWhomper(iX, iY, iR, iRV)
-    local iWhomp = spawn_object(resources.ScriptWhomper);
-    set_object_global_data(iWhomp, whomper_properties.WhomperX, iX);
-    set_object_global_data(iWhomp, whomper_properties.WhomperY, iY);
-    set_object_global_data(iWhomp, whomper_properties.WhomperR, iR);
-    set_object_global_data(iWhomp, whomper_properties.WhomperRV, iRV);
+local function CreateWhomper(iX, iY, iR, iRV)
+    local new_whomper = whomper_module();
+    new_whomper.iX = iX;
+    new_whomper.iY = iY;
+    new_whomper.iR = iR;
+    new_whomper.iRV = iRV;
+    table.insert(whompers, new_whomper);
+end
+
+function update()
+    if not is_initialized then
+        is_initialized = true;
+
+        CreateWhomper(86, 28, 50, 3);
+        CreateWhomper(100, 28, 0, 3);
+        CreateWhomper(114, 28, 1, -3);
+        CreateWhomper(128, 28, -90, 1);
+
+        CreateWhomper(55, 143, 0, 3);
+        CreateWhomper(73, 143, 50, 3);
+        CreateWhomper(95, 143, -50, -3);
+
+        CreateProp(34, 90, 80, 5);
+        CreateProp(34, 90, 120, 5);
+
+        CreateProp(60, 46, 90, 2);
+        CreateProp(60, 56, 90, 2);
+
+        CreateProp(120, 46, 335, 2);
+        CreateProp(120, 46, 25, 2);
+
+        CreateProp(99, 105, 80, 2);
+        CreateProp(101, 97, 25, 2);
+    end
+
+    ConveyPlatform(1, 0.04);
+    ConveyPlatform(2, -0.02);
+    ConveyPlatform(3, 0.04);
+    ConveyPlatform(4, -0.04);
+
+    for _, propeller in ipairs(propellers) do
+        propeller.update();
+    end
+
+    for _, whomper in ipairs(whompers) do
+        whomper.update();
+    end
 end
 
 function reset()
