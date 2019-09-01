@@ -2193,6 +2193,22 @@ static int is_player_colliding_with_rect(lua_State* lua_state) {
     return 1;
 }
 
+static int script_kill(lua_State* lua_state) {
+    // Replacement for jms Kill() function, aka EFKILL
+    if(!(g_player_current_state & kPlayerStateDying)) {
+        StopMusic1();
+        g_player_current_state = kPlayerStateDying;
+        g_player_current_special_action = kPlayerSpecialActionNone;
+        g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
+        g_player_dying_animation_state_frame_count = 0;
+        g_player_velocity_x = 0;
+        g_player_absolute_frame_count = g_player_current_state_frame_count;
+        g_player_current_state_frame_count = 1000;
+    }
+
+    return 0;
+}
+
 static int script_win(lua_State* lua_state) {
     // Replacement for jms win() function, aka EFWIN
     StopMusic1();
@@ -2473,6 +2489,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "play_sound_effect");
     lua_pushcfunction(lua_state, is_player_colliding_with_rect);
     lua_setglobal(lua_state, "is_player_colliding_with_rect");
+    lua_pushcfunction(lua_state, script_kill);
+    lua_setglobal(lua_state, "kill");
     lua_pushcfunction(lua_state, script_win);
     lua_setglobal(lua_state, "win");
     lua_pushcfunction(lua_state, script_select_object_mesh);
