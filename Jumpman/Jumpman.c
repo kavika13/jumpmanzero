@@ -2560,6 +2560,7 @@ static void InitializeLuaScript(lua_State* lua_state) {
     //       and it just loads a lua script for each object context.
     //       In which case, separating InitializeLuaScript from LoadLuaScript might make no sense.
     if(lua_pcall(lua_state, 0, 0, 0) != 0) {
+        const char* error_message = lua_tostring(lua_state, -1);
         assert(false);  // TODO: Error handling
     }
 }
