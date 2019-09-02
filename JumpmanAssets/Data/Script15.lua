@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local disappearing_platform_module = assert(loadfile("Data/disappearing_platform.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -38,21 +39,8 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local z_plat_properties = {
-    ZPlatICount = 0,
-    ZPlatStatus = 1,
-    ZPlatPlatform = 2,
-    ZPlatBadColor = 3,
-    ZPlatGoodColor = 4,
-    ZPlatIMode = 5,
-    ZPlatIPos = 6,
-    ZPlatIOriginalZ = 7,
-    ZPlatIInit = 8,
-}
-z_plat_properties = read_only.make_table_read_only(z_plat_properties);
-
 local is_initialized = false;
+local g_disappearing_platforms = {};
 local iBlow = 0;
 
 function update()
@@ -71,24 +59,25 @@ function update()
         set_level_extent_x(180);
         InitPlatforms();
     end
+
+    for _, plat in ipairs(g_disappearing_platforms) do
+        plat.update();
+    end
 end
 
 function InitPlatforms()
     local iPlat = 0;
 
-    while iPlat < get_platform_object_count()
-    do
+    for iPlat = 0, get_platform_object_count() - 1 do
         abs_platform(iPlat);
 
         if get_script_selected_level_object_number() ~= 0 then
-            local iNew = spawn_object(resources.ScriptZPlat);
-            set_object_global_data(iNew, z_plat_properties.ZPlatStatus, 1);
-            set_object_global_data(iNew, z_plat_properties.ZPlatPlatform, iPlat);
-            set_object_global_data(iNew, z_plat_properties.ZPlatGoodColor, resources.TextureYellowPlatform);
-            set_object_global_data(iNew, z_plat_properties.ZPlatBadColor, resources.TextureRedPlatform);
+            local iNew = disappearing_platform_module();
+            iNew.ObjectIndex = iPlat;
+            iNew.GoodColorTextureResourceIndex = resources.TextureYellowPlatform;
+            iNew.BadColorTextureResourceIndex = resources.TextureRedPlatform;
+            table.insert(g_disappearing_platforms, iNew);
         end
-
-        iPlat = iPlat + 1;
     end
 end
 
