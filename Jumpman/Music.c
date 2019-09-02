@@ -184,7 +184,7 @@ static uint32_t AddTrack2Samples(uint32_t frameCount, float* interleaved_stereo_
     return AddMidiSamples(1, &g_track_2, frameCount, interleaved_stereo_samples);
 }
 
-static void LoadAndPlayTrack(const char* filename, MusicTrack* track, int start_time_msec, int sound_channel_index, SoundChannel sound_channel) {
+static void LoadAndPlayTrack(const char* filename, MusicTrack* track, unsigned int start_time_music_time, int sound_channel_index, SoundChannel sound_channel) {
     tml_message* tiny_midi_loader = NULL;
     tiny_midi_loader = tml_load_filename(filename);
 
@@ -199,7 +199,8 @@ static void LoadAndPlayTrack(const char* filename, MusicTrack* track, int start_
     track->current_midi_message = track->first_midi_message = tiny_midi_loader;
     track->current_playback_timestamp_msec = 0.0;
 
-    if(start_time_msec > 0) {
+    if(start_time_music_time > 0) {
+        unsigned int start_time_msec = MusicTimeToMilliseconds(track->first_midi_message, start_time_music_time);
         SeekTrack(track, start_time_msec);
     }
 
@@ -293,7 +294,7 @@ void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigne
     static unsigned int g_current_track_song_start_music_time = 0;
     static unsigned int g_current_track_loop_start_music_time = 0;
 
-    LoadAndPlayTrack(filename, &g_track_1, MusicTimeToMilliseconds(g_track_1.first_midi_message, song_start_music_time), 0, AddTrack1Samples);
+    LoadAndPlayTrack(filename, &g_track_1, song_start_music_time, 0, AddTrack1Samples);
 }
 
 void NewTrack2(const char* filename) {
