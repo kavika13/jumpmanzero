@@ -1,5 +1,5 @@
 local read_only = require "Data/read_only";
-local bullet_module = loadfile("Data/bullet.lua");
+local bullet_module = assert(loadfile("Data/bullet.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {

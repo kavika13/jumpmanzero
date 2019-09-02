@@ -1,6 +1,6 @@
 local read_only = require "Data/read_only";
-local prop_module = loadfile("Data/prop.lua");
-local whomper_module = loadfile("Data/whomper.lua");
+local prop_module = assert(loadfile("Data/prop.lua"));
+local whomper_module = assert(loadfile("Data/whomper.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {

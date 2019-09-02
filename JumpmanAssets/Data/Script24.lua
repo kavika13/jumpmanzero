@@ -1,5 +1,5 @@
 local read_only = require "Data/read_only";
-local baboon_module = loadfile("Data/baboon.lua");
+local baboon_module = assert(loadfile("Data/baboon.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {
