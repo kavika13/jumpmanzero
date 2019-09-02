@@ -1,4 +1,6 @@
 local read_only = require "Data/read_only";
+local wave_module = assert(loadfile("Data/wave.lua"));
+local drop_module = assert(loadfile("Data/drop.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type
 local player_state = {
@@ -41,48 +43,62 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local drop_properties = {
-    DropIInit = 0,
-    DropIMesh1 = 1,
-    DropIMesh2 = 2,
-    DropIX = 3,
-    DropIY = 4,
-    DropWait = 5,
-    DropIStatus = 6,
-    DropIFrame = 7,
-}
-drop_properties = read_only.make_table_read_only(drop_properties);
-
 local is_initialized = false;
+local g_drop_objects = {};
+local g_wave_object;
+
+local function IsDropTooCloseToOtherDrops(current_drop)
+    local current_x = current_drop.get_current_pos_x();
+
+    for _, other_drop in ipairs(g_drop_objects) do
+        if other_drop ~= current_drop then
+            local other_x = other_drop.get_current_pos_x();
+            local other_y = other_drop.get_current_pos_y();
+
+            if other_y > 120 and other_x < (current_x + 10) and other_x > (current_x - 10) then
+                return true;
+            end
+        end
+    end
+
+    return false;
+end
+
+local function CreateDropObject(frames_to_wait)
+    local new_drop_object = drop_module();
+    new_drop_object.IsTooCloseToOtherDropsCallback = IsDropTooCloseToOtherDrops;
+    new_drop_object.FramesToWait = frames_to_wait;
+    new_drop_object.DropMeshResourceIndex = resources.MeshDrop;
+    new_drop_object.DropTextureResourceIndices = { resources.TextureDrop, resources.TextureSplash1, resources.TextureSplash2, resources.TextureSplash3 };
+    return new_drop_object;
+end
 
 function update()
     if not is_initialized then
         is_initialized = true;
 
-        local iTemp = spawn_object(resources.ScriptDrop);
-        set_object_global_data(iTemp, drop_properties.DropWait, 700);
+        table.insert(g_drop_objects, CreateDropObject(700));
+        table.insert(g_drop_objects, CreateDropObject(600));
+        table.insert(g_drop_objects, CreateDropObject(500));
+        table.insert(g_drop_objects, CreateDropObject(400));
+        table.insert(g_drop_objects, CreateDropObject(300));
+        table.insert(g_drop_objects, CreateDropObject(200));
+        table.insert(g_drop_objects, CreateDropObject(100));
 
-        iTemp = spawn_object(resources.ScriptDrop);
-        set_object_global_data(iTemp, drop_properties.DropWait, 600);
-
-        iTemp = spawn_object(resources.ScriptDrop);
-        set_object_global_data(iTemp, drop_properties.DropWait, 500);
-
-        iTemp = spawn_object(resources.ScriptDrop);
-        set_object_global_data(iTemp, drop_properties.DropWait, 400);
-
-        iTemp = spawn_object(resources.ScriptDrop);
-        set_object_global_data(iTemp, drop_properties.DropWait, 300);
-
-        iTemp = spawn_object(resources.ScriptDrop);
-        set_object_global_data(iTemp, drop_properties.DropWait, 200);
-
-        iTemp = spawn_object(resources.ScriptDrop);
-        set_object_global_data(iTemp, drop_properties.DropWait, 100);
-
-        spawn_object(resources.ScriptWave);
+        local new_wave_object = wave_module();
+        new_wave_object.SeaMeshResourceIndex = resources.MeshSea;
+        new_wave_object.WaveMeshResourceIndex = resources.MeshWave;
+        new_wave_object.SeaTextureResourceIndex = resources.TextureSea;
+        new_wave_object.Wave1TextureResourceIndex = resources.TextureWave1;
+        new_wave_object.Wave2TextureResourceIndex = resources.TextureWave2;
+        g_wave_object = new_wave_object;
     end
+
+    for _, drop in ipairs(g_drop_objects) do
+        drop.update();
+    end
+
+    g_wave_object.update();
 end
 
 function reset()
