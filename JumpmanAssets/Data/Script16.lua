@@ -1,6 +1,6 @@
 local read_only = require "Data/read_only";
 
--- TODO: Move this into a shared file, split into separate tables by type
+-- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
     JSJUMPING = 1,
