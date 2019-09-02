@@ -2414,6 +2414,18 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_vine_object_count");
     lua_pushcfunction(lua_state, get_wall_object_count);
     lua_setglobal(lua_state, "get_wall_object_count");
+    lua_pushcfunction(lua_state, get_is_debug_enabled);
+    lua_setglobal(lua_state, "get_is_debug_enabled");
+    lua_pushcfunction(lua_state, get_script_object_count);
+    lua_setglobal(lua_state, "get_script_object_count");
+    lua_pushcfunction(lua_state, get_is_sound_enabled);
+    lua_setglobal(lua_state, "get_is_sound_enabled");
+    lua_pushcfunction(lua_state, get_is_music_enabled);
+    lua_setglobal(lua_state, "get_is_music_enabled");
+    lua_pushcfunction(lua_state, get_last_key_pressed);
+    lua_setglobal(lua_state, "get_last_key_pressed");
+    lua_pushcfunction(lua_state, get_current_fps);
+    lua_setglobal(lua_state, "get_current_fps");
     lua_pushcfunction(lua_state, set_current_camera_mode);
     lua_setglobal(lua_state, "set_current_camera_mode");
     lua_pushcfunction(lua_state, set_level_extent_x);
@@ -2448,6 +2460,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_script_event_data_3");
     lua_pushcfunction(lua_state, set_script_event_data_4);
     lua_setglobal(lua_state, "set_script_event_data_4");
+    lua_pushcfunction(lua_state, set_is_debug_enabled);
+    lua_setglobal(lua_state, "set_is_debug_enabled");
 
     lua_pushcfunction(lua_state, spawn_object);
     lua_setglobal(lua_state, "spawn_object");
