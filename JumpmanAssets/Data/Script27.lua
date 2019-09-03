@@ -1,4 +1,7 @@
 local read_only = require "Data/read_only";
+-- local beam_module = assert(loadfile("Data/beam.lua"));
+local blob_module = assert(loadfile("Data/blob.lua"));
+-- local z_donut_module = assert(loadfile("Data/z_donut.lua"));  -- TODO: Rename?
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -69,19 +72,6 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
-local blob_properties = {
-    BlobIInit = 0,
-    BlobIBlob = 1,
-    BlobIX = 2,
-    BlobIY = 3,
-    BlobIXV = 4,
-    BlobISlow = 5,
-    BlobIFrame = 6,
-    BlobIAngle = 7,
-}
-blob_properties = read_only.make_table_read_only(blob_properties);
-
--- TODO: Separate file?
 z_donut_properties = {
     ZDonutIShipX = 0,
     ZDonutIShipY = 1,
@@ -132,6 +122,7 @@ beam_properties = read_only.make_table_read_only(beam_properties);
 local kPLAY_AREA_CIRCUMFERENCE = 281;
 
 local g_init_stage_index = 0;
+local g_blobs = {};
 
 local g_frames_since_level_start = 0;
 
@@ -169,6 +160,17 @@ local g_z_donut_object_indices = {};
 local g_beam_count = 0;
 local g_beam_object_indices = {};
 
+local function CreateBlob(start_pos_x, start_pos_y)
+    local new_blob = blob_module();
+    new_blob.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;
+    new_blob.StartPosX = start_pos_x;
+    new_blob.StartPosY = start_pos_y;
+    new_blob.MoveRightMeshResourceIndices = { resources.MeshBlob1, resources.MeshBlob2, resources.MeshBlob3, resources.MeshBlob4 };
+    new_blob.MoveLeftMeshResourceIndices = { resources.MeshBlob4, resources.MeshBlob2L, resources.MeshBlob3L, resources.MeshBlob1 };
+    new_blob.TextureResourceIndex = resources.TextureAlien;
+    return new_blob;
+end
+
 function update()
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
@@ -192,21 +194,17 @@ function update()
 
         g_ship_y_position = 40;
 
-        local iBlob = spawn_object(resources.ScriptBlob);
-        set_object_global_data(iBlob, blob_properties.BlobIX, 118);
-        set_object_global_data(iBlob, blob_properties.BlobIY, 35);
+        local new_blob = CreateBlob(118, 35);
+        table.insert(g_blobs, new_blob);
 
-        iBlob = spawn_object(resources.ScriptBlob);
-        set_object_global_data(iBlob, blob_properties.BlobIX, 77);
-        set_object_global_data(iBlob, blob_properties.BlobIY, 58);
+        new_blob = CreateBlob(77, 58);
+        table.insert(g_blobs, new_blob);
 
-        iBlob = spawn_object(resources.ScriptBlob);
-        set_object_global_data(iBlob, blob_properties.BlobIX, 260);
-        set_object_global_data(iBlob, blob_properties.BlobIY, 80);
+        new_blob = CreateBlob(260, 80);
+        table.insert(g_blobs, new_blob);
 
-        iBlob = spawn_object(resources.ScriptBlob);
-        set_object_global_data(iBlob, blob_properties.BlobIX, 160);
-        set_object_global_data(iBlob, blob_properties.BlobIY, 75);
+        new_blob = CreateBlob(160, 75);
+        table.insert(g_blobs, new_blob);
     end
 
     RingPlatforms();
@@ -218,6 +216,10 @@ function update()
     SetFacing();
     ShowAlien();
     BeginBeams();
+
+    for _, blob in ipairs(g_blobs) do
+        blob.update();
+    end
 
     for iItem = 0, g_z_donut_count - 1 do
         set_object_global_data(g_z_donut_object_indices[iItem], z_donut_properties.ZDonutIShipX, g_ship_draw_position_x);
