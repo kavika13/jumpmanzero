@@ -1,4 +1,7 @@
 local read_only = require "Data/read_only";
+local tyrannosaurus_module = assert(loadfile("Data/tyrannosaurus.lua"));
+local triceratops_module = assert(loadfile("Data/triceratops.lua"));
+local pterodactyl_module = assert(loadfile("Data/pterodactyl.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -68,16 +71,41 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
-local is_initialized = false;
+local g_is_initialized = false;
+local g_tyrannosaurus;
+local g_triceratops;
+local g_pterodactyl;
 
 function update()
-    if not is_initialized then
-        is_initialized = true;
+    if not g_is_initialized then
+        g_is_initialized = true;
 
-        spawn_object(resources.ScriptTSaur);
-        spawn_object(resources.ScriptTRSaur);
-        spawn_object(resources.ScriptPSaur);
+        g_tyrannosaurus = tyrannosaurus_module();
+        g_tyrannosaurus.LeftStandMeshResourceIndex = resources.MeshTSaurStandL;
+        g_tyrannosaurus.RightStandMeshResourceIndex = resources.MeshTSaurStandR;
+        g_tyrannosaurus.LeftWalkMeshResourceIndices = { resources.MeshTSaurWalkL1, resources.MeshTSaurWalkL2, resources.MeshTSaurWalkL3, resources.MeshTSaurWalkL4 };
+        g_tyrannosaurus.RightWalkMeshResourceIndices = { resources.MeshTSaurWalkR1, resources.MeshTSaurWalkR2, resources.MeshTSaurWalkR3, resources.MeshTSaurWalkR4 };
+        g_tyrannosaurus.LeftYellMeshResourceIndices = { resources.MeshTSaurYL1, resources.MeshTSaurYL2, resources.MeshTSaurYL3, resources.MeshTSaurYL4 };
+        g_tyrannosaurus.RightYellMeshResourceIndices = { resources.MeshTSaurYR1, resources.MeshTSaurYR2, resources.MeshTSaurYR3, resources.MeshTSaurYR4 };
+        g_tyrannosaurus.RoarSoundResourceIndex = resources.SoundRoar;
+        g_tyrannosaurus.TextureResourceIndex = resources.TextureDinosaur;
+
+        g_triceratops = triceratops_module();
+        g_triceratops.LeftStandMeshResourceIndex = resources.MeshTRSaurStandL;
+        g_triceratops.RightStandMeshResourceIndex = resources.MeshTRSaurStandR;
+        g_triceratops.LeftWalkMeshResourceIndices = { resources.MeshTRSaurWalkL1, resources.MeshTRSaurWalkL2 };
+        g_triceratops.RightWalkMeshResourceIndices = { resources.MeshTRSaurWalkR1, resources.MeshTRSaurWalkR2 };
+        g_triceratops.TextureResourceIndex = resources.TextureDinosaur;
+
+        g_pterodactyl = pterodactyl_module();
+        g_pterodactyl.LeftMeshResourceIndices = { resources.MeshPSaurL1, resources.MeshPSaurL2, resources.MeshPSaurL3, resources.MeshPSaurL4 };
+        g_pterodactyl.RightMeshResourceIndices = { resources.MeshPSaurR1, resources.MeshPSaurR2, resources.MeshPSaurR3, resources.MeshPSaurR4 };
+        g_pterodactyl.TextureResourceIndex = resources.TextureDinosaur;
     end
+
+    g_tyrannosaurus.update();
+    g_triceratops.update();
+    g_pterodactyl.update();
 end
 
 function reset()
