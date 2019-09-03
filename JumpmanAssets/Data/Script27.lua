@@ -1,7 +1,7 @@
 local read_only = require "Data/read_only";
 -- local beam_module = assert(loadfile("Data/beam.lua"));
 local blob_module = assert(loadfile("Data/blob.lua"));
--- local z_donut_module = assert(loadfile("Data/z_donut.lua"));  -- TODO: Rename?
+local z_donut_module = assert(loadfile("Data/z_donut.lua"));  -- TODO: Rename?
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -72,23 +72,6 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
-z_donut_properties = {
-    ZDonutIShipX = 0,
-    ZDonutIShipY = 1,
-    ZDonutISinking = 2,
-    ZDonutDonut = 3,
-    ZDonutITime = 4,
-    ZDonutIX = 5,
-    ZDonutIY = 6,
-    ZDonutIDT = 7,
-    ZDonutIInit = 8,
-    ZDonutIBlasts = 9,
-    ZDonutIBlastTime = 30,
-    ZDonutNoStop = 31,
-}
-z_donut_properties = read_only.make_table_read_only(z_donut_properties);
-
--- TODO: Separate file?
 local beam_properties = {
     BeamIShipX = 0,
     BeamIShipY = 1,
@@ -154,8 +137,7 @@ local g_beam_1_object_index;
 local g_beam_2_object_index;
 local g_beam_3_object_index;
 
-local g_z_donut_count = 0;
-local g_z_donut_object_indices = {};
+local g_z_donut_objects = {};
 
 local g_beam_count = 0;
 local g_beam_object_indices = {};
@@ -221,10 +203,10 @@ function update()
         blob.update();
     end
 
-    for iItem = 0, g_z_donut_count - 1 do
-        set_object_global_data(g_z_donut_object_indices[iItem], z_donut_properties.ZDonutIShipX, g_ship_draw_position_x);
-        set_object_global_data(g_z_donut_object_indices[iItem], z_donut_properties.ZDonutIShipY, g_ship_draw_position_y);
-        set_object_global_data(g_z_donut_object_indices[iItem], z_donut_properties.ZDonutISinking, g_ship_sink_amount + g_ship_sink_delay_timer);
+    for _, z_donut in ipairs(g_z_donut_objects) do
+        z_donut.ShipPosX = g_ship_draw_position_x;
+        z_donut.ShipPosY = g_ship_draw_position_y;
+        z_donut.update();
     end
 
     for iItem = 0, g_beam_count - 1 do
@@ -503,16 +485,20 @@ function on_collect_donut()
     local iGot = get_script_event_data_1();
 
     if g_donuts_to_collect_count < 11 then
-        local iFly = spawn_object(resources.ScriptZDonut);
-        set_object_global_data(iFly, z_donut_properties.ZDonutDonut, iGot);
+        local iFly = z_donut_module();
+        iFly.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;
+        iFly.DonutIndex = iGot;
+        iFly.DonutTextureResourceIndex = resources.TextureRedMetal;
+        iFly.LightningTextureResourceIndex = resources.TextureLightning;
+        iFly.BlastParticleMeshResourceIndex = resources.MeshSquare;
+        iFly.BlastSoundResourceIndex = resources.SoundClasBomb;
 
         if g_donuts_to_collect_count == 1 then
-            set_object_global_data(iFly, z_donut_properties.ZDonutNoStop, 1);
+            iFly.IsLongFinalBlast = true;
             g_ship_sink_delay_timer = 110;
         end
 
-        g_z_donut_object_indices[g_z_donut_count] = iFly;
-        g_z_donut_count = g_z_donut_count + 1;
+        table.insert(g_z_donut_objects, iFly);
     end
 
     g_donuts_to_collect_count = g_donuts_to_collect_count - 1;
