@@ -2115,9 +2115,11 @@ static int script_cos(lua_State* lua_state) {
 
 static int script_atan2(lua_State* lua_state) {
     // Replacement for jms atan(double y, double x) function, aka EFATAN
+    // Note: Original code effectively gave the result of abs(x_arg) because it just returned atan(y_arg / x_arg) when x_arg != 0.0
+    //       This function now gives a different result when x_arg < 0.0
     double y_arg = luaL_checknumber(lua_state, 1);
     double x_arg = luaL_checknumber(lua_state, 2);
-    double result = atan2(y_arg, x_arg) * 180.0 / 3.141592653589793;  // Note: Original code called atan not atan2
+    double result = atan2(y_arg, x_arg) * 180.0 / 3.141592653589793;
     lua_pushnumber(lua_state, result);
     return 1;
 }
