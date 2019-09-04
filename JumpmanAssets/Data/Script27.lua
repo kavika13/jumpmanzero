@@ -1,5 +1,5 @@
 local read_only = require "Data/read_only";
--- local beam_module = assert(loadfile("Data/beam.lua"));
+local beam_module = assert(loadfile("Data/beam.lua"));
 local blob_module = assert(loadfile("Data/blob.lua"));
 local z_donut_module = assert(loadfile("Data/z_donut.lua"));  -- TODO: Rename?
 
@@ -71,41 +71,12 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local beam_properties = {
-    BeamIShipX = 0,
-    BeamIShipY = 1,
-    BeamISinking = 2,
-    BeamIShipZ = 3,
-    BeamIBeamColor = 4,
-    BeamIBeamType = 5,
-    BeamIInit = 6,
-    BeamIBeam1 = 7,
-    BeamIBeam2 = 8,
-    BeamITime = 9,
-    BeamIBlast1 = 10,
-    BeamIBlast2 = 11,
-    BeamIParmDir = 12,
-    BeamITargetX = 13,
-    BeamITargetY = 14,
-    BeamITargetZ = 15,
-    BeamIGunX = 16,
-    BeamIGunY = 17,
-    BeamIGunZ = 18,
-    BeamIFireDir = 19,
-    BeamIFireAngle = 20,
-    BeamIFireLength = 21,
-    BeamIOldPX = 22,
-    BeamIBT = 23,
-    BeamIShowBlast = 24,
-    BeamICollideDir = 25,
-}
-beam_properties = read_only.make_table_read_only(beam_properties);
-
 local kPLAY_AREA_CIRCUMFERENCE = 281;
 
 local g_init_stage_index = 0;
 local g_blobs = {};
+local g_beams = {};
+local g_z_donut_objects = {};
 
 local g_frames_since_level_start = 0;
 
@@ -132,15 +103,7 @@ local g_eye_waggle_y1 = 0;
 local g_eye_waggle_x2 = 0;
 local g_eye_waggle_y2 = 0;
 
-local g_beams_deployed = false;
-local g_beam_1_object_index;
-local g_beam_2_object_index;
-local g_beam_3_object_index;
-
-local g_z_donut_objects = {};
-
-local g_beam_count = 0;
-local g_beam_object_indices = {};
+local g_are_beams_deployed = false;
 
 local function CreateBlob(start_pos_x, start_pos_y)
     local new_blob = blob_module();
@@ -209,11 +172,25 @@ function update()
         z_donut.update();
     end
 
-    for iItem = 0, g_beam_count - 1 do
-        set_object_global_data(g_beam_object_indices[iItem], beam_properties.BeamIShipX, g_ship_draw_position_x);
-        set_object_global_data(g_beam_object_indices[iItem], beam_properties.BeamIShipY, g_ship_draw_position_y);
-        set_object_global_data(g_beam_object_indices[iItem], beam_properties.BeamISinking, g_ship_sink_amount + g_ship_sink_delay_timer);
+    for _, beam in ipairs(g_beams) do
+        beam.ShipPosX = g_ship_draw_position_x;
+        beam.ShipPosY = g_ship_draw_position_y;
+        beam.ShipSinkAmount = g_ship_sink_amount + g_ship_sink_delay_timer;
+        beam.update();
     end
+end
+
+function CreateBeam(beam_type, beam_color_texture_resource_index, parm_dir)
+    local beam = beam_module();
+    beam.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;
+    beam.BeamMeshResourceIndex = resources.MeshBeam;
+    beam.BeamTextureResourceIndex = resources.TextureBeam;
+    beam.BlastMeshResourceIndex = resources.MeshSquare;
+    beam.BlastTextureResourceIndex = resources.TextureBlast1;
+    beam.BeamColorTextureResourceIndex = beam_color_texture_resource_index;
+    beam.BeamType = beam_type;
+    beam.ParmDir = parm_dir;
+    return beam;
 end
 
 function BeginBeams()
@@ -221,41 +198,21 @@ function BeginBeams()
         return;
     end
 
-    if g_beams_deployed then
+    if g_are_beams_deployed then
         return;
     end
 
     local iPoint = get_player_current_position_x() * 360 / kPLAY_AREA_CIRCUMFERENCE;
     iPoint = math.floor(iPoint) & 511;
 
-    g_beam_3_object_index = spawn_object(resources.ScriptBeam);
-    set_object_global_data(g_beam_3_object_index, beam_properties.BeamIBeamColor, resources.TextureBrightGreen);
-    set_object_global_data(g_beam_3_object_index, beam_properties.BeamIBeamType, 3);
-    set_object_global_data(g_beam_3_object_index, beam_properties.BeamITime, g_frames_since_level_start);
-    set_object_global_data(g_beam_3_object_index, beam_properties.BeamIParmDir, iPoint);
+    local beam_3 = CreateBeam(3, resources.TextureBrightGreen, iPoint);
+    local beam_1 = CreateBeam(1, resources.TextureBrightBlue, iPoint);
+    local beam_2 = CreateBeam(2, resources.TextureBrightRed, iPoint);
+    table.insert(g_beams, beam_1);
+    table.insert(g_beams, beam_2);
+    table.insert(g_beams, beam_3);
 
-    g_beam_1_object_index = spawn_object(resources.ScriptBeam);
-    set_object_global_data(g_beam_1_object_index, beam_properties.BeamIBeamColor, resources.TextureBrightBlue);
-    set_object_global_data(g_beam_1_object_index, beam_properties.BeamIBeamType, 1);
-    set_object_global_data(g_beam_1_object_index, beam_properties.BeamITime, g_frames_since_level_start);
-    set_object_global_data(g_beam_1_object_index, beam_properties.BeamIParmDir, iPoint);
-
-    g_beam_2_object_index = spawn_object(resources.ScriptBeam);
-    set_object_global_data(g_beam_2_object_index, beam_properties.BeamIBeamColor, resources.TextureBrightRed);
-    set_object_global_data(g_beam_2_object_index, beam_properties.BeamIBeamType, 2);
-    set_object_global_data(g_beam_2_object_index, beam_properties.BeamITime, g_frames_since_level_start);
-    set_object_global_data(g_beam_2_object_index, beam_properties.BeamIParmDir, iPoint);
-
-    g_beam_object_indices[g_beam_count] = g_beam_1_object_index;
-    g_beam_count = g_beam_count + 1;
-
-    g_beam_object_indices[g_beam_count] = g_beam_2_object_index;
-    g_beam_count = g_beam_count + 1;
-
-    g_beam_object_indices[g_beam_count] = g_beam_3_object_index;
-    g_beam_count = g_beam_count + 1;
-
-    g_beams_deployed = true;
+    g_are_beams_deployed = true;
 end
 
 function RefreshDonut(iNumber)
