@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local ghost_module = assert(loadfile("Data/ghost.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -55,6 +56,8 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_ghost;
+
 local g_is_wall_moving = false;
 local g_wall_animation_frame = 0;
 local g_spotlight_animation_frame = 0;
@@ -64,7 +67,13 @@ function update()
     if not g_is_initialized then
         g_is_initialized = true;
         set_current_camera_mode(camera_mode.PerspectiveCloseUp);
-        spawn_object(resources.ScriptGhost);
+
+        g_ghost = ghost_module();
+        g_ghost.MoveRight1MeshResourceIndex = resources.MeshGhostRight;
+        g_ghost.MoveRight2MeshResourceIndex = resources.MeshGhostRight2;
+        g_ghost.MoveLeft1MeshResourceIndex = resources.MeshGhostLeft;
+        g_ghost.MoveLeft2MeshResourceIndex = resources.MeshGhostLeft2;
+        g_ghost.TextureResourceIndex = resources.TextureGhostTexture;
     end
 
     if g_is_wall_moving then
@@ -128,6 +137,8 @@ function update()
     if g_painting_with_eyes_animation_frame > 20 then
         g_painting_with_eyes_animation_frame = 0;
     end
+
+    g_ghost.update();
 end
 
 function on_collect_donut()
