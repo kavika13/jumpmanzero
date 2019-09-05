@@ -1,4 +1,6 @@
 local read_only = require "Data/read_only";
+local shark_module = assert(loadfile("Data/shark.lua"));
+local swim_collision_module = assert(loadfile("Data/swim_collision.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -103,9 +105,9 @@ local kTOP_OF_POOL_Y = 114;
 
 local g_is_initialized = false;
 
-local g_frames_since_level_start = 0;
+local g_swim_collision;
 
-local g_swim_coll_object_index;
+local g_frames_since_level_start = 0;
 
 local g_swim_animation_mesh_indices = {};
 local g_swim_animation_frame;
@@ -124,13 +126,20 @@ function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
 
-        local shark_object_index = spawn_object(resources.ScriptShark);
-        set_object_global_data(shark_object_index, shark_properties.SharkStartX, 80);
-        set_object_global_data(shark_object_index, shark_properties.SharkStartY, 80);
+        g_shark = shark_module();
+        g_shark.MoveRightMeshResourceIndicies = { resources.MeshShark1, resources.MeshShark2, resources.MeshShark1, resources.MeshShark3 };
+        g_shark.TurnRightMeshResourceIndicies = { resources.MeshSharkT1, resources.MeshSharkT2, resources.MeshSharkT3 };
+        g_shark.MoveLeftMeshResourceIndicies = { resources.MeshSharkL1, resources.MeshSharkL2, resources.MeshSharkL1, resources.MeshSharkL3 };
+        g_shark.TurnLeftMeshResourceIndicies = { resources.MeshSharkTL1, resources.MeshSharkTL2, resources.MeshSharkTL3 };
+        g_shark.TextureResourceIndex = resources.TextureShark;
+        g_shark.StartPosX = 80;
+        g_shark.StartPosY = 80;
 
-        g_swim_coll_object_index = spawn_object(resources.ScriptSwimColl);
-        set_object_global_data(g_swim_coll_object_index, swim_coll_properties.SwimCollSharkObj, shark_object_index);
-        set_object_global_data(g_swim_coll_object_index, swim_coll_properties.SwimCollFacing, 0);
+        g_swim_collision = swim_collision_module();
+        g_swim_collision.ChompSoundIndex = resources.SoundChomp;
+        g_swim_collision.CrunchSoundIndex = resources.SoundCrunch;
+        g_swim_collision.SharkObject = g_shark;
+        g_swim_collision.FacingDirection = 0;
 
         g_swim_animation_mesh_indices[1] = new_mesh(resources.MeshGroove1);
         prioritize_object();
@@ -190,7 +199,7 @@ function update(game_input)
     end
 
     if InTank() then
-        set_object_global_data(g_swim_coll_object_index, swim_coll_properties.SwimCollInTank, 1);
+        g_swim_collision.IsInTank = true;
 
         if get_player_current_state() == player_state.JSDYING then
             g_swim_death_spin_animation_frame = g_swim_death_spin_animation_frame + 1;
@@ -246,8 +255,11 @@ function update(game_input)
         end
 
         g_swim_time_in_pool_frames = 0;
-        set_object_global_data(g_swim_coll_object_index, swim_coll_properties.SwimCollInTank, 0);
+        g_swim_collision.IsInTank = false;
     end
+
+    g_shark.update(game_input);
+    g_swim_collision.update();
 end
 
 function MoveSplashParticles()
