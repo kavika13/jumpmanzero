@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local pause_wave_module = assert(loadfile("Data/pause_wave.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -39,26 +40,10 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local pause_wave_properties = {
-    PauseWaveIMesh1 = 0,
-    PauseWaveIMesh2 = 1,
-    PauseWaveIMesh3 = 2,
-    PauseWaveIInit = 3,
-    PauseWaveIY = 4,
-    PauseWaveIX1 = 5,
-    PauseWaveIX2 = 6,
-    PauseWaveTarget = 7,
-    PauseWaveIRamp1 = 8,
-    PauseWaveIHeight1 = 9,
-    PauseWaveIHeight2 = 10,
-    PauseWaveIAdj1 = 11,
-    PauseWaveIAdj2 = 12,
-}
-pause_wave_properties = read_only.make_table_read_only(pause_wave_properties);
+local kTOP_WAVE_HEIGHT = 125;
 
 local g_is_initialized = false;
-local g_wave_object_index;
+local g_wave;
 local g_clock_hand_mesh_index;
 local g_clock_num_frames_left = 0;
 
@@ -74,7 +59,13 @@ function update()
         select_object_mesh(g_clock_hand_mesh_index);
         set_object_visual_data(resources.TextureBlack, 1);
 
-        g_wave_object_index = spawn_object(resources.ScriptPauseWave);
+        g_wave = pause_wave_module();
+        g_wave.SeaMeshResourceIndex = resources.MeshSea;
+        g_wave.WaveMeshResourceIndex = resources.MeshWave;
+        g_wave.SeaTextureResourceIndex = resources.TextureSea;
+        g_wave.Wave1TextureResourceIndex = resources.TextureWave1;
+        g_wave.Wave2TextureResourceIndex = resources.TextureWave2;
+        g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
 
         g_clock_timers[10] = 1;
         g_clock_timers[11] = 1;
@@ -85,14 +76,16 @@ function update()
 
     if g_clock_num_frames_left > 0 then
         g_clock_num_frames_left = g_clock_num_frames_left - 1;
-        set_object_global_data(g_wave_object_index, pause_wave_properties.PauseWaveTarget, 0 - 10);
+        g_wave.TargetWaveHeight = 0 - 10;
     else
-        set_object_global_data(g_wave_object_index, pause_wave_properties.PauseWaveTarget, 125);
+        g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
     end
 
     SetClockPosition(0 - g_clock_num_frames_left);
     SpinLittleClocks();
     CollideLittleClocks();
+
+    g_wave.update();
 end
 
 function CollideLittleClocks()
