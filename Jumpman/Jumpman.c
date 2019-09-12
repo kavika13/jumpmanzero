@@ -2214,6 +2214,97 @@ static int script_load_menu(lua_State* lua_state) {
     return 0;
 }
 
+static int script_game_start(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_GAMESTART, int title_index) function, aka EFSERVICE(SERVICE_GAMESTART, long arg2)
+    lua_Integer title_index_arg = luaL_checkinteger(lua_state, 1);
+    char game_base_path[300];
+
+    if(!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
+        // TODO: Proper error handling
+        return 0;
+    }
+
+    char sFileName[300];
+    g_remaining_life_count = 7;  // TODO: Setting this value should probably be elsewhere
+    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", game_base_path);
+
+    cf_dir_t dir;
+    cf_dir_open(&dir, sFileName);
+
+    cf_file_t file;
+
+    // TODO: Error checking.
+    // Error shouldn't happen since .jmg files are queried before this is run,
+    // but could if file or dir was deleted/locked after campaign menu displayed, but before selected
+
+    while(dir.has_next) {  // Find first result
+        cf_file_t first_file;
+        cf_read_file(&dir, &first_file);
+        cf_dir_next(&dir);
+
+        if(cf_match_ext(&first_file, ".jmg")) {
+            file = first_file;
+            break;
+        }
+    }
+
+    int iTitle = 0;
+
+    while(dir.has_next && iTitle < title_index_arg) {
+        cf_read_file(&dir, &file);
+
+        if(cf_match_ext(&file, ".jmg")) {
+            iTitle = iTitle + 1;
+        }
+
+        cf_dir_next(&dir);
+    }
+
+    sprintf_s(g_level_set_current_set_filename, sizeof(g_level_set_current_set_filename), "%s\\Data\\%s", game_base_path, file.name);
+    g_game_status = kGameStatusInLevel;
+
+    return 0;
+}
+
+static int script_get_game_list(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_GAMELIST, string& result) function, aka EFSERVICE(SERVICE_GAMELIST, long arg2)
+    char game_base_path[300];
+
+    if(!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
+        // TODO: Proper error handling
+        return 0;
+    }
+
+    char sFileName[300];
+    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", game_base_path);
+
+    cf_dir_t dir;
+    cf_dir_open(&dir, sFileName);
+
+    lua_newtable(lua_state);
+    int iTitle = 0;
+
+    while(dir.has_next) {
+        cf_file_t file;
+        cf_read_file(&dir, &file);
+
+        if(cf_match_ext(&file, ".jmg")) {
+            char sFile[300];
+            char sName[100];
+
+            sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", game_base_path, file.name);
+            GetFileLine(sName, sizeof(sName), sFile, 0);
+            lua_pushstring(lua_state, sName);
+            lua_rawseti(lua_state, -2, 1 + iTitle);
+            ++iTitle;
+        }
+
+        cf_dir_next(&dir);
+    }
+
+    return 1;
+}
+
 static int play_sound_effect(lua_State* lua_state) {
     // Replacement for jms Sound(int sound_effect_slot_index) function, aka EFSOUND
     double arg1 = luaL_checknumber(lua_state, 1);
@@ -2546,6 +2637,10 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, script_load_menu);
     lua_setglobal(lua_state, "load_menu");
+    lua_pushcfunction(lua_state, script_game_start);
+    lua_setglobal(lua_state, "game_start");
+    lua_pushcfunction(lua_state, script_get_game_list);
+    lua_setglobal(lua_state, "get_game_list");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
     lua_pushcfunction(lua_state, is_player_colliding_with_rect);
