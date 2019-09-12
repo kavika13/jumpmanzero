@@ -2001,6 +2001,27 @@ static int new_mesh(lua_State* lua_state) {
     return 1;
 }
 
+static int new_char_mesh(lua_State* lua_state) {
+    // Replacement for jms NewCharMesh(int ascii_value) function, aka EFNEWCHARMESH
+    lua_Integer ascii_value_arg = luaL_checkinteger(lua_state, 1);
+    long iNew;
+
+    if(ascii_value_arg >= 97) {
+        ascii_value_arg += 65 - 97;
+    }
+
+    if(g_letter_mesh_indices[ascii_value_arg] >= 0) {
+        CopyObject(g_letter_mesh_indices[ascii_value_arg], &iNew);
+        g_script_selected_mesh_index = iNew;
+    } else {
+        iNew = -1;
+    }
+
+    lua_pushnumber(lua_state, iNew);
+
+    return 1;
+}
+
 static int set_object_visual_data(lua_State* lua_state) {
     // Replacement for jms SetProperties(int new_texture_index, int new_is_visible) function, aka EFSETOBJECT
     double texture_index = luaL_checknumber(lua_state, 1);
@@ -2181,6 +2202,26 @@ static int script_set_fog(lua_State* lua_state) {
     lua_Integer green_arg = luaL_checkinteger(lua_state, 4);
     lua_Integer blue_arg = luaL_checkinteger(lua_state, 5);
     SetFog((float)fog_start_arg, (float)fog_end_arg, red_arg & 0xFF, green_arg & 0xFF, blue_arg & 0xFF);
+    return 0;
+}
+
+static int script_service_function(lua_State* lua_state) {
+    // Replacement for jms Service(int service_function_type, ...) function, aka EFSERVICE
+    lua_Integer service_function_type = luaL_checkinteger(lua_state, 1);
+
+    switch(service_function_type) {
+        case SERVICE_LOADMENU: {
+            lua_Integer menu_type = luaL_checkinteger(lua_state, 2);
+            g_script_event_data_1 = g_script_event_data_1 - 1;
+            g_game_status = kGameStatusMenu;
+            g_target_game_menu_state = menu_type;
+            break;
+        }
+
+        default:
+            break;
+    }
+
     return 0;
 }
 
@@ -2478,6 +2519,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "spawn_object");
     lua_pushcfunction(lua_state, new_mesh);
     lua_setglobal(lua_state, "new_mesh");
+    lua_pushcfunction(lua_state, new_char_mesh);
+    lua_setglobal(lua_state, "new_char_mesh");
     lua_pushcfunction(lua_state, set_object_visual_data);
     lua_setglobal(lua_state, "set_object_visual_data");
     lua_pushcfunction(lua_state, prioritize_object);
@@ -2512,6 +2555,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "collide_wall");
     lua_pushcfunction(lua_state, script_set_fog);
     lua_setglobal(lua_state, "set_fog");
+    lua_pushcfunction(lua_state, script_service_function);
+    lua_setglobal(lua_state, "service_function");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
     lua_pushcfunction(lua_state, is_player_colliding_with_rect);
