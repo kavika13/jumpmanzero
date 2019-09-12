@@ -1905,33 +1905,29 @@ static int set_remaining_life_count(lua_State* lua_state) {
 
 static int set_script_event_data_1(lua_State* lua_state) {
     // Replacement for jms SetExt(#event1) function, aka EFSET(EFV_EVENT1)
-    double arg1 = luaL_checknumber(lua_state, 1);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_event_data_1 = (long)arg1 * 256;
+    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
+    g_script_event_data_1 = (long)arg1;
     return 0;
 }
 
 static int set_script_event_data_2(lua_State* lua_state) {
     // Replacement for jms SetExt(#event2) function, aka EFSET(EFV_EVENT2)
-    double arg1 = luaL_checknumber(lua_state, 1);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_event_data_2 = (long)arg1 * 256;
+    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
+    g_script_event_data_2 = (long)arg1;
     return 0;
 }
 
 static int set_script_event_data_3(lua_State* lua_state) {
     // Replacement for jms SetExt(#event3) function, aka EFSET(EFV_EVENT3)
-    double arg1 = luaL_checknumber(lua_state, 1);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_event_data_3 = (long)arg1 * 256;
+    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
+    g_script_event_data_3 = (long)arg1;
     return 0;
 }
 
 static int set_script_event_data_4(lua_State* lua_state) {
     // Replacement for jms SetExt(#event4) function, aka EFSET(EFV_EVENT4)
-    double arg1 = luaL_checknumber(lua_state, 1);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_event_data_4 = (long)arg1 * 256;
+    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
+    g_script_event_data_4 = (long)arg1;
     return 0;
 }
 
