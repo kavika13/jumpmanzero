@@ -28,21 +28,6 @@ local camera_mode = {
 camera_mode = read_only.make_table_read_only(camera_mode);
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local service_type = {
-    SERVICE_GAMELIST = 128,
-    SERVICE_STARTGAME = 129,
-    SERVICE_LOADMENU = 130,
-
-    SERVICE_OPTIONSTRING = 142,
-    SERVICE_SETOPTION = 143,
-    SERVICE_SAVEOPTIONS = 144,
-
-    SERVICE_LEVELTITLE = 154,
-    SERVICE_CREDITLINE = 155,
-}
-service_type = read_only.make_table_read_only(service_type);
-
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local menu_type = {
     MENU_MAIN = 1,
     MENU_OPTIONS = 2,
@@ -160,7 +145,7 @@ function update(game_input)
 
     if is_select_action_pressed and g_letter_drop_animation_timer < 0 then
         set_script_event_data_1(101);
-        service_function(service_type.SERVICE_LOADMENU, menu_type.MENU_MAIN);
+        load_menu(menu_type.MENU_MAIN);
     end
 
     if is_select_action_pressed and g_camera_pan_animation_timer > 0 then

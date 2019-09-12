@@ -2205,23 +2205,12 @@ static int script_set_fog(lua_State* lua_state) {
     return 0;
 }
 
-static int script_service_function(lua_State* lua_state) {
-    // Replacement for jms Service(int service_function_type, ...) function, aka EFSERVICE
-    lua_Integer service_function_type = luaL_checkinteger(lua_state, 1);
-
-    switch(service_function_type) {
-        case SERVICE_LOADMENU: {
-            lua_Integer menu_type = luaL_checkinteger(lua_state, 2);
-            g_script_event_data_1 = g_script_event_data_1 - 1;
-            g_game_status = kGameStatusMenu;
-            g_target_game_menu_state = menu_type;
-            break;
-        }
-
-        default:
-            break;
-    }
-
+static int script_load_menu(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_LOADMENU, int menu_type) function, aka EFSERVICE(SERVICE_LOADMENU, long arg2)
+    lua_Integer menu_type_arg = luaL_checkinteger(lua_state, 1);
+    g_script_event_data_1 = g_script_event_data_1 - 1;
+    g_game_status = kGameStatusMenu;
+    g_target_game_menu_state = menu_type_arg;
     return 0;
 }
 
@@ -2555,8 +2544,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "collide_wall");
     lua_pushcfunction(lua_state, script_set_fog);
     lua_setglobal(lua_state, "set_fog");
-    lua_pushcfunction(lua_state, script_service_function);
-    lua_setglobal(lua_state, "service_function");
+    lua_pushcfunction(lua_state, script_load_menu);
+    lua_setglobal(lua_state, "load_menu");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
     lua_pushcfunction(lua_state, is_player_colliding_with_rect);
