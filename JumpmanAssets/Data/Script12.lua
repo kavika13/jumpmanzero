@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local bee_module = assert(loadfile("Data/bee.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -38,36 +39,51 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources)
 
-local is_initialized, collected_donut_count = false, 0;
+local g_is_initialized = false;
+local g_bees = {};
+local g_collected_donut_count = 0;
 
 function update()
-    if not is_initialized then
-        is_initialized = true
+    if not g_is_initialized then
+        g_is_initialized = true
         set_level_extent_x(220);
+    end
+
+    for _, bee in ipairs(g_bees) do
+        bee.update();
     end
 end
 
+function SpawnBee_()
+    local bee = bee_module();
+    bee.MoveLeftMeshResourceIndices = { resources.MeshBeeLeft1, resources.MeshBeeLeft2 };
+    bee.MoveRightMeshResourceIndices = { resources.MeshBeeRight1, resources.MeshBeeRight2 };
+    bee.TextureResourceIndex = resources.TextureBeeTexture;
+    bee.BuzzSoundResourceIndex = resources.SoundBee;
+    return bee;
+end
+
 function on_collect_donut()
-    collected_donut_count = collected_donut_count + 1
+    g_collected_donut_count = g_collected_donut_count + 1
 
-    if collected_donut_count == 1 then
+    if g_collected_donut_count == 1 then
         play_sound_effect(resources.SoundBee);
-        spawn_object(resources.ScriptBee);
+        table.insert(g_bees, SpawnBee_());
     end
 
-    if collected_donut_count == 4 then
+    if g_collected_donut_count == 4 then
         play_sound_effect(resources.SoundBee);
-        spawn_object(resources.ScriptBee);
+        table.insert(g_bees, SpawnBee_());
     end
 
-    if collected_donut_count == 10 then
+    if g_collected_donut_count == 10 then
         play_sound_effect(resources.SoundBee);
-        spawn_object(resources.ScriptBee);
+        table.insert(g_bees, SpawnBee_());
     end
 
-    if collected_donut_count == 15 then
+    if g_collected_donut_count == 15 then
         play_sound_effect(resources.SoundBee);
-        spawn_object(resources.ScriptBee);
+        table.insert(g_bees, SpawnBee_());
     end
 end
 
@@ -76,4 +92,8 @@ function reset()
     set_player_current_position_y(7);
     set_player_current_position_z(2);
     set_player_current_state(player_state.JSNORMAL);
+
+    for _, bee in ipairs(g_bees) do
+        bee.reset_pos();
+    end
 end
