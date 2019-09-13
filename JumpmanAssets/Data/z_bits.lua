@@ -1,5 +1,3 @@
-local read_only = require "Data/read_only";
-
 local Module = {};
 
 Module.MeshResourceIndex = 0;
