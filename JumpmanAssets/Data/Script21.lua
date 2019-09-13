@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local saw_module = assert(loadfile("Data/saw.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -43,26 +44,32 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local saw_properties = {
-    SawIInit = 0,
-    SawISaw = 1,
-    SawIX = 2,
-    SawIY = 3,
-    SawIDir = 4,
-    SawISpin = 5,
-    SawIAirTime = 6,
-    SawIZ = 7,
-    SawIInitialFlight = 8,
-    SawILaddeRing = 9,
-    SawILadderTime = 10,
-}
-saw_properties = read_only.make_table_read_only(saw_properties);
-
 local g_is_initialized = false;
+local g_saws = {};
 local g_frog_animation_meshes = {};
 local g_frog_animation_current_mesh_index = 0;
 local g_frog_animation_frame = 100;
+
+local function RemoveSaw_(saw)
+    for index, value in ipairs(g_saws) do
+        if value == saw then
+            table.remove(g_saws, index);
+            return;
+        end
+    end
+
+    assert(false, "Was unable to find saw to remove");
+end
+
+local function SpawnSaw_(initial_pos_x, initial_pos_y)
+    local saw = saw_module();
+    saw.DestroyObjectCallback = RemoveSaw_;
+    saw.InitialPosX = initial_pos_x;
+    saw.InitialPosY = initial_pos_y;
+    saw.MeshResourceIndex = resources.MeshSaw;
+    saw.TextureResourceIndex = resources.TextureBoringGray;
+    return saw;
+end
 
 function update()
     if not g_is_initialized then
@@ -70,33 +77,13 @@ function update()
 
         LoadFrogMeshes();
 
-        local iTemp = spawn_object(resources.ScriptSaw);
-        set_object_global_data(iTemp, saw_properties.SawIX, 80);
-        set_object_global_data(iTemp, saw_properties.SawIY, 100);
-
-        iTemp = spawn_object(resources.ScriptSaw);
-        set_object_global_data(iTemp, saw_properties.SawIX, 75);
-        set_object_global_data(iTemp, saw_properties.SawIY, 100);
-
-        iTemp = spawn_object(resources.ScriptSaw);
-        set_object_global_data(iTemp, saw_properties.SawIX, 85);
-        set_object_global_data(iTemp, saw_properties.SawIY, 100);
-
-        iTemp = spawn_object(resources.ScriptSaw);
-        set_object_global_data(iTemp, saw_properties.SawIX, 100);
-        set_object_global_data(iTemp, saw_properties.SawIY, 45);
-
-        iTemp = spawn_object(resources.ScriptSaw);
-        set_object_global_data(iTemp, saw_properties.SawIX, 105);
-        set_object_global_data(iTemp, saw_properties.SawIY, 45);
-
-        iTemp = spawn_object(resources.ScriptSaw);
-        set_object_global_data(iTemp, saw_properties.SawIX, 110);
-        set_object_global_data(iTemp, saw_properties.SawIY, 45);
-
-        iTemp = spawn_object(resources.ScriptSaw);
-        set_object_global_data(iTemp, saw_properties.SawIX, 115);
-        set_object_global_data(iTemp, saw_properties.SawIY, 45);
+        table.insert(g_saws, SpawnSaw_(80, 100));
+        table.insert(g_saws, SpawnSaw_(75, 100));
+        table.insert(g_saws, SpawnSaw_(85, 100));
+        table.insert(g_saws, SpawnSaw_(100, 45));
+        table.insert(g_saws, SpawnSaw_(105, 45));
+        table.insert(g_saws, SpawnSaw_(110, 45));
+        table.insert(g_saws, SpawnSaw_(115, 45));
     end
 
     select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
@@ -109,6 +96,10 @@ function update()
     script_selected_mesh_scale_matrix(2, 2, 2);
     script_selected_mesh_translate_matrix(23, 175, 18);
     set_object_visual_data(resources.TextureFrog, 1);
+
+    for _, saw in ipairs(g_saws) do
+        saw.update();
+    end
 end
 
 function ControlFrog()
@@ -127,7 +118,7 @@ function ControlFrog()
     elseif g_frog_animation_frame > 30 then
         g_frog_animation_current_mesh_index = 5;
     elseif g_frog_animation_frame == 30 then
-        spawn_object(resources.ScriptSaw);
+        table.insert(g_saws, SpawnSaw_(0, 0));
         play_sound_effect(resources.SoundFrog);
         g_frog_animation_current_mesh_index = 5;
     elseif g_frog_animation_frame > 20 then
