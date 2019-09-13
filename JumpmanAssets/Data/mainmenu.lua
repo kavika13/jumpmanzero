@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local z_bits_module = assert(loadfile("Data/z_bits.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local menu_type = {
@@ -26,26 +27,12 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local z_bits_properties = {
-    ZBitsIInit = 0,
-    ZBitsIBits = 1,
-    ZBitsIMesh = 2,
-    ZBitsIX = 93,
-    ZBitsIY = 184,
-    ZBitsICX = 275,
-    ZBitsICY = 366,
-    ZBitsITime = 457,
-    ZBitsIProgress = 458,
-}
-z_bits_properties = read_only.make_table_read_only(z_bits_properties);
-
 local kNUM_MENU_OPTIONS = 2;
 local kANIMATION_END_TIME = 4400;
 
 local g_is_initialized = false;
 
-local g_z_bits_object_index;
+local g_z_bits;
 
 local g_is_game_selected = false;
 local g_title_animation_is_done = false;
@@ -63,16 +50,16 @@ local g_time_of_previous_selection = 0;
 
 local function ShowJMLetters()
     local iHeight = 0;
-    local iProgress = (g_title_animation_counter / kANIMATION_END_TIME) * 100;
+    local percent_complete = (g_title_animation_counter / kANIMATION_END_TIME) * 100;
 
-    set_object_global_data(g_z_bits_object_index, z_bits_properties.ZBitsIProgress, iProgress);
+    g_z_bits.PercentComplete = percent_complete;
 
     local iThick = 0.2;
 
-    if iProgress > 71 then
+    if percent_complete > 71 then
         iThick = 10 / 4;
-    elseif iProgress > 61 then
-        iThick = (iProgress - 61) / 4;
+    elseif percent_complete > 61 then
+        iThick = (percent_complete - 61) / 4;
     end
 
     for iChar = 1, #g_title_letter_mesh_ids do
@@ -113,7 +100,7 @@ local function ShowJMLetters()
             iHeight = 82;
         end
 
-        iHeight = (iHeight * 4 / 3) - (iProgress * 2);
+        iHeight = (iHeight * 4 / 3) - (percent_complete * 2);
 
         if iHeight < 0 then
             iHeight = 0;
@@ -318,7 +305,9 @@ function update(game_input)
             g_title_animation_counter = kANIMATION_END_TIME;
         end
 
-        g_z_bits_object_index = spawn_object(resources.ScriptZBits);
+        g_z_bits = z_bits_module();
+        g_z_bits.MeshResourceIndex = resources.MeshGoo;
+        g_z_bits.TextureResourceIndex = resources.TextureBoringGreen;
     end
 
     GetInput(game_input);
@@ -345,4 +334,6 @@ function update(game_input)
             load_menu(menu_type.MENU_OPTIONS);
         end
     end
+
+    g_z_bits.update();
 end
