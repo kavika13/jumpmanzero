@@ -377,8 +377,7 @@ static ScriptContext g_script_level_script_context;
 static lua_State* g_script_level_script_lua_state = NULL;
 static char g_script_level_script_base_path[300];  // TODO: Need a constant for this? Also, bigger? Also, is it necessary?
 
-static ScriptCode g_script_title_script_code;
-static ScriptContext g_script_title_script_context;
+static lua_State* g_script_title_script_lua_state = NULL;
 
 static bool g_script_object_script_is_lua[MAX_OBJECTSCRIPTS] = { false, false, false, false, false };
 static ScriptCode g_script_object_script_codes[MAX_OBJECTSCRIPTS];
@@ -2201,6 +2200,12 @@ static int script_set_fog(lua_State* lua_state) {
     return 0;
 }
 
+static int script_get_current_level_title(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_LEVELTITLE, string& result) function, aka EFSERVICE(SERVICE_LEVELTITLE, long arg2)
+    lua_pushstring(lua_state, g_level_current_title);
+    return 1;
+}
+
 static int script_load_menu(lua_State* lua_state) {
     // Replacement for jms Service(#SERVICE_LOADMENU, int menu_type) function, aka EFSERVICE(SERVICE_LOADMENU, long arg2)
     lua_Integer menu_type_arg = luaL_checkinteger(lua_state, 1);
@@ -2631,6 +2636,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "collide_wall");
     lua_pushcfunction(lua_state, script_set_fog);
     lua_setglobal(lua_state, "set_fog");
+    lua_pushcfunction(lua_state, script_get_current_level_title);
+    lua_setglobal(lua_state, "get_current_level_title");
     lua_pushcfunction(lua_state, script_load_menu);
     lua_setglobal(lua_state, "load_menu");
     lua_pushcfunction(lua_state, script_game_start);
@@ -3774,9 +3781,8 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
     ProgressGame(base_path, game_input);
     ProgressGame(base_path, game_input);
 
-    LoadScript(base_path, "Data\\Title.BIN", &g_script_title_script_code);
-    ResetContext(&g_script_title_script_context, base_path);
-    g_script_title_script_context.Script = &g_script_title_script_code;
+    LoadLuaScript(base_path, "Data\\title.lua", &g_script_title_script_lua_state);
+    InitializeLuaScript(g_script_title_script_lua_state);
 
     g_level_scroll_title_animation_frame_count = 1;
 
@@ -3917,7 +3923,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
 
             ++g_level_scroll_title_animation_frame_count;
             g_script_event_data_1 = g_level_scroll_title_animation_frame_count;
-            RunScript(&g_script_title_script_context, 1, game_input);
+            CallLuaFunction(g_script_title_script_lua_state, "update", game_input);
 
             if(g_level_scroll_title_animation_frame_count > 600) {
                 g_level_scroll_title_animation_frame_count = 0;
@@ -3927,7 +3933,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
                 ProgressGame(base_path, game_input);
             }
 
-            RunScript(&g_script_title_script_context, 1, game_input);
+            CallLuaFunction(g_script_title_script_lua_state, "update", game_input);
         }
 
         if(!IsGameFrozen()) {
