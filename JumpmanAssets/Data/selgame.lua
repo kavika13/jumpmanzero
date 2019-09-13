@@ -36,8 +36,6 @@ local function GetInput(game_input)
         return;
     end
 
-    local iDownHit = false;
-    local iUpHit = false;
     local iOldSelected = g_title_selected_index;
 
     if game_input.move_up_action.just_pressed then
