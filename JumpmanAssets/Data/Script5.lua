@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local penguin_module = assert(loadfile("Data/penguin.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -39,35 +40,29 @@ local resources = {
 }
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local penguin_properties = {
-    PenguinAdvance = 0,
-    PenguinIInit = 1,
-    PenguinIX = 2,
-    PenguinIY = 3,
-    PenguinIZ = 4,
-    PenguinIDir = 5,
-    PenguinISlow = 6,
-    PenguinIAnimate = 7,
-    PenguinILadderz = 8,
-    PenguinIFrame = 9,
-    PenguinIMeshes = 10,
-}
-penguin_properties = read_only.make_table_read_only(penguin_properties);
+local g_is_initialized = false;
 
-local is_initialized = false;
+local g_penguins = {};
 
 function update()
-    if not is_initialized then
-        is_initialized = true;
-        local iLoop = 0;
+    if not g_is_initialized then
+        g_is_initialized = true;
 
-        while iLoop < 12
-        do
-            local iTemp = spawn_object(resources.ScriptPenguin);
-            set_object_global_data(iTemp, penguin_properties.PenguinAdvance, iLoop * 66);
-            iLoop = iLoop + 1;
+        for iLoop = 0, 11 do
+            local new_penguin = penguin_module();
+            new_penguin.StandMeshResourceIndex = resources.MeshPenguinStand;
+            new_penguin.BackMeshResourceIndex = resources.MeshPenguinBack;
+            new_penguin.MoveLeftMeshResourceIndicies = { resources.MeshPenguinLeft1, resources.MeshPenguinLeft2 };
+            new_penguin.MoveRightMeshResourceIndicies = { resources.MeshPenguinRight1, resources.MeshPenguinRight2 };
+            new_penguin.LadderClimbMeshResourceIndicies = { resources.MeshPenguinLC1, resources.MeshPenguinLC2};
+            new_penguin.TextureResourceIndex = resources.TexturePenguinTexture;
+            new_penguin.CountOfTimesToPreAdvanceMovement = iLoop * 66;
+            table.insert(g_penguins, new_penguin);
         end
+    end
+
+    for _, penguin in ipairs(g_penguins) do
+        penguin.update();
     end
 end
 
