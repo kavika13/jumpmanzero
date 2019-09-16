@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -36,7 +36,7 @@ local resources = {
     MeshBullet1 = 1,
     MeshBullet2 = 2,
     TextureBullet = 7,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -52,7 +52,7 @@ local chain_properties = {
     ChainBNoUp = 38,
     ChainBNoDown = 39,
     ChainIPlayerAir = 40,
-}
+};
 chain_properties = read_only.make_table_read_only(chain_properties);
 
 local g_init_stage_index = 0;

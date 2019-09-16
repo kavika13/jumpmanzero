@@ -13,7 +13,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -40,7 +40,7 @@ local resources = {
     MeshTurtSH1 = 7,
     MeshTurtSH2 = 8,
     ScriptTurtle = 1,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -58,7 +58,7 @@ local turtle_properties = {
     TurtleISlowFrame = 10,
     TurtleAngle = 11,
     TurtleIMeshes = 12,
-}
+};
 turtle_properties = read_only.make_table_read_only(turtle_properties);
 
 local is_initialized = false;

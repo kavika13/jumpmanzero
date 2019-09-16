@@ -15,7 +15,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 local is_initialized = false;
@@ -23,8 +23,8 @@ local propellers = {};
 local whompers = {};
 
 local function ConveyPlatform(iPlat, iDist)
-    select_platform(iPlat)
-    script_selected_mesh_scroll_texture(iDist * 16, 0)
+    select_platform(iPlat);
+    script_selected_mesh_scroll_texture(iDist * 16, 0);
 
     local iPN, iPX, iPY, iHit;
 

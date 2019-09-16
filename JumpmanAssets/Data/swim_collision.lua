@@ -16,7 +16,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 Module.ChompSoundIndex = 0;

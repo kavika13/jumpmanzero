@@ -1,9 +1,9 @@
 local Module = {};
 
-Module.MoveRightMeshResourceIndicies = {};
-Module.TurnRightMeshResourceIndicies = {};
-Module.MoveLeftMeshResourceIndicies = {};
-Module.TurnLeftMeshResourceIndicies = {};
+Module.MoveRightMeshResourceIndices = {};
+Module.TurnRightMeshResourceIndices = {};
+Module.MoveLeftMeshResourceIndices = {};
+Module.TurnLeftMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
 Module.StartPosX = 0;
 Module.StartPosY = 0;
@@ -109,7 +109,7 @@ local function MoveShark(game_input)
             end
         end
 
-        return 0
+        return 0;
     end
 
     Module.CurrentPosX = Module.CurrentPosX + Module.CurrentVelocityX;
@@ -151,36 +151,36 @@ function Module.update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
 
-        g_animation_mesh_indices[1] = new_mesh(Module.MoveRightMeshResourceIndicies[1]);
+        g_animation_mesh_indices[1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
         prioritize_object();
-        g_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndicies[2]);
+        g_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
         prioritize_object();
-        g_animation_mesh_indices[3] = new_mesh(Module.MoveRightMeshResourceIndicies[3]);
+        g_animation_mesh_indices[3] = new_mesh(Module.MoveRightMeshResourceIndices[3]);
         prioritize_object();
-        g_animation_mesh_indices[4] = new_mesh(Module.MoveRightMeshResourceIndicies[4]);
-        prioritize_object();
-
-        g_animation_mesh_indices[5] = new_mesh(Module.TurnRightMeshResourceIndicies[1]);
-        prioritize_object();
-        g_animation_mesh_indices[6] = new_mesh(Module.TurnRightMeshResourceIndicies[2]);
-        prioritize_object();
-        g_animation_mesh_indices[7] = new_mesh(Module.TurnRightMeshResourceIndicies[3]);
+        g_animation_mesh_indices[4] = new_mesh(Module.MoveRightMeshResourceIndices[4]);
         prioritize_object();
 
-        g_animation_mesh_indices[11] = new_mesh(Module.MoveLeftMeshResourceIndicies[1]);
+        g_animation_mesh_indices[5] = new_mesh(Module.TurnRightMeshResourceIndices[1]);
         prioritize_object();
-        g_animation_mesh_indices[12] = new_mesh(Module.MoveLeftMeshResourceIndicies[2]);
+        g_animation_mesh_indices[6] = new_mesh(Module.TurnRightMeshResourceIndices[2]);
         prioritize_object();
-        g_animation_mesh_indices[13] = new_mesh(Module.MoveLeftMeshResourceIndicies[3]);
-        prioritize_object();
-        g_animation_mesh_indices[14] = new_mesh(Module.MoveLeftMeshResourceIndicies[4]);
+        g_animation_mesh_indices[7] = new_mesh(Module.TurnRightMeshResourceIndices[3]);
         prioritize_object();
 
-        g_animation_mesh_indices[15] = new_mesh(Module.TurnLeftMeshResourceIndicies[1]);
+        g_animation_mesh_indices[11] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
         prioritize_object();
-        g_animation_mesh_indices[16] = new_mesh(Module.TurnLeftMeshResourceIndicies[2]);
+        g_animation_mesh_indices[12] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
         prioritize_object();
-        g_animation_mesh_indices[17] = new_mesh(Module.TurnLeftMeshResourceIndicies[3]);
+        g_animation_mesh_indices[13] = new_mesh(Module.MoveLeftMeshResourceIndices[3]);
+        prioritize_object();
+        g_animation_mesh_indices[14] = new_mesh(Module.MoveLeftMeshResourceIndices[4]);
+        prioritize_object();
+
+        g_animation_mesh_indices[15] = new_mesh(Module.TurnLeftMeshResourceIndices[1]);
+        prioritize_object();
+        g_animation_mesh_indices[16] = new_mesh(Module.TurnLeftMeshResourceIndices[2]);
+        prioritize_object();
+        g_animation_mesh_indices[17] = new_mesh(Module.TurnLeftMeshResourceIndices[3]);
         prioritize_object();
 
         Module.CurrentPosX = Module.StartPosX;

@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type
@@ -25,7 +25,7 @@ local camera_mode = {
     PerspectiveWide = 3,
     PerspectiveFollow = 4,
     PerspectiveFixed = 5,
-}
+};
 camera_mode = read_only.make_table_read_only(camera_mode);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -52,7 +52,7 @@ local resources = {
     SoundBonk = 2,
     TexturePainting = 12,
     TexturePainting2 = 13,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
@@ -109,7 +109,7 @@ function update()
         set_script_selected_level_object_texture(resources.TextureRing);
     end
 
-    select_picture(2)
+    select_picture(2);
     script_selected_mesh_set_identity_matrix();
     script_selected_mesh_translate_matrix(iPX, iPY, 0);
 

@@ -13,7 +13,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -49,7 +49,7 @@ local resources = {
     TextureBoringRed = 6,
     ScriptFSheep = 1,
     TextureLSheep = 7,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -71,7 +71,7 @@ local l_sheep_properties = {
     LSheepICopterSize = 44,
     LSheepIAirTime = 45,
     LSheepBPassDir = 46,
-}
+};
 l_sheep_properties = read_only.make_table_read_only(l_sheep_properties);
 
 -- TODO: Separate file?
@@ -95,7 +95,7 @@ local f_sheep_properties = {
     FSheepIDelay = 46,
     FSheepQueueLength = 47,
     FSheepQueue = 48,
-}
+};
 f_sheep_properties = read_only.make_table_read_only(f_sheep_properties);
 
 local g_init_stage_index = 0;
@@ -107,8 +107,7 @@ function update()
         g_init_stage_index = 2;
         local iLoop = 0;
 
-        while iLoop < 6
-        do
+        while iLoop < 6 do
             CreateSheep();
             iLoop = iLoop + 1;
         end

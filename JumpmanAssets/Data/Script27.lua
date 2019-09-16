@@ -16,7 +16,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type
@@ -27,7 +27,7 @@ local camera_mode = {
     PerspectiveWide = 3,
     PerspectiveFollow = 4,
     PerspectiveFixed = 5,
-}
+};
 camera_mode = read_only.make_table_read_only(camera_mode);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -68,7 +68,7 @@ local resources = {
     SoundClasBomb = 4,
     TextureLightning = 13,
     TextureClearBlue = 14,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local kPLAY_AREA_CIRCUMFERENCE = 281;

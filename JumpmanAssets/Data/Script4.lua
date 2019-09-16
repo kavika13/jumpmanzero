@@ -13,7 +13,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -52,7 +52,7 @@ local resources = {
     SoundJump = 0,
     SoundChomp = 1,
     SoundBonk = 2,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -72,7 +72,7 @@ local ninja_properties = {
     NinjaIMeshes = 12,
     NinjaIStatus = 43,
     NinjaICount = 44,
-}
+};
 ninja_properties = read_only.make_table_read_only(ninja_properties);
 
 local g_is_initialized = false;

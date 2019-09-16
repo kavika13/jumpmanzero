@@ -53,7 +53,7 @@ local function ShowPerformance(game_input, lives_remaining)
 
         if iNum == lives_remaining and lives_remaining > 0 then
             set_object_visual_data(letter_texture_resource_index, 1);
-            script_selected_mesh_set_identity_matrix()
+            script_selected_mesh_set_identity_matrix();
             script_selected_mesh_scale_matrix(0.5, 0.5, 0.2);
             script_selected_mesh_translate_matrix(47, -33, 90);
             script_selected_mesh_set_perspective_matrix();

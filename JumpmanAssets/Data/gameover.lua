@@ -13,7 +13,7 @@ local player_state = {
         JSPUNCH = 128,
         JSDYING = 256,
         JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -24,7 +24,7 @@ local camera_mode = {
         PerspectiveWide = 3,
         PerspectiveFollow = 4,
         PerspectiveFixed = 5,
-}
+};
 camera_mode = read_only.make_table_read_only(camera_mode);
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -33,7 +33,7 @@ local menu_type = {
     MENU_OPTIONS = 2,
     MENU_SELECTGAME = 3,
     MENU_SELECTLEVEL = 4,
-}
+};
 menu_type = read_only.make_table_read_only(menu_type);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -51,7 +51,7 @@ local resources = {
     MeshStars = 1,
     TextureBoringGray = 5,
     TextureNewMetal = 6,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
@@ -139,7 +139,7 @@ function update(game_input)
     script_selected_mesh_set_identity_matrix();
     script_selected_mesh_scale_matrix(3, 3, 3);
     script_selected_mesh_translate_matrix(80, 80, 0);
-    set_object_visual_data(resources.TextureJumpman, 1)
+    set_object_visual_data(resources.TextureJumpman, 1);
 
     local is_select_action_pressed = game_input.select_action.just_pressed;
 

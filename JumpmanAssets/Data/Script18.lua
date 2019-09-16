@@ -13,7 +13,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -48,7 +48,7 @@ local resources = {
     TextureBoringGreen = 10,
     MeshJMWork1 = 13,
     MeshJMWork2 = 14,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -70,7 +70,7 @@ local d_a_bot_properties = {
     DABotIWait = 44,
     DABotILaser = 45,
     DABotIFiring = 46,
-}
+};
 d_a_bot_properties = read_only.make_table_read_only(d_a_bot_properties);
 
 local g_is_initialized = false;

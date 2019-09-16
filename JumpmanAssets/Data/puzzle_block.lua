@@ -22,7 +22,7 @@ block_status = read_only.make_table_read_only(block_status);
 
 local g_is_initialized = false;
 
-local g_block_piece_mesh_indicies = {};
+local g_block_piece_mesh_indices = {};
 
 local g_block_piece_positions_x = {};
 local g_block_piece_positions_y = {};
@@ -127,7 +127,7 @@ local function PutBlockInStartingPos_(all_blocks)
     end
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
-        select_object_mesh(g_block_piece_mesh_indicies[iLoop]);
+        select_object_mesh(g_block_piece_mesh_indices[iLoop]);
         set_object_visual_data(Module.BlockPieceTextureResourceIndex, 1);
     end
 end
@@ -136,7 +136,7 @@ local function DrawBlock_()
     local iShake = rnd(0, 10) - 5;
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
-        select_object_mesh(g_block_piece_mesh_indicies[iLoop]);
+        select_object_mesh(g_block_piece_mesh_indices[iLoop]);
         script_selected_mesh_set_identity_matrix();
         script_selected_mesh_scale_matrix(kBLOCK_PIECE_WIDTH + 0.2, kBLOCK_PIECE_HEIGHT + 0.2, 3.8);
 
@@ -170,7 +170,7 @@ function Module.update(all_blocks)
         g_is_initialized = true;
 
         for i = 1, kNUM_BLOCK_PIECES do
-            g_block_piece_mesh_indicies[i] = new_mesh(Module.BlockPieceMeshResourceIndex);
+            g_block_piece_mesh_indices[i] = new_mesh(Module.BlockPieceMeshResourceIndex);
         end
 
         InitializeBlock_();

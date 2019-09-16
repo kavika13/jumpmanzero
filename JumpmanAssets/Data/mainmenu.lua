@@ -7,7 +7,7 @@ local menu_type = {
     MENU_OPTIONS = 2,
     MENU_SELECTGAME = 3,
     MENU_SELECTLEVEL = 4,
-}
+};
 menu_type = read_only.make_table_read_only(menu_type);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -24,7 +24,7 @@ local resources = {
     TextureBoringOrange = 7,
     SoundSelect = 0,
     SoundFire = 1,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local kNUM_MENU_OPTIONS = 2;

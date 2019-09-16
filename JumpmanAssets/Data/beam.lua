@@ -125,7 +125,7 @@ local function DrawFire()
 
     select_object_mesh(g_beam_2_mesh_index);
     script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_rotate_matrix_x(g_frames_since_beam_started * 34)
+    script_selected_mesh_rotate_matrix_x(g_frames_since_beam_started * 34);
     script_selected_mesh_translate_matrix(0.5, 0, 0);
     script_selected_mesh_scale_matrix(g_gun_to_target_distance, 3, 2);
     script_selected_mesh_rotate_matrix_z(g_gun_tilt_rotation);

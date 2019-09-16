@@ -14,8 +14,8 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
-player_state = read_only.make_table_read_only(player_state)
+};
+player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -36,8 +36,8 @@ local resources = {
     ScriptBee = 0,
     TextureBigHive = 6,
     SoundBee = 4,
-}
-resources = read_only.make_table_read_only(resources)
+};
+resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
 local g_bees = {};
@@ -45,7 +45,7 @@ local g_collected_donut_count = 0;
 
 function update()
     if not g_is_initialized then
-        g_is_initialized = true
+        g_is_initialized = true;
         set_level_extent_x(220);
     end
 
@@ -64,7 +64,7 @@ function SpawnBee_()
 end
 
 function on_collect_donut()
-    g_collected_donut_count = g_collected_donut_count + 1
+    g_collected_donut_count = g_collected_donut_count + 1;
 
     if g_collected_donut_count == 1 then
         play_sound_effect(resources.SoundBee);

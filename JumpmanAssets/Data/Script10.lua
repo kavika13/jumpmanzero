@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -42,7 +42,7 @@ local resources = {
     MeshRunDonutHatch3 = 7,
     MeshRunDonutHatch4 = 8,
     MeshRunDonutHatch5 = 9,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -64,7 +64,7 @@ local run_donut_properties = {
     RunDonutIRotate = 24,
     RunDonutIXV = 25,
     RunDonutIYV = 26,
-}
+};
 run_donut_properties = read_only.make_table_read_only(run_donut_properties);
 
 local is_initialized = false;
@@ -84,12 +84,10 @@ function update()
 
         local iX = 40;
 
-        while iX < 150
-        do
+        while iX < 150 do
             local iY = 20;
 
-            while iY < 180
-            do
+            while iY < 180 do
                 iTemp = spawn_object(resources.ScriptRunDonut);
                 set_object_global_data(iTemp, run_donut_properties.RunDonutStartX, iX + iY / 8);
                 set_object_global_data(iTemp, run_donut_properties.RunDonutStartY, iY);

@@ -28,7 +28,7 @@ local resources = {
     ScriptWhomper = 1,
     ScriptProp = 2,
     TextureConveyor = 7,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;

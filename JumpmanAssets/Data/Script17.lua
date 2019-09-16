@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -33,7 +33,7 @@ local resources = {
     MeshBullet2 = 1,
     TextureBullet = 5,
     TextureUpDown = 6,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local kPLAYER_DROP_AFTER_FLIP = 12;

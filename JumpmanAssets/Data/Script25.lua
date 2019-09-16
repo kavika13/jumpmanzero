@@ -15,7 +15,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type
@@ -24,7 +24,7 @@ local player_movement_direction = {
     DIR_DOWN = 2,
     DIR_LEFT = 3,
     DIR_RIGHT = 4,
-}
+};
 player_movement_direction = read_only.make_table_read_only(player_movement_direction);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -71,7 +71,7 @@ local resources = {
     MeshSharkT3 = 23,
     ScriptSwimColl = 1,
     TextureWaterBack = 10,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -90,7 +90,7 @@ local shark_properties = {
     SharkITurn = 41,
     SharkIXV = 42,
     SharkIYV = 43,
-}
+};
 shark_properties = read_only.make_table_read_only(shark_properties);
 
 -- TODO: Separate file?
@@ -98,7 +98,7 @@ local swim_coll_properties = {
     SwimCollInTank = 0,
     SwimCollSharkObj = 1,
     SwimCollFacing = 2,
-}
+};
 swim_coll_properties = read_only.make_table_read_only(swim_coll_properties);
 
 local kTOP_OF_POOL_Y = 114;
@@ -127,10 +127,10 @@ function update(game_input)
         g_is_initialized = true;
 
         g_shark = shark_module();
-        g_shark.MoveRightMeshResourceIndicies = { resources.MeshShark1, resources.MeshShark2, resources.MeshShark1, resources.MeshShark3 };
-        g_shark.TurnRightMeshResourceIndicies = { resources.MeshSharkT1, resources.MeshSharkT2, resources.MeshSharkT3 };
-        g_shark.MoveLeftMeshResourceIndicies = { resources.MeshSharkL1, resources.MeshSharkL2, resources.MeshSharkL1, resources.MeshSharkL3 };
-        g_shark.TurnLeftMeshResourceIndicies = { resources.MeshSharkTL1, resources.MeshSharkTL2, resources.MeshSharkTL3 };
+        g_shark.MoveRightMeshResourceIndices = { resources.MeshShark1, resources.MeshShark2, resources.MeshShark1, resources.MeshShark3 };
+        g_shark.TurnRightMeshResourceIndices = { resources.MeshSharkT1, resources.MeshSharkT2, resources.MeshSharkT3 };
+        g_shark.MoveLeftMeshResourceIndices = { resources.MeshSharkL1, resources.MeshSharkL2, resources.MeshSharkL1, resources.MeshSharkL3 };
+        g_shark.TurnLeftMeshResourceIndices = { resources.MeshSharkTL1, resources.MeshSharkTL2, resources.MeshSharkTL3 };
         g_shark.TextureResourceIndex = resources.TextureShark;
         g_shark.StartPosX = 80;
         g_shark.StartPosY = 80;

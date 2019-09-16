@@ -34,7 +34,7 @@ local resources = {
     MeshHangL3 = 12,
     MeshHangL4 = 13,
     TextureHangVine = 7,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
@@ -82,7 +82,7 @@ local function MoveBaboon()
         abs_vine(iVin);
 
         if g_current_pos_y < get_script_selected_level_object_y2() + 3 then
-            g_current_pos_y = iOldY
+            g_current_pos_y = iOldY;
             g_current_velocity_y = g_current_velocity_y * -1;
         end
 

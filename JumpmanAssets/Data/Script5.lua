@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -37,7 +37,7 @@ local resources = {
     SoundJump = 0,
     Soundchomp = 1,
     Soundbonk = 2,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
@@ -52,9 +52,9 @@ function update()
             local new_penguin = penguin_module();
             new_penguin.StandMeshResourceIndex = resources.MeshPenguinStand;
             new_penguin.BackMeshResourceIndex = resources.MeshPenguinBack;
-            new_penguin.MoveLeftMeshResourceIndicies = { resources.MeshPenguinLeft1, resources.MeshPenguinLeft2 };
-            new_penguin.MoveRightMeshResourceIndicies = { resources.MeshPenguinRight1, resources.MeshPenguinRight2 };
-            new_penguin.LadderClimbMeshResourceIndicies = { resources.MeshPenguinLC1, resources.MeshPenguinLC2};
+            new_penguin.MoveLeftMeshResourceIndices = { resources.MeshPenguinLeft1, resources.MeshPenguinLeft2 };
+            new_penguin.MoveRightMeshResourceIndices = { resources.MeshPenguinRight1, resources.MeshPenguinRight2 };
+            new_penguin.LadderClimbMeshResourceIndices = { resources.MeshPenguinLC1, resources.MeshPenguinLC2};
             new_penguin.TextureResourceIndex = resources.TexturePenguinTexture;
             new_penguin.CountOfTimesToPreAdvanceMovement = iLoop * 66;
             table.insert(g_penguins, new_penguin);

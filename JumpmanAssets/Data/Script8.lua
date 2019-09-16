@@ -13,7 +13,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -33,7 +33,7 @@ local resources = {
     TextureLitFountain = 7,
     TextureStone = 8,
     TextureDesert = 9,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -51,7 +51,7 @@ local goo_properties = {
     GooOutlet1 = 14,
     GooOutlet2 = 15,
     GooIMyPlat = 16,
-}
+};
 goo_properties = read_only.make_table_read_only(goo_properties);
 
 local g_is_initialized = false;
@@ -104,8 +104,7 @@ end
 function MovePyramid()
     local iPic = 0;
 
-    while iPic < 6
-    do
+    while iPic < 6 do
         select_picture(iPic + 200);
         script_selected_mesh_set_identity_matrix();
         script_selected_mesh_translate_matrix(0, -65, -35);

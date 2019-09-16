@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -37,7 +37,7 @@ local resources = {
     TextureWave1 = 8,
     TextureSea = 9,
     TextureStopWatch = 10,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local kTOP_WAVE_HEIGHT = 125;
@@ -91,8 +91,7 @@ end
 function CollideLittleClocks()
     local iLoop = 10;
 
-    while iLoop < kNumClockTimers
-    do
+    while iLoop < kNumClockTimers do
         if g_clock_timers[iLoop] and g_clock_timers[iLoop] > 0 and g_clock_timers[iLoop] < 10 then
             SpinClock(iLoop);
             select_picture(iLoop);
@@ -156,8 +155,7 @@ function reset()
 
     local iLoop = 10;
 
-    while iLoop < kNumClockTimers
-    do
+    while iLoop < kNumClockTimers do
         if g_clock_timers[iLoop] and g_clock_timers[iLoop] > 1 then
             g_clock_timers[iLoop] = 1;
         end

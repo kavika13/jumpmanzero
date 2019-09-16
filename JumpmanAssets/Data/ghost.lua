@@ -81,7 +81,7 @@ end
 
 function Module.update()
     if not g_is_initialized then
-        Initialize()
+        Initialize();
     end
 
     select_object_mesh(g_animation_mesh_indices[g_animation_frame_index]);

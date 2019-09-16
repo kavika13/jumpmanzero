@@ -166,7 +166,7 @@ local function TestLayoutPos_(iTX, iTY, iTemp)
         iRep = iRep + 1;
     end
 
-    return iCount
+    return iCount;
 end
 
 local function SetRealFromCopy_(iCopy, iVal)

@@ -1,4 +1,4 @@
-local Module = {}
+local Module = {};
 
 Module.IsTooCloseToOtherDropsCallback = nil;
 Module.FramesToWait = 0;

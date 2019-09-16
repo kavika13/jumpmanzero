@@ -15,7 +15,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -40,7 +40,7 @@ local resources = {
     SoundJump = 0,
     SoundChomp = 1,
     SoundBonk = 2,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local is_initialized = false;

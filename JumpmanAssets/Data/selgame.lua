@@ -8,7 +8,7 @@ local resources = {
     TextureRachBlue = 3,
     SoundSelect = 0,
     SoundFire = 1,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;

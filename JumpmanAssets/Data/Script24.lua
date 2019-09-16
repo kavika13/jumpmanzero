@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -46,7 +46,7 @@ local resources = {
     MeshHangL3 = 12,
     MeshHangL4 = 13,
     TextureHangVine = 7,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;

@@ -1,6 +1,6 @@
 local read_only = require "Data/read_only";
 
-local Module = {}
+local Module = {};
 
 Module.ObjectIndex = 0;
 Module.GoodColorTextureResourceIndex = 0;
@@ -19,7 +19,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 local g_is_initialized = false;

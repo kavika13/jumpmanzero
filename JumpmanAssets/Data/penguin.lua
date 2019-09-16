@@ -2,15 +2,15 @@ local Module = {};
 
 Module.StandMeshResourceIndex = 0;
 Module.BackMeshResourceIndex = 0;
-Module.MoveLeftMeshResourceIndicies = {};
-Module.MoveRightMeshResourceIndicies = {};
-Module.LadderClimbMeshResourceIndicies = {};
+Module.MoveLeftMeshResourceIndices = {};
+Module.MoveRightMeshResourceIndices = {};
+Module.LadderClimbMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
 Module.CountOfTimesToPreAdvanceMovement = 0;
 
 local g_is_initialized = false;
 
-local g_animation_mesh_indicies = {};
+local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 6 frames increments alt)
 local g_animation_alt_frame_counter = 0;  -- On 1 or 3 switches to an alt frame in the current animation
@@ -114,7 +114,7 @@ end
 
 local function MovePenguin()
     CheckForChange();
-    ProgressPenguin()
+    ProgressPenguin();
 
     local iPlat = find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
     local iHit = get_script_event_data_4();
@@ -164,17 +164,17 @@ local function Initialize()
         counter = counter - 1;
     end
 
-    g_animation_mesh_indicies[0] = new_mesh(Module.StandMeshResourceIndex);
-    g_animation_mesh_indicies[1] = new_mesh(Module.BackMeshResourceIndex);
+    g_animation_mesh_indices[0] = new_mesh(Module.StandMeshResourceIndex);
+    g_animation_mesh_indices[1] = new_mesh(Module.BackMeshResourceIndex);
 
-    g_animation_mesh_indicies[2] = new_mesh(Module.MoveLeftMeshResourceIndicies[1]);
-    g_animation_mesh_indicies[3] = new_mesh(Module.MoveLeftMeshResourceIndicies[2]);
+    g_animation_mesh_indices[2] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
+    g_animation_mesh_indices[3] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
 
-    g_animation_mesh_indicies[4] = new_mesh(Module.MoveRightMeshResourceIndicies[1]);
-    g_animation_mesh_indicies[5] = new_mesh(Module.MoveRightMeshResourceIndicies[2]);
+    g_animation_mesh_indices[4] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
+    g_animation_mesh_indices[5] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
 
-    g_animation_mesh_indicies[6] = new_mesh(Module.LadderClimbMeshResourceIndicies[1]);
-    g_animation_mesh_indicies[7] = new_mesh(Module.LadderClimbMeshResourceIndicies[2]);
+    g_animation_mesh_indices[6] = new_mesh(Module.LadderClimbMeshResourceIndices[1]);
+    g_animation_mesh_indices[7] = new_mesh(Module.LadderClimbMeshResourceIndices[2]);
 end
 
 function Module.update()
@@ -183,16 +183,16 @@ function Module.update()
         Initialize();
     end
 
-    select_object_mesh(g_animation_mesh_indicies[g_animation_current_frame]);
+    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_object_visual_data(0, 0);
 
     AdvanceFrame();
     MovePenguin();
 
     -- Grabbing frame again because it may have changed
-    select_object_mesh(g_animation_mesh_indicies[g_animation_current_frame]);
+    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5)
+    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
     set_object_visual_data(Module.TextureResourceIndex, 1);
 
     if is_player_colliding_with_rect(g_current_pos_x - 3, g_current_pos_y + 2, g_current_pos_x + 3, g_current_pos_y + 12) then

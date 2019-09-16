@@ -14,7 +14,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -41,7 +41,7 @@ local resources = {
     TextureOilDrum = 7,
     TextureBoringGray = 8,
     TextureBoringBlue = 9,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
@@ -129,7 +129,7 @@ function ControlFrog()
         g_frog_animation_current_mesh_index = 3;
 
         if rnd(1, 100) > 50 then
-            g_frog_animation_frame = 38
+            g_frog_animation_frame = 38;
         end
     elseif g_frog_animation_frame > 10 then
         g_frog_animation_current_mesh_index = 3;

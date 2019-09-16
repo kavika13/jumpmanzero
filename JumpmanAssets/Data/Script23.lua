@@ -13,7 +13,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type
@@ -24,7 +24,7 @@ local camera_mode = {
     PerspectiveWide = 3,
     PerspectiveFollow = 4,
     PerspectiveFixed = 5,
-}
+};
 camera_mode = read_only.make_table_read_only(camera_mode);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -54,7 +54,7 @@ local resources = {
     MeshJumper3 = 6,
     MeshJuEyes = 7,
     TextureBoringGray = 9,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
 -- TODO: Separate file?
@@ -72,7 +72,7 @@ local claw_properties = {
     ClawIStatus = 20,
     ClawIRescueObj = 21,
     ClawIWait = 22,
-}
+};
 claw_properties = read_only.make_table_read_only(claw_properties);
 
 -- TODO: Separate file?
@@ -91,7 +91,7 @@ local jumper_properties = {
     JumperISC = 41,
     JumperIDodge = 42,
     JumperIStartAlive = 43,
-}
+};
 jumper_properties = read_only.make_table_read_only(jumper_properties);
 
 local is_initialized = false;
