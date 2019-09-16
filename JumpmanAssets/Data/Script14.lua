@@ -1,5 +1,7 @@
 local read_only = require "Data/read_only";
 local bullet_module = assert(loadfile("Data/bullet.lua"));
+local puzzle_block_module = assert(loadfile("Data/puzzle_block.lua"));
+local puzzle_solution_module = assert(loadfile("Data/puzzle_solution.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -14,7 +16,7 @@ local player_state = {
     JSPUNCH = 128,
     JSDYING = 256,
     JSVINE = 1024,
-}
+};
 player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type
@@ -25,7 +27,7 @@ local camera_mode = {
     PerspectiveWide = 3,
     PerspectiveFollow = 4,
     PerspectiveFixed = 5,
-}
+};
 camera_mode = read_only.make_table_read_only(camera_mode);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
@@ -56,118 +58,102 @@ local resources = {
     TextureBoringPurple = 13,
     TextureBoringRed = 14,
     TextureBoringYellow = 15,
-}
+};
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local block_properties = {
-    BlockIInit = 0,
-    BlockTexture = 1,
-    BlockIMesh = 2,
-    BlockIX = 8,
-    BlockIY = 14,
-    BlockIMyPlat = 20,
-    BlockIStatus = 21,
-    BlockHung = 22,
-    BlockICount = 23,
-}
-block_properties = read_only.make_table_read_only(block_properties);
+local g_is_initialized = false;
+local g_puzzle_solution;
+local g_puzzle_blocks = {};
+local g_bullet;
 
--- TODO: Separate file?
--- TODO: Rename this struct and the properties to something less confusing
-local puzzle_properties = {
-    BFormatGenerated = 0,
-    BFormatColor = 1,
-    BFormatCopy = 57,
-    BFormatTemp = 113,
-    BFormatITWidth = 130,
-    BFormatITHeight = 131,
-    BFormatIBlockNumber = 132,
-}
-puzzle_properties = read_only.make_table_read_only(puzzle_properties);
-
-local g_init_stage_index = 0;
-local g_bullets = {};
-
-local g_puzzle_object_index;  -- TODO: What is "b format"?
 local g_block_object_indices = {};
 local kNUM_BLOCKS = 9;
 
-function update()
-    if g_init_stage_index == 3 then
-        g_init_stage_index = 4;
-        ResetBlocks();
-    end
-
-    if g_init_stage_index == 2 then
-        g_init_stage_index = 3;
-        select_donut(2);
-        set_script_selected_level_object_visible(0);
-        g_puzzle_object_index = spawn_object(resources.ScriptBFormat);
-
-        local bullet_object_index = bullet_module();
-        bullet_object_index.FramesToWait = 100;
-        bullet_object_index.Mesh1Index = resources.MeshBullet1;
-        bullet_object_index.Mesh2Index = resources.MeshBullet2;
-        bullet_object_index.TextureIndex = resources.TextureBullet;
-        bullet_object_index.FireSoundIndex = resources.SoundFire;
-        table.insert(g_bullets, bullet_object_index);
-
-        for iTemp = 1, kNUM_BLOCKS do
-            g_block_object_indices[iTemp] = spawn_object(resources.ScriptBlock);
-        end
-    end
-
-    if g_init_stage_index == 1 then
-        g_init_stage_index = 2;
-    end
-
-    if g_init_stage_index == 0 then
-        g_init_stage_index = 1;
-        set_current_camera_mode(camera_mode.PerspectiveFar);
-    end
-
-    for _, bullet in ipairs(g_bullets) do
-        bullet.update();
-    end
+local function GetColor(iNum)
+    return resources.TextureBoringBlue + iNum - 1;
 end
 
-function ResetBlocks()
-    for iTemp = 1, kNUM_BLOCKS do
-        GenerateBlock(iTemp);
-    end
-end
-
-function GenerateBlock(iNum)
+local function AssignBlockPieceInitialPositions_(puzzle_solution, block, iNum)
+    -- TODO: It might be simpler to just pass g_puzzle_solution into the blocks
     local iPartNum = 1;
-    local iNew = g_block_object_indices[iNum];
 
     for iX = 1, 9 do
         for iY = 1, 4 do
-            local iCol = get_object_global_data(g_puzzle_object_index, puzzle_properties.BFormatColor + iX + iY * 11);
+            local iCol = puzzle_solution.get_color_at_pos(iX, iY);
 
             if iCol == iNum then
-                set_object_global_data(iNew, block_properties.BlockIX + iPartNum, iX - 1);
-                set_object_global_data(iNew, block_properties.BlockIY + iPartNum, iY - 1);
-                set_object_global_data(iNew, block_properties.BlockIStatus, 0);
-                set_object_global_data(iNew, block_properties.BlockHung, 0)
-                set_object_global_data(iNew, block_properties.BlockTexture, GetColor(iNum));
+                block.InitialBlockPiecePositionsX[iPartNum] = iX - 1;
+                block.InitialBlockPiecePositionsY[iPartNum] = iY - 1;
                 iPartNum = iPartNum + 1;
             end
         end
     end
 end
 
-function CheckForWin()
-    for iTest = 1, 9 do
-        for iLoop = 1, 4 do
-            local iY = get_object_global_data(g_block_object_indices[iTest], block_properties.BlockIY + iLoop);
-            -- TODO: Debug print function? print(-2);
-            -- TODO: Debug print function? print(iY);
+local function CreateBlock_(iNum)
+    local new_block = puzzle_block_module();
+    new_block.BlockPieceMeshResourceIndex = resources.MeshGoo;
+    new_block.BlockPieceTextureResourceIndex = GetColor(iNum);
+    AssignBlockPieceInitialPositions_(g_puzzle_solution, new_block, iNum);
+    return new_block;
+end
 
-            if iY > 3 then
-                return false;
-            end
+local function InitializeBlocks_()
+    for iTemp = 1, kNUM_BLOCKS do
+        table.insert(g_puzzle_blocks, CreateBlock_(iTemp));
+    end
+end
+
+local function ResetBlocks_()
+    -- TODO: It might be simpler to just pass g_puzzle_solution into the blocks
+    --       Still would require a 2-stage reset, but be able to expose less variables of blocks
+    for iTemp = 1, kNUM_BLOCKS do
+        AssignBlockPieceInitialPositions_(g_puzzle_solution, g_puzzle_blocks[iTemp], iTemp);
+        g_puzzle_blocks[iTemp].reinitialize();
+    end
+
+    -- Need to reset block pos after all pieces have their initial positions set again, so they spread correctly
+    for iTemp = 1, kNUM_BLOCKS do
+        g_puzzle_blocks[iTemp].reset_pos(g_puzzle_blocks);
+    end
+end
+
+function update()
+    if not g_is_initialized then
+        g_is_initialized = true;
+
+        set_current_camera_mode(camera_mode.PerspectiveFar);
+
+        select_donut(2);
+        set_script_selected_level_object_visible(0);
+
+        g_puzzle_solution = puzzle_solution_module();
+        g_puzzle_solution.find_new_layout();
+
+        InitializeBlocks_();
+
+        g_bullet = bullet_module();
+        g_bullet.FramesToWait = 100;
+        g_bullet.Mesh1Index = resources.MeshBullet1;
+        g_bullet.Mesh2Index = resources.MeshBullet2;
+        g_bullet.TextureIndex = resources.TextureBullet;
+        g_bullet.FireSoundIndex = resources.SoundFire;
+    end
+
+    for _, puzzle_block in ipairs(g_puzzle_blocks) do
+        puzzle_block.update(g_puzzle_blocks);
+    end
+
+    g_bullet.update();
+
+    -- TODO: Change donut visual state when win imminent? Particles, dancing, glowing?
+    -- TODO: Change donut visual state when reset is necessary? Greying out, animation, different "reset" mesh?
+end
+
+local function CheckForWin()
+    for _, puzzle_block in ipairs(g_puzzle_blocks) do
+        if puzzle_block.is_above_the_board() then
+            return false;
         end
     end
 
@@ -192,12 +178,8 @@ function on_collect_donut()
         set_script_selected_level_object_visible(1);
     end
 
-    set_object_global_data(g_puzzle_object_index, puzzle_properties.BFormatGenerated, 0);
-    g_init_stage_index = 3;
-end
-
-function GetColor(iNum)
-    return resources.TextureBoringBlue + iNum - 1;
+    g_puzzle_solution.find_new_layout();
+    ResetBlocks_();
 end
 
 function reset()
@@ -206,7 +188,7 @@ function reset()
     set_player_current_position_z(3);
     set_player_current_state(player_state.JSNORMAL);
 
-    for _, bullet in ipairs(g_bullets) do
-        bullet.reset_pos();
+    if g_is_initialized then
+        g_bullet.reset_pos();
     end
 end
