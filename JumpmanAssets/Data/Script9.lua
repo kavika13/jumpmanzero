@@ -1,5 +1,6 @@
 local read_only = require "Data/read_only";
 local bullet_module = assert(loadfile("Data/bullet.lua"));
+local chain_module = assert(loadfile("Data/chain.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -39,22 +40,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local chain_properties = {
-    ChainIInit = 0,
-    ChainIMeshes = 1,
-    ChainX1 = 32,
-    ChainY1 = 33,
-    ChainX2 = 34,
-    ChainY2 = 35,
-    ChainZ = 36,
-    ChainLength = 37,
-    ChainBNoUp = 38,
-    ChainBNoDown = 39,
-    ChainIPlayerAir = 40,
-};
-chain_properties = read_only.make_table_read_only(chain_properties);
-
 local g_init_stage_index = 0;
 local g_bullets = {};
 
@@ -86,10 +71,15 @@ function update()
         g_init_stage_index = 1;
         g_chain_length = 10;
         g_target_length = 20;
-        g_chain = spawn_object(resources.ScriptChain);
+
+        g_chain = chain_module();
+        g_chain.LinkMeshResourceIndex = resources.MeshChain;
+        g_chain.LinkTextureResourceIndex = resources.TextureChain;
     end
 
     SetChainLength();
+
+    g_chain.update();
 
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
@@ -101,7 +91,7 @@ function SetChainLength()
         g_chain_length = g_chain_length + 1;
     end
 
-    set_object_global_data(g_chain, chain_properties.ChainLength, g_chain_length);
+    g_chain.ChainLength = g_chain_length;
 end
 
 function on_collect_donut()
