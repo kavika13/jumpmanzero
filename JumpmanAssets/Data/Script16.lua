@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local turtle_module = assert(loadfile("Data/turtle.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -43,62 +44,55 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local turtle_properties = {
-    TurtleStartX = 0,
-    TurtleStartY = 1,
-    TurtleIInit = 2,
-    TurtleIX = 3,
-    TurtleIY = 4,
-    TurtleIZ = 5,
-    TurtleIFrame = 6,
-    TurtleIStatus = 7,
-    TurtleICount = 8,
-    TurtleISlow = 9,
-    TurtleISlowFrame = 10,
-    TurtleAngle = 11,
-    TurtleIMeshes = 12,
-};
-turtle_properties = read_only.make_table_read_only(turtle_properties);
-
 local is_initialized = false;
 
-function update()
+local g_turtles = {};
+
+local function CreateTurtle_(iX, iY)
+    local new_turtle = turtle_module();
+    new_turtle.MoveRightMeshResourceIndices = { resources.MeshTurtGR1, resources.MeshTurtGR2 };
+    new_turtle.MoveLeftMeshResourceIndices = { resources.MeshTurtGL1, resources.MeshTurtGL2 };
+    new_turtle.HideMeshResourceIndices = { resources.MeshTurtS1, resources.MeshTurtSH1 };
+    new_turtle.TextureResourceIndex = resources.TextureTurtleTexture;
+    new_turtle.InitialPosX = iX;
+    new_turtle.InitialPosY = iY;
+    return new_turtle;
+end
+
+function update(game_input)
     if not is_initialized then
         is_initialized = true;
 
-        CreateTurtle(128, 8);
-        CreateTurtle(65, 12);
-        CreateTurtle(80, 10);
+        table.insert(g_turtles, CreateTurtle_(128, 8));
+        table.insert(g_turtles, CreateTurtle_(65, 12));
+        table.insert(g_turtles, CreateTurtle_(80, 10));
 
-        CreateTurtle(10, 66);
-        CreateTurtle(26, 42);
+        table.insert(g_turtles, CreateTurtle_(10, 66));
+        table.insert(g_turtles, CreateTurtle_(26, 42));
 
-        CreateTurtle(80, 40);
+        table.insert(g_turtles, CreateTurtle_(80, 40));
 
-        CreateTurtle(20, 88);
-        CreateTurtle(50, 88);
+        table.insert(g_turtles, CreateTurtle_(20, 88));
+        table.insert(g_turtles, CreateTurtle_(50, 88));
 
-        CreateTurtle(90, 111);
-        CreateTurtle(120, 113);
+        table.insert(g_turtles, CreateTurtle_(90, 111));
+        table.insert(g_turtles, CreateTurtle_(120, 113));
 
-        CreateTurtle(20, 118);
+        table.insert(g_turtles, CreateTurtle_(20, 118));
 
-        CreateTurtle(49, 144);
-        CreateTurtle(60, 144);
+        table.insert(g_turtles, CreateTurtle_(49, 144));
+        table.insert(g_turtles, CreateTurtle_(60, 144));
 
-        CreateTurtle(10, 172);
-        CreateTurtle(60, 172);
+        table.insert(g_turtles, CreateTurtle_(10, 172));
+        table.insert(g_turtles, CreateTurtle_(60, 172));
 
-        CreateTurtle(140, 170);
-        CreateTurtle(140, 145);
+        table.insert(g_turtles, CreateTurtle_(140, 170));
+        table.insert(g_turtles, CreateTurtle_(140, 145));
     end
-end
 
-function CreateTurtle(iX, iY)
-    local iTemp = spawn_object(resources.ScriptTurtle);
-    set_object_global_data(iTemp, turtle_properties.TurtleStartX, iX);
-    set_object_global_data(iTemp, turtle_properties.TurtleStartY, iY);
+    for _, turtle in ipairs(g_turtles) do
+        turtle.update(game_input, g_turtles);
+    end
 end
 
 function reset()
