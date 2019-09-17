@@ -67,7 +67,7 @@ local g_current_status = status_type.MOVE_LEFT;
 local g_current_status_counter = 0;
 
 local function SetAngle_()
-    find_platform(g_current_pos_x - 5, g_current_pos_y, 7, 2)
+    find_platform(g_current_pos_x - 5, g_current_pos_y, 7, 2);
     local iHit1 = get_script_event_data_4();
 
     find_platform(g_current_pos_x + 5, g_current_pos_y, 7, 2);
@@ -200,7 +200,7 @@ function Module.update(game_input, all_turtles)
     end
 
     select_object_mesh(g_move_animation_frames[g_move_animation_current_frame]);
-    set_object_visual_data(0, 0)
+    set_object_visual_data(0, 0);
 
     Animate_();
     SetFrame_();

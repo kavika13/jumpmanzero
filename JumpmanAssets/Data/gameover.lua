@@ -2,17 +2,17 @@ local read_only = require "Data/read_only";
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
-        JSNORMAL = 0,
-        JSJUMPING = 1,
-        JSRIGHT = 2,
-        JSLEFT = 4,
-        JSFALLING = 8,
-        JSLADDER = 16,
-        JSKICK = 32,
-        JSROLL = 64,
-        JSPUNCH = 128,
-        JSDYING = 256,
-        JSVINE = 1024,
+    JSNORMAL = 0,
+    JSJUMPING = 1,
+    JSRIGHT = 2,
+    JSLEFT = 4,
+    JSFALLING = 8,
+    JSLADDER = 16,
+    JSKICK = 32,
+    JSROLL = 64,
+    JSPUNCH = 128,
+    JSDYING = 256,
+    JSVINE = 1024,
 };
 player_state = read_only.make_table_read_only(player_state);
 

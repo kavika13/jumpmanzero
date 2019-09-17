@@ -154,7 +154,7 @@ local function Move_()
         local iHit = get_script_event_data_4();
 
         if iHit < g_current_pos_y - 6 then
-            g_move_direction = move_direction.RIGHT
+            g_move_direction = move_direction.RIGHT;
             g_turn_time_remaining = kTURN_DURATION;
         end
     end

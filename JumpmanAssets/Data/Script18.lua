@@ -76,7 +76,7 @@ local function CreateDABot_(iX, iY, iBehave, iTexture)
         resources.MeshDABotT2,
         resources.MeshDABotT3,
         resources.MeshDABotT4,
-        resources.MeshDABotT5
+        resources.MeshDABotT5,
     };
     new_bot.BotFireLeftMeshResourceIndices = { resources.MeshDABotLS1, resources.MeshDABotLS2 };
     new_bot.BotFireRightMeshResourceIndices = { resources.MeshDABotRS1, resources.MeshDABotRS2 };
