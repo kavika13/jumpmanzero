@@ -1,4 +1,6 @@
 local read_only = require "Data/read_only";
+local follower_sheep_module = assert(loadfile("Data/follower_sheep.lua"));
+local leader_sheep_module = assert(loadfile("Data/leader_sheep.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -26,7 +28,7 @@ local resources = {
     SoundJump = 0,
     SoundChomp = 1,
     SoundBonk = 2,
-    SoundGOAT = 3,
+    SoundGoat = 3,
     MeshCopter = 0,
     TextureSheep = 5,
     ScriptLSheep = 0,
@@ -52,103 +54,61 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local l_sheep_properties = {
-    LSheepIInit = 0,
-    LSheepIX = 1,
-    LSheepIY = 2,
-    LSheepIZ = 3,
-    LSheepIDir = 4,
-    LSheepISlow = 5,
-    LSheepIAnimate = 6,
-    LSheepILadderZ = 7,
-    LSheepIFrame = 8,
-    LSheepIMeshes = 9,
-    LSheepICopter = 40,
-    LSheepICount = 41,
-    LSheepISpin = 42,
-    LSheepIFlyDir = 43,
-    LSheepICopterSize = 44,
-    LSheepIAirTime = 45,
-    LSheepBPassDir = 46,
-};
-l_sheep_properties = read_only.make_table_read_only(l_sheep_properties);
-
--- TODO: Separate file?
-local f_sheep_properties = {
-    FSheepIInit = 0,
-    FSheepIX = 1,
-    FSheepIY = 2,
-    FSheepIZ = 3,
-    FSheepIDir = 4,
-    FSheepISlow = 5,
-    FSheepIAnimate = 6,
-    FSheepILadderZ = 7,
-    FSheepIFrame = 8,
-    FSheepIMeshes = 9,
-    FSheepICopter = 40,
-    FSheepICount = 41,
-    FSheepISpin = 42,
-    FSheepIFlyDir = 43,
-    FSheepICopterSize = 44,
-    FSheepIAirTime = 45,
-    FSheepIDelay = 46,
-    FSheepQueueLength = 47,
-    FSheepQueue = 48,
-};
-f_sheep_properties = read_only.make_table_read_only(f_sheep_properties);
-
 local g_init_stage_index = 0;
-local g_leader_sheep_object_index;
+
+local g_leader_sheep = nil;
+local g_follower_sheep = {};
+
 local g_delay = 0;
+
+function SetResourceProperties_(sheep, sheep_texture)
+    sheep.SheepMoveLeftMeshResourceIndices = { resources.MeshSheepL1, resources.MeshSheepL2 };
+    sheep.SheepJumpLeftMeshResourceIndices = { resources.MeshSheepJL1, resources.MeshSheepJL2, resources.MeshSheepJL3 };
+    sheep.SheepFlyLeftMeshResourceIndices = { resources.MeshSheepFL1, resources.MeshSheepFL2, resources.MeshSheepFL3 };
+    sheep.SheepMoveRightMeshResourceIndices = { resources.MeshSheepR1, resources.MeshSheepR2 };
+    sheep.SheepJumpRightMeshResourceIndices = { resources.MeshSheepJR1, resources.MeshSheepJR2, resources.MeshSheepJR3 };
+    sheep.SheepFlyRightMeshResourceIndices = { resources.MeshSheepFR1, resources.MeshSheepFR2, resources.MeshSheepFR3 };
+    sheep.CopterMeshResourceIndex = resources.MeshCopter;
+    sheep.SheepTextureResourceIndex = sheep_texture;
+    sheep.CopterTextureResourceIndex = resources.TextureBoringRed;
+    sheep.KillSoundResourceIndex = resources.SoundGoat;
+end
+
+function CreateSheep_()
+    g_delay = g_delay + 30;
+
+    local new_follower_sheep = follower_sheep_module();
+
+    SetResourceProperties_(new_follower_sheep, resources.TextureSheep);
+    new_follower_sheep.SpawnCooldownTimer = g_delay;
+    new_follower_sheep.copy_leader_properties(g_leader_sheep);
+
+    table.insert(g_follower_sheep, new_follower_sheep);
+end
 
 function update()
     if g_init_stage_index == 1 then
         g_init_stage_index = 2;
-        local iLoop = 0;
 
-        while iLoop < 6 do
-            CreateSheep();
-            iLoop = iLoop + 1;
+        for iLoop = 0, 5 do
+            CreateSheep_();
         end
     end
 
     if g_init_stage_index == 0 then
         g_init_stage_index = 1;
-        g_leader_sheep_object_index = spawn_object(resources.ScriptLSheep);
+
+        g_leader_sheep = leader_sheep_module();
+        SetResourceProperties_(g_leader_sheep, resources.TextureLSheep);
+
         set_level_extent_x(270);
     end
-end
 
-function CreateSheep()
-    g_delay = g_delay + 30;
+    g_leader_sheep.update(g_follower_sheep);
 
-    local follower_sheep = spawn_object(resources.ScriptFSheep);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepIDelay, g_delay);
-
-    local iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepIX);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepIX, iTemp);
-
-    iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepIY);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepIY, iTemp);
-
-    iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepIZ);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepIZ, iTemp);
-
-    iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepIFrame);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepIFrame, iTemp);
-
-    iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepIDir);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepIDir, iTemp);
-
-    iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepIAirTime);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepIAirTime, iTemp);
-
-    iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepICount);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepICount, iTemp);
-
-    iTemp = get_object_global_data(g_leader_sheep_object_index, l_sheep_properties.LSheepILadderZ);
-    set_object_global_data(follower_sheep, f_sheep_properties.FSheepILadderZ, iTemp);
+    for _, follower_sheep in ipairs(g_follower_sheep) do
+        follower_sheep.update();
+    end
 end
 
 function reset()
