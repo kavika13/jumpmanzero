@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local zap_bot_module = assert(loadfile("Data/zap_bot.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -28,7 +29,7 @@ local resources = {
     SoundChomp = 1,
     SoundBonk = 2,
     MeshSquare = 0,
-    MeshSquare = 1,
+    MeshLaser = 1,  -- TODO: Isn't defined in the level. Added here manually. Should fix level instead. Looks right tho
     TextureLaser = 5,
     TextureDisarming = 6,
     MeshDABotL = 2,
@@ -51,29 +52,9 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local d_a_bot_properties = {
-    DABotStartX = 0,
-    DABotStartY = 1,
-    DABotFireTime = 2,
-    DABotWaitTime = 3,
-    DABotBehavior = 4,
-    DABotTexture = 5,
-    DABotIInit = 6,
-    DABotIX = 7,
-    DABotIY = 8,
-    DABotIZ = 9,
-    DABotIFrame = 10,
-    DABotIStatus = 11,
-    DABotIMeshes = 12,
-    DABotITurnCount = 43,
-    DABotIWait = 44,
-    DABotILaser = 45,
-    DABotIFiring = 46,
-};
-d_a_bot_properties = read_only.make_table_read_only(d_a_bot_properties);
-
 local g_is_initialized = false;
+
+local g_zap_bots = {};
 
 local g_message_mesh_index;
 local g_progress_bar_mesh_index;
@@ -84,6 +65,33 @@ local g_work_animation_frame = 0;
 
 local g_is_disarm_hud_visible = false;
 local g_disarm_progress = 0;
+
+local function CreateDABot_(iX, iY, iBehave, iTexture)
+    local new_bot = zap_bot_module();
+
+    new_bot.BotMoveLeftMeshResourceIndex = resources.MeshDABotL;
+    new_bot.BotMoveRightMeshResourceIndex = resources.MeshDABotR;
+    new_bot.BotTurnMeshResourceIndices = {
+        resources.MeshDABotT1,
+        resources.MeshDABotT2,
+        resources.MeshDABotT3,
+        resources.MeshDABotT4,
+        resources.MeshDABotT5
+    };
+    new_bot.BotFireLeftMeshResourceIndices = { resources.MeshDABotLS1, resources.MeshDABotLS2 };
+    new_bot.BotFireRightMeshResourceIndices = { resources.MeshDABotRS1, resources.MeshDABotRS2 };
+    new_bot.LaserMeshResourceIndex = resources.MeshLaser;
+    new_bot.BotTextureResourceIndex = iTexture;
+    new_bot.LaserTextureResourceIndex = resources.TextureLaser;
+
+    new_bot.InitialPosX = iX;
+    new_bot.InitialPosY = iY;
+    new_bot.FireDuration = 70;
+    new_bot.WaitDuration = 50;
+    new_bot.BehaviorType = iBehave;
+
+    return new_bot;
+end
 
 function update(game_input)
     if not g_is_initialized then
@@ -101,14 +109,15 @@ function update(game_input)
 
         MoveDonuts();
 
-        CreateDABot(120, 10, 1, resources.TextureDABot);
-        CreateDABot(90, 85, 1, resources.TextureDABot);
-        CreateDABot(40, 86, 1, resources.TextureDABot);
+        -- TODO: Use behavior enum from zap_bot module instead of hard-coded numbers for 3rd parameter
+        table.insert(g_zap_bots, CreateDABot_(120, 10, 1, resources.TextureDABot));
+        table.insert(g_zap_bots, CreateDABot_(90, 85, 1, resources.TextureDABot));
+        table.insert(g_zap_bots, CreateDABot_(40, 86, 1, resources.TextureDABot));
 
-        CreateDABot(90, 45, 3, resources.TextureDABotO);
-        CreateDABot(90, 118, 3, resources.TextureDABotO);
+        table.insert(g_zap_bots, CreateDABot_(90, 45, 3, resources.TextureDABotO));
+        table.insert(g_zap_bots, CreateDABot_(90, 118, 3, resources.TextureDABotO));
 
-        CreateDABot(20, 150, 2, resources.TextureDABotB);
+        table.insert(g_zap_bots, CreateDABot_(20, 150, 2, resources.TextureDABotB));
     end
 
     CollideDonuts(game_input);
@@ -134,6 +143,10 @@ function update(game_input)
 
         select_object_mesh(g_progress_bar_mesh_index);
         set_object_visual_data(0, 0);
+    end
+
+    for _, zap_bot in ipairs(g_zap_bots) do
+        zap_bot.update();
     end
 end
 
@@ -230,16 +243,6 @@ function MoveDonuts()
         abs_donut(iDonut);
         set_script_selected_level_object_y1(0 - get_script_selected_level_object_y1());
     end
-end
-
-function CreateDABot(iX, iY, iBehave, iTexture)
-    local iTemp = spawn_object(resources.ScriptDABot);
-    set_object_global_data(iTemp, d_a_bot_properties.DABotStartX, iX);
-    set_object_global_data(iTemp, d_a_bot_properties.DABotStartY, iY);
-    set_object_global_data(iTemp, d_a_bot_properties.DABotFireTime, 70);
-    set_object_global_data(iTemp, d_a_bot_properties.DABotWaitTime, 50);
-    set_object_global_data(iTemp, d_a_bot_properties.DABotBehavior, iBehave);
-    set_object_global_data(iTemp, d_a_bot_properties.DABotTexture, iTexture);
 end
 
 function reset()
