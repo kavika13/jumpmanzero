@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local run_donut_module = assert(loadfile("Data/run_donut.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -45,30 +46,43 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local run_donut_properties = {
-    RunDonutStartX = 0,
-    RunDonutStartY = 1,
-    RunDonutITimeAlive = 2,
-    RunDonutIdCount = 3,
-    RunDonutIStatus = 4,
-    RunDonutICount = 5,
-    RunDonutIDir = 6,
-    RunDonutIFrame = 7,
-    RunDonutIInit = 8,
-    RunDonutIMeshes = 9,
-    RunDonutIX = 20,
-    RunDonutIY = 21,
-    RunDonutIZ = 22,
-    RunDonutISlow = 23,
-    RunDonutIRotate = 24,
-    RunDonutIXV = 25,
-    RunDonutIYV = 26,
-};
-run_donut_properties = read_only.make_table_read_only(run_donut_properties);
-
 local is_initialized = false;
+local g_run_donuts = {};
 local g_bullets = {};
+
+local function OnKillRunDonut_(run_donut)
+    for index, value in ipairs(g_run_donuts) do
+        if value == run_donut then
+            table.remove(g_run_donuts, index);
+            return;
+        end
+    end
+
+    assert(false, "Was unable to find run donut to remove");
+end
+
+local OnSpawnRunDonut_ = nil;
+
+local function CreateRunDonut_()
+    local new_run_donut = run_donut_module();
+    new_run_donut.MoveMeshResourceIndices = {
+        resources.MeshRunDonut1, resources.MeshRunDonut2, resources.MeshRunDonut3,
+    };
+    new_run_donut.HatchMeshResourceIndices = {
+        resources.MeshRunDonutHatch1, resources.MeshRunDonutHatch2, resources.MeshRunDonutHatch3,
+        resources.MeshRunDonutHatch4, resources.MeshRunDonutHatch5,
+    };
+    new_run_donut.TextureResourceIndex = resources.TextureRunDonut;
+    new_run_donut.SpawnCallback = OnSpawnRunDonut_;
+    new_run_donut.KillCallback = OnKillRunDonut_;
+    return new_run_donut;
+end
+
+OnSpawnRunDonut_ = function()
+    local new_run_donut = CreateRunDonut_();
+    table.insert(g_run_donuts, new_run_donut);
+    return new_run_donut;
+end
 
 function update()
     if not is_initialized then
@@ -88,14 +102,19 @@ function update()
             local iY = 20;
 
             while iY < 180 do
-                iTemp = spawn_object(resources.ScriptRunDonut);
-                set_object_global_data(iTemp, run_donut_properties.RunDonutStartX, iX + iY / 8);
-                set_object_global_data(iTemp, run_donut_properties.RunDonutStartY, iY);
+                local new_run_donut = CreateRunDonut_();
+                new_run_donut.InitialPosX = iX + iY / 8;
+                new_run_donut.InitialPosY = iY;
+                table.insert(g_run_donuts, new_run_donut);
                 iY = iY + 30;
             end
 
             iX = iX + 20;
         end
+    end
+
+    for _, run_donut in ipairs(g_run_donuts) do
+        run_donut.update(g_run_donuts);
     end
 
     for _, bullet in ipairs(g_bullets) do
