@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local bear_module = assert(loadfile("Data/bear2.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -30,19 +31,19 @@ local resources = {
     MeshFyRight2 = 2,
     MeshFyFR1 = 3,
     MeshFyFR2 = 4,
-    MeshFYFlopR = 5,
-    MeshFYSR1 = 6,
-    MeshFYSR2 = 7,
+    MeshFyFlopR = 5,
+    MeshFySR1 = 6,
+    MeshFySR2 = 7,
     MeshFyStandL = 8,
     MeshFyLeft1 = 9,
     MeshFyLeft2 = 10,
     MeshFyFL1 = 11,
     MeshFyFL2 = 12,
-    MeshFYFlopL = 13,
-    MeshFYSL1 = 14,
-    MeshFYSL2 = 15,
-    MeshFYLC1 = 16,
-    MeshFYLC2 = 17,
+    MeshFyFlopL = 13,
+    MeshFySL1 = 14,
+    MeshFySL2 = 15,
+    MeshFyLC1 = 16,
+    MeshFyLC2 = 17,
     SoundJump = 0,
     Soundchomp = 1,
     Soundbonk = 2,
@@ -50,14 +51,29 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local is_initialized = false;
+local g_is_initialized = false;
+local g_bear = nil;
 
 function update()
-    if not is_initialized then
-        is_initialized = true;
+    if not g_is_initialized then
+        g_is_initialized = true;
 
-        spawn_object(resources.ScriptBear2);
+        g_bear = bear_module();
+        g_bear.StandRightMeshResourceIndex = resources.MeshFyStand;
+        g_bear.MoveRightMeshResourceIndices = { resources.MeshFyRight1, resources.MeshFyRight2 };
+        g_bear.FallRightMeshResourceIndices = { resources.MeshFyFR1, resources.MeshFyFR2 };
+        g_bear.RestRightMeshResourceIndex = resources.MeshFyFlopR;
+        g_bear.ShakeRightMeshResourceIndices = { resources.MeshFySR1, resources.MeshFySR2 };
+        g_bear.StandLeftMeshResourceIndex = resources.MeshFyStandL;
+        g_bear.MoveLeftMeshResourceIndices = { resources.MeshFyLeft1, resources.MeshFyLeft2 };
+        g_bear.FallLeftMeshResourceIndices = { resources.MeshFyFL1, resources.MeshFyFL2 };
+        g_bear.RestLeftMeshResourceIndex = resources.MeshFyFlopL;
+        g_bear.ShakeLeftMeshResourceIndices = { resources.MeshFySL1, resources.MeshFySL2 };
+        g_bear.ClimbMeshResourceIndices = { resources.MeshFyLC1, resources.MeshFyLC2 };
+        g_bear.TextureResourceIndex = resources.TextureFur;
     end
+
+    g_bear.update();
 end
 
 function reset()
@@ -65,4 +81,8 @@ function reset()
     set_player_current_position_y(7);
     set_player_current_position_z(3);
     set_player_current_state(player_state.JSNORMAL);
+
+    if g_bear then
+        g_bear.reset_pos();
+    end
 end

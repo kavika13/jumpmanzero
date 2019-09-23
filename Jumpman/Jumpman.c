@@ -1481,6 +1481,19 @@ static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
     return 0;
 }
 
+static int get_navigation_dir(lua_State* lua_state) {
+    // Replacement for jms GetNavDir(int iFromAbsIndex, int iToAbsIndex, NavigationType nav_from_type, NavigationType nav_to_type) function, aka EFGETNAVDIR
+    lua_Integer arg_from_object_abs_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer arg_to_object_abs_index = luaL_checkinteger(lua_state, 2);
+    lua_Integer arg_from_object_type = luaL_checkinteger(lua_state, 3);
+    lua_Integer arg_to_object_type = luaL_checkinteger(lua_state, 4);
+    long result = GetNavDir(
+        (long)arg_from_object_abs_index, (long)arg_to_object_abs_index,
+        arg_from_object_type, arg_to_object_type);
+    lua_pushinteger(lua_state, result);
+    return 1;
+}
+
 // script script_selected_level_object accessors (getters)
 // TODO: Maybe pass in the id instead of global "selected" state for all these
 
@@ -2457,6 +2470,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_z");
     lua_pushcfunction(lua_state, script_selected_mesh_scroll_texture);
     lua_setglobal(lua_state, "script_selected_mesh_scroll_texture");
+    lua_pushcfunction(lua_state, get_navigation_dir);
+    lua_setglobal(lua_state, "get_navigation_dir");
 
     lua_pushcfunction(lua_state, get_script_selected_level_object_extra);
     lua_setglobal(lua_state, "get_script_selected_level_object_extra");
