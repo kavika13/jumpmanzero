@@ -671,12 +671,14 @@ long invoke_engine_function(long function_id) {
     if(function_id == kENGINE_FUNCTION_SELECT_PLATFORM_BY_INDEX) {
         // loSelected = &PS[argument_1];
         // miSelectedMesh = loSelected->MeshNumber;
+        printf("ABSPlatform(base[0])\n");
         return 0;
     }
 
     if(function_id == kENGINE_FUNCTION_SELECT_LADDER_BY_INDEX) {
         // loSelected = &LS[argument_1];
         // miSelectedMesh = loSelected->MeshNumber;
+        printf("ABSLadder(base[0])\n");
         return 0;
     }
 
@@ -905,6 +907,7 @@ long invoke_engine_function(long function_id) {
 
     if(function_id == kENGINE_FUNCTION_PLAYER_COLLIDE) {
         // return PlayerCollide(argument_1, argument_2, argument_3, argument_4) && !(iPlayerST == JS_DYING);
+        printf("Collide(base[0], base[1], base[2], base[3])\n");
     }
 
     if(function_id == kENGINE_FUNCTION_PLAYER_KILL/* && !(iPlayerST & JS_DYING)*/) {
@@ -919,6 +922,7 @@ long invoke_engine_function(long function_id) {
         // iPlayerMX = 0;
         // iPlayerAF = iPlayerSC;
         // iPlayerSC = 1000;
+        printf("Kill()\n");
     }
 
     if(function_id == kENGINE_FUNCTION_DEBUG_PRINT/* && miDEBUG */) {
