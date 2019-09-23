@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local goo_module = assert(loadfile("Data/goo.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -36,72 +37,17 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local goo_properties = {
-    GooBounce = 0,
-    GooGrowing = 1,
-    GooGooType = 2,
-    GooAngle = 3,
-    GooIInit = 4,
-    GooIMesh = 5,
-    GooIX = 6,
-    GooIY = 9,
-    GooIChild1 = 12,
-    GooIChild2 = 13,
-    GooOutlet1 = 14,
-    GooOutlet2 = 15,
-    GooIMyPlat = 16,
-};
-goo_properties = read_only.make_table_read_only(goo_properties);
-
 local g_is_initialized = false;
-local g_frames_until_next_goo_spawn = 5;
+local g_goos = {};
+local g_currently_spawning_goo = nil;
+
+local g_frames_until_next_goo_spawn = -1;
 local g_frames_until_ongoing_goo_spawn_finishes = 0;
 local g_goo_spawn_point_object_index;
 local g_goo_spawn_pos_x;
 local g_goo_spawn_pos_y;
-local g_currently_spawning_goo_object_id;
 
-function update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        SetStartPos();
-        MovePyramid();
-    end
-
-    g_frames_until_next_goo_spawn = g_frames_until_next_goo_spawn - 1;
-
-    if g_frames_until_next_goo_spawn == 0 then
-        g_frames_until_ongoing_goo_spawn_finishes = 150;
-
-        if rnd(1, 100) > 50 then
-            g_frames_until_ongoing_goo_spawn_finishes = 100;
-        end
-
-        local iGoo = spawn_object(resources.ScriptGoo);
-        set_object_global_data(iGoo, goo_properties.GooGooType, 4);
-        set_object_global_data(iGoo, goo_properties.GooIX + 1, g_goo_spawn_pos_x);
-        set_object_global_data(iGoo, goo_properties.GooIX + 2, g_goo_spawn_pos_x);
-        set_object_global_data(iGoo, goo_properties.GooIY + 1, g_goo_spawn_pos_y);
-        set_object_global_data(iGoo, goo_properties.GooIY + 2, g_goo_spawn_pos_y);
-        set_object_global_data(iGoo, goo_properties.GooGrowing, 1);
-        g_currently_spawning_goo_object_id = iGoo;
-    end
-
-    if g_frames_until_ongoing_goo_spawn_finishes > 0 then
-        g_frames_until_ongoing_goo_spawn_finishes = g_frames_until_ongoing_goo_spawn_finishes - 1;
-
-        if g_frames_until_ongoing_goo_spawn_finishes == 1 then
-            select_picture(g_goo_spawn_point_object_index);
-            set_object_visual_data(resources.TextureFountain, 1);
-            set_object_global_data(g_currently_spawning_goo_object_id, goo_properties.GooGrowing, 0);
-            g_frames_until_next_goo_spawn = 50;
-            SetStartPos();
-        end
-    end
-end
-
-function MovePyramid()
+local function MovePyramid_()
     local iPic = 0;
 
     while iPic < 6 do
@@ -112,7 +58,7 @@ function MovePyramid()
     end
 end
 
-function SetStartPos()
+local function SetStartPos_()
     local iRnd = rnd(1, 7);
 
     if iRnd < 1 then
@@ -128,6 +74,72 @@ function SetStartPos()
     g_goo_spawn_point_object_index = iRnd;
     g_goo_spawn_pos_x = get_script_selected_level_object_x1();
     g_goo_spawn_pos_y = get_script_selected_level_object_y1();
+end
+
+local function OnKillGoo_(goo)
+    for index, value in ipairs(g_goos) do
+        if value == goo then
+            table.remove(g_goos, index);
+            return;
+        end
+    end
+
+    assert(false, "Was unable to find goo to remove");
+end
+
+local function OnSpawnGoo_()
+    local new_goo = goo_module();
+    new_goo.SpawnCallback = OnSpawnGoo_;
+    new_goo.KillCallback = OnKillGoo_;
+    new_goo.MeshResourceIndex = resources.MeshGoo;
+    new_goo.TextureResourceIndex = resources.TextureLava;
+    table.insert(g_goos, new_goo);
+    return new_goo;
+end
+
+function update()
+    if not g_is_initialized then
+        g_is_initialized = true;
+        g_frames_until_next_goo_spawn = 5;
+        SetStartPos_();
+        MovePyramid_();
+    end
+
+    g_frames_until_next_goo_spawn = g_frames_until_next_goo_spawn - 1;
+
+    if g_frames_until_next_goo_spawn == 0 then
+        g_frames_until_ongoing_goo_spawn_finishes = 150;
+
+        if rnd(1, 100) > 50 then
+            g_frames_until_ongoing_goo_spawn_finishes = 100;
+        end
+
+        local new_goo = OnSpawnGoo_();
+        new_goo.Type = 4;
+        new_goo.InitialPosX[1] = g_goo_spawn_pos_x;
+        new_goo.InitialPosX[2] = g_goo_spawn_pos_x;
+        new_goo.InitialPosY[1] = g_goo_spawn_pos_y;
+        new_goo.InitialPosY[2] = g_goo_spawn_pos_y;
+        new_goo.InitialIsGrowing = true;
+        g_currently_spawning_goo = new_goo;
+    end
+
+    if g_frames_until_ongoing_goo_spawn_finishes > 0 then
+        g_frames_until_ongoing_goo_spawn_finishes = g_frames_until_ongoing_goo_spawn_finishes - 1;
+
+        if g_frames_until_ongoing_goo_spawn_finishes == 1 then
+            select_picture(g_goo_spawn_point_object_index);
+            set_object_visual_data(resources.TextureFountain, 1);
+            g_currently_spawning_goo.stop_growing();
+            g_currently_spawning_goo = nil;
+            g_frames_until_next_goo_spawn = 50;
+            SetStartPos_();
+        end
+    end
+
+    for _, goo in ipairs(g_goos) do
+        goo.update();
+    end
 end
 
 function reset()
