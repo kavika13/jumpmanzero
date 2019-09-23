@@ -33,10 +33,10 @@ Sub Main()
 
   setext(#debug,1)
 
-  if iInit=0 
+  if iInit=0
     Initialize()
   end if
-  if iY<0 
+  if iY<0
     ResetPos()
   end if
 
@@ -62,7 +62,7 @@ Sub Main()
     end if
     if iDir=1 || iDir=2
       iCollide=collide(ix-4,iy,ix+4,iy+20)
-    end if    
+    end if
 
     if iCollide
       kill()
@@ -72,7 +72,7 @@ Sub Main()
 end Sub
 
 sub ProgressBear()
-  if iDir=0 
+  if iDir=0
     iFrame=10
   end if
   if iDir=4 || iDir=3
@@ -134,7 +134,7 @@ sub CheckForHalt()
   end if
 
   if iDir=1 || iDir=2
-    FindPlatform(iX,iY+3,4,2)  
+    FindPlatform(iX,iY+3,4,2)
     iHit=getext(#event4)
     if iHit=iY
       iDir=0
@@ -143,17 +143,17 @@ sub CheckForHalt()
   end if
 
   if iDir=4
-    iPlat1=FindPlatform(iX+6,iY+5,4,2)  
-    iPlat2=FindPlatform(iX+7,iY+5,4,2)  
+    iPlat1=FindPlatform(iX+6,iY+5,4,2)
+    iPlat2=FindPlatform(iX+7,iY+5,4,2)
     if iPlat1=iPlat2
       return 0
     end if
-    
+
     iHit=getext(#event4)
-    if iHit<0 
+    if iHit<0
       iDir=3
       iXV=-1.0
-    elseif iHit<iY-4 
+    elseif iHit<iY-4
       iDir=0
       iFallRight=1
     end if
@@ -161,17 +161,17 @@ sub CheckForHalt()
   end if
 
   if iDir=3
-    iPlat1=FindPlatform(iX-6,iY+5,4,2)  
-    iPlat2=FindPlatform(iX-7,iY+5,4,2)  
+    iPlat1=FindPlatform(iX-6,iY+5,4,2)
+    iPlat2=FindPlatform(iX-7,iY+5,4,2)
     if iPlat1=iPlat2
       return 0
     end if
 
     iHit=getext(#event4)
-    if iHit<0 
+    if iHit<0
       iDir=4
       iXV=1.0
-    elseif iHit<iY-4 
+    elseif iHit<iY-4
       iDir=0
       iFallLeft=1
     end if
@@ -261,9 +261,9 @@ sub CheckForOptions()
         iDir=2
         iXV=0
       end if
-    elseif ix<GetSel(#sx1)+7    
+    elseif ix<GetSel(#sx1)+7
       iDir=4
-    elseif ix>GetSel(#sx1)+7    
+    elseif ix>GetSel(#sx1)+7
       iDir=3
     end if
 
@@ -271,7 +271,7 @@ sub CheckForOptions()
 
   if iChoice>2999
     iDir=4
-  elseif iChoice>1999 
+  elseif iChoice>1999
     iDir=3
   elseif iChoice<1000
     absplatform(iChoice)
@@ -280,9 +280,9 @@ sub CheckForOptions()
     else
       iDir=4
     end if
-  end if  
-  
-  if iDir=3 
+  end if
+
+  if iDir=3
     iXV=-1.0
   end if
   if iDir=4
@@ -305,7 +305,7 @@ sub MoveBear()
   dim iHit
   dim iPlat
 
-  iPlat=FindPlatform(iX,iY+5,4,2)  
+  iPlat=FindPlatform(iX,iY+5,4,2)
   iHit=getext(#event4)
 
   if iStatus=0 && (iDir=1 || iDir=2)
@@ -359,7 +359,7 @@ sub MoveBear()
     end if
   end if
 
-  if iXV<0 
+  if iXV<0
     iFrame=iFrame+11
   end if
 end sub
@@ -368,7 +368,7 @@ sub AdjustZ(iPlatNum)
     dim iPlatZ
 
     ABSplatform(iPlatNum)
-    iPlatZ=getsel(#sz1)    
+    iPlatZ=getsel(#sz1)
 
     if iZ<iPlatZ
       iZ=iZ+1
