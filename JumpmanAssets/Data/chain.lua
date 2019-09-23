@@ -64,7 +64,7 @@ local function PositionChain_()
         iSY = iSY - SagDrop + ToCenter;
 
         if iLink > 0 then
-            local Angle = atan2(iOY - iSY, xDif / 30);
+            local Angle = math.atan(iOY - iSY, xDif / 30) * 180.0 / math.pi;
 
             if player_x > g_chain_anchor_pos_x then
                 Angle = 0 - Angle;

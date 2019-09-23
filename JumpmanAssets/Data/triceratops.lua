@@ -32,7 +32,7 @@ local function SetAngle()
     local iHit2 = get_script_event_data_4();
     iHit2 = (iHit2 / 256) * 256;
 
-    g_current_rotation_z = atan2(iHit2 - iHit1, 14);
+    g_current_rotation_z = math.atan(iHit2 - iHit1, 14) * 180.0 / math.pi;
 end
 
 local function Move()
