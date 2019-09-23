@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local ninja_module = assert(loadfile("Data/ninja.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -76,32 +77,47 @@ local ninja_properties = {
 ninja_properties = read_only.make_table_read_only(ninja_properties);
 
 local g_is_initialized = false;
+local g_ninjas = {};
+
 local g_is_trap_door_triggering = false;
 local g_trap_door_fall_progress = 0;
+
+local function SpawnNinja_(pos_x, pos_y)
+    new_ninja = ninja_module();
+
+    new_ninja.MoveRightMeshResourceIndices = { resources.MeshNjRight1, resources.MeshNjRight2 };
+    new_ninja.JumpRightMeshResourceIndex = resources.MeshNjJR;
+    new_ninja.KickRightMeshResourceIndex = resources.MeshNjKR;
+    new_ninja.RollRightMeshResourceIndices = {
+        resources.MeshNjRR1, resources.MeshNjRR2, resources.MeshNjRR3, resources.MeshNjRR4,
+    };
+    new_ninja.MoveLeftMeshResourceIndices = { resources.MeshNjLeft1, resources.MeshNjLeft2 };
+    new_ninja.JumpLeftMeshResourceIndex = resources.MeshNjJL;
+    new_ninja.KickLeftMeshResourceIndex = resources.MeshNjKL;
+    new_ninja.RollLeftMeshResourceIndices = {
+        resources.MeshNjRL1, resources.MeshNjRL2, resources.MeshNjRL3, resources.MeshNjRL4,
+    };
+    new_ninja.DeadMeshResourceIndex = resources.MeshNjDead;
+    new_ninja.FixDonutMeshResourceIndices = { resources.MeshNjW1, resources.MeshNjW2 };
+    new_ninja.TextureResourceIndex = resources.TextureNinja;
+
+    new_ninja.InitialPosX = pos_x;
+    new_ninja.InitialPosY = pos_y;
+
+    table.insert(g_ninjas, new_ninja);
+end
 
 function update()
     if not g_is_initialized then
         g_is_initialized = true;
 
-        local iTemp = spawn_object(resources.ScriptNinja);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartX, 120);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartY, 8);
-
-        iTemp = spawn_object(resources.ScriptNinja);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartX, 70);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartY, 40);
-
-        iTemp = spawn_object(resources.ScriptNinja);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartX, 30);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartY, 120);
-
-        iTemp = spawn_object(resources.ScriptNinja);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartX, 110);
-        set_object_global_data(iTemp, ninja_properties.NinjaStartY, 80);
+        SpawnNinja_(120, 8);
+        SpawnNinja_(70, 40);
+        SpawnNinja_(30, 120);
+        SpawnNinja_(110, 80);
     end
 
     if g_is_trap_door_triggering then
-        -- TODO: When the trap falls the game bugs out
         g_trap_door_fall_progress = g_trap_door_fall_progress + 3;
         MovePlatform(1, g_trap_door_fall_progress, 0);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
@@ -115,6 +131,10 @@ function update()
             set_script_selected_level_object_y2(500);
             g_is_trap_door_triggering = false;
         end
+    end
+
+    for _, ninja in ipairs(g_ninjas) do
+        ninja.update();
     end
 end
 
@@ -139,4 +159,8 @@ function reset()
     set_player_current_position_y(7);
     set_player_current_position_z(1);
     set_player_current_state(player_state.JSNORMAL);
+
+    for _, ninja in ipairs(g_ninjas) do
+        ninja.reset_pos();
+    end
 end
