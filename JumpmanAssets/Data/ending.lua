@@ -1,4 +1,6 @@
 local read_only = require "Data/read_only";
+local end_alien_module = assert(loadfile("Data/end_alien.lua"));
+local credits_module = assert(loadfile("Data/credits.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -107,6 +109,8 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_end_alien;
+local g_credits;
 
 local g_object_mesh_indices = {};
 local g_time_since_level_start = 0;
@@ -482,12 +486,22 @@ local function ShowSomething_()
     elseif g_time_since_level_start < 2100 then
         ShowDino_(g_time_since_level_start - 1800);
     elseif g_time_since_level_start == 2100 then
-        spawn_object(resources.ScriptEndAlien);
+        local new_end_alien = end_alien_module();
+        new_end_alien.AlienMeshResourceIndices = { resources.MeshAlien1, resources.MeshAlien2 };
+        new_end_alien.EyeMeshResourceIndex = resources.MeshCube;
+        new_end_alien.ShipBaseMeshResourceIndex = resources.MeshShipBase;
+        new_end_alien.ShipTopMeshResourceIndex = resources.MeshShipTop;
+        new_end_alien.EyeTextureResourceIndex = resources.TextureRedMetal;
+        new_end_alien.AlienTextureResourceIndex = resources.TextureAlien;
+        new_end_alien.ShipTextureResourceIndex = resources.TextureShipMetal;
+        new_end_alien.GlassTextureResourceIndex = resources.TextureShipGlass;
+        g_end_alien = new_end_alien;
     elseif g_time_since_level_start < 2400 then
         g_time_since_level_start = g_time_since_level_start;
     elseif g_time_since_level_start < 2750 then
         JumpmanChase_(g_time_since_level_start - 2400);
     elseif g_time_since_level_start < 3100 then
+        g_end_alien = nil;
         ShowRocket_(g_time_since_level_start - 2750);
     end
 end
@@ -546,7 +560,9 @@ function update()
     if g_time_since_level_start < 3100 then
         ShowSomething_();
     elseif g_time_since_level_start == 3100 then
-        spawn_object(resources.ScriptCredits);
+        local new_credits = credits_module();
+        new_credits.TextureResourceIndex = resources.TextureRedMetal;
+        g_credits = new_credits;
 
         select_platform(1);
         set_object_visual_data(0, 0);
@@ -554,6 +570,14 @@ function update()
         select_picture(100);
         script_selected_mesh_translate_matrix(40, 0, 20);
         set_object_visual_data(resources.TextureBlack, 1);
+    end
+
+    if g_end_alien then
+        g_end_alien.update();
+    end
+
+    if g_credits then
+        g_credits.update();
     end
 end
 
