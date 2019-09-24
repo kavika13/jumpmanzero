@@ -1081,7 +1081,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
                 long iLoop = -1;
 
                 while(++iLoop < 6) {
-                    if(iArg2 != iLoop && GetKeyBinding(iLoop) == iKey) {
+                    if(iArg3 != iLoop && GetKeyBinding(iLoop) == iKey) {
                         iKeyGood = 0;
                     }
                 }
@@ -2310,7 +2310,7 @@ static int set_config_option(lua_State* lua_state) {
         long iLoop = -1;
 
         while(++iLoop < 6) {
-            if(key_arg != iLoop && GetKeyBinding(iLoop) == iKey) {
+            if(option_index_arg != iLoop && GetKeyBinding(iLoop) == iKey) {
                 is_key_good = false;
             }
         }
