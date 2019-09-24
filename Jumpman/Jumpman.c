@@ -1203,7 +1203,7 @@ long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
 
         if(iArg1 == SERVICE_CREDITLINE) {
             char sFileName[300];
-            char sName[100];
+            char sName[100] = { 0 };
 
             sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", SC->game_base_path);
             GetFileLine(sName, sizeof(sName), sFileName, iArg2);
@@ -2408,6 +2408,32 @@ static int script_game_start(lua_State* lua_state) {
     return 0;
 }
 
+static int get_credit_line(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_CREDITLINE, int line_index, string& result) function, aka EFSERVICE(SERVICE_CREDITLINE, int line_index, long string_global_index)
+    char game_base_path[300];
+
+    if (!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
+        // TODO: Proper error handling
+        return 0;
+    }
+
+    char sFileName[300];
+    char sName[100];
+
+    lua_Integer arg_line_index = luaL_checkinteger(lua_state, 1);
+
+    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", game_base_path);
+
+    if(GetFileLine(sName, sizeof(sName), sFileName, (int)arg_line_index)) {
+        lua_pushboolean(lua_state, true);
+        lua_pushstring(lua_state, sName);
+        return 2;
+    } else {
+        lua_pushboolean(lua_state, false);
+        return 1;
+    }
+}
+
 static int script_get_game_list(lua_State* lua_state) {
     // Replacement for jms Service(#SERVICE_GAMELIST, string& result) function, aka EFSERVICE(SERVICE_GAMELIST, long arg2)
     char game_base_path[300];
@@ -2791,6 +2817,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "load_menu");
     lua_pushcfunction(lua_state, script_game_start);
     lua_setglobal(lua_state, "game_start");
+    lua_pushcfunction(lua_state, get_credit_line);
+    lua_setglobal(lua_state, "get_credit_line");
     lua_pushcfunction(lua_state, script_get_game_list);
     lua_setglobal(lua_state, "get_game_list");
     lua_pushcfunction(lua_state, play_sound_effect);
