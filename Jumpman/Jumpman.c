@@ -2219,6 +2219,134 @@ static int script_get_current_level_title(lua_State* lua_state) {
     return 1;
 }
 
+static int get_config_option_string(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_OPTIONSTRING, string& result, long option_index) function, aka EFSERVICE(SERVICE_OPTIONSTRING, long string_global_index, long option_index)
+    char sName[100];
+    lua_Integer option_index_arg = luaL_checkinteger(lua_state, 1);
+
+    if(option_index_arg >= 0 && option_index_arg <= 5) {
+        int iKey = GetKeyBinding((size_t)option_index_arg);
+
+        if(iKey >= 'A' && iKey <= 'Z') {
+            sprintf_s(sName, sizeof(sName), "%c   ", iKey);
+        } else if(iKey >= '0' && iKey <= '9') {
+            sprintf_s(sName, sizeof(sName), "%c   ", iKey);
+        } else if(iKey == 38) {
+            sprintf_s(sName, sizeof(sName), "UP  ");
+        } else if(iKey == 40) {
+            sprintf_s(sName, sizeof(sName), "DOWN");
+        } else if(iKey == 37) {
+            sprintf_s(sName, sizeof(sName), "LEFT");
+        } else if(iKey == 39) {
+            sprintf_s(sName, sizeof(sName), "RGHT");
+        } else if(iKey == 32) {
+            sprintf_s(sName, sizeof(sName), "SPC ");
+        } else if(iKey == 58) {
+            sprintf_s(sName, sizeof(sName), ":   ");
+        } else if(iKey == 46) {
+            sprintf_s(sName, sizeof(sName), ".   ");
+        } else if(iKey == 45) {
+            sprintf_s(sName, sizeof(sName), "-   ");
+        }
+    } else if(option_index_arg == 32 || option_index_arg == 33) {
+        int iKey;
+
+        if(option_index_arg == 32) {
+            iKey = GetIsSoundEnabled() ? 1 : 0;
+        } else {
+            iKey = GetIsMusicEnabled() ? 1 : 0;
+        }
+
+        if(iKey) {
+            sprintf_s(sName, sizeof(sName), "ON  ");
+        } else {
+            sprintf_s(sName, sizeof(sName), "OFF ");
+        }
+    }
+
+    lua_pushstring(lua_state, sName);
+
+    return 1;
+}
+
+static int set_config_option(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_SETOPTION, long key, long option_index) function, aka EFSERVICE(SERVICE_OPTIONSTRING, long key, long option_index)
+    lua_Integer option_index_arg = luaL_checkinteger(lua_state, 1);
+    lua_Integer key_arg = luaL_checkinteger(lua_state, 2);
+
+    bool is_key_good = false;
+
+    if(option_index_arg >= 0 && option_index_arg <= 5) {
+        int iKey = (int)key_arg;
+
+        if(iKey == 38 && option_index_arg == 0) {
+            is_key_good = true;
+        }
+
+        if(iKey == 40 && option_index_arg == 1) {
+            is_key_good = true;
+        }
+
+        if(iKey == 37 && option_index_arg == 2) {
+            is_key_good = true;
+        }
+
+        if(iKey == 39 && option_index_arg == 3) {
+            is_key_good = true;
+        }
+
+        if(iKey == 32 && option_index_arg == 4) {
+            is_key_good = true;
+        }
+
+        if(iKey >= 'A' && iKey <= 'Z') {
+            is_key_good = true;
+        }
+
+        if(iKey >= '0' && iKey <= '9') {
+            is_key_good = true;
+        }
+
+        long iLoop = -1;
+
+        while(++iLoop < 6) {
+            if(key_arg != iLoop && GetKeyBinding(iLoop) == iKey) {
+                is_key_good = false;
+            }
+        }
+
+        if(is_key_good) {
+            SetKeyBinding((size_t)option_index_arg, iKey);
+        }
+    }
+
+    if(option_index_arg == 32) {
+        SetIsSoundEnabled(key_arg ? true : false);
+        is_key_good = true;
+    }
+
+    if(option_index_arg == 33 && (GetIsMusicEnabled() ? 1 : 0) != key_arg) {
+        if(key_arg == 0) {
+            StopMusic1();
+        } else {
+            NewTrack1(g_music_background_track_filename, 0, 0);
+        }
+
+        SetIsMusicEnabled(key_arg ? true : false);
+        is_key_good = true;
+    }
+
+    lua_pushboolean(lua_state, is_key_good);
+
+    return 1;
+}
+
+static int save_config_options(lua_State* lua_state) {
+    // Replacement for jms Service(#SERVICE_SAVEOPTIONS) function, aka EFSERVICE(SERVICE_OPTIONSTRING)
+    SaveSettings();
+    return 0;
+}
+
 static int script_load_menu(lua_State* lua_state) {
     // Replacement for jms Service(#SERVICE_LOADMENU, int menu_type) function, aka EFSERVICE(SERVICE_LOADMENU, long arg2)
     lua_Integer menu_type_arg = luaL_checkinteger(lua_state, 1);
@@ -2653,6 +2781,12 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, script_get_current_level_title);
     lua_setglobal(lua_state, "get_current_level_title");
+    lua_pushcfunction(lua_state, get_config_option_string);
+    lua_setglobal(lua_state, "get_config_option_string");
+    lua_pushcfunction(lua_state, set_config_option);
+    lua_setglobal(lua_state, "set_config_option");
+    lua_pushcfunction(lua_state, save_config_options);
+    lua_setglobal(lua_state, "save_config_options");
     lua_pushcfunction(lua_state, script_load_menu);
     lua_setglobal(lua_state, "load_menu");
     lua_pushcfunction(lua_state, script_game_start);
