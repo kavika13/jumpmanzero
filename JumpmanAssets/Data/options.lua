@@ -280,10 +280,11 @@ function update(game_input)
 
         local iKey = get_last_key_pressed();
 
-        if iKey ~= 13 and (iKey ~= 32 or g_flash_animation_current_menu_option_index == 5) then
-            set_config_option(g_flash_animation_current_menu_option_index - 1, iKey);
-            g_flash_animation_current_menu_option_index = -1;
-            InitializeLetters_();
+        if iKey ~= 257 and (iKey ~= 32 or g_flash_animation_current_menu_option_index == 5) then
+            if set_config_option(g_flash_animation_current_menu_option_index - 1, iKey) then
+                g_flash_animation_current_menu_option_index = -1;
+                InitializeLetters_();
+            end
         end
     end
 
