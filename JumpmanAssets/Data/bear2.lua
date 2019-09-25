@@ -462,8 +462,6 @@ local function Initialize_()
 end
 
 function Module.update()
-    set_is_debug_enabled(true);
-
     if not g_is_initialized then
         g_is_initialized = true;
         Initialize_();

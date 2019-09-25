@@ -27,7 +27,6 @@ typedef struct {
 
 static const double kSECONDS_PER_FRAME = 1.0 / 40.0;
 
-static bool g_debug_is_enabled = false;
 static char g_game_base_path[300];
 static int g_key_bindings[6];
 static long g_last_key_pressed = 0;
@@ -422,14 +421,6 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
     game_current_input->debug_action.just_pressed = game_current_input->debug_action.is_pressed && !game_prev_input->debug_action.is_pressed;
 }
 
-bool IsDebugEnabled() {
-    return g_debug_is_enabled;
-}
-
-void SetDebugEnabled(bool is_enabled) {
-    g_debug_is_enabled = is_enabled;
-}
-
 bool IsGameFrozen() {
     return g_game_is_frozen;
 }
@@ -456,7 +447,6 @@ void SaveSettings() {
 
 int main(int arguments_count, char* arguments[]) {
     GameState game_state = { 0 };
-    g_debug_is_enabled = true;
 
     if(!GetWorkingDirectoryPath(g_game_base_path)) {
         // TODO: Proper error handling

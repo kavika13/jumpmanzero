@@ -45,8 +45,6 @@ local function ResetMyPos()
 end
 
 function Module.update()
-    set_is_debug_enabled(true);
-
     if not g_is_initialized then
         g_is_initialized = true;
         g_drop_2_mesh_index = new_mesh(Module.DropMeshResourceIndex);
@@ -111,8 +109,6 @@ function Module.update()
             kill();
         end
     end
-
-    set_is_debug_enabled(false);
 end
 
 function Module.get_current_pos_x()

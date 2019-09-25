@@ -657,12 +657,6 @@ static int get_script_selected_level_object_number(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_selected_level_object_texture(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sTexture) function, aka EFGETSEL(EFS_TEXTURE)
-    lua_pushnumber(lua_state, g_script_selected_level_object->Texture);
-    return 1;
-}
-
 static int get_script_selected_level_object_this(lua_State* lua_state) {
     // Replacement for jms GetSel(#this) function, aka EFGETSEL(EFS_THIS)
     lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
@@ -713,13 +707,6 @@ static int get_script_selected_level_object_z2(lua_State* lua_state) {
 
 // script script_selected_level_object accessors (setters)
 // TODO: Maybe pass in the id instead of global "selected" state for all these
-
-static int set_script_selected_level_object_extra(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sExtra) function, aka EFSETSEL(EFS_EXTRA)
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Extra = (int)arg1;
-    return 0;
-}
 
 static int set_script_selected_level_object_number(lua_State* lua_state) {
     // Replacement for jms SetSel(#sNumber) function, aka EFSETSEL(EFS_NUMBER)
@@ -878,12 +865,6 @@ static int get_player_is_visible(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#noroll) function, aka EFGET(EFV_NOROLL)
-    lua_pushnumber(lua_state, g_player_no_roll_cooldown_frame_count);
-    return 1;
-}
-
 static int get_remaining_life_count(lua_State* lua_state) {
     // Replacement for jms GetExt(#livesremaining) function, aka EFGET(EFV_LIVESREMAINING)
     lua_pushnumber(lua_state, g_remaining_life_count);
@@ -925,12 +906,6 @@ static int get_vine_object_count(lua_State* lua_state) {
 static int get_wall_object_count(lua_State* lua_state) {
     // Replacement for jms GetExt(#walls) function, aka EFGET(EFV_WALLS)
     lua_pushnumber(lua_state, g_wall_object_count);
-    return 1;
-}
-
-static int get_is_debug_enabled(lua_State* lua_state) {
-    // Replacement for jms GetExt(#debug) function, aka EFGET(EFV_DEBUG)
-    lua_pushboolean(lua_state, IsDebugEnabled());
     return 1;
 }
 
@@ -1094,17 +1069,6 @@ static bool TryGetLuaCFunctionBooleanArgAtIndex(lua_State* lua_state, int arg_in
     }
 
     return success;
-}
-
-static int set_is_debug_enabled(lua_State* lua_state) {
-    // Replacement for jms SetExt(#debug) function, aka EFSET(EFV_DEBUG)
-    bool argument;
-
-    if(TryGetLuaCFunctionBooleanArgAtIndex(lua_state, 1, &argument)) {
-        SetDebugEnabled(argument);
-    }
-
-    return 0;
 }
 
 // script utility functions
@@ -1660,8 +1624,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_extra");
     lua_pushcfunction(lua_state, get_script_selected_level_object_number);
     lua_setglobal(lua_state, "get_script_selected_level_object_number");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_texture);
-    lua_setglobal(lua_state, "get_script_selected_level_object_texture");
     lua_pushcfunction(lua_state, get_script_selected_level_object_this);
     lua_setglobal(lua_state, "get_script_selected_level_object_this");
     lua_pushcfunction(lua_state, get_script_selected_level_object_visible);
@@ -1678,8 +1640,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_z1");
     lua_pushcfunction(lua_state, get_script_selected_level_object_z2);
     lua_setglobal(lua_state, "get_script_selected_level_object_z2");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_extra);
-    lua_setglobal(lua_state, "set_script_selected_level_object_extra");
     lua_pushcfunction(lua_state, set_script_selected_level_object_number);
     lua_setglobal(lua_state, "set_script_selected_level_object_number");
     lua_pushcfunction(lua_state, set_script_selected_level_object_texture);
@@ -1729,8 +1689,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_player_is_visible);
     lua_setglobal(lua_state, "get_player_is_visible");
-    lua_pushcfunction(lua_state, get_player_no_roll_cooldown_frame_count);
-    lua_setglobal(lua_state, "get_player_no_roll_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
     lua_pushcfunction(lua_state, get_script_event_data_1);
@@ -1745,8 +1703,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_vine_object_count");
     lua_pushcfunction(lua_state, get_wall_object_count);
     lua_setglobal(lua_state, "get_wall_object_count");
-    lua_pushcfunction(lua_state, get_is_debug_enabled);
-    lua_setglobal(lua_state, "get_is_debug_enabled");
     lua_pushcfunction(lua_state, get_script_object_count);
     lua_setglobal(lua_state, "get_script_object_count");
     lua_pushcfunction(lua_state, get_is_sound_enabled);
@@ -1785,14 +1741,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_remaining_life_count");
     lua_pushcfunction(lua_state, set_script_event_data_1);
     lua_setglobal(lua_state, "set_script_event_data_1");
-    lua_pushcfunction(lua_state, set_script_event_data_2);
-    lua_setglobal(lua_state, "set_script_event_data_2");
-    lua_pushcfunction(lua_state, set_script_event_data_3);
-    lua_setglobal(lua_state, "set_script_event_data_3");
-    lua_pushcfunction(lua_state, set_script_event_data_4);
-    lua_setglobal(lua_state, "set_script_event_data_4");
-    lua_pushcfunction(lua_state, set_is_debug_enabled);
-    lua_setglobal(lua_state, "set_is_debug_enabled");
 
     lua_pushcfunction(lua_state, new_mesh);
     lua_setglobal(lua_state, "new_mesh");

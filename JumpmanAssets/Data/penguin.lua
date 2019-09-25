@@ -155,8 +155,6 @@ local function Initialize()
     g_current_pos_z = 2;
     g_animation_movement_direction = 4;
 
-    set_is_debug_enabled(true);
-
     local counter = Module.CountOfTimesToPreAdvanceMovement;
 
     while counter > 0 do

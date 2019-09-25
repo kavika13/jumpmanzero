@@ -7,8 +7,6 @@
 extern "C" {
 #endif
 
-bool IsDebugEnabled();
-void SetDebugEnabled(bool is_enabled);
 bool IsGameFrozen();
 long GetCurrentFps();
 long GetLastKeyPressed();
