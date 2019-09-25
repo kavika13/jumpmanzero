@@ -1792,12 +1792,6 @@ static int get_script_object_count(lua_State* lua_state) {
     return 1;
 }
 
-// static int get_current_script_index(lua_State* lua_state) {  // TODO: Name?
-//    // Replacement for jms GetExt(#this) function, aka EFGET(EFV_THIS)
-//    lua_pushnumber(lua_state, SC->ScriptReference);
-//    return 1;
-// }
-
 static int get_is_sound_enabled(lua_State* lua_state) {
     // Replacement for jms GetExt(#soundon) function, aka EFGET(EFV_SOUNDON)
     lua_pushboolean(lua_state, GetIsSoundEnabled());
@@ -2270,7 +2264,7 @@ static int get_config_option_string(lua_State* lua_state) {
 }
 
 static int set_config_option(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_SETOPTION, long key, long option_index) function, aka EFSERVICE(SERVICE_OPTIONSTRING, long key, long option_index)
+    // Replacement for jms Service(#SERVICE_SETOPTION, long key, long option_index) function, aka EFSERVICE(SERVICE_SETOPTION, long key, long option_index)
     lua_Integer option_index_arg = luaL_checkinteger(lua_state, 1);
     lua_Integer key_arg = luaL_checkinteger(lua_state, 2);
 
@@ -2342,7 +2336,7 @@ static int set_config_option(lua_State* lua_state) {
 }
 
 static int save_config_options(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_SAVEOPTIONS) function, aka EFSERVICE(SERVICE_OPTIONSTRING)
+    // Replacement for jms Service(#SERVICE_SAVEOPTIONS) function, aka EFSERVICE(SERVICE_SAVEOPTIONS)
     SaveSettings();
     return 0;
 }
