@@ -249,8 +249,6 @@ static long g_level_extent_x;
 static long g_level_extent_y;
 
 static lua_State* g_script_level_script_lua_state = NULL;
-static char g_script_level_script_base_path[300];  // TODO: Need a constant for this? Also, bigger? Also, is it necessary?
-
 static lua_State* g_script_title_script_lua_state = NULL;
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
@@ -2020,7 +2018,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
                     sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.LUA", sTemp);
                     // TODO: Should it auto-unload the old script?
                     LoadLuaScript(base_path, sBuild, &g_script_level_script_lua_state);
-                    strcpy_s(g_script_level_script_base_path, sizeof(g_script_level_script_base_path), base_path);  // TODO: Necessary?
                     InitializeLuaScript(g_script_level_script_lua_state);
                     // TODO: Can remove this comment later, when script mode 1 is gone.
                     //       Don't need to grab functions here, because there's no way in Lua to precache it, I think
