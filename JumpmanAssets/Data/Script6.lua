@@ -159,9 +159,7 @@ function update(game_input)
     return true;
 end
 
-function on_collect_donut()
-    local iDonut = get_script_event_data_1();
-
+function on_collect_donut(game_input, iDonut)
     if iDonut == 1 then
         g_is_wall_moving = true;
         g_wall_animation_frame = 1;  -- TODO: Is this necessary to do here?

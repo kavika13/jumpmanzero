@@ -202,9 +202,7 @@ function MovePlatform(iPlat, iRotate, iTran, get_platform_x_value, get_platform_
     script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
 end
 
-function on_collect_donut()
-    local iDonut = get_script_event_data_1();
-
+function on_collect_donut(game_input, iDonut)
     if iDonut == 1 then
         g_is_object_1_moving = true;
         iPosition1 = 0;

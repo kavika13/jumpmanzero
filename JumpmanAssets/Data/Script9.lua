@@ -114,8 +114,8 @@ function SetChainLength()
     g_chain.ChainLength = g_chain_length;
 end
 
-function on_collect_donut()
-    g_target_length = g_target_length + get_script_event_data_1();
+function on_collect_donut(game_input, iDonut)
+    g_target_length = g_target_length + iDonut;
 end
 
 function reset()

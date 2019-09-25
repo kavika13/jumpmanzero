@@ -299,7 +299,7 @@ function update(game_input)
         g_is_initialized = true;
         InitializeLetters();
 
-        if get_script_event_data_1() == 10 then
+        if get_just_launched_game() then
             g_title_animation_counter = 0;
         else
             g_title_animation_counter = kANIMATION_END_TIME;

@@ -458,9 +458,7 @@ function RingPlatforms()
     end
 end
 
-function on_collect_donut()
-    local iGot = get_script_event_data_1();
-
+function on_collect_donut(game_input, iGot)
     if g_donuts_to_collect_count < 11 then
         local iFly = z_donut_module();
         iFly.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;

@@ -177,13 +177,11 @@ local function CheckForWin()
     return true;
 end
 
-function on_collect_donut()
+function on_collect_donut(game_input, iDonut)
     if CheckForWin() then
         win();
         return;
     end
-
-    local iDonut = get_script_event_data_1();
 
     if iDonut == 1 then
         select_donut(2);

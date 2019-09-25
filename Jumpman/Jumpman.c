@@ -175,6 +175,7 @@ static GameStatus g_game_status;
 static GameMenuState g_current_game_menu_state;
 static GameMenuState g_target_game_menu_state;
 static GameMenuMusicState g_target_menu_selected_music;
+static bool g_just_launched_game;
 static bool g_debug_level_is_specified;
 static char g_debug_level_filename[300];
 static int g_remaining_life_count;
@@ -248,7 +249,7 @@ static LevelObject g_backdrop_objects[30];
 // SCRIPT
 static int g_script_main_subroutine_handle, g_script_donut_subroutine_handle;
 
-static long g_script_event_data_1, g_script_event_data_2, g_script_event_data_3, g_script_event_data_4;
+static long g_script_event_data_2, g_script_event_data_3, g_script_event_data_4;
 static LevelObject* g_script_selected_level_object;
 static long g_script_selected_mesh_index;
 
@@ -564,6 +565,11 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
+static int get_just_launched_game(lua_State* lua_state) {
+    lua_pushboolean(lua_state, g_just_launched_game);
+    return 1;
+}
+
 // script 3d object utility functions
 
 static int script_selected_mesh_change_mesh(lua_State* lua_state) {
@@ -830,11 +836,6 @@ static int get_remaining_life_count(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_event_data_1(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_event_data_1);
-    return 1;
-}
-
 static int get_script_event_data_2(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_script_event_data_2);
     return 1;
@@ -964,12 +965,6 @@ static int set_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
 static int set_remaining_life_count(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_remaining_life_count = (int)arg1;
-    return 0;
-}
-
-static int set_script_event_data_1(lua_State* lua_state) {
-    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
-    g_script_event_data_1 = (long)arg1;
     return 0;
 }
 
@@ -1490,6 +1485,9 @@ static int script_select_wall(lua_State* lua_state) {
 }
 
 static void RegisterLuaScriptFunctions(lua_State* lua_state) {
+    lua_pushcfunction(lua_state, get_just_launched_game);
+    lua_setglobal(lua_state, "get_just_launched_game");
+
     // TODO: Remove the word "script" when exposing these functions?
     lua_pushcfunction(lua_state, script_selected_mesh_change_mesh);
     lua_setglobal(lua_state, "script_selected_mesh_change_mesh");
@@ -1583,8 +1581,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_is_visible");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
-    lua_pushcfunction(lua_state, get_script_event_data_1);
-    lua_setglobal(lua_state, "get_script_event_data_1");
     lua_pushcfunction(lua_state, get_script_event_data_2);
     lua_setglobal(lua_state, "get_script_event_data_2");
     lua_pushcfunction(lua_state, get_script_event_data_3);
@@ -1631,8 +1627,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_player_no_roll_cooldown_frame_count");
     lua_pushcfunction(lua_state, set_remaining_life_count);
     lua_setglobal(lua_state, "set_remaining_life_count");
-    lua_pushcfunction(lua_state, set_script_event_data_1);
-    lua_setglobal(lua_state, "set_script_event_data_1");
 
     lua_pushcfunction(lua_state, new_mesh);
     lua_setglobal(lua_state, "new_mesh");
@@ -2433,11 +2427,19 @@ static void GrabDonuts(GameInput* game_input) {
             SetObjectData(g_donut_objects[iLoop].MeshNumber, g_donut_objects[iLoop].Texture, 0);
             iGot = 1;
 
-            g_script_event_data_1 = g_donut_objects[iLoop].Num;
+            // Call on_collect_donut(game_input, donut_index), if it exists
+            lua_getglobal(g_script_level_script_lua_state, "on_collect_donut");
 
-            // TODO: Pass g_donut_objects[iLoop].Num instead of just setting it in g_script_event_data_1
-            //       Also, maybe get rid of those script event data passing stuff alltogether
-            CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut", game_input, false);
+            // Note: This is an optional function, so if it doesn't exist it will not assert
+            if(lua_isfunction(g_script_level_script_lua_state, -1) != 0) {
+                PushGameInputAsTable(g_script_level_script_lua_state, game_input);
+                lua_pushnumber(g_script_level_script_lua_state, g_donut_objects[iLoop].Num);
+
+                if(lua_pcall(g_script_level_script_lua_state, 2, 0, 0) != 0) {
+                    const char* error_message = lua_tostring(g_script_level_script_lua_state, -1);
+                    assert(false);  // TODO: Error handling
+                }
+            }
         }
     }
 
@@ -2784,8 +2786,6 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
 
     SetFog(0, 0, 0, 0, 0);
 
-    g_script_event_data_1 = 0;
-
     LoadMeshes(base_path);
     LoadLevel(base_path, level_filename);
 
@@ -2825,6 +2825,7 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
 }
 
 void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input) {
+    g_just_launched_game = false;
     g_debug_level_is_specified = true;
     sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "Data\\%s.DAT", level_name);
     g_debug_level_is_specified = true;
@@ -2834,7 +2835,7 @@ void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput
 }
 
 void InitGameNormal() {
-    g_script_event_data_1 = 10;
+    g_just_launched_game = true;
     g_game_status = kGameStatusMenu;
     g_current_game_menu_state = kGameMenuStateNone;
     g_target_game_menu_state = kGameMenuStateMain;
@@ -2910,6 +2911,8 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
             g_level_set_current_level_index = 0;
             LoadNextLevel(base_path, game_input);
         }
+
+        g_just_launched_game = false;
     }
 
     if(g_game_status == kGameStatusInLevel) {

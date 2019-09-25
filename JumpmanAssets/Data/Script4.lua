@@ -165,8 +165,8 @@ function MovePlatform(iPlat, iRotate, iTran)
     script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
 end
 
-function on_collect_donut()
-    if get_script_event_data_1() == 1 then
+function on_collect_donut(game_input, iDonut)
+    if iDonut == 1 then
         g_is_trap_door_triggering = true;
     end
 end
