@@ -186,6 +186,7 @@ static long g_player_current_exact_vine_index;
 static long g_player_current_close_ladder_index;
 static long g_player_current_exact_ladder_index;
 static long g_player_current_platform_index;
+static long g_player_current_active_platform_index;  // Masked out if player is dead or if player is below it
 static float g_player_current_platform_y;
 
 static int g_music_loop_start_music_time;  // TODO: I think it gets specified in milliseconds, but it should be in music time, due to the API that was used before
@@ -247,9 +248,7 @@ static int g_backdrop_object_count;
 static LevelObject g_backdrop_objects[30];
 
 // SCRIPT
-static int g_script_main_subroutine_handle, g_script_donut_subroutine_handle;
-
-static long g_script_event_data_2, g_script_event_data_3, g_script_event_data_4;
+static long g_script_event_data_4;
 static LevelObject* g_script_selected_level_object;
 static long g_script_selected_mesh_index;
 
@@ -821,6 +820,11 @@ static int get_player_current_state_frame_count(lua_State* lua_state) {
     return 1;
 }
 
+static int get_player_current_active_platform_index(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_player_current_active_platform_index);
+    return 1;
+}
+
 static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_player_freeze_cooldown_frame_count);
     return 1;
@@ -833,17 +837,6 @@ static int get_player_is_visible(lua_State* lua_state) {
 
 static int get_remaining_life_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_remaining_life_count);
-    return 1;
-}
-
-static int get_script_event_data_2(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_event_data_2);
-    return 1;
-}
-
-static int get_script_event_data_3(lua_State* lua_state) {
-    // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
-    lua_pushnumber(lua_state, g_script_event_data_3 / 256.0);
     return 1;
 }
 
@@ -965,18 +958,6 @@ static int set_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
 static int set_remaining_life_count(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_remaining_life_count = (int)arg1;
-    return 0;
-}
-
-static int set_script_event_data_2(lua_State* lua_state) {
-    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
-    g_script_event_data_2 = (long)arg1;
-    return 0;
-}
-
-static int set_script_event_data_3(lua_State* lua_state) {
-    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
-    g_script_event_data_3 = (long)arg1;
     return 0;
 }
 
@@ -1575,16 +1556,14 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_current_state");
     lua_pushcfunction(lua_state, get_player_current_state_frame_count);
     lua_setglobal(lua_state, "get_player_current_state_frame_count");
+    lua_pushcfunction(lua_state, get_player_current_active_platform_index);
+    lua_setglobal(lua_state, "get_player_current_active_platform_index");
     lua_pushcfunction(lua_state, get_player_freeze_cooldown_frame_count);
     lua_setglobal(lua_state, "get_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_player_is_visible);
     lua_setglobal(lua_state, "get_player_is_visible");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
-    lua_pushcfunction(lua_state, get_script_event_data_2);
-    lua_setglobal(lua_state, "get_script_event_data_2");
-    lua_pushcfunction(lua_state, get_script_event_data_3);
-    lua_setglobal(lua_state, "get_script_event_data_3");
     lua_pushcfunction(lua_state, get_script_event_data_4);
     lua_setglobal(lua_state, "get_script_event_data_4");
     lua_pushcfunction(lua_state, get_vine_object_count);
@@ -2366,7 +2345,6 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
 
     *iPlatform = -1;
     *iSupport = -1;
-    g_script_event_data_3 = 0;
 
     iP = -1;
     iExtra = 0;
@@ -2484,7 +2462,7 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
     long iPlatform;
     int bGrounded;
 
-    g_script_event_data_2 = -1;
+    g_player_current_active_platform_index = -1;
 
     if(g_player_dying_animation_state == kPlayerDyingAnimationStateBouncing) {
         g_player_current_mesh = kPlayerMeshJumpUp;
@@ -3152,10 +3130,10 @@ static void UpdateSituation() {
     GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y), PlayerHeight(), 2, &g_player_current_platform_y, &g_player_current_platform_index);
     g_player_current_platform_y -= PlayerFloor();
 
-    g_script_event_data_2 = -1;
+    g_player_current_active_platform_index = -1;
 
     if(g_player_current_platform_y >= g_player_current_position_y) {
-        g_script_event_data_2 = g_player_current_platform_index;
+        g_player_current_active_platform_index = g_player_current_platform_index;
     }
 }
 

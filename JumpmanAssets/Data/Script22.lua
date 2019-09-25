@@ -232,7 +232,7 @@ function DisplayPlatform(iNum)
     g_platforms_previous_x1[iNum] = g_platforms_x1[iNum];
     g_platforms_previous_y1[iNum] = g_platforms_y1[iNum];
 
-    if get_script_event_data_2() == g_platform_numbers[iNum] then
+    if get_player_current_active_platform_index() == g_platform_numbers[iNum] then
         local iPX = get_player_current_position_x();
         local iPY = get_player_current_position_y();
         set_player_current_position_x(iPX + iDX);

@@ -75,7 +75,7 @@ end
 local function CheckForPlayer()
     g_current_state = 1;
 
-    local iPlat = get_script_event_data_2();
+    local iPlat = get_player_current_active_platform_index();
 
     if iPlat == Module.ObjectIndex then
         if get_player_current_state() == player_state.JSLADDER then

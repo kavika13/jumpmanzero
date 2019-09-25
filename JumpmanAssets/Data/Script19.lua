@@ -48,7 +48,7 @@ local function ConveyPlatform(iPlat, iDist)
         return 0;
     end
 
-    if get_script_event_data_2() == iPN then
+    if get_player_current_active_platform_index() == iPN then
         iPX = iPX - iDist * 15;
 
         if get_player_current_state() == 4096 then  -- TODO: Is this a custom state?
