@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.645
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Jumpman", "Jumpman\Jumpman.vcxproj", "{6B934F67-0959-4EE9-B2DF-16F7F0470840}"
 	ProjectSection(ProjectDependencies) = postProject
 		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B} = {28B5F807-54B6-411F-9FD9-4F7E22CABB3B}
@@ -9,12 +11,6 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanGraphics", "JumpmanGraphics\JumpmanGraphics.vbproj", "{90A13BBE-E346-4B4C-B435-04693566ADC7}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanLevels", "JumpmanLevels\JumpmanLevels.vbproj", "{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanScripting", "JumpmanScripting\JumpmanScripting.vbproj", "{A9ED15E7-2EC9-4D3B-A636-B0278A671631}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JumpmanCompiler", "JumpmanCompiler\JumpmanCompiler.csproj", "{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanScriptLib", "JumpmanScriptLib\JumpmanScriptLib.vbproj", "{584EB392-D96B-4500-8F24-63750DACD811}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanLevelLib", "JumpmanLevelLib\JumpmanLevelLib.vbproj", "{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}"
 EndProject
@@ -62,36 +58,6 @@ Global
 		{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}.Release|Win32.ActiveCfg = Release|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{A9ED15E7-2EC9-4D3B-A636-B0278A671631}.Release|Win32.ActiveCfg = Release|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{6D877AED-83E9-4D72-A27D-697CA6D1EDA2}.Release|Win32.ActiveCfg = Release|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Release|Any CPU.Build.0 = Release|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{584EB392-D96B-4500-8F24-63750DACD811}.Release|Win32.ActiveCfg = Release|Any CPU
 		{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

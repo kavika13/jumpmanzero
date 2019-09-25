@@ -78,9 +78,6 @@
     <ClCompile Include="Jumpman.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Script.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jumpman.h">
@@ -138,9 +135,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Basic3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Script.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cute_files-6760a7d\cute_files.h">

@@ -1,9 +1,0 @@
-define ZPlaticount 0
-define ZPlatstatus 1
-define ZPlatplatform 2
-define ZPlatbadcolor 3
-define ZPlatgoodcolor 4
-define ZPlatimode 5
-define ZPlatipos 6
-define ZPlatioriginalz 7
-define ZPlatiinit 8

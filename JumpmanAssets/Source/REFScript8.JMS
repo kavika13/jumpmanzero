@@ -1,7 +1,0 @@
-define Script8iinit 0
-define Script8icountdown 1
-define Script8spouting 2
-define Script8igoo 3
-define Script8ipicture 4
-define Script8startx 5
-define Script8starty 6

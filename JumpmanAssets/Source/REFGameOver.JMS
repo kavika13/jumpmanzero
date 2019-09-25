@@ -1,8 +1,0 @@
-define GameOveriinit 0
-define GameOverijm 1
-define GameOverirotate 2
-define GameOveritime 3
-define GameOversletters 4
-define GameOveridroptime 25
-define GameOveriselhit 26
-define GameOveriselstatus 27

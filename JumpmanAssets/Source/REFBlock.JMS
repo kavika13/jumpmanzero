@@ -1,9 +1,0 @@
-define Blockiinit 0
-define Blocktexture 1
-define Blockimesh 2
-define Blockix 8
-define Blockiy 14
-define Blockimyplat 20
-define Blockistatus 21
-define Blockhung 22
-define Blockicount 23

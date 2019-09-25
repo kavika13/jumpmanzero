@@ -12,131 +12,8 @@
 #include "Jumpman.h"
 #include "Main.h"
 #include "Music.h"
-#include "Script.h"
 #include "Sound.h"
 #include "Utilities.h"
-
-#define EFPRINT 1
-#define EFSET 2
-#define EFSETSEL 3
-#define EFGET 8
-#define EFGETSEL 9
-#define EFGETNAVDIR 10
-#define EFSTRCOPY 11
-#define EFSTRCAT 12
-
-#define EFSELECT_PLATFORM 32
-#define EFSELECT_LADDER 33
-#define EFSELECT_DONUT 34
-#define EFABS_PLATFORM 35
-#define EFCOLLIDE 36
-#define EFKILL 37
-#define EFSELECT_VINE 38
-#define EFABS_LADDER 39
-#define EFSPAWN 40
-#define EFNEWMESH 41
-#define EFSETOBJECT 42
-#define EFSOUND 43
-#define EFSETDATA 44
-#define EFGETDATA 45
-#define EFABS_DONUT 46
-#define EFCOLLIDE_WALL 47
-#define EFSELECT_PICTURE 48
-#define EFPRIORITIZE_OBJECT 49
-#define EFSELECT_WALL 51
-#define EFSELECT_OBJECT_MESH 52
-#define EFDELETE_MESH 53
-#define EFDELETE_OBJECT 54
-#define EFWIN 55
-#define EFABS_VINE 56
-#define EFSERVICE 57
-#define EFNEWCHARMESH 58
-#define EFRESETPERSPECTIVE 59
-
-#define EFROTATEX 64
-#define EFROTATEY 65
-#define EFROTATEZ 66
-#define EFTRANSLATE 67
-#define EFIDENTITY 70
-#define EFPERSPECTIVE 71
-#define EFSCALE 72
-#define EFSCROLLTEXTURE 73
-
-#define EFRND 80
-#define EFFINDPLATFORM 81
-#define EFSIN 82
-#define EFCOS 83
-#define EFFINDLADDER 84
-#define EFATAN 85
-#define EFSQR 86
-#define EFFINDVINE 87
-#define EFSETFOG 88
-#define EFCHANGEMESH 89
-
-#define EFV_PX 1
-#define EFV_PY 2
-#define EFV_PZ 3
-#define EFV_PSTAT 4
-#define EFV_PSC 5
-#define EFV_PVISIBLE 6
-#define EFV_PDIR 7
-#define EFV_PACT 8
-
-#define EFV_INPUTLEFT 16
-#define EFV_INPUTRIGHT 17
-#define EFV_INPUTUP 18
-#define EFV_INPUTDOWN 19
-#define EFV_INPUTJUMP 20
-#define EFV_INPUTATTACK 21
-#define EFV_INPUTSELECT 22
-#define EFV_LASTKEY 23
-
-#define EFV_NOROLL 32
-#define EFV_FREEZE 33
-#define EFV_SOUNDON 34
-#define EFV_MUSICON 35
-#define EFV_PERFORMANCE 36
-#define EFV_SHOWFPS 37
-#define EFV_LIVESREMAINING 38
-
-#define EFV_DONUTS 64
-#define EFV_PLATFORMS 65
-#define EFV_LADDERS 66
-#define EFV_VINES 67
-#define EFV_WALLS 68
-#define EFV_TEXTURES 69
-
-#define EFV_EVENT1 128
-#define EFV_EVENT2 129
-#define EFV_EVENT3 130
-#define EFV_EVENT4 131
-#define EFV_COMPOSE 132
-#define EFV_OBJECTS 133
-#define EFV_DEBUG 134
-#define EFV_PERSPECTIVE 135
-#define EFV_LEVELEXTENTX 136
-#define EFV_THIS 137
-
-#define EFS_SX1 1
-#define EFS_SX2 2
-#define EFS_SY1 3
-#define EFS_SY2 4
-#define EFS_SZ1 5
-#define EFS_SZ2 6
-#define EFS_VISIBLE 7
-#define EFS_NUMBER 8
-#define EFS_TEXTURE 9
-#define EFS_EXTRA 10
-#define EFS_THIS 137
-
-#define SERVICE_GAMELIST 128
-#define SERVICE_GAMESTART 129
-#define SERVICE_LOADMENU 130
-#define SERVICE_OPTIONSTRING 142
-#define SERVICE_SETOPTION 143
-#define SERVICE_SAVEOPTIONS 144
-#define SERVICE_LEVELTITLE 154
-#define SERVICE_CREDITLINE 155
 
 typedef enum {
     kGameStatusExiting = 0,
@@ -371,17 +248,10 @@ static long g_script_selected_mesh_index;
 static long g_level_extent_x;
 static long g_level_extent_y;
 
-static bool g_script_level_script_is_lua = false;
-static ScriptCode g_script_level_script_code;
-static ScriptContext g_script_level_script_context;
 static lua_State* g_script_level_script_lua_state = NULL;
 static char g_script_level_script_base_path[300];  // TODO: Need a constant for this? Also, bigger? Also, is it necessary?
 
 static lua_State* g_script_title_script_lua_state = NULL;
-
-static bool g_script_object_script_is_lua[MAX_OBJECTSCRIPTS] = { false, false, false, false, false };
-static ScriptCode g_script_object_script_codes[MAX_OBJECTSCRIPTS];
-static ScriptContext g_script_object_script_contexts[MAX_SCRIPTOBJECTS];
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
 
@@ -629,728 +499,6 @@ static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, Naviga
     }
 
     return iChoice;
-}
-
-long ExtFunction(long iFunc, ScriptContext* SC, GameInput* game_input) {
-    long rArg1 = SC->Stack[SC->BP + 0];
-    long iArg1 = rArg1 / 256;
-    long rArg2 = SC->Stack[SC->BP + 1];
-    long iArg2 = rArg2 / 256;
-    long rArg3 = SC->Stack[SC->BP + 2];
-    long iArg3 = rArg3 / 256;
-    long rArg4 = SC->Stack[SC->BP + 3];
-    long iArg4 = rArg4 / 256;
-
-    if(iFunc == EFCHANGEMESH) {
-        ChangeMesh(g_script_selected_mesh_index, g_script_mesh_indices[iArg1]);
-    }
-
-    if(iFunc == EFIDENTITY) {
-        IdentityMatrix(g_script_selected_mesh_index);
-    }
-
-    if(iFunc == EFPERSPECTIVE) {
-        PerspectiveMatrix(g_script_selected_mesh_index);
-    }
-
-    if(iFunc == EFTRANSLATE) {
-        TranslateMatrix(g_script_selected_mesh_index, rArg1 / 256.0f, rArg2 / 256.0f, rArg3 / 256.0f);
-    }
-
-    if(iFunc == EFSCALE) {
-        ScaleMatrix(g_script_selected_mesh_index, rArg1 / 256.0f, rArg2 / 256.0f, rArg3 / 256.0f);
-    }
-
-    if(iFunc == EFROTATEX) {
-        RotateMatrixX(g_script_selected_mesh_index, rArg1 / 256.0f);
-    }
-
-    if(iFunc == EFROTATEY) {
-        RotateMatrixY(g_script_selected_mesh_index, rArg1 / 256.0f);
-    }
-
-    if(iFunc == EFROTATEZ) {
-        RotateMatrixZ(g_script_selected_mesh_index, rArg1 / 256.0f);
-    }
-
-    if(iFunc == EFSCROLLTEXTURE) {
-        ScrollTexture(g_script_selected_mesh_index, rArg1 / 4096.0f, rArg2 / 4096.0f);
-    }
-
-    if(iFunc == EFSETSEL) {
-        if(iArg1 == EFS_SX1) {
-            g_script_selected_level_object->X1 = iArg2;
-        } else if(iArg1 == EFS_SX2) {
-            g_script_selected_level_object->X2 = iArg2;
-        } else if(iArg1 == EFS_SY1) {
-            g_script_selected_level_object->Y1 = iArg2;
-        } else if(iArg1 == EFS_SY2) {
-            g_script_selected_level_object->Y2 = iArg2;
-        } else if(iArg1 == EFS_SZ1) {
-            g_script_selected_level_object->Z1 = iArg2;
-        } else if(iArg1 == EFS_SZ2) {
-            g_script_selected_level_object->Z2 = iArg2;
-        } else if(iArg1 == EFS_VISIBLE) {
-            g_script_selected_level_object->Visible = iArg2;
-        } else if(iArg1 == EFS_NUMBER) {
-            g_script_selected_level_object->Num = iArg2;
-        } else if(iArg1 == EFS_TEXTURE) {
-            g_script_selected_level_object->Texture = iArg2;
-        } else if(iArg1 == EFS_EXTRA) {
-            g_script_selected_level_object->Extra = iArg2;
-        }
-
-        SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
-    }
-
-    if(iFunc == EFGETSEL) {
-        if(iArg1 == EFS_SX1) {
-            return g_script_selected_level_object->X1;
-        } else if(iArg1 == EFS_SX2) {
-            return g_script_selected_level_object->X2;
-        } else if(iArg1 == EFS_SY1) {
-            return g_script_selected_level_object->Y1;
-        } else if(iArg1 == EFS_SY2) {
-            return g_script_selected_level_object->Y2;
-        } else if(iArg1 == EFS_SZ1) {
-            return g_script_selected_level_object->Z1;
-        } else if(iArg1 == EFS_SZ2) {
-            return g_script_selected_level_object->Z2;
-        } else if(iArg1 == EFS_VISIBLE) {
-            return g_script_selected_level_object->Visible;
-        } else if(iArg1 == EFS_NUMBER) {
-            return g_script_selected_level_object->Num;
-        } else if(iArg1 == EFS_TEXTURE) {
-            return g_script_selected_level_object->Texture;
-        } else if(iArg1 == EFS_EXTRA) {
-            return g_script_selected_level_object->Extra;
-        } else if(iArg1 == EFS_THIS) {
-            return g_script_selected_level_object->ObjectNumber;
-        }
-    }
-
-    if(iFunc == EFGETNAVDIR) {
-        return GetNavDir(iArg1, iArg2, iArg3, iArg4);
-    }
-
-    if(iFunc == EFSTRCOPY) {
-        long iLoop = -1;
-
-        while(++iLoop <= iArg2) {
-            SC->Globals[iArg1 + iLoop] = SC->Stack[SC->SP + iLoop + 1];
-        }
-    }
-
-    if(iFunc == EFSTRCAT) {
-        int iLen1 = SC->Globals[iArg1] / 256;
-        int iLen2 = SC->Globals[iArg2] / 256;
-        SC->Globals[iArg1] = (iLen1 + iLen2) * 256;
-        long iLoop = 0;
-
-        while(++iLoop <= iLen2) {
-            SC->Globals[iArg1 + iLen1 + iLoop] = SC->Globals[iArg2 + iLoop];
-        }
-    }
-
-    if(iFunc == EFGET) {
-        if(iArg1 == EFV_PX) {
-            return (long)(g_player_current_position_x * 256.0f);
-        } else if(iArg1 == EFV_PY) {
-            return (long)(g_player_current_position_y * 256.0f);
-        } else if(iArg1 == EFV_PZ) {
-            return (long)(g_player_current_position_z * 256.0f);
-        } else if(iArg1 == EFV_PSTAT) {
-            return g_player_current_state * 256;
-        } else if(iArg1 == EFV_PSC) {
-            return g_player_current_state_frame_count * 256;
-        } else if(iArg1 == EFV_PDIR) {
-            return g_player_current_direction * 256;
-        } else if(iArg1 == EFV_PACT) {
-            return g_player_current_special_action * 256;
-        } else if(iArg1 == EFV_SHOWFPS) {
-            return game_input->debug_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_LIVESREMAINING) {
-            return g_remaining_life_count * 256;
-        } else if(iArg1 == EFV_EVENT1) {
-            return g_script_event_data_1 * 256;
-        } else if(iArg1 == EFV_EVENT2) {
-            return g_script_event_data_2 * 256;
-        } else if(iArg1 == EFV_EVENT3) {
-            return g_script_event_data_3;
-        } else if(iArg1 == EFV_EVENT4) {
-            return g_script_event_data_4;
-        } else if(iArg1 == EFV_DEBUG) {
-            return IsDebugEnabled() ? 256 : 0;
-        } else if(iArg1 == EFV_PERSPECTIVE) {
-            return g_current_camera_mode * 256;
-        } else if(iArg1 == EFV_OBJECTS) {
-            return MAX_SCRIPTOBJECTS * 256;
-        } else if(iArg1 == EFV_DONUTS) {
-            return g_donut_object_count * 256;
-        } else if(iArg1 == EFV_TEXTURES) {
-            return g_loaded_texture_count * 256;
-        } else if(iArg1 == EFV_PLATFORMS) {
-            return g_platform_object_count * 256;
-        } else if(iArg1 == EFV_LADDERS) {
-            return g_ladder_object_count * 256;
-        } else if(iArg1 == EFV_VINES) {
-            return g_vine_object_count * 256;
-        } else if(iArg1 == EFV_WALLS) {
-            return g_wall_object_count * 256;
-        } else if(iArg1 == EFV_LEVELEXTENTX) {
-            return g_level_extent_x * 256;
-        } else if(iArg1 == EFV_THIS) {
-            return SC->ScriptReference * 256;
-        } else if(iArg1 == EFV_INPUTLEFT) {
-            return game_input->move_left_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_INPUTRIGHT) {
-            return game_input->move_right_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_INPUTUP) {
-            return game_input->move_up_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_INPUTDOWN) {
-            return game_input->move_down_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_INPUTJUMP) {
-            return game_input->jump_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_INPUTATTACK) {
-            return game_input->attack_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_INPUTSELECT) {
-            return game_input->select_action.is_pressed ? 256 : 0;
-        } else if(iArg1 == EFV_FREEZE) {
-            return g_player_freeze_cooldown_frame_count * 256;
-        } else if(iArg1 == EFV_SOUNDON) {
-            return GetIsSoundEnabled() ? 256 : 0;
-        } else if(iArg1 == EFV_MUSICON) {
-            return GetIsMusicEnabled() ? 256 : 0;
-        } else if(iArg1 == EFV_LASTKEY) {
-            return GetLastKeyPressed() * 256;
-        } else if(iArg1 == EFV_PERFORMANCE) {
-            return GetCurrentFps() * 256;
-        }
-    }
-
-    if(iFunc == EFSET) {
-        if(iArg1 == EFV_PX) {
-            g_player_current_position_x = (float)(rArg2) / 256;
-        } else if(iArg1 == EFV_PY) {
-            g_player_current_position_y = (float)(rArg2) / 256;
-        } else if(iArg1 == EFV_PZ) {
-            g_player_current_position_z = (float)(iArg2);
-        } else if(iArg1 == EFV_PSTAT) {
-            g_player_current_state = iArg2;
-        } else if(iArg1 == EFV_PSC) {
-            g_player_current_state_frame_count = iArg2;
-        } else if(iArg1 == EFV_PDIR) {
-            g_player_current_direction = iArg2;
-        } else if(iArg1 == EFV_PACT) {
-            g_player_current_special_action = iArg2;
-        } else if(iArg1 == EFV_EVENT1) {
-            g_script_event_data_1 = iArg2;
-        } else if(iArg1 == EFV_EVENT2) {
-            g_script_event_data_2 = iArg2;
-        } else if(iArg1 == EFV_EVENT3) {
-            g_script_event_data_3 = iArg2;
-        } else if(iArg1 == EFV_EVENT4) {
-            g_script_event_data_4 = iArg2;
-        } else if(iArg1 == EFV_PERSPECTIVE) {
-            g_current_camera_mode = iArg2;
-        } else if(iArg1 == EFV_DEBUG) {
-            SetDebugEnabled(iArg2 ? true : false);
-        } else if(iArg1 == EFV_LEVELEXTENTX) {
-            g_level_extent_x = iArg2;
-        } else if(iArg1 == EFV_NOROLL) {
-            g_player_no_roll_cooldown_frame_count = iArg2;
-        } else if(iArg1 == EFV_FREEZE) {
-            g_player_freeze_cooldown_frame_count = iArg2;
-        } else if(iArg1 == EFV_PVISIBLE) {
-            g_player_is_visible = iArg2 == 1 ? true : false;
-        } else if(iArg1 == EFV_LIVESREMAINING) {
-            g_remaining_life_count = iArg2;
-        }
-
-        return 0;
-    }
-
-    if(iFunc == EFSPAWN) {
-        long iNewObject = -1;
-        long iLoop = -1;
-
-        while(++iLoop < MAX_SCRIPTOBJECTS) {
-            if(!g_script_object_script_contexts[iLoop].Active && iNewObject == -1) {
-                iNewObject = iLoop;
-            }
-        }
-
-        if(iNewObject < 0) {
-            iNewObject = 0;
-        }
-
-        assert(iArg1 < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
-        // TODO: If it's a lua script, should load the file again to make the "new context"?
-        //       Also, might need to unload the old context
-        ResetContext(&g_script_object_script_contexts[iNewObject], SC->game_base_path);
-        g_script_object_script_contexts[iNewObject].Script = &g_script_object_script_codes[iArg1];
-        g_script_object_script_contexts[iNewObject].ScriptNumber = iArg1;
-        g_script_object_script_contexts[iNewObject].ScriptReference = iNewObject;
-        g_script_object_script_contexts[iNewObject].Active = 2;
-
-        return iNewObject;
-    }
-
-    if(iFunc == EFNEWMESH) {
-        long iNew;
-        CopyObject(g_script_mesh_indices[iArg1], &iNew);
-        g_script_selected_mesh_index = iNew;
-        return iNew;
-    }
-
-    if(iFunc == EFNEWCHARMESH) {
-        long iNew;
-
-        if(iArg1 >= 97) {
-            iArg1 += 65 - 97;
-        }
-
-        if(g_letter_mesh_indices[iArg1] >= 0) {
-            CopyObject(g_letter_mesh_indices[iArg1], &iNew);
-            g_script_selected_mesh_index = iNew;
-            return iNew;
-        } else {
-            return -1;
-        }
-    }
-
-    if(iFunc == EFSETOBJECT) {
-        SetObjectData(g_script_selected_mesh_index, iArg1, iArg2);
-    }
-
-    if(iFunc == EFPRIORITIZE_OBJECT) {
-        PrioritizeObject(g_script_selected_mesh_index);
-    }
-
-    if(iFunc == EFSETDATA) {
-        g_script_object_script_contexts[iArg1].Globals[iArg2] = rArg3;
-    }
-
-    if(iFunc == EFGETDATA) {
-        if(iArg2 == 1000) {
-            if(g_script_object_script_contexts[iArg1].Active) {
-                return g_script_object_script_contexts[iArg1].ScriptNumber * 256;
-            } else {
-                return -256;
-            }
-        }
-
-        return g_script_object_script_contexts[iArg1].Globals[iArg2];
-    }
-
-    if(iFunc == EFRND) {
-        long iRand;
-        iRand = (rand() & 16383) * (iArg2 - iArg1) / 16383 + iArg1;
-        return iRand;
-    }
-
-    if(iFunc == EFFINDLADDER) {
-        long iLadA, iLadE;
-        FindLadder(iArg1, iArg2, &iLadA, &iLadE);
-        g_script_event_data_4 = iLadA * 256;
-        return iLadE;
-    }
-
-    if(iFunc == EFFINDVINE) {
-        long iVinAp, iVinEx;
-        FindVine(iArg1, iArg2, &iVinAp, &iVinEx);
-        g_script_event_data_4 = iVinAp * 256;
-
-        return iVinEx;
-    }
-
-    if(iFunc == EFFINDPLATFORM) {
-        float iFind;
-        long iPlat;
-        GetNextPlatform(iArg1, iArg2, iArg3, iArg4, &iFind, &iPlat);
-        g_script_event_data_4 = (long)(iFind) * 256;
-        return iPlat;
-    }
-
-    if(iFunc == EFSIN) {
-        long iVal = (long)(sin(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
-        return iVal;
-    }
-
-    if(iFunc == EFCOS) {
-        long iVal = (long)(cos(rArg1 * 3.1415f / 180.0f / 256.0f) * iArg2);
-        return iVal;
-    }
-
-    if(iFunc == EFATAN) {
-        long iVal;
-
-        if(rArg2 == 0) {
-            iVal = (rArg1 > 0 ? 90 : 270);
-        } else {
-            iVal = (long)(atan((double)(rArg1) / (double)(rArg2)) * 180.0f / 3.1415f);
-        }
-
-        return iVal;
-    }
-
-    if(iFunc == EFSQR) {
-        long iVal = (long)(sqrt(rArg1 / 256.0f));
-        return iVal;
-    }
-
-    if(iFunc == EFABS_PLATFORM) {
-        g_script_selected_level_object = &g_platform_objects[iArg1];
-        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-        return 0;
-    }
-
-    if(iFunc == EFABS_LADDER) {
-        g_script_selected_level_object = &g_ladder_objects[iArg1];
-        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-        return 0;
-    }
-
-    if(iFunc == EFABS_DONUT) {
-        g_script_selected_level_object = &g_donut_objects[iArg1];
-        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-        return 0;
-    }
-
-    if(iFunc == EFABS_VINE) {
-        g_script_selected_level_object = &g_vine_objects[iArg1];
-        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-        return 0;
-    }
-
-    if(iFunc == EFCOLLIDE_WALL) {
-        return CollideWall(iArg1, iArg2, iArg3, iArg4);
-    }
-
-    if(iFunc == EFSETFOG) {
-        SetFog((float)iArg1, (float)iArg2, SC->Stack[SC->BP + 2] & 0xFF, SC->Stack[SC->BP + 3] & 0xFF, SC->Stack[SC->BP + 4] & 0xFF);
-    }
-
-    if(iFunc == EFSERVICE) {
-        if(iArg1 == SERVICE_LEVELTITLE) {
-            SC->Globals[iArg2] = (long)(strlen(g_level_current_title)) * 256;
-            long iLoop = 0;
-
-            while(++iLoop <= (long)(strlen(g_level_current_title))) {
-                SC->Globals[iArg2 + iLoop] = g_level_current_title[iLoop - 1] * 256;
-            }
-        }
-
-        if(iArg1 == SERVICE_SAVEOPTIONS) {
-            SaveSettings();
-        }
-
-        if(iArg1 == SERVICE_SETOPTION) {
-            if(iArg3 >= 0 && iArg3 <= 5) {
-                int iKeyGood = 0;
-                int iKey = iArg2;
-
-                if(iKey == 38 && iArg3 == 0) {
-                    iKeyGood = 1;
-                }
-
-                if(iKey == 40 && iArg3 == 1) {
-                    iKeyGood = 1;
-                }
-
-                if(iKey == 37 && iArg3 == 2) {
-                    iKeyGood = 1;
-                }
-
-                if(iKey == 39 && iArg3 == 3) {
-                    iKeyGood = 1;
-                }
-
-                if(iKey == 32 && iArg3 == 4) {
-                    iKeyGood = 1;
-                }
-
-                if(iKey >= 'A' && iKey <= 'Z') {
-                    iKeyGood = 1;
-                }
-
-                if(iKey >= '0' && iKey <= '9') {
-                    iKeyGood = 1;
-                }
-
-                long iLoop = -1;
-
-                while(++iLoop < 6) {
-                    if(iArg3 != iLoop && GetKeyBinding(iLoop) == iKey) {
-                        iKeyGood = 0;
-                    }
-                }
-
-                if(iKeyGood) {
-                    SetKeyBinding(iArg3, iKey);
-                }
-            }
-
-            if(iArg3 == 32) {
-                SetIsSoundEnabled(iArg2 ? true : false);
-            }
-
-            if(iArg3 == 33 && (GetIsMusicEnabled() ? 1 : 0) != iArg2) {
-                if(iArg2 == 0) {
-                    StopMusic1();
-                } else {
-                    NewTrack1(g_music_background_track_filename, 0, 0);
-                }
-
-                SetIsMusicEnabled(iArg2 ? true : false);
-            }
-        }
-
-        if(iArg1 == SERVICE_OPTIONSTRING) {
-            int iKey;
-            char sName[100];
-
-            if(iArg3 >= 0 && iArg3 <= 5) {
-                int iKey = GetKeyBinding(iArg3);
-
-                if(iKey >= 'A' && iKey <= 'Z') {
-                    sprintf_s(sName, sizeof(sName), "%c   ", iKey);
-                } else if(iKey >= '0' && iKey <= '9') {
-                    sprintf_s(sName, sizeof(sName), "%c   ", iKey);
-                } else if(iKey == 38) {
-                    sprintf_s(sName, sizeof(sName), "UP  ");
-                } else if(iKey == 40) {
-                    sprintf_s(sName, sizeof(sName), "DOWN");
-                } else if(iKey == 37) {
-                    sprintf_s(sName, sizeof(sName), "LEFT");
-                } else if(iKey == 39) {
-                    sprintf_s(sName, sizeof(sName), "RGHT");
-                } else if(iKey == 32) {
-                    sprintf_s(sName, sizeof(sName), "SPC ");
-                } else if(iKey == 58) {
-                    sprintf_s(sName, sizeof(sName), ":   ");
-                } else if(iKey == 46) {
-                    sprintf_s(sName, sizeof(sName), ".   ");
-                } else if(iKey == 45) {
-                    sprintf_s(sName, sizeof(sName), "-   ");
-                }
-            } else if(iArg3 == 32 || iArg3 == 33) {
-                if(iArg3 == 32) {
-                    iKey = GetIsSoundEnabled() ? 1 : 0;
-                } else {
-                    iKey = GetIsMusicEnabled() ? 1 : 0;
-                }
-
-                if(iKey) {
-                    sprintf_s(sName, sizeof(sName), "ON  ");
-                } else {
-                    sprintf_s(sName, sizeof(sName), "OFF ");
-                }
-            }
-
-            SC->Globals[iArg2] = 1024;
-            SC->Globals[iArg2 + 1] = sName[0] * 256;
-            SC->Globals[iArg2 + 2] = sName[1] * 256;
-            SC->Globals[iArg2 + 3] = sName[2] * 256;
-            SC->Globals[iArg2 + 4] = sName[3] * 256;
-        }
-
-        if(iArg1 == SERVICE_LOADMENU) {
-            g_script_event_data_1 = g_script_event_data_1 - 1;
-            g_game_status = kGameStatusMenu;
-            g_target_game_menu_state = iArg2;
-        }
-
-        if(iArg1 == SERVICE_GAMESTART) {
-            char sFileName[300];
-            int iTitle = 0;
-            g_remaining_life_count = 7;
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", SC->game_base_path);
-
-            cf_dir_t dir;
-            cf_dir_open(&dir, sFileName);
-
-            cf_file_t file;
-
-            // TODO: Error checking.
-            // Error shouldn't happen since .jmg files are queried before this is run,
-            // but could if file or dir was deleted/locked after campaign menu displayed, but before selected
-
-            while(dir.has_next) {  // Find first result
-                cf_file_t first_file;
-                cf_read_file(&dir, &first_file);
-                cf_dir_next(&dir);
-
-                if(cf_match_ext(&first_file, ".jmg")) {
-                    file = first_file;
-                    break;
-                }
-            }
-
-            while(dir.has_next && iTitle < iArg2) {
-                cf_read_file(&dir, &file);
-
-                if(cf_match_ext(&file, ".jmg")) {
-                    iTitle = iTitle + 1;
-                }
-
-                cf_dir_next(&dir);
-            }
-
-            sprintf_s(g_level_set_current_set_filename, sizeof(g_level_set_current_set_filename), "%s\\Data\\%s", SC->game_base_path, file.name);
-            g_game_status = kGameStatusInLevel;
-        }
-
-        if(iArg1 == SERVICE_CREDITLINE) {
-            char sFileName[300];
-            char sName[100] = { 0 };
-
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", SC->game_base_path);
-            GetFileLine(sName, sizeof(sName), sFileName, iArg2);
-            int iChar = -1;
-
-            while(sName[++iChar] != 0 && iChar < 18) {
-                SC->Globals[iArg3 + iChar + 1] = sName[iChar] * 256;
-            }
-
-            SC->Globals[iArg3] = iChar * 256;
-        }
-
-        if(iArg1 == SERVICE_GAMELIST) {
-            char sFileName[300];
-            int iTitle = 0;
-            sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", SC->game_base_path);
-
-            cf_dir_t dir;
-            cf_dir_open(&dir, sFileName);
-
-            while(dir.has_next) {
-                cf_file_t file;
-                cf_read_file(&dir, &file);
-
-                if(cf_match_ext(&file, ".jmg")) {
-                    int iChar = -1;
-                    char sFile[300];
-                    char sName[100];
-
-                    sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", SC->game_base_path, file.name);
-                    GetFileLine(sName, sizeof(sName), sFile, 0);
-
-                    while(sName[++iChar] != 0 && iChar < 18) {
-                        SC->Globals[iArg2 + iTitle * 20 + iChar + 1] = sName[iChar] * 256;
-                    }
-
-                    SC->Globals[iArg2 + iTitle * 20] = iChar * 256;
-                    iTitle = iTitle + 1;
-                }
-
-                cf_dir_next(&dir);
-            }
-
-            return iTitle;
-        }
-    }
-
-    if(iFunc == EFSOUND) {
-        PlaySoundEffect(iArg1);
-    }
-
-    if(iFunc == EFCOLLIDE) {
-        return PlayerCollide(iArg1, iArg2, iArg3, iArg4) && !(g_player_current_state == kPlayerStateDying);
-    }
-
-    if(iFunc == EFKILL && !(g_player_current_state & kPlayerStateDying)) {
-        StopMusic1();
-        g_player_current_state = kPlayerStateDying;
-        g_player_current_special_action = kPlayerSpecialActionNone;
-        g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
-        g_player_dying_animation_state_frame_count = 0;
-        g_player_velocity_x = 0;
-        g_player_absolute_frame_count = g_player_current_state_frame_count;
-        g_player_current_state_frame_count = 1000;
-    }
-
-    if(iFunc == EFPRINT && IsDebugEnabled()) {
-        char sNum[100];
-
-        if(iArg1 == -1) {
-            sprintf_s(sNum, sizeof(sNum), "\n");
-        } else if(iArg1 == -2) {
-            sprintf_s(sNum, sizeof(sNum), " ");
-        } else {
-            sprintf_s(sNum, sizeof(sNum), "%.0f", rArg1 / 256.0f);
-        }
-
-        fprintf(stdout, "%s", sNum);
-    }
-
-    if(iFunc == EFWIN) {
-        StopMusic1();
-        g_player_current_state_frame_count = 0;
-        g_player_current_state = kPlayerStateDone;
-    }
-
-    if(iFunc == EFSELECT_OBJECT_MESH) {
-        g_script_selected_mesh_index = iArg1;
-    }
-
-    if(iFunc == EFDELETE_MESH) {
-        DeleteMesh(iArg1);
-    }
-
-    if(iFunc == EFDELETE_OBJECT) {
-        if(iArg1 == 1000) {
-            SC->Active = 0;
-        } else {
-            g_script_object_script_contexts[iArg1].Active = 0;
-        }
-    }
-
-    if(iFunc == EFRESETPERSPECTIVE) {
-        SetGamePerspective();
-    }
-
-    if(iFunc == EFSELECT_PLATFORM || iFunc == EFSELECT_LADDER || iFunc == EFSELECT_DONUT || iFunc == EFSELECT_VINE || iFunc == EFSELECT_PICTURE || iFunc == EFSELECT_WALL) {
-        int iObj;
-
-        if(iFunc == EFSELECT_WALL) {
-            iObj = FindObject(g_wall_objects, g_wall_object_count, iArg1);
-            g_script_selected_level_object = &g_wall_objects[iObj];
-        }
-
-        if(iFunc == EFSELECT_PLATFORM) {
-            iObj = FindObject(g_platform_objects, g_platform_object_count, iArg1);
-            g_script_selected_level_object = &g_platform_objects[iObj];
-        }
-
-        if(iFunc == EFSELECT_VINE) {
-            iObj = FindObject(g_vine_objects, g_vine_object_count, iArg1);
-            g_script_selected_level_object = &g_vine_objects[iObj];
-        }
-
-        if(iFunc == EFSELECT_LADDER) {
-            iObj = FindObject(g_ladder_objects, g_ladder_object_count, iArg1);
-            g_script_selected_level_object = &g_ladder_objects[iObj];
-        }
-
-        if(iFunc == EFSELECT_DONUT) {
-            iObj = FindObject(g_donut_objects, g_donut_object_count, iArg1);
-            g_script_selected_level_object = &g_donut_objects[iObj];
-        }
-
-        if(iFunc == EFSELECT_PICTURE) {
-            iObj = FindObject(g_backdrop_objects, g_backdrop_object_count, iArg1);
-            g_script_selected_level_object = &g_backdrop_objects[iObj];
-        }
-
-        g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-
-        if(iObj < 0) {
-            return -1;
-        }
-    }
-
-    return -1;
 }
 
 static int FindObject(LevelObject* lObj, int iCount, int iFind) {
@@ -1961,38 +1109,6 @@ static int set_is_debug_enabled(lua_State* lua_state) {
 
 // script utility functions
 
-static int spawn_object(lua_State* lua_state) {
-    // Replacement for jms Spawn(int script_index) function, aka EFSPAWN
-    double arg1 = luaL_checknumber(lua_state, 1);
-
-    long iNewObject = -1;
-
-    for(long iLoop = 0; iLoop < MAX_SCRIPTOBJECTS; ++iLoop) {
-        // TODO: Work differently if using Lua script
-        if(!g_script_object_script_contexts[iLoop].Active && iNewObject == -1) {
-            iNewObject = iLoop;
-        }
-    }
-
-    if(iNewObject < 0) {
-        iNewObject = 0;
-    }
-
-    long iArg1 = (long)arg1;
-    assert(iArg1 < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
-    // TODO: If it's a lua script, should load the file again to make the "new context"?
-    //       Also, might need to unload the old context
-    ResetContext(&g_script_object_script_contexts[iNewObject], g_script_level_script_base_path);  // TODO: Can this happen in an object script? Does the base path need to be per-script?
-    g_script_object_script_contexts[iNewObject].Script = &g_script_object_script_codes[iArg1];
-    g_script_object_script_contexts[iNewObject].ScriptNumber = iArg1;
-    g_script_object_script_contexts[iNewObject].ScriptReference = iNewObject;
-    g_script_object_script_contexts[iNewObject].Active = 2;
-
-    lua_pushnumber(lua_state, iNewObject);
-
-    return 1;
-}
-
 static int new_mesh(lua_State* lua_state) {
     // Replacement for jms NewMesh(int script_mesh_index) function, aka EFNEWMESH
     double script_mesh_index = luaL_checknumber(lua_state, 1);
@@ -2035,35 +1151,6 @@ static int set_object_visual_data(lua_State* lua_state) {
 static int prioritize_object(lua_State* lua_state) {
     // Replacement for jms PrioritizeObject() function, aka EFPRIORITIZE_OBJECT
     PrioritizeObject(g_script_selected_mesh_index);
-    return 0;
-}
-
-static int get_object_global_data(lua_State* lua_state) {
-    // Replacement for jms GetData(int script_index, int global_index) function, aka EFGETDATA
-    double arg1 = luaL_checknumber(lua_state, 1);
-    double arg2 = luaL_checknumber(lua_state, 2);
-
-    if((long)arg2 == 1000) {
-        if(g_script_object_script_contexts[(size_t)arg1].Active) {
-            lua_pushnumber(lua_state, g_script_object_script_contexts[(size_t)arg1].ScriptNumber);
-        } else {
-            lua_pushnumber(lua_state, -256);
-        }
-    } else {
-        // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
-        lua_pushnumber(lua_state, g_script_object_script_contexts[(size_t)arg1].Globals[(size_t)arg2] / 256.0);
-    }
-
-    return 1;
-}
-
-static int set_object_global_data(lua_State* lua_state) {
-    // Replacement for jms SetData(int script_index, int global_index, float value) function, aka EFSETDATA
-    double script_index = luaL_checknumber(lua_state, 1);
-    double global_index = luaL_checknumber(lua_state, 2);
-    double value = luaL_checknumber(lua_state, 3);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_object_script_contexts[(size_t)script_index].Globals[(size_t)global_index] = (long)(value * 256.0);
     return 0;
 }
 
@@ -2526,17 +1613,6 @@ static int script_delete_mesh(lua_State* lua_state) {
     return 0;
 }
 
-static int script_delete_object(lua_State* lua_state) {
-    // Replacement for jms DeleteObject(int object_index) function, aka EFDELETE_OBJECT
-    double object_index = luaL_checknumber(lua_state, 1);
-    if((long)object_index == 1000) {
-        // SC->Active = 0;  // TODO: How do we do this?
-    } else {
-        g_script_object_script_contexts[(size_t)object_index].Active = 0;
-    }
-    return 0;
-}
-
 static int script_reset_perspective(lua_State* lua_state) {
     // Replacement for jms ResetPerspective() function, aka EFRESETPERSPECTIVE
     SetGamePerspective();
@@ -2759,8 +1835,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, set_is_debug_enabled);
     lua_setglobal(lua_state, "set_is_debug_enabled");
 
-    lua_pushcfunction(lua_state, spawn_object);
-    lua_setglobal(lua_state, "spawn_object");
     lua_pushcfunction(lua_state, new_mesh);
     lua_setglobal(lua_state, "new_mesh");
     lua_pushcfunction(lua_state, new_char_mesh);
@@ -2769,10 +1843,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_object_visual_data");
     lua_pushcfunction(lua_state, prioritize_object);
     lua_setglobal(lua_state, "prioritize_object");
-    lua_pushcfunction(lua_state, get_object_global_data);
-    lua_setglobal(lua_state, "get_object_global_data");
-    lua_pushcfunction(lua_state, set_object_global_data);
-    lua_setglobal(lua_state, "set_object_global_data");
     lua_pushcfunction(lua_state, script_rnd);
     lua_setglobal(lua_state, "rnd");
     lua_pushcfunction(lua_state, script_find_ladder);
@@ -2827,8 +1897,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "select_object_mesh");
     lua_pushcfunction(lua_state, script_delete_mesh);
     lua_setglobal(lua_state, "delete_mesh");
-    lua_pushcfunction(lua_state, script_delete_object);
-    lua_setglobal(lua_state, "delete_object");
     lua_pushcfunction(lua_state, script_reset_perspective);
     lua_setglobal(lua_state, "reset_perspective");
     lua_pushcfunction(lua_state, script_select_platform);
@@ -2960,8 +2028,10 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
     iLoop = -1;
 
-    while(++iLoop < MAX_SCRIPTOBJECTS) {
-        g_script_object_script_contexts[iLoop].Active = 0;
+    if(g_script_level_script_lua_state != NULL) {
+        lua_close(g_script_level_script_lua_state);
+        g_script_level_script_lua_state = NULL;
+        // TODO: Clear title script?
     }
 
     g_platform_object_count = 0;
@@ -3043,21 +2113,12 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             if(iTemp == 5) {
                 if(iArg1 == 1) {
-                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.BIN", sTemp);
-                    g_script_level_script_is_lua = false;
-                    LoadScript(base_path, sBuild, &g_script_level_script_code);
-                    ResetContext(&g_script_level_script_context, base_path);
-                    g_script_level_script_context.Script = &g_script_level_script_code;
-                    g_script_main_subroutine_handle = FindScript(&g_script_level_script_context, "main");
-                    g_script_donut_subroutine_handle = FindScript(&g_script_level_script_context, "donut");
+                    assert(false);  // "Trying to load a JMS level script. Should not be the case in any existing level."
                 } else if(iArg1 == 2) {
-                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.BIN", sTemp);
-                    assert(g_loaded_script_count < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
-                    LoadScript(base_path, sBuild, &g_script_object_script_codes[g_loaded_script_count]);
-                    ++g_loaded_script_count;
+                    // TODO: No-op for now
+                    // assert(false, "Trying to load a JMS level script. Should not be the case in any existing level.");
                 } else if(iArg1 == 3) {
                     sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.LUA", sTemp);
-                    g_script_level_script_is_lua = true;
                     // TODO: Should it auto-unload the old script?
                     LoadLuaScript(base_path, sBuild, &g_script_level_script_lua_state);
                     strcpy_s(g_script_level_script_base_path, sizeof(g_script_level_script_base_path), base_path);  // TODO: Necessary?
@@ -3065,11 +2126,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
                     // TODO: Can remove this comment later, when script mode 1 is gone.
                     //       Don't need to grab functions here, because there's no way in Lua to precache it, I think
                 } else if(iArg1 == 4) {
-                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.LUA", sTemp);
-                    assert(g_loaded_script_count < MAX_OBJECTSCRIPTS);  // TODO: Better error handling
-                    // TODO: Load as Lua script, or maybe just capture the filename so we can load it later and "make the context"?
-                    // LoadScript(base_path, sBuild, &g_script_object_script_codes[g_loaded_script_count]);
-                    ++g_loaded_script_count;
+                    // TODO: No-op for now. These are managed inside level scripts, so no need to load them separately
                 } else {
                     // TODO: Log error, do something to signal to game that it can't load the level
                 }
@@ -3549,13 +2606,9 @@ static void GrabDonuts(GameInput* game_input) {
 
             g_script_event_data_1 = g_donut_objects[iLoop].Num;
 
-            if(g_script_level_script_is_lua) {
-                // TODO: Pass g_donut_objects[iLoop].Num instead of just setting it in g_script_event_data_1
-                //       Also, maybe get rid of those script event data passing stuff alltogether
-                CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut", game_input);
-            } else {
-                RunScript(&g_script_level_script_context, g_script_donut_subroutine_handle, game_input);
-            }
+            // TODO: Pass g_donut_objects[iLoop].Num instead of just setting it in g_script_event_data_1
+            //       Also, maybe get rid of those script event data passing stuff alltogether
+            CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut", game_input);
         }
     }
 
@@ -3592,20 +2645,7 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
 }
 
 static void ResetPlayer(int iNewLevel, GameInput* game_input) {
-    if(g_script_level_script_is_lua) {
-        CallLuaFunction(g_script_level_script_lua_state, "reset", game_input);
-    } else {
-        long iResetScript = FindScript(&g_script_level_script_context, "reset");
-        RunScript(&g_script_level_script_context, iResetScript, game_input);
-    }
-
-    // TODO: Handle for Lua object scripts
-    for(int iObj = 0; iObj < MAX_SCRIPTOBJECTS; ++iObj) {
-        if(g_script_object_script_contexts[iObj].Active) {
-            long iResetScript = FindScript(&g_script_object_script_contexts[iObj], "resetpos");
-            RunScript(&g_script_object_script_contexts[iObj], iResetScript, game_input);
-        }
-    }
+    CallLuaFunction(g_script_level_script_lua_state, "reset", game_input);
 }
 
 static void AnimateDying(GameInput* game_input, const char* base_path) {
@@ -3760,7 +2800,6 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
 }
 
 static void ProgressGame(const char* base_path, GameInput* game_input) {
-    int iObject;
     int iTemp;
 
     if(!(g_player_current_state & kPlayerStateDone)) {
@@ -3794,26 +2833,7 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
 
         SetGamePerspective();
 
-        if(g_script_level_script_is_lua) {
-            CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
-        } else {
-            RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
-        }
-
-        for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-            // TODO: Work differently if using Lua script
-            if(g_script_object_script_contexts[iObject].Active == 1) {
-                RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
-            }
-        }
-
-        for(iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-            // TODO: Work differently if using Lua script
-            if(g_script_object_script_contexts[iObject].Active == 2) {
-                RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
-                g_script_object_script_contexts[iObject].Active = 1;
-            }
-        }
+        CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
     } else {
         ++g_player_current_state_frame_count;
 
@@ -4043,28 +3063,7 @@ static void LoadJumpmanMenu(const char* base_path) {
 }
 
 static void InteractMenu(GameInput* game_input) {
-    if(g_script_level_script_is_lua) {
-        // TODO: Implement
-        CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
-    } else {
-        RunScript(&g_script_level_script_context, g_script_main_subroutine_handle, game_input);
-    }
-
-    for(long iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-        // TODO: Work differently if using Lua script
-        if(g_script_object_script_contexts[iObject].Active == 1) {
-            RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
-        }
-    }
-
-    for(long iObject = 0; iObject < MAX_SCRIPTOBJECTS; ++iObject) {
-        // TODO: Work differently if using Lua script
-        if(g_script_object_script_contexts[iObject].Active == 2) {
-            RunScript(&g_script_object_script_contexts[iObject], 1, game_input);
-            g_script_object_script_contexts[iObject].Active = 1;
-        }
-    }
-
+    CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
     SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
     Render();
 }

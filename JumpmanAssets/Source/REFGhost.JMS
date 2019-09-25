@@ -1,9 +1,0 @@
-define Ghostiinit 0
-define Ghostix 1
-define Ghostiy 2
-define Ghostiz 3
-define Ghostixv 4
-define Ghostiyv 5
-define Ghostiframe 6
-define Ghostislow 7
-define Ghostimeshes 8
