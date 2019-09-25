@@ -1813,6 +1813,10 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 static void LoadLuaScript(const char* base_path, const char* filename, lua_State** new_lua_state) {
     assert(new_lua_state != NULL);  // TODO: Error handling
 
+    if(*new_lua_state != NULL) {
+        lua_close(*new_lua_state);
+    }
+
     char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
     sprintf_s(full_filename, sizeof(full_filename), "%s\\%s", base_path, filename);
 
@@ -1829,21 +1833,12 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
 
     RegisterLuaScriptFunctions(new_state);
 
-    // TODO: Should we run the script here?
-
-    *new_lua_state = new_state;
-    // TODO: How do we close state later? Do we care?
-}
-
-static void InitializeLuaScript(lua_State* lua_state) {
-    // TODO: Should this just get merged into LoadLuaScript? It's supposed to be the equivalent of ResetContext.
-    //       Not sure how to have a separate context for Object scripts, unless just the script filename get shared,
-    //       and it just loads a lua script for each object context.
-    //       In which case, separating InitializeLuaScript from LoadLuaScript might make no sense.
-    if(lua_pcall(lua_state, 0, 0, 0) != 0) {
-        const char* error_message = lua_tostring(lua_state, -1);
+    if (lua_pcall(new_state, 0, 0, 0) != 0) {
+        const char* error_message = lua_tostring(new_state, -1);
         assert(false);  // TODO: Error handling
     }
+
+    *new_lua_state = new_state;
 }
 
 static void PushGameActionAsTable(lua_State* lua_state, GameAction* game_action) {
@@ -1928,7 +1923,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     if(g_script_level_script_lua_state != NULL) {
         lua_close(g_script_level_script_lua_state);
         g_script_level_script_lua_state = NULL;
-        // TODO: Clear title script?
     }
 
     g_platform_object_count = 0;
@@ -2018,9 +2012,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
                     sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.LUA", sTemp);
                     // TODO: Should it auto-unload the old script?
                     LoadLuaScript(base_path, sBuild, &g_script_level_script_lua_state);
-                    InitializeLuaScript(g_script_level_script_lua_state);
-                    // TODO: Can remove this comment later, when script mode 1 is gone.
-                    //       Don't need to grab functions here, because there's no way in Lua to precache it, I think
                 } else if(iArg1 == 4) {
                     // TODO: No-op for now. These are managed inside level scripts, so no need to load them separately
                 } else {
@@ -2869,7 +2860,6 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
     ProgressGame(base_path, game_input);
 
     LoadLuaScript(base_path, "Data\\title.lua", &g_script_title_script_lua_state);
-    InitializeLuaScript(g_script_title_script_lua_state);
 
     g_level_scroll_title_animation_frame_count = 1;
 
