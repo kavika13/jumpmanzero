@@ -18,12 +18,12 @@ player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local camera_mode = {
-        PerspectiveNormal = 0,
-        PerspectiveCloseUp = 1,
-        PerspectiveFar = 2,
-        PerspectiveWide = 3,
-        PerspectiveFollow = 4,
-        PerspectiveFixed = 5,
+    PerspectiveNormal = 0,
+    PerspectiveCloseUp = 1,
+    PerspectiveFar = 2,
+    PerspectiveWide = 3,
+    PerspectiveFollow = 4,
+    PerspectiveFixed = 5,
 };
 camera_mode = read_only.make_table_read_only(camera_mode);
 
@@ -35,6 +35,14 @@ local menu_type = {
     MENU_SELECTLEVEL = 4,
 };
 menu_type = read_only.make_table_read_only(menu_type);
+
+-- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
+local menu_music_type = {
+    CONTINUE_PLAYING_TRACK = 0,
+    INTRO_TRACK = 1,
+    MAIN_LOOP_TRACK = 2,
+};
+menu_music_type = read_only.make_table_read_only(menu_music_type);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -144,8 +152,7 @@ function update(game_input)
     local is_select_action_pressed = game_input.select_action.just_pressed;
 
     if is_select_action_pressed and g_letter_drop_animation_timer < 0 then
-        set_script_event_data_1(101);
-        load_menu(menu_type.MENU_MAIN);
+        load_menu(menu_type.MENU_MAIN, menu_music_type.MAIN_LOOP_TRACK);
     end
 
     if is_select_action_pressed and g_camera_pan_animation_timer > 0 then

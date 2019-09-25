@@ -30,6 +30,12 @@ typedef enum {
 } GameMenuState;
 
 typedef enum {
+    kGameMenuMusicStateContinuePlayingTrack = 0,
+    kGameMenuMusicStateIntroTrack = 1,
+    kGameMenuMusicStateMainLoopTrack = 2,
+} GameMenuMusicState;
+
+typedef enum {
     kPlayerStateNormal = 0,
     kPlayerStateJumping = 1,
     kPlayerStateFalling = 8,
@@ -168,6 +174,7 @@ static char g_level_current_title[50];
 static GameStatus g_game_status;
 static GameMenuState g_current_game_menu_state;
 static GameMenuState g_target_game_menu_state;
+static GameMenuMusicState g_target_menu_selected_music;
 static bool g_debug_level_is_specified;
 static char g_debug_level_filename[300];
 static int g_remaining_life_count;
@@ -1249,9 +1256,15 @@ static int save_config_options(lua_State* lua_state) {
 
 static int script_load_menu(lua_State* lua_state) {
     lua_Integer menu_type_arg = luaL_checkinteger(lua_state, 1);
-    g_script_event_data_1 = g_script_event_data_1 - 1;
+
     g_game_status = kGameStatusMenu;
     g_target_game_menu_state = menu_type_arg;
+
+    if (menu_type_arg == kGameMenuStateMain) {
+        lua_Integer track_type_arg = luaL_checkinteger(lua_state, 2);
+        g_target_menu_selected_music = track_type_arg;
+    }
+
     return 0;
 }
 
@@ -1767,8 +1780,12 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
     }
 }
 
-static bool TryGetLuaCFunctionBooleanStackValueAtIndex(lua_State* lua_state, int arg_index, bool* result) {
-    luaL_checktype(lua_state, arg_index, LUA_TBOOLEAN);
+static bool TryGetLuaCFunctionBooleanStackValueAtIndex(lua_State* lua_state, int arg_index, bool* result, bool is_required) {
+    if(is_required) {
+        // TODO: Error handling
+        luaL_checktype(lua_state, arg_index, LUA_TBOOLEAN);
+    }
+
     bool success = lua_isboolean(lua_state, arg_index) != 0;
 
     if(success) {
@@ -1792,10 +1809,11 @@ static bool CallLuaBoolFunction(
 
         bool result;
 
-        if(TryGetLuaCFunctionBooleanStackValueAtIndex(lua_state, -1, &result)) {
+        if(TryGetLuaCFunctionBooleanStackValueAtIndex(lua_state, -1, &result, true)) {
             return result;
         } else {
             // No error here. The function just didn't return a single boolean value
+            // TODO: is_required is true, so error handling should be in TryGetLuaCFunctionBooleanStackValueAtIndex?
             assert(false);  // TODO: Error handling
         }
     } else {
@@ -2820,6 +2838,7 @@ void InitGameNormal() {
     g_game_status = kGameStatusMenu;
     g_current_game_menu_state = kGameMenuStateNone;
     g_target_game_menu_state = kGameMenuStateMain;
+    g_target_menu_selected_music = kGameMenuMusicStateIntroTrack;
     g_debug_level_is_specified = false;
 }
 
@@ -2840,11 +2859,11 @@ static void LoadJumpmanMenu(const char* base_path) {
     if(g_target_game_menu_state == kGameMenuStateMain) {
         LoadLevel(base_path, "Data\\MainMenu.DAT");
 
-        if(g_script_event_data_1 == 10) {
+        if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 3000, -1);
         }
 
-        if(g_script_event_data_1 == 100) {
+        if(g_target_menu_selected_music == kGameMenuMusicStateMainLoopTrack) {
             NewTrack1(g_music_death_track_filename, 0, -1);
         }
     }
@@ -2852,7 +2871,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     if(g_target_game_menu_state == kGameMenuStateOptions) {
         LoadLevel(base_path, "Data\\Options.DAT");
 
-        if(g_script_event_data_1 == 9) {
+        if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
         }
     }
@@ -2860,7 +2879,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     if(g_target_game_menu_state == kGameMenuStateSelectGame) {
         LoadLevel(base_path, "Data\\SelectGame.DAT");
 
-        if(g_script_event_data_1 == 9) {
+        if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
         }
     }

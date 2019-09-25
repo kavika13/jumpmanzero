@@ -9,6 +9,14 @@ local menu_type = {
 };
 menu_type = read_only.make_table_read_only(menu_type);
 
+-- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
+local menu_music_type = {
+    CONTINUE_PLAYING_TRACK = 0,
+    INTRO_TRACK = 1,
+    MAIN_LOOP_TRACK = 2,
+};
+menu_music_type = read_only.make_table_read_only(menu_music_type);
+
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
     TextureMenuBack = 0,
@@ -296,7 +304,7 @@ function update(game_input)
 
     if g_is_game_selected and g_time_since_current_selection > 250 and g_option_selected_index == 9 then
         save_config_options();
-        load_menu(menu_type.MENU_MAIN);
+        load_menu(menu_type.MENU_MAIN, menu_music_type.CONTINUE_PLAYING_TRACK);
     end
 
     return true;
