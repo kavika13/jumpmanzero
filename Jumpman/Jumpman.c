@@ -1857,15 +1857,18 @@ static void PushGameInputAsTable(lua_State* lua_state, GameInput* game_input) {
     lua_setfield(lua_state, -2, "debug_action");
 }
 
-static void CallLuaFunction(lua_State* lua_state, const char* function_name, GameInput* game_input) {
+static void CallLuaFunction(lua_State* lua_state, const char* function_name, GameInput* game_input, bool is_required) {
     lua_getglobal(lua_state, function_name);
 
-    // TODO: Error handling when calling invalid functions? Maybe a is_required boolean param?
     if(lua_isfunction(lua_state, -1) != 0) {
         PushGameInputAsTable(lua_state, game_input);
 
         if(lua_pcall(lua_state, 1, 0, 0) != 0) {
             const char* error_message = lua_tostring(lua_state, -1);
+            assert(false);  // TODO: Error handling
+        }
+    } else {
+        if(is_required) {
             assert(false);  // TODO: Error handling
         }
     }
@@ -1882,10 +1885,10 @@ static bool TryGetLuaCFunctionBooleanStackValueAtIndex(lua_State* lua_state, int
     return success;
 }
 
-static bool CallLuaBoolFunction(lua_State* lua_state, const char* function_name, GameInput* game_input) {
+static bool CallLuaBoolFunction(
+        lua_State* lua_state, const char* function_name, GameInput* game_input, bool is_required) {
     lua_getglobal(lua_state, function_name);
 
-    // TODO: Error handling when calling invalid functions? Maybe a is_required boolean param?
     if(lua_isfunction(lua_state, -1) != 0) {
         PushGameInputAsTable(lua_state, game_input);
 
@@ -1900,6 +1903,10 @@ static bool CallLuaBoolFunction(lua_State* lua_state, const char* function_name,
             return result;
         } else {
             // No error here. The function just didn't return a single boolean value
+            assert(false);  // TODO: Error handling
+        }
+    } else {
+        if(is_required) {
             assert(false);  // TODO: Error handling
         }
     }
@@ -2519,7 +2526,7 @@ static void GrabDonuts(GameInput* game_input) {
 
             // TODO: Pass g_donut_objects[iLoop].Num instead of just setting it in g_script_event_data_1
             //       Also, maybe get rid of those script event data passing stuff alltogether
-            CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut", game_input);
+            CallLuaFunction(g_script_level_script_lua_state, "on_collect_donut", game_input, false);
         }
     }
 
@@ -2556,7 +2563,7 @@ static void AdjustPlayerZ(int iTargetZ, int iTime) {
 }
 
 static void ResetPlayer(int iNewLevel, GameInput* game_input) {
-    CallLuaFunction(g_script_level_script_lua_state, "reset", game_input);
+    CallLuaFunction(g_script_level_script_lua_state, "reset", game_input, false);
 }
 
 static void AnimateDying(GameInput* game_input, const char* base_path) {
@@ -2744,7 +2751,7 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
 
         SetGamePerspective();
 
-        CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
+        CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
     } else {
         ++g_player_current_state_frame_count;
 
@@ -2971,7 +2978,7 @@ static void LoadJumpmanMenu(const char* base_path) {
 }
 
 static void InteractMenu(GameInput* game_input) {
-    CallLuaFunction(g_script_level_script_lua_state, "update", game_input);
+    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
     SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
     Render();
 }
@@ -2998,7 +3005,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
             // TODO: This logic can be removed when all the core game implementation is moved from C to Lua
             if(!IsGameFrozen()) {
                 g_level_scroll_title_animation_done = CallLuaBoolFunction(
-                    g_script_level_script_lua_state, "update", game_input);
+                    g_script_level_script_lua_state, "update", game_input, true);
             }
         } else {
             if(!IsGameFrozen()) {
