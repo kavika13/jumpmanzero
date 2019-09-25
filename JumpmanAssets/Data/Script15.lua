@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local disappearing_platform_module = assert(loadfile("Data/disappearing_platform.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -40,10 +41,18 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_disappearing_platforms = {};
 local iBlow = 0;
 
-function update()
+function update(game_input)
+    -- TODO: Move update to top?
+    if g_hud_overlay and not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     iBlow = iBlow - 0.6;
 
     if iBlow < 0 then
@@ -56,6 +65,7 @@ function update()
 
     if not is_initialized then
         is_initialized = true;
+        g_hud_overlay = hud_overlay_module();
         set_level_extent_x(180);
         InitPlatforms();
     end
@@ -63,6 +73,13 @@ function update()
     for _, plat in ipairs(g_disappearing_platforms) do
         plat.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function InitPlatforms()

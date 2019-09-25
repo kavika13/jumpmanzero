@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local prop_module = assert(loadfile("Data/prop.lua"));
 local whomper_module = assert(loadfile("Data/whomper.lua"));
 
@@ -19,6 +20,9 @@ local player_state = {
 player_state = read_only.make_table_read_only(player_state);
 
 local is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local propellers = {};
 local whompers = {};
 
@@ -79,9 +83,11 @@ local function CreateWhomper(iX, iY, iR, iRV)
     table.insert(whompers, new_whomper);
 end
 
-function update()
+function update(game_input)
     if not is_initialized then
         is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         CreateWhomper(86, 28, 50, 3);
         CreateWhomper(100, 28, 0, 3);
@@ -105,6 +111,10 @@ function update()
         CreateProp(101, 97, 25, 2);
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     ConveyPlatform(1, 0.04);
     ConveyPlatform(2, -0.02);
     ConveyPlatform(3, 0.04);
@@ -117,6 +127,13 @@ function update()
     for _, whomper in ipairs(whompers) do
         whomper.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

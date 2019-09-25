@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local ninja_module = assert(loadfile("Data/ninja.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -77,6 +78,9 @@ local ninja_properties = {
 ninja_properties = read_only.make_table_read_only(ninja_properties);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_ninjas = {};
 
 local g_is_trap_door_triggering = false;
@@ -107,14 +111,20 @@ local function SpawnNinja_(pos_x, pos_y)
     table.insert(g_ninjas, new_ninja);
 end
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         SpawnNinja_(120, 8);
         SpawnNinja_(70, 40);
         SpawnNinja_(30, 120);
         SpawnNinja_(110, 80);
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     if g_is_trap_door_triggering then
@@ -136,6 +146,13 @@ function update()
     for _, ninja in ipairs(g_ninjas) do
         ninja.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function MovePlatform(iPlat, iRotate, iTran)

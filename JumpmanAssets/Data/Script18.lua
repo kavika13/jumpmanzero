@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local zap_bot_module = assert(loadfile("Data/zap_bot.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -53,7 +54,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
 
+local g_hud_overlay;
 local g_zap_bots = {};
 
 local g_message_mesh_index;
@@ -97,6 +100,8 @@ function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
 
+        g_hud_overlay = hud_overlay_module();
+
         g_jumpman_work_1_mesh_index = new_mesh(resources.MeshJMWork1);
         set_object_visual_data(0, 0);
 
@@ -118,6 +123,10 @@ function update(game_input)
         table.insert(g_zap_bots, CreateDABot_(90, 118, 3, resources.TextureDABotO));
 
         table.insert(g_zap_bots, CreateDABot_(20, 150, 2, resources.TextureDABotB));
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     CollideDonuts(game_input);
@@ -148,6 +157,13 @@ function update(game_input)
     for _, zap_bot in ipairs(g_zap_bots) do
         zap_bot.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function CollideDonuts(game_input)

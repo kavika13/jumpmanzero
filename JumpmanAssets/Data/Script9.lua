@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
 local chain_module = assert(loadfile("Data/chain.lua"));
 
@@ -41,13 +42,16 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_init_stage_index = 0;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_bullets = {};
 
 local g_chain;
 local g_chain_length;
 local g_target_length;
 
-function update()
+function update(game_input)
     if g_init_stage_index == 1 then
         for iLoop = 1, 4 do
             local iTemp = bullet_module();
@@ -72,9 +76,15 @@ function update()
         g_chain_length = 10;
         g_target_length = 20;
 
+        g_hud_overlay = hud_overlay_module();
+
         g_chain = chain_module();
         g_chain.LinkMeshResourceIndex = resources.MeshChain;
         g_chain.LinkTextureResourceIndex = resources.TextureChain;
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     SetChainLength();
@@ -84,6 +94,16 @@ function update()
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
+
+    if not g_is_first_update_complete then
+        if g_init_stage_index > 1 then
+            g_is_first_update_complete = true;
+        end
+
+        return false;
+    end
+
+    return true;
 end
 
 function SetChainLength()

@@ -205,4 +205,6 @@ function update(game_input)
     if g_is_game_selected and g_time_since_current_selection > 450 then
         game_start(g_title_selected_index - 1);  -- Expects 0-based title index
     end
+
+    return true;
 end

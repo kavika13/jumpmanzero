@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local baboon_module = assert(loadfile("Data/baboon.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -50,6 +51,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local baboons = {};
 
 local g_hang_animation_current_frame;
@@ -170,6 +174,9 @@ end
 function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
+
         g_hang_animation_current_frame = 1;
 
         FixHangPlatforms();
@@ -188,11 +195,22 @@ function update(game_input)
         StartBaboon(84, 70);
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     CheckHanging(game_input);
 
     for _, baboon in ipairs(baboons) do
         baboon.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

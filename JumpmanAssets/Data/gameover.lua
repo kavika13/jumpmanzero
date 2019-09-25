@@ -152,6 +152,8 @@ function update(game_input)
         g_camera_pan_animation_timer = 0;
         g_letter_drop_animation_timer = 1;
     end
+
+    return true;
 end
 
 function reset()

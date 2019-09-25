@@ -298,4 +298,6 @@ function update(game_input)
         save_config_options();
         load_menu(menu_type.MENU_MAIN);
     end
+
+    return true;
 end

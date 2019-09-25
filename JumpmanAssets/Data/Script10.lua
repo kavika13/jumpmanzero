@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local run_donut_module = assert(loadfile("Data/run_donut.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
 
@@ -47,6 +48,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_run_donuts = {};
 local g_bullets = {};
 
@@ -84,9 +88,11 @@ OnSpawnRunDonut_ = function()
     return new_run_donut;
 end
 
-function update()
+function update(game_input)
     if not is_initialized then
         is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         local iTemp = bullet_module();
         iTemp.FramesToWait = 100;
@@ -113,6 +119,10 @@ function update()
         end
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     for _, run_donut in ipairs(g_run_donuts) do
         run_donut.update(g_run_donuts);
     end
@@ -120,6 +130,13 @@ function update()
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

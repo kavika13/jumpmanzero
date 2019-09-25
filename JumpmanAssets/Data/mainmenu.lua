@@ -336,4 +336,6 @@ function update(game_input)
     end
 
     g_z_bits.update();
+
+    return true;
 end

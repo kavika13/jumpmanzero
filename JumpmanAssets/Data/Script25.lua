@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local shark_module = assert(loadfile("Data/shark.lua"));
 local swim_collision_module = assert(loadfile("Data/swim_collision.lua"));
 
@@ -104,7 +105,9 @@ swim_coll_properties = read_only.make_table_read_only(swim_coll_properties);
 local kTOP_OF_POOL_Y = 114;
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
 
+local g_hud_overlay;
 local g_swim_collision;
 
 local g_frames_since_level_start = 0;
@@ -125,6 +128,8 @@ local g_splash_scale_y = 0;
 function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         g_shark = shark_module();
         g_shark.MoveRightMeshResourceIndices = { resources.MeshShark1, resources.MeshShark2, resources.MeshShark1, resources.MeshShark3 };
@@ -178,6 +183,10 @@ function update(game_input)
 
         g_swim_animation_frame = 1;
         g_swim_time_in_pool_frames = 0;
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     set_player_freeze_cooldown_frame_count(0);
@@ -260,6 +269,13 @@ function update(game_input)
 
     g_shark.update(game_input);
     g_swim_collision.update();
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function MoveSplashParticles()

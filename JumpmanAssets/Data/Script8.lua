@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local goo_module = assert(loadfile("Data/goo.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -38,6 +39,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_goos = {};
 local g_currently_spawning_goo = nil;
 
@@ -97,12 +101,17 @@ local function OnSpawnGoo_()
     return new_goo;
 end
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+        g_hud_overlay = hud_overlay_module();
         g_frames_until_next_goo_spawn = 5;
         SetStartPos_();
         MovePyramid_();
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     g_frames_until_next_goo_spawn = g_frames_until_next_goo_spawn - 1;
@@ -140,6 +149,13 @@ function update()
     for _, goo in ipairs(g_goos) do
         goo.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

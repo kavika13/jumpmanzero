@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local tyrannosaurus_module = assert(loadfile("Data/tyrannosaurus.lua"));
 local triceratops_module = assert(loadfile("Data/triceratops.lua"));
 local pterodactyl_module = assert(loadfile("Data/pterodactyl.lua"));
@@ -72,13 +73,18 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_tyrannosaurus;
 local g_triceratops;
 local g_pterodactyl;
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         g_tyrannosaurus = tyrannosaurus_module();
         g_tyrannosaurus.LeftStandMeshResourceIndex = resources.MeshTSaurStandL;
@@ -103,9 +109,20 @@ function update()
         g_pterodactyl.TextureResourceIndex = resources.TextureDinosaur;
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     g_tyrannosaurus.update();
     g_triceratops.update();
     g_pterodactyl.update();
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

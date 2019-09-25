@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local claw_module = assert(loadfile("Data/claw.lua"));
 local jumper_module = assert(loadfile("Data/jumper.lua"));
 
@@ -60,7 +61,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local is_initialized = false;
+local g_is_first_update_complete = false;
 
+local g_hud_overlay;
 local g_claw = nil;
 local g_jumpers = {};
 
@@ -73,9 +76,11 @@ function SpawnJumper_(start_alive)
     return new_jumper;
 end
 
-function update()
+function update(game_input)
     if not is_initialized then
         is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         g_claw = claw_module();
         g_claw.ClawMeshResourceIndex = resources.MeshClaw;
@@ -93,11 +98,22 @@ function update()
         set_current_camera_mode(camera_mode.PerspectiveWide);
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     g_claw.update(g_jumpers);
 
     for _, jumper in ipairs(g_jumpers) do
         jumper.update(g_jumpers);
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

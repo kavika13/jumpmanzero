@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local wave_module = assert(loadfile("Data/wave.lua"));
 local drop_module = assert(loadfile("Data/drop.lua"));
 
@@ -44,6 +45,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_drop_objects = {};
 local g_wave_object;
 
@@ -73,9 +77,11 @@ local function CreateDropObject(frames_to_wait)
     return new_drop_object;
 end
 
-function update()
+function update(game_input)
     if not is_initialized then
         is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         table.insert(g_drop_objects, CreateDropObject(700));
         table.insert(g_drop_objects, CreateDropObject(600));
@@ -94,11 +100,22 @@ function update()
         g_wave_object = new_wave_object;
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     for _, drop in ipairs(g_drop_objects) do
         drop.update();
     end
 
     g_wave_object.update();
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

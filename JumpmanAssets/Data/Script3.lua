@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bear_module = assert(loadfile("Data/bear2.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -52,11 +53,16 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_bear = nil;
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         g_bear = bear_module();
         g_bear.StandRightMeshResourceIndex = resources.MeshFyStand;
@@ -73,7 +79,18 @@ function update()
         g_bear.TextureResourceIndex = resources.TextureFur;
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     g_bear.update();
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

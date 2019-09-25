@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local beam_module = assert(loadfile("Data/beam.lua"));
 local blob_module = assert(loadfile("Data/blob.lua"));
 local z_donut_module = assert(loadfile("Data/z_donut.lua"));  -- TODO: Rename?
@@ -74,6 +75,9 @@ resources = read_only.make_table_read_only(resources);
 local kPLAY_AREA_CIRCUMFERENCE = 281;
 
 local g_init_stage_index = 0;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_blobs = {};
 local g_beams = {};
 local g_z_donut_objects = {};
@@ -116,7 +120,7 @@ local function CreateBlob(start_pos_x, start_pos_y)
     return new_blob;
 end
 
-function update()
+function update(game_input)
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
     if g_init_stage_index == 1 then
@@ -126,6 +130,8 @@ function update()
 
     if g_init_stage_index == 0 then
         g_init_stage_index = 1;
+
+        g_hud_overlay = hud_overlay_module();
 
         g_donuts_to_collect_count = 20;
 
@@ -150,6 +156,10 @@ function update()
 
         new_blob = CreateBlob(160, 75);
         table.insert(g_blobs, new_blob);
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     RingPlatforms();
@@ -178,6 +188,16 @@ function update()
         beam.ShipSinkAmount = g_ship_sink_amount + g_ship_sink_delay_timer;
         beam.update();
     end
+
+    if not g_is_first_update_complete then
+        if g_init_stage_index > 1 then
+            g_is_first_update_complete = true;
+        end
+
+        return false;
+    end
+
+    return true;
 end
 
 function CreateBeam(beam_type, beam_color_texture_resource_index, parm_dir)

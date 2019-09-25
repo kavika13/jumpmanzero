@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local ghost_module = assert(loadfile("Data/ghost.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -56,6 +57,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_ghost;
 
 local g_is_wall_moving = false;
@@ -63,9 +67,12 @@ local g_wall_animation_frame = 0;
 local g_spotlight_animation_frame = 0;
 local g_painting_with_eyes_animation_frame = 0;
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
+
         set_current_camera_mode(camera_mode.PerspectiveCloseUp);
 
         g_ghost = ghost_module();
@@ -74,6 +81,10 @@ function update()
         g_ghost.MoveLeft1MeshResourceIndex = resources.MeshGhostLeft;
         g_ghost.MoveLeft2MeshResourceIndex = resources.MeshGhostLeft2;
         g_ghost.TextureResourceIndex = resources.TextureGhostTexture;
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     if g_is_wall_moving then
@@ -139,6 +150,13 @@ function update()
     end
 
     g_ghost.update();
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function on_collect_donut()

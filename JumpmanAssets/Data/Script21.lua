@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local saw_module = assert(loadfile("Data/saw.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -45,6 +46,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_saws = {};
 local g_frog_animation_meshes = {};
 local g_frog_animation_current_mesh_index = 0;
@@ -71,9 +75,11 @@ local function SpawnSaw_(initial_pos_x, initial_pos_y)
     return saw;
 end
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         LoadFrogMeshes();
 
@@ -84,6 +90,10 @@ function update()
         table.insert(g_saws, SpawnSaw_(105, 45));
         table.insert(g_saws, SpawnSaw_(110, 45));
         table.insert(g_saws, SpawnSaw_(115, 45));
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
@@ -100,6 +110,13 @@ function update()
     for _, saw in ipairs(g_saws) do
         saw.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function ControlFrog()

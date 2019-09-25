@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local pause_wave_module = assert(loadfile("Data/pause_wave.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -43,6 +44,9 @@ resources = read_only.make_table_read_only(resources);
 local kTOP_WAVE_HEIGHT = 125;
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_wave;
 local g_clock_hand_mesh_index;
 local g_clock_num_frames_left = 0;
@@ -51,9 +55,11 @@ local g_current_clock_hand_rotation = 0;
 local g_clock_timers = {};
 local kNumClockTimers = 20;
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
         select_object_mesh(g_clock_hand_mesh_index);
@@ -74,6 +80,10 @@ function update()
         g_clock_timers[14] = 1;
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     if g_clock_num_frames_left > 0 then
         g_clock_num_frames_left = g_clock_num_frames_left - 1;
         g_wave.TargetWaveHeight = 0 - 10;
@@ -86,6 +96,13 @@ function update()
     CollideLittleClocks();
 
     g_wave.update();
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function CollideLittleClocks()

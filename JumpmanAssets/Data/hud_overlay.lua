@@ -1,3 +1,5 @@
+local Module = {};
+
 local g_is_initialized = false;
 
 local g_title_letter_mesh_indices = {};
@@ -7,9 +9,11 @@ local g_fps_second_number_mesh_indices = {};
 local g_jumpman_icon_mesh_index;
 -- local g_jumpman_hud_background_icon;  -- TODO: Maybe re-add with a transparent texture?
 
+local g_title_scroll_timer = 0;
+
 local g_is_title_animation_complete = false;
 
-local function InitializeLetters()
+local function InitializeLetters_()
     local current_level_title = get_current_level_title();
 
     for iChar = 1, #current_level_title do
@@ -17,7 +21,7 @@ local function InitializeLetters()
     end
 end
 
-local function ShowRemaining()
+local function ShowRemaining_()
     -- local square_icon_texture_resource_index = get_loaded_texture_count() - 2;  -- Hud BG texture always loaded second to last after a level loaded - TODO: Don't hard code that?
 
     -- select_object_mesh(g_jumpman_hud_background_icon);
@@ -35,7 +39,7 @@ local function ShowRemaining()
     script_selected_mesh_set_perspective_matrix();
 end
 
-local function ShowPerformance(game_input, lives_remaining)
+local function ShowPerformance_(game_input, lives_remaining)
     local letter_texture_resource_index = get_loaded_texture_count() - 1;  -- FPS and lives letter tex always loaded last after level loaded - TODO: Don't hard code?
     local fps_count = get_current_fps();
 
@@ -85,8 +89,9 @@ local function ShowPerformance(game_input, lives_remaining)
     end
 end
 
-local function ShowLevelTitleAnimation(animation_time)
-    local is_animation_done = false;
+local function ShowLevelTitleAnimation_(animation_time)
+    -- Note: If the title is "" then the animation will immediately end
+    local is_animation_still_active = false;
 
     local iLast = -1;
     local iCharWidth = 12;
@@ -107,7 +112,7 @@ local function ShowLevelTitleAnimation(animation_time)
                 script_selected_mesh_translate_matrix(0, 0, 8);
                 script_selected_mesh_set_perspective_matrix();
                 set_object_visual_data(get_loaded_texture_count() - 1, 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
-                is_animation_done = true;
+                is_animation_still_active = true;
             else
                 set_object_visual_data(0, 0);
             end
@@ -116,13 +121,12 @@ local function ShowLevelTitleAnimation(animation_time)
         iX = iX + iCharWidth;
     end
 
-    if not is_animation_done then
-        set_script_event_data_1(-100);
+    if not is_animation_still_active then
         g_is_title_animation_complete = true;
     end
 end
 
-function update(game_input)
+function Module.update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
 
@@ -133,25 +137,31 @@ function update(game_input)
         end
 
         prioritize_object();
-        InitializeLetters();
+        InitializeLetters_();
 
         g_jumpman_icon_mesh_index = new_char_mesh(94);
         -- g_jumpman_hud_background_icon = new_char_mesh(37);
+
+        g_title_scroll_timer = 0;
     end
+
+    g_title_scroll_timer = g_title_scroll_timer + 1;
 
     local lives_remaining = get_remaining_life_count();
 
     if lives_remaining > 0 then
-        ShowRemaining();
+        ShowRemaining_();
     end
 
-    ShowPerformance(game_input, lives_remaining);
+    ShowPerformance_(game_input, lives_remaining);
 
     if not g_is_title_animation_complete then
-        local animation_time = get_script_event_data_1();
-
-        if animation_time < 1000 then
-            ShowLevelTitleAnimation(animation_time);
+        if g_title_scroll_timer < 1000 then
+            ShowLevelTitleAnimation_(g_title_scroll_timer);
         end
     end
+
+    return g_is_title_animation_complete;
 end
+
+return Module;

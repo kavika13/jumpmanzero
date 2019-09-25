@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -39,6 +40,9 @@ resources = read_only.make_table_read_only(resources);
 local kPLAYER_DROP_AFTER_FLIP = 12;
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_bullets = {};
 
 local g_arrow_cooldown_frames = {};
@@ -49,9 +53,12 @@ local g_level_flipping_rotation = 0;
 local g_level_flipping_pause_frames_remaining = 0;
 local g_player_y_when_starting_flip = 0;
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
+
         set_level_extent_x(200);
         DisableLadder(9);
 
@@ -63,6 +70,10 @@ function update()
         for iArrow = 1, 2 do
             g_arrow_cooldown_frames[iArrow] = 0;
         end
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     g_arrow_rotation = g_arrow_rotation + 5;
@@ -109,6 +120,13 @@ function update()
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function StartBullet(iWait)

@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
 local puzzle_block_module = assert(loadfile("Data/puzzle_block.lua"));
 local puzzle_solution_module = assert(loadfile("Data/puzzle_solution.lua"));
@@ -62,6 +63,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_puzzle_solution;
 local g_puzzle_blocks = {};
 local g_bullet;
@@ -118,9 +122,11 @@ local function ResetBlocks_()
     end
 end
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         set_current_camera_mode(camera_mode.PerspectiveFar);
 
@@ -140,6 +146,10 @@ function update()
         g_bullet.FireSoundIndex = resources.SoundFire;
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     for _, puzzle_block in ipairs(g_puzzle_blocks) do
         puzzle_block.update(g_puzzle_blocks);
     end
@@ -148,6 +158,13 @@ function update()
 
     -- TODO: Change donut visual state when win imminent? Particles, dancing, glowing?
     -- TODO: Change donut visual state when reset is necessary? Greying out, animation, different "reset" mesh?
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 local function CheckForWin()

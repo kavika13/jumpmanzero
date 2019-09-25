@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local turtle_module = assert(loadfile("Data/turtle.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -45,7 +46,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local is_initialized = false;
+local g_is_first_update_complete = false;
 
+local g_hud_overlay;
 local g_turtles = {};
 
 local function CreateTurtle_(iX, iY)
@@ -62,6 +65,8 @@ end
 function update(game_input)
     if not is_initialized then
         is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         table.insert(g_turtles, CreateTurtle_(128, 8));
         table.insert(g_turtles, CreateTurtle_(65, 12));
@@ -90,9 +95,20 @@ function update(game_input)
         table.insert(g_turtles, CreateTurtle_(140, 145));
     end
 
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
+    end
+
     for _, turtle in ipairs(g_turtles) do
         turtle.update(game_input, g_turtles);
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

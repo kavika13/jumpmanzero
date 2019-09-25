@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local follower_sheep_module = assert(loadfile("Data/follower_sheep.lua"));
 local leader_sheep_module = assert(loadfile("Data/leader_sheep.lua"));
 
@@ -55,7 +56,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_init_stage_index = 0;
+local g_is_first_update_complete = false;
 
+local g_hud_overlay;
 local g_leader_sheep = nil;
 local g_follower_sheep = {};
 
@@ -86,7 +89,7 @@ function CreateSheep_()
     table.insert(g_follower_sheep, new_follower_sheep);
 end
 
-function update()
+function update(game_input)
     if g_init_stage_index == 1 then
         g_init_stage_index = 2;
 
@@ -98,10 +101,16 @@ function update()
     if g_init_stage_index == 0 then
         g_init_stage_index = 1;
 
+        g_hud_overlay = hud_overlay_module();
+
         g_leader_sheep = leader_sheep_module();
         SetResourceProperties_(g_leader_sheep, resources.TextureLSheep);
 
         set_level_extent_x(270);
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     g_leader_sheep.update(g_follower_sheep);
@@ -109,6 +118,16 @@ function update()
     for _, follower_sheep in ipairs(g_follower_sheep) do
         follower_sheep.update();
     end
+
+    if not g_is_first_update_complete then
+        if g_init_stage_index > 1 then
+            g_is_first_update_complete = true;
+        end
+
+        return false;
+    end
+
+    return true;
 end
 
 function reset()

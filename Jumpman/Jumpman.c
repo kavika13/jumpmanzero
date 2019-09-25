@@ -220,7 +220,7 @@ static int g_player_dying_animation_state_frame_count;
 
 static int g_player_no_roll_cooldown_frame_count;
 static int g_player_freeze_cooldown_frame_count;
-static int g_level_scroll_title_animation_frame_count;
+static bool g_level_scroll_title_animation_done;
 
 #define MAX_OBJECTSCRIPTS 5
 #define MAX_SCRIPTOBJECTS 60
@@ -249,7 +249,6 @@ static long g_level_extent_x;
 static long g_level_extent_y;
 
 static lua_State* g_script_level_script_lua_state = NULL;
-static lua_State* g_script_title_script_lua_state = NULL;
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
 
@@ -1058,17 +1057,6 @@ static int set_script_event_data_4(lua_State* lua_state) {
     return 0;
 }
 
-static bool TryGetLuaCFunctionBooleanArgAtIndex(lua_State* lua_state, int arg_index, bool* result) {
-    luaL_checktype(lua_state, arg_index, LUA_TBOOLEAN);
-    bool success = lua_isboolean(lua_state, arg_index) != 0;
-
-    if(success) {
-        *result = lua_toboolean(lua_state, arg_index);
-    }
-
-    return success;
-}
-
 // script utility functions
 
 static int new_mesh(lua_State* lua_state) {
@@ -1872,7 +1860,7 @@ static void PushGameInputAsTable(lua_State* lua_state, GameInput* game_input) {
 static void CallLuaFunction(lua_State* lua_state, const char* function_name, GameInput* game_input) {
     lua_getglobal(lua_state, function_name);
 
-    // TODO: Error handling when calling invalid functions?
+    // TODO: Error handling when calling invalid functions? Maybe a is_required boolean param?
     if(lua_isfunction(lua_state, -1) != 0) {
         PushGameInputAsTable(lua_state, game_input);
 
@@ -1881,6 +1869,42 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
             assert(false);  // TODO: Error handling
         }
     }
+}
+
+static bool TryGetLuaCFunctionBooleanStackValueAtIndex(lua_State* lua_state, int arg_index, bool* result) {
+    luaL_checktype(lua_state, arg_index, LUA_TBOOLEAN);
+    bool success = lua_isboolean(lua_state, arg_index) != 0;
+
+    if(success) {
+        *result = lua_toboolean(lua_state, arg_index);
+    }
+
+    return success;
+}
+
+static bool CallLuaBoolFunction(lua_State* lua_state, const char* function_name, GameInput* game_input) {
+    lua_getglobal(lua_state, function_name);
+
+    // TODO: Error handling when calling invalid functions? Maybe a is_required boolean param?
+    if(lua_isfunction(lua_state, -1) != 0) {
+        PushGameInputAsTable(lua_state, game_input);
+
+        if(lua_pcall(lua_state, 1, 1, 0) != 0) {
+            const char* error_message = lua_tostring(lua_state, -1);
+            assert(false);  // TODO: Error handling
+        }
+
+        bool result;
+
+        if(TryGetLuaCFunctionBooleanStackValueAtIndex(lua_state, -1, &result)) {
+            return result;
+        } else {
+            // No error here. The function just didn't return a single boolean value
+            assert(false);  // TODO: Error handling
+        }
+    }
+
+    return false;
 }
 
 static void LoadLevel(const char* base_path, const char* filename) {
@@ -2859,9 +2883,7 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
     ProgressGame(base_path, game_input);
     ProgressGame(base_path, game_input);
 
-    LoadLuaScript(base_path, "Data\\title.lua", &g_script_title_script_lua_state);
-
-    g_level_scroll_title_animation_frame_count = 1;
+    g_level_scroll_title_animation_done = false;
 
     Render();
 
@@ -2972,24 +2994,16 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
     }
 
     if(g_game_status == kGameStatusInLevel) {
-        if(g_level_scroll_title_animation_frame_count > 0) {
-            if(g_script_event_data_1 == -100) {
-                g_level_scroll_title_animation_frame_count = 1000;
-            }
-
-            ++g_level_scroll_title_animation_frame_count;
-            g_script_event_data_1 = g_level_scroll_title_animation_frame_count;
-            CallLuaFunction(g_script_title_script_lua_state, "update", game_input);
-
-            if(g_level_scroll_title_animation_frame_count > 600) {
-                g_level_scroll_title_animation_frame_count = 0;
+        if(!g_level_scroll_title_animation_done) {
+            // TODO: This logic can be removed when all the core game implementation is moved from C to Lua
+            if(!IsGameFrozen()) {
+                g_level_scroll_title_animation_done = CallLuaBoolFunction(
+                    g_script_level_script_lua_state, "update", game_input);
             }
         } else {
             if(!IsGameFrozen()) {
                 ProgressGame(base_path, game_input);
             }
-
-            CallLuaFunction(g_script_title_script_lua_state, "update", game_input);
         }
 
         if(!IsGameFrozen()) {

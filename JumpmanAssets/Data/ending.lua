@@ -506,7 +506,7 @@ local function ShowSomething_()
     end
 end
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
 
@@ -579,6 +579,8 @@ function update()
     if g_credits then
         g_credits.update();
     end
+
+    return true;
 end
 
 function reset()

@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -47,6 +48,9 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
+local g_is_first_update_complete = false;
+
+local g_hud_overlay;
 local g_bullets = {};
 
 local g_is_object_1_moving = false;
@@ -61,9 +65,11 @@ local g_object_3_animation_frame = 0;
 local g_is_object_4_moving = false;
 local g_object_4_animation_frame = 0;
 
-function update()
+function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_hud_overlay = hud_overlay_module();
 
         local iTemp = bullet_module();
         iTemp.FramesToWait = 100;
@@ -80,6 +86,10 @@ function update()
         iTemp.TextureIndex = resources.TextureBullet;
         iTemp.FireSoundIndex = resources.SoundFire;
         table.insert(g_bullets, iTemp);
+    end
+
+    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+        return false;
     end
 
     if g_is_object_1_moving then
@@ -160,6 +170,13 @@ function update()
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
+
+    if not g_is_first_update_complete then
+        g_is_first_update_complete = true;
+        return false;
+    end
+
+    return true;
 end
 
 function MoveLadder(iLadder, iPos)
