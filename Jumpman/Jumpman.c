@@ -560,26 +560,22 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
 // script 3d object utility functions
 
 static int script_selected_mesh_change_mesh(lua_State* lua_state) {
-    // Replacement for jms ChangeMesh(int new_mesh_index) function, aka EFCHANGEMESH
     double new_mesh_index_arg = luaL_checknumber(lua_state, 1);
     ChangeMesh(g_script_selected_mesh_index, g_script_mesh_indices[(size_t)new_mesh_index_arg]);
     return 0;
 }
 
 static int script_selected_mesh_set_identity_matrix(lua_State* lua_state) {
-    // Replacement for jms Identity() function, aka EFIDENTITY
     IdentityMatrix(g_script_selected_mesh_index);
     return 0;
 }
 
 static int script_selected_mesh_set_perspective_matrix(lua_State* lua_state) {
-    // Replacement for jms Perspective() function, aka EFPERSPECTIVE
     PerspectiveMatrix(g_script_selected_mesh_index);
     return 0;
 }
 
 static int script_selected_mesh_translate_matrix(lua_State* lua_state) {
-    // Replacement for jms Translate(float x, float y, float z) function, aka EFTRANSLATE
     double arg_x = luaL_checknumber(lua_state, 1);
     double arg_y = luaL_checknumber(lua_state, 2);
     double arg_z = luaL_checknumber(lua_state, 3);
@@ -588,7 +584,6 @@ static int script_selected_mesh_translate_matrix(lua_State* lua_state) {
 }
 
 static int script_selected_mesh_scale_matrix(lua_State* lua_state) {
-    // Replacement for jms Scale(float x, float y, float z) function, aka EFSCALE
     double arg_x = luaL_checknumber(lua_state, 1);
     double arg_y = luaL_checknumber(lua_state, 2);
     double arg_z = luaL_checknumber(lua_state, 3);
@@ -597,28 +592,24 @@ static int script_selected_mesh_scale_matrix(lua_State* lua_state) {
 }
 
 static int script_selected_mesh_rotate_matrix_x(lua_State* lua_state) {
-    // Replacement for jms RotateX(float degrees) function, aka EFROTATEX
     double arg_degrees = luaL_checknumber(lua_state, 1);
     RotateMatrixX(g_script_selected_mesh_index, (float)arg_degrees);
     return 0;
 }
 
 static int script_selected_mesh_rotate_matrix_y(lua_State* lua_state) {
-    // Replacement for jms RotateY(float degrees) function, aka EFROTATEY
     double arg_degrees = luaL_checknumber(lua_state, 1);
     RotateMatrixY(g_script_selected_mesh_index, (float)arg_degrees);
     return 0;
 }
 
 static int script_selected_mesh_rotate_matrix_z(lua_State* lua_state) {
-    // Replacement for jms RotateZ(float degrees) function, aka EFROTATEZ
     double arg_degrees = luaL_checknumber(lua_state, 1);
     RotateMatrixZ(g_script_selected_mesh_index, (float)arg_degrees);
     return 0;
 }
 
 static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
-    // Replacement for jms ScrollTexture(float x_translation, float y_translation) function, aka EFSCROLLTEXTURE
     double arg_x = luaL_checknumber(lua_state, 1);
     double arg_y = luaL_checknumber(lua_state, 2);
     // TODO: Remove pre-multiplication from scripts, and divide from here
@@ -627,7 +618,6 @@ static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
 }
 
 static int get_navigation_dir(lua_State* lua_state) {
-    // Replacement for jms GetNavDir(int iFromAbsIndex, int iToAbsIndex, NavigationType nav_from_type, NavigationType nav_to_type) function, aka EFGETNAVDIR
     lua_Integer arg_from_object_abs_index = luaL_checkinteger(lua_state, 1);
     lua_Integer arg_to_object_abs_index = luaL_checkinteger(lua_state, 2);
     lua_Integer arg_from_object_type = luaL_checkinteger(lua_state, 3);
@@ -643,61 +633,51 @@ static int get_navigation_dir(lua_State* lua_state) {
 // TODO: Maybe pass in the id instead of global "selected" state for all these
 
 static int get_script_selected_level_object_extra(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sExtra) function, aka EFGETSEL(EFS_EXTRA)
     lua_pushnumber(lua_state, g_script_selected_level_object->Extra);
     return 1;
 }
 
 static int get_script_selected_level_object_number(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sNumber) function, aka EFGETSEL(EFS_NUMBER)
     lua_pushnumber(lua_state, g_script_selected_level_object->Num);
     return 1;
 }
 
 static int get_script_selected_level_object_this(lua_State* lua_state) {
-    // Replacement for jms GetSel(#this) function, aka EFGETSEL(EFS_THIS)
     lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
     return 1;
 }
 
 static int get_script_selected_level_object_visible(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sVisible) function, aka EFGETSEL(EFS_VISIBLE)
     lua_pushboolean(lua_state, g_script_selected_level_object->Visible);
     return 1;
 }
 
 static int get_script_selected_level_object_x1(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sX1) function, aka EFGETSEL(EFS_SX1)
     lua_pushnumber(lua_state, g_script_selected_level_object->X1);
     return 1;
 }
 
 static int get_script_selected_level_object_x2(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sX2) function, aka EFGETSEL(EFS_SX2)
     lua_pushnumber(lua_state, g_script_selected_level_object->X2);
     return 1;
 }
 
 static int get_script_selected_level_object_y1(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sY1) function, aka EFGETSEL(EFS_SY1)
     lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
     return 1;
 }
 
 static int get_script_selected_level_object_y2(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sY2) function, aka EFGETSEL(EFS_SY2)
     lua_pushnumber(lua_state, g_script_selected_level_object->Y2);
     return 1;
 }
 
 static int get_script_selected_level_object_z1(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sZ1) function, aka EFGETSEL(EFS_SZ1)
     lua_pushnumber(lua_state, g_script_selected_level_object->Z1);
     return 1;
 }
 
 static int get_script_selected_level_object_z2(lua_State* lua_state) {
-    // Replacement for jms GetSel(#sZ2) function, aka EFGETSEL(EFS_SZ2)
     lua_pushnumber(lua_state, g_script_selected_level_object->Z2);
     return 1;
 }
@@ -706,14 +686,12 @@ static int get_script_selected_level_object_z2(lua_State* lua_state) {
 // TODO: Maybe pass in the id instead of global "selected" state for all these
 
 static int set_script_selected_level_object_number(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sNumber) function, aka EFSETSEL(EFS_NUMBER)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Num = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_texture(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sTexture) function, aka EFSETSEL(EFS_TEXTURE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Texture = (int)arg1;
     SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
@@ -721,7 +699,6 @@ static int set_script_selected_level_object_texture(lua_State* lua_state) {
 }
 
 static int set_script_selected_level_object_visible(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sVisible) function, aka EFSETSEL(EFS_VISIBLE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Visible = (int)arg1;
     SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
@@ -729,42 +706,36 @@ static int set_script_selected_level_object_visible(lua_State* lua_state) {
 }
 
 static int set_script_selected_level_object_x1(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sX1) function, aka EFSETSEL(EFS_SX1)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->X1 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_x2(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sX2) function, aka EFSETSEL(EFS_SX2)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->X2 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_y1(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sY1) function, aka EFSETSEL(EFS_SY1)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Y1 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_y2(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sY2) function, aka EFSETSEL(EFS_SY2)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Y2 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_z1(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sZ1) function, aka EFSETSEL(EFS_SZ1)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Z1 = (int)arg1;
     return 0;
 }
 
 static int set_script_selected_level_object_z2(lua_State* lua_state) {
-    // Replacement for jms SetSel(#sZ2) function, aka EFSETSEL(EFS_SZ2)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Z2 = (int)arg1;
     return 0;
@@ -773,165 +744,138 @@ static int set_script_selected_level_object_z2(lua_State* lua_state) {
 // script global variable accessors (getters)
 
 static int get_current_camera_mode(lua_State* lua_state) {
-    // Replacement for jms GetExt(#perspective) function, aka EFGET(EFV_PERSPECTIVE)
     lua_pushnumber(lua_state, g_current_camera_mode);
     return 1;
 }
 
 static int get_donut_object_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#donuts) function, aka EFGET(EFV_DONUTS)
     lua_pushnumber(lua_state, g_donut_object_count);
     return 1;
 }
 
 static int get_ladder_object_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#ladders) function, aka EFGET(EFV_LADDERS)
     lua_pushnumber(lua_state, g_ladder_object_count);
     return 1;
 }
 
 static int get_level_extent_x(lua_State* lua_state) {
-    // Replacement for jms GetExt(#levelextentx) function, aka EFGET(EFV_LEVELEXTENTX)
     lua_pushnumber(lua_state, g_level_extent_x);
     return 1;
 }
 
 static int get_loaded_texture_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#textures) function, aka EFGET(EFV_TEXTURES)
     lua_pushnumber(lua_state, g_loaded_texture_count);
     return 1;
 }
 
 static int get_platform_object_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#platforms) function, aka EFGET(EFV_PLATFORMS)
     lua_pushnumber(lua_state, g_platform_object_count);
     return 1;
 }
 
 static int get_player_current_direction(lua_State* lua_state) {
-    // Replacement for jms GetExt(#pdir) function, aka EFGET(EFV_PDIR)
     lua_pushnumber(lua_state, g_player_current_direction);
     return 1;
 }
 
 static int get_player_current_position_x(lua_State* lua_state) {
-    // Replacement for jms GetExt(#px) function, aka EFGET(EFV_PX)
     lua_pushnumber(lua_state, g_player_current_position_x);
     return 1;
 }
 
 static int get_player_current_position_y(lua_State* lua_state) {
-    // Replacement for jms GetExt(#py) function, aka EFGET(EFV_PY)
     lua_pushnumber(lua_state, g_player_current_position_y);
     return 1;
 }
 
 static int get_player_current_position_z(lua_State* lua_state) {
-    // Replacement for jms GetExt(#pz) function, aka EFGET(EFV_PZ)
     lua_pushnumber(lua_state, g_player_current_position_z);
     return 1;
 }
 
 static int get_player_current_special_action(lua_State* lua_state) {
-    // Replacement for jms GetExt(#pact) function, aka EFGET(EFV_PACT)
     lua_pushnumber(lua_state, g_player_current_special_action);
     return 1;
 }
 
 static int get_player_current_state(lua_State* lua_state) {
-    // Replacement for jms GetExt(#pstat) function, aka EFGET(EFV_PSTAT)
     lua_pushnumber(lua_state, g_player_current_state);
     return 1;
 }
 
 static int get_player_current_state_frame_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#psc) function, aka EFGET(EFV_PSC)
     lua_pushnumber(lua_state, g_player_current_state_frame_count);
     return 1;
 }
 
 static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#freeze) function, aka EFGET(EFV_FREEZE)
     lua_pushnumber(lua_state, g_player_freeze_cooldown_frame_count);
     return 1;
 }
 
 static int get_player_is_visible(lua_State* lua_state) {
-    // Replacement for jms GetExt(#pvisible) function, aka EFGET(EFV_PVISIBLE)
     lua_pushnumber(lua_state, g_player_is_visible);
     return 1;
 }
 
 static int get_remaining_life_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#livesremaining) function, aka EFGET(EFV_LIVESREMAINING)
     lua_pushnumber(lua_state, g_remaining_life_count);
     return 1;
 }
 
 static int get_script_event_data_1(lua_State* lua_state) {
-    // Replacement for jms GetExt(#event1) function, aka EFGET(EFV_EVENT1)
     lua_pushnumber(lua_state, g_script_event_data_1);
     return 1;
 }
 
 static int get_script_event_data_2(lua_State* lua_state) {
-    // Replacement for jms GetExt(#event2) function, aka EFGET(EFV_EVENT2)
     lua_pushnumber(lua_state, g_script_event_data_2);
     return 1;
 }
 
 static int get_script_event_data_3(lua_State* lua_state) {
-    // Replacement for jms GetExt(#event3) function, aka EFGET(EFV_EVENT3)
     // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
     lua_pushnumber(lua_state, g_script_event_data_3 / 256.0);
     return 1;
 }
 
 static int get_script_event_data_4(lua_State* lua_state) {
-    // Replacement for jms GetExt(#event4) function, aka EFGET(EFV_EVENT4)
     // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
     lua_pushnumber(lua_state, g_script_event_data_4 / 256.0);
     return 1;
 }
 
 static int get_vine_object_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#vines) function, aka EFGET(EFV_VINES)
     lua_pushnumber(lua_state, g_vine_object_count);
     return 1;
 }
 
 static int get_wall_object_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#walls) function, aka EFGET(EFV_WALLS)
     lua_pushnumber(lua_state, g_wall_object_count);
     return 1;
 }
 
 static int get_script_object_count(lua_State* lua_state) {
-    // Replacement for jms GetExt(#objects) function, aka EFGET(EFV_OBJECTS)
     lua_pushnumber(lua_state, MAX_SCRIPTOBJECTS);
     return 1;
 }
 
 static int get_is_sound_enabled(lua_State* lua_state) {
-    // Replacement for jms GetExt(#soundon) function, aka EFGET(EFV_SOUNDON)
     lua_pushboolean(lua_state, GetIsSoundEnabled());
     return 1;
 }
 
 static int get_is_music_enabled(lua_State* lua_state) {
-    // Replacement for jms GetExt(#musicon) function, aka EFGET(EFV_MUSICON)
     lua_pushboolean(lua_state, GetIsMusicEnabled());
     return 1;
 }
 
 static int get_last_key_pressed(lua_State* lua_state) {
-    // Replacement for jms GetExt(#lastKey) function, aka EFGET(EFV_LASTKEY)
     lua_pushnumber(lua_state, GetLastKeyPressed());
     return 1;
 }
 
 static int get_current_fps(lua_State* lua_state) {
-    // Replacement for jms GetExt(#performance) function, aka EFGET(EFV_PERFORMANCE)
     lua_pushnumber(lua_state, GetCurrentFps());
     return 1;
 }
@@ -939,119 +883,102 @@ static int get_current_fps(lua_State* lua_state) {
 // script global variable accessors (setters)
 
 static int set_current_camera_mode(lua_State* lua_state) {
-    // Replacement for jms SetExt(#perspective) function, aka EFSET(EFV_PERSPECTIVE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_current_camera_mode = (CameraMode)arg1;
     return 0;
 }
 
 static int set_level_extent_x(lua_State* lua_state) {
-    // Replacement for jms SetExt(#levelextentx) function, aka EFSET(EFV_LEVELEXTENTX)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_level_extent_x = (int)arg1;
     return 0;
 }
 
 static int set_player_current_direction(lua_State* lua_state) {
-    // Replacement for jms SetExt(#pdir) function, aka EFSET(EFV_PDIR)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_direction = arg1;
     return 0;
 }
 
 static int set_player_current_position_x(lua_State* lua_state) {
-    // Replacement for jms SetExt(#px) function, aka EFSET(EFV_PX)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_x = (float)arg1;
     return 0;
 }
 
 static int set_player_current_position_y(lua_State* lua_state) {
-    // Replacement for jms SetExt(#py) function, aka EFSET(EFV_PY)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_y = (float)arg1;
     return 0;
 }
 
 static int set_player_current_position_z(lua_State* lua_state) {
-    // Replacement for jms SetExt(#pz) function, aka EFSET(EFV_PZ)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_z = (float)arg1;
     return 0;
 }
 
 static int set_player_current_special_action(lua_State* lua_state) {
-    // Replacement for jms SetExt(#pact) function, aka EFSET(EFV_PACT)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_special_action = arg1;
     return 0;
 }
 
 static int set_player_current_state(lua_State* lua_state) {
-    // Replacement for jms SetExt(#pstat) function, aka EFSET(EFV_PSTAT)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_state = arg1;
     return 0;
 }
 
 static int set_player_current_state_frame_count(lua_State* lua_state) {
-    // Replacement for jms SetExt(#psc) function, aka EFSET(EFV_PSC)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_state_frame_count = (long)arg1;
     return 0;
 }
 
 static int set_player_freeze_cooldown_frame_count(lua_State* lua_state) {
-    // Replacement for jms SetExt(#freeze) function, aka EFSET(EFV_FREEZE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_freeze_cooldown_frame_count = (int)arg1;
     return 0;
 }
 
 static int set_player_is_visible(lua_State* lua_state) {
-    // Replacement for jms SetExt(#pvisible) function, aka EFSET(EFV_PVISIBLE)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_is_visible = arg1;
     return 0;
 }
 
 static int set_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
-    // Replacement for jms SetExt(#noroll) function, aka EFSET(EFV_NOROLL)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_no_roll_cooldown_frame_count = (int)arg1;
     return 0;
 }
 
 static int set_remaining_life_count(lua_State* lua_state) {
-    // Replacement for jms SetExt(#livesremaining) function, aka EFSET(EFV_LIVESREMAINING)
     double arg1 = luaL_checknumber(lua_state, 1);
     g_remaining_life_count = (int)arg1;
     return 0;
 }
 
 static int set_script_event_data_1(lua_State* lua_state) {
-    // Replacement for jms SetExt(#event1) function, aka EFSET(EFV_EVENT1)
     lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
     g_script_event_data_1 = (long)arg1;
     return 0;
 }
 
 static int set_script_event_data_2(lua_State* lua_state) {
-    // Replacement for jms SetExt(#event2) function, aka EFSET(EFV_EVENT2)
     lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
     g_script_event_data_2 = (long)arg1;
     return 0;
 }
 
 static int set_script_event_data_3(lua_State* lua_state) {
-    // Replacement for jms SetExt(#event3) function, aka EFSET(EFV_EVENT3)
     lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
     g_script_event_data_3 = (long)arg1;
     return 0;
 }
 
 static int set_script_event_data_4(lua_State* lua_state) {
-    // Replacement for jms SetExt(#event4) function, aka EFSET(EFV_EVENT4)
     lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
     g_script_event_data_4 = (long)arg1;
     return 0;
@@ -1060,7 +987,6 @@ static int set_script_event_data_4(lua_State* lua_state) {
 // script utility functions
 
 static int new_mesh(lua_State* lua_state) {
-    // Replacement for jms NewMesh(int script_mesh_index) function, aka EFNEWMESH
     double script_mesh_index = luaL_checknumber(lua_state, 1);
     long iNew;
     CopyObject(g_script_mesh_indices[(size_t)script_mesh_index], &iNew);
@@ -1070,7 +996,6 @@ static int new_mesh(lua_State* lua_state) {
 }
 
 static int new_char_mesh(lua_State* lua_state) {
-    // Replacement for jms NewCharMesh(int ascii_value) function, aka EFNEWCHARMESH
     lua_Integer ascii_value_arg = luaL_checkinteger(lua_state, 1);
     long iNew;
 
@@ -1091,7 +1016,6 @@ static int new_char_mesh(lua_State* lua_state) {
 }
 
 static int set_object_visual_data(lua_State* lua_state) {
-    // Replacement for jms SetProperties(int new_texture_index, int new_is_visible) function, aka EFSETOBJECT
     double texture_index = luaL_checknumber(lua_state, 1);
     double is_visible = luaL_checknumber(lua_state, 2);
     SetObjectData(g_script_selected_mesh_index, (long)texture_index, (int)is_visible);
@@ -1099,13 +1023,11 @@ static int set_object_visual_data(lua_State* lua_state) {
 }
 
 static int prioritize_object(lua_State* lua_state) {
-    // Replacement for jms PrioritizeObject() function, aka EFPRIORITIZE_OBJECT
     PrioritizeObject(g_script_selected_mesh_index);
     return 0;
 }
 
 static int script_find_ladder(lua_State* lua_state) {
-    // Replacement for jms FindLadder(int pos_x, int pos_y) function, aka EFFINDLADDER
     double ladder_x_arg = luaL_checknumber(lua_state, 1);
     double ladder_y_arg = luaL_checknumber(lua_state, 2);
     long iLadA, iLadE;
@@ -1117,7 +1039,6 @@ static int script_find_ladder(lua_State* lua_state) {
 }
 
 static int script_find_vine(lua_State* lua_state) {
-    // Replacement for jms FindVine(int pos_x, int pos_y) function, aka EFFINDVINE
     double vine_x_arg = luaL_checknumber(lua_state, 1);
     double vine_y_arg = luaL_checknumber(lua_state, 2);
     long iVinAp, iVinEx;
@@ -1129,7 +1050,6 @@ static int script_find_vine(lua_State* lua_state) {
 }
 
 static int script_find_platform(lua_State* lua_state) {
-    // Replacement for jms FindPlatform(int pos_x, int pos_y) function, aka EFFINDPLATFORM
     double plat_x_arg = luaL_checknumber(lua_state, 1);
     double plat_y_arg = luaL_checknumber(lua_state, 2);
     double height_arg = luaL_checknumber(lua_state, 3);
@@ -1149,7 +1069,6 @@ static int script_find_platform(lua_State* lua_state) {
 //       Or maybe we should get rid of these "selection" things to begin with, and just have functions to query the right index, then manipulate objects via index
 // TODO: Maybe return the id instead of global "selected" state for all these
 static int script_abs_platform(lua_State* lua_state) {
-    // Replacement for jms AbsPlatform(int platform_index) function, aka EFABS_PLATFORM
     double platform_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_platform_objects[(size_t)platform_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -1157,7 +1076,6 @@ static int script_abs_platform(lua_State* lua_state) {
 }
 
 static int script_abs_ladder(lua_State* lua_state) {
-    // Replacement for jms AbsLadder(int ladder_index) function, aka EFABS_LADDER
     double ladder_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_ladder_objects[(size_t)ladder_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -1165,7 +1083,6 @@ static int script_abs_ladder(lua_State* lua_state) {
 }
 
 static int script_abs_donut(lua_State* lua_state) {
-    // Replacement for jms AbsDonut(int donut_index) function, aka EFABS_DONUT
     double donut_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_donut_objects[(size_t)donut_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -1173,7 +1090,6 @@ static int script_abs_donut(lua_State* lua_state) {
 }
 
 static int script_abs_vine(lua_State* lua_state) {
-    // Replacement for jms AbsVine(int vine_index) function, aka EFABS_VINE
     double vine_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
@@ -1182,7 +1098,6 @@ static int script_abs_vine(lua_State* lua_state) {
 
 static int script_collide_wall(lua_State* lua_state) {
     // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
-    // Replacement for jms CollideWall(int x1, int y1, int x2, int y2) function, aka EFCOLLIDE_WALL
     double arg_x1 = luaL_checknumber(lua_state, 1);
     double arg_y1 = luaL_checknumber(lua_state, 2);
     double arg_x2 = luaL_checknumber(lua_state, 3);
@@ -1193,7 +1108,6 @@ static int script_collide_wall(lua_State* lua_state) {
 }
 
 static int script_set_fog(lua_State* lua_state) {
-    // Replacement for jms SetFog(float fog_start, float fog_end, int red, int green, int blue) function, aka EFSETFOG
     lua_Number fog_start_arg = luaL_checknumber(lua_state, 1);
     lua_Number fog_end_arg = luaL_checknumber(lua_state, 2);
     lua_Integer red_arg = luaL_checkinteger(lua_state, 3);
@@ -1204,13 +1118,11 @@ static int script_set_fog(lua_State* lua_state) {
 }
 
 static int script_get_current_level_title(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_LEVELTITLE, string& result) function, aka EFSERVICE(SERVICE_LEVELTITLE, long arg2)
     lua_pushstring(lua_state, g_level_current_title);
     return 1;
 }
 
 static int get_config_option_string(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_OPTIONSTRING, string& result, long option_index) function, aka EFSERVICE(SERVICE_OPTIONSTRING, long string_global_index, long option_index)
     char sName[100];
     lua_Integer option_index_arg = luaL_checkinteger(lua_state, 1);
 
@@ -1260,7 +1172,6 @@ static int get_config_option_string(lua_State* lua_state) {
 }
 
 static int set_config_option(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_SETOPTION, long key, long option_index) function, aka EFSERVICE(SERVICE_SETOPTION, long key, long option_index)
     lua_Integer option_index_arg = luaL_checkinteger(lua_state, 1);
     lua_Integer key_arg = luaL_checkinteger(lua_state, 2);
 
@@ -1332,13 +1243,11 @@ static int set_config_option(lua_State* lua_state) {
 }
 
 static int save_config_options(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_SAVEOPTIONS) function, aka EFSERVICE(SERVICE_SAVEOPTIONS)
     SaveSettings();
     return 0;
 }
 
 static int script_load_menu(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_LOADMENU, int menu_type) function, aka EFSERVICE(SERVICE_LOADMENU, long arg2)
     lua_Integer menu_type_arg = luaL_checkinteger(lua_state, 1);
     g_script_event_data_1 = g_script_event_data_1 - 1;
     g_game_status = kGameStatusMenu;
@@ -1347,7 +1256,6 @@ static int script_load_menu(lua_State* lua_state) {
 }
 
 static int script_game_start(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_GAMESTART, int title_index) function, aka EFSERVICE(SERVICE_GAMESTART, long arg2)
     lua_Integer title_index_arg = luaL_checkinteger(lua_state, 1);
     char game_base_path[300];
 
@@ -1399,7 +1307,6 @@ static int script_game_start(lua_State* lua_state) {
 }
 
 static int get_credit_line(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_CREDITLINE, int line_index, string& result) function, aka EFSERVICE(SERVICE_CREDITLINE, int line_index, long string_global_index)
     char game_base_path[300];
 
     if (!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
@@ -1425,7 +1332,6 @@ static int get_credit_line(lua_State* lua_state) {
 }
 
 static int script_get_game_list(lua_State* lua_state) {
-    // Replacement for jms Service(#SERVICE_GAMELIST, string& result) function, aka EFSERVICE(SERVICE_GAMELIST, long arg2)
     char game_base_path[300];
 
     if(!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
@@ -1464,7 +1370,6 @@ static int script_get_game_list(lua_State* lua_state) {
 }
 
 static int play_sound_effect(lua_State* lua_state) {
-    // Replacement for jms Sound(int sound_effect_slot_index) function, aka EFSOUND
     double arg1 = luaL_checknumber(lua_state, 1);
     PlaySoundEffect((size_t)arg1);
     return 0;
@@ -1472,7 +1377,6 @@ static int play_sound_effect(lua_State* lua_state) {
 
 static int is_player_colliding_with_rect(lua_State* lua_state) {
     // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
-    // Replacement for jms Collide(int x1, int y1, int x2, int y2) function, aka EFCOLLIDE
     double arg_x1 = luaL_checknumber(lua_state, 1);
     double arg_y1 = luaL_checknumber(lua_state, 2);
     double arg_x2 = luaL_checknumber(lua_state, 3);
@@ -1484,7 +1388,6 @@ static int is_player_colliding_with_rect(lua_State* lua_state) {
 }
 
 static int script_kill(lua_State* lua_state) {
-    // Replacement for jms Kill() function, aka EFKILL
     if(!(g_player_current_state & kPlayerStateDying)) {
         StopMusic1();
         g_player_current_state = kPlayerStateDying;
@@ -1500,7 +1403,6 @@ static int script_kill(lua_State* lua_state) {
 }
 
 static int script_win(lua_State* lua_state) {
-    // Replacement for jms win() function, aka EFWIN
     StopMusic1();
     g_player_current_state_frame_count = 0;
     g_player_current_state = kPlayerStateDone;
@@ -1509,28 +1411,24 @@ static int script_win(lua_State* lua_state) {
 
 // TODO: Maybe return the id instead of global "selected" state for this
 static int script_select_object_mesh(lua_State* lua_state) {
-    // Replacement for jms SelectObjectMesh(int mesh_index) function, aka EFSELECT_OBJECT_MESH
     double mesh_index = luaL_checknumber(lua_state, 1);
     g_script_selected_mesh_index = (long)mesh_index;
     return 0;
 }
 
 static int script_delete_mesh(lua_State* lua_state) {
-    // Replacement for jms DeleteMesh(int mesh_index) function, aka EFDELETE_MESH
     double mesh_index = luaL_checknumber(lua_state, 1);
     DeleteMesh((long)mesh_index);
     return 0;
 }
 
 static int script_reset_perspective(lua_State* lua_state) {
-    // Replacement for jms ResetPerspective() function, aka EFRESETPERSPECTIVE
     SetGamePerspective();
     return 0;
 }
 
 // TODO: Maybe return the id instead of global "selected" state for all these
 static int script_select_platform(lua_State* lua_state) {
-    // Replacement for jms SelectPlatform(int platform_index) function, aka EFSELECT_PLATFORM
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_platform_objects, g_platform_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_platform_objects[object_index];
@@ -1539,7 +1437,6 @@ static int script_select_platform(lua_State* lua_state) {
 }
 
 static int script_select_ladder(lua_State* lua_state) {
-    // Replacement for jms SelectLadder(int ladder_index) function, aka EFSELECT_LADDER
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_ladder_objects[object_index];
@@ -1548,7 +1445,6 @@ static int script_select_ladder(lua_State* lua_state) {
 }
 
 static int script_select_donut(lua_State* lua_state) {
-    // Replacement for jms SelectDonut(int donut_index) function, aka EFSELECT_DONUT
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_donut_objects, g_donut_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_donut_objects[object_index];
@@ -1557,7 +1453,6 @@ static int script_select_donut(lua_State* lua_state) {
 }
 
 static int script_select_vine(lua_State* lua_state) {
-    // Replacement for jms SelectVine(int vine_index) function, aka EFSELECT_VINE
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_vine_objects, g_vine_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_vine_objects[object_index];
@@ -1566,7 +1461,6 @@ static int script_select_vine(lua_State* lua_state) {
 }
 
 static int script_select_picture(lua_State* lua_state) {
-    // Replacement for jms SelectPicture(int picture_index) function, aka EFSELECT_PICTURE
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_backdrop_objects[object_index];
@@ -1575,7 +1469,6 @@ static int script_select_picture(lua_State* lua_state) {
 }
 
 static int script_select_wall(lua_State* lua_state) {
-    // Replacement for jms SelectWall(int wall_index) function, aka EFSELECT_WALL
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_wall_objects, g_wall_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_wall_objects[object_index];
