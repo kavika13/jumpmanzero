@@ -77,23 +77,23 @@ function update()
 
     g_animation_frame = g_animation_frame + 1;
 
-    local iNX = cos((g_animation_frame * 2 / 3) + 180) * 4300 / 100 + 80;
-    local iNY = sin((g_animation_frame * 2 / 3) + 180) * 4300 / 100 + 80;
+    local iNX = math.cos(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
+    local iNY = math.sin(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
     SetPosition(6, iNX, iNY + 3);
     DisplayPlatform(6);
 
-    iNX = cos(g_animation_frame * 2 / 3) * 4300 / 100 + 80;
-    iNY = sin(g_animation_frame * 2 / 3) * 4300 / 100 + 80;
+    iNX = math.cos(g_animation_frame * 2 / 3 * math.pi / 180.0) * 43 + 80;
+    iNY = math.sin(g_animation_frame * 2 / 3 * math.pi / 180.0) * 43 + 80;
     SetPosition(1, iNX, iNY + 3);
     DisplayPlatform(1);
 
-    iNX = cos((0 - g_animation_frame) + 180) * 2100 / 100 + 80;
-    iNY = sin((0 - g_animation_frame) + 180) * 2100 / 100 + 80;
+    iNX = math.cos(((0 - g_animation_frame) + 180) * math.pi / 180.0) * 21 + 80;
+    iNY = math.sin(((0 - g_animation_frame) + 180) * math.pi / 180.0) * 21 + 80;
     SetPosition(7, iNX, iNY + 3);
     DisplayPlatform(7);
 
-    iNX = cos(0 - g_animation_frame) * 2100 / 100 + 80;
-    iNY = sin(0 - g_animation_frame) * 2100 / 100 + 80;
+    iNX = math.cos((0 - g_animation_frame) * math.pi / 180.0) * 21 + 80;
+    iNY = math.sin((0 - g_animation_frame) * math.pi / 180.0) * 21 + 80;
     SetPosition(2, iNX, iNY + 3);
     DisplayPlatform(2);
 

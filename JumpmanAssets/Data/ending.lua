@@ -300,10 +300,10 @@ local function ShowTurtles_(iAT)
         else
             iFrame = resources.MeshTurtS1;
             local iRZ = (iTurtX - 101)* - 5;
-            local iTemp = sin(iTurt * 63) * 20 + 10;
+            local iTemp = math.sin(iTurt * 63 * math.pi / 180.0) * 20 + 10;
             iRZ = iRZ * iTemp / 20;
             script_selected_mesh_rotate_matrix_z(iRZ);
-            iTemp = (iTurtX - 101) * sin(iTurt * 111 + 20);
+            iTemp = (iTurtX - 101) * math.sin((iTurt * 111 + 20) * math.pi / 180.0);
             iTurtY = iTurtY - iTemp;
         end
 
@@ -324,7 +324,7 @@ local function ShowDonuts_(iAT)
             g_current_pos_y = 84;
         elseif iAT < 230 then
             local iTemp = (iAT - 200) * 6;
-            g_current_pos_y = 84 + sin(iTemp) * 10;
+            g_current_pos_y = 84 + math.sin(iTemp * math.pi / 180.0) * 10;
             iZ = iZ - (iAT - 200) / 5;
         else
             g_current_pos_y = 84 - (iAT - 230);
@@ -433,7 +433,7 @@ end
 
 local function ShowRocket_(iAT)
     g_current_pos_y = 20 + iAT / 2;
-    local iRZ = sin(iAT * 3) * 10;
+    local iRZ = math.sin(iAT * 3 * math.pi / 180.0) * 10;
 
     select_object_mesh(g_object_mesh_indices[0]);
     script_selected_mesh_change_mesh(resources.MeshRocket);
@@ -455,8 +455,8 @@ local function ShowRocket_(iAT)
         local iBD = math.random(5, 20) * math.random(5, 20);
         iBD = iBD / 20;
 
-        local iBX = sin(iBA) * iBD;
-        local iBY = cos(iBA) * iBD;
+        local iBX = math.sin(iBA * math.pi / 180.0) * iBD;
+        local iBY = math.cos(iBA * math.pi / 180.0) * iBD;
         script_selected_mesh_translate_matrix(iBX, iBY - 15, 0);
         script_selected_mesh_rotate_matrix_y(10);
         script_selected_mesh_rotate_matrix_z(iRZ);

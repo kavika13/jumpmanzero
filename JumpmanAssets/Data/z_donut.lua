@@ -30,8 +30,8 @@ local function DoBlasting()
         iBD = (iBD / 6) + math.random(3, 15);
         local iBA = math.random(1, 360);
 
-        local iBY = sin(iBA, iBD * 2 / 3) + Module.ShipPosY + 10;
-        local iBX = cos(iBA, iBD) + Module.ShipPosX;
+        local iBY = math.sin(iBA * math.pi / 180.0) * (iBD * 2 / 3) + Module.ShipPosY + 10;
+        local iBX = math.cos(iBA * math.pi / 180.0) * iBD + Module.ShipPosX;
         local iBZ;
 
         if iTemp > 10 then

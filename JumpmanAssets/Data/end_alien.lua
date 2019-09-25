@@ -53,7 +53,7 @@ local function ShowAlien_()
     local iTargetY = 0;
 
     if g_frames_since_level_start < 350 then
-        iTargetY = 85 - sin(g_frames_since_level_start) * 10;
+        iTargetY = 85 - math.sin(g_frames_since_level_start * math.pi / 180.0) * 10;
     else
         iTargetY = 150;
     end
@@ -76,8 +76,8 @@ local function ShowAlien_()
 
     g_current_pos_y = g_current_pos_y + g_current_velocity_y;
 
-    local iWiggleX = sin(g_frames_since_level_start * 3 / 2) * 10;
-    local iRotateZ = sin(g_frames_since_level_start * 3 / 2) * 10;
+    local iWiggleX = math.sin(g_frames_since_level_start * 3 / 2 * math.pi / 180.0) * 10;
+    local iRotateZ = math.sin(g_frames_since_level_start * 3 / 2 * math.pi / 180.0) * 10;
 
     g_eye_waggle_x1 = AdjustEyeWaggling_(g_eye_waggle_x1);
     g_eye_waggle_x2 = AdjustEyeWaggling_(g_eye_waggle_x2);

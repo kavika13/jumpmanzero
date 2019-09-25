@@ -39,19 +39,19 @@ local g_is_blast_visible = false;
 
 local function SetTarget()
     if Module.BeamType == 2 then
-        g_target_pos_x = cos(Module.ParmDir + 10) * 60 + get_player_current_position_x();
-        g_target_pos_y = 30 - sin(g_frames_since_beam_started * 2) * 25;
-        g_target_pos_z = sin(Module.ParmDir + 10) * 60 + 60;
+        g_target_pos_x = math.cos((Module.ParmDir + 10) * math.pi / 180.0) * 60 + get_player_current_position_x();
+        g_target_pos_y = 30 - math.sin(g_frames_since_beam_started * 2 * math.pi / 180.0) * 25;
+        g_target_pos_z = math.sin((Module.ParmDir + 10) * math.pi / 180.0) * 60 + 60;
         iCollideDir = Module.ParmDir + 10;
     elseif Module.BeamType == 3 then
-        g_target_pos_x = cos(Module.ParmDir - 10) * 60 + get_player_current_position_x();
-        g_target_pos_y = 40 + sin(g_frames_since_beam_started) * 40;
-        g_target_pos_z = sin(Module.ParmDir - 10) * 60 + 60;
+        g_target_pos_x = math.cos((Module.ParmDir - 10) * math.pi / 180.0) * 60 + get_player_current_position_x();
+        g_target_pos_y = 40 + math.sin(g_frames_since_beam_started * math.pi / 180.0) * 40;
+        g_target_pos_z = math.sin((Module.ParmDir - 10) * math.pi / 180.0) * 60 + 60;
         iCollideDir = Module.ParmDir - 10;
     else
-        g_target_pos_x = cos(Module.ParmDir) * 60 + get_player_current_position_x();
-        g_target_pos_y = 50 + sin(g_frames_since_beam_started * 2) * 25;
-        g_target_pos_z = sin(Module.ParmDir) * 60 + 60;
+        g_target_pos_x = math.cos(Module.ParmDir * math.pi / 180.0) * 60 + get_player_current_position_x();
+        g_target_pos_y = 50 + math.sin(g_frames_since_beam_started * 2 * math.pi / 180.0) * 25;
+        g_target_pos_z = math.sin(Module.ParmDir * math.pi / 180.0) * 60 + 60;
         iCollideDir = Module.ParmDir;
     end
 end
@@ -65,10 +65,10 @@ local function SetGun()
 
     local iGX = iDX * 30 / iLengthXZ;
     local iGY = 0;
-    local iRZ = sin(g_frames_since_beam_started * 3 / 2) * 200 / 20;
+    local iRZ = math.sin(g_frames_since_beam_started * 3 / 2 * math.pi / 180.0) * 10;
 
-    iGX = cos(iRZ) * iGX * 100 / 100;
-    iGY = sin(iRZ) * iGX * 100 / 100;
+    iGX = math.cos(iRZ * math.pi / 180.0) * iGX;
+    iGY = math.sin(iRZ * math.pi / 180.0) * iGX;
 
     g_gun_pos_x = iGX + Module.ShipPosX;
     g_gun_pos_y = iGY + Module.ShipPosY;

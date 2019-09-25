@@ -224,8 +224,8 @@ local function ShowLetters()
                     set_object_visual_data(resources.TextureBoringBlue, 1);
                 else
                     local iDZ = 0 + g_time_since_current_selection / 15;
-                    local iDX = iX + ((g_time_since_current_selection / 100) * sin(iX * 27) * 50);
-                    local iDY = iY + ((g_time_since_current_selection / 100) * sin(iX * 59) * 50);
+                    local iDX = iX + ((g_time_since_current_selection / 100) * math.sin(iX * 27 * math.pi / 180.0) * 50);
+                    local iDY = iY + ((g_time_since_current_selection / 100) * math.sin(iX * 59 * math.pi / 180.0) * 50);
 
                     script_selected_mesh_rotate_matrix_z(g_time_since_current_selection + iX);
                     script_selected_mesh_translate_matrix(iDX, iDY, iDZ);

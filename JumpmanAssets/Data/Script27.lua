@@ -285,8 +285,8 @@ function ShowAlien()
 
     g_ship_y_position = g_ship_y_position + g_ship_y_velocity;
 
-    local iWiggleX = sin(g_frames_since_level_start * 3 / 2) * 200 / 20;
-    local iRotateZ = sin(g_frames_since_level_start * 3 / 2) * 200 / 20;
+    local iWiggleX = math.sin(g_frames_since_level_start * 3 / 2 * math.pi / 180.0) * 10;
+    local iRotateZ = math.sin(g_frames_since_level_start * 3 / 2 * math.pi / 180.0) * 10;
 
     g_eye_waggle_x1 = AdjustEyeWaggling(g_eye_waggle_x1);
     g_eye_waggle_x2 = AdjustEyeWaggling(g_eye_waggle_x2);

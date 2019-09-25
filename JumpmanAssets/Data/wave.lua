@@ -58,10 +58,10 @@ function Module.update()
         g_wave_animation_cycle_degrees = 0;
     end
 
-    local iHeight1 = sin(g_wave_animation_cycle_degrees - 45) * 512 / 200;
-    local iHeight2 = sin(g_wave_animation_cycle_degrees) * 512 / 200 - 0.3;
-    local iAdj1 = cos(g_wave_animation_cycle_degrees - 90) * 512 / 300 - 13;
-    local iAdj2 = cos(g_wave_animation_cycle_degrees) * 512 / 300 - 13;
+    local iHeight1 = math.sin((g_wave_animation_cycle_degrees - 45) * math.pi / 180.0) * 512 / 200;
+    local iHeight2 = math.sin(g_wave_animation_cycle_degrees * math.pi / 180.0) * 512 / 200 - 0.3;
+    local iAdj1 = math.cos((g_wave_animation_cycle_degrees - 90) * math.pi / 180.0) * 512 / 300 - 13;
+    local iAdj2 = math.cos(g_wave_animation_cycle_degrees * math.pi / 180.0) * 512 / 300 - 13;
 
     select_object_mesh(g_wave_1_mesh_index);
     script_selected_mesh_set_identity_matrix();

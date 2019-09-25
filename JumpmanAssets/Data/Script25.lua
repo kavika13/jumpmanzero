@@ -233,11 +233,11 @@ function update(game_input)
 
         -- Simulate underwater currents, quantized to "pixel grid" boundaries
         if g_swim_animation_frame < 10 then
-            iDrawX = iPX + math.floor(sin(g_frames_since_level_start * 6) * 2);
-            iDrawY = iPY + math.floor(sin(g_frames_since_level_start * 4) * 2);
+            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
+            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
         else
-            iDrawX = iPX + math.floor(sin(g_frames_since_level_start * 6) * 2);
-            iDrawY = iPY + math.floor(sin(g_frames_since_level_start * 4) * 2);
+            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
+            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
         end
 
         select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
@@ -274,10 +274,10 @@ function MoveSplashParticles()
             iScale = g_splash_scale_y;
         end
 
-        local iDX = cos((iLoop * 5) + 35) * 40 * g_splash_particle_time * g_splash_scale_x;
+        local iDX = math.cos(((iLoop * 5) + 35) * math.pi / 180.0) * 40 * g_splash_particle_time * g_splash_scale_x;
         iDX = iDX + iLoop - 5.5;
 
-        local iDY = sin((iLoop * 5) + 35) * 40 * g_splash_particle_time * iScale;
+        local iDY = math.sin(((iLoop * 5) + 35) * math.pi / 180.0) * 40 * g_splash_particle_time * iScale;
         local iDrag = g_splash_particle_time / 2;
         iDrag = iDrag * iDrag;
         iDY = iDY - iDrag;
@@ -458,11 +458,11 @@ function Swim(game_input)
         g_swim_rotation_angle = 0;
     else
         g_swim_animation_frame = Cycle(g_frames_since_level_start, 22, 1, 3);
-        g_swim_rotation_angle = sin(g_frames_since_level_start * 5) * 5;
+        g_swim_rotation_angle = math.sin(g_frames_since_level_start * 5 * math.pi / 180.0) * 5;
     end
 
     if g_swim_animation_frame > 9 then
-        g_swim_rotation_angle = g_swim_rotation_angle + sin(g_frames_since_level_start * 5) * 2;
+        g_swim_rotation_angle = g_swim_rotation_angle + math.sin(g_frames_since_level_start * 5 * math.pi / 180.0) * 2;
     end
 end
 
