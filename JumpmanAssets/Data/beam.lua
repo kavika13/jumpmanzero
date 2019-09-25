@@ -99,8 +99,8 @@ end
 
 local function DrawFire()
     if g_is_blast_visible then
-        local iBX = g_target_pos_x + rnd(1, 50) / 50;
-        local iBY = g_target_pos_y + rnd(1, 50) / 50;
+        local iBX = g_target_pos_x + math.random(1, 50) / 50;
+        local iBY = g_target_pos_y + math.random(1, 50) / 50;
 
         select_object_mesh(g_blast_mesh_index);
         script_selected_mesh_set_identity_matrix();

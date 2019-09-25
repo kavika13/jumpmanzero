@@ -242,9 +242,9 @@ local function RemoveTempBlock_(iSX, iSY)
 end
 
 local function DoAddBlock_()
-    local iBlock = rnd(1, 18);
-    local iSX = rnd(1, 9);
-    local iSY = rnd(1, 4);
+    local iBlock = math.random(1, 18);
+    local iSX = math.random(1, 9);
+    local iSY = math.random(1, 4);
     GenerateBlock_(iBlock);
 
     if iSX + iTWidth > 10 then

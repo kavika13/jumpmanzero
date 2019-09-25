@@ -72,7 +72,7 @@ local function MoveJumper_(all_jumpers)
         local iOHit = iHit;
         local iOPlat = iPlat;
 
-        if rnd(1, 100) > 70 then
+        if math.random(1, 100) > 70 then
             iPlat = find_platform(g_current_pos_x, iHit - 4, 1, 1);
             iHit = get_script_event_data_4();
         elseif g_is_dodging and iPY < g_curret_pos_y - 2 then
@@ -127,10 +127,10 @@ local function MoveJumper_(all_jumpers)
 
             if iPY < g_curret_pos_y - 7 then
                 g_is_dodging = true;
-                g_current_velocity_y = rnd(50, 70) / 100;
+                g_current_velocity_y = math.random(50, 70) / 100;
             else
                 g_is_dodging = false;
-                g_current_velocity_y = rnd(130, 170) / 100;
+                g_current_velocity_y = math.random(130, 170) / 100;
             end
 
             if g_current_pos_x < iPX - 110 then
@@ -191,7 +191,7 @@ function Module.update(all_jumpers)
             g_current_status = status_type.STRANDED;
         else
             g_current_pos_x = 200;
-            g_curret_pos_y = rnd(20, 80);
+            g_curret_pos_y = math.random(20, 80);
             g_current_velocity_y = -1;
             g_animation_current_frame = 1;
             g_current_status = status_type.JUMPING;

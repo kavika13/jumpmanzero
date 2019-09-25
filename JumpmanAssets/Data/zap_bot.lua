@@ -268,7 +268,7 @@ function Module.update()
         select_object_mesh(g_laser_mesh_index);
         set_object_visual_data(Module.LaserTextureResourceIndex, 1);
         script_selected_mesh_set_identity_matrix();
-        local iTemp = rnd(50, 100) * 0.1;
+        local iTemp = math.random(50, 100) * 0.1;
         iTemp = iTemp / 2;
         script_selected_mesh_scale_matrix(35, 4, 0);
         script_selected_mesh_scroll_texture(iTemp, 0);
@@ -283,7 +283,7 @@ function Module.update()
         select_object_mesh(g_laser_mesh_index);
         set_object_visual_data(Module.LaserTextureResourceIndex, 1);
         script_selected_mesh_set_identity_matrix();
-        local iTemp = rnd(50, 100) * -0.1;
+        local iTemp = math.random(50, 100) * -0.1;
         iTemp = iTemp / 2;
         script_selected_mesh_scale_matrix(35, 4, 0);
         script_selected_mesh_scroll_texture(iTemp, 0);

@@ -76,7 +76,7 @@ function update()
     if g_visibility_change_frames_left > 0 then
         g_visibility_change_frames_left = g_visibility_change_frames_left - 1;
 
-        if rnd(1, 30) < g_visibility_change_frames_left then
+        if math.random(1, 30) < g_visibility_change_frames_left then
             ResetVisible(g_visibility_bitmask);
         else
             local iTemp = NextNum(g_visibility_bitmask);
@@ -111,7 +111,7 @@ end
 
 function SetConfig()
     for iLoop = 256, 264, 2 do
-        local iRnd = rnd(0, 1000) < 500;
+        local iRnd = math.random(0, 1000) < 500;
 
         if iRnd then
             select_platform(iLoop + 1);

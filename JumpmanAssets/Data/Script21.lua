@@ -128,7 +128,7 @@ function ControlFrog()
     elseif g_frog_animation_frame == 11 then
         g_frog_animation_current_mesh_index = 3;
 
-        if rnd(1, 100) > 50 then
+        if math.random(1, 100) > 50 then
             g_frog_animation_frame = 38;
         end
     elseif g_frog_animation_frame > 10 then
@@ -138,7 +138,7 @@ function ControlFrog()
     elseif g_frog_animation_frame > 1 then
         g_frog_animation_current_mesh_index = 1;
     else
-        g_frog_animation_frame = 95 + rnd(1, 40);
+        g_frog_animation_frame = 95 + math.random(1, 40);
         g_frog_animation_current_mesh_index = 1;
     end
 end

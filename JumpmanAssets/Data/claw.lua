@@ -245,7 +245,7 @@ function Module.update(all_jumpers)
 
     MoveChain_(all_jumpers);
 
-    g_claw_rotation = g_claw_rotation + rnd(50, 90) / 300;
+    g_claw_rotation = g_claw_rotation + math.random(50, 90) / 300;
 
     DrawClaw_(0, 0 + g_claw_rotation, g_claw_degrees_open);
     DrawClaw_(1, 90 + g_claw_rotation, g_claw_degrees_open);

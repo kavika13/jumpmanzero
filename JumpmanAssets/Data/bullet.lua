@@ -74,7 +74,7 @@ local function RestartBullet()
     select_object_mesh(g_mesh_index_2);
     set_object_visual_data(0, 0);
 
-    local iType = rnd(1, 100);
+    local iType = math.random(1, 100);
 
     if iType < 50 then
         iVel = 0.35;
@@ -89,10 +89,10 @@ local function RestartBullet()
     local player_x = get_player_current_position_x();
     local player_y = get_player_current_position_y();
 
-    iType = rnd(1, 100);
+    iType = math.random(1, 100);
 
     if iType < 50 then
-        g_current_pos_x = rnd(30, 130);
+        g_current_pos_x = math.random(30, 130);
 
         if (iType < 25 and player_y > 60) or player_y > 100 then
             g_current_pos_y = 0 - 10;
@@ -114,7 +114,7 @@ local function RestartBullet()
     end
 
     if iType >= 50 then
-        g_current_pos_y = rnd(30, 130);
+        g_current_pos_y = math.random(30, 130);
 
         if (iType < 75 and player_x > 60) or player_x > 100 then
             g_current_pos_x = 0 - 10;
@@ -225,7 +225,7 @@ function Module.update()
 end
 
 function Module.reset_pos()
-    Module.FramesToWait = rnd(50, 200);
+    Module.FramesToWait = math.random(50, 200);
     RestartBullet();
 end
 

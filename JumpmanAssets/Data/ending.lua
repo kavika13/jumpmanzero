@@ -448,11 +448,11 @@ local function ShowRocket_(iAT)
         select_object_mesh(g_object_mesh_indices[iBlip]);
         script_selected_mesh_change_mesh(resources.MeshSquare);
         script_selected_mesh_set_identity_matrix();
-        local iSize = rnd(3, 6);
+        local iSize = math.random(3, 6);
         script_selected_mesh_scale_matrix(iSize, iSize, 1);
 
-        local iBA = rnd(150, 210);
-        local iBD = rnd(5, 20) * rnd(5, 20);
+        local iBA = math.random(150, 210);
+        local iBD = math.random(5, 20) * math.random(5, 20);
         iBD = iBD / 20;
 
         local iBX = sin(iBA) * iBD;

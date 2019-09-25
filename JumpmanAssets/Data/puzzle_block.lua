@@ -133,7 +133,7 @@ local function PutBlockInStartingPos_(all_blocks)
 end
 
 local function DrawBlock_()
-    local iShake = rnd(0, 10) - 5;
+    local iShake = math.random(0, 10) - 5;
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
         select_object_mesh(g_block_piece_mesh_indices[iLoop]);
@@ -144,7 +144,7 @@ local function DrawBlock_()
             -- TODO: Possible to rotate all shaking pieces as one?
             script_selected_mesh_rotate_matrix_z(iShake);
             script_selected_mesh_translate_matrix(
-                g_block_piece_positions_x[iLoop] * kBLOCK_PIECE_WIDTH + 41 + kBLOCK_PIECE_WIDTH / 2 + rnd(0, 2) - 1,
+                g_block_piece_positions_x[iLoop] * kBLOCK_PIECE_WIDTH + 41 + kBLOCK_PIECE_WIDTH / 2 + math.random(0, 2) - 1,
                 g_block_piece_positions_y[iLoop] * kBLOCK_PIECE_HEIGHT + 4,
                 2.5);
         else

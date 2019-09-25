@@ -1154,18 +1154,6 @@ static int prioritize_object(lua_State* lua_state) {
     return 0;
 }
 
-static int script_rnd(lua_State* lua_state) {
-    // Replacement for jms rnd(int min_value_inclusive, int max_value_inclusive) function, aka EFRND
-    double min_value_inclusive = luaL_checknumber(lua_state, 1);
-    double max_value_inclusive = luaL_checknumber(lua_state, 2);
-    // TODO: Is there simpler math?
-    long iRand = (rand() & 16383) *
-        ((long)max_value_inclusive - (long)min_value_inclusive) / 16383 +
-        (long)min_value_inclusive;
-    lua_pushnumber(lua_state, iRand);
-    return 1;
-}
-
 static int script_find_ladder(lua_State* lua_state) {
     // Replacement for jms FindLadder(int pos_x, int pos_y) function, aka EFFINDLADDER
     double ladder_x_arg = luaL_checknumber(lua_state, 1);
@@ -1843,8 +1831,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_object_visual_data");
     lua_pushcfunction(lua_state, prioritize_object);
     lua_setglobal(lua_state, "prioritize_object");
-    lua_pushcfunction(lua_state, script_rnd);
-    lua_setglobal(lua_state, "rnd");
     lua_pushcfunction(lua_state, script_find_ladder);
     lua_setglobal(lua_state, "find_ladder");
     lua_pushcfunction(lua_state, script_find_vine);

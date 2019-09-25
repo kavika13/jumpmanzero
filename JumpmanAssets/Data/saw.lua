@@ -31,7 +31,7 @@ local function MoveSaw()
       local iLadY2 = get_script_selected_level_object_y2();
 
       if iLadX > g_current_pos_x - 1 and iLadX < g_current_pos_x + 1 then
-        if rnd(1, 100) > 74 and iLadY2 < g_current_pos_y - 5 then
+        if math.random(1, 100) > 74 and iLadY2 < g_current_pos_y - 5 then
           g_current_pos_x = iLadX;
           g_is_on_ladder = true;
           g_current_pos_z = iLadZ;

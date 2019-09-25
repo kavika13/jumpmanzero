@@ -59,7 +59,7 @@ local function MovePyramid_()
 end
 
 local function SetStartPos_()
-    local iRnd = rnd(1, 7);
+    local iRnd = math.random(1, 7);
 
     if iRnd < 1 then
         iRnd = 1;
@@ -110,7 +110,7 @@ function update()
     if g_frames_until_next_goo_spawn == 0 then
         g_frames_until_ongoing_goo_spawn_finishes = 150;
 
-        if rnd(1, 100) > 50 then
+        if math.random(1, 100) > 50 then
             g_frames_until_ongoing_goo_spawn_finishes = 100;
         end
 

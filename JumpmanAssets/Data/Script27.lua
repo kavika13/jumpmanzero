@@ -355,7 +355,7 @@ function ShowAlien()
 end
 
 function AdjustEyeWaggling(iValue)
-    local iAdjust = (rnd(1, 100) - 50) / 300;
+    local iAdjust = (math.random(1, 100) - 50) / 300;
     local iFinal = iValue + iAdjust;
 
     if iFinal < -0.4 then

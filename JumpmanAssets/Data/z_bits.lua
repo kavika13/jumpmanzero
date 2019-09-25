@@ -41,8 +41,8 @@ local function CreateParticle(iSX, iSY)
     g_particle_mesh_indices[g_particle_count] = new_mesh(Module.MeshResourceIndex);
     g_particle_target_pos_x[g_particle_count] = iSX;
     g_particle_target_pos_y[g_particle_count] = iSY;
-    g_particle_current_pos_x[g_particle_count] = g_particle_target_pos_x[g_particle_count] + rnd(1, 200) - 100;
-    g_particle_current_pos_y[g_particle_count] = g_particle_target_pos_y[g_particle_count] + rnd(1, 200) - 100;
+    g_particle_current_pos_x[g_particle_count] = g_particle_target_pos_x[g_particle_count] + math.random(1, 200) - 100;
+    g_particle_current_pos_y[g_particle_count] = g_particle_target_pos_y[g_particle_count] + math.random(1, 200) - 100;
 end
 
 local function InitParticles()

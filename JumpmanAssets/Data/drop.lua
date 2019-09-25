@@ -26,7 +26,7 @@ local function ResetMyPos()
     g_current_pos_y = 0;
 
     while not is_done do
-        g_current_pos_x = g_current_pos_x + rnd(0, 60) - 30;
+        g_current_pos_x = g_current_pos_x + math.random(0, 60) - 30;
 
         if g_current_pos_x > 150 then
             g_current_pos_x = 150;

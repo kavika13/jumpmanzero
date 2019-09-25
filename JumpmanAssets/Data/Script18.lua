@@ -192,7 +192,7 @@ function CollideDonuts(game_input)
                 ShowWorking(game_input, iDX);
                 abs_donut(iObj);
 
-                if rnd(0, 100) < 20 then
+                if math.random(0, 100) < 20 then
                     return;
                 end
 

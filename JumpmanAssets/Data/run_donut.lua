@@ -45,7 +45,7 @@ local g_time_since_spawn = 0;
 local g_current_run_donut_count = 0;
 
 local function CheckForChange_()
-    if rnd(0, 400) > 395 then
+    if math.random(0, 400) > 395 then
         g_move_direction_x = 0;
     end
 
@@ -111,14 +111,14 @@ local function ChangeDirections_(all_run_donuts)
         g_move_direction_x = -1;
     end
 
-    if rnd(1, 500) > 497 and g_initial_pos_y < g_current_pos_y + 20 then
+    if math.random(1, 500) > 497 and g_initial_pos_y < g_current_pos_y + 20 then
         g_current_status = status_type.JUMP;
         g_current_status_counter = 0;
         g_current_velocity_y = 5;
         return 0;
     end
 
-    local iRnd = rnd(1, 500);
+    local iRnd = math.random(1, 500);
 
     if iRnd > 490 and g_time_since_spawn > 200 then
         g_current_run_donut_count = #all_run_donuts;
@@ -140,7 +140,7 @@ local function ChangeDirections_(all_run_donuts)
         return 0;
     end
 
-    iRnd = rnd(0, 100);
+    iRnd = math.random(0, 100);
     g_move_direction_x = -1;
 
     if iRnd > 50 then
@@ -262,8 +262,8 @@ local function MoveDonut_(all_run_donuts)
 
             if g_current_run_donut_count < 40 then
                 local new_run_donut = Module.SpawnCallback();
-                new_run_donut.InitialPosX = rnd(20, 140);
-                new_run_donut.InitialPosy = rnd(7, 180);
+                new_run_donut.InitialPosX = math.random(20, 140);
+                new_run_donut.InitialPosy = math.random(7, 180);
                 new_run_donut.set_current_pos(g_current_pos_x, g_current_pos_y, g_current_pos_z)
             end
 
@@ -349,7 +349,7 @@ function Module.update(all_run_donuts)
             -- TODO: Sound when you catch them?
             g_current_status = status_type.CAUGHT;
             g_current_velocity_y = 2.1;
-            g_current_velocity_x = (rnd(0, 20) - 10) / 10;
+            g_current_velocity_x = (math.random(0, 20) - 10) / 10;
         end
     end
 

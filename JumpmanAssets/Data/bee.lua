@@ -47,14 +47,14 @@ local function MoveBee()
     end
 
     if g_current_velocity_x == 0 then
-        g_current_pos_x = g_current_pos_x + 0.5 - rnd(0, 10) / 10;
+        g_current_pos_x = g_current_pos_x + 0.5 - math.random(0, 10) / 10;
     end
 
     if g_current_velocity_y == 0 and Abs(iPX - g_current_pos_x) > 5 then
-        g_current_pos_y = g_current_pos_y + 0.5 - rnd(0, 10) / 10;
+        g_current_pos_y = g_current_pos_y + 0.5 - math.random(0, 10) / 10;
     end
 
-    if Abs(iPY - g_current_pos_y) < 1 and Abs(iPX - g_current_pos_x) > g_vision_strength and rnd(1, 20) > 7 then
+    if Abs(iPY - g_current_pos_y) < 1 and Abs(iPX - g_current_pos_x) > g_vision_strength and math.random(1, 20) > 7 then
         g_current_velocity_y = 0;
 
         if iPX < g_current_pos_x then
@@ -64,7 +64,7 @@ local function MoveBee()
         end
     end
 
-    if Abs(iPX - g_current_pos_x) < 1 and Abs(iPY - g_current_pos_y) > g_vision_strength and rnd(1, 20) > 7 then
+    if Abs(iPX - g_current_pos_x) < 1 and Abs(iPY - g_current_pos_y) > g_vision_strength and math.random(1, 20) > 7 then
         g_current_velocity_x = 0;
 
         if iPY < g_current_pos_y then
@@ -86,7 +86,7 @@ function Module.update()
         g_current_pos_y = get_player_current_position_y();
         g_current_velocity_x = -1;
         g_current_velocity_y = 0;
-        g_vision_strength = rnd(15, 30);
+        g_vision_strength = math.random(15, 30);
     end
 
     select_object_mesh(g_move_animation_mesh_indices[g_move_animation_current_frame_index]);
