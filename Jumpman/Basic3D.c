@@ -1,3 +1,4 @@
+#include <math.h>
 #include "glad/glad.h"
 #define SOKOL_IMPL
 #define SOKOL_GLCORE33
