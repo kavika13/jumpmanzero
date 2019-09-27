@@ -4,6 +4,7 @@
 #include "sokol_gfx.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <stb_sprintf.h>
 #define HANDMADE_MATH_IMPLEMENTATION
 #define HANDMADE_MATH_NO_SSE
 #include "HandmadeMath.h"
@@ -367,7 +368,7 @@ void Clear3dData() {
 
 void LoadTexture(int iTex, char* sFile, int image_type, int is_alpha_blend_enabled) {
     g_texture_is_alpha_blend_enabled[iTex] = is_alpha_blend_enabled;
-    strcpy_s(g_texture_filename[iTex], sizeof(g_texture_filename[iTex]), sFile);
+    stbsp_snprintf(g_texture_filename[iTex], sizeof(g_texture_filename[iTex]), "%s", sFile);
     g_texture_is_color_key_alpha_enabled[iTex] = image_type == 1 ? 1 : 0;
 
     int width, height, channels_in_file;

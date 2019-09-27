@@ -7,6 +7,8 @@
 #pragma clang diagnostic ignored "-Weverything"
 #include <GLFW/glfw3.h>
 #pragma clang diagnostic pop
+#define STB_SPRINTF_IMPLEMENTATION
+#include <stb_sprintf.h>
 #include "Basic3d.h"
 #include "Input.h"
 #include "Jumpman.h"
@@ -49,7 +51,7 @@ static bool LoadSettings(bool* sound_is_initially_enabled, bool* music_is_initia
     int iKey;
     char sFileName[300];
 
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Settings.DAT", g_game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/Settings.DAT", g_game_base_path);
 
     char* sData;
     long iLen;
@@ -105,7 +107,7 @@ static bool SaveSettings_() {
     bool success = true;
 
     char sFile[300];
-    sprintf_s(sFile, sizeof(sFile), "%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d\x0D\x0A%d",
+    stbsp_snprintf(sFile, sizeof(sFile), "%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d",
         g_key_bindings[0],
         g_key_bindings[1],
         g_key_bindings[2],
@@ -119,7 +121,7 @@ static bool SaveSettings_() {
         g_window_resolution_y);
 
     char sFileName[300];  // TODO: Is path long enough?
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\Settings.dat", g_game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/Settings.dat", g_game_base_path);
 
     success = StringToFile(sFileName, sFile);
 

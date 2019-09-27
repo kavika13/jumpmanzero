@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stb_sprintf.h>
 
 long StringToLong(unsigned char* sString) {
     float fTemp;
@@ -47,16 +48,20 @@ bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
     sOut[iChars] = 0;
 
     while(++iLoop < iTextLen) {
-        if(iCR == iLine && sText[iLoop] != 13 && iChars < iOutLen - 1) {
+        if(iCR == iLine && sText[iLoop] != 10 && sText[iLoop] != 13 && iChars < iOutLen - 1) {
             is_found = true;
             sOut[iChars] = sText[iLoop];
             ++iChars;
             sOut[iChars] = 0;
         }
 
-        if(sText[iLoop] == 13) {
+        if(sText[iLoop] == 10 || sText[iLoop] == 13) {
             ++iCR;
-            ++iLoop;
+
+            if(sText[iLoop] == 13 && iLoop + 1 < iTextLen && sText[iLoop + 1] == 10) {
+                // Handle Windows newline conventions, if present
+                ++iLoop;
+            }
         }
 
         if(iCR > iLine) {
@@ -125,7 +130,7 @@ bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
 
     if(TextLine(sData, iLen, sTemp, 20, iLine)) {
         is_found = true;
-        sprintf_s(sOut, sOutSize, "%s", sTemp);
+        stbsp_snprintf(sOut, (int)sOutSize, "%s", sTemp);
     }
 
     free(sData);

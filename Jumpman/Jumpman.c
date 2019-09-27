@@ -8,6 +8,7 @@
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
+#include <stb_sprintf.h>
 #include "Basic3d.h"
 #include "Jumpman.h"
 #include "Main.h"
@@ -1113,25 +1114,25 @@ static int get_config_option_string(lua_State* lua_state) {
         int iKey = GetKeyBinding((size_t)option_index_arg);
 
         if(iKey >= 'A' && iKey <= 'Z') {
-            sprintf_s(sName, sizeof(sName), "%c   ", iKey);
+            stbsp_snprintf(sName, sizeof(sName), "%c   ", iKey);
         } else if(iKey >= '0' && iKey <= '9') {
-            sprintf_s(sName, sizeof(sName), "%c   ", iKey);
+            stbsp_snprintf(sName, sizeof(sName), "%c   ", iKey);
         } else if(iKey == 38) {
-            sprintf_s(sName, sizeof(sName), "UP  ");
+            stbsp_snprintf(sName, sizeof(sName), "UP  ");
         } else if(iKey == 40) {
-            sprintf_s(sName, sizeof(sName), "DOWN");
+            stbsp_snprintf(sName, sizeof(sName), "DOWN");
         } else if(iKey == 37) {
-            sprintf_s(sName, sizeof(sName), "LEFT");
+            stbsp_snprintf(sName, sizeof(sName), "LEFT");
         } else if(iKey == 39) {
-            sprintf_s(sName, sizeof(sName), "RGHT");
+            stbsp_snprintf(sName, sizeof(sName), "RGHT");
         } else if(iKey == 32) {
-            sprintf_s(sName, sizeof(sName), "SPC ");
+            stbsp_snprintf(sName, sizeof(sName), "SPC ");
         } else if(iKey == 58) {
-            sprintf_s(sName, sizeof(sName), ":   ");
+            stbsp_snprintf(sName, sizeof(sName), ":   ");
         } else if(iKey == 46) {
-            sprintf_s(sName, sizeof(sName), ".   ");
+            stbsp_snprintf(sName, sizeof(sName), ".   ");
         } else if(iKey == 45) {
-            sprintf_s(sName, sizeof(sName), "-   ");
+            stbsp_snprintf(sName, sizeof(sName), "-   ");
         }
     } else if(option_index_arg == 32 || option_index_arg == 33) {
         int iKey;
@@ -1143,9 +1144,9 @@ static int get_config_option_string(lua_State* lua_state) {
         }
 
         if(iKey) {
-            sprintf_s(sName, sizeof(sName), "ON  ");
+            stbsp_snprintf(sName, sizeof(sName), "ON  ");
         } else {
-            sprintf_s(sName, sizeof(sName), "OFF ");
+            stbsp_snprintf(sName, sizeof(sName), "OFF ");
         }
     }
 
@@ -1255,7 +1256,7 @@ static int script_game_start(lua_State* lua_state) {
 
     char sFileName[300];
     g_remaining_life_count = 7;  // TODO: Setting this value should probably be elsewhere
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data", game_base_path);
 
     cf_dir_t dir;
     cf_dir_open(&dir, sFileName);
@@ -1289,7 +1290,7 @@ static int script_game_start(lua_State* lua_state) {
         cf_dir_next(&dir);
     }
 
-    sprintf_s(g_level_set_current_set_filename, sizeof(g_level_set_current_set_filename), "%s\\Data\\%s", game_base_path, file.name);
+    stbsp_snprintf(g_level_set_current_set_filename, sizeof(g_level_set_current_set_filename), "%s/Data/%s", game_base_path, file.name);
     g_game_status = kGameStatusInLevel;
 
     return 0;
@@ -1308,7 +1309,7 @@ static int get_credit_line(lua_State* lua_state) {
 
     lua_Integer arg_line_index = luaL_checkinteger(lua_state, 1);
 
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data\\credits.txt", game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/credits.txt", game_base_path);
 
     if(GetFileLine(sName, sizeof(sName), sFileName, (int)arg_line_index)) {
         lua_pushboolean(lua_state, true);
@@ -1329,7 +1330,7 @@ static int script_get_game_list(lua_State* lua_state) {
     }
 
     char sFileName[300];
-    sprintf_s(sFileName, sizeof(sFileName), "%s\\Data", game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data", game_base_path);
 
     cf_dir_t dir;
     cf_dir_open(&dir, sFileName);
@@ -1345,7 +1346,7 @@ static int script_get_game_list(lua_State* lua_state) {
             char sFile[300];
             char sName[100];
 
-            sprintf_s(sFile, sizeof(sFile), "%s\\Data\\%s", game_base_path, file.name);
+            stbsp_snprintf(sFile, sizeof(sFile), "%s/Data/%s", game_base_path, file.name);
             GetFileLine(sName, sizeof(sName), sFile, 0);
             lua_pushstring(lua_state, sName);
             lua_rawseti(lua_state, -2, 1 + iTitle);
@@ -1685,7 +1686,7 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
     }
 
     char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
-    sprintf_s(full_filename, sizeof(full_filename), "%s\\%s", base_path, filename);
+    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", base_path, filename);
 
     lua_State* new_state;
     new_state = luaL_newstate();
@@ -1800,7 +1801,7 @@ static bool CallLuaBoolFunction(
 
 static void LoadLevel(const char* base_path, const char* filename) {
     char full_path[300];
-    sprintf_s(full_path, sizeof(full_path), "%s\\%s", base_path, filename);
+    stbsp_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, filename);
 
     unsigned char* cData;
 
@@ -1870,47 +1871,47 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iArg2 = StringToInt(&cData[iPlace + 4]);
 
             if(iTemp == 1) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.MID", base_path, sTemp);
+                stbsp_snprintf(sBuild, sizeof(sBuild), "%s/Sound/%s.MID", base_path, sTemp);
 
                 if(iArg1 == 1) {
-                    strcpy_s(g_music_background_track_filename, sizeof(g_music_background_track_filename), sBuild);
+                    stbsp_snprintf(g_music_background_track_filename, sizeof(g_music_background_track_filename), "%s", sBuild);
                     g_music_loop_start_music_time = iArg2 * 10;
                 }
 
                 if(iArg1 == 2) {
-                    strcpy_s(g_music_death_track_filename, sizeof(g_music_death_track_filename), sBuild);
+                    stbsp_snprintf(g_music_death_track_filename, sizeof(g_music_death_track_filename), "%s", sBuild);
                 }
 
                 if(iArg1 == 3) {
-                    strcpy_s(g_music_win_track_filename, sizeof(g_music_win_track_filename), sBuild);
+                    stbsp_snprintf(g_music_win_track_filename, sizeof(g_music_win_track_filename), "%s", sBuild);
                 }
             }
 
             if(iTemp == 2) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s.MSH", sTemp);
+                stbsp_snprintf(sBuild, sizeof(sBuild), "%s.MSH", sTemp);
                 g_script_mesh_indices[g_loaded_mesh_count] = LoadMesh(base_path, sBuild);
                 ++g_loaded_mesh_count;
             }
 
             if(iTemp == 7) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s\\Sound\\%s.WAV", base_path, sTemp);
+                stbsp_snprintf(sBuild, sizeof(sBuild), "%s/Sound/%s.WAV", base_path, sTemp);
                 LoadSound(sBuild, iSounds);
                 ++iSounds;
             }
 
             if(iTemp == 3 || iTemp == 4 || iTemp == 6) {
-                sprintf_s(sBuild, sizeof(sBuild), "%s\\Data\\%s", base_path, sTemp);
+                stbsp_snprintf(sBuild, sizeof(sBuild), "%s/Data/%s", base_path, sTemp);
 
                 if(iTemp == 3) {
-                    strcat_s(sBuild, sizeof(sBuild), ".BMP");
+                    stbsp_snprintf(sBuild, sizeof(sBuild), "%s%s", sBuild, ".BMP");
                 }
 
                 if(iTemp == 4) {
-                    strcat_s(sBuild, sizeof(sBuild), ".JPG");
+                    stbsp_snprintf(sBuild, sizeof(sBuild), "%s%s", sBuild, ".JPG");
                 }
 
                 if(iTemp == 6) {
-                    strcat_s(sBuild, sizeof(sBuild), ".PNG");
+                    stbsp_snprintf(sBuild, sizeof(sBuild), "%s%s", sBuild, ".PNG");
                 }
 
                 LoadTexture(g_loaded_texture_count, sBuild, iArg1, (iTemp == 6) || (iTemp == 3 && iArg1 == 1));
@@ -1924,7 +1925,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
                     // TODO: No-op for now
                     // assert(false, "Trying to load a JMS level script. Should not be the case in any existing level.");
                 } else if(iArg1 == 3) {
-                    sprintf_s(sBuild, sizeof(sBuild), "Data\\%s.LUA", sTemp);
+                    stbsp_snprintf(sBuild, sizeof(sBuild), "Data/%s.LUA", sTemp);
                     // TODO: Should it auto-unload the old script?
                     LoadLuaScript(base_path, sBuild, &g_script_level_script_lua_state);
                 } else if(iArg1 == 4) {
@@ -2215,36 +2216,36 @@ static void LoadLevel(const char* base_path, const char* filename) {
         bGood = 1;
 
         if((iChar >= 'A' && iChar <= 'Z') || (iChar >= '0' && iChar <= '9')) {
-            sprintf_s(sChar, sizeof(sChar), "%c", iChar);
+            stbsp_snprintf(sChar, sizeof(sChar), "%c", iChar);
         } else if(iChar == '.') {
-            sprintf_s(sChar, sizeof(sChar), "Period");
+            stbsp_snprintf(sChar, sizeof(sChar), "Period");
         } else if(iChar == '\'') {
-            sprintf_s(sChar, sizeof(sChar), "Apos");
+            stbsp_snprintf(sChar, sizeof(sChar), "Apos");
         } else if(iChar == '-') {
-            sprintf_s(sChar, sizeof(sChar), "Dash");
+            stbsp_snprintf(sChar, sizeof(sChar), "Dash");
         } else if(iChar == ':') {
-            sprintf_s(sChar, sizeof(sChar), "Colon");
+            stbsp_snprintf(sChar, sizeof(sChar), "Colon");
         } else if(iChar == '%') {
-            sprintf_s(sChar, sizeof(sChar), "Square");
+            stbsp_snprintf(sChar, sizeof(sChar), "Square");
         } else if(iChar == '^') {
-            sprintf_s(sChar, sizeof(sChar), "Jump");
+            stbsp_snprintf(sChar, sizeof(sChar), "Jump");
         } else {
             bGood = 0;
         }
 
         if(bGood) {
-            sprintf_s(sFile, sizeof(sFile), "Char%s.MSH", sChar);
+            stbsp_snprintf(sFile, sizeof(sFile), "Char%s.MSH", sChar);
             g_letter_mesh_indices[iChar] = LoadMesh(base_path, sFile);
         } else {
             g_letter_mesh_indices[iChar] = -1;
         }
     }
 
-    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\panel.bmp", base_path);
+    stbsp_snprintf(sTemp, sizeof(sTemp), "%s/Data/panel.bmp", base_path);
     LoadTexture(g_loaded_texture_count, sTemp, 0, 0);
     ++g_loaded_texture_count;
 
-    sprintf_s(sTemp, sizeof(sTemp), "%s\\Data\\Titles.png", base_path);
+    stbsp_snprintf(sTemp, sizeof(sTemp), "%s/Data/Titles.png", base_path);
     LoadTexture(g_loaded_texture_count, sTemp, 0, 0);
     ++g_loaded_texture_count;
 }
@@ -2595,8 +2596,8 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
 
             if(g_remaining_life_count == 0) {
                 g_player_current_state = kPlayerStateNormal;
-                strcpy_s(g_level_current_title, sizeof(g_level_current_title), "");
-                PrepLevel(base_path, "Data\\GameOver.DAT", game_input);
+                stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", "");
+                PrepLevel(base_path, "Data/GameOver.DAT", game_input);
             } else {
                 ResetPlayer(0, game_input);
 
@@ -2754,7 +2755,7 @@ static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filenam
     //       Return error if we exceed buffer lengths (maybe same check)
     TextLine(sData, iLen, sTemp, 20, level_set_index * 2 - 1);
     TextLine(sData, iLen, level_title, level_title_size, level_set_index * 2);
-    sprintf_s(level_filename, level_filename_size, "Data\\%s.DAT", sTemp);
+    stbsp_snprintf(level_filename, level_filename_size, "Data/%s.DAT", sTemp);
     free(sData);
 }
 
@@ -2797,7 +2798,7 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
         char level_title[50];
         ++g_level_set_current_level_index;
         GetLevelInCurrentLevelSet(level_filename, sizeof(level_filename), level_title, sizeof(level_title), g_level_set_current_level_index);
-        strcpy_s(g_level_current_title, sizeof(g_level_current_title), level_title);
+        stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", level_title);
         PrepLevel(base_path, level_filename, game_input);
     }
 }
@@ -2805,7 +2806,7 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
 void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input) {
     g_just_launched_game = false;
     g_debug_level_is_specified = true;
-    sprintf_s(g_debug_level_filename, sizeof(g_debug_level_filename), "Data\\%s.DAT", level_name);
+    stbsp_snprintf(g_debug_level_filename, sizeof(g_debug_level_filename), "Data/%s.DAT", level_name);
     g_debug_level_is_specified = true;
     LoadNextLevel(base_path, game_input);
     g_level_set_current_level_index = 0;
@@ -2836,7 +2837,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     SetFog(0, 0, 0, 0, 0);
 
     if(g_target_game_menu_state == kGameMenuStateMain) {
-        LoadLevel(base_path, "Data\\MainMenu.DAT");
+        LoadLevel(base_path, "Data/MainMenu.DAT");
 
         if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 3000, -1);
@@ -2848,7 +2849,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     }
 
     if(g_target_game_menu_state == kGameMenuStateOptions) {
-        LoadLevel(base_path, "Data\\Options.DAT");
+        LoadLevel(base_path, "Data/Options.DAT");
 
         if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
@@ -2856,7 +2857,7 @@ static void LoadJumpmanMenu(const char* base_path) {
     }
 
     if(g_target_game_menu_state == kGameMenuStateSelectGame) {
-        LoadLevel(base_path, "Data\\SelectGame.DAT");
+        LoadLevel(base_path, "Data/SelectGame.DAT");
 
         if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
@@ -2946,7 +2947,7 @@ static long LoadMesh(const char* base_path, char* sFileName) {
     long iObjectNum;
     int iNums;
 
-    sprintf_s(sFullFile, sizeof(sFullFile), "%s\\Data\\%s", base_path, sFileName);
+    stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/Data/%s", base_path, sFileName);
 
     cData = NULL;
     iNums = FileToString(sFullFile, &cData);

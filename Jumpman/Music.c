@@ -3,6 +3,7 @@
 #include "tsf.h"
 #define TML_IMPLEMENTATION
 #include "tml.h"
+#include <stb_sprintf.h>
 #include "Music.h"
 #include "SoundBuffer.h"
 
@@ -271,7 +272,7 @@ void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigne
     }
 
     // Enable setting track even if music is not enabled, so we can start the track if we set it enabled again
-    strcpy_s(g_current_track_filename, sizeof(g_current_track_filename), filename);
+    stbsp_snprintf(g_current_track_filename, sizeof(g_current_track_filename), "%s", filename);
     g_current_track_song_start_music_time = song_start_music_time;
     g_current_track_loop_start_music_time = loop_start_music_time;
 
@@ -303,7 +304,7 @@ void NewTrack2(const char* filename) {
     }
 
     // Enable setting track even if music is not enabled, so we can start the track if we set it enabled again
-    strcpy_s(g_current_track_filename, sizeof(g_current_track_filename), filename);
+    stbsp_snprintf(g_current_track_filename, sizeof(g_current_track_filename), "%s", filename);
     g_current_track_song_start_music_time = 0;
     g_current_track_loop_start_music_time = 0;
 
