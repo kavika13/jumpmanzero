@@ -7,6 +7,7 @@
 #define HANDMADE_MATH_IMPLEMENTATION
 #define HANDMADE_MATH_NO_SSE
 #include "HandmadeMath.h"
+#include "boxer/boxer.h"
 #include "Basic3d.h"
 
 #define MAX_TEXTURES 30
@@ -236,7 +237,7 @@ static long SurfaceObject(long o1) {
         }
     }
 
-    MessageBox(0, "Can't find object to surface!", "Jumpman Zero", 0);
+    boxerShow("Can't find object to surface!", "Jumpman Zero", BoxerStyleWarning, BoxerButtonsOK);
 
     return 0;
 }
@@ -422,7 +423,7 @@ void CopyObject(int iObject, long* iNum) {
 
     if(iPlace == -1) {
         iPlace = 0;
-        MessageBox(0, "Too many objects!", "Jumpman Zero", 0);
+        boxerShow("Too many objects!", "Jumpman Zero", BoxerStyleError, BoxerButtonsOK);
     }
 
     *iNum = iPlace;
@@ -837,5 +838,5 @@ void Render() {
 static void FatalError(const char* error_msg) {
     kill_scene();
     kill_3d();
-    MessageBox(NULL, error_msg, "Jumpman Zero", MB_OK);
+    boxerShow(error_msg, "Jumpman Zero", BoxerStyleError, BoxerButtonsOK);
 }
