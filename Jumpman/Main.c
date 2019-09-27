@@ -2,10 +2,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <glad/glad.h>
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Weverything"
+#endif
 #include <GLFW/glfw3.h>
-#pragma clang diagnostic pop
+#ifdef __APPLE__
+    #pragma clang diagnostic pop
+#endif
 #define STB_SPRINTF_IMPLEMENTATION
 #include <stb_sprintf.h>
 #include "Basic3d.h"

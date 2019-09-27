@@ -46,8 +46,8 @@ static mal_uint32 on_send_frames_to_device(mal_device* pDevice, mal_uint32 frame
     }
 
     for(size_t current_frame_index = 0; current_frame_index < frame_count; ++current_frame_index) {
-        output[current_frame_index * 2 + 0] = fmax(-1.0f, fmin(1.0f, output[current_frame_index * 2 + 0]));
-        output[current_frame_index * 2 + 1] = fmax(-1.0f, fmin(1.0f, output[current_frame_index * 2 + 1]));
+        output[current_frame_index * 2 + 0] = (float)fmax(-1.0f, fmin(1.0f, output[current_frame_index * 2 + 0]));
+        output[current_frame_index * 2 + 1] = (float)fmax(-1.0f, fmin(1.0f, output[current_frame_index * 2 + 1]));
     }
 
     return frame_count;

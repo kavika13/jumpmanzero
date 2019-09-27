@@ -49,6 +49,18 @@
     <Filter Include="Header Files\cute_files">
       <UniqueIdentifier>{c324fe4d-7f3f-4765-af0f-d134cdbd223b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\stb_sprintf">
+      <UniqueIdentifier>{5c121f7b-0b47-4246-9260-ae397d4afaaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\boxer">
+      <UniqueIdentifier>{dc868c31-8c2e-48e6-a50f-befef281c2f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\boxer">
+      <UniqueIdentifier>{ec77e9cc-bede-48c7-a625-483312f72d3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\boxer\boxer">
+      <UniqueIdentifier>{4d9858ca-c18a-4325-af35-6e532a6775d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad\src\glad_wgl.c">
@@ -77,6 +89,9 @@
     </ClCompile>
     <ClCompile Include="Jumpman.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boxer-c\src\boxer_win.c">
+      <Filter>Source Files\boxer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +157,12 @@
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb-sprintf-1.06.0\stb_sprintf.h">
+      <Filter>Header Files\stb_sprintf</Filter>
+    </ClInclude>
+    <ClInclude Include="boxer-c\include\boxer\boxer.h">
+      <Filter>Header Files\boxer\boxer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
