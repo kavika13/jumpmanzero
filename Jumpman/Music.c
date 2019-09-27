@@ -266,7 +266,7 @@ void SetIsMusicEnabled(bool is_enabled) {
     }
 }
 
-void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigned int loop_start_music_time) {
+void NewTrack1(const char* filename, unsigned int song_start_music_time, int loop_start_music_time) {
     if(!g_music_is_initialized) {
         return;
     }
@@ -290,10 +290,6 @@ void NewTrack1(const char* filename, unsigned int song_start_music_time, unsigne
         g_track_1.loop_start_point_msec = 0;
         g_track_1.is_looped = false;
     }
-
-    static char g_current_track_filename[200] = { 0 };  // TODO: Is this path long enough?
-    static unsigned int g_current_track_song_start_music_time = 0;
-    static unsigned int g_current_track_loop_start_music_time = 0;
 
     LoadAndPlayTrack(filename, &g_track_1, song_start_music_time, 0, AddTrack1Samples);
 }

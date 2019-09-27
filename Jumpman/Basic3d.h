@@ -13,7 +13,7 @@ void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t 
 void ScrollTexture(long iObj, float fX, float fY);
 void DeleteMesh(long iMesh);
 void Clear3dData(void);
-void LoadTexture(int iTex, char* sFile, int iType, int iAlpha);
+void LoadTexture(int iTex, char* sFile, long iType, int iAlpha);
 bool InitializeAll(void);
 void Begin3dLoad(void);
 void EndAndCommit3dLoad(void);
@@ -25,7 +25,7 @@ void DoCleanUp(void);
 void CreateObject(long* iParams, long iCount, long* iNum);
 void SetObjectData(long iNum, long iTexture, int iVisible);
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
-void CopyObject(int iObject, long* iNum);
+void CopyObject(long iObject, long* iNum);
 void PrioritizeObject(long o1);
 
 void ScaleMatrix(long iObj, float fX, float fY, float fZ);

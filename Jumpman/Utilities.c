@@ -40,7 +40,7 @@ long StringToInt(unsigned char* sString) {
     return (long)(fTemp);
 }
 
-bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
+bool TextLine(char* sText, size_t iTextLen, char* sOut, size_t iOutLen, int iLine) {
     bool is_found = false;
 
     int iLoop;
@@ -86,7 +86,7 @@ bool GetWorkingDirectoryPath(char* output_path) {
     return true;
 }
 
-long FileToString(const char* filename, unsigned char** sNewBuffer) {
+size_t FileToString(const char* filename, unsigned char** sNewBuffer) {
     long length = 0;
     FILE* input_file = fopen(filename, "rb");
 
@@ -127,9 +127,9 @@ bool StringToFile(const char* filename, const char* data) {
 
 bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
     bool is_found = false;
-    int iLen;
+    long iLen;
     char sTemp[20] = { 0 };
-    char* sData;
+    char* sData = NULL;
 
     iLen = FileToString(sFile, (unsigned char**)(&sData));
 

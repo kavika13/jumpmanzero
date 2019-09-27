@@ -12,8 +12,8 @@ extern "C" {
 
 typedef uint32_t (*SoundChannel)(uint32_t frameCount, float* interleaved_stereo_samples);
 
-bool InitSoundBuffer();
-void CleanupSoundBuffer();
+bool InitSoundBuffer(void);
+void CleanupSoundBuffer(void);
 void SetSoundChannel(size_t channel_index, SoundChannel new_channel_node);
 
 #if defined(__cplusplus)

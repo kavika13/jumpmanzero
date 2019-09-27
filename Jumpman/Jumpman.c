@@ -137,24 +137,24 @@ typedef enum {
 } CameraMode;
 
 typedef struct {
-    int X1, X2, X3, X4;
-    int Y1, Y2, Y3, Y4;
-    int Z1, Z2;
-    int Num;
+    long X1, X2, X3, X4;
+    long Y1, Y2, Y3, Y4;
+    long Z1, Z2;
+    long Num;
     int Visible;
     char Func[10];
-    int Extra;
+    long Extra;
 
     int Navs;
-    int NavTo[10];
+    long NavTo[10];
     NavigationType NavToType[10];
     int NavDist;
-    int NavChoice;
+    long NavChoice;
 
-    int MeshSize;
+    long MeshSize;
     long* Mesh;
     long MeshNumber;
-    int Texture;
+    long Texture;
     int ObjectNumber;
 } LevelObject;
 
@@ -223,7 +223,7 @@ static PlayerState g_player_current_state;
 static PlayerDirection g_player_current_direction;
 static PlayerSpecialAction g_player_current_special_action;
 
-static int g_player_absolute_frame_count;
+static long g_player_absolute_frame_count;
 static long g_player_current_state_frame_count;
 static PlayerDyingAnimationState g_player_dying_animation_state;
 static int g_player_dying_animation_state_frame_count;
@@ -350,7 +350,7 @@ static void BuildNavigation() {
                 long ladder_pos_x = g_ladder_objects[ladder_index].X1;
                 long platform_length = g_platform_objects[platform_index].X2 - g_platform_objects[platform_index].X1;
                 // TODO: the platform_height variable name might not be quite correct. Seems to correlate ladder's position with platform height and platform length, then compare to ladder bottom/top
-                long platform_height = g_platform_objects[platform_index].Y1 * abs(g_platform_objects[platform_index].X2 - ladder_pos_x) + g_platform_objects[platform_index].Y2 * abs(g_platform_objects[platform_index].X1 - ladder_pos_x);
+                long platform_height = g_platform_objects[platform_index].Y1 * abs((int)(g_platform_objects[platform_index].X2 - ladder_pos_x)) + g_platform_objects[platform_index].Y2 * abs((int)(g_platform_objects[platform_index].X1 - ladder_pos_x));
                 platform_height /= platform_length;
 
                 if(platform_height < g_ladder_objects[ladder_index].Y1 + 2 && platform_height > g_ladder_objects[ladder_index].Y2 - 2) {
@@ -369,7 +369,7 @@ static void BuildNavigation() {
     return;
 }
 
-static long PlayerCollide(int iArg1, int iArg2, int iArg3, int iArg4) {
+static long PlayerCollide(long iArg1, long iArg2, long iArg3, long iArg4) {
     if(g_player_current_state & kPlayerStateJumping) {
         if(g_player_current_position_x + 4 > iArg1 && g_player_current_position_y + 9 > iArg2 && g_player_current_position_x - 4 < iArg3 && g_player_current_position_y + 4 < iArg4) {
             return 1;
@@ -419,7 +419,7 @@ static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, Naviga
             if(g_ladder_objects[ladder_index].NavDist < 5000) {
                 for(int nav_index = 0; nav_index < g_ladder_objects[ladder_index].Navs; ++nav_index) {
                     if(g_ladder_objects[ladder_index].NavToType[nav_index] == kNavigationTypePlatform) {
-                        int iNavTo = g_ladder_objects[ladder_index].NavTo[nav_index];
+                        long iNavTo = g_ladder_objects[ladder_index].NavTo[nav_index];
 
                         if(g_platform_objects[iNavTo].NavDist > g_ladder_objects[ladder_index].NavDist + 1) {
                             g_platform_objects[iNavTo].NavDist = g_ladder_objects[ladder_index].NavDist + 1;
@@ -442,7 +442,7 @@ static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, Naviga
                     nav_type = g_platform_objects[platform_index].NavToType[nav_index];
 
                     if(nav_type != kNavigationTypeLadder) {
-                        int iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
+                        long iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
 
                         if(g_platform_objects[iNavTo].NavDist > g_platform_objects[platform_index].NavDist + 1) {
                             g_platform_objects[iNavTo].NavDist = g_platform_objects[platform_index].NavDist + 1;
@@ -465,7 +465,7 @@ static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, Naviga
                     }
 
                     if(nav_type == kNavigationTypeLadder) {
-                        int iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
+                        long iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
 
                         if(g_ladder_objects[iNavTo].NavDist > g_platform_objects[platform_index].NavDist + 1) {
                             g_ladder_objects[iNavTo].NavDist = g_platform_objects[platform_index].NavDist + 1;
@@ -493,7 +493,7 @@ static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, Naviga
         return -1;
     }
 
-    int iChoice;
+    long iChoice = 0;
 
     if(nav_to_type == kNavigationTypeLadder) {
         iChoice = g_ladder_objects[iTo].NavChoice;
@@ -516,44 +516,6 @@ static int FindObject(LevelObject* lObj, int iCount, int iFind) {
     }
 
     return -1;
-}
-
-static void CleanResources() {
-    int iLoop = -1;
-
-    while(++iLoop < g_platform_object_count) {
-        free(g_platform_objects[iLoop].Mesh);
-    }
-
-    iLoop = -1;
-
-    while(++iLoop < g_ladder_object_count) {
-        free(g_ladder_objects[iLoop].Mesh);
-    }
-
-    iLoop = -1;
-
-    while(++iLoop < g_donut_object_count) {
-        free(g_donut_objects[iLoop].Mesh);
-    }
-
-    iLoop = -1;
-
-    while(++iLoop < g_vine_object_count) {
-        free(g_vine_objects[iLoop].Mesh);
-    }
-
-    iLoop = -1;
-
-    while(++iLoop < g_wall_object_count) {
-        free(g_wall_objects[iLoop].Mesh);
-    }
-
-    iLoop = -1;
-
-    while(++iLoop < g_backdrop_object_count) {
-        free(g_backdrop_objects[iLoop].Mesh);
-    }
 }
 
 static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
@@ -637,7 +599,7 @@ static int get_navigation_dir(lua_State* lua_state) {
     lua_Integer arg_to_object_type = luaL_checkinteger(lua_state, 4);
     long result = GetNavDir(
         (long)arg_from_object_abs_index, (long)arg_to_object_abs_index,
-        arg_from_object_type, arg_to_object_type);
+        (NavigationType)arg_from_object_type, (NavigationType)arg_to_object_type);
     lua_pushinteger(lua_state, result);
     return 1;
 }
@@ -962,12 +924,6 @@ static int set_remaining_life_count(lua_State* lua_state) {
     return 0;
 }
 
-static int set_script_event_data_4(lua_State* lua_state) {
-    lua_Integer arg1 = luaL_checkinteger(lua_state, 1);
-    g_script_event_data_4 = (long)arg1;
-    return 0;
-}
-
 // script utility functions
 
 static int new_mesh(lua_State* lua_state) {
@@ -1235,11 +1191,11 @@ static int script_load_menu(lua_State* lua_state) {
     lua_Integer menu_type_arg = luaL_checkinteger(lua_state, 1);
 
     g_game_status = kGameStatusMenu;
-    g_target_game_menu_state = menu_type_arg;
+    g_target_game_menu_state = (GameMenuState)menu_type_arg;
 
     if (menu_type_arg == kGameMenuStateMain) {
         lua_Integer track_type_arg = luaL_checkinteger(lua_state, 2);
-        g_target_menu_selected_music = track_type_arg;
+        g_target_menu_selected_music = (GameMenuMusicState)track_type_arg;
     }
 
     return 0;
@@ -1339,7 +1295,7 @@ static int script_get_game_list(lua_State* lua_state) {
     int iTitle = 0;
 
     while(dir.has_next) {
-        cf_file_t file;
+        cf_file_t file = {};
         cf_read_file(&dir, &file);
 
         if(cf_match_ext(&file, ".jmg")) {
@@ -1373,7 +1329,7 @@ static int is_player_colliding_with_rect(lua_State* lua_state) {
     double arg_y2 = luaL_checknumber(lua_state, 4);
     long result = PlayerCollide((int)arg_x1, (int)arg_y1, (int)arg_x2, (int)arg_y2) &&
         !(g_player_current_state == kPlayerStateDying);
-    lua_pushboolean(lua_state, result);
+    lua_pushboolean(lua_state, result ? 1 : 0);
     return 1;
 }
 
@@ -1807,10 +1763,9 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
     char sTemp[300];
 
-    int iLen;
+    long iLen;
     int iPlace;
-    int iLoop;
-    int iData;
+    long iData;
     char sBuild[200];
     long iTemp;
     long iArg1;
@@ -1834,8 +1789,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     g_loaded_script_count = 0;
     iSounds = 0;
 
-    iLoop = -1;
-
     if(g_script_level_script_lua_state != NULL) {
         lua_close(g_script_level_script_lua_state);
         g_script_level_script_lua_state = NULL;
@@ -1858,7 +1811,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
         if(cData[iPlace] == 'R' && cData[iPlace + 1] == 0) {
             iPlace += 2;
-            iLoop = -1;
+            int iLoop = -1;
 
             while(++iLoop < 30) {
                 sTemp[iLoop] = cData[iPlace + iLoop];
@@ -1875,7 +1828,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
                 if(iArg1 == 1) {
                     stbsp_snprintf(g_music_background_track_filename, sizeof(g_music_background_track_filename), "%s", sBuild);
-                    g_music_loop_start_music_time = iArg2 * 10;
+                    g_music_loop_start_music_time = (int)iArg2 * 10;
                 }
 
                 if(iArg1 == 2) {
@@ -1972,7 +1925,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_backdrop_object_count;
         } else if(cData[iPlace] == 'L' && cData[iPlace + 1] == 0) {
-            iLoop = -1;
+            int iLoop = -1;
 
             while(++iLoop < 8) {
                 g_ladder_objects[g_ladder_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
@@ -2015,7 +1968,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_ladder_object_count;
         } else if(cData[iPlace] == 'W' && cData[iPlace + 1] == 0) {
-            iLoop = -1;
+            int iLoop = -1;
 
             while(++iLoop < 8) {
                 g_wall_objects[g_wall_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
@@ -2065,7 +2018,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_wall_object_count;
         } else if(cData[iPlace] == 'V' && cData[iPlace + 1] == 0) {
-            iLoop = -1;
+            int iLoop = -1;
 
             while(++iLoop < 8) {
                 g_vine_objects[g_vine_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
@@ -2110,7 +2063,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_vine_object_count;
         } else if(cData[iPlace] == 'D' && cData[iPlace + 1] == 0) {
-            iLoop = -1;
+            int iLoop = -1;
 
             while(++iLoop < 8) {
                 g_donut_objects[g_donut_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
@@ -2153,7 +2106,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_donut_object_count;
         } else if(cData[iPlace] == 'P' && cData[iPlace + 1] == 0) {
-            iLoop = -1;
+            int iLoop = -1;
 
             while(++iLoop < 8) {
                 g_platform_objects[g_platform_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
@@ -2363,7 +2316,7 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
             }
 
             iLen = g_platform_objects[iP].X2 - g_platform_objects[iP].X1;
-            iH = (float)(g_platform_objects[iP].Y1) * abs(g_platform_objects[iP].X2 - iEX) + (float)(g_platform_objects[iP].Y2) * abs(g_platform_objects[iP].X1 - iEX);
+            iH = (float)(g_platform_objects[iP].Y1) * abs((int)(g_platform_objects[iP].X2 - iEX)) + (float)(g_platform_objects[iP].Y2) * abs((int)(g_platform_objects[iP].X1 - iEX));
             iH /= iLen;
 
             bGood = 0;
@@ -2442,8 +2395,8 @@ static void GrabDonuts(GameInput* game_input) {
     }
 }
 
-static void AdjustPlayerZ(int iTargetZ, int iTime) {
-    if(iTime < abs(iTargetZ - (int)(g_player_current_position_z))) {
+static void AdjustPlayerZ(long iTargetZ, int iTime) {
+    if(iTime < abs((int)iTargetZ - (int)g_player_current_position_z)) {
         if(iTargetZ < g_player_current_position_z) {
             --g_player_current_position_z;
         }
@@ -2602,7 +2555,7 @@ static void AnimateDying(GameInput* game_input, const char* base_path) {
                 ResetPlayer(0, game_input);
 
                 if(g_music_loop_start_music_time != 5550) {
-                    NewTrack1(g_music_background_track_filename, g_music_loop_start_music_time, g_music_loop_start_music_time);
+                    NewTrack1(g_music_background_track_filename, (unsigned int)g_music_loop_start_music_time, g_music_loop_start_music_time);
                 }
             }
         }
@@ -2746,7 +2699,7 @@ static void DrawGame() {
 // ------------------- OTHER STUFF -------------------------------
 
 static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filename_size, char* level_title, size_t level_title_size, int level_set_index) {
-    int iLen;
+    long iLen;
     char sTemp[20] = { 0 };
     char* sData;
 
@@ -2755,7 +2708,7 @@ static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filenam
     //       Return error if we exceed buffer lengths (maybe same check)
     TextLine(sData, iLen, sTemp, 20, level_set_index * 2 - 1);
     TextLine(sData, iLen, level_title, level_title_size, level_set_index * 2);
-    stbsp_snprintf(level_filename, level_filename_size, "Data/%s.DAT", sTemp);
+    stbsp_snprintf(level_filename, (int)level_filename_size, "Data/%s.DAT", sTemp);
     free(sData);
 }
 
@@ -2945,7 +2898,7 @@ static long LoadMesh(const char* base_path, char* sFileName) {
     long* oData;
     char sFullFile[300];
     long iObjectNum;
-    int iNums;
+    long iNums;
 
     stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/Data/%s", base_path, sFileName);
 
@@ -3079,7 +3032,7 @@ static void DoDeathBounce() {
     }
 }
 
-static int CheckWalkOff(int iCenter, GameInput* game_input) {
+static int CheckWalkOff(long iCenter, GameInput* game_input) {
     if(g_player_current_position_x < iCenter && game_input->move_right_action.is_pressed) {
         return 0;
     }

@@ -8,10 +8,10 @@
 extern "C" {
 #endif
 
-bool InitSound();
-bool GetIsSoundEnabled();
+bool InitSound(void);
+bool GetIsSoundEnabled(void);
 void SetIsSoundEnabled(bool is_enabled);
-void CleanUpSounds();
+void CleanUpSounds(void);
 bool LoadSound(const char* filename, size_t sound_index);
 void PlaySoundEffect(size_t sound_index);
 

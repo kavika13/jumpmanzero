@@ -7,12 +7,12 @@
 extern "C" {
 #endif
 
-bool IsGameFrozen();
-long GetCurrentFps();
-long GetLastKeyPressed();
+bool IsGameFrozen(void);
+long GetCurrentFps(void);
+long GetLastKeyPressed(void);
 int GetKeyBinding(size_t binding_index);
 void SetKeyBinding(size_t binding_index, int value);
-void SaveSettings();
+void SaveSettings(void);
 
 #if defined(__cplusplus)
 }  // extern "C"

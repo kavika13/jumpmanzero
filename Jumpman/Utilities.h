@@ -12,7 +12,7 @@ long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, lon
 long StringToInt(unsigned char* sString);
 long StringToLong(unsigned char* sString);
 long StringToLong2(unsigned char* sString);
-bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine);
+bool TextLine(char* sText, size_t iTextLen, char* sOut, size_t iOutLen, int iLine);
 bool GetWorkingDirectoryPath(char* output_path);
 long FileToString(const char* filename, unsigned char** sNewBuffer);
 bool StringToFile(const char* filename, const char* data);

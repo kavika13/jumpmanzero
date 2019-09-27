@@ -367,12 +367,12 @@ void Clear3dData() {
     g_vertices_to_load_count = 0;
 }
 
-void LoadTexture(int iTex, char* sFile, int image_type, int is_alpha_blend_enabled) {
+void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enabled) {
     g_texture_is_alpha_blend_enabled[iTex] = is_alpha_blend_enabled;
     stbsp_snprintf(g_texture_filename[iTex], sizeof(g_texture_filename[iTex]), "%s", sFile);
     g_texture_is_color_key_alpha_enabled[iTex] = image_type == 1 ? 1 : 0;
 
-    int width, height, channels_in_file;
+    int width = 0, height = 0, channels_in_file;
     unsigned char* image_data = stbi_load(sFile, &width, &height, &channels_in_file, 4);
 
     if(image_type == 1) {
@@ -412,7 +412,7 @@ void ChangeMesh(long iMesh, long iNewMesh) {
     g_object_vertex_count[iRealMesh] = g_object_vertex_count[iObjectToCopy];
 }
 
-void CopyObject(int iObject, long* iNum) {
+void CopyObject(long iObject, long* iNum) {
     long iObjectToCopy = g_object_redirects[iObject];
     long iLoop = -1;
     long iPlace = -1;
@@ -829,7 +829,7 @@ void Render() {
                 are_fs_params_applied = true;
             }
 
-            sg_draw(g_object_vertex_start_index[iObject], g_object_vertex_count[iObject], 1);
+            sg_draw((int)g_object_vertex_start_index[iObject], (int)g_object_vertex_count[iObject], 1);
         }
     }
 
