@@ -43,16 +43,14 @@ long StringToInt(unsigned char* sString) {
 bool TextLine(char* sText, size_t iTextLen, char* sOut, size_t iOutLen, int iLine) {
     bool is_found = false;
 
-    int iLoop;
     int iCR;
-    int iChars;
+    size_t iChars;
 
     iChars = 0;
     iCR = 0;
-    iLoop = -1;
     sOut[iChars] = 0;
 
-    while(++iLoop < iTextLen) {
+    for(size_t iLoop = 0; iLoop < iTextLen; ++iLoop) {
         if(iCR == iLine && sText[iLoop] != 10 && sText[iLoop] != 13 && iChars < iOutLen - 1) {
             is_found = true;
             sOut[iChars] = sText[iLoop];

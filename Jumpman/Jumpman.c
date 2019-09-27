@@ -307,7 +307,7 @@ static long CollideWall(long iX1, long iY1, long iX2, long iY2) {
     return 0;
 }
 
-static void BuildNavigation() {
+static void BuildNavigation(void) {
     for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
         g_ladder_objects[ladder_index].Navs = 0;
     }
@@ -1295,7 +1295,7 @@ static int script_get_game_list(lua_State* lua_state) {
     int iTitle = 0;
 
     while(dir.has_next) {
-        cf_file_t file = {};
+        cf_file_t file = { 0 };
         cf_read_file(&dir, &file);
 
         if(cf_match_ext(&file, ".jmg")) {
@@ -1770,7 +1770,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     long iTemp;
     long iArg1;
     long iArg2;
-    long iNum;
 
     long* oData;
     long iMPlace;
@@ -1906,7 +1905,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_backdrop_objects[g_backdrop_object_count].MeshSize = iData;
             g_backdrop_objects[g_backdrop_object_count].ObjectNumber = g_backdrop_object_count;
 
-            iNum = -1;
+            long iNum = -1;
 
             while(++iNum < iData) {
                 g_backdrop_objects[g_backdrop_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
@@ -1950,7 +1949,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_ladder_objects[g_ladder_object_count].MeshSize = iData;
             g_ladder_objects[g_ladder_object_count].ObjectNumber = g_ladder_object_count;
 
-            iNum = -1;
+            long iNum = -1;
 
             while(++iNum < iData) {
                 g_ladder_objects[g_ladder_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
@@ -1998,9 +1997,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_wall_objects[g_wall_object_count].MeshSize = iData;
             g_wall_objects[g_wall_object_count].ObjectNumber = g_wall_object_count;
 
-            long iNum;
-
-            iNum = -1;
+            long iNum = -1;
 
             while(++iNum < iData) {
                 g_wall_objects[g_wall_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
@@ -2043,9 +2040,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_vine_objects[g_vine_object_count].MeshSize = iData;
             g_vine_objects[g_vine_object_count].ObjectNumber = g_vine_object_count;
 
-            long iNum;
-
-            iNum = -1;
+            long iNum = -1;
 
             while(++iNum < iData) {
                 g_vine_objects[g_vine_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
@@ -2086,9 +2081,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_donut_objects[g_donut_object_count].MeshSize = iData;
             g_donut_objects[g_donut_object_count].ObjectNumber = g_donut_object_count;
 
-            long iNum;
-
-            iNum = -1;
+            long iNum = -1;
 
             while(++iNum < iData) {
                 g_donut_objects[g_donut_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
@@ -2132,9 +2125,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_platform_objects[g_platform_object_count].MeshSize = iData;
             g_platform_objects[g_platform_object_count].ObjectNumber = g_platform_object_count;
 
-            long iNum;
-
-            iNum = -1;
+            long iNum = -1;
 
             while(++iNum < iData) {
                 g_platform_objects[g_platform_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
@@ -2259,7 +2250,7 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact) {
     }
 }
 
-static long PlayerFloor() {
+static long PlayerFloor(void) {
     long iFloor;
     iFloor = 0;
 
@@ -2270,7 +2261,7 @@ static long PlayerFloor() {
     return iFloor;
 }
 
-static long PlayerHeight() {
+static long PlayerHeight(void) {
     long iHeight;
     iHeight = 14;
 
@@ -2408,6 +2399,7 @@ static void AdjustPlayerZ(long iTargetZ, int iTime) {
 }
 
 static void ResetPlayer(int iNewLevel, GameInput* game_input) {
+    // TODO: Pass boolean iNewLevel to function?
     CallLuaFunction(g_script_level_script_lua_state, "reset", game_input, false);
 }
 
@@ -2610,7 +2602,7 @@ static void ProgressGame(const char* base_path, GameInput* game_input) {
     }
 }
 
-static void SetGamePerspective() {
+static void SetGamePerspective(void) {
     static float iCamX, iCamY;
     static float iPX, iPY;
     float iTX, iTY;
@@ -2682,7 +2674,7 @@ static void SetGamePerspective() {
     }
 }
 
-static void DrawGame() {
+static void DrawGame(void) {
     IdentityMatrix(g_player_mesh_indices[g_player_current_mesh]);
     RotateMatrixX(g_player_mesh_indices[g_player_current_mesh], g_player_current_rotation_x_radians * 180.0f / 3.14f);
     TranslateMatrix(g_player_mesh_indices[g_player_current_mesh], g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
@@ -2766,7 +2758,7 @@ void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput
     g_game_status = kGameStatusInLevel;
 }
 
-void InitGameNormal() {
+void InitGameNormal(void) {
     g_just_launched_game = true;
     g_game_status = kGameStatusMenu;
     g_current_game_menu_state = kGameMenuStateNone;
@@ -2775,7 +2767,7 @@ void InitGameNormal() {
     g_debug_level_is_specified = false;
 }
 
-void ExitGame() {
+void ExitGame(void) {
     g_game_status = kGameStatusExiting;
 }
 
@@ -2866,7 +2858,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
     }
 }
 
-long Init3D() {
+long Init3D(void) {
     int iLoop;
 
     g_player_current_state = 0;
@@ -3011,7 +3003,7 @@ static void MoveJumpmanNormal(GameInput*);
 
 static int iIgnoreLadders;
 
-static void DoDeathBounce() {
+static void DoDeathBounce(void) {
     StopMusic1();
     g_player_current_state = kPlayerStateDying;
     g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
@@ -3078,7 +3070,7 @@ static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input)
     return 1;
 }
 
-static void UpdateSituation() {
+static void UpdateSituation(void) {
     FindVine((long)(g_player_current_position_x), (long)(g_player_current_position_y), &g_player_current_close_vine_index, &g_player_current_exact_vine_index);
     FindLadder((long)(g_player_current_position_x), (long)(g_player_current_position_y), &g_player_current_close_ladder_index, &g_player_current_exact_ladder_index);
     GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y), PlayerHeight(), 2, &g_player_current_platform_y, &g_player_current_platform_index);

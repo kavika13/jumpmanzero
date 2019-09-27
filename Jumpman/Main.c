@@ -107,7 +107,7 @@ static bool LoadSettings(bool* sound_is_initially_enabled, bool* music_is_initia
     return true;
 }
 
-static bool SaveSettings_() {
+static bool SaveSettings_(void) {
     bool success = true;
 
     char sFile[300];
@@ -430,15 +430,15 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
     game_current_input->debug_action.just_pressed = game_current_input->debug_action.is_pressed && !game_prev_input->debug_action.is_pressed;
 }
 
-bool IsGameFrozen() {
+bool IsGameFrozen(void) {
     return g_game_is_frozen;
 }
 
-long GetCurrentFps() {
+long GetCurrentFps(void) {
     return g_current_fps;
 }
 
-long GetLastKeyPressed() {
+long GetLastKeyPressed(void) {
     return g_last_key_pressed;
 }
 
@@ -450,7 +450,7 @@ void SetKeyBinding(size_t binding_index, int value) {
     g_key_bindings[binding_index] = value;
 }
 
-void SaveSettings() {
+void SaveSettings(void) {
     g_save_settings_is_queued = true;
 }
 

@@ -41,12 +41,12 @@ static const SoundChannel g_sound_channel_callbacks[kNUM_SOUND_DECODERS] = {
     AddChannel4Samples,
 };
 
-bool InitSound() {
+bool InitSound(void) {
     g_sound_is_initialized = true;
     return true;
 }
 
-bool GetIsSoundEnabled() {
+bool GetIsSoundEnabled(void) {
     return g_sound_is_enabled;
 }
 
@@ -82,7 +82,7 @@ bool LoadSound(const char* filename, size_t sound_index) {
     return result == MAL_SUCCESS;
 }
 
-void CleanUpSounds() {
+void CleanUpSounds(void) {
     if(!g_sound_is_initialized) {
         return;
     }

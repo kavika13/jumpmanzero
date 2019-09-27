@@ -53,7 +53,7 @@ static mal_uint32 on_send_frames_to_device(mal_device* pDevice, mal_uint32 frame
     return frame_count;
 }
 
-bool InitSoundBuffer() {
+bool InitSoundBuffer(void) {
     if(!g_is_initialized) {
         mal_device_config config = mal_device_config_init_playback(
             mal_format_f32,
@@ -82,7 +82,7 @@ bool InitSoundBuffer() {
     return true;
 }
 
-void CleanupSoundBuffer() {
+void CleanupSoundBuffer(void) {
     mal_device_uninit(&g_sound_device);
     g_is_initialized = false;
 }

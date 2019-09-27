@@ -215,7 +215,7 @@ static void StopTrack(MusicTrack* track) {
     track->is_stopping = true;
 }
 
-bool InitMusic() {
+bool InitMusic(void) {
     if(g_music_is_initialized) {
         return true;
     }
@@ -247,7 +247,7 @@ bool InitMusic() {
     return true;
 }
 
-bool GetIsMusicEnabled() {
+bool GetIsMusicEnabled(void) {
     return g_music_is_enabled;
 }
 
@@ -317,7 +317,7 @@ void NewTrack2(const char* filename) {
     LoadAndPlayTrack(filename, &g_track_2, 0, 1, AddTrack2Samples);
 }
 
-void StopMusic1() {
+void StopMusic1(void) {
     if(!g_music_is_initialized) {
         return;
     }
@@ -334,7 +334,7 @@ void StopMusic1() {
     StopTrack(&g_track_1);
 }
 
-void CleanUpMusic() {
+void CleanUpMusic(void) {
     if(!g_music_is_initialized) {
         return;
     }
