@@ -1,5 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <direct.h>
+#ifdef _WIN32
+    #include <direct.h>
+    #define getcwd _getcwd
+#else
+    #include <unistd.h>
+#endif
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -73,7 +78,7 @@ bool TextLine(char* sText, int iTextLen, char* sOut, int iOutLen, int iLine) {
 }
 
 bool GetWorkingDirectoryPath(char* output_path) {
-    if(_getcwd(output_path, 200) == NULL) {
+    if(getcwd(output_path, 200) == NULL) {
         // TODO: Proper error handling, handle longer paths, full cross-platform solution, check for unicode support
         return false;
     }
