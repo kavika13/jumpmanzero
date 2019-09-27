@@ -50,10 +50,10 @@ typedef struct {
 } FragmentShaderParams;
 
 static void FatalError(const char* error_msg);
-static long init_3d();
-static void kill_3d();
-static void init_scene();
-static void kill_scene();
+static long init_3d(void);
+static void kill_3d(void);
+static void init_scene(void);
+static void kill_scene(void);
 static void SwapObjects(long o1, long o2);
 
 static int g_backbuffer_width;

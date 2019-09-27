@@ -12,16 +12,16 @@ void ChangeMesh(long iMesh, long iNewMesh);
 void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t blue);
 void ScrollTexture(long iObj, float fX, float fY);
 void DeleteMesh(long iMesh);
-void Clear3dData();
+void Clear3dData(void);
 void LoadTexture(int iTex, char* sFile, int iType, int iAlpha);
-bool InitializeAll();
-void Begin3dLoad();
-void EndAndCommit3dLoad();
-void Render();
+bool InitializeAll(void);
+void Begin3dLoad(void);
+void EndAndCommit3dLoad(void);
+void Render(void);
 void ResizeViewport(int width, int height);
-void Reset3d();  // TODO: Is this function necessary anymore? Used for resetting context after focus switch
+void Reset3d(void);  // TODO: Is this function necessary anymore? Used for resetting context after focus switch
 
-void DoCleanUp();
+void DoCleanUp(void);
 void CreateObject(long* iParams, long iCount, long* iNum);
 void SetObjectData(long iNum, long iTexture, int iVisible);
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);

@@ -161,7 +161,7 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
 static void LoadNextLevel(const char* base_path, GameInput* game_input);
 static long LoadMesh(const char* base_path, char* sFileName);
 static void LoadMeshes(const char* base_path);
-static void SetGamePerspective();
+static void SetGamePerspective(void);
 static int FindObject(LevelObject* lObj, int iCount, int iFind);
 static void FindVine(long iX, long iY, long* iAbout, long* iExact);
 static void FindLadder(long iX, long iY, long* iAbout, long* iExact);
@@ -3048,12 +3048,12 @@ static void LoadMeshes(const char* base_path) {
 
 
 
-static void MoveJumpmanPunch();
-static void MoveJumpmanSlide();
-static void MoveJumpmanFalling();
-static void MoveJumpmanRoll();
-static void MoveJumpmanJumping();
-static void MoveJumpmanNormal();
+static void MoveJumpmanPunch(GameInput*);
+static void MoveJumpmanSlide(GameInput*);
+static void MoveJumpmanFalling(GameInput*);
+static void MoveJumpmanRoll(GameInput*);
+static void MoveJumpmanJumping(GameInput*);
+static void MoveJumpmanNormal(GameInput*);
 
 static int iIgnoreLadders;
 

@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <glad/glad.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
 #include <GLFW/glfw3.h>
+#pragma clang diagnostic pop
 #include "Basic3d.h"
 #include "Input.h"
 #include "Jumpman.h"
