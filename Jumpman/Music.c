@@ -39,7 +39,7 @@ static unsigned int MusicTimeToMilliseconds(tml_message* first_midi_message, uns
     double current_tempo_ms_per_quarter_note = 500.0;
     double target_time_ms = current_time_ms + remaining_quarter_notes * current_tempo_ms_per_quarter_note;
 
-    while(current_midi_message != NULL && current_midi_message->time < target_time_ms) {  // Todo: For some reason this line sometimes, intermittently, hits an access violation?
+    while(current_midi_message != NULL && current_midi_message->time < target_time_ms) {
         remaining_quarter_notes -= (current_midi_message->time - current_time_ms) / current_tempo_ms_per_quarter_note;
         current_time_ms = current_midi_message->time;
         double new_tempo_ms_per_quarter_note = tml_get_tempo_value(current_midi_message) / 1000.0;
@@ -185,7 +185,7 @@ static uint32_t AddTrack2Samples(uint32_t frameCount, float* interleaved_stereo_
     return AddMidiSamples(1, &g_track_2, frameCount, interleaved_stereo_samples);
 }
 
-static void LoadAndPlayTrack(const char* filename, MusicTrack* track, unsigned int start_time_music_time, int sound_channel_index, SoundChannel sound_channel) {
+static void LoadAndPlayTrack(const char* filename, MusicTrack* track, unsigned int start_time_music_time, int loop_start_music_time, int sound_channel_index, SoundChannel sound_channel) {
     tml_message* tiny_midi_loader = NULL;
     tiny_midi_loader = tml_load_filename(filename);
 
@@ -199,6 +199,14 @@ static void LoadAndPlayTrack(const char* filename, MusicTrack* track, unsigned i
     track->track_end_point_msec = time_length;
     track->current_midi_message = track->first_midi_message = tiny_midi_loader;
     track->current_playback_timestamp_msec = 0.0;
+
+    if(loop_start_music_time >= 0 && loop_start_music_time != 55000) {
+        track->loop_start_point_msec = MusicTimeToMilliseconds(track->first_midi_message, loop_start_music_time);
+        track->is_looped = true;
+    } else {
+        track->loop_start_point_msec = 0;
+        track->is_looped = false;
+    }
 
     if(start_time_music_time > 0) {
         unsigned int start_time_msec = MusicTimeToMilliseconds(track->first_midi_message, start_time_music_time);
@@ -283,15 +291,7 @@ void NewTrack1(const char* filename, unsigned int song_start_music_time, int loo
     StopTrack(&g_track_1);
     tml_free(g_track_1.first_midi_message);
 
-    if(loop_start_music_time >= 0 && loop_start_music_time != 55000) {
-        g_track_1.loop_start_point_msec = MusicTimeToMilliseconds(g_track_1.first_midi_message, loop_start_music_time);
-        g_track_1.is_looped = true;
-    } else {
-        g_track_1.loop_start_point_msec = 0;
-        g_track_1.is_looped = false;
-    }
-
-    LoadAndPlayTrack(filename, &g_track_1, song_start_music_time, 0, AddTrack1Samples);
+    LoadAndPlayTrack(filename, &g_track_1, song_start_music_time, loop_start_music_time, 0, AddTrack1Samples);
 }
 
 void NewTrack2(const char* filename) {
@@ -311,10 +311,7 @@ void NewTrack2(const char* filename) {
     StopTrack(&g_track_2);
     tml_free(g_track_2.first_midi_message);
 
-    g_track_2.loop_start_point_msec = 0;
-    g_track_2.is_looped = false;
-
-    LoadAndPlayTrack(filename, &g_track_2, 0, 1, AddTrack2Samples);
+    LoadAndPlayTrack(filename, &g_track_2, 0, -1, 1, AddTrack2Samples);
 }
 
 void StopMusic1(void) {
