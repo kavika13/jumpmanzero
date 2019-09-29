@@ -84,7 +84,7 @@ local function CreateWhomper(iX, iY, iR, iRV)
     table.insert(whompers, new_whomper);
 end
 
-function update(game_input)
+function update(game_input, is_initialized)
     if not is_initialized then
         is_initialized = true;
 

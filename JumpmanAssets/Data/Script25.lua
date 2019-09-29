@@ -128,7 +128,7 @@ local g_splash_particle_time = 0;
 local g_splash_scale_x = 0;
 local g_splash_scale_y = 0;
 
-function update(game_input)
+function update(game_input, is_initialized)
     if not g_is_initialized then
         g_is_initialized = true;
 

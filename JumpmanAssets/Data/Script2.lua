@@ -77,7 +77,7 @@ local function CreateDropObject(frames_to_wait)
     return new_drop_object;
 end
 
-function update(game_input)
+function update(game_input, is_initialized)
     if not is_initialized then
         is_initialized = true;
 

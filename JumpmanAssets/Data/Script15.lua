@@ -50,7 +50,7 @@ local g_hud_overlay;
 local g_disappearing_platforms = {};
 local iBlow = 0;
 
-function update(game_input)
+function update(game_input, is_initialized)
     if not is_initialized then
         is_initialized = true;
         g_game_logic = game_logic_module();
