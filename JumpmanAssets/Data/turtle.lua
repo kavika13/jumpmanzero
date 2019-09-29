@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.MoveRightMeshResourceIndices = {};
 Module.MoveLeftMeshResourceIndices = {};
 Module.HideMeshResourceIndices = {};
@@ -251,13 +253,13 @@ function Module.update(game_input, all_turtles)
 
             if game_input.move_left_action.is_pressed then
                 set_player_current_state(player_state.JSJUMPING);
-                set_player_current_direction(player_movement_direction.DIR_LEFT);
+                Module.GameLogic.set_player_current_direction(player_movement_direction.DIR_LEFT);
             elseif game_input.move_right_action.is_pressed then
                 set_player_current_state(player_state.JSJUMPING);
-                set_player_current_direction(player_movement_direction.DIR_RIGHT);
+                Module.GameLogic.set_player_current_direction(player_movement_direction.DIR_RIGHT);
             else
                 set_player_current_state(player_state.JSJUMPING);
-                set_player_current_direction(player_movement_direction.DIR_UP);
+                Module.GameLogic.set_player_current_direction(player_movement_direction.DIR_UP);
             end
 
             set_player_current_state_frame_count(0);

@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.ObjectIndex = 0;
 Module.GoodColorTextureResourceIndex = 0;
 Module.BadColorTextureResourceIndex = 0;
@@ -75,7 +77,7 @@ end
 local function CheckForPlayer()
     g_current_state = 1;
 
-    local iPlat = get_player_current_active_platform_index();
+    local iPlat = Module.GameLogic.get_player_current_active_platform_index();
 
     if iPlat == Module.ObjectIndex then
         if get_player_current_state() == player_state.JSLADDER then

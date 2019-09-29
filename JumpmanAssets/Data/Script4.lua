@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local ninja_module = assert(loadfile("Data/ninja.lua"));
 
@@ -79,7 +80,9 @@ ninja_properties = read_only.make_table_read_only(ninja_properties);
 
 local g_is_initialized = false;
 local g_is_first_update_complete = false;
+local g_title_is_done_scrolling = false;
 
+local g_game_logic;
 local g_hud_overlay;
 local g_ninjas = {};
 
@@ -88,6 +91,8 @@ local g_trap_door_fall_progress = 0;
 
 local function SpawnNinja_(pos_x, pos_y)
     new_ninja = ninja_module();
+
+    new_ninja.GameLogic = g_game_logic;
 
     new_ninja.MoveRightMeshResourceIndices = { resources.MeshNjRight1, resources.MeshNjRight2 };
     new_ninja.JumpRightMeshResourceIndex = resources.MeshNjJR;
@@ -115,6 +120,10 @@ function update(game_input)
     if not g_is_initialized then
         g_is_initialized = true;
 
+        g_game_logic = game_logic_module();
+        g_game_logic.ResetPlayerCallback = reset;
+        g_game_logic.OnCollectDonutCallback = on_collect_donut;
+
         g_hud_overlay = hud_overlay_module();
 
         SpawnNinja_(120, 8);
@@ -123,7 +132,14 @@ function update(game_input)
         SpawnNinja_(110, 80);
     end
 
-    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
+    --       That should simplify this logic drastically.
+    --       Probably best to do that with the level loader refactor?
+    if is_initializing or g_title_is_done_scrolling then
+        g_game_logic.progress_game(game_input);
+        g_hud_overlay.update(game_input);
+    elseif g_is_first_update_complete then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return false;
     end
 

@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local prop_module = assert(loadfile("Data/prop.lua"));
 local whomper_module = assert(loadfile("Data/whomper.lua"));
@@ -48,7 +49,7 @@ local function ConveyPlatform(iPlat, iDist)
         return 0;
     end
 
-    if get_player_current_active_platform_index() == iPN then
+    if g_game_logic.get_player_current_active_platform_index() == iPN then
         iPX = iPX - iDist * 15;
 
         if get_player_current_state() == 4096 then  -- TODO: Is this a custom state?
@@ -87,6 +88,9 @@ function update(game_input)
     if not is_initialized then
         is_initialized = true;
 
+        g_game_logic = game_logic_module();
+        g_game_logic.ResetPlayerCallback = reset;
+
         g_hud_overlay = hud_overlay_module();
 
         CreateWhomper(86, 28, 50, 3);
@@ -111,7 +115,14 @@ function update(game_input)
         CreateProp(101, 97, 25, 2);
     end
 
-    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
+    --       That should simplify this logic drastically.
+    --       Probably best to do that with the level loader refactor?
+    if is_initializing or g_title_is_done_scrolling then
+        g_game_logic.progress_game(game_input);
+        g_hud_overlay.update(game_input);
+    elseif g_is_first_update_complete then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return false;
     end
 

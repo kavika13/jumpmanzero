@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.MoveRightMeshResourceIndices = {};
 Module.JumpRightMeshResourceIndex = 0;
 Module.KickRightMeshResourceIndex = 0;
@@ -13,6 +15,7 @@ Module.RollLeftMeshResourceIndices = {};
 Module.DeadMeshResourceIndex = 0;
 Module.FixDonutMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
+
 Module.InitialPosX = 0;
 Module.InitialPosY = 0;
 
@@ -406,7 +409,7 @@ local function CollidePlayer_()
 
     g_current_velocity_x = -1.5;
 
-    if get_player_current_direction() == player_movement_direction.DIR_RIGHT then
+    if Module.GameLogic.get_player_current_direction() == player_movement_direction.DIR_RIGHT then
         g_current_velocity_x = 1.5;
     end
 

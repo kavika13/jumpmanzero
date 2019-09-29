@@ -83,7 +83,7 @@ local function CheckHanging(game_input)
         return;
     end
 
-    local iPlat = get_player_current_active_platform_index();
+    local iPlat = g_game_logic.get_player_current_active_platform_index();
     abs_platform(iPlat);
 
     if get_script_selected_level_object_extra() == 3 then

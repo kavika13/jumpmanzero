@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local disappearing_platform_module = assert(loadfile("Data/disappearing_platform.lua"));
 
@@ -42,33 +43,38 @@ resources = read_only.make_table_read_only(resources);
 
 local is_initialized = false;
 local g_is_first_update_complete = false;
+local g_title_is_done_scrolling = false;
 
+local g_game_logic;
 local g_hud_overlay;
 local g_disappearing_platforms = {};
 local iBlow = 0;
 
 function update(game_input)
-    -- TODO: Move update to top?
-    if g_hud_overlay and not g_hud_overlay.update(game_input) and g_is_first_update_complete then
-        return false;
-    end
-
-    iBlow = iBlow - 0.6;
-
-    if iBlow < 0 then
-        iBlow = 110;
-    end
-
-    select_picture(5);  -- TODO: What is this constant, 5? How do we know it is this one? Hard-coded into the .lvl file?
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(0, iBlow, 10);
-
     if not is_initialized then
         is_initialized = true;
+        g_game_logic = game_logic_module();
+        g_game_logic.ResetPlayerCallback = reset;
         g_hud_overlay = hud_overlay_module();
         set_level_extent_x(180);
         InitPlatforms();
     end
+
+    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
+    --       That should simplify this logic drastically.
+    --       Probably best to do that with the level loader refactor?
+    if is_initializing or g_title_is_done_scrolling then
+        g_game_logic.progress_game(game_input);
+        g_hud_overlay.update(game_input);
+    elseif g_is_first_update_complete then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return false;
+    end
+
+    select_picture(5);  -- TODO: This is the waterfall backdrop. Use a constant, or get from resources
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_translate_matrix(0, 0, 10);
+    script_selected_mesh_scroll_texture(0, -0.15);
 
     for _, plat in ipairs(g_disappearing_platforms) do
         plat.update();
@@ -90,6 +96,7 @@ function InitPlatforms()
 
         if get_script_selected_level_object_number() ~= 0 then
             local iNew = disappearing_platform_module();
+            iNew.GameLogic = g_game_logic;
             iNew.ObjectIndex = iPlat;
             iNew.GoodColorTextureResourceIndex = resources.TextureYellowPlatform;
             iNew.BadColorTextureResourceIndex = resources.TextureRedPlatform;

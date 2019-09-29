@@ -1126,18 +1126,6 @@ local function AnimateDying_(game_input)
     end
 end
 
-function get_player_current_active_platform_index()  -- TODO: Encapsulate better? Need to change other scripts
-    return g_player_current_active_platform_index;
-end
-
-function get_player_current_direction()  -- TODO: Encapsulate better? Need to change other scripts
-    return g_player_current_direction;
-end
-
-function set_player_current_direction(new_direction)  -- TODO: Encapsulate better? Need to change other scripts
-    g_player_current_direction = new_direction;
-end
-
 function Module.progress_game(game_input)
     if get_player_freeze_cooldown_frame_count() ~= 0 then
         set_player_freeze_cooldown_frame_count(get_player_freeze_cooldown_frame_count() - 1);
@@ -1170,6 +1158,18 @@ function Module.progress_game(game_input)
     end
 
     reset_perspective();
+end
+
+function Module.get_player_current_active_platform_index()
+    return g_player_current_active_platform_index;
+end
+
+function Module.get_player_current_direction()
+    return g_player_current_direction;
+end
+
+function Module.set_player_current_direction(new_direction)
+    g_player_current_direction = new_direction;
 end
 
 return Module;
