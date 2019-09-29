@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local follower_sheep_module = assert(loadfile("Data/follower_sheep.lua"));
 local leader_sheep_module = assert(loadfile("Data/leader_sheep.lua"));
@@ -57,7 +58,9 @@ resources = read_only.make_table_read_only(resources);
 
 local g_init_stage_index = 0;
 local g_is_first_update_complete = false;
+local g_title_is_done_scrolling = false;
 
+local g_game_logic;
 local g_hud_overlay;
 local g_leader_sheep = nil;
 local g_follower_sheep = {};
@@ -89,7 +92,7 @@ function CreateSheep_()
     table.insert(g_follower_sheep, new_follower_sheep);
 end
 
-function update(game_input)
+function update(game_input, is_initializing)
     if g_init_stage_index == 1 then
         g_init_stage_index = 2;
 
@@ -101,6 +104,9 @@ function update(game_input)
     if g_init_stage_index == 0 then
         g_init_stage_index = 1;
 
+        g_game_logic = game_logic_module();
+        g_game_logic.ResetPlayerCallback = reset;
+
         g_hud_overlay = hud_overlay_module();
 
         g_leader_sheep = leader_sheep_module();
@@ -109,7 +115,14 @@ function update(game_input)
         set_level_extent_x(270);
     end
 
-    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
+    --       That should simplify this logic drastically.
+    --       Probably best to do that with the level loader refactor?
+    if is_initializing or g_title_is_done_scrolling then
+        g_game_logic.progress_game(game_input);
+        g_hud_overlay.update(game_input);
+    elseif g_is_first_update_complete then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return false;
     end
 

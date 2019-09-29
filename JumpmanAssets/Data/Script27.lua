@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local beam_module = assert(loadfile("Data/beam.lua"));
 local blob_module = assert(loadfile("Data/blob.lua"));
@@ -76,7 +77,9 @@ local kPLAY_AREA_CIRCUMFERENCE = 281;
 
 local g_init_stage_index = 0;
 local g_is_first_update_complete = false;
+local g_title_is_done_scrolling = false;
 
+local g_game_logic;
 local g_hud_overlay;
 local g_blobs = {};
 local g_beams = {};
@@ -120,7 +123,7 @@ local function CreateBlob(start_pos_x, start_pos_y)
     return new_blob;
 end
 
-function update(game_input)
+function update(game_input, is_initializing)
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
     if g_init_stage_index == 1 then
@@ -130,6 +133,10 @@ function update(game_input)
 
     if g_init_stage_index == 0 then
         g_init_stage_index = 1;
+
+        g_game_logic = game_logic_module();
+        g_game_logic.ResetPlayerCallback = reset;
+        g_game_logic.OnCollectDonutCallback = on_collect_donut;
 
         g_hud_overlay = hud_overlay_module();
 
@@ -158,7 +165,14 @@ function update(game_input)
         table.insert(g_blobs, new_blob);
     end
 
-    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
+    --       That should simplify this logic drastically.
+    --       Probably best to do that with the level loader refactor?
+    if is_initializing or g_title_is_done_scrolling then
+        g_game_logic.progress_game(game_input);
+        g_hud_overlay.update(game_input);
+    elseif g_is_first_update_complete then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return false;
     end
 

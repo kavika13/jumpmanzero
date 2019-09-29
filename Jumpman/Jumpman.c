@@ -50,13 +50,6 @@ typedef enum {
 } PlayerState;
 
 typedef enum {
-    kPlayerDirectionUp = 1,
-    kPlayerDirectionDown = 2,
-    kPlayerDirectionLeft = 3,
-    kPlayerDirectionRight = 4,
-} PlayerDirection;
-
-typedef enum {
     kPlayerSpecialActionNone = 0,
     kPlayerSpecialActionKick = 1,
     kPlayerSpecialActionPunch = 2,
@@ -167,7 +160,6 @@ static int FindObject(LevelObject* lObj, int iCount, int iFind);
 static void FindVine(long iX, long iY, long* iAbout, long* iExact);
 static void FindLadder(long iX, long iY, long* iAbout, long* iExact);
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
-static void MoveJumpman(GameInput* game_input);
 
 static char g_level_set_current_set_filename[100];
 static int g_level_set_current_level_index;
@@ -181,14 +173,6 @@ static bool g_debug_level_is_specified;
 static char g_debug_level_filename[300];
 static int g_remaining_life_count;
 static long g_game_time_inactive;
-
-static long g_player_current_close_vine_index;
-static long g_player_current_exact_vine_index;
-static long g_player_current_close_ladder_index;
-static long g_player_current_exact_ladder_index;
-static long g_player_current_platform_index;
-static long g_player_current_active_platform_index;  // Masked out if player is dead or if player is below it
-static float g_player_current_platform_y;
 
 static int g_music_loop_start_music_time;  // TODO: I think it gets specified in milliseconds, but it should be in music time, due to the API that was used before
 
@@ -210,9 +194,6 @@ static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
 static float g_player_current_position_x;
 static float g_player_current_position_y;
-static float g_player_old_position_x;
-static float g_player_old_position_y;
-
 static float g_player_current_position_z;
 static float g_player_current_rotation_x_radians;
 static int g_player_velocity_x;
@@ -220,7 +201,6 @@ static PlayerMesh g_player_current_mesh;
 static bool g_player_is_visible;
 
 static PlayerState g_player_current_state;
-static PlayerDirection g_player_current_direction;
 static PlayerSpecialAction g_player_current_special_action;
 
 static long g_player_absolute_frame_count;
@@ -230,7 +210,6 @@ static int g_player_dying_animation_state_frame_count;
 
 static int g_player_no_roll_cooldown_frame_count;
 static int g_player_freeze_cooldown_frame_count;
-static bool g_level_scroll_title_animation_done;
 
 #define MAX_OBJECTSCRIPTS 5
 #define MAX_SCRIPTOBJECTS 60
@@ -527,6 +506,209 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
+
+// Potentially temporary engine functions, during refactor of game logic from out of engine into script
+
+static int get_donut_mesh_number(lua_State* lua_state) {
+    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_donut_objects[donut_index].MeshNumber);
+    return 1;
+}
+
+static int get_donut_number(lua_State* lua_state) {
+    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_donut_objects[donut_index].Num);
+    return 1;
+}
+
+static int get_donut_texture_index(lua_State* lua_state) {
+    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_donut_objects[donut_index].Texture);
+    return 1;
+}
+
+static int get_donut_is_visible(lua_State* lua_state) {
+    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
+    lua_pushboolean(lua_state, g_donut_objects[donut_index].Visible != 0);
+    return 1;
+}
+
+static int get_donut_x1(lua_State* lua_state) {
+    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_donut_objects[donut_index].X1);
+    return 1;
+}
+
+static int get_donut_y1(lua_State* lua_state) {
+    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_donut_objects[donut_index].Y1);
+    return 1;
+}
+
+static int get_ladder_x1(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].X1);
+    return 1;
+}
+
+static int get_ladder_y1(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Y1);
+    return 1;
+}
+
+static int get_ladder_y2(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Y2);
+    return 1;
+}
+
+static int get_ladder_z1(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Z1);
+    return 1;
+}
+
+static int get_vine_x1(lua_State* lua_state) {
+    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_vine_objects[vine_index].X1);
+    return 1;
+}
+
+static int get_vine_y2(lua_State* lua_state) {
+    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_vine_objects[vine_index].Y2);
+    return 1;
+}
+
+static int get_vine_z1(lua_State* lua_state) {
+    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_vine_objects[vine_index].Z1);
+    return 1;
+}
+
+static int get_platform_extra(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].Extra);
+    return 1;
+}
+
+static int get_platform_z1(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].Z1);
+    return 1;
+}
+
+static int game_over(lua_State* lua_state) {
+    char game_base_path[300];
+
+    if (!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
+        // TODO: Proper error handling
+        return 0;
+    }
+
+    g_player_current_state = kPlayerStateNormal;
+    stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", "");
+    PrepLevel(game_base_path, "Data/GameOver.DAT", NULL);  // TODO: Need to pass in game_input?
+    return 0;
+}
+
+static int restart_music_track_1(lua_State* lua_state) {
+    if(g_music_loop_start_music_time != 5550) {
+        // TODO: Error checking?
+        NewTrack1(g_music_background_track_filename, g_music_loop_start_music_time, g_music_loop_start_music_time);
+    }
+
+    return 0;
+}
+
+static int play_death_music_track(lua_State* lua_state) {
+    NewTrack2(g_music_death_track_filename);  // TODO: Error checking?
+    return 0;
+}
+
+static int stop_music_track_1(lua_State* lua_state) {
+    StopMusic1();  // TODO: Error checking?
+    return 0;
+}
+
+static int get_game_time_inactive(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_game_time_inactive);
+    return 1;
+}
+
+static int get_player_absolute_frame_count(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_player_absolute_frame_count);
+    return 1;
+}
+
+static int set_player_absolute_frame_count(lua_State* lua_state) {
+    lua_Integer new_frame_count_arg = luaL_checkinteger(lua_state, 1);
+    g_player_absolute_frame_count = (long)new_frame_count_arg;
+    return 0;
+}
+
+static int get_player_current_mesh(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_player_current_mesh);
+    return 1;
+}
+
+static int set_player_current_mesh(lua_State* lua_state) {
+    lua_Integer new_mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    g_player_current_mesh = (PlayerMesh)new_mesh_index_arg;
+    return 0;
+}
+
+static int set_player_current_rotation_x_radians(lua_State* lua_state) {
+    double new_rotation_x_radians = luaL_checknumber(lua_state, 1);
+    g_player_current_rotation_x_radians = (float)new_rotation_x_radians;
+    return 0;
+}
+
+static int get_player_dying_animation_state(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_player_dying_animation_state);
+    return 1;
+}
+
+static int set_player_dying_animation_state(lua_State* lua_state) {
+    lua_Integer new_dying_animation_state_arg = luaL_checkinteger(lua_state, 1);
+    g_player_dying_animation_state = (PlayerDyingAnimationState)new_dying_animation_state_arg;
+    return 0;
+}
+
+static int get_player_dying_animation_state_frame_count(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_player_dying_animation_state_frame_count);
+    return 1;
+}
+
+static int set_player_dying_animation_state_frame_count(lua_State* lua_state) {
+    lua_Integer new_frame_count_arg = luaL_checkinteger(lua_state, 1);
+    g_player_dying_animation_state_frame_count = (int)new_frame_count_arg;
+    return 0;
+}
+
+static int get_player_mesh_index(lua_State* lua_state) {
+    lua_Integer player_mesh_arg = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_player_mesh_indices[player_mesh_arg]);
+    return 1;
+}
+
+static int get_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_player_no_roll_cooldown_frame_count);
+    return 1;
+}
+
+static int get_player_current_velocity_x(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_player_velocity_x);
+    return 1;
+}
+
+static int set_player_current_velocity_x(lua_State* lua_state) {
+    lua_Integer new_velocity_x_arg = luaL_checkinteger(lua_state, 1);
+    g_player_velocity_x = (int)new_velocity_x_arg;
+    return 0;
+}
+
 static int get_just_launched_game(lua_State* lua_state) {
     lua_pushboolean(lua_state, g_just_launched_game);
     return 1;
@@ -748,11 +930,6 @@ static int get_platform_object_count(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_current_direction(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_current_direction);
-    return 1;
-}
-
 static int get_player_current_position_x(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_player_current_position_x);
     return 1;
@@ -780,11 +957,6 @@ static int get_player_current_state(lua_State* lua_state) {
 
 static int get_player_current_state_frame_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_player_current_state_frame_count);
-    return 1;
-}
-
-static int get_player_current_active_platform_index(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_current_active_platform_index);
     return 1;
 }
 
@@ -855,12 +1027,6 @@ static int set_current_camera_mode(lua_State* lua_state) {
 static int set_level_extent_x(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_level_extent_x = (int)arg1;
-    return 0;
-}
-
-static int set_player_current_direction(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_current_direction = arg1;
     return 0;
 }
 
@@ -1423,6 +1589,73 @@ static int script_select_wall(lua_State* lua_state) {
 }
 
 static void RegisterLuaScriptFunctions(lua_State* lua_state) {
+    // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
+    lua_pushcfunction(lua_state, get_donut_mesh_number);
+    lua_setglobal(lua_state, "get_donut_mesh_number");
+    lua_pushcfunction(lua_state, get_donut_number);
+    lua_setglobal(lua_state, "get_donut_number");
+    lua_pushcfunction(lua_state, get_donut_texture_index);
+    lua_setglobal(lua_state, "get_donut_texture_index");
+    lua_pushcfunction(lua_state, get_donut_is_visible);
+    lua_setglobal(lua_state, "get_donut_is_visible");
+    lua_pushcfunction(lua_state, get_donut_x1);
+    lua_setglobal(lua_state, "get_donut_x1");
+    lua_pushcfunction(lua_state, get_donut_y1);
+    lua_setglobal(lua_state, "get_donut_y1");
+    lua_pushcfunction(lua_state, get_ladder_x1);
+    lua_setglobal(lua_state, "get_ladder_x1");
+    lua_pushcfunction(lua_state, get_ladder_y1);
+    lua_setglobal(lua_state, "get_ladder_y1");
+    lua_pushcfunction(lua_state, get_ladder_y2);
+    lua_setglobal(lua_state, "get_ladder_y2");
+    lua_pushcfunction(lua_state, get_ladder_z1);
+    lua_setglobal(lua_state, "get_ladder_z1");
+    lua_pushcfunction(lua_state, get_vine_x1);
+    lua_setglobal(lua_state, "get_vine_x1");
+    lua_pushcfunction(lua_state, get_vine_y2);
+    lua_setglobal(lua_state, "get_vine_y2");
+    lua_pushcfunction(lua_state, get_vine_z1);
+    lua_setglobal(lua_state, "get_vine_z1");
+    lua_pushcfunction(lua_state, get_platform_extra);
+    lua_setglobal(lua_state, "get_platform_extra");
+    lua_pushcfunction(lua_state, get_platform_z1);
+    lua_setglobal(lua_state, "get_platform_z1");
+    lua_pushcfunction(lua_state, game_over);
+    lua_setglobal(lua_state, "game_over");
+    lua_pushcfunction(lua_state, restart_music_track_1);
+    lua_setglobal(lua_state, "restart_music_track_1");
+    lua_pushcfunction(lua_state, play_death_music_track);
+    lua_setglobal(lua_state, "play_death_music_track");
+    lua_pushcfunction(lua_state, stop_music_track_1);
+    lua_setglobal(lua_state, "stop_music_track_1");
+    lua_pushcfunction(lua_state, get_game_time_inactive);
+    lua_setglobal(lua_state, "get_game_time_inactive");
+    lua_pushcfunction(lua_state, get_player_absolute_frame_count);
+    lua_setglobal(lua_state, "get_player_absolute_frame_count");
+    lua_pushcfunction(lua_state, set_player_absolute_frame_count);
+    lua_setglobal(lua_state, "set_player_absolute_frame_count");
+    lua_pushcfunction(lua_state, get_player_current_mesh);
+    lua_setglobal(lua_state, "get_player_current_mesh");
+    lua_pushcfunction(lua_state, set_player_current_mesh);
+    lua_setglobal(lua_state, "set_player_current_mesh");
+    lua_pushcfunction(lua_state, set_player_current_rotation_x_radians);
+    lua_setglobal(lua_state, "set_player_current_rotation_x_radians");
+    lua_pushcfunction(lua_state, get_player_dying_animation_state);
+    lua_setglobal(lua_state, "get_player_dying_animation_state");
+    lua_pushcfunction(lua_state, set_player_dying_animation_state);
+    lua_setglobal(lua_state, "set_player_dying_animation_state");
+    lua_pushcfunction(lua_state, get_player_dying_animation_state_frame_count);
+    lua_setglobal(lua_state, "get_player_dying_animation_state_frame_count");
+    lua_pushcfunction(lua_state, set_player_dying_animation_state_frame_count);
+    lua_setglobal(lua_state, "set_player_dying_animation_state_frame_count");
+    lua_pushcfunction(lua_state, get_player_mesh_index);
+    lua_setglobal(lua_state, "get_player_mesh_index");
+    lua_pushcfunction(lua_state, get_player_no_roll_cooldown_frame_count);
+    lua_setglobal(lua_state, "get_player_no_roll_cooldown_frame_count");
+    lua_pushcfunction(lua_state, get_player_current_velocity_x);
+    lua_setglobal(lua_state, "get_player_current_velocity_x");
+    lua_pushcfunction(lua_state, set_player_current_velocity_x);
+    lua_setglobal(lua_state, "set_player_current_velocity_x");
     lua_pushcfunction(lua_state, get_just_launched_game);
     lua_setglobal(lua_state, "get_just_launched_game");
 
@@ -1499,8 +1732,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_loaded_texture_count");
     lua_pushcfunction(lua_state, get_platform_object_count);
     lua_setglobal(lua_state, "get_platform_object_count");
-    lua_pushcfunction(lua_state, get_player_current_direction);
-    lua_setglobal(lua_state, "get_player_current_direction");
     lua_pushcfunction(lua_state, get_player_current_position_x);
     lua_setglobal(lua_state, "get_player_current_position_x");
     lua_pushcfunction(lua_state, get_player_current_position_y);
@@ -1513,8 +1744,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_current_state");
     lua_pushcfunction(lua_state, get_player_current_state_frame_count);
     lua_setglobal(lua_state, "get_player_current_state_frame_count");
-    lua_pushcfunction(lua_state, get_player_current_active_platform_index);
-    lua_setglobal(lua_state, "get_player_current_active_platform_index");
     lua_pushcfunction(lua_state, get_player_freeze_cooldown_frame_count);
     lua_setglobal(lua_state, "get_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_player_is_visible);
@@ -1541,8 +1770,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_current_camera_mode");
     lua_pushcfunction(lua_state, set_level_extent_x);
     lua_setglobal(lua_state, "set_level_extent_x");
-    lua_pushcfunction(lua_state, set_player_current_direction);
-    lua_setglobal(lua_state, "set_player_current_direction");
     lua_pushcfunction(lua_state, set_player_current_position_x);
     lua_setglobal(lua_state, "set_player_current_position_x");
     lua_pushcfunction(lua_state, set_player_current_position_y);
@@ -1710,49 +1937,28 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
     }
 }
 
-static bool TryGetLuaCFunctionBooleanStackValueAtIndex(lua_State* lua_state, int arg_index, bool* result, bool is_required) {
-    if(is_required) {
-        // TODO: Error handling
-        luaL_checktype(lua_state, arg_index, LUA_TBOOLEAN);
-    }
-
-    bool success = lua_isboolean(lua_state, arg_index) != 0;
-
-    if(success) {
-        *result = lua_toboolean(lua_state, arg_index);
-    }
-
-    return success;
-}
-
-static bool CallLuaBoolFunction(
-        lua_State* lua_state, const char* function_name, GameInput* game_input, bool is_required) {
-    lua_getglobal(lua_state, function_name);
+static void CallLuaGameUpdate(lua_State* lua_state, GameInput* game_input, bool is_initializing) {
+    lua_getglobal(lua_state, "update");
 
     if(lua_isfunction(lua_state, -1) != 0) {
-        PushGameInputAsTable(lua_state, game_input);
+        if(is_initializing) {
+            // Don't pass real input to initialization "Update" calls
+            GameInput empty_input = { 0 };
+            PushGameInputAsTable(lua_state, &empty_input);
+        } else {
+            PushGameInputAsTable(lua_state, game_input);
+        }
 
-        if(lua_pcall(lua_state, 1, 1, 0) != 0) {
+        lua_pushboolean(lua_state, is_initializing);
+
+        if(lua_pcall(lua_state, 2, 0, 0) != 0) {
             const char* error_message = lua_tostring(lua_state, -1);
             assert(false);  // TODO: Error handling
         }
-
-        bool result;
-
-        if(TryGetLuaCFunctionBooleanStackValueAtIndex(lua_state, -1, &result, true)) {
-            return result;
-        } else {
-            // No error here. The function just didn't return a single boolean value
-            // TODO: is_required is true, so error handling should be in TryGetLuaCFunctionBooleanStackValueAtIndex?
-            assert(false);  // TODO: Error handling
-        }
     } else {
-        if(is_required) {
-            assert(false);  // TODO: Error handling
-        }
+        // Function is required
+        assert(false);  // TODO: Error handling
     }
-
-    return false;
 }
 
 static void LoadLevel(const char* base_path, const char* filename) {
@@ -2250,36 +2456,6 @@ static void FindLadder(long iX, long iY, long* iAbout, long* iExact) {
     }
 }
 
-static long PlayerFloor(void) {
-    long iFloor;
-    iFloor = 0;
-
-    if((g_player_current_state & kPlayerStateJumping) && (g_player_current_state_frame_count < 12)) {
-        iFloor = 4;
-    }
-
-    return iFloor;
-}
-
-static long PlayerHeight(void) {
-    long iHeight;
-    iHeight = 14;
-
-    if((g_player_current_state & kPlayerStateRoll)) {
-        iHeight = 7;
-    }
-
-    if((g_player_current_state & kPlayerStatePunch)) {
-        iHeight = 9;
-    }
-
-    if((g_player_current_state & kPlayerStateDying)) {
-        iHeight = 7;
-    }
-
-    return iHeight;
-}
-
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform) {
     long iP;
     float iH;
@@ -2335,260 +2511,14 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
     }
 }
 
-static void GrabDonuts(GameInput* game_input) {
-    int iLoop;
-    int iCheck;
-    int iWon;
-    int iGot;
-
-    iLoop = -1;
-    iGot = 0;
-
-    while(++iLoop < g_donut_object_count) {
-        if(g_donut_objects[iLoop].Visible && PlayerCollide(g_donut_objects[iLoop].X1 - 3, g_donut_objects[iLoop].Y1 - 4, g_donut_objects[iLoop].X1 + 3, g_donut_objects[iLoop].Y1 + 2)) {
-            g_donut_objects[iLoop].Visible = 0;
-            SetObjectData(g_donut_objects[iLoop].MeshNumber, g_donut_objects[iLoop].Texture, 0);
-            iGot = 1;
-
-            // Call on_collect_donut(game_input, donut_index), if it exists
-            lua_getglobal(g_script_level_script_lua_state, "on_collect_donut");
-
-            // Note: This is an optional function, so if it doesn't exist it will not assert
-            if(lua_isfunction(g_script_level_script_lua_state, -1) != 0) {
-                PushGameInputAsTable(g_script_level_script_lua_state, game_input);
-                lua_pushnumber(g_script_level_script_lua_state, g_donut_objects[iLoop].Num);
-
-                if(lua_pcall(g_script_level_script_lua_state, 2, 0, 0) != 0) {
-                    const char* error_message = lua_tostring(g_script_level_script_lua_state, -1);
-                    assert(false);  // TODO: Error handling
-                }
-            }
-        }
-    }
-
-    if(iGot) {
-        iCheck = -1;
-        iWon = 1;
-
-        while(++iCheck < g_donut_object_count) {
-            if(g_donut_objects[iCheck].Visible) {
-                iWon = 0;
-            }
-        }
-
-        if(iWon) {
-            StopMusic1();
-            g_player_current_state_frame_count = 0;
-            g_player_current_state = kPlayerStateDone;
-        } else {
-            PlaySoundEffect(1);
-        }
-    }
-}
-
-static void AdjustPlayerZ(long iTargetZ, int iTime) {
-    if(iTime < abs((int)iTargetZ - (int)g_player_current_position_z)) {
-        if(iTargetZ < g_player_current_position_z) {
-            --g_player_current_position_z;
-        }
-
-        if(iTargetZ > g_player_current_position_z) {
-            ++g_player_current_position_z;
-        }
-    }
-}
-
 static void ResetPlayer(int iNewLevel, GameInput* game_input) {
     // TODO: Pass boolean iNewLevel to function?
     CallLuaFunction(g_script_level_script_lua_state, "reset", game_input, false);
 }
 
-static void AnimateDying(GameInput* game_input, const char* base_path) {
-    float iSupport;
-    long iPlatform;
-    int bGrounded;
-
-    g_player_current_active_platform_index = -1;
-
-    if(g_player_dying_animation_state == kPlayerDyingAnimationStateBouncing) {
-        g_player_current_mesh = kPlayerMeshJumpUp;
-
-        ++g_player_dying_animation_state_frame_count;
-
-        if(g_player_dying_animation_state_frame_count < 5 || g_player_dying_animation_state_frame_count == 6) {
-            ++g_player_current_position_y;
-        }
-
-        if(g_player_dying_animation_state_frame_count > 10 || g_player_dying_animation_state_frame_count == 8) {
-            --g_player_current_position_y;
-        }
-
-        if(g_player_dying_animation_state_frame_count > 15) {
-            g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
-        }
-
-        ++g_player_absolute_frame_count;
-
-        if(g_player_current_state_frame_count < 10) {
-            ++g_player_absolute_frame_count;
-        }
-
-        if(g_player_current_state_frame_count < 5) {
-            ++g_player_absolute_frame_count;
-        }
-
-        if(g_player_current_state_frame_count < 0) {
-            ++g_player_absolute_frame_count;
-            g_player_current_mesh = kPlayerMeshDead;
-        }
-
-        g_player_current_rotation_x_radians = g_player_absolute_frame_count / -10.0f;
-
-        if(g_player_absolute_frame_count & 1) {
-            g_player_current_position_x += g_player_velocity_x;
-        }
-    }
-
-    if(g_player_dying_animation_state == kPlayerDyingAnimationStateFalling) {
-        g_player_current_mesh = kPlayerMeshJumpUp;
-        ++g_player_absolute_frame_count;
-        g_player_current_position_y -= 2;
-        g_player_current_rotation_x_radians = g_player_absolute_frame_count / -10.0f;
-
-        GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y), 8, 2, &iSupport, &iPlatform);
-        iSupport -= PlayerFloor();
-        bGrounded = (g_player_current_position_y + 4 <= iSupport);
-        AdjustPlayerZ(g_platform_objects[iPlatform].Z1 - 2, (int)(g_player_current_position_y - iSupport));
-
-        if(bGrounded && g_player_current_position_y > -5 && iSupport < g_player_current_state_frame_count) {
-            g_player_velocity_x = 0;
-            int iRand;
-            iRand = rand();
-
-            if((iRand & 3) == 1 && g_player_current_position_y > 30 && g_player_current_position_x > 30) {
-                g_player_velocity_x = -1;
-            }
-
-            if((iRand & 3) == 2 && g_player_current_position_y > 30 && g_player_current_position_x < 130) {
-                g_player_velocity_x = 1;
-            }
-
-            g_player_current_state_frame_count = (long)(iSupport) - 3;
-            g_player_dying_animation_state = kPlayerDyingAnimationStateBouncing;
-            g_player_dying_animation_state_frame_count = 0;
-
-            PlaySoundEffect(2);
-
-            GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y) - 8, 8, 2, &iSupport, &iPlatform);
-
-            if(iPlatform == -1) {
-                g_player_dying_animation_state = kPlayerDyingAnimationStateFinalBounce;
-                g_player_dying_animation_state_frame_count = 0;
-                g_player_absolute_frame_count = 0;
-            }
-        }
-
-        if(g_player_current_position_y < -2 && g_player_dying_animation_state == kPlayerDyingAnimationStateFalling) {
-            g_player_dying_animation_state = kPlayerDyingAnimationStateFinalBounce;
-            g_player_absolute_frame_count = 0;
-        }
-    }
-
-    if(g_player_dying_animation_state == kPlayerDyingAnimationStateFinalBounce) {
-        g_player_current_mesh = kPlayerMeshDead;
-
-        ++g_player_dying_animation_state_frame_count;
-
-        if(g_player_dying_animation_state_frame_count < 10 || g_player_dying_animation_state_frame_count == 12 || g_player_dying_animation_state_frame_count == 14) {
-            ++g_player_current_position_y;
-        }
-
-        if(g_player_dying_animation_state_frame_count > 20 || g_player_dying_animation_state_frame_count == 18 || g_player_dying_animation_state_frame_count == 16) {
-            --g_player_current_position_y;
-        }
-
-        if(g_player_dying_animation_state_frame_count == 10 || g_player_dying_animation_state_frame_count == 12 || g_player_dying_animation_state_frame_count == 17 || g_player_dying_animation_state_frame_count == 20) {
-            --g_player_current_position_z;
-        }
-
-        if(g_player_dying_animation_state_frame_count == 25) {
-            NewTrack2(g_music_death_track_filename);
-        }
-
-        g_player_absolute_frame_count += 4;
-        g_player_current_rotation_x_radians = g_player_absolute_frame_count / -10.0f;
-
-        if(g_player_dying_animation_state_frame_count > 30) {
-            g_player_dying_animation_state = kPlayerDyingAnimationStateSpinningStars;
-            g_player_absolute_frame_count = 0;
-            g_player_current_rotation_x_radians = 0;
-        }
-    }
-
-    if(g_player_dying_animation_state == kPlayerDyingAnimationStateSpinningStars) {
-        IdentityMatrix(g_player_mesh_indices[kPlayerMeshStars]);
-        RotateMatrixY(g_player_mesh_indices[kPlayerMeshStars], g_player_absolute_frame_count * 180.0f / 50.0f);
-        TranslateMatrix(g_player_mesh_indices[kPlayerMeshStars], g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z + 1);
-        SetObjectData(g_player_mesh_indices[kPlayerMeshStars], 0, 1);
-
-        ++g_player_absolute_frame_count;
-        g_player_current_rotation_x_radians = 0.1f;
-        g_player_current_mesh = kPlayerMeshDead;
-
-        if(g_player_absolute_frame_count == 85) {
-            SetObjectData(g_player_mesh_indices[kPlayerMeshStars], 0, 0);
-            g_remaining_life_count = g_remaining_life_count - 1;
-
-            if(g_remaining_life_count == 0) {
-                g_player_current_state = kPlayerStateNormal;
-                stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", "");
-                PrepLevel(base_path, "Data/GameOver.DAT", game_input);
-            } else {
-                ResetPlayer(0, game_input);
-
-                if(g_music_loop_start_music_time != 5550) {
-                    NewTrack1(g_music_background_track_filename, (unsigned int)g_music_loop_start_music_time, g_music_loop_start_music_time);
-                }
-            }
-        }
-    }
-}
-
-static void ProgressGame(const char* base_path, GameInput* game_input) {
-    int iTemp;
-
+static void ProgressGame(const char* base_path, GameInput* game_input, bool is_initializing) {
     if(!(g_player_current_state & kPlayerStateDone)) {
-        if(g_player_freeze_cooldown_frame_count) {
-            --g_player_freeze_cooldown_frame_count;
-        }
-
-        if(g_player_no_roll_cooldown_frame_count) {
-            --g_player_no_roll_cooldown_frame_count;
-        }
-
-        if(!(g_player_current_state & kPlayerStateDying) && g_player_freeze_cooldown_frame_count == 0) {
-            ++g_player_absolute_frame_count;
-            g_player_current_rotation_x_radians = 0;
-            g_player_current_mesh = kPlayerMeshStand;
-            MoveJumpman(game_input);
-
-            if(g_player_current_mesh == kPlayerMeshStand && g_player_is_visible && g_game_time_inactive > 400) {
-                iTemp = (g_game_time_inactive % 400) / 6;
-                iTemp = iTemp > 10 ? 2 : iTemp & 1;
-                g_player_current_mesh = kPlayerMeshBored1 + iTemp;
-            }
-
-            GrabDonuts(game_input);
-        }
-
-        if((g_player_current_state & kPlayerStateDying) && g_player_freeze_cooldown_frame_count == 0) {
-            AnimateDying(game_input, base_path);
-            GrabDonuts(game_input);
-        }
-
-        SetGamePerspective();
-
-        CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
+        CallLuaGameUpdate(g_script_level_script_lua_state, game_input, is_initializing);
     } else {
         ++g_player_current_state_frame_count;
 
@@ -2719,13 +2649,11 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
     ResetPlayer(1, game_input);
     g_game_time_inactive = 0;
 
-    ProgressGame(base_path, game_input);
-    ProgressGame(base_path, game_input);
-    ProgressGame(base_path, game_input);
-    ProgressGame(base_path, game_input);
-    ProgressGame(base_path, game_input);
-
-    g_level_scroll_title_animation_done = false;
+    ProgressGame(base_path, game_input, true);
+    ProgressGame(base_path, game_input, true);
+    ProgressGame(base_path, game_input, true);
+    ProgressGame(base_path, game_input, true);
+    ProgressGame(base_path, game_input, true);
 
     Render();
 
@@ -2815,7 +2743,7 @@ static void LoadJumpmanMenu(const char* base_path) {
 }
 
 static void InteractMenu(GameInput* game_input) {
-    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
+    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);  // Not calling level update function
     SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
     Render();
 }
@@ -2840,16 +2768,8 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
     }
 
     if(g_game_status == kGameStatusInLevel) {
-        if(!g_level_scroll_title_animation_done) {
-            // TODO: This logic can be removed when all the core game implementation is moved from C to Lua
-            if(!IsGameFrozen()) {
-                g_level_scroll_title_animation_done = CallLuaBoolFunction(
-                    g_script_level_script_lua_state, "update", game_input, true);
-            }
-        } else {
-            if(!IsGameFrozen()) {
-                ProgressGame(base_path, game_input);
-            }
+        if(!IsGameFrozen()) {
+            ProgressGame(base_path, game_input, false);
         }
 
         if(!IsGameFrozen()) {
@@ -2967,711 +2887,4 @@ static void LoadMeshes(const char* base_path) {
     g_player_mesh_indices[kPlayerMeshBored3] = LoadMesh(base_path, "BORED3.MSH");
     g_player_mesh_indices[kPlayerMeshBored4] = LoadMesh(base_path, "BORED4.MSH");
     g_player_mesh_indices[kPlayerMeshBored5] = LoadMesh(base_path, "BORED5.MSH");
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-static void MoveJumpmanPunch(GameInput*);
-static void MoveJumpmanSlide(GameInput*);
-static void MoveJumpmanFalling(GameInput*);
-static void MoveJumpmanRoll(GameInput*);
-static void MoveJumpmanJumping(GameInput*);
-static void MoveJumpmanNormal(GameInput*);
-
-static int iIgnoreLadders;
-
-static void DoDeathBounce(void) {
-    StopMusic1();
-    g_player_current_state = kPlayerStateDying;
-    g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
-    g_player_dying_animation_state_frame_count = 0;
-    g_player_velocity_x = 0;
-    g_player_absolute_frame_count = g_player_current_state_frame_count;
-    g_player_current_state_frame_count = 1000;
-
-    int iRand;
-    iRand = rand();
-
-    if((iRand & 7) == 1 && g_player_current_position_x > 30) {
-        g_player_velocity_x = -1;
-    }
-
-    if((iRand & 7) == 2 && g_player_current_position_x < 130) {
-        g_player_velocity_x = 1;
-    }
-}
-
-static int CheckWalkOff(long iCenter, GameInput* game_input) {
-    if(g_player_current_position_x < iCenter && game_input->move_right_action.is_pressed) {
-        return 0;
-    }
-
-    if(g_player_current_position_x > iCenter && game_input->move_left_action.is_pressed) {
-        return 0;
-    }
-
-    if(game_input->move_down_action.is_pressed && g_player_current_position_y < g_player_current_platform_y - 2) {
-        return 0;
-    }
-
-    if(g_player_current_position_y <= g_player_current_platform_y && (game_input->move_left_action.is_pressed != game_input->move_right_action.is_pressed)) {
-        MoveJumpmanNormal(game_input);
-        return 1;
-    }
-
-    return 0;
-}
-
-static int CheckJumpStart(int iLeft, int iUp, int iRight, GameInput* game_input) {
-    if(!game_input->jump_action.is_pressed) {
-        return 0;
-    }
-
-    if(iLeft && game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed) {
-        g_player_current_direction = kPlayerDirectionLeft;
-    } else if(iRight && game_input->move_right_action.is_pressed && !game_input->move_left_action.is_pressed) {
-        g_player_current_direction = kPlayerDirectionRight;
-    } else if(iUp) {
-        g_player_current_direction = kPlayerDirectionUp;
-    } else {
-        return 0;
-    }
-
-    g_player_current_special_action = kPlayerSpecialActionNone;
-    g_player_current_state_frame_count = 0;
-
-    PlaySoundEffect(0);
-
-    MoveJumpmanJumping(game_input);
-
-    return 1;
-}
-
-static void UpdateSituation(void) {
-    FindVine((long)(g_player_current_position_x), (long)(g_player_current_position_y), &g_player_current_close_vine_index, &g_player_current_exact_vine_index);
-    FindLadder((long)(g_player_current_position_x), (long)(g_player_current_position_y), &g_player_current_close_ladder_index, &g_player_current_exact_ladder_index);
-    GetNextPlatform((long)(g_player_current_position_x), (long)(g_player_current_position_y), PlayerHeight(), 2, &g_player_current_platform_y, &g_player_current_platform_index);
-    g_player_current_platform_y -= PlayerFloor();
-
-    g_player_current_active_platform_index = -1;
-
-    if(g_player_current_platform_y >= g_player_current_position_y) {
-        g_player_current_active_platform_index = g_player_current_platform_index;
-    }
-}
-
-static void MoveJumpmanVine(GameInput* game_input) {
-    g_player_current_state = kPlayerStateVine;
-    g_player_current_special_action = kPlayerSpecialActionNone;
-
-    if(g_player_current_close_vine_index == -1) {
-        g_player_current_state = kPlayerStateNormal;
-        return;
-    }
-
-    if(CheckJumpStart(1, 0, 1, game_input)) {
-        return;
-    }
-
-    if(CheckWalkOff(g_vine_objects[g_player_current_close_vine_index].X1, game_input)) {
-        return;
-    }
-
-    g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshVineClimb1 : kPlayerMeshVineClimb2;
-    AdjustPlayerZ(g_vine_objects[g_player_current_close_vine_index].Z1 - 3, 0);
-
-    if(g_vine_objects[g_player_current_close_vine_index].Y2 < g_player_current_platform_y - 2 || g_player_current_position_y > g_player_current_platform_y - 1) {
-        --g_player_current_position_y;
-    } else {
-        MoveJumpmanNormal(game_input);
-        return;
-    }
-
-    long iVinX;
-
-    iVinX = g_vine_objects[g_player_current_close_vine_index].X1;
-
-    if(g_player_absolute_frame_count & 1) {
-        if(g_player_current_position_x + 1 > iVinX && g_player_current_position_x - 1 < iVinX) {
-            g_player_current_position_x = (float)(iVinX);
-        } else if(g_player_current_position_x < iVinX) {
-            ++g_player_current_position_x;
-        } else if(g_player_current_position_x > iVinX) {
-            --g_player_current_position_x;
-        }
-    }
-}
-
-static void MoveJumpmanLadder(GameInput* game_input) {
-    g_player_current_state = kPlayerStateLadder;
-    g_player_current_special_action = kPlayerSpecialActionNone;
-    iIgnoreLadders = 1;
-
-    if(g_player_current_close_ladder_index == -1) {
-        g_player_current_state = kPlayerStateNormal;
-        return;
-    }
-
-    if(g_player_current_platform_y >= g_player_current_position_y || (g_ladder_objects[g_player_current_close_ladder_index].X1 < g_player_current_position_x + 2 && g_ladder_objects[g_player_current_close_ladder_index].X1 > g_player_current_position_x - 2)) {
-        if(CheckJumpStart(1, 0, 1, game_input)) {
-            return;
-        }
-    }
-
-    if(CheckWalkOff(g_ladder_objects[g_player_current_close_ladder_index].X1, game_input)) {
-        return;
-    }
-
-    g_player_current_mesh = kPlayerMeshJumpUp;
-    AdjustPlayerZ(g_ladder_objects[g_player_current_close_ladder_index].Z1 - 3, 0);
-
-    if(game_input->move_up_action.is_pressed && g_ladder_objects[g_player_current_close_ladder_index].Y1 - 5 > g_player_current_position_y) {
-        ++g_player_current_position_y;
-        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLadderClimb2 : kPlayerMeshLadderClimb1;
-    } else if(game_input->move_up_action.is_pressed && !game_input->move_down_action.is_pressed) {
-        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLadderClimb2 : kPlayerMeshLadderClimb1;
-    }
-
-    if(game_input->move_down_action.is_pressed && (g_ladder_objects[g_player_current_close_ladder_index].Y2 < g_player_current_platform_y - 3 || g_player_current_position_y > g_player_current_platform_y)) {
-        --g_player_current_position_y;
-        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLadderClimb2 : kPlayerMeshLadderClimb1;
-
-        if(g_ladder_objects[g_player_current_close_ladder_index].Y2 >= g_player_current_platform_y - 3 && g_player_current_position_y < g_player_current_platform_y) {
-            g_player_current_position_y = g_player_current_platform_y;
-        }
-    }
-
-    long iLadderX;
-
-    iLadderX = g_ladder_objects[g_player_current_close_ladder_index].X1;
-
-    if(g_player_current_position_x < iLadderX + 1 && g_player_current_position_x > iLadderX - 1) {
-        g_player_current_position_x = (float)(iLadderX);
-    } else if(g_player_current_position_x < iLadderX) {
-        g_player_current_position_x += 1;
-    } else if(g_player_current_position_x > iLadderX) {
-        g_player_current_position_x -= 1;
-    }
-}
-
-static void MoveJumpmanNormal(GameInput* game_input) {
-    g_player_current_state = kPlayerStateNormal;
-    g_player_current_special_action = kPlayerSpecialActionNone;
-
-    AdjustPlayerZ(g_platform_objects[g_player_current_platform_index].Z1 - 2, (int)(g_player_current_position_y - g_player_current_platform_y));
-
-    if(g_player_current_close_vine_index != -1 && !game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed && (g_vine_objects[g_player_current_close_vine_index].Y2 < g_player_current_platform_y - 2 || g_player_current_position_y > g_player_current_platform_y)) {
-        MoveJumpmanVine(game_input);
-        return;
-    }
-
-    if(g_player_current_platform_y > g_player_current_position_y - 2 && (g_platform_objects[g_player_current_platform_index].Extra == 1 || g_platform_objects[g_player_current_platform_index].Extra == 2)) {
-        MoveJumpmanSlide(game_input);
-        return;
-    }
-
-    if(g_player_current_close_ladder_index != -1 && !iIgnoreLadders && (game_input->move_up_action.is_pressed != game_input->move_down_action.is_pressed)) {
-        if((!game_input->move_right_action.is_pressed || g_player_current_position_x < g_ladder_objects[g_player_current_close_ladder_index].X1 + 1) && (!game_input->move_left_action.is_pressed || g_player_current_position_x > g_ladder_objects[g_player_current_close_ladder_index].X1 - 1)) {
-            if(game_input->move_up_action.is_pressed && g_ladder_objects[g_player_current_close_ladder_index].Y1 - 5 > g_player_current_position_y) {
-                MoveJumpmanLadder(game_input);
-                return;
-            }
-
-            if(game_input->move_down_action.is_pressed && (g_ladder_objects[g_player_current_close_ladder_index].Y2 < g_player_current_platform_y - 3 || g_player_current_platform_y < g_player_current_position_y - 1)) {
-                MoveJumpmanLadder(game_input);
-                return;
-            }
-        }
-    }
-
-    if(g_player_current_position_y <= g_player_current_platform_y + 1) {
-        if(CheckJumpStart(1, 1, 1, game_input)) {
-            return;
-        }
-    }
-
-    if(game_input->move_left_action.is_pressed && !game_input->move_right_action.is_pressed) {
-        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshLeft1 : kPlayerMeshLeft2;
-        --g_player_current_position_x;
-    }
-
-    if(game_input->move_right_action.is_pressed && !game_input->move_left_action.is_pressed) {
-        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshRight1 : kPlayerMeshRight2;
-        ++g_player_current_position_x;
-    }
-
-    int iClimbing;
-
-    iClimbing = 0;
-
-    if(g_player_current_platform_y < g_player_current_position_y + 1 && g_player_current_platform_y > g_player_current_position_y - 1) {
-        g_player_current_position_y = g_player_current_platform_y;
-    } else if(g_player_current_platform_y < g_player_current_position_y - 4) {
-        g_player_current_state_frame_count = 0;
-        MoveJumpmanFalling(game_input);
-        return;
-    } else if(g_player_current_platform_y < g_player_current_position_y - 1) {
-        --g_player_current_position_y;
-    } else if(g_player_current_platform_y > g_player_current_position_y + 3) {
-        g_player_current_mesh = (g_player_absolute_frame_count & 2) ? kPlayerMeshVineClimb1 : kPlayerMeshVineClimb2;
-        ++g_player_current_position_y;
-        iClimbing = 1;
-    } else if(g_player_current_platform_y > g_player_current_position_y + 1) {
-        ++g_player_current_position_y;
-        iClimbing = 1;
-    } else {
-        g_player_current_position_y = g_player_current_platform_y;
-    }
-
-    UpdateSituation();
-
-    if(g_player_current_platform_y < g_player_current_position_y - 5 && iClimbing) {
-        g_player_current_position_x = g_player_old_position_x;
-    }
-
-    if(g_platform_objects[g_player_current_platform_index].Extra == 2) {
-        if(g_player_current_position_x > g_player_old_position_x) {
-            g_player_current_position_x = g_player_old_position_x;
-        }
-
-        if(g_player_current_position_y > g_player_old_position_y) {
-            g_player_current_position_y = g_player_old_position_y;
-        }
-    }
-
-    if(g_platform_objects[g_player_current_platform_index].Extra == 1) {
-        if(g_player_current_position_x < g_player_old_position_x) {
-            g_player_current_position_x = g_player_old_position_x;
-        }
-
-        if(g_player_current_position_y > g_player_old_position_y) {
-            g_player_current_position_y = g_player_old_position_y;
-        }
-    }
-}
-
-static void MoveJumpmanFalling(GameInput* game_input) {
-    g_player_current_state = kPlayerStateFalling;
-    g_player_current_special_action = kPlayerSpecialActionNone;
-
-    --g_player_current_position_y;
-    ++g_player_current_state_frame_count;
-    g_player_current_rotation_x_radians = g_player_current_state_frame_count / -10.0f;
-    g_player_current_mesh = kPlayerMeshJumpUp;
-
-    if(g_player_current_state_frame_count > 10) {
-        g_player_current_position_y -= .5;
-    }
-
-    if(g_player_current_state_frame_count > 20) {
-        g_player_current_position_y -= .5;
-    }
-
-    if(g_player_current_position_y <= g_player_current_platform_y && g_platform_objects[g_player_current_platform_index].Extra != 3) {
-        if(g_player_current_state_frame_count < 10) {
-            MoveJumpmanNormal(game_input);
-            return;
-        } else {
-            g_player_current_special_action = kPlayerSpecialActionNone;
-            DoDeathBounce();
-            return;
-        }
-    }
-}
-
-static void MoveJumpmanJumping(GameInput* game_input) {
-    g_player_current_state = kPlayerStateJumping;
-
-    if(g_player_current_special_action != kPlayerSpecialActionKick && game_input->attack_action.is_pressed && ((g_player_current_direction == kPlayerDirectionRight) || (g_player_current_direction == kPlayerDirectionLeft))) {
-        g_player_current_special_action = kPlayerSpecialActionKick;
-    }
-
-    if(g_player_current_exact_ladder_index != -1 && !game_input->attack_action.is_pressed && (g_player_current_state_frame_count > 15 || !game_input->jump_action.is_pressed || ((g_player_current_direction == kPlayerDirectionRight) && game_input->move_left_action.is_pressed) || ((g_player_current_direction == kPlayerDirectionLeft) && game_input->move_right_action.is_pressed) )) {
-        MoveJumpmanLadder(game_input);
-        return;
-    }
-
-    if(g_player_current_exact_vine_index != -1 && !game_input->attack_action.is_pressed && (g_player_current_state_frame_count > 10 || !game_input->jump_action.is_pressed || ((g_player_current_direction == kPlayerDirectionRight) && game_input->move_left_action.is_pressed) || ((g_player_current_direction == kPlayerDirectionLeft) && game_input->move_right_action.is_pressed) )) {
-        MoveJumpmanVine(game_input);
-        return;
-    }
-
-    if(g_player_current_state_frame_count > 50) {
-        if(g_player_current_close_ladder_index != -1) {
-            MoveJumpmanLadder(game_input);
-            return;
-        }
-
-        if(g_player_current_close_vine_index != -1) {
-            MoveJumpmanVine(game_input);
-            return;
-        }
-
-        MoveJumpmanNormal(game_input);
-        return;
-    }
-
-    if(g_player_current_position_y < g_player_current_platform_y && g_player_current_state_frame_count > 6 && (!game_input->jump_action.is_pressed || g_player_current_state_frame_count > 12)) {
-        MoveJumpmanNormal(game_input);
-        return;
-    }
-
-    ++g_player_current_state_frame_count;
-
-    if(g_player_current_state_frame_count == 1) {
-        g_player_current_position_y += 1;
-    }
-
-    if(g_player_current_state_frame_count < 5 || g_player_current_state_frame_count == 6 || g_player_current_state_frame_count == 8 || g_player_current_state_frame_count == 10 || g_player_current_state_frame_count == 12) {
-        g_player_current_position_y += 1;
-    }
-
-    if(g_player_current_state_frame_count > 26 || g_player_current_state_frame_count == 25 || g_player_current_state_frame_count == 23 || g_player_current_state_frame_count == 20 || g_player_current_state_frame_count == 17) {
-        g_player_current_position_y -= 1;
-    }
-
-    g_player_current_mesh = kPlayerMeshJumpUp;
-
-    if(g_player_current_direction == kPlayerDirectionLeft) {
-        --g_player_current_position_x;
-        g_player_current_mesh = (g_player_current_special_action == kPlayerSpecialActionKick) ? kPlayerMeshKickLeft : kPlayerMeshJumpLeft;
-    }
-
-    if(g_player_current_direction == kPlayerDirectionRight) {
-        ++g_player_current_position_x;
-        g_player_current_mesh = (g_player_current_special_action == kPlayerSpecialActionKick) ? kPlayerMeshKickRight : kPlayerMeshJumpRight;
-    }
-
-    if(game_input->move_down_action.is_pressed && g_player_no_roll_cooldown_frame_count == 0 && (g_player_current_direction == kPlayerDirectionRight || g_player_current_direction == kPlayerDirectionLeft)) {
-        g_player_current_state_frame_count = 0;
-        MoveJumpmanRoll(game_input);
-    }
-}
-
-static void MoveJumpmanSlide(GameInput* game_input) {
-    g_player_current_state = kPlayerStateSlide;
-    g_player_current_special_action = kPlayerSpecialActionNone;
-
-    long iExtra = g_platform_objects[g_player_current_platform_index].Extra;
-
-    if(!iExtra && g_player_current_position_y <= g_player_current_platform_y) {
-        MoveJumpmanNormal(game_input);
-        return;
-    }
-
-    if(g_player_current_position_y > g_player_current_platform_y + 3) {
-        ++g_player_current_state_frame_count;
-
-        if(g_player_current_state_frame_count > 30) {
-            MoveJumpmanNormal(game_input);
-            return;
-        }
-    } else {
-        g_player_current_state_frame_count = 0;
-    }
-
-    if(g_player_current_position_y < g_player_current_platform_y + 1) {
-        if(iExtra == 1) {
-            if(CheckJumpStart(0, 0, 1, game_input)) {
-                return;
-            }
-
-            ++g_player_current_position_x;
-            g_player_current_direction = kPlayerDirectionRight;
-        }
-
-        if(iExtra == 2) {
-            if(CheckJumpStart(1, 0, 0, game_input)) {
-                return;
-            }
-
-            --g_player_current_position_x;
-            g_player_current_direction = kPlayerDirectionLeft;
-        }
-    } else {
-        if(g_player_current_direction == kPlayerDirectionRight) {
-            if(g_player_current_state_frame_count < 6) {
-                if(CheckJumpStart(0, 0, 1, game_input)) {
-                    return;
-                }
-            }
-
-            g_player_current_position_x += (float)(30 - g_player_current_state_frame_count) / 60.0f + 0.5f;
-        }
-
-        if(g_player_current_direction == kPlayerDirectionLeft) {
-            if(g_player_current_state_frame_count < 6) {
-                if(CheckJumpStart(1, 0, 0, game_input)) {
-                    return;
-                }
-            }
-
-            g_player_current_position_x -= (float)(30 - g_player_current_state_frame_count) / 60.0f + 0.5f;
-        }
-    }
-
-    if(g_player_current_direction == kPlayerDirectionRight) {
-        g_player_current_mesh = kPlayerMeshSlideR;
-
-        if(((g_player_absolute_frame_count & 7) == 1) || ((g_player_absolute_frame_count & 7) == 2) || ((g_player_absolute_frame_count & 7) == 4) || ((g_player_absolute_frame_count & 7) == 5)) {
-            g_player_current_mesh = kPlayerMeshSlideRB;
-        }
-    } else {
-        g_player_current_mesh = kPlayerMeshSlideL;
-
-        if(((g_player_absolute_frame_count & 7) == 1) || ((g_player_absolute_frame_count & 7) == 2) || ((g_player_absolute_frame_count & 7) == 4) || ((g_player_absolute_frame_count & 7) == 5)) {
-            g_player_current_mesh = kPlayerMeshSlideLB;
-        }
-    }
-
-    if(g_player_current_position_y < g_player_current_platform_y + 2 && g_player_current_position_y > g_player_current_platform_y - 2) {
-        g_player_current_position_y = g_player_current_platform_y;
-    }
-
-    if(g_player_current_position_y < g_player_current_platform_y) {
-        ++g_player_current_position_y;
-    }
-
-    if(g_player_current_position_y < g_player_current_platform_y) {
-        ++g_player_current_position_y;
-    }
-
-    if(g_player_current_position_y > g_player_current_platform_y) {
-        --g_player_current_position_y;
-    }
-
-    if(g_player_current_position_y > g_player_current_platform_y) {
-        --g_player_current_position_y;
-    }
-}
-
-static void MoveJumpmanRoll(GameInput* game_input) {
-    g_player_current_state = kPlayerStateRoll;
-    g_player_current_special_action = kPlayerSpecialActionNone;
-
-    if(g_player_current_state_frame_count < 7 || g_player_current_position_y > g_player_current_platform_y + 1) {
-        ++g_player_current_state_frame_count;
-
-        if(g_player_current_state_frame_count > 50) {
-            MoveJumpmanNormal(game_input);
-            return;
-        }
-    } else {
-        g_player_current_state_frame_count = 7;
-    }
-
-    if(g_player_current_position_y <= g_player_current_platform_y && (g_platform_objects[g_player_current_platform_index].Extra == 1 || g_platform_objects[g_player_current_platform_index].Extra == 2)) {
-        MoveJumpmanSlide(game_input);
-        return;
-    }
-
-    if(g_player_current_position_y <= g_player_current_platform_y) {
-        if(g_player_current_direction == kPlayerDirectionRight && !game_input->move_right_action.is_pressed) {
-            MoveJumpmanNormal(game_input);
-            return;
-        }
-
-        if(g_player_current_direction == kPlayerDirectionLeft && !game_input->move_left_action.is_pressed) {
-            MoveJumpmanNormal(game_input);
-            return;
-        }
-
-        if(!game_input->move_down_action.is_pressed) {
-            if(CheckJumpStart(1, 1, 1, game_input)) {
-                return;
-            }
-        }
-    }
-
-    if((!game_input->jump_action.is_pressed) && (g_player_current_position_y <= g_player_current_platform_y + 0.1) && game_input->attack_action.is_pressed) {
-        g_player_current_state_frame_count = 0;
-        MoveJumpmanPunch(game_input);
-        return;
-    }
-
-    if(g_player_current_exact_ladder_index != -1 && g_player_current_platform_y < g_player_current_position_y && (g_player_current_state_frame_count > 10)) {
-        MoveJumpmanLadder(game_input);
-        return;
-    }
-
-    if(g_player_current_exact_vine_index != -1 && g_player_current_platform_y < g_player_current_position_y && (g_player_current_state_frame_count > 10)) {
-        MoveJumpmanVine(game_input);
-        return;
-    }
-
-    AdjustPlayerZ(g_platform_objects[g_player_current_platform_index].Z1 - 2, (int)(g_player_current_position_y - g_player_current_platform_y));
-
-    float iVel;
-    iVel = 1.3f;
-
-    if(g_player_current_state_frame_count > 8) {
-        iVel = 1;
-    }
-
-    if(g_player_current_state_frame_count > 25) {
-        iVel = .7f;
-    }
-
-    if(g_player_current_state_frame_count > 38) {
-        iVel = .3f;
-    }
-
-    if(g_player_current_direction == kPlayerDirectionLeft) {
-        g_player_current_position_x -= iVel;
-        g_player_current_mesh = kPlayerMeshRollLeft1 + ((g_player_absolute_frame_count & 6) >> 1);
-
-        if(g_player_current_state_frame_count < 6) {
-            g_player_current_mesh = kPlayerMeshDiveLeft;
-        }
-    }
-
-    if(g_player_current_direction == kPlayerDirectionRight) {
-        g_player_current_position_x += iVel;
-        g_player_current_mesh = kPlayerMeshRollRight1 + ((g_player_absolute_frame_count & 6) >> 1);
-
-        if(g_player_current_state_frame_count < 6) {
-            g_player_current_mesh = kPlayerMeshDiveRight;
-        }
-    }
-
-    UpdateSituation();
-
-    if(g_player_current_platform_y < g_player_current_position_y + 1 && g_player_current_platform_y > g_player_current_position_y - 1) {
-        g_player_current_position_y = g_player_current_platform_y;
-    } else if(g_player_current_platform_y < g_player_current_position_y) {
-        --g_player_current_position_y;
-    } else if(g_player_current_platform_y > g_player_current_position_y) {
-        ++g_player_current_position_y;
-    }
-}
-
-static void MoveJumpmanPunch(GameInput* game_input) {
-    g_player_current_state = kPlayerStatePunch;
-    g_player_current_special_action = kPlayerSpecialActionPunch;
-
-    if(g_player_current_state_frame_count > 20 || (g_player_current_state_frame_count < 12 && g_player_current_position_y < g_player_current_platform_y - 2) || (g_player_current_state_frame_count > 11 && g_player_current_position_y <= g_player_current_platform_y)) {
-        MoveJumpmanNormal(game_input);
-        return;
-    }
-
-    ++g_player_current_state_frame_count;
-
-    if(g_player_current_state_frame_count < 3) {
-        g_player_current_mesh = (g_player_current_direction == kPlayerDirectionRight) ? kPlayerMeshPunchRight : kPlayerMeshPunchLeft;
-    } else {
-        g_player_current_mesh = (g_player_current_direction == kPlayerDirectionRight) ? kPlayerMeshPunchRight2 : kPlayerMeshPunchLeft2;
-    }
-
-    if(g_player_current_state_frame_count < 11 && g_player_current_state_frame_count != 9) {
-        ++g_player_current_position_y;
-    }
-
-    if(g_player_current_state_frame_count > 12 && g_player_current_state_frame_count != 14) {
-        --g_player_current_position_y;
-    }
-
-    if(g_player_current_state_frame_count < 4 || g_player_current_state_frame_count == 5 || g_player_current_state_frame_count == 7) {
-        g_player_current_position_x += (g_player_current_direction == kPlayerDirectionRight) ? 1 : -1;
-    }
-}
-
-static void MoveJumpman(GameInput* game_input) {
-    g_player_old_position_x = g_player_current_position_x;
-    g_player_old_position_y = g_player_current_position_y;
-
-    iIgnoreLadders = 0;
-
-    UpdateSituation();
-
-    if(g_player_current_state == kPlayerStateVine) {
-        MoveJumpmanVine(game_input);
-    } else if(g_player_current_state == kPlayerStateLadder) {
-        MoveJumpmanLadder(game_input);
-    } else if(g_player_current_state == kPlayerStateNormal) {
-        MoveJumpmanNormal(game_input);
-    } else if(g_player_current_state == kPlayerStateFalling) {
-        MoveJumpmanFalling(game_input);
-    } else if(g_player_current_state == kPlayerStateJumping) {
-        MoveJumpmanJumping(game_input);
-    } else if(g_player_current_state == kPlayerStateSlide) {
-        MoveJumpmanSlide(game_input);
-    } else if(g_player_current_state == kPlayerStateRoll) {
-        MoveJumpmanRoll(game_input);
-    } else if(g_player_current_state == kPlayerStatePunch) {
-        MoveJumpmanPunch(game_input);
-    }
-
-    if(g_player_current_position_y < 0) {
-        g_player_current_special_action = kPlayerSpecialActionNone;
-        DoDeathBounce();
-        return;
-    }
-
-    long iCollide;
-    long iRep;
-
-    iRep = -1;
-
-    while(++iRep < 2) {
-        iCollide = CollideWall((long)(g_player_current_position_x) - 2, (long)(g_player_current_position_y) + 11, (long)(g_player_current_position_x) + 2, (long)(g_player_current_position_y) + 9);
-
-        if(iCollide == 1) {
-            g_player_current_position_y -= 1;
-
-            if((g_player_current_state == kPlayerStateJumping) && g_player_current_state_frame_count < 15) {
-                g_player_current_state_frame_count = 15;
-            }
-        }
-
-        iCollide = CollideWall((long)(g_player_current_position_x) - 3, (long)(g_player_current_position_y) + 9, (long)(g_player_current_position_x) + 3, (long)(g_player_current_position_y) + 3);
-
-        if(iCollide == 3) {
-            ++g_player_current_position_x;
-
-            if(g_player_current_state == kPlayerStateJumping && g_player_current_state_frame_count < 15) {
-                g_player_current_state_frame_count = 16;
-            }
-
-            if(g_player_current_state != kPlayerStateJumping && g_player_current_position_y > g_player_current_platform_y - 1 && g_player_current_position_y >= g_player_old_position_y) {
-                --g_player_current_position_y;
-            }
-        }
-
-        if(iCollide == 4) {
-            --g_player_current_position_x;
-
-            if(g_player_current_state == kPlayerStateJumping && g_player_current_state_frame_count < 15) {
-                g_player_current_state_frame_count = 16;
-            }
-
-            if(g_player_current_state != kPlayerStateJumping && g_player_current_position_y > g_player_current_platform_y - 1 && g_player_current_position_y >= g_player_old_position_y) {
-                --g_player_current_position_y;
-            }
-        }
-    }
-
-    UpdateSituation();
 }

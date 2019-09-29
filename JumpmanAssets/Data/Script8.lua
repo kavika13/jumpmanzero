@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local goo_module = assert(loadfile("Data/goo.lua"));
 
@@ -40,7 +41,9 @@ resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
 local g_is_first_update_complete = false;
+local g_title_is_done_scrolling = false;
 
+local g_game_logic;
 local g_hud_overlay;
 local g_goos = {};
 local g_currently_spawning_goo = nil;
@@ -101,16 +104,25 @@ local function OnSpawnGoo_()
     return new_goo;
 end
 
-function update(game_input)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
+        g_game_logic = game_logic_module();
+        g_game_logic.ResetPlayerCallback = reset;
         g_hud_overlay = hud_overlay_module();
         g_frames_until_next_goo_spawn = 5;
         SetStartPos_();
         MovePyramid_();
     end
 
-    if not g_hud_overlay.update(game_input) and g_is_first_update_complete then
+    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
+    --       That should simplify this logic drastically.
+    --       Probably best to do that with the level loader refactor?
+    if is_initializing or g_title_is_done_scrolling then
+        g_game_logic.progress_game(game_input);
+        g_hud_overlay.update(game_input);
+    elseif g_is_first_update_complete then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return false;
     end
 
