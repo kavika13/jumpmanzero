@@ -78,7 +78,7 @@ local function SpawnSaw_(initial_pos_x, initial_pos_y)
     return saw;
 end
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 

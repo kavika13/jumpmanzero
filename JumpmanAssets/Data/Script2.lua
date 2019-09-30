@@ -44,7 +44,7 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local is_initialized = false;
+local g_is_initialized = false;
 local g_is_first_update_complete = false;
 
 local g_hud_overlay;
@@ -77,9 +77,9 @@ local function CreateDropObject(frames_to_wait)
     return new_drop_object;
 end
 
-function update(game_input, is_initialized)
-    if not is_initialized then
-        is_initialized = true;
+function update(game_input, is_initializing)
+    if not g_is_initialized then
+        g_is_initialized = true;
 
         g_hud_overlay = hud_overlay_module();
 

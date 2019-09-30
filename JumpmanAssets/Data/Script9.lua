@@ -54,7 +54,7 @@ local g_chain;
 local g_chain_length;
 local g_target_length;
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if g_init_stage_index == 1 then
         for iLoop = 1, 4 do
             local iTemp = bullet_module();

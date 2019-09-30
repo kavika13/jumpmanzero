@@ -70,7 +70,7 @@ local g_wall_animation_frame = 0;
 local g_spotlight_animation_frame = 0;
 local g_painting_with_eyes_animation_frame = 0;
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 

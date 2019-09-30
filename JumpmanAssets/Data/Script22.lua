@@ -67,7 +67,7 @@ local g_animation_frame = 0;
 local g_small_gears_background_mesh_index;
 local g_large_gears_background_mesh_index;
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 

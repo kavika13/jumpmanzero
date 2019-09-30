@@ -116,7 +116,7 @@ local function SpawnNinja_(pos_x, pos_y)
     table.insert(g_ninjas, new_ninja);
 end
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 

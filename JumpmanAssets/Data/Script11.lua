@@ -83,7 +83,7 @@ local g_tyrannosaurus;
 local g_triceratops;
 local g_pterodactyl;
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 

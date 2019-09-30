@@ -50,7 +50,7 @@ local g_game_logic;
 local g_hud_overlay;
 local g_penguins = {};
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 

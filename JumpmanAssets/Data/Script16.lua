@@ -46,7 +46,7 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local is_initialized = false;
+local g_is_initialized = false;
 local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
@@ -67,8 +67,8 @@ local function CreateTurtle_(iX, iY)
 end
 
 function update(game_input, is_initializing)
-    if not is_initialized then
-        is_initialized = true;
+    if not g_is_initialized then
+        g_is_initialized = true;
 
         g_game_logic = game_logic_module();
         g_game_logic.ResetPlayerCallback = reset;

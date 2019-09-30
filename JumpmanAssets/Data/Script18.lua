@@ -99,7 +99,7 @@ local function CreateDABot_(iX, iY, iBehave, iTexture)
     return new_bot;
 end
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 

@@ -63,7 +63,7 @@ local g_visibility_bitmask;
 local g_visibility_change_frames_left = 0;
 local g_background_rotation = 0;
 
-function update(game_input, is_initialized)
+function update(game_input, is_initializing)
     if not g_is_initialized then
         g_is_initialized = true;
 
