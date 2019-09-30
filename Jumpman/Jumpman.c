@@ -1499,6 +1499,17 @@ static int is_player_colliding_with_rect(lua_State* lua_state) {
     return 1;
 }
 
+static int is_player_colliding_with_rect_no_mask(lua_State* lua_state) {
+    // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
+    double arg_x1 = luaL_checknumber(lua_state, 1);
+    double arg_y1 = luaL_checknumber(lua_state, 2);
+    double arg_x2 = luaL_checknumber(lua_state, 3);
+    double arg_y2 = luaL_checknumber(lua_state, 4);
+    long result = PlayerCollide((int)arg_x1, (int)arg_y1, (int)arg_x2, (int)arg_y2);
+    lua_pushboolean(lua_state, result ? 1 : 0);
+    return 1;
+}
+
 static int script_kill(lua_State* lua_state) {
     if(!(g_player_current_state & kPlayerStateDying)) {
         StopMusic1();
@@ -1837,6 +1848,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "play_sound_effect");
     lua_pushcfunction(lua_state, is_player_colliding_with_rect);
     lua_setglobal(lua_state, "is_player_colliding_with_rect");
+    lua_pushcfunction(lua_state, is_player_colliding_with_rect_no_mask);
+    lua_setglobal(lua_state, "is_player_colliding_with_rect_no_mask");
     lua_pushcfunction(lua_state, script_kill);
     lua_setglobal(lua_state, "kill");
     lua_pushcfunction(lua_state, script_win);

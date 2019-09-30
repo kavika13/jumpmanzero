@@ -937,7 +937,7 @@ local function GrabDonuts_(game_input)
 
     for iLoop = 0, get_donut_object_count() - 1 do
         if get_donut_is_visible(iLoop) and
-                is_player_colliding_with_rect(
+                is_player_colliding_with_rect_no_mask(
                     get_donut_x1(iLoop) - 3, get_donut_y1(iLoop) - 4,
                     get_donut_x1(iLoop) + 3, get_donut_y1(iLoop) + 2) then
             abs_donut(iLoop);
