@@ -975,20 +975,18 @@ local function AnimateDying_(game_input)
 
     if get_player_dying_animation_state() == player_dying_animation_state.BOUNCING then
         set_player_current_mesh(player_mesh.JUMP_UP);
-
         set_player_dying_animation_state_frame_count(get_player_dying_animation_state_frame_count() + 1);
+        local dying_anim_frame_count = get_player_dying_animation_state_frame_count();
 
-        if get_player_dying_animation_state_frame_count() < 5 or
-                get_player_dying_animation_state_frame_count() == 6 then
+        if dying_anim_frame_count < 5 or dying_anim_frame_count == 6 then
             set_player_current_position_y(get_player_current_position_y() + 1);
         end
 
-        if get_player_dying_animation_state_frame_count() > 10 or
-                get_player_dying_animation_state_frame_count() == 8 then
+        if dying_anim_frame_count > 10 or dying_anim_frame_count == 8 then
             set_player_current_position_y(get_player_current_position_y() - 1);
         end
 
-        if get_player_dying_animation_state_frame_count() > 15 then
+        if dying_anim_frame_count > 15 then
             set_player_dying_animation_state(player_dying_animation_state.FALLING);
         end
 
@@ -1061,36 +1059,30 @@ local function AnimateDying_(game_input)
 
     if get_player_dying_animation_state() == player_dying_animation_state.FINAL_BOUNCE then
         set_player_current_mesh(player_mesh.DEAD);
-
         set_player_dying_animation_state_frame_count(get_player_dying_animation_state_frame_count() + 1);
+        local dying_anim_frame_count = get_player_dying_animation_state_frame_count();
 
-        if get_player_dying_animation_state_frame_count() < 10 or
-                get_player_dying_animation_state_frame_count() == 12 or
-                get_player_dying_animation_state_frame_count() == 14 then
+        if dying_anim_frame_count < 10 or dying_anim_frame_count == 12 or dying_anim_frame_count == 14 then
             set_player_current_position_y(get_player_current_position_y() + 1);
         end
 
-        if get_player_dying_animation_state_frame_count() > 20 or
-                get_player_dying_animation_state_frame_count() == 18 or
-                get_player_dying_animation_state_frame_count() == 16 then
+        if dying_anim_frame_count > 20 or dying_anim_frame_count == 18 or dying_anim_frame_count == 16 then
             set_player_current_position_y(get_player_current_position_y() - 1);
         end
 
-        if get_player_dying_animation_state_frame_count() == 10 or
-                get_player_dying_animation_state_frame_count() == 12 or
-                get_player_dying_animation_state_frame_count() == 17 or
-                get_player_dying_animation_state_frame_count() == 20 then
+        if dying_anim_frame_count == 10 or dying_anim_frame_count == 12 or
+                dying_anim_frame_count == 17 or dying_anim_frame_count == 20 then
             set_player_current_position_z(get_player_current_position_z() - 1);
         end
 
-        if get_player_dying_animation_state_frame_count() == 25 then
+        if dying_anim_frame_count == 25 then
             play_death_music_track();
         end
 
         set_player_absolute_frame_count(get_player_absolute_frame_count() + 4);
         set_player_current_rotation_x_radians(get_player_absolute_frame_count() / -10.0);
 
-        if get_player_dying_animation_state_frame_count() > 30 then
+        if dying_anim_frame_count > 30 then
             set_player_dying_animation_state(player_dying_animation_state.SPINNING_STARS);
             set_player_absolute_frame_count(0);
             set_player_current_rotation_x_radians(0);
