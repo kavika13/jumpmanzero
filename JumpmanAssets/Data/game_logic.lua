@@ -1144,7 +1144,7 @@ function Module.progress_game(game_input)
         if get_player_current_mesh() == player_mesh.STAND and
                 get_player_is_visible() and
                 get_game_time_inactive() > 400 then
-            local iTemp = (get_game_time_inactive() % 400) / 6;
+            local iTemp = math.floor((get_game_time_inactive() % 400) / 6);
             iTemp = iTemp > 10 and 2 or (iTemp & 1);
             set_player_current_mesh(player_mesh.BORED_1 + iTemp);
         end
