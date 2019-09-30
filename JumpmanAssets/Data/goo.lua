@@ -37,8 +37,7 @@ local g_current_platform_object_index = -1;
 local function ProgressVert_(iHead, iYV)
     g_current_pos_y[iHead] = g_current_pos_y[iHead] + iYV;
 
-    local iPlat1 = find_platform(g_current_pos_x[iHead], g_current_pos_y[iHead], 8, 0);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x[iHead], g_current_pos_y[iHead], 8, 0);
 
     if iPlat1 == 0 - 1 then
         iHit = 0 - 70;
@@ -66,10 +65,8 @@ end
 local function ProgressHorz_(iHead, velocity_x)
     g_current_pos_x[iHead] = g_current_pos_x[iHead] + velocity_x;
 
-    local iPlat1 = find_platform(g_current_pos_x[iHead], g_current_pos_y[iHead], 4, 0);
-    local iHit1 = get_script_event_data_4();
-    local iPlat2 = find_platform(g_current_pos_x[iHead] + velocity_x, g_current_pos_y[iHead], 4, 0);
-    local iHit2 = get_script_event_data_4();
+    local iHit1, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x[iHead], g_current_pos_y[iHead], 4, 0);
+    local iHit2, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x[iHead] + velocity_x, g_current_pos_y[iHead], 4, 0);
 
     g_current_platform_object_index = iPlat1;
 
@@ -91,7 +88,7 @@ end
 
 local function SpawnHorizontal_(goo_type, iNFrom, pos_x1, pos_y1, pos_x2, pos_y2)
     -- TODO: Remove iNFrom parameter? Or is it useful for debuggin?
-    local iPlat = find_platform(pos_x1, pos_y1 + 1, 3, 0);
+    local _, iPlat = Module.GameLogic.find_platform(pos_x1, pos_y1 + 1, 3, 0);
     abs_platform(iPlat);
 
     local iPX1 = get_script_selected_level_object_x1();
@@ -261,8 +258,7 @@ local function DrawHorizontal_()
     local iPY = get_player_current_position_y();
 
     if iPX < g_current_pos_x[2] + 2 and iPX > g_current_pos_x[1] - 2 then
-        local iPlat = find_platform(iPX, iPY, 8, 2);
-        local iPH = get_script_event_data_4();
+        local iPH, iPlat = Module.GameLogic.find_platform(iPX, iPY, 8, 2);
 
         if iPlat == g_current_platform_object_index and iPY < iPH + 1 then
             kill();

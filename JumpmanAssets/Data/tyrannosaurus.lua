@@ -33,8 +33,7 @@ local g_current_state_animation_counter = 0;
 
 local function Move()
     local iMotion;
-    local iPlat = find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
 
     if iHit > g_current_pos_y + 1 then
         g_current_pos_y = g_current_pos_y + 1;

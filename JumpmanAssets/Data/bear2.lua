@@ -120,7 +120,7 @@ end
 local function CheckForHalt_()
     if g_current_move_direction == move_direction.RIGHT or g_current_move_direction == move_direction.LEFT then
         g_current_ladder_object_index = -1;
-        local iLad = find_ladder(g_current_pos_x + 1, g_current_pos_y);
+        local _, iLad = Module.GameLogic.find_ladder(g_current_pos_x + 1, g_current_pos_y);
 
         if iLad >= 0 then
             g_current_ladder_object_index = iLad;
@@ -132,8 +132,7 @@ local function CheckForHalt_()
     end
 
     if g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN then
-        find_platform(g_current_pos_x, g_current_pos_y + 3, 4, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, _ = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 3, 4, 2);
 
         if iHit == g_current_pos_y then
             g_current_move_direction = move_direction.NONE;
@@ -143,14 +142,12 @@ local function CheckForHalt_()
     end
 
     if g_current_move_direction == move_direction.RIGHT then
-        local iPlat1 = find_platform(g_current_pos_x + 6, g_current_pos_y + 5, 4, 2);
-        local iPlat2 = find_platform(g_current_pos_x + 7, g_current_pos_y + 5, 4, 2);
+        local _, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x + 6, g_current_pos_y + 5, 4, 2);
+        local iHit, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x + 7, g_current_pos_y + 5, 4, 2);
 
         if iPlat1 == iPlat2 then
             return;
         end
-
-        local iHit = get_script_event_data_4();
 
         if iHit < 0 then
             g_current_move_direction = move_direction.LEFT;
@@ -163,14 +160,12 @@ local function CheckForHalt_()
     end
 
     if g_current_move_direction == move_direction.LEFT then
-        local iPlat1 = find_platform(g_current_pos_x - 6, g_current_pos_y + 5, 4, 2);
-        local iPlat2 = find_platform(g_current_pos_x - 7, g_current_pos_y + 5, 4, 2);
+        local _, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x - 6, g_current_pos_y + 5, 4, 2);
+        local iHit, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x - 7, g_current_pos_y + 5, 4, 2);
 
         if iPlat1 == iPlat2 then
             return;
         end
-
-        local iHit = get_script_event_data_4();
 
         if iHit < 0 then
             g_current_move_direction = move_direction.RIGHT;
@@ -190,8 +185,8 @@ local function CheckForOptions_()
 
     local player_pos_x = get_player_current_position_x();
     local player_pos_y = get_player_current_position_y();
-    local player_platform_index = find_platform(player_pos_x, player_pos_y, 3, 2);
-    local self_platform_index = find_platform(g_current_pos_x, g_current_pos_y, 3, 2);
+    local _, player_platform_index = Module.GameLogic.find_platform(player_pos_x, player_pos_y, 3, 2);
+    local _, self_platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 3, 2);
 
     if player_platform_index == self_platform_index then
         if player_pos_x < g_current_pos_x then
@@ -353,8 +348,7 @@ local function MoveBear_()
         FallBear_();
     end
 
-    local iPlat = find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
 
     if g_current_status == status_type.NORMAL and
             (g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN) then

@@ -26,7 +26,7 @@ local g_closeby_ladder_pos_z = 0;
 
 local function CheckForChange()
     if g_animation_movement_direction == 4 or g_animation_movement_direction == 3 then
-        local iLad = find_ladder(g_current_pos_x, g_current_pos_y);
+        local _, iLad = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
         if iLad >= 0 then
             abs_ladder(iLad);
@@ -65,9 +65,8 @@ local function CheckForChange()
     end
 
     if g_animation_movement_direction == 1 or g_animation_movement_direction == 2 then
-        local iPlat = find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
+        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
         abs_platform(iPlat);
-        local iHit = get_script_event_data_4();
 
         if iHit == g_current_pos_y then
             g_animation_movement_direction = get_script_selected_level_object_number();
@@ -119,8 +118,7 @@ local function MovePenguin()
     CheckForChange();
     ProgressPenguin();
 
-    local iPlat = find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
 
     if g_animation_movement_direction == 3 or g_animation_movement_direction == 4 then
         if iHit < g_current_pos_y then

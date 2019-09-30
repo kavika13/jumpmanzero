@@ -25,8 +25,7 @@ local g_current_direction = 0;  -- TODO: Rename and refactor? Currently this is 
 
 local function MoveSaw_()
     if not g_is_on_ladder then
-        find_ladder(g_current_pos_x, g_current_pos_y);
-        local iLad = get_script_event_data_4();
+        local iLad, _ = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
         if iLad > -1 then
             abs_ladder(iLad);
@@ -53,8 +52,7 @@ local function MoveSaw_()
             return;
         end
 
-        iPlat = find_platform(g_current_pos_x, g_current_pos_y, 3, 4);
-        iHit = get_script_event_data_4();
+        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 3, 4);
 
         if iHit > g_current_pos_y then
             g_is_on_ladder = false;
@@ -70,8 +68,7 @@ local function MoveSaw_()
         end
     end
 
-    local iPlat = find_platform(g_current_pos_x, g_current_pos_y, 6, 4);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 6, 4);
 
     abs_platform(iPlat);
     local iTargetZ = get_script_selected_level_object_z1();

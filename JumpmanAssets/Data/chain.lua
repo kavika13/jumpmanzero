@@ -2,8 +2,11 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.LinkMeshResourceIndex = 0;
 Module.LinkTextureResourceIndex = 0;
+
 Module.ChainLength = 30;
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -91,8 +94,7 @@ end
 local function PlayerGrounded_()
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
-    local iPlat = find_platform(iPX, iPY, 12, 2);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(iPX, iPY, 12, 2);
 
     g_player_air = iPY - iHit;
 

@@ -157,8 +157,6 @@ static long LoadMesh(const char* base_path, char* sFileName);
 static void LoadMeshes(const char* base_path);
 static void SetGamePerspective(void);
 static int FindObject(LevelObject* lObj, int iCount, int iFind);
-static void FindVine(long iX, long iY, long* iAbout, long* iExact);
-static void FindLadder(long iX, long iY, long* iAbout, long* iExact);
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
 
 static char g_level_set_current_set_filename[100];
@@ -229,7 +227,6 @@ static int g_backdrop_object_count;
 static LevelObject g_backdrop_objects[30];
 
 // SCRIPT
-static long g_script_event_data_4;
 static LevelObject* g_script_selected_level_object;
 static long g_script_selected_mesh_index;
 
@@ -239,53 +236,6 @@ static long g_level_extent_y;
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
-
-static long CollideWall(long iX1, long iY1, long iX2, long iY2) {
-    long iW;
-    int iLeft, iRight, iTop, iBottom;
-
-    iW = -1;
-    iLeft = 0;
-    iRight = 0;
-    iTop = 0;
-    iBottom = 0;
-
-    while(++iW < g_wall_object_count) {
-        if(PointInQuad(iX1, iY1, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
-            ++iLeft;
-            ++iTop;
-        }
-
-        if(PointInQuad(iX2, iY1, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
-            ++iRight;
-            ++iTop;
-        }
-
-        if(PointInQuad(iX1, iY2, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
-            ++iLeft;
-            ++iBottom;
-        }
-
-        if(PointInQuad(iX2, iY2, g_wall_objects[iW].X1, g_wall_objects[iW].Y1, g_wall_objects[iW].X2, g_wall_objects[iW].Y2, g_wall_objects[iW].X3, g_wall_objects[iW].Y3, g_wall_objects[iW].X4, g_wall_objects[iW].Y4)) {
-            ++iRight;
-            ++iBottom;
-        }
-    }
-
-    if(iTop > 1) {
-        return 1;
-    }
-
-    if(iLeft) {
-        return 3;
-    }
-
-    if(iRight) {
-        return 4;
-    }
-
-    return 0;
-}
 
 static void BuildNavigation(void) {
     for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
@@ -485,7 +435,6 @@ static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
     }
 }
 
-
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
 
 static int get_donut_mesh_number(lua_State* lua_state) {
@@ -554,6 +503,12 @@ static int get_vine_x1(lua_State* lua_state) {
     return 1;
 }
 
+static int get_vine_y1(lua_State* lua_state) {
+    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_vine_objects[vine_index].Y1);
+    return 1;
+}
+
 static int get_vine_y2(lua_State* lua_state) {
     lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_vine_objects[vine_index].Y2);
@@ -572,9 +527,81 @@ static int get_platform_extra(lua_State* lua_state) {
     return 1;
 }
 
+static int get_platform_x1(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].X1);
+    return 1;
+}
+
+static int get_platform_x2(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].X2);
+    return 1;
+}
+
+static int get_platform_y1(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].Y1);
+    return 1;
+}
+
+static int get_platform_y2(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].Y2);
+    return 1;
+}
+
 static int get_platform_z1(lua_State* lua_state) {
     lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_platform_objects[platform_index].Z1);
+    return 1;
+}
+
+static int get_wall_x1(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].X1);
+    return 1;
+}
+
+static int get_wall_x2(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].X2);
+    return 1;
+}
+
+static int get_wall_x3(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].X3);
+    return 1;
+}
+
+static int get_wall_x4(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].X4);
+    return 1;
+}
+
+static int get_wall_y1(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y1);
+    return 1;
+}
+
+static int get_wall_y2(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y2);
+    return 1;
+}
+
+static int get_wall_y3(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y3);
+    return 1;
+}
+
+static int get_wall_y4(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y4);
     return 1;
 }
 
@@ -954,12 +981,6 @@ static int get_remaining_life_count(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_event_data_4(lua_State* lua_state) {
-    // TODO: Once sub-scripts use lua, don't divide. In fact, might pass data differently
-    lua_pushnumber(lua_state, g_script_event_data_4 / 256.0);
-    return 1;
-}
-
 static int get_vine_object_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_vine_object_count);
     return 1;
@@ -1112,42 +1133,6 @@ static int prioritize_object(lua_State* lua_state) {
     return 0;
 }
 
-static int script_find_ladder(lua_State* lua_state) {
-    double ladder_x_arg = luaL_checknumber(lua_state, 1);
-    double ladder_y_arg = luaL_checknumber(lua_state, 2);
-    long iLadA, iLadE;
-    FindLadder((long)ladder_x_arg, (long)ladder_y_arg, &iLadA, &iLadE);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_event_data_4 = iLadA * 256;
-    lua_pushnumber(lua_state, iLadE);
-    return 1;
-}
-
-static int script_find_vine(lua_State* lua_state) {
-    double vine_x_arg = luaL_checknumber(lua_state, 1);
-    double vine_y_arg = luaL_checknumber(lua_state, 2);
-    long iVinAp, iVinEx;
-    FindVine((long)vine_x_arg, (long)vine_y_arg, &iVinAp, &iVinEx);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_event_data_4 = iVinAp * 256;
-    lua_pushnumber(lua_state, iVinEx);
-    return 1;
-}
-
-static int script_find_platform(lua_State* lua_state) {
-    double plat_x_arg = luaL_checknumber(lua_state, 1);
-    double plat_y_arg = luaL_checknumber(lua_state, 2);
-    double height_arg = luaL_checknumber(lua_state, 3);
-    double width_arg = luaL_checknumber(lua_state, 4);
-    float iFind;
-    long iPlat;
-    GetNextPlatform((long)plat_x_arg, (long)plat_y_arg, (long)height_arg, (long)width_arg, &iFind, &iPlat);
-    // TODO: Once sub-scripts use lua, don't multiply. In fact, might pass data differently
-    g_script_event_data_4 = (long)(iFind) * 256;
-    lua_pushnumber(lua_state, iPlat);
-    return 1;
-}
-
 // TODO: Rename these abs functions. They select an object and mesh?  Do other things select the same object, but not the mesh?
 //       I believe they select by absolute index in that object type, so you can loop through all of them
 //       So maybe it should be "select_xyz_at_index" or something, and the other should be called "select_xyz_with_object_num"?
@@ -1179,17 +1164,6 @@ static int script_abs_vine(lua_State* lua_state) {
     g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
-}
-
-static int script_collide_wall(lua_State* lua_state) {
-    // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
-    double arg_x1 = luaL_checknumber(lua_state, 1);
-    double arg_y1 = luaL_checknumber(lua_state, 2);
-    double arg_x2 = luaL_checknumber(lua_state, 3);
-    double arg_y2 = luaL_checknumber(lua_state, 4);
-    long result = CollideWall((long)arg_x1, (long)arg_y1, (long)arg_x2, (long)arg_y2);
-    lua_pushnumber(lua_state, result);
-    return 1;
 }
 
 static int script_set_fog(lua_State* lua_state) {
@@ -1582,14 +1556,40 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_ladder_z1");
     lua_pushcfunction(lua_state, get_vine_x1);
     lua_setglobal(lua_state, "get_vine_x1");
+    lua_pushcfunction(lua_state, get_vine_y1);
+    lua_setglobal(lua_state, "get_vine_y1");
     lua_pushcfunction(lua_state, get_vine_y2);
     lua_setglobal(lua_state, "get_vine_y2");
     lua_pushcfunction(lua_state, get_vine_z1);
     lua_setglobal(lua_state, "get_vine_z1");
     lua_pushcfunction(lua_state, get_platform_extra);
     lua_setglobal(lua_state, "get_platform_extra");
+    lua_pushcfunction(lua_state, get_platform_x1);
+    lua_setglobal(lua_state, "get_platform_x1");
+    lua_pushcfunction(lua_state, get_platform_x2);
+    lua_setglobal(lua_state, "get_platform_x2");
+    lua_pushcfunction(lua_state, get_platform_y1);
+    lua_setglobal(lua_state, "get_platform_y1");
+    lua_pushcfunction(lua_state, get_platform_y2);
+    lua_setglobal(lua_state, "get_platform_y2");
     lua_pushcfunction(lua_state, get_platform_z1);
     lua_setglobal(lua_state, "get_platform_z1");
+    lua_pushcfunction(lua_state, get_wall_x1);
+    lua_setglobal(lua_state, "get_wall_x1");
+    lua_pushcfunction(lua_state, get_wall_x2);
+    lua_setglobal(lua_state, "get_wall_x2");
+    lua_pushcfunction(lua_state, get_wall_x3);
+    lua_setglobal(lua_state, "get_wall_x3");
+    lua_pushcfunction(lua_state, get_wall_x4);
+    lua_setglobal(lua_state, "get_wall_x4");
+    lua_pushcfunction(lua_state, get_wall_y1);
+    lua_setglobal(lua_state, "get_wall_y1");
+    lua_pushcfunction(lua_state, get_wall_y2);
+    lua_setglobal(lua_state, "get_wall_y2");
+    lua_pushcfunction(lua_state, get_wall_y3);
+    lua_setglobal(lua_state, "get_wall_y3");
+    lua_pushcfunction(lua_state, get_wall_y4);
+    lua_setglobal(lua_state, "get_wall_y4");
     lua_pushcfunction(lua_state, game_over);
     lua_setglobal(lua_state, "game_over");
     lua_pushcfunction(lua_state, restart_music_track_1);
@@ -1720,8 +1720,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_is_visible");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
-    lua_pushcfunction(lua_state, get_script_event_data_4);
-    lua_setglobal(lua_state, "get_script_event_data_4");
     lua_pushcfunction(lua_state, get_vine_object_count);
     lua_setglobal(lua_state, "get_vine_object_count");
     lua_pushcfunction(lua_state, get_wall_object_count);
@@ -1769,12 +1767,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_object_visual_data");
     lua_pushcfunction(lua_state, prioritize_object);
     lua_setglobal(lua_state, "prioritize_object");
-    lua_pushcfunction(lua_state, script_find_ladder);
-    lua_setglobal(lua_state, "find_ladder");
-    lua_pushcfunction(lua_state, script_find_vine);
-    lua_setglobal(lua_state, "find_vine");
-    lua_pushcfunction(lua_state, script_find_platform);
-    lua_setglobal(lua_state, "find_platform");
     lua_pushcfunction(lua_state, script_abs_platform);
     lua_setglobal(lua_state, "abs_platform");
     lua_pushcfunction(lua_state, script_abs_ladder);
@@ -1783,8 +1775,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "abs_donut");
     lua_pushcfunction(lua_state, script_abs_vine);
     lua_setglobal(lua_state, "abs_vine");
-    lua_pushcfunction(lua_state, script_collide_wall);
-    lua_setglobal(lua_state, "collide_wall");
     lua_pushcfunction(lua_state, script_set_fog);
     lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, script_get_current_level_title);
@@ -2368,62 +2358,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     ++g_loaded_texture_count;
 }
 
-static void FindVine(long iX, long iY, long* iAbout, long* iExact) {
-    long iV;
-
-    *iAbout = -1;
-    *iExact = -1;
-
-    iV = -1;
-
-    while(++iV < g_vine_object_count) {
-        if(*iAbout == -1 || g_vine_objects[*iAbout].Y1 < g_vine_objects[iV].Y1) {
-            if(g_vine_objects[iV].Y1 - 3 > iY && g_vine_objects[iV].Y2 - 9 < iY) {
-                if(g_vine_objects[iV].X1 - 3 < iX && g_vine_objects[iV].X1 + 3 > iX) {
-                    *iAbout = iV;
-
-                    if(g_vine_objects[iV].X1 == iX) {
-                        *iExact = iV;
-                    }
-                }
-            }
-        }
-    }
-}
-
-static void FindLadder(long iX, long iY, long* iAbout, long* iExact) {
-    long iL;
-    long iDiff;
-    long iBestDif;
-
-    *iAbout = -1;
-    *iExact = -1;
-
-    iBestDif = 1000;
-    iL = -1;
-
-    while(++iL < g_ladder_object_count) {
-        if(*iAbout == -1 || g_ladder_objects[*iAbout].Y1 < g_ladder_objects[iL].Y1) {
-            if(g_ladder_objects[iL].Y1 - 3 > iY && g_ladder_objects[iL].Y2 - 9 < iY) {
-                iDiff = g_ladder_objects[iL].X1 - iX;
-
-                if(iDiff < 0) {
-                    iDiff *= -1;
-                }
-
-                if(iDiff < 8 && iDiff <= iBestDif) {
-                    iBestDif = iDiff;
-                    *iAbout = iL;
-
-                    if(iDiff == 0) {
-                        *iExact = iL;
-                    }
-                }
-            }
-        }
-    }
-}
-
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform) {
     long iP;
     float iH;
@@ -2461,9 +2395,10 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
                     bGood = 1;
                 }
 
-                if(g_player_current_state == kPlayerStateRoll && g_player_current_state_frame_count < 6) {
-                    bGood = 0;
-                }
+                // This function is only used for navigation now, so don't need to check this state
+                // if(g_player_current_state == kPlayerStateRoll && g_player_current_state_frame_count < 6) {
+                //     bGood = 0;
+                // }
             } else {
                 if(iH < iY + iHeight) {
                     bGood = 1;

@@ -74,8 +74,7 @@ local function MoveBaboon()
     local iOldY = g_current_pos_y;
     g_current_pos_y = g_current_pos_y + g_current_velocity_y;
 
-    find_vine(g_current_pos_x + 3, g_current_pos_y);
-    local iVin = get_script_event_data_4();
+    local iVin, _ = Module.GameLogic.find_vine(g_current_pos_x + 3, g_current_pos_y);
 
     if iVin < 0 then
         g_current_pos_y = iOldY;

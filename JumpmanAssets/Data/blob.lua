@@ -44,24 +44,19 @@ end
 local function MoveBlob()
     g_current_pos_x = g_current_pos_x + g_current_velocity_x;
 
-    local iPlat = find_platform(g_current_pos_x, g_current_pos_y, 5, 1);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 1);
 
     g_current_pos_y = (iHit + g_current_pos_y) / 2;
 
-    iPlat = find_platform(g_current_pos_x + g_current_velocity_x * 20, g_current_pos_y, 5, 5);
-    iHit = get_script_event_data_4();
+    iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x + g_current_velocity_x * 20, g_current_pos_y, 5, 5);
 
     if iHit < g_current_pos_y - 5 then
         g_current_pos_x = g_current_pos_x - g_current_velocity_x;
         g_current_velocity_x = g_current_velocity_x * -1;
     end
 
-    find_platform(g_current_pos_x - g_current_velocity_x * 15, g_current_pos_y, 5, 5);
-    local iHit1 = get_script_event_data_4();
-
-    find_platform(g_current_pos_x + g_current_velocity_x * 15, g_current_pos_y, 5, 5);
-    local iHit2 = get_script_event_data_4();
+    local iHit1, _ = Module.GameLogic.find_platform(g_current_pos_x - g_current_velocity_x * 15, g_current_pos_y, 5, 5);
+    local iHit2, _ = Module.GameLogic.find_platform(g_current_pos_x + g_current_velocity_x * 15, g_current_pos_y, 5, 5);
 
     g_current_rotation_z = math.atan(iHit2 - iHit1, g_current_velocity_x * 30) * 180.0 / math.pi;
 

@@ -68,19 +68,16 @@ local function MoveJumper_(all_jumpers)
     local iPY = get_player_current_position_y();
     local iPX = get_player_current_position_x();
 
-    local iPlat = find_platform(g_current_pos_x, g_curret_pos_y, 1, 1);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_curret_pos_y, 1, 1);
 
     if g_current_status == status_type.JUMPING then
         local iOHit = iHit;
         local iOPlat = iPlat;
 
         if math.random(1, 100) > 70 then
-            iPlat = find_platform(g_current_pos_x, iHit - 4, 1, 1);
-            iHit = get_script_event_data_4();
+            iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, iHit - 4, 1, 1);
         elseif g_is_dodging and iPY < g_curret_pos_y - 2 then
-            iPlat = find_platform(g_current_pos_x, iHit - 4, 1, 1);
-            iHit = get_script_event_data_4();
+            iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, iHit - 4, 1, 1);
         end
 
         if iHit < 0 then

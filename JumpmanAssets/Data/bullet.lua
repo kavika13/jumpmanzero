@@ -178,11 +178,11 @@ function Module.update()
 
     CheckOOB();
 
-    local iPlat1 = find_platform(g_current_pos_x, g_current_pos_y, 8, 4);
+    local _, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 8, 4);
     abs_platform(iPlat1);
     iPlat1 = get_script_selected_level_object_z1();
 
-    local iPlat2 = find_platform(g_current_pos_x + g_current_velocity_x * 6, (g_current_pos_y) + (g_current_velocity_y * 6), 8, 4);
+    local _, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x + g_current_velocity_x * 6, (g_current_pos_y) + (g_current_velocity_y * 6), 8, 4);
     abs_platform(iPlat2);
     iPlat2 = get_script_selected_level_object_z1();
 

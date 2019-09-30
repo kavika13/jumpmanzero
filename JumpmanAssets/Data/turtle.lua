@@ -69,12 +69,8 @@ local g_current_status = status_type.MOVE_LEFT;
 local g_current_status_counter = 0;
 
 local function SetAngle_()
-    find_platform(g_current_pos_x - 5, g_current_pos_y, 7, 2);
-    local iHit1 = get_script_event_data_4();
-
-    find_platform(g_current_pos_x + 5, g_current_pos_y, 7, 2);
-    local iHit2 = get_script_event_data_4();
-
+    local iHit1, _ = Module.GameLogic.find_platform(g_current_pos_x - 5, g_current_pos_y, 7, 2);
+    local iHit2, _ = Module.GameLogic.find_platform(g_current_pos_x + 5, g_current_pos_y, 7, 2);
     g_current_rotation_z = math.atan(iHit2 - iHit1, 14) * 180.0 / math.pi;
 end
 
@@ -98,8 +94,7 @@ end
 
 local function Move_(all_turtles)
     if g_current_status == status_type.MOVE_LEFT or g_current_status == status_type.MOVE_RIGHT then
-        local iPlat = find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
 
         if iHit < g_current_pos_y - 1 then
             g_current_pos_y = g_current_pos_y - 1;
@@ -112,8 +107,7 @@ local function Move_(all_turtles)
 
     if g_current_status == status_type.MOVE_LEFT then
         g_current_pos_x = g_current_pos_x - 0.25;
-        local iPlat = find_platform(g_current_pos_x - 7, g_current_pos_y, 5, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x - 7, g_current_pos_y, 5, 2);
 
         if iHit < g_current_pos_y - 6 then
             g_current_status = status_type.MOVE_RIGHT;
@@ -125,8 +119,7 @@ local function Move_(all_turtles)
 
     if g_current_status == status_type.MOVE_RIGHT then
         g_current_pos_x = g_current_pos_x + 0.25;
-        local iPlat = find_platform(g_current_pos_x + 7, g_current_pos_y, 5, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x + 7, g_current_pos_y, 5, 2);
 
         if iHit < g_current_pos_y - 6 then
             g_current_status = status_type.MOVE_LEFT;

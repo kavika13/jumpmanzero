@@ -149,17 +149,264 @@ local function PlayerHeight_()
     return iHeight;
 end
 
+local function FindVine_(iX, iY)
+    -- TODO: Figure out what "iX", "iY" mean, and change names to reflect that
+    local iAbout = -1;
+    local iExact = -1;
+
+    iX = math.floor(iX);
+    iY = math.floor(iY);
+
+    for iV = 0, get_vine_object_count() - 1 do
+        if iAbout == -1 or get_vine_y1(iAbout) < get_vine_y1(iV) then
+            if get_vine_y1(iV) - 3 > iY and get_vine_y2(iV) - 9 < iY then
+                if get_vine_x1(iV) - 3 < iX and get_vine_x1(iV) + 3 > iX then
+                    iAbout = iV;
+
+                    if get_vine_x1(iV) == iX then
+                        iExact = iV;
+                    end
+                end
+            end
+        end
+    end
+
+    return iAbout, iExact;
+end
+
+local function FindLadder_(iX, iY)
+    -- TODO: Figure out what "iX", "iY" mean, and change names to reflect that
+    local iAbout = -1;
+    local iExact = -1;
+    local iBestDif = 1000;
+
+    iX = math.floor(iX);
+    iY = math.floor(iY);
+
+    for iL = 0, get_ladder_object_count() - 1 do
+        if iAbout == -1 or get_ladder_y1(iAbout) < get_ladder_y1(iL) then
+            if get_ladder_y1(iL) - 3 > iY and get_ladder_y2(iL) - 9 < iY then
+                iDiff = get_ladder_x1(iL) - iX;
+
+                if iDiff < 0 then
+                    iDiff = iDiff * -1;
+                end
+
+                if iDiff < 8 and iDiff <= iBestDif then
+                    iBestDif = iDiff;
+                    iAbout = iL;
+
+                    if iDiff == 0 then
+                        iExact = iL;
+                    end
+                end
+            end
+        end
+    end
+
+    return iAbout, iExact;
+end
+
+local function FindPlatform_(iX, iY, iHeight, iWide)
+    -- TODO: Figure out what "iX", "iY" mean, and change names to reflect that
+    local iPlatform = -1;
+    local iSupport = -1;
+    local iExtra = 0;
+
+    iX = math.floor(iX);
+    iY = math.floor(iY);
+
+    for iP = 0, get_platform_object_count() - 1 do
+        if get_platform_x1(iP) <= iX + iWide and get_platform_x2(iP) >= iX - iWide then
+            local iEX = iX;
+
+            if iEX < get_platform_x1(iP) then
+                iEX = get_platform_x1(iP);
+            end
+
+            if iEX > get_platform_x2(iP) then
+                iEX = get_platform_x2(iP);
+            end
+
+            local iLen = get_platform_x2(iP) - get_platform_x1(iP);
+            local iH = get_platform_y1(iP) * math.abs(math.floor(get_platform_x2(iP) - iEX)) +  -- TODO: Floor necessary?
+                get_platform_y2(iP) * math.abs(math.floor(get_platform_x1(iP) - iEX));  -- TODO: Floor necessary?
+            iH = iH / iLen;
+
+            local bGood = false;
+
+            if get_platform_extra(iP) == 3 then
+                if iH < iY + 1.5 and iH >= iY then
+                    bGood = true;
+                end
+
+                if get_player_current_state() == player_state.JSROLL and get_player_current_state_frame_count() < 6 then
+                    bGood = false;
+                end
+            else
+                if iH < iY + iHeight then
+                    bGood = true;
+                end
+            end
+
+            if bGood and (iH > iSupport or (iH == iSupport and (iExtra == 1 or iExtra == 2))) then
+                iSupport = iH;
+                iPlatform = iP;
+                iExtra = get_platform_extra(iP);
+            end
+        end
+    end
+
+    return iSupport, iPlatform;
+end
+
+local function PointInQuad_(iX0, iY0, iX1, iY1, iX2, iY2, iX3, iY3, iX4, iY4)
+    -- TODO: Figure out what "iX0", "iY0", etc mean, and change names to reflect that
+    local total = 0;
+
+    local iBX = iX2 - iX1;
+    local iBY = iY2 - iY1;
+    local iSX = iX0 - iX1;
+    local iSY = iY0 - iY1;
+    local det = iBX * iSY - iBY * iSX;
+
+    if det <= 0 then
+        total = total + 1;
+    end
+
+    iBX = iX3 - iX2;
+    iBY = iY3 - iY2;
+    iSX = iX0 - iX2;
+    iSY = iY0 - iY2;
+    det = iBX * iSY - iBY * iSX;
+
+    if det <= 0 then
+        total = total + 1;
+    end
+
+    iBX = iX4 - iX3;
+    iBY = iY4 - iY3;
+    iSX = iX0 - iX3;
+    iSY = iY0 - iY3;
+    det = iBX * iSY - iBY * iSX;
+
+    if det <= 0 then
+        total = total + 1;
+    end
+
+    iBX = iX1 - iX4;
+    iBY = iY1 - iY4;
+    iSX = iX0 - iX4;
+    iSY = iY0 - iY4;
+    det = iBX * iSY - iBY * iSX;
+
+    if det <= 0 then
+        total = total + 1;
+    end
+
+    if total == 4 then
+        return true;
+    end
+
+    return false;
+end
+
+local function CollideWall_(x1, y1, x2, y2)
+    -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
+    local iLeft = 0;
+    local iRight = 0;
+    local iTop = 0;
+    local iBottom = 0;
+
+    x1 = math.floor(x1);
+    y1 = math.floor(y1);
+    x2 = math.floor(x2);
+    y2 = math.floor(y2);
+
+    for iW = 0, get_wall_object_count() - 1 do
+        local wall_x1 = get_wall_x1(iW);
+        local wall_x2 = get_wall_x2(iW);
+        local wall_x3 = get_wall_x3(iW);
+        local wall_x4 = get_wall_x4(iW);
+        local wall_y1 = get_wall_y1(iW);
+        local wall_y2 = get_wall_y2(iW);
+        local wall_y3 = get_wall_y3(iW);
+        local wall_y4 = get_wall_y4(iW);
+
+        if PointInQuad_(x1, y1, wall_x1, wall_y1, wall_x2, wall_y2, wall_x3, wall_y3, wall_x4, wall_y4) then
+            iLeft = iLeft + 1;
+            iTop = iTop + 1;
+        end
+
+        if PointInQuad_(x2, y1, wall_x1, wall_y1, wall_x2, wall_y2, wall_x3, wall_y3, wall_x4, wall_y4) then
+            iRight = iRight + 1;
+            iTop = iTop + 1;
+        end
+
+        if PointInQuad_(x1, y2, wall_x1, wall_y1, wall_x2, wall_y2, wall_x3, wall_y3, wall_x4, wall_y4) then
+            iLeft = iLeft + 1;
+            iBottom = iBottom + 1;
+        end
+
+        if PointInQuad_(x2, y2, wall_x1, wall_y1, wall_x2, wall_y2, wall_x3, wall_y3, wall_x4, wall_y4) then
+            iRight = iRight + 1;
+            iBottom = iBottom + 1;
+        end
+    end
+
+    if iTop > 1 then
+        return 1;
+    end
+
+    if iLeft > 0 then
+        return 3;
+    end
+
+    if iRight > 0 then
+        return 4;
+    end
+
+    return 0;
+end
+
+local function PlayerCollide_(x1, y1, x2, y2)
+    -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
+    local player_pos_x = get_player_current_position_x();
+    local player_pos_y = get_player_current_position_y();
+    local is_player_jumping = (get_player_current_state() & player_state.JSJUMPING) ~= 0;
+    local is_player_rolling = (get_player_current_state() & player_state.JSROLL) ~= 0;
+
+    if is_player_jumping then
+        if player_pos_x + 4 > x1 and player_pos_y + 9 > y1 and player_pos_x - 4 < x2 and player_pos_y + 4 < y2 then
+            return true;
+        end
+    elseif is_player_rolling and get_player_absolute_frame_count() < 12 then
+        if player_pos_x + 4 > x1 and player_pos_y + 7 > y1 and player_pos_x - 4 < x2 and player_pos_y + 3 < y2 then
+            return true;
+        end
+    elseif is_player_rolling then
+        if player_pos_x + 3 > x1 and player_pos_y + 7 > y1 and player_pos_x - 3 < x2 and player_pos_y < y2 then
+            return true;
+        end
+    else
+        if player_pos_x + 2 > x1 and player_pos_y + 9 > y1 and player_pos_x - 2 < x2 and player_pos_y + 2 < y2 then
+            return true;
+        end
+    end
+
+    return false;
+end
+
 local function UpdateSituation_()
-    g_player_current_exact_vine_index = find_vine(get_player_current_position_x(), get_player_current_position_y());
-    g_player_current_close_vine_index = get_script_event_data_4();
+    g_player_current_close_vine_index, g_player_current_exact_vine_index = FindVine_(
+        get_player_current_position_x(), get_player_current_position_y());
 
-    g_player_current_exact_ladder_index = find_ladder(get_player_current_position_x(), get_player_current_position_y());
-    g_player_current_close_ladder_index = get_script_event_data_4();
+    g_player_current_close_ladder_index, g_player_current_exact_ladder_index = FindLadder_(
+        get_player_current_position_x(), get_player_current_position_y());
 
-    g_player_current_platform_index = find_platform(
-        get_player_current_position_x(), get_player_current_position_y(),
-        PlayerHeight_(), 2);
-    g_player_current_platform_y = get_script_event_data_4() - PlayerFloor_();
+    g_player_current_platform_y, g_player_current_platform_index = FindPlatform_(
+        get_player_current_position_x(), get_player_current_position_y(), PlayerHeight_(), 2);
+    g_player_current_platform_y = g_player_current_platform_y - PlayerFloor_();
 
     g_player_current_active_platform_index = -1;
 
@@ -884,7 +1131,7 @@ local function MoveJumpman_(game_input)
     end
 
     for iRep = 0, 1 do
-        local iCollide = collide_wall(
+        local iCollide = CollideWall_(
             get_player_current_position_x() - 2, get_player_current_position_y() + 11,
             get_player_current_position_x() + 2, get_player_current_position_y() + 9);
 
@@ -896,7 +1143,7 @@ local function MoveJumpman_(game_input)
             end
         end
 
-        iCollide = collide_wall(
+        iCollide = CollideWall_(
             get_player_current_position_x() - 3, get_player_current_position_y() + 9,
             get_player_current_position_x() + 3, get_player_current_position_y() + 3);
 
@@ -930,34 +1177,6 @@ local function MoveJumpman_(game_input)
     end
 
     UpdateSituation_();
-end
-
-local function PlayerCollide_(x1, y1, x2, y2)
-    -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
-    local player_pos_x = get_player_current_position_x();
-    local player_pos_y = get_player_current_position_y();
-    local is_player_jumping = (get_player_current_state() & player_state.JSJUMPING) ~= 0;
-    local is_player_rolling = (get_player_current_state() & player_state.JSROLL) ~= 0;
-
-    if is_player_jumping then
-        if player_pos_x + 4 > x1 and player_pos_y + 9 > y1 and player_pos_x - 4 < x2 and player_pos_y + 4 < y2 then
-            return true;
-        end
-    elseif is_player_rolling and get_player_absolute_frame_count() < 12 then
-        if player_pos_x + 4 > x1 and player_pos_y + 7 > y1 and player_pos_x - 4 < x2 and player_pos_y + 3 < y2 then
-            return true;
-        end
-    elseif is_player_rolling then
-        if player_pos_x + 3 > x1 and player_pos_y + 7 > y1 and player_pos_x - 3 < x2 and player_pos_y < y2 then
-            return true;
-        end
-    else
-        if player_pos_x + 2 > x1 and player_pos_y + 9 > y1 and player_pos_x - 2 < x2 and player_pos_y + 2 < y2 then
-            return true;
-        end
-    end
-
-    return false;
 end
 
 local function GrabDonuts_(game_input)
@@ -1046,8 +1265,10 @@ local function AnimateDying_(game_input)
         set_player_current_position_y(get_player_current_position_y() - 2);
         set_player_current_rotation_x_radians(get_player_absolute_frame_count() / -10.0);
 
-        local iPlatform = find_platform(get_player_current_position_x(), get_player_current_position_y(), 8, 2);
-        local iSupport = get_script_event_data_4() - PlayerFloor_();
+        local iSupport, iPlatform = FindPlatform_(
+            get_player_current_position_x(), get_player_current_position_y(), 8, 2);
+        iSupport = iSupport - PlayerFloor_();
+
         local bGrounded = get_player_current_position_y() + 4 <= iSupport;
         AdjustPlayerZ_(get_platform_z1(iPlatform) - 2, get_player_current_position_y() - iSupport);
 
@@ -1069,7 +1290,8 @@ local function AnimateDying_(game_input)
 
             play_sound_effect(2);
 
-            iPlatform = find_platform(get_player_current_position_x(), get_player_current_position_y() - 8, 8, 2);
+            local _;
+            _, iPlatform = FindPlatform_(get_player_current_position_x(), get_player_current_position_y() - 8, 8, 2);
 
             if iPlatform == -1 then
                 set_player_dying_animation_state(player_dying_animation_state.FINAL_BOUNCE);
@@ -1190,6 +1412,26 @@ end
 
 function Module.set_player_current_direction(new_direction)
     g_player_current_direction = new_direction;
+end
+
+function Module.find_vine(iX, iY)
+    -- TODO: Figure out what "iX", "iY" mean, and change names to reflect that
+    return FindVine_(iX, iY);
+end
+
+function Module.find_ladder(iX, iY)
+    -- TODO: Figure out what "iX", "iY" mean, and change names to reflect that
+    return FindLadder_(iX, iY);
+end
+
+function Module.find_platform(iX, iY, iHeight, iWide)
+    -- TODO: Figure out what "iX", "iY" mean, and change names to reflect that
+    return FindPlatform_(iX, iY, iHeight, iWide);
+end
+
+function Module.collide_wall(x1, y1, x2, y2)
+    -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
+    return CollideWall_(x1, y1, x2, y2);
 end
 
 function Module.is_player_colliding_with_rect(x1, y1, x2, y2)

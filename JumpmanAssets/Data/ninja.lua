@@ -120,13 +120,17 @@ local function AdvanceFrame_()
 end
 
 local function MoveNinja_()
-    local iCollideWall = collide_wall(g_current_pos_x - 1, g_current_pos_y, g_current_pos_x + 1, g_current_pos_y + 8);
+    local iCollideWall = Module.GameLogic.collide_wall(
+        g_current_pos_x - 1, g_current_pos_y + 0,
+        g_current_pos_x + 1, g_current_pos_y + 8);
 
     if iCollideWall == 1 then
         g_current_pos_y = g_current_pos_y - 1.25;
     end
 
-    iCollideWall = collide_wall(g_current_pos_x - 3, g_current_pos_y, g_current_pos_x + 3, g_current_pos_y + 6);
+    iCollideWall = Module.GameLogic.collide_wall(
+        g_current_pos_x - 3, g_current_pos_y + 0,
+        g_current_pos_x + 3, g_current_pos_y + 6);
 
     if iCollideWall == 3 then
         g_current_pos_x = g_current_pos_x + 1;
@@ -152,8 +156,7 @@ local function MoveNinja_()
             g_animation_current_frame = animation_frame.MOVE_RIGHT_2;
         end
 
-        local iPlat2 = find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
 
         if iHit > g_current_pos_y + 0.2 then
             g_current_pos_y = g_current_pos_y + 0.5;
@@ -191,8 +194,7 @@ local function MoveNinja_()
             end
         end
 
-        local iPlat2 = find_platform(g_current_pos_x + g_current_velocity_x * 10, g_current_pos_y + 6, 5, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x + g_current_velocity_x * 10, g_current_pos_y + 6, 5, 2);
 
         if iHit < g_current_pos_y - 7 or iPlat2 < 0 then
             g_current_velocity_x = -g_current_velocity_x;
@@ -234,8 +236,7 @@ local function MoveNinja_()
             g_current_pos_y = g_current_pos_y - 1;
         end
 
-        local iPlat2 = find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
 
         if iHit > g_current_pos_y + 1 then
             g_current_status = status_type.NORMAL;
@@ -262,8 +263,7 @@ local function MoveNinja_()
             g_current_pos_y = g_current_pos_y - 1;
         end
 
-        local iPlat2 = find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
 
         if iHit > g_current_pos_y then
             if g_current_status_counter > 10 then
@@ -291,8 +291,7 @@ local function MoveNinja_()
             g_current_pos_y = g_current_pos_y - 1;
         end
 
-        local iPlat2 = find_platform(g_current_pos_x, g_current_pos_y, 2, 2);
-        local iHit = get_script_event_data_4();
+        local iHit, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 2, 2);
 
         if iHit > g_current_pos_y then
             g_current_status = status_type.DEAD;

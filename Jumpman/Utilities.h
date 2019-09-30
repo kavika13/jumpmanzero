@@ -8,7 +8,6 @@
 extern "C" {
 #endif
 
-long PointInQuad(long iX0, long iY0, long iX1, long iY1, long iX2, long iY2, long iX3, long iY3, long iX4, long iY4);
 long StringToInt(unsigned char* sString);
 long StringToLong(unsigned char* sString);
 long StringToLong2(unsigned char* sString);

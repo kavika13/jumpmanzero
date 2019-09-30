@@ -53,8 +53,7 @@ local function CheckForChange_()
         g_move_direction_x = 0;
     end
 
-    local iPlat1 = find_platform(g_current_pos_x, g_current_pos_y, 7, 2);
-    local iHit1 = get_script_event_data_4();
+    local iHit1, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 7, 2);
     abs_platform(iPlat1);
     g_current_pos_z = get_script_selected_level_object_z1() + 1;
 
@@ -76,15 +75,13 @@ local function CheckForChange_()
         g_current_pos_y = g_current_pos_y - 1;
     end
 
-    local iPlat2 = find_platform(g_current_pos_x + g_move_direction_x, g_current_pos_y, 7, 2);
-    local iHit2 = get_script_event_data_4();
+    local iHit2, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x + g_move_direction_x, g_current_pos_y, 7, 2);
 
     if iPlat1 ~= iPlat2 and iHit2 < (iHit1 - 5) and g_current_pos_y < g_initial_pos_y - 5 then
         g_move_direction_x = -g_move_direction_x;
     end
 
-    iPlat2 = find_platform(g_current_pos_x, g_current_pos_y + 17, 7, 0 - 5);
-    iHit2 = get_script_event_data_4();
+    iHit2, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 17, 7, 0 - 5);
 
     if iPlat1 ~= iPlat2 and g_current_pos_y < g_initial_pos_y - 5 and iHit2 > iHit1 then
         g_current_status = status_type.JUMP;
@@ -153,8 +150,7 @@ local function ChangeDirections_(all_run_donuts)
 end
 
 local function AdjustY_()
-    local iPlat1 = find_platform(g_current_pos_x, g_current_pos_y, 7, 2);
-    local iHit1 = get_script_event_data_4();
+    local iHit1, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 7, 2);
 
     if g_current_pos_y < iHit1 + 1 and g_current_pos_y > iHit1 - 1 then
         g_current_pos_y = iHit1;
@@ -230,8 +226,7 @@ local function Jump_()
     g_current_velocity_y = g_current_velocity_y - 0.2;
     g_current_pos_y = g_current_pos_y + g_current_velocity_y / 3;
 
-    local iPlat = find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
 
     if iHit > g_current_pos_y and g_current_velocity_y < 0 then
         g_current_status = status_type.NORMAL;

@@ -63,11 +63,9 @@ function Module.update()
 
     if g_animation_frame == 0 then
         g_current_pos_y = g_current_pos_y - 0.55;
-        local iPlat = find_platform(g_current_pos_x, g_current_pos_y + 5, 8, 3);
+        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 8, 3);
         abs_platform(iPlat);
-
         local iPlatZ = get_script_selected_level_object_z1();
-        local iHit = get_script_event_data_4();
 
         if iHit + 8 > g_current_pos_y and iPlatZ < 11 then
             g_animation_frame = 1;

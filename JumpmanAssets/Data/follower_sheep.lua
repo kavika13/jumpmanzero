@@ -91,8 +91,7 @@ local function CheckForChange_()
     local bNewDir = false;
 
     if g_current_move_direction == move_direction.RIGHT or g_current_move_direction == move_direction.LEFT then
-        find_ladder(g_current_pos_x, g_current_pos_y);
-        local iLad = get_script_event_data_4();
+        local iLad, _ = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
         if iLad < 0 then
             return;
@@ -110,9 +109,8 @@ local function CheckForChange_()
     end
 
     if g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN then
-        local iPlat = find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
+        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
         abs_platform(iPlat);
-        local iHit = get_script_event_data_4();
 
         if iHit == g_current_pos_y then
             bNewDir = true;
@@ -243,8 +241,7 @@ local function MoveSheep_()
     CheckForChange_();
     ProgressSheep_();
 
-    local iPlat = find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
-    local iHit = get_script_event_data_4();
+    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
 
     if g_current_move_direction == move_direction.LEFT or g_current_move_direction == move_direction.RIGHT then
         if iHit < g_current_pos_y then

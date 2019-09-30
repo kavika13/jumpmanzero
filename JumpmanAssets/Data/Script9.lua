@@ -87,6 +87,7 @@ function update(game_input, is_initializing)
         g_hud_overlay = hud_overlay_module();
 
         g_chain = chain_module();
+        g_chain.GameLogic = g_game_logic;
         g_chain.LinkMeshResourceIndex = resources.MeshChain;
         g_chain.LinkTextureResourceIndex = resources.TextureChain;
     end

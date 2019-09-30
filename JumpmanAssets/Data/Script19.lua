@@ -27,26 +27,23 @@ local g_hud_overlay;
 local propellers = {};
 local whompers = {};
 
-local function ConveyPlatform(iPlat, iDist)
+local function ConveyPlatform_(iPlat, iDist)
     select_platform(iPlat);
     script_selected_mesh_scroll_texture(iDist * 16, 0);
 
-    local iPN, iPX, iPY, iHit;
-
-    iPX = get_player_current_position_x();
-    iPY = get_player_current_position_y();
+    local iPX = get_player_current_position_x();
+    local iPY = get_player_current_position_y();
 
     if get_player_current_state() == player_state.JSJUMPING then
-        return 0;
+        return;
     end
 
-    iPN = find_platform(iPX, iPY, 14, 2);
-    iHit = get_script_event_data_4();
+    local iHit, iPN = g_game_logic.find_platform(iPX, iPY, 14, 2);
 
     abs_platform(iPN);
 
     if iPlat ~= get_script_selected_level_object_number() then
-        return 0;
+        return;
     end
 
     if g_game_logic.get_player_current_active_platform_index() == iPN then
@@ -66,7 +63,7 @@ local function ConveyPlatform(iPlat, iDist)
     -- end
 end
 
-local function CreateProp(iX, iY, iR, iZ)
+local function CreateProp_(iX, iY, iR, iZ)
     local new_prop = prop_module();
     new_prop.GameLogic = g_game_logic;
     new_prop.iX = iX;
@@ -76,7 +73,7 @@ local function CreateProp(iX, iY, iR, iZ)
     table.insert(propellers, new_prop);
 end
 
-local function CreateWhomper(iX, iY, iR, iRV)
+local function CreateWhomper_(iX, iY, iR, iRV)
     local new_whomper = whomper_module();
     new_whomper.GameLogic = g_game_logic;
     new_whomper.iX = iX;
@@ -95,26 +92,26 @@ function update(game_input, is_initializing)
 
         g_hud_overlay = hud_overlay_module();
 
-        CreateWhomper(86, 28, 50, 3);
-        CreateWhomper(100, 28, 0, 3);
-        CreateWhomper(114, 28, 1, -3);
-        CreateWhomper(128, 28, -90, 1);
+        CreateWhomper_(86, 28, 50, 3);
+        CreateWhomper_(100, 28, 0, 3);
+        CreateWhomper_(114, 28, 1, -3);
+        CreateWhomper_(128, 28, -90, 1);
 
-        CreateWhomper(55, 143, 0, 3);
-        CreateWhomper(73, 143, 50, 3);
-        CreateWhomper(95, 143, -50, -3);
+        CreateWhomper_(55, 143, 0, 3);
+        CreateWhomper_(73, 143, 50, 3);
+        CreateWhomper_(95, 143, -50, -3);
 
-        CreateProp(34, 90, 80, 5);
-        CreateProp(34, 90, 120, 5);
+        CreateProp_(34, 90, 80, 5);
+        CreateProp_(34, 90, 120, 5);
 
-        CreateProp(60, 46, 90, 2);
-        CreateProp(60, 56, 90, 2);
+        CreateProp_(60, 46, 90, 2);
+        CreateProp_(60, 56, 90, 2);
 
-        CreateProp(120, 46, 335, 2);
-        CreateProp(120, 46, 25, 2);
+        CreateProp_(120, 46, 335, 2);
+        CreateProp_(120, 46, 25, 2);
 
-        CreateProp(99, 105, 80, 2);
-        CreateProp(101, 97, 25, 2);
+        CreateProp_(99, 105, 80, 2);
+        CreateProp_(101, 97, 25, 2);
     end
 
     -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
@@ -128,10 +125,10 @@ function update(game_input, is_initializing)
         return false;
     end
 
-    ConveyPlatform(1, 0.04);
-    ConveyPlatform(2, -0.02);
-    ConveyPlatform(3, 0.04);
-    ConveyPlatform(4, -0.04);
+    ConveyPlatform_(1, 0.04);
+    ConveyPlatform_(2, -0.02);
+    ConveyPlatform_(3, 0.04);
+    ConveyPlatform_(4, -0.04);
 
     for _, propeller in ipairs(propellers) do
         propeller.update();
