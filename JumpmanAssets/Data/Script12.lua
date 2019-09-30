@@ -85,6 +85,7 @@ end
 
 function SpawnBee_()
     local bee = bee_module();
+    bee.GameLogic = g_game_logic;
     bee.MoveLeftMeshResourceIndices = { resources.MeshBeeLeft1, resources.MeshBeeLeft2 };
     bee.MoveRightMeshResourceIndices = { resources.MeshBeeRight1, resources.MeshBeeRight2 };
     bee.TextureResourceIndex = resources.TextureBeeTexture;

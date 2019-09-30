@@ -30,6 +30,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
+Module.GameLogic = nil;
+
 Module.BotMoveLeftMeshResourceIndex = 0;
 Module.BotMoveRightMeshResourceIndex = 0;
 Module.BotTurnMeshResourceIndices = {};
@@ -38,6 +40,7 @@ Module.BotFireRightMeshResourceIndices = {};
 Module.LaserMeshResourceIndex = 0;
 Module.BotTextureResourceIndex = 0;
 Module.LaserTextureResourceIndex = 0;
+
 Module.InitialPosX = 0;
 Module.InitialPosY = 0;
 Module.FireDuration = 0;
@@ -273,7 +276,7 @@ function Module.update()
         script_selected_mesh_scale_matrix(35, 4, 0);
         script_selected_mesh_scroll_texture(iTemp, 0);
         script_selected_mesh_translate_matrix(g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
-        is_colliding = is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 36, g_current_pos_y + 7.5,
             g_current_pos_x - 5, g_current_pos_y + 11);
     end
@@ -288,14 +291,14 @@ function Module.update()
         script_selected_mesh_scale_matrix(35, 4, 0);
         script_selected_mesh_scroll_texture(iTemp, 0);
         script_selected_mesh_translate_matrix(g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
-        is_colliding = is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x + 5, g_current_pos_y + 7.5,
             g_current_pos_x + 36, g_current_pos_y + 11);
     end
 
     if not is_colliding then
-        is_colliding = is_player_colliding_with_rect(
-            g_current_pos_x - 4, g_current_pos_y,
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
+            g_current_pos_x - 4, g_current_pos_y + 0,
             g_current_pos_x + 4, g_current_pos_y + 4);
     end
 

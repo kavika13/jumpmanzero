@@ -93,6 +93,7 @@ function update(game_input, is_initializing)
         g_hud_overlay = hud_overlay_module();
 
         g_tyrannosaurus = tyrannosaurus_module();
+        g_tyrannosaurus.GameLogic = g_game_logic;
         g_tyrannosaurus.LeftStandMeshResourceIndex = resources.MeshTSaurStandL;
         g_tyrannosaurus.RightStandMeshResourceIndex = resources.MeshTSaurStandR;
         g_tyrannosaurus.LeftWalkMeshResourceIndices = { resources.MeshTSaurWalkL1, resources.MeshTSaurWalkL2, resources.MeshTSaurWalkL3, resources.MeshTSaurWalkL4 };
@@ -103,6 +104,7 @@ function update(game_input, is_initializing)
         g_tyrannosaurus.TextureResourceIndex = resources.TextureDinosaur;
 
         g_triceratops = triceratops_module();
+        g_triceratops.GameLogic = g_game_logic;
         g_triceratops.LeftStandMeshResourceIndex = resources.MeshTRSaurStandL;
         g_triceratops.RightStandMeshResourceIndex = resources.MeshTRSaurStandR;
         g_triceratops.LeftWalkMeshResourceIndices = { resources.MeshTRSaurWalkL1, resources.MeshTRSaurWalkL2 };
@@ -110,6 +112,7 @@ function update(game_input, is_initializing)
         g_triceratops.TextureResourceIndex = resources.TextureDinosaur;
 
         g_pterodactyl = pterodactyl_module();
+        g_pterodactyl.GameLogic = g_game_logic;
         g_pterodactyl.LeftMeshResourceIndices = { resources.MeshPSaurL1, resources.MeshPSaurL2, resources.MeshPSaurL3, resources.MeshPSaurL4 };
         g_pterodactyl.RightMeshResourceIndices = { resources.MeshPSaurR1, resources.MeshPSaurR2, resources.MeshPSaurR3, resources.MeshPSaurR4 };
         g_pterodactyl.TextureResourceIndex = resources.TextureDinosaur;

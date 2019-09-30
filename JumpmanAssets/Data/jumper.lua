@@ -2,9 +2,12 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.AnimationMeshResourceIndices = {};
 Module.EyesMeshResourceIndex = 0;
 Module.TextureResourceIndex = 0;
+
 Module.StartAlive = false;
 
 local status_type = {
@@ -220,13 +223,17 @@ function Module.update(all_jumpers)
     set_object_visual_data(Module.TextureResourceIndex, 1);
 
     if g_current_status == status_type.JUMPING then
-        if is_player_colliding_with_rect(g_current_pos_x - 2, g_curret_pos_y + 4, g_current_pos_x + 2, g_curret_pos_y + 10) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                g_current_pos_x - 2, g_curret_pos_y + 4,
+                g_current_pos_x + 2, g_curret_pos_y + 10) then
             kill();
         end
     end
 
     if g_current_status == status_type.CROUCHED then
-        if is_player_colliding_with_rect(g_current_pos_x - 2, g_curret_pos_y + 1, g_current_pos_x + 2, g_curret_pos_y + 3) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                g_current_pos_x - 2, g_curret_pos_y + 1,
+                g_current_pos_x + 2, g_curret_pos_y + 3) then
             kill();
         end
     end

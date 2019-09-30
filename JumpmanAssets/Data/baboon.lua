@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.StartX = 0;
 Module.StartY = 0;
 
@@ -118,7 +120,9 @@ function Module.update()
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6, g_current_pos_z);
     set_object_visual_data(resources.TextureBaboon, 1);
 
-    if is_player_colliding_with_rect(g_current_pos_x - 2, g_current_pos_y + 2, g_current_pos_x + 2, g_current_pos_y + 10) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            g_current_pos_x - 2, g_current_pos_y + 2,
+            g_current_pos_x + 2, g_current_pos_y + 10) then
         kill();
     end
 end

@@ -9,6 +9,8 @@ local nav_type = {
 };
 nav_type = read_only.make_table_read_only(nav_type);
 
+Module.GameLogic = nil;
+
 Module.StandRightMeshResourceIndex = 0;
 Module.MoveRightMeshResourceIndices = {};
 Module.FallRightMeshResourceIndices = {};
@@ -486,19 +488,19 @@ function Module.update()
 
     if g_current_status == status_type.NORMAL or g_current_status == status_type.FALLING then
         if g_current_move_direction == move_direction.LEFT then
-            iCollide = is_player_colliding_with_rect(
+            iCollide = Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 12, g_current_pos_y + 5,
                 g_current_pos_x + 7, g_current_pos_y + 12);
         end
 
         if g_current_move_direction == move_direction.RIGHT then
-            iCollide = is_player_colliding_with_rect(
+            iCollide = Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 7, g_current_pos_y + 5,
                 g_current_pos_x + 12, g_current_pos_y + 12);
         end
 
         if g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN then
-            iCollide = is_player_colliding_with_rect(
+            iCollide = Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 4, g_current_pos_y + 0,
                 g_current_pos_x + 4, g_current_pos_y + 20);
         end

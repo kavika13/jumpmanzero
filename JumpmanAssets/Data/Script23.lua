@@ -72,6 +72,7 @@ local g_jumpers = {};
 
 function SpawnJumper_(start_alive)
     local new_jumper = jumper_module();
+    new_jumper.GameLogic = g_game_logic;
     new_jumper.AnimationMeshResourceIndices = { resources.MeshJumper1, resources.MeshJumper2, resources.MeshJumper3 };
     new_jumper.EyesMeshResourceIndex = resources.MeshJuEyes;
     new_jumper.TextureResourceIndex = resources.TextureJumper;

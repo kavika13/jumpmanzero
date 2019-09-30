@@ -224,15 +224,15 @@ function Module.update(game_input, all_turtles)
     if iPStat & player_state.JSDYING ~= 0 then
         is_colliding = false;
     elseif iPY < g_current_pos_y + 2 and g_current_status == status_type.MOVE_LEFT then
-        is_colliding = is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 4, g_current_pos_y,
             g_current_pos_x, g_current_pos_y + 4);
     elseif iPY < g_current_pos_y + 2 and g_current_status == status_type.MOVE_RIGHT then
-        is_colliding = is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x, g_current_pos_y,
             g_current_pos_x + 4, g_current_pos_y + 4);
     else
-        is_colliding = is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 6, g_current_pos_y,
             g_current_pos_x + 6, g_current_pos_y + 10);
     end

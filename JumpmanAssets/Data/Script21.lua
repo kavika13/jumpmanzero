@@ -70,6 +70,7 @@ end
 
 local function SpawnSaw_(initial_pos_x, initial_pos_y)
     local saw = saw_module();
+    saw.GameLogic = g_game_logic;
     saw.DestroyObjectCallback = RemoveSaw_;
     saw.InitialPosX = initial_pos_x;
     saw.InitialPosY = initial_pos_y;

@@ -65,6 +65,7 @@ local iHangMesh = {};
 
 local function StartBaboon(iX, iY);
     local new_baboon = baboon_module();
+    new_baboon.GameLogic = g_game_logic;
     new_baboon.StartX = iX - 2.5;
     new_baboon.StartY = iY;
     table.insert(baboons, new_baboon);

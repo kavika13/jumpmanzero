@@ -71,6 +71,7 @@ function update(game_input, is_initializing)
         g_hud_overlay = hud_overlay_module();
 
         g_bear = bear_module();
+        g_bear.GameLogic = g_game_logic;
         g_bear.StandRightMeshResourceIndex = resources.MeshFyStand;
         g_bear.MoveRightMeshResourceIndices = { resources.MeshFyRight1, resources.MeshFyRight2 };
         g_bear.FallRightMeshResourceIndices = { resources.MeshFyFR1, resources.MeshFyFR2 };

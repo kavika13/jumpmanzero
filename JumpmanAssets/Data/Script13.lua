@@ -74,6 +74,7 @@ function update(game_input, is_initializing)
         g_hud_overlay = hud_overlay_module();
 
         local iTemp = bullet_module();
+        iTemp.GameLogic = g_game_logic;
         iTemp.FramesToWait = 300;
         iTemp.Mesh1Index = resources.MeshBullet1;
         iTemp.Mesh2Index = resources.MeshBullet2;

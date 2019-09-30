@@ -1,11 +1,14 @@
 local Module = {};
 
-Module.PlayAreaCircumference = 0;
-Module.StartPosX = 0;
-Module.StartPosY = 0;
+Module.GameLogic = nil;
+
 Module.MoveRightMeshResourceIndices = {};
 Module.MoveLeftMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
+
+Module.PlayAreaCircumference = 0;
+Module.StartPosX = 0;
+Module.StartPosY = 0;
 
 local g_is_initialized = false;
 
@@ -96,7 +99,9 @@ function Module.update()
     MoveBlob();
     ShowBlob();
 
-    if is_player_colliding_with_rect(g_current_pos_x - 2, g_current_pos_y + 1, g_current_pos_x + 2, g_current_pos_y + 3) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            g_current_pos_x - 2, g_current_pos_y + 1,
+            g_current_pos_x + 2, g_current_pos_y + 3) then
         kill();
     end
 end

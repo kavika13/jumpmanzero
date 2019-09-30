@@ -2,11 +2,14 @@ local Module = {};
 
 -- TODO: Can this be combined with wave.lua somehow?
 
+Module.GameLogic = nil;
+
 Module.SeaMeshResourceIndex = 0;
 Module.WaveMeshResourceIndex = 0;
 Module.SeaTextureResourceIndex = 0;
 Module.Wave1TextureResourceIndex = 0;
 Module.Wave2TextureResourceIndex = 0;
+
 Module.TargetWaveHeight = 0;
 
 local g_is_initialized = false;
@@ -117,7 +120,9 @@ function Module.update()
     script_selected_mesh_translate_matrix(g_current_pos_x2 + iAdj2, g_current_pos_y + iHeight2 / 5, 6.5);
     set_object_visual_data(Module.Wave2TextureResourceIndex, 1);
 
-    if is_player_colliding_with_rect(0 - 500, g_current_pos_y - 500, 0 + 500, g_current_pos_y + 3) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            0 - 500, g_current_pos_y - 500,
+            0 + 500, g_current_pos_y + 3) then
         kill();
 
         if get_player_current_position_y() < g_current_pos_y - 2 then

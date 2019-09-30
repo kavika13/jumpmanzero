@@ -96,6 +96,7 @@ end
 
 local function OnSpawnGoo_()
     local new_goo = goo_module();
+    new_goo.GameLogic = g_game_logic;
     new_goo.SpawnCallback = OnSpawnGoo_;
     new_goo.KillCallback = OnKillGoo_;
     new_goo.MeshResourceIndex = resources.MeshGoo;

@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.MoveRight1MeshResourceIndex = 0;
 Module.MoveRight2MeshResourceIndex = 0;
 Module.MoveLeft1MeshResourceIndex = 0;
@@ -113,7 +115,9 @@ function Module.update()
     script_selected_mesh_translate_matrix(g_current_pos_x + iAdapt, g_current_pos_y + 5, 0 - 0.25);
     set_object_visual_data(Module.TextureResourceIndex, 1);
 
-    if is_player_colliding_with_rect(g_current_pos_x + iAdapt - 5, g_current_pos_y + 4, g_current_pos_x + iAdapt + 5, g_current_pos_y + 10) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            g_current_pos_x + iAdapt - 5, g_current_pos_y + 4,
+            g_current_pos_x + iAdapt + 5, g_current_pos_y + 10) then
         kill();
     end
 end

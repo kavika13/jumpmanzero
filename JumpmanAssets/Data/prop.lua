@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.iX = 0;  -- TODO: Rename?
 Module.iY = 0;  -- TODO: Rename?
 Module.iZ = 0;  -- TODO: Rename?
@@ -59,11 +61,15 @@ function Module.update()
     local current_rotation = Module.iR + g_current_rotation;
 
     if (current_rotation > 85 and current_rotation < 95) or (current_rotation > 265 and current_rotation < 275) then
-        if is_player_colliding_with_rect(Module.iX - 35, Module.iY - 1, Module.iX - 5, Module.iY + 1) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                Module.iX - 35, Module.iY - 1,
+                Module.iX - 5, Module.iY + 1) then
             kill();
         end
 
-        if is_player_colliding_with_rect(Module.iX + 5, Module.iY - 1, Module.iX + 35, Module.iY + 1) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                Module.iX + 5, Module.iY - 1,
+                Module.iX + 35, Module.iY + 1) then
             kill();
         end
     end

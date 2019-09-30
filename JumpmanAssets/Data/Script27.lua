@@ -114,6 +114,7 @@ local g_are_beams_deployed = false;
 
 local function CreateBlob(start_pos_x, start_pos_y)
     local new_blob = blob_module();
+    new_blob.GameLogic = g_game_logic;
     new_blob.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;
     new_blob.StartPosX = start_pos_x;
     new_blob.StartPosY = start_pos_y;
@@ -216,6 +217,7 @@ end
 
 function CreateBeam(beam_type, beam_color_texture_resource_index, parm_dir)
     local beam = beam_module();
+    beam.GameLogic = g_game_logic;
     beam.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;
     beam.BeamMeshResourceIndex = resources.MeshBeam;
     beam.BeamTextureResourceIndex = resources.TextureBeam;

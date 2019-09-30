@@ -75,6 +75,8 @@ local g_disarm_progress = 0;
 local function CreateDABot_(iX, iY, iBehave, iTexture)
     local new_bot = zap_bot_module();
 
+    new_bot.GameLogic = g_game_logic;
+
     new_bot.BotMoveLeftMeshResourceIndex = resources.MeshDABotL;
     new_bot.BotMoveRightMeshResourceIndex = resources.MeshDABotR;
     new_bot.BotTurnMeshResourceIndices = {
@@ -213,7 +215,7 @@ function CollideDonuts(game_input)
         end
 
         if get_script_selected_level_object_visible() then
-            if is_player_colliding_with_rect(iDX - 3, iDY - 5, iDX + 3, iDY + 5) then
+            if g_game_logic.is_player_colliding_with_rect(iDX - 3, iDY - 5, iDX + 3, iDY + 5) then
                 local iDN = get_script_selected_level_object_number();
                 g_disarm_progress = iDN;
                 g_is_disarm_hud_visible = true;

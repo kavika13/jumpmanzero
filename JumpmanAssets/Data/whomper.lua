@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.iX = 0;  -- TODO: Rename?
 Module.iY = 0;  -- TODO: Rename?
 Module.iR = 0;  -- TODO: Rename?
@@ -90,7 +92,9 @@ function Module.update()
     script_selected_mesh_translate_matrix(Module.iX, Module.iY, 2);
     set_object_visual_data(resources.TextureBoringGray, 1);
 
-    if is_player_colliding_with_rect(Module.iX - 4.5, Module.iY - 25, Module.iX + 4.5, Module.iY - 4) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            Module.iX - 4.5, Module.iY - 25,
+            Module.iX + 4.5, Module.iY - 4) then
         if Module.iRV > 0 then
             if Module.iR < 0 and Module.iR > -20 then
                 kill();

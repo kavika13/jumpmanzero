@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.SheepMoveLeftMeshResourceIndices = {};
 Module.SheepJumpLeftMeshResourceIndices = {};
 Module.SheepFlyLeftMeshResourceIndices = {};
@@ -407,7 +409,7 @@ function Module.update(follower_sheep)
         set_object_visual_data(0, 0);
     end
 
-    if is_player_colliding_with_rect(
+    if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 6, g_current_pos_y + 1,
             g_current_pos_x + 6, g_current_pos_y + 9) then
         kill();

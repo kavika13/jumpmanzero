@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.LeftStandMeshResourceIndex = 0;
 Module.RightStandMeshResourceIndex = 0;
 Module.LeftWalkMeshResourceIndices = {};
@@ -193,21 +195,29 @@ function Module.update()
     set_object_visual_data(Module.TextureResourceIndex, 2);
 
     if g_current_state == kMOVING_LEFT or g_current_state == kYELLING_LEFT then
-        if is_player_colliding_with_rect(g_current_pos_x - 22, g_current_pos_y + 28, g_current_pos_x - 12, g_current_pos_y + 34) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                g_current_pos_x - 22, g_current_pos_y + 28,
+                g_current_pos_x - 12, g_current_pos_y + 34) then
             kill();
         end
 
-        if is_player_colliding_with_rect(g_current_pos_x - 10, g_current_pos_y, g_current_pos_x + 10, g_current_pos_y + 23) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                g_current_pos_x - 10, g_current_pos_y + 0,
+                g_current_pos_x + 10, g_current_pos_y + 23) then
             kill();
         end
     end
 
     if g_current_state == kMOVING_RIGHT or g_current_state == kYELLING_RIGHT then
-        if is_player_colliding_with_rect(g_current_pos_x + 12, g_current_pos_y + 28, g_current_pos_x + 22, g_current_pos_y + 34) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                g_current_pos_x + 12, g_current_pos_y + 28,
+                g_current_pos_x + 22, g_current_pos_y + 34) then
             kill();
         end
 
-        if is_player_colliding_with_rect(g_current_pos_x - 10, g_current_pos_y, g_current_pos_x + 10, g_current_pos_y + 23) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                g_current_pos_x - 10, g_current_pos_y + 0,
+                g_current_pos_x + 10, g_current_pos_y + 23) then
             kill();
         end
     end

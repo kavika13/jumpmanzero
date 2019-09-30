@@ -68,6 +68,7 @@ end
 
 local function CreateProp(iX, iY, iR, iZ)
     local new_prop = prop_module();
+    new_prop.GameLogic = g_game_logic;
     new_prop.iX = iX;
     new_prop.iY = iY;
     new_prop.iR = iR;
@@ -77,6 +78,7 @@ end
 
 local function CreateWhomper(iX, iY, iR, iRV)
     local new_whomper = whomper_module();
+    new_whomper.GameLogic = g_game_logic;
     new_whomper.iX = iX;
     new_whomper.iY = iY;
     new_whomper.iR = iR;

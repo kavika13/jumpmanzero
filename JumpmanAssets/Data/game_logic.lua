@@ -932,12 +932,40 @@ local function MoveJumpman_(game_input)
     UpdateSituation_();
 end
 
+local function PlayerCollide_(x1, y1, x2, y2)
+    -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
+    local player_pos_x = get_player_current_position_x();
+    local player_pos_y = get_player_current_position_y();
+    local is_player_jumping = (get_player_current_state() & player_state.JSJUMPING) ~= 0;
+    local is_player_rolling = (get_player_current_state() & player_state.JSROLL) ~= 0;
+
+    if is_player_jumping then
+        if player_pos_x + 4 > x1 and player_pos_y + 9 > y1 and player_pos_x - 4 < x2 and player_pos_y + 4 < y2 then
+            return true;
+        end
+    elseif is_player_rolling and get_player_absolute_frame_count() < 12 then
+        if player_pos_x + 4 > x1 and player_pos_y + 7 > y1 and player_pos_x - 4 < x2 and player_pos_y + 3 < y2 then
+            return true;
+        end
+    elseif is_player_rolling then
+        if player_pos_x + 3 > x1 and player_pos_y + 7 > y1 and player_pos_x - 3 < x2 and player_pos_y < y2 then
+            return true;
+        end
+    else
+        if player_pos_x + 2 > x1 and player_pos_y + 9 > y1 and player_pos_x - 2 < x2 and player_pos_y + 2 < y2 then
+            return true;
+        end
+    end
+
+    return false;
+end
+
 local function GrabDonuts_(game_input)
     local iGot = false;
 
     for iLoop = 0, get_donut_object_count() - 1 do
         if get_donut_is_visible(iLoop) and
-                is_player_colliding_with_rect_no_mask(
+                PlayerCollide_(
                     get_donut_x1(iLoop) - 3, get_donut_y1(iLoop) - 4,
                     get_donut_x1(iLoop) + 3, get_donut_y1(iLoop) + 2) then
             abs_donut(iLoop);
@@ -1162,6 +1190,11 @@ end
 
 function Module.set_player_current_direction(new_direction)
     g_player_current_direction = new_direction;
+end
+
+function Module.is_player_colliding_with_rect(x1, y1, x2, y2)
+    -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
+    return PlayerCollide_(x1, y1, x2, y2) and get_player_current_state() ~= player_state.JSDYING;
 end
 
 return Module;

@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.SheepMoveLeftMeshResourceIndices = {};
 Module.SheepJumpLeftMeshResourceIndices = {};
 Module.SheepFlyLeftMeshResourceIndices = {};
@@ -12,6 +14,7 @@ Module.CopterMeshResourceIndex = 0;
 Module.SheepTextureResourceIndex = 0;
 Module.CopterTextureResourceIndex = 0;
 Module.KillSoundResourceIndex = 0;
+
 Module.SpawnCooldownTimer = 0;
 
 local animation_frame = {
@@ -367,7 +370,9 @@ function Module.update()
         set_object_visual_data(0, 0);
     end
 
-    if is_player_colliding_with_rect(g_current_pos_x - 6, g_current_pos_y + 1, g_current_pos_x + 6, g_current_pos_y + 9) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            g_current_pos_x - 6, g_current_pos_y + 1,
+            g_current_pos_x + 6, g_current_pos_y + 9) then
         play_sound_effect(Module.KillSoundResourceIndex);
         kill();
     end

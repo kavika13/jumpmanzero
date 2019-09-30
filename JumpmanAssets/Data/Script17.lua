@@ -144,6 +144,7 @@ end
 
 function StartBullet(iWait)
     local iTemp = bullet_module();
+    iTemp.GameLogic = g_game_logic;
     iTemp.FramesToWait = iWait;
     iTemp.Mesh1Index = resources.MeshBullet1;
     iTemp.Mesh2Index = resources.MeshBullet2;
@@ -187,7 +188,8 @@ function AnimateArrow(iPic)
     script_selected_mesh_rotate_matrix_x(g_arrow_rotation);
     script_selected_mesh_translate_matrix(SX, SY, 0);
 
-    if is_player_colliding_with_rect(SX - 3, SY - 4, SX + 3, SY + 4) and (g_level_flipping_state == 0 or g_level_flipping_state == 2) then
+    if g_game_logic.is_player_colliding_with_rect(SX - 3, SY - 4, SX + 3, SY + 4) and
+            (g_level_flipping_state == 0 or g_level_flipping_state == 2) then
         g_level_flipping_pause_frames_remaining = 25;
         set_player_freeze_cooldown_frame_count(75);
 

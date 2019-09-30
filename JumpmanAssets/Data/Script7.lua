@@ -72,6 +72,7 @@ function update(game_input, is_initializing)
         set_object_visual_data(resources.TextureBlack, 1);
 
         g_wave = pause_wave_module();
+        g_wave.GameLogic = g_game_logic;
         g_wave.SeaMeshResourceIndex = resources.MeshSea;
         g_wave.WaveMeshResourceIndex = resources.MeshWave;
         g_wave.SeaTextureResourceIndex = resources.TextureSea;
@@ -127,7 +128,9 @@ function CollideLittleClocks()
             select_picture(iLoop);
             local iClockX = get_script_selected_level_object_x1();
             local iClockY = get_script_selected_level_object_y1();
-            local did_collide = is_player_colliding_with_rect(iClockX - 3, iClockY - 4, iClockX + 4, iClockY - 1);
+            local did_collide = g_game_logic.is_player_colliding_with_rect(
+                iClockX - 3, iClockY - 4,
+                iClockX + 4, iClockY - 1);
 
             if did_collide and g_clock_timers[iLoop] == 1 then
                 g_clock_num_frames_left = g_clock_num_frames_left + 140;

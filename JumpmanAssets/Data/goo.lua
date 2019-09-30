@@ -1,9 +1,13 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.SpawnCallback = nil;
 Module.KillCallback = nil;
+
 Module.MeshResourceIndex = 0;
 Module.TextureResourceIndex = 0;
+
 Module.Type = 0;
 Module.InitialPosX = { 0, 0 };
 Module.InitialPosY = { 0, 0 };
@@ -252,6 +256,7 @@ local function MoveGoo_()
 end
 
 local function DrawHorizontal_()
+    -- TODO: Why does horizontal kill the player, but no collision detection is in here?
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
 
@@ -292,7 +297,10 @@ local function DrawHorizontal_()
 end
 
 local function DrawVertical_()
-    local iCollide = is_player_colliding_with_rect(g_current_pos_x[1] - 1, g_current_pos_y[2] + 1, g_current_pos_x[2] + 1, g_current_pos_y[1] - 1);
+    -- TODO: Why does vertical not kill the player, but collision detection is in here?
+    local iCollide = Module.GameLogic.is_player_colliding_with_rect(
+        g_current_pos_x[1] - 1, g_current_pos_y[2] + 1,
+        g_current_pos_x[2] + 1, g_current_pos_y[1] - 1);
 
     if iCollide == 1 then
         kill();

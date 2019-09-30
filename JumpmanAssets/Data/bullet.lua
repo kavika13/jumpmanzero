@@ -1,10 +1,13 @@
 local Module = {};
 
-Module.FramesToWait = 0;  -- TODO: Separate "initial" wait, so it can be reset?
+Module.GameLogic = nil;
+
 Module.Mesh1Index = 0;
 Module.Mesh2Index = 0;
 Module.TextureIndex = 0;
 Module.FireSoundIndex = -1;
+
+Module.FramesToWait = 0;  -- TODO: Separate "initial" wait, so it can be reset?
 
 local g_is_initialized = false;
 
@@ -204,7 +207,9 @@ function Module.update()
         g_current_rotation_x = g_current_rotation_x + 7;
     end
 
-    if is_player_colliding_with_rect(g_current_pos_x - 1, g_current_pos_y - 1, g_current_pos_x + 1, g_current_pos_y + 1) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            g_current_pos_x - 1, g_current_pos_y - 1,
+            g_current_pos_x + 1, g_current_pos_y + 1) then
         kill();
     end
 

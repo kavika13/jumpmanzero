@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.PlayAreaCircumference = 0;
 Module.BeamMeshResourceIndex = 0;
 Module.BeamTextureResourceIndex = 0;
@@ -184,7 +186,9 @@ function Module.update()
 
     if g_is_blast_visible then
         if iCollideDir > 267 and iCollideDir < 273 then
-            if is_player_colliding_with_rect(iPX - 5, g_target_pos_y - 2, iPX + 5, g_target_pos_y + 2) then
+            if Module.GameLogic.is_player_colliding_with_rect(
+                    iPX - 5, g_target_pos_y - 2,
+                    iPX + 5, g_target_pos_y + 2) then
                 kill();
             end
         end

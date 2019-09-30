@@ -58,6 +58,7 @@ function update(game_input, is_initializing)
     if g_init_stage_index == 1 then
         for iLoop = 1, 4 do
             local iTemp = bullet_module();
+            iTemp.GameLogic = g_game_logic;
             iTemp.Mesh1Index = resources.MeshBullet1;
             iTemp.Mesh2Index = resources.MeshBullet2;
             iTemp.TextureIndex = resources.TextureBullet;

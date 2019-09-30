@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.MoveLeftMeshResourceIndices = {};
 Module.MoveRightMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
@@ -111,7 +113,9 @@ function Module.update()
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6, 0);
     set_object_visual_data(Module.TextureResourceIndex, 1);
 
-    if is_player_colliding_with_rect(g_current_pos_x - 3, g_current_pos_y + 5, g_current_pos_x + 3, g_current_pos_y + 7) then
+    if Module.GameLogic.is_player_colliding_with_rect(
+            g_current_pos_x - 3, g_current_pos_y + 5,
+            g_current_pos_x + 3, g_current_pos_y + 7) then
         play_sound_effect(Module.BuzzSoundResourceIndex);
         kill();
     end

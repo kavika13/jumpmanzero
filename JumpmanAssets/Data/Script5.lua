@@ -61,6 +61,7 @@ function update(game_input, is_initializing)
 
         for iLoop = 0, 11 do
             local new_penguin = penguin_module();
+            new_penguin.GameLogic = g_game_logic;
             new_penguin.StandMeshResourceIndex = resources.MeshPenguinStand;
             new_penguin.BackMeshResourceIndex = resources.MeshPenguinBack;
             new_penguin.MoveLeftMeshResourceIndices = { resources.MeshPenguinLeft1, resources.MeshPenguinLeft2 };

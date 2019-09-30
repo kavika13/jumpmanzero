@@ -99,6 +99,7 @@ end
 
 local function CreateBlock_(iNum)
     local new_block = puzzle_block_module();
+    new_block.GameLogic = g_game_logic;
     new_block.BlockPieceMeshResourceIndex = resources.MeshGoo;
     new_block.BlockPieceTextureResourceIndex = GetColor(iNum);
     AssignBlockPieceInitialPositions_(g_puzzle_solution, new_block, iNum);
@@ -146,6 +147,7 @@ function update(game_input, is_initializing)
         InitializeBlocks_();
 
         g_bullet = bullet_module();
+        g_bullet.GameLogic = g_game_logic;
         g_bullet.FramesToWait = 100;
         g_bullet.Mesh1Index = resources.MeshBullet1;
         g_bullet.Mesh2Index = resources.MeshBullet2;

@@ -84,7 +84,7 @@ function CreateSheep_()
     g_delay = g_delay + 30;
 
     local new_follower_sheep = follower_sheep_module();
-
+    new_follower_sheep.GameLogic = g_game_logic;
     SetResourceProperties_(new_follower_sheep, resources.TextureSheep);
     new_follower_sheep.SpawnCooldownTimer = g_delay;
     new_follower_sheep.copy_leader_properties(g_leader_sheep);
@@ -110,6 +110,7 @@ function update(game_input, is_initializing)
         g_hud_overlay = hud_overlay_module();
 
         g_leader_sheep = leader_sheep_module();
+        g_leader_sheep.GameLogic = g_game_logic;
         SetResourceProperties_(g_leader_sheep, resources.TextureLSheep);
 
         set_level_extent_x(270);

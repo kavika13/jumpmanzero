@@ -83,6 +83,7 @@ function update(game_input, is_initializing)
         set_current_camera_mode(camera_mode.PerspectiveCloseUp);
 
         g_ghost = ghost_module();
+        g_ghost.GameLogic = g_game_logic;
         g_ghost.MoveRight1MeshResourceIndex = resources.MeshGhostRight;
         g_ghost.MoveRight2MeshResourceIndex = resources.MeshGhostRight2;
         g_ghost.MoveLeft1MeshResourceIndex = resources.MeshGhostLeft;

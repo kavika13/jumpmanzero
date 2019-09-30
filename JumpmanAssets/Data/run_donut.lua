@@ -2,11 +2,15 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
+Module.SpawnCallback = nil;
+Module.KillCallback = nil;
+
 Module.MoveMeshResourceIndices = {};
 Module.HatchMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
-Module.SpawnCallback = nil;
-Module.KillCallback = nil;
+
 Module.InitialPosX = 0;
 Module.InitialPosY = 0;
 
@@ -341,7 +345,7 @@ function Module.update(all_run_donuts)
 
     if g_current_status == status_type.NORMAL or g_current_status == status_type.JUMP or
             g_current_status == status_type.HATCHING or g_current_status == status_type.LAYING_EGG then
-        local iCollide = is_player_colliding_with_rect(
+        local iCollide = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y,
             g_current_pos_x + 3, g_current_pos_y + 6);
 

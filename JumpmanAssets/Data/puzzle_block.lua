@@ -2,8 +2,11 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.BlockPieceMeshResourceIndex = 0;
 Module.BlockPieceTextureResourceIndex = 0;
+
 Module.InitialBlockPiecePositionsX = {};
 Module.InitialBlockPiecePositionsY = {};
 
@@ -99,7 +102,7 @@ local function MoveBlock_(all_blocks)
             local iTestX = g_block_piece_positions_x[iLoop] * kBLOCK_PIECE_WIDTH + 41 + kBLOCK_PIECE_WIDTH / 2;
             local iTestY = g_block_piece_positions_y[iLoop] * kBLOCK_PIECE_HEIGHT + 4 + kBLOCK_PIECE_HEIGHT / 2;
 
-            if is_player_colliding_with_rect(iTestX - 4, iTestY - 4, iTestX + 4, iTestY + 4) then
+            if Module.GameLogic.is_player_colliding_with_rect(iTestX - 4, iTestY - 4, iTestX + 4, iTestY + 4) then
                 g_current_block_status = block_status.PREPARING_TO_FALL;
                 g_prepare_to_fall_counter = 0;
             end

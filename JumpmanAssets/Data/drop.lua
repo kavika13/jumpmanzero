@@ -1,9 +1,12 @@
 local Module = {};
 
-Module.IsTooCloseToOtherDropsCallback = nil;
-Module.FramesToWait = 0;
+Module.GameLogic = nil;
+
 Module.DropMeshResourceIndex = 0;
 Module.DropTextureResourceIndices = {};
+
+Module.IsTooCloseToOtherDropsCallback = nil;
+Module.FramesToWait = 0;
 
 local g_is_initialized = false;
 
@@ -105,7 +108,9 @@ function Module.update()
     end
 
     if g_animation_frame < 1 then
-        if is_player_colliding_with_rect(g_current_pos_x - 3, g_current_pos_y - 6, g_current_pos_x + 3, g_current_pos_y) then
+        if Module.GameLogic.is_player_colliding_with_rect(
+                g_current_pos_x - 3, g_current_pos_y - 6,
+                g_current_pos_x + 3, g_current_pos_y) then
             kill();
         end
     end

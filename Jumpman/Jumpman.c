@@ -348,28 +348,6 @@ static void BuildNavigation(void) {
     return;
 }
 
-static long PlayerCollide(long iArg1, long iArg2, long iArg3, long iArg4) {
-    if(g_player_current_state & kPlayerStateJumping) {
-        if(g_player_current_position_x + 4 > iArg1 && g_player_current_position_y + 9 > iArg2 && g_player_current_position_x - 4 < iArg3 && g_player_current_position_y + 4 < iArg4) {
-            return 1;
-        }
-    } else if((g_player_current_state & kPlayerStateRoll) && g_player_absolute_frame_count < 12) {
-        if(g_player_current_position_x + 4 > iArg1 && g_player_current_position_y + 7 > iArg2 && g_player_current_position_x - 4 < iArg3 && g_player_current_position_y + 3 < iArg4) {
-            return 1;
-        }
-    } else if(g_player_current_state & kPlayerStateRoll) {
-        if(g_player_current_position_x + 3 > iArg1 && g_player_current_position_y + 7 > iArg2 && g_player_current_position_x - 3 < iArg3 && g_player_current_position_y < iArg4) {
-            return 1;
-        }
-    } else {
-        if(g_player_current_position_x + 2 > iArg1 && g_player_current_position_y + 9 > iArg2 && g_player_current_position_x - 2 < iArg3 && g_player_current_position_y + 2 < iArg4) {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
 static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, NavigationType nav_to_type) {
     for(int platform_index = 0; platform_index < g_platform_object_count; ++platform_index) {
         g_platform_objects[platform_index].NavDist = 5000;
@@ -609,7 +587,7 @@ static int game_over(lua_State* lua_state) {
 
     g_player_current_state = kPlayerStateNormal;
     stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", "");
-    PrepLevel(game_base_path, "Data/GameOver.DAT", NULL);  // TODO: Need to pass in game_input?
+    PrepLevel(game_base_path, "Data/GameOver.DAT", NULL);  // TODO: Need to pass in game_input? Get null reference otherwise
     return 0;
 }
 
@@ -946,22 +924,22 @@ static int get_player_current_position_z(lua_State* lua_state) {
 }
 
 static int get_player_current_special_action(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_current_special_action);
+    lua_pushinteger(lua_state, g_player_current_special_action);
     return 1;
 }
 
 static int get_player_current_state(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_current_state);
+    lua_pushinteger(lua_state, g_player_current_state);
     return 1;
 }
 
 static int get_player_current_state_frame_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_current_state_frame_count);
+    lua_pushinteger(lua_state, g_player_current_state_frame_count);
     return 1;
 }
 
 static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_freeze_cooldown_frame_count);
+    lua_pushinteger(lua_state, g_player_freeze_cooldown_frame_count);
     return 1;
 }
 
@@ -1487,29 +1465,6 @@ static int play_sound_effect(lua_State* lua_state) {
     return 0;
 }
 
-static int is_player_colliding_with_rect(lua_State* lua_state) {
-    // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
-    double arg_x1 = luaL_checknumber(lua_state, 1);
-    double arg_y1 = luaL_checknumber(lua_state, 2);
-    double arg_x2 = luaL_checknumber(lua_state, 3);
-    double arg_y2 = luaL_checknumber(lua_state, 4);
-    long result = PlayerCollide((int)arg_x1, (int)arg_y1, (int)arg_x2, (int)arg_y2) &&
-        !(g_player_current_state == kPlayerStateDying);
-    lua_pushboolean(lua_state, result ? 1 : 0);
-    return 1;
-}
-
-static int is_player_colliding_with_rect_no_mask(lua_State* lua_state) {
-    // TODO: Figure out what "x1", "x2", "y1", "y2" mean, and change names to reflect that
-    double arg_x1 = luaL_checknumber(lua_state, 1);
-    double arg_y1 = luaL_checknumber(lua_state, 2);
-    double arg_x2 = luaL_checknumber(lua_state, 3);
-    double arg_y2 = luaL_checknumber(lua_state, 4);
-    long result = PlayerCollide((int)arg_x1, (int)arg_y1, (int)arg_x2, (int)arg_y2);
-    lua_pushboolean(lua_state, result ? 1 : 0);
-    return 1;
-}
-
 static int script_kill(lua_State* lua_state) {
     if(!(g_player_current_state & kPlayerStateDying)) {
         StopMusic1();
@@ -1600,6 +1555,9 @@ static int script_select_wall(lua_State* lua_state) {
 }
 
 static void RegisterLuaScriptFunctions(lua_State* lua_state) {
+    // TODO: Add all engine functions to a (read-only) global table instead of directly exposing in the global context.
+    //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
+
     // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
     lua_pushcfunction(lua_state, get_donut_mesh_number);
     lua_setglobal(lua_state, "get_donut_mesh_number");
@@ -1846,10 +1804,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_game_list");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
-    lua_pushcfunction(lua_state, is_player_colliding_with_rect);
-    lua_setglobal(lua_state, "is_player_colliding_with_rect");
-    lua_pushcfunction(lua_state, is_player_colliding_with_rect_no_mask);
-    lua_setglobal(lua_state, "is_player_colliding_with_rect_no_mask");
     lua_pushcfunction(lua_state, script_kill);
     lua_setglobal(lua_state, "kill");
     lua_pushcfunction(lua_state, script_win);
