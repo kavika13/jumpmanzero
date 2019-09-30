@@ -467,7 +467,7 @@ MoveJumpmanFalling_ = function(game_input)
     set_player_current_special_action(player_special_action.NONE);
 
     set_player_current_position_y(get_player_current_position_y() - 1);
-    set_player_current_state_frame_count(get_player_current_state_frame_count() - 1);
+    set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
     set_player_current_rotation_x_radians(get_player_current_state_frame_count() / -10.0);
     set_player_current_mesh(player_mesh.JUMP_UP);
 
