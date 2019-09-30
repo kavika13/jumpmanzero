@@ -198,6 +198,7 @@ static float g_player_current_position_z;
 static float g_player_current_rotation_x_radians;
 static int g_player_velocity_x;
 static PlayerMesh g_player_current_mesh;
+static PlayerMesh g_player_previous_mesh;
 static bool g_player_is_visible;
 
 static PlayerState g_player_current_state;
@@ -2571,7 +2572,7 @@ static void SetGamePerspective(void) {
     }
 }
 
-static void DrawGame(void) {
+static void UpdatePlayerGraphics(void) {
     IdentityMatrix(g_player_mesh_indices[g_player_current_mesh]);
     RotateMatrixX(g_player_mesh_indices[g_player_current_mesh], g_player_current_rotation_x_radians * 180.0f / 3.14f);
     TranslateMatrix(g_player_mesh_indices[g_player_current_mesh], g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
@@ -2580,9 +2581,14 @@ static void DrawGame(void) {
         SetObjectData(g_player_mesh_indices[g_player_current_mesh], 0, 1);
     }
 
-    Render();
+    if(g_player_current_mesh != g_player_previous_mesh) {
+        SetObjectData(g_player_mesh_indices[g_player_previous_mesh], 0, 0);
+        g_player_previous_mesh = g_player_current_mesh;
+    }
+}
 
-    SetObjectData(g_player_mesh_indices[g_player_current_mesh], 0, 0);
+void DrawGame(void) {
+    Render();
 }
 
 // ------------------- OTHER STUFF -------------------------------
@@ -2621,8 +2627,6 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
     ProgressGame(base_path, game_input, true);
     ProgressGame(base_path, game_input, true);
     ProgressGame(base_path, game_input, true);
-
-    Render();
 
     if(g_music_loop_start_music_time != 5550) {
         NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
@@ -2712,7 +2716,6 @@ static void LoadJumpmanMenu(const char* base_path) {
 static void InteractMenu(GameInput* game_input) {
     CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);  // Not calling level update function
     SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
-    Render();
 }
 
 void UpdateGame(const char* base_path, GameInput* game_input) {
@@ -2737,10 +2740,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
     if(g_game_status == kGameStatusInLevel) {
         if(!IsGameFrozen()) {
             ProgressGame(base_path, game_input, false);
-        }
-
-        if(!IsGameFrozen()) {
-            DrawGame();
+            UpdatePlayerGraphics();
         }
     }
 }

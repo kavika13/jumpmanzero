@@ -9,6 +9,8 @@ extern "C" {
 
 bool IsGameFrozen(void);
 long GetCurrentFps(void);
+double GetCurrentMaxUpdateFrameTime(void);
+double GetCurrentMaxDrawAndSwapFrameTime(void);
 long GetLastKeyPressed(void);
 int GetKeyBinding(size_t binding_index);
 void SetKeyBinding(size_t binding_index, int value);

@@ -34,7 +34,10 @@ typedef struct {
 #define kSOUND_EFFECTS_ARE_ENABLED_DEFAULT false
 #define kMUSIC_IS_ENABLED_DEFAULT false
 
-static const double kSECONDS_PER_FRAME = 1.0 / 40.0;
+#define kFRAMES_PER_SECOND 40
+static const double kSECONDS_PER_FRAME = 1.0 / ((double)kFRAMES_PER_SECOND);
+static double g_update_frame_times[kFRAMES_PER_SECOND] = { 0 };
+static size_t g_update_frame_times_current_index = 0;
 
 static char g_game_base_path[300];
 static int g_key_bindings[6];
@@ -47,6 +50,8 @@ static int g_window_pos_y_backup = 0;
 static bool g_save_settings_is_queued = false;
 static bool g_game_is_frozen = false;
 static long g_current_fps = 0;
+static double g_current_max_update_frame_time = 0.0;
+static double g_current_max_draw_and_swap_frame_time = 0.0;
 
 static GLFWwindow* g_main_window = NULL;
 
@@ -438,6 +443,14 @@ long GetCurrentFps(void) {
     return g_current_fps;
 }
 
+double GetCurrentMaxUpdateFrameTime(void) {
+    return g_current_max_update_frame_time;
+}
+
+double GetCurrentMaxDrawAndSwapFrameTime(void) {
+    return g_current_max_draw_and_swap_frame_time;
+}
+
 long GetLastKeyPressed(void) {
     return g_last_key_pressed;
 }
@@ -573,27 +586,70 @@ int main(int arguments_count, char* arguments[]) {
         double current_time = glfwGetTime();
 
         if(current_time - previous_frame_time > kSECONDS_PER_FRAME) {
-            ++frame_count_since_last_perf_update;
-
-            if(current_time - last_perf_update_time >= 1.0) {
-                last_perf_update_time = current_time;
-                g_current_fps = frame_count_since_last_perf_update;
-
-                if(g_current_fps > 99) {
-                    g_current_fps = 99;
-                }
-
-                frame_count_since_last_perf_update = 0;
-            }
-
             previous_frame_time = current_time;
-
             GetInput(&game_state.current_input, &game_prev_input);
             GameInput processed_input = game_state.current_input;
+
+            double update_begin_time = glfwGetTime();
             UpdateGame(g_game_base_path, &processed_input);
+            double update_end_time = glfwGetTime();
+
             game_prev_input = game_state.current_input;
 
-            glfwSwapBuffers(g_main_window);
+            g_update_frame_times[g_update_frame_times_current_index] = update_end_time - update_begin_time;
+            ++g_update_frame_times_current_index;
+
+            if(g_update_frame_times_current_index >= kFRAMES_PER_SECOND) {
+               g_update_frame_times_current_index = 0;
+            }
+        }
+
+        ++frame_count_since_last_perf_update;
+
+        if(current_time - last_perf_update_time >= 1.0) {
+            last_perf_update_time = current_time;
+            g_current_fps = frame_count_since_last_perf_update;
+
+            if(g_current_fps > 999) {
+                g_current_fps = 999;
+            }
+
+            frame_count_since_last_perf_update = 0;
+            double max_frame_time = 0.0;
+
+            for(size_t i = 0; i < kFRAMES_PER_SECOND; ++i) {
+               if(g_update_frame_times[i] > max_frame_time) {
+                   max_frame_time = g_update_frame_times[i];
+               }
+            }
+
+            g_current_max_update_frame_time = max_frame_time;
+
+            // char update_frame_time[256];
+            // stbsp_snprintf(
+            //     update_frame_time, sizeof(update_frame_time),
+            //     "Current max update frame time: %f\n", g_current_max_update_frame_time * 1000.0);
+            // OutputDebugString(update_frame_time);
+            // TODO: Make this visible in-game in some way
+
+            // char draw_and_swap_frame_time[256];
+            // stbsp_snprintf(
+            //     draw_and_swap_frame_time, sizeof(draw_and_swap_frame_time),
+            //     "Current max draw and swap frame time: %f\n", g_current_max_draw_and_swap_frame_time * 1000.0);
+            // OutputDebugString(draw_and_swap_frame_time);
+            // TODO: Make this visible in-game in some way
+
+            g_current_max_draw_and_swap_frame_time = 0.0;  // Updates continuously
+        }
+
+        double draw_and_swap_begin_time = glfwGetTime();
+        DrawGame();
+        glfwSwapBuffers(g_main_window);
+        double draw_and_swap_end_time = glfwGetTime();
+        double current_draw_and_swap_frame_time = draw_and_swap_end_time - draw_and_swap_begin_time;
+
+        if(current_draw_and_swap_frame_time > g_current_max_draw_and_swap_frame_time) {
+            g_current_max_draw_and_swap_frame_time = current_draw_and_swap_frame_time;
         }
 
         glfwPollEvents();

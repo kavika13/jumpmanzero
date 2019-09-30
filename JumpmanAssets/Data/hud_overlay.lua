@@ -6,6 +6,7 @@ local g_title_letter_mesh_indices = {};
 local g_life_count_number_mesh_indices = {};
 local g_fps_first_number_mesh_indices = {};
 local g_fps_second_number_mesh_indices = {};
+local g_fps_third_number_mesh_indices = {};
 local g_jumpman_icon_mesh_index;
 -- local g_jumpman_hud_background_icon;  -- TODO: Maybe re-add with a transparent texture?
 
@@ -43,6 +44,13 @@ local function ShowPerformance_(game_input, lives_remaining)
     local letter_texture_resource_index = get_loaded_texture_count() - 1;  -- FPS and lives letter tex always loaded last after level loaded - TODO: Don't hard code?
     local fps_count = get_current_fps();
 
+    local fps_hundreds_digit = 0;
+
+    while fps_count > 99 do
+        fps_hundreds_digit = fps_hundreds_digit + 1;
+        fps_count = fps_count - 100;
+    end
+
     local fps_tens_digit = 0;
 
     while fps_count > 9 do
@@ -67,7 +75,7 @@ local function ShowPerformance_(game_input, lives_remaining)
 
         select_object_mesh(g_fps_first_number_mesh_indices[iNum + 1]);
 
-        if iNum == fps_tens_digit and game_input.debug_action.is_pressed then
+        if iNum == fps_hundreds_digit and game_input.debug_action.is_pressed then
             set_object_visual_data(letter_texture_resource_index, 1);
             script_selected_mesh_set_identity_matrix();
             script_selected_mesh_translate_matrix(-40, 30, 90);
@@ -78,10 +86,21 @@ local function ShowPerformance_(game_input, lives_remaining)
 
         select_object_mesh(g_fps_second_number_mesh_indices[iNum + 1]);
 
-        if iNum == fps_ones_digit and game_input.debug_action.is_pressed then
+        if iNum == fps_tens_digit and game_input.debug_action.is_pressed then
             set_object_visual_data(letter_texture_resource_index, 1);
             script_selected_mesh_set_identity_matrix();
             script_selected_mesh_translate_matrix(-34, 30, 90);
+            script_selected_mesh_set_perspective_matrix();
+        else
+            set_object_visual_data(0, 0);
+        end
+
+        select_object_mesh(g_fps_third_number_mesh_indices[iNum + 1]);
+
+        if iNum == fps_ones_digit and game_input.debug_action.is_pressed then
+            set_object_visual_data(letter_texture_resource_index, 1);
+            script_selected_mesh_set_identity_matrix();
+            script_selected_mesh_translate_matrix(-28, 30, 90);
             script_selected_mesh_set_perspective_matrix();
         else
             set_object_visual_data(0, 0);
@@ -133,6 +152,7 @@ function Module.update(game_input)
         for iNum = 0, 9 do
             g_fps_first_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
             g_fps_second_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            g_fps_third_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
             g_life_count_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
         end
 
