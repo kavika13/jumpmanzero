@@ -599,7 +599,7 @@ MoveJumpmanSlide_ = function(game_input)
 
     local iExtra = get_platform_extra(g_player_current_platform_index);
 
-    if not iExtra and get_player_current_position_y() <= g_player_current_platform_y then
+    if iExtra == 0 and get_player_current_position_y() <= g_player_current_platform_y then
         MoveJumpmanNormal_(game_input);
         return;
     end
