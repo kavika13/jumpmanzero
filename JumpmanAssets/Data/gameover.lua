@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -64,18 +65,23 @@ resources = read_only.make_table_read_only(resources);
 
 local g_is_initialized = false;
 
+local g_game_logic;
+
 local g_jumpman_mesh_index;
 local g_game_over_letter_mesh_indices = {};
 local g_game_over_message_visible = false;
 local g_camera_pan_animation_timer = 0;
 local g_letter_drop_animation_timer = 0;
 
-function update(game_input)
+function update(game_input, is_initializing)
     set_player_freeze_cooldown_frame_count(100);
     set_player_current_state(0);
 
     if not g_is_initialized then
         g_is_initialized = true;
+
+        g_game_logic = game_logic_module();
+        g_game_logic.ResetPlayerCallback = reset;
 
         g_jumpman_mesh_index = new_mesh(resources.MeshDead);
         select_platform(1);
@@ -83,6 +89,8 @@ function update(game_input)
         g_game_over_message_visible = false;
         g_camera_pan_animation_timer = 100;
     end
+
+    g_game_logic.progress_game(game_input);
 
     set_fog(100, 200, 0, 0, 0);
     set_current_camera_mode(camera_mode.PerspectiveCloseUp);

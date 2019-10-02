@@ -20,6 +20,7 @@ typedef enum {
     kGameStatusExiting = 0,
     kGameStatusMenu = 1,
     kGameStatusInLevel = 2,
+    kGameStatusGameOver = 3,
 } GameStatus;
 
 typedef enum {
@@ -606,16 +607,9 @@ static int get_wall_y4(lua_State* lua_state) {
 }
 
 static int game_over(lua_State* lua_state) {
-    char game_base_path[300];
-
-    if (!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
-        // TODO: Proper error handling
-        return 0;
-    }
-
+    // TODO: Replace this with a queue_level_load(string level_name) function, queue_level_load("GameOver")
     g_player_current_state = kPlayerStateNormal;
-    stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", "");
-    PrepLevel(game_base_path, "Data/GameOver.DAT", NULL);  // TODO: Need to pass in game_input? Get null reference otherwise
+    g_game_status = kGameStatusGameOver;
     return 0;
 }
 
@@ -2677,6 +2671,14 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
             ProgressGame(base_path, game_input, false);
             UpdatePlayerGraphics();
         }
+    }
+
+    if(g_game_status == kGameStatusGameOver) {
+        // This temporary state is necessary so the game can load a specific non-campaign level, that isn't a menu.
+        // It can't be loaded directly from the API function because loading levels frees the currently running script.
+        stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", "");
+        PrepLevel(base_path, "Data/GameOver.DAT", game_input);
+        g_game_status = kGameStatusInLevel;
     }
 }
 
