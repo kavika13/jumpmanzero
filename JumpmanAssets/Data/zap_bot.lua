@@ -300,7 +300,7 @@ function Module.update()
     end
 
     if is_colliding then
-        kill();
+        Module.GameLogic.kill();
     end
 end
 

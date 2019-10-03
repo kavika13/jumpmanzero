@@ -117,7 +117,7 @@ function Module.update()
             g_current_pos_x - 3, g_current_pos_y + 5,
             g_current_pos_x + 3, g_current_pos_y + 7) then
         play_sound_effect(Module.BuzzSoundResourceIndex);
-        kill();
+        Module.GameLogic.kill();
     end
 end
 

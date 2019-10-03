@@ -97,11 +97,11 @@ function Module.update()
             Module.iX + 4.5, Module.iY - 4) then
         if Module.iRV > 0 then
             if Module.iR < 0 and Module.iR > -20 then
-                kill();
+                Module.GameLogic.kill();
             end
         else
             if Module.iR < 20 and Module.iR > 0 then
-                kill();
+                Module.GameLogic.kill();
             end
         end
     end

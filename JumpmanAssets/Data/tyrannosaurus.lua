@@ -197,13 +197,13 @@ function Module.update()
         if Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 22, g_current_pos_y + 28,
                 g_current_pos_x - 12, g_current_pos_y + 34) then
-            kill();
+            Module.GameLogic.kill();
         end
 
         if Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 10, g_current_pos_y + 0,
                 g_current_pos_x + 10, g_current_pos_y + 23) then
-            kill();
+            Module.GameLogic.kill();
         end
     end
 
@@ -211,13 +211,13 @@ function Module.update()
         if Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x + 12, g_current_pos_y + 28,
                 g_current_pos_x + 22, g_current_pos_y + 34) then
-            kill();
+            Module.GameLogic.kill();
         end
 
         if Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 10, g_current_pos_y + 0,
                 g_current_pos_x + 10, g_current_pos_y + 23) then
-            kill();
+            Module.GameLogic.kill();
         end
     end
 end

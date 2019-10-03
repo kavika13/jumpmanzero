@@ -189,7 +189,7 @@ function Module.update()
             if Module.GameLogic.is_player_colliding_with_rect(
                     iPX - 5, g_target_pos_y - 2,
                     iPX + 5, g_target_pos_y + 2) then
-                kill();
+                Module.GameLogic.kill();
             end
         end
     end

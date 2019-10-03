@@ -390,7 +390,7 @@ local function CollidePlayer_()
     end
 
     if iWin == 1 then
-        kill();
+        Module.GameLogic.kill();
         return;
     end
 

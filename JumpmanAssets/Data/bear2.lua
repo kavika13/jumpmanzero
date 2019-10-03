@@ -500,7 +500,7 @@ function Module.update()
         end
 
         if iCollide then
-            kill();
+            Module.GameLogic.kill();
         end
     end
 end

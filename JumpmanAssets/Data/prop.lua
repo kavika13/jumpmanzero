@@ -64,13 +64,13 @@ function Module.update()
         if Module.GameLogic.is_player_colliding_with_rect(
                 Module.iX - 35, Module.iY - 1,
                 Module.iX - 5, Module.iY + 1) then
-            kill();
+            Module.GameLogic.kill();
         end
 
         if Module.GameLogic.is_player_colliding_with_rect(
                 Module.iX + 5, Module.iY - 1,
                 Module.iX + 35, Module.iY + 1) then
-            kill();
+            Module.GameLogic.kill();
         end
     end
 end

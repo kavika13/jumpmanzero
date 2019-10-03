@@ -147,6 +147,7 @@ function update(game_input, is_initializing)
         g_shark.StartPosY = 80;
 
         g_swim_collision = swim_collision_module();
+        g_swim_collision.GameLogic = g_game_logic;
         g_swim_collision.ChompSoundIndex = resources.SoundChomp;
         g_swim_collision.CrunchSoundIndex = resources.SoundCrunch;
         g_swim_collision.SharkObject = g_shark;
@@ -195,8 +196,12 @@ function update(game_input, is_initializing)
     --       That should simplify this logic drastically.
     --       Probably best to do that with the level loader refactor?
     if is_initializing or g_title_is_done_scrolling then
-        g_game_logic.progress_game(game_input);
+        local continue_update = g_game_logic.progress_game(game_input);
         g_hud_overlay.update(game_input);
+
+        if not continue_update then
+            return true;
+        end
     elseif g_is_first_update_complete then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return false;

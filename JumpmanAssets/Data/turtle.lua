@@ -240,7 +240,7 @@ function Module.update(game_input, all_turtles)
 
     if is_colliding then
         if iPY < g_current_pos_y + 2 then
-            kill();
+            Module.GameLogic.kill();
         else
             g_current_status_counter = 0;
 

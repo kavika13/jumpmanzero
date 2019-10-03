@@ -19,8 +19,11 @@ local player_state = {
 };
 player_state = read_only.make_table_read_only(player_state);
 
+Module.GameLogic = nil;
+
 Module.ChompSoundIndex = 0;
 Module.CrunchSoundIndex = 0;
+
 Module.IsInTank = false;
 Module.SharkObject = nil;
 Module.FacingDirection = 0;  -- TODO: This doesn't get set to anything but 0 by the parent module. Is it the shark's facing direction or the players? Maybe just simplify the code?
@@ -51,7 +54,7 @@ local function DoCollide(iX1, iY1, iX2, iY2)
     end
 
     if is_win_detected then
-        win();
+        Module.GameLogic.win();
         return;
     end
 
@@ -66,14 +69,14 @@ local function DoCollide(iX1, iY1, iX2, iY2)
         if iX1 < iDX + 7 and iX2 > iDX + 1 then
             if iY1 < iDY + 7 and iY2 > iDY + 1 then
                 play_sound_effect(Module.CrunchSoundIndex);
-                kill();
+                Module.GameLogic.kill();
             end
         end
     else
         if iX1 < iDX - 1 and iX2 > iDX - 7 then
             if iY1 < iDY + 7 and iY2 > iDY + 1 then
                 play_sound_effect(Module.CrunchSoundIndex);
-                kill();
+                Module.GameLogic.kill();
             end
         end
     end

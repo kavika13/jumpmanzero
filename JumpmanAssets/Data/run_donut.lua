@@ -287,7 +287,7 @@ local function MoveDonut_(all_run_donuts)
             g_current_run_donut_count = #all_run_donuts;
 
             if g_current_run_donut_count == 1 then
-                win();
+                Module.GameLogic.win();
             end
 
             DestroyMe_();

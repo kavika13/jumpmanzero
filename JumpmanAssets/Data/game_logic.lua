@@ -1369,37 +1369,72 @@ local function AnimateDying_(game_input)
 end
 
 function Module.progress_game(game_input)
-    if get_player_freeze_cooldown_frame_count() ~= 0 then
-        set_player_freeze_cooldown_frame_count(get_player_freeze_cooldown_frame_count() - 1);
-    end
-
-    if get_player_no_roll_cooldown_frame_count() ~= 0 then
-        set_player_no_roll_cooldown_frame_count(get_player_no_roll_cooldown_frame_count() - 1);
-    end
-
-    if (get_player_current_state() & player_state.JSDYING) == 0 and get_player_freeze_cooldown_frame_count() == 0 then
-        set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
-        set_player_current_rotation_x_radians(0);
-        set_player_current_mesh(player_mesh.STAND);
-        MoveJumpman_(game_input);
-
-        if get_player_current_mesh() == player_mesh.STAND and
-                get_player_is_visible() and
-                get_game_time_inactive() > 400 then
-            local iTemp = math.floor((get_game_time_inactive() % 400) / 6);
-            iTemp = iTemp > 10 and 2 or (iTemp & 1);
-            set_player_current_mesh(player_mesh.BORED_1 + iTemp);
+    if (get_player_current_state() & player_state.JSDONE) == 0 then
+        if get_player_freeze_cooldown_frame_count() ~= 0 then
+            set_player_freeze_cooldown_frame_count(get_player_freeze_cooldown_frame_count() - 1);
         end
 
-        GrabDonuts_(game_input);
-    end
+        if get_player_no_roll_cooldown_frame_count() ~= 0 then
+            set_player_no_roll_cooldown_frame_count(get_player_no_roll_cooldown_frame_count() - 1);
+        end
 
-    if (get_player_current_state() & player_state.JSDYING) ~= 0 and get_player_freeze_cooldown_frame_count() == 0 then
-        AnimateDying_(game_input);
-        GrabDonuts_(game_input);
-    end
+        if (get_player_current_state() & player_state.JSDYING) == 0 and get_player_freeze_cooldown_frame_count() == 0 then
+            set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+            set_player_current_rotation_x_radians(0);
+            set_player_current_mesh(player_mesh.STAND);
+            MoveJumpman_(game_input);
 
-    reset_perspective();
+            if get_player_current_mesh() == player_mesh.STAND and
+                    get_player_is_visible() and
+                    get_game_time_inactive() > 400 then
+                local iTemp = math.floor((get_game_time_inactive() % 400) / 6);
+                iTemp = iTemp > 10 and 2 or (iTemp & 1);
+                set_player_current_mesh(player_mesh.BORED_1 + iTemp);
+            end
+
+            GrabDonuts_(game_input);
+        end
+
+        if (get_player_current_state() & player_state.JSDYING) ~= 0 and get_player_freeze_cooldown_frame_count() == 0 then
+            AnimateDying_(game_input);
+            GrabDonuts_(game_input);
+        end
+
+        reset_perspective();
+
+        return true;
+    else
+        set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
+
+        if get_player_current_state_frame_count() == 30 then
+            play_win_music_track();
+        end
+
+        if get_player_current_state_frame_count() == 300 then
+            load_next_level();
+        end
+
+        return false;
+    end
+end
+
+function Module.kill()
+    if (get_player_current_state() & player_state.JSDYING) == 0 then
+        stop_music_track_1();
+        set_player_current_state(player_state.JSDYING);
+        set_player_current_special_action(player_special_action.NONE);
+        set_player_dying_animation_state(player_dying_animation_state.FALLING);
+        set_player_dying_animation_state_frame_count(0);
+        set_player_current_velocity_x(0);
+        set_player_absolute_frame_count(get_player_current_state_frame_count());
+        set_player_current_state_frame_count(1000);
+    end
+end
+
+function Module.win()
+    stop_music_track_1();
+    set_player_current_state_frame_count(0);
+    set_player_current_state(player_state.JSDONE);
 end
 
 function Module.get_player_current_active_platform_index()

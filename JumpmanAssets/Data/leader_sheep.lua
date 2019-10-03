@@ -409,7 +409,7 @@ function Module.update(follower_sheep)
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 6, g_current_pos_y + 1,
             g_current_pos_x + 6, g_current_pos_y + 9) then
-        kill();
+        Module.GameLogic.kill();
         play_sound_effect(Module.KillSoundResourceIndex);
     end
 end

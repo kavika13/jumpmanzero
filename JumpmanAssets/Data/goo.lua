@@ -261,7 +261,7 @@ local function DrawHorizontal_()
         local iPH, iPlat = Module.GameLogic.find_platform(iPX, iPY, 8, 2);
 
         if iPlat == g_current_platform_object_index and iPY < iPH + 1 then
-            kill();
+            Module.GameLogic.kill();
         end
     end
 
@@ -299,7 +299,7 @@ local function DrawVertical_()
         g_current_pos_x[2] + 1, g_current_pos_y[1] - 1);
 
     if iCollide == 1 then
-        kill();
+        Module.GameLogic.kill();
     end
 
     select_object_mesh(g_mesh_index);

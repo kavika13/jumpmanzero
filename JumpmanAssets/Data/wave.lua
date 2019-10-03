@@ -83,7 +83,7 @@ function Module.update()
     if Module.GameLogic.is_player_colliding_with_rect(
             0 - 500, g_current_pos_y - 500,
             0 + 500, g_current_pos_y + 3) then
-        kill();
+        Module.GameLogic.kill();
 
         if get_player_current_position_y() < g_current_pos_y - 2 then
             set_player_current_position_x(0 - 100);

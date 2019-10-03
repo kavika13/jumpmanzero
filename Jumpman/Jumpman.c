@@ -21,6 +21,7 @@ typedef enum {
     kGameStatusMenu = 1,
     kGameStatusInLevel = 2,
     kGameStatusLevelLoad = 3,
+    kGameStatusNextLevelLoad = 4,
 } GameStatus;
 
 typedef enum {
@@ -607,6 +608,11 @@ static int get_wall_y4(lua_State* lua_state) {
     return 1;
 }
 
+static int load_next_level(lua_State* lua_state) {
+    g_game_status = kGameStatusNextLevelLoad;
+    return 0;
+}
+
 static int queue_level_load(lua_State* lua_state) {
     const char* level_name_arg = luaL_checkstring(lua_state, 1);
     stbsp_snprintf(g_queued_level_load_filename, sizeof(g_queued_level_load_filename), "Data/%s.DAT", level_name_arg);
@@ -620,6 +626,11 @@ static int restart_music_track_1(lua_State* lua_state) {
         NewTrack1(g_music_background_track_filename, g_music_loop_start_music_time, g_music_loop_start_music_time);
     }
 
+    return 0;
+}
+
+static int play_win_music_track(lua_State* lua_state) {
+    NewTrack2(g_music_win_track_filename);  // TODO: Error checking?
     return 0;
 }
 
@@ -1435,28 +1446,6 @@ static int play_sound_effect(lua_State* lua_state) {
     return 0;
 }
 
-static int script_kill(lua_State* lua_state) {
-    if(!(g_player_current_state & kPlayerStateDying)) {
-        StopMusic1();
-        g_player_current_state = kPlayerStateDying;
-        g_player_current_special_action = kPlayerSpecialActionNone;
-        g_player_dying_animation_state = kPlayerDyingAnimationStateFalling;
-        g_player_dying_animation_state_frame_count = 0;
-        g_player_velocity_x = 0;
-        g_player_absolute_frame_count = g_player_current_state_frame_count;
-        g_player_current_state_frame_count = 1000;
-    }
-
-    return 0;
-}
-
-static int script_win(lua_State* lua_state) {
-    StopMusic1();
-    g_player_current_state_frame_count = 0;
-    g_player_current_state = kPlayerStateDone;
-    return 0;
-}
-
 // TODO: Maybe return the id instead of global "selected" state for this
 static int script_select_object_mesh(lua_State* lua_state) {
     double mesh_index = luaL_checknumber(lua_state, 1);
@@ -1585,10 +1574,14 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_wall_y3");
     lua_pushcfunction(lua_state, get_wall_y4);
     lua_setglobal(lua_state, "get_wall_y4");
+    lua_pushcfunction(lua_state, load_next_level);
+    lua_setglobal(lua_state, "load_next_level");
     lua_pushcfunction(lua_state, queue_level_load);
     lua_setglobal(lua_state, "queue_level_load");
     lua_pushcfunction(lua_state, restart_music_track_1);
     lua_setglobal(lua_state, "restart_music_track_1");
+    lua_pushcfunction(lua_state, play_win_music_track);
+    lua_setglobal(lua_state, "play_win_music_track");
     lua_pushcfunction(lua_state, play_death_music_track);
     lua_setglobal(lua_state, "play_death_music_track");
     lua_pushcfunction(lua_state, stop_music_track_1);
@@ -1790,10 +1783,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_game_list");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
-    lua_pushcfunction(lua_state, script_kill);
-    lua_setglobal(lua_state, "kill");
-    lua_pushcfunction(lua_state, script_win);
-    lua_setglobal(lua_state, "win");
     lua_pushcfunction(lua_state, script_select_object_mesh);
     lua_setglobal(lua_state, "select_object_mesh");
     lua_pushcfunction(lua_state, script_delete_mesh);
@@ -2415,19 +2404,7 @@ static void ResetPlayer(int iNewLevel, GameInput* game_input) {
 }
 
 static void ProgressGame(const char* base_path, GameInput* game_input, bool is_initializing) {
-    if(!(g_player_current_state & kPlayerStateDone)) {
-        CallLuaGameUpdate(g_script_level_script_lua_state, game_input, is_initializing);
-    } else {
-        ++g_player_current_state_frame_count;
-
-        if(g_player_current_state_frame_count == 30) {
-            NewTrack2(g_music_win_track_filename);
-        }
-
-        if(g_player_current_state_frame_count == 300) {
-            LoadNextLevel(base_path, game_input);
-        }
-    }
+    CallLuaGameUpdate(g_script_level_script_lua_state, game_input, is_initializing);
 }
 
 static void SetGamePerspective(void) {
@@ -2503,6 +2480,7 @@ static void SetGamePerspective(void) {
 }
 
 static void UpdatePlayerGraphics(void) {
+    // TODO: Is this breaking the swim level, or is the swim level itself broken?
     IdentityMatrix(g_player_mesh_indices[g_player_current_mesh]);
     RotateMatrixX(g_player_mesh_indices[g_player_current_mesh], g_player_current_rotation_x_radians * 180.0f / 3.14f);
     TranslateMatrix(g_player_mesh_indices[g_player_current_mesh], g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
@@ -2578,22 +2556,29 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
 }
 
 void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input) {
+    g_player_current_state = kPlayerStateNormal;
+    g_player_current_state_frame_count = 0;
+    g_player_current_rotation_x_radians = 0;
+
     g_just_launched_game = false;
     g_debug_level_is_specified = true;
     stbsp_snprintf(g_debug_level_filename, sizeof(g_debug_level_filename), "Data/%s.DAT", level_name);
-    g_debug_level_is_specified = true;
     LoadNextLevel(base_path, game_input);
     g_level_set_current_level_index = 0;
     g_game_status = kGameStatusInLevel;
 }
 
 void InitGameNormal(void) {
+    g_player_current_state = kPlayerStateNormal;
+    g_player_current_state_frame_count = 0;
+    g_player_current_rotation_x_radians = 0;
+
     g_just_launched_game = true;
+    g_debug_level_is_specified = false;
     g_game_status = kGameStatusMenu;
     g_current_game_menu_state = kGameMenuStateNone;
     g_target_game_menu_state = kGameMenuStateMain;
     g_target_menu_selected_music = kGameMenuMusicStateIntroTrack;
-    g_debug_level_is_specified = false;
 }
 
 void ExitGame(void) {
@@ -2675,23 +2660,21 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
     }
 
     if(g_game_status == kGameStatusLevelLoad) {
-        // This temporary state is necessary so the game can load a specific level that isn't a menu.
-        // It can't be loaded directly from the API function because loading levels frees the currently running script.
+        // Loading levels frees the currently running script, so this can't be done in the API function itself
         PrepLevel(base_path, g_queued_level_load_filename, game_input);
         g_queued_level_load_filename[0] = '\0';
+        g_game_status = kGameStatusInLevel;
+    }
+
+    if(g_game_status == kGameStatusNextLevelLoad) {
+        // Loading levels frees the currently running script, so this can't be done in the API function itself
+        LoadNextLevel(base_path, game_input);
         g_game_status = kGameStatusInLevel;
     }
 }
 
 long Init3D(void) {
-    int iLoop;
-
-    g_player_current_state = 0;
-    g_player_current_state_frame_count = 0;
-
-    g_player_current_rotation_x_radians = 0;
-
-    iLoop = -1;
+    int iLoop = -1;
 
     while(++iLoop < MAX_PLAYER_MESHES) {
         g_player_mesh_indices[iLoop] = 0;
