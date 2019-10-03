@@ -197,7 +197,6 @@ static LevelObject* g_script_selected_level_object;
 static long g_script_selected_mesh_index;
 
 static long g_level_extent_x;
-static long g_level_extent_y;
 
 static lua_State* g_script_level_script_lua_state = NULL;
 
@@ -1745,7 +1744,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     g_player_is_visible = true;
 
     g_level_extent_x = 160;
-    g_level_extent_y = 160;
 
     g_current_camera_mode = kCameraModeNormal;
     g_loaded_texture_count = 0;
