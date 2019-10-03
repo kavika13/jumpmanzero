@@ -105,8 +105,6 @@ swim_coll_properties = read_only.make_table_read_only(swim_coll_properties);
 
 local kTOP_OF_POOL_Y = 114;
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -128,175 +126,7 @@ local g_splash_particle_time = 0;
 local g_splash_scale_x = 0;
 local g_splash_scale_y = 0;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        g_shark = shark_module();
-        g_shark.MoveRightMeshResourceIndices = { resources.MeshShark1, resources.MeshShark2, resources.MeshShark1, resources.MeshShark3 };
-        g_shark.TurnRightMeshResourceIndices = { resources.MeshSharkT1, resources.MeshSharkT2, resources.MeshSharkT3 };
-        g_shark.MoveLeftMeshResourceIndices = { resources.MeshSharkL1, resources.MeshSharkL2, resources.MeshSharkL1, resources.MeshSharkL3 };
-        g_shark.TurnLeftMeshResourceIndices = { resources.MeshSharkTL1, resources.MeshSharkTL2, resources.MeshSharkTL3 };
-        g_shark.TextureResourceIndex = resources.TextureShark;
-        g_shark.StartPosX = 80;
-        g_shark.StartPosY = 80;
-
-        g_swim_collision = swim_collision_module();
-        g_swim_collision.GameLogic = g_game_logic;
-        g_swim_collision.ChompSoundIndex = resources.SoundChomp;
-        g_swim_collision.CrunchSoundIndex = resources.SoundCrunch;
-        g_swim_collision.SharkObject = g_shark;
-        g_swim_collision.FacingDirection = 0;
-
-        g_swim_animation_mesh_indices[1] = new_mesh(resources.MeshGroove1);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[2] = new_mesh(resources.MeshGroove2);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[3] = new_mesh(resources.MeshGroove3);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[11] = new_mesh(resources.MeshSwimL1);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[12] = new_mesh(resources.MeshSwimL2);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[13] = new_mesh(resources.MeshSwimL3);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[14] = new_mesh(resources.MeshSwimL4);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[21] = new_mesh(resources.MeshSwimR1);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[22] = new_mesh(resources.MeshSwimR2);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[23] = new_mesh(resources.MeshSwimR3);
-        prioritize_object();
-
-        g_swim_animation_mesh_indices[24] = new_mesh(resources.MeshSwimR4);
-        prioritize_object();
-
-        InitSplashParticles();
-
-        g_swim_animation_frame = 1;
-        g_swim_time_in_pool_frames = 0;
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    set_player_freeze_cooldown_frame_count(0);
-    set_player_is_visible(1);
-
-    g_frames_since_level_start = g_frames_since_level_start + 1;
-
-    select_picture(1);
-    script_selected_mesh_scroll_texture(0.025, 0.025);
-
-    select_picture(6);
-    script_selected_mesh_scroll_texture(0.04, 0.04);
-
-    select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
-    set_object_visual_data(0, 0);
-
-    if g_splash_particle_time > 0 then
-        MoveSplashParticles();
-    end
-
-    if InTank() then
-        g_swim_collision.IsInTank = true;
-
-        if g_game_logic.get_player_current_state() == player_state.JSDYING then
-            g_swim_death_spin_animation_frame = g_swim_death_spin_animation_frame + 1;
-            g_swim_animation_frame = Cycle(g_frames_since_level_start, 22, 1, 3);
-            g_swim_rotation_angle = g_swim_death_spin_animation_frame * 12;
-            g_swim_time_in_pool_frames = 100;
-        else
-            g_swim_death_spin_animation_frame = 0;
-            Swim(game_input);
-        end
-
-        if g_swim_time_in_pool_frames == 0 then
-            StartSplashParticles(get_player_current_position_x(), get_player_current_position_y());
-        end
-
-        g_swim_time_in_pool_frames = g_swim_time_in_pool_frames + 1;
-
-        if g_swim_time_in_pool_frames > 15 then
-            if CheckJump(game_input) then
-                return;
-            end
-        end
-
-        set_player_freeze_cooldown_frame_count(2);
-        set_player_is_visible(0);
-
-        local iPX = get_player_current_position_x();
-        local iPY = get_player_current_position_y();
-        local iDrawY;
-        local iDrawX;
-
-        -- Simulate underwater currents, quantized to "pixel grid" boundaries
-        if g_swim_animation_frame < 10 then
-            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
-            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
-        else
-            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
-            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
-        end
-
-        select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
-        script_selected_mesh_set_identity_matrix();
-        script_selected_mesh_rotate_matrix_z(g_swim_rotation_angle);
-        script_selected_mesh_translate_matrix(iDrawX, iDrawY + 5, 2);
-        set_object_visual_data(resources.TextureJumpman, 1);
-
-        if g_game_logic.get_player_current_state() == player_state.JSDYING then
-            set_player_freeze_cooldown_frame_count(0);
-        end
-    else
-        if g_game_logic.get_player_current_state() == 4096 then  -- TODO: Constant instead of hard coded number? What causes this state?
-            g_game_logic.set_player_current_state(player_state.JSFALLING);
-        end
-
-        g_swim_time_in_pool_frames = 0;
-        g_swim_collision.IsInTank = false;
-    end
-
-    g_shark.update(game_input);
-    g_swim_collision.update();
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
-end
-
-function MoveSplashParticles()
+local function MoveSplashParticles_()
     local is_any_particle_visible = false;
 
     for iLoop = 1, 20 do
@@ -342,56 +172,7 @@ function MoveSplashParticles()
     end
 end
 
-function StartSplashParticles(iX, iY)
-    g_splash_particle_time = 17;
-    g_splash_particle_start_x = iX;
-    g_splash_particle_start_y = iY + 7;
-
-    g_splash_scale_x = 1.4;
-    g_splash_scale_y = 1.4;
-
-    if g_game_logic.get_player_current_state() == player_state.JSROLL then
-        g_splash_scale_x = 0.5;
-        g_splash_scale_y = 1.1;
-    end
-
-    if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
-        g_splash_scale_x = 1;
-        g_splash_scale_y = 1.2;
-    end
-end
-
-function InitSplashParticles()
-    for iLoop = 1, 20 do
-        g_splash_particle_mesh_indices[iLoop] = new_mesh(resources.MeshSquare);
-    end
-
-    g_splash_particle_time = 0;
-end
-
-function CheckJump(game_input)
-    if game_input.jump_action.is_pressed and get_player_current_position_y() > kTOP_OF_POOL_Y - 2 then
-        set_player_current_position_y(kTOP_OF_POOL_Y + 1);
-        g_game_logic.set_player_current_state(player_state.JSJUMPING);
-
-        if game_input.move_left_action.is_pressed then
-            g_game_logic.set_player_current_direction(player_movement_direction.DIR_LEFT);
-        elseif game_input.move_right_action.is_pressed then
-            g_game_logic.set_player_current_direction(player_movement_direction.DIR_RIGHT);
-        else
-            g_game_logic.set_player_current_direction(player_movement_direction.DIR_UP);
-        end
-
-        g_game_logic.set_player_current_state_frame_count(2);
-        set_player_current_special_action(0);
-
-        return true;
-    end
-
-    return false;
-end
-
-function InTank()
+local function InTank_()
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
 
@@ -404,7 +185,41 @@ function InTank()
     return false;
 end
 
-function Swim(game_input)
+local function Cycle_(iCCount, iSpeed, iMin, iMax)
+    local is_negative = false;
+
+    if iCCount < 0 then
+        is_negative = true;
+        iCCount = 0 - iCCount;
+    end
+
+    local iCycle = (iMax - iMin);
+    local iCP = (iCCount * iSpeed) & 1023;
+    local iPlace = math.floor(((iCP / 128) * iCycle) / 4);
+
+    if is_negative then
+        iPlace = iPlace + iCycle;
+
+        if iPlace > iCycle * 2 then
+            iPlace = iPlace - iCycle * 2;
+        end
+    end
+
+    if iPlace > iCycle then
+        iPlace = iCycle * 2 - iPlace;
+        iPlace = iPlace + 1;
+    end
+
+    iPlace = iPlace + iMin;
+
+    if iPlace > iMax then
+        iPlace = iMax;
+    end
+
+    return iPlace;
+end
+
+local function Swim_(game_input)
     local iUp = false;
     local iDown = false;
     local iLeft = false;
@@ -454,44 +269,44 @@ function Swim(game_input)
 
     set_player_current_position_x(iOldPX + iMX);
 
-    if not InTank() then
+    if not InTank_() then
         set_player_current_position_x(iOldPX);
     end
 
     set_player_current_position_y(iOldPY + iMY);
 
-    if not InTank() then
+    if not InTank_() then
         set_player_current_position_y(iOldPY);
     end
 
     iSpeed = 30;
 
     if iUp and iLeft then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
         g_swim_rotation_angle = -45;
     elseif iUp and iRight then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
         g_swim_rotation_angle = 45;
     elseif iDown and iLeft then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
         g_swim_rotation_angle = 45;
     elseif iDown and iRight then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
         g_swim_rotation_angle = -45;
     elseif iUp then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
         g_swim_rotation_angle = -90;
     elseif iDown then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
         g_swim_rotation_angle = -90;
     elseif iLeft then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
         g_swim_rotation_angle = 0;
     elseif iRight then
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
         g_swim_rotation_angle = 0;
     else
-        g_swim_animation_frame = Cycle(g_frames_since_level_start, 22, 1, 3);
+        g_swim_animation_frame = Cycle_(g_frames_since_level_start, 22, 1, 3);
         g_swim_rotation_angle = math.sin(g_frames_since_level_start * 5 * math.pi / 180.0) * 5;
     end
 
@@ -500,38 +315,224 @@ function Swim(game_input)
     end
 end
 
-function Cycle(iCCount, iSpeed, iMin, iMax)
-    local is_negative = false;
+local function StartSplashParticles_(iX, iY)
+    g_splash_particle_time = 17;
+    g_splash_particle_start_x = iX;
+    g_splash_particle_start_y = iY + 7;
 
-    if iCCount < 0 then
-        is_negative = true;
-        iCCount = 0 - iCCount;
+    g_splash_scale_x = 1.4;
+    g_splash_scale_y = 1.4;
+
+    if g_game_logic.get_player_current_state() == player_state.JSROLL then
+        g_splash_scale_x = 0.5;
+        g_splash_scale_y = 1.1;
     end
 
-    local iCycle = (iMax - iMin);
-    local iCP = (iCCount * iSpeed) & 1023;
-    local iPlace = math.floor(((iCP / 128) * iCycle) / 4);
+    if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
+        g_splash_scale_x = 1;
+        g_splash_scale_y = 1.2;
+    end
+end
 
-    if is_negative then
-        iPlace = iPlace + iCycle;
+local function CheckJump_(game_input)
+    if game_input.jump_action.is_pressed and get_player_current_position_y() > kTOP_OF_POOL_Y - 2 then
+        set_player_current_position_y(kTOP_OF_POOL_Y + 1);
+        g_game_logic.set_player_current_state(player_state.JSJUMPING);
 
-        if iPlace > iCycle * 2 then
-            iPlace = iPlace - iCycle * 2;
+        if game_input.move_left_action.is_pressed then
+            g_game_logic.set_player_current_direction(player_movement_direction.DIR_LEFT);
+        elseif game_input.move_right_action.is_pressed then
+            g_game_logic.set_player_current_direction(player_movement_direction.DIR_RIGHT);
+        else
+            g_game_logic.set_player_current_direction(player_movement_direction.DIR_UP);
         end
+
+        g_game_logic.set_player_current_state_frame_count(2);
+        set_player_current_special_action(0);
+
+        return true;
     end
 
-    if iPlace > iCycle then
-        iPlace = iCycle * 2 - iPlace;
-        iPlace = iPlace + 1;
+    return false;
+end
+
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
     end
 
-    iPlace = iPlace + iMin;
+    set_player_freeze_cooldown_frame_count(0);
+    set_player_is_visible(1);
 
-    if iPlace > iMax then
-        iPlace = iMax;
+    g_frames_since_level_start = g_frames_since_level_start + 1;
+
+    select_picture(1);
+    script_selected_mesh_scroll_texture(0.025, 0.025);
+
+    select_picture(6);
+    script_selected_mesh_scroll_texture(0.04, 0.04);
+
+    select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
+    set_object_visual_data(0, 0);
+
+    if g_splash_particle_time > 0 then
+        MoveSplashParticles_();
     end
 
-    return iPlace;
+    if InTank_() then
+        g_swim_collision.IsInTank = true;
+
+        if g_game_logic.get_player_current_state() == player_state.JSDYING then
+            g_swim_death_spin_animation_frame = g_swim_death_spin_animation_frame + 1;
+            g_swim_animation_frame = Cycle_(g_frames_since_level_start, 22, 1, 3);
+            g_swim_rotation_angle = g_swim_death_spin_animation_frame * 12;
+            g_swim_time_in_pool_frames = 100;
+        else
+            g_swim_death_spin_animation_frame = 0;
+            Swim_(game_input);
+        end
+
+        if g_swim_time_in_pool_frames == 0 then
+            StartSplashParticles_(get_player_current_position_x(), get_player_current_position_y());
+        end
+
+        g_swim_time_in_pool_frames = g_swim_time_in_pool_frames + 1;
+
+        if g_swim_time_in_pool_frames > 15 then
+            if CheckJump_(game_input) then
+                return;
+            end
+        end
+
+        set_player_freeze_cooldown_frame_count(2);
+        set_player_is_visible(0);
+
+        local iPX = get_player_current_position_x();
+        local iPY = get_player_current_position_y();
+        local iDrawY;
+        local iDrawX;
+
+        -- Simulate underwater currents, quantized to "pixel grid" boundaries
+        if g_swim_animation_frame < 10 then
+            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
+            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
+        else
+            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
+            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
+        end
+
+        select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
+        script_selected_mesh_set_identity_matrix();
+        script_selected_mesh_rotate_matrix_z(g_swim_rotation_angle);
+        script_selected_mesh_translate_matrix(iDrawX, iDrawY + 5, 2);
+        set_object_visual_data(resources.TextureJumpman, 1);
+
+        if g_game_logic.get_player_current_state() == player_state.JSDYING then
+            set_player_freeze_cooldown_frame_count(0);
+        end
+    else
+        if g_game_logic.get_player_current_state() == 4096 then  -- TODO: Constant instead of hard coded number? What causes this state?
+            g_game_logic.set_player_current_state(player_state.JSFALLING);
+        end
+
+        g_swim_time_in_pool_frames = 0;
+        g_swim_collision.IsInTank = false;
+    end
+
+    g_shark.update(game_input);
+    g_swim_collision.update();
+end
+
+local function InitSplashParticles_()
+    for iLoop = 1, 20 do
+        g_splash_particle_mesh_indices[iLoop] = new_mesh(resources.MeshSquare);
+    end
+
+    g_splash_particle_time = 0;
+end
+
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    g_shark = shark_module();
+    g_shark.MoveRightMeshResourceIndices = { resources.MeshShark1, resources.MeshShark2, resources.MeshShark1, resources.MeshShark3 };
+    g_shark.TurnRightMeshResourceIndices = { resources.MeshSharkT1, resources.MeshSharkT2, resources.MeshSharkT3 };
+    g_shark.MoveLeftMeshResourceIndices = { resources.MeshSharkL1, resources.MeshSharkL2, resources.MeshSharkL1, resources.MeshSharkL3 };
+    g_shark.TurnLeftMeshResourceIndices = { resources.MeshSharkTL1, resources.MeshSharkTL2, resources.MeshSharkTL3 };
+    g_shark.TextureResourceIndex = resources.TextureShark;
+    g_shark.StartPosX = 80;
+    g_shark.StartPosY = 80;
+    g_shark.initialize();
+
+    g_swim_collision = swim_collision_module();  -- TODO: Merge swim collision module back into this script?
+    g_swim_collision.GameLogic = g_game_logic;
+    g_swim_collision.ChompSoundIndex = resources.SoundChomp;
+    g_swim_collision.CrunchSoundIndex = resources.SoundCrunch;
+    g_swim_collision.SharkObject = g_shark;
+    g_swim_collision.FacingDirection = 0;
+    g_swim_collision.initialize();
+
+    g_swim_animation_mesh_indices[1] = new_mesh(resources.MeshGroove1);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[2] = new_mesh(resources.MeshGroove2);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[3] = new_mesh(resources.MeshGroove3);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[11] = new_mesh(resources.MeshSwimL1);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[12] = new_mesh(resources.MeshSwimL2);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[13] = new_mesh(resources.MeshSwimL3);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[14] = new_mesh(resources.MeshSwimL4);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[21] = new_mesh(resources.MeshSwimR1);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[22] = new_mesh(resources.MeshSwimR2);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[23] = new_mesh(resources.MeshSwimR3);
+    prioritize_object();
+
+    g_swim_animation_mesh_indices[24] = new_mesh(resources.MeshSwimR4);
+    prioritize_object();
+
+    InitSplashParticles_();
+
+    g_swim_animation_frame = 1;
+    g_swim_time_in_pool_frames = 0;
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()

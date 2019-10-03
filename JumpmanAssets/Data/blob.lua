@@ -10,8 +10,6 @@ Module.PlayAreaCircumference = 0;
 Module.StartPosX = 0;
 Module.StartPosY = 0;
 
-local g_is_initialized = false;
-
 local g_blob_mesh_index;
 local g_animation_counter = 0;
 local g_animation_current_frame = 0;
@@ -21,7 +19,7 @@ local g_current_pos_y = 0;
 local g_current_velocity_x = 0.3;
 local g_current_rotation_z = 0;
 
-local function Animate()
+local function Animate_()
     g_animation_counter = g_animation_counter + 1;
 
     if g_animation_counter == 4 then
@@ -41,7 +39,7 @@ local function Animate()
     script_selected_mesh_change_mesh(frame_index);
 end
 
-local function MoveBlob()
+local function MoveBlob_()
     g_current_pos_x = g_current_pos_x + g_current_velocity_x;
 
     local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 1);
@@ -70,7 +68,7 @@ local function MoveBlob()
     end
 end
 
-local function ShowBlob()
+local function ShowBlob_()
     local iPX = get_player_current_position_x();
     select_object_mesh(g_blob_mesh_index);
     script_selected_mesh_set_identity_matrix();
@@ -82,17 +80,16 @@ local function ShowBlob()
     set_object_visual_data(Module.TextureResourceIndex, 1);
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_blob_mesh_index = new_mesh(Module.MoveRightMeshResourceIndices[1]);
-        g_current_pos_x = Module.StartPosX;
-        g_current_pos_y = Module.StartPosY;
-    end
+function Module.initialize()
+    g_blob_mesh_index = new_mesh(Module.MoveRightMeshResourceIndices[1]);
+    g_current_pos_x = Module.StartPosX;
+    g_current_pos_y = Module.StartPosY;
+end
 
-    Animate();
-    MoveBlob();
-    ShowBlob();
+function Module.update()
+    Animate_();
+    MoveBlob_();
+    ShowBlob_();
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 2, g_current_pos_y + 1,

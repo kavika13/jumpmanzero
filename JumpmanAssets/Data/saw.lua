@@ -10,7 +10,6 @@ Module.TextureResourceIndex = 0;
 Module.InitialPosX = 0;
 Module.InitialPosY = 0;
 
-local g_is_initialized = false;
 local g_saw_mesh_index = 0;
 local g_is_initial_flight = false;
 
@@ -140,26 +139,24 @@ local function MoveSaw_()
     end
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
+function Module.initialize()
+    g_saw_mesh_index = new_mesh(Module.MeshResourceIndex);
 
-        g_saw_mesh_index = new_mesh(Module.MeshResourceIndex);
+    g_current_pos_x = Module.InitialPosX;
+    g_current_pos_y = Module.InitialPosY;
 
-        g_current_pos_x = Module.InitialPosX;
-        g_current_pos_y = Module.InitialPosY;
-
-        if g_current_pos_x == 0 then
-            g_current_pos_x = 31;
-            g_current_pos_y = 173;
-        end
-
-        g_current_pos_z = 22;
-        g_current_direction = 4;
-        g_is_initial_flight = true;
-        g_current_time_in_air = 1;
+    if g_current_pos_x == 0 then
+        g_current_pos_x = 31;
+        g_current_pos_y = 173;
     end
 
+    g_current_pos_z = 22;
+    g_current_direction = 4;
+    g_is_initial_flight = true;
+    g_current_time_in_air = 1;
+end
+
+function Module.update()
     MoveSaw_();
 
     if g_current_pos_y < -60 then

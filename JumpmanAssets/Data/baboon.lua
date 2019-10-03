@@ -39,7 +39,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
 local g_climb_animation_mesh_indices = {};
 local g_climb_animation_current_mesh_index;
 local g_climb_animation_frame_index = 0;
@@ -50,8 +49,8 @@ local g_current_pos_y;
 local g_current_pos_z;
 local g_current_velocity_y;
 
-local function MoveBaboon()
-    -- TODO: A more clear way to write this frame selection code, if possible
+local function MoveBaboon_()
+    -- TODO: A more clear way to write this frame selection code, if possible. Probably enums?
     g_climb_animation_frame_index = g_climb_animation_frame_index + 1;
 
     if g_climb_animation_frame_index > 3 then
@@ -94,25 +93,24 @@ local function MoveBaboon()
     end
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_climb_animation_mesh_indices[1] = new_mesh(resources.MeshBaboon4);
-        g_climb_animation_mesh_indices[2] = new_mesh(resources.MeshBaboon);
-        g_climb_animation_mesh_indices[3] = new_mesh(resources.MeshBaboon2);
-        g_climb_animation_mesh_indices[4] = new_mesh(resources.MeshBaboon1);
-        g_climb_animation_mesh_indices[5] = new_mesh(resources.MeshBaboon3);
-        g_current_pos_x = Module.StartX;
-        g_current_pos_y = Module.StartY;
-        g_current_pos_z = 0;
-        g_current_velocity_y = -0.5;
-        g_climb_animation_current_mesh_index = 1;
-    end
+function Module.initialize()
+    g_climb_animation_mesh_indices[1] = new_mesh(resources.MeshBaboon4);
+    g_climb_animation_mesh_indices[2] = new_mesh(resources.MeshBaboon);
+    g_climb_animation_mesh_indices[3] = new_mesh(resources.MeshBaboon2);
+    g_climb_animation_mesh_indices[4] = new_mesh(resources.MeshBaboon1);
+    g_climb_animation_mesh_indices[5] = new_mesh(resources.MeshBaboon3);
+    g_current_pos_x = Module.StartX;
+    g_current_pos_y = Module.StartY;
+    g_current_pos_z = 0;
+    g_current_velocity_y = -0.5;
+    g_climb_animation_current_mesh_index = 1;
+end
 
+function Module.update()
     select_object_mesh(g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index]);
     set_object_visual_data(0, 0);
 
-    MoveBaboon();
+    MoveBaboon_();
 
     select_object_mesh(g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index]);
     script_selected_mesh_set_identity_matrix();

@@ -20,8 +20,7 @@ local player_state = {
 };
 player_state = read_only.make_table_read_only(player_state);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
+local g_title_is_done_scrolling = false;
 
 local g_hud_overlay;
 local propellers = {};
@@ -63,70 +62,12 @@ local function ConveyPlatform_(iPlat, iDist)
     -- end
 end
 
-local function CreateProp_(iX, iY, iR, iZ)
-    local new_prop = prop_module();
-    new_prop.GameLogic = g_game_logic;
-    new_prop.iX = iX;
-    new_prop.iY = iY;
-    new_prop.iR = iR;
-    new_prop.iZ = iZ;
-    table.insert(propellers, new_prop);
-end
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-local function CreateWhomper_(iX, iY, iR, iRV)
-    local new_whomper = whomper_module();
-    new_whomper.GameLogic = g_game_logic;
-    new_whomper.iX = iX;
-    new_whomper.iY = iY;
-    new_whomper.iR = iR;
-    new_whomper.iRV = iRV;
-    table.insert(whompers, new_whomper);
-end
-
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        CreateWhomper_(86, 28, 50, 3);
-        CreateWhomper_(100, 28, 0, 3);
-        CreateWhomper_(114, 28, 1, -3);
-        CreateWhomper_(128, 28, -90, 1);
-
-        CreateWhomper_(55, 143, 0, 3);
-        CreateWhomper_(73, 143, 50, 3);
-        CreateWhomper_(95, 143, -50, -3);
-
-        CreateProp_(34, 90, 80, 5);
-        CreateProp_(34, 90, 120, 5);
-
-        CreateProp_(60, 46, 90, 2);
-        CreateProp_(60, 56, 90, 2);
-
-        CreateProp_(120, 46, 335, 2);
-        CreateProp_(120, 46, 25, 2);
-
-        CreateProp_(99, 105, 80, 2);
-        CreateProp_(101, 97, 25, 2);
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     ConveyPlatform_(1, 0.04);
@@ -141,13 +82,74 @@ function update(game_input, is_initializing)
     for _, whomper in ipairs(whompers) do
         whomper.update();
     end
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+local function CreateProp_(iX, iY, iR, iZ)
+    local new_prop = prop_module();
+    new_prop.GameLogic = g_game_logic;
+    new_prop.iX = iX;
+    new_prop.iY = iY;
+    new_prop.iR = iR;
+    new_prop.iZ = iZ;
+    new_prop.initialize();
+    table.insert(propellers, new_prop);
+end
+
+local function CreateWhomper_(iX, iY, iR, iRV)
+    local new_whomper = whomper_module();
+    new_whomper.GameLogic = g_game_logic;
+    new_whomper.iX = iX;
+    new_whomper.iY = iY;
+    new_whomper.iR = iR;
+    new_whomper.iRV = iRV;
+    new_whomper.initialize();
+    table.insert(whompers, new_whomper);
+end
+
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    CreateWhomper_(86, 28, 50, 3);
+    CreateWhomper_(100, 28, 0, 3);
+    CreateWhomper_(114, 28, 1, -3);
+    CreateWhomper_(128, 28, -90, 1);
+
+    CreateWhomper_(55, 143, 0, 3);
+    CreateWhomper_(73, 143, 50, 3);
+    CreateWhomper_(95, 143, -50, -3);
+
+    CreateProp_(34, 90, 80, 5);
+    CreateProp_(34, 90, 120, 5);
+
+    CreateProp_(60, 46, 90, 2);
+    CreateProp_(60, 56, 90, 2);
+
+    CreateProp_(120, 46, 335, 2);
+    CreateProp_(120, 46, 25, 2);
+
+    CreateProp_(99, 105, 80, 2);
+    CreateProp_(101, 97, 25, 2);
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
 
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()

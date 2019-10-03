@@ -48,8 +48,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -68,55 +66,42 @@ local g_object_3_animation_frame = 0;
 local g_is_object_4_moving = false;
 local g_object_4_animation_frame = 0;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function MoveLadder_(iLadder, iPos)
+    select_ladder(iLadder);
+    local iX = get_script_selected_level_object_x1() + 508;
+    local iY = (get_script_selected_level_object_y1() + get_script_selected_level_object_y2()) / 2;
+    local iZ = get_script_selected_level_object_z1();
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_translate_matrix(0 - iX, 0 - iY, 0 - iZ);
+    script_selected_mesh_rotate_matrix_z(iPos * 2);
+    script_selected_mesh_rotate_matrix_x(iPos);
+    script_selected_mesh_translate_matrix(iX, iY, iZ - iPos);
+end
 
-        g_hud_overlay = hud_overlay_module();
+local function MovePlatform_(iPlat, iRotate, iTran, get_platform_x_value, get_platform_y_value)
+    select_platform(iPlat);
+    local iPlatX = get_platform_x_value();
+    local iPlatY = get_platform_y_value();
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
+    script_selected_mesh_rotate_matrix_z(iRotate);
+    script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
+end
 
-        local iTemp = bullet_module();
-        iTemp.GameLogic = g_game_logic;
-        iTemp.FramesToWait = 100;
-        iTemp.Mesh1Index = resources.MeshBullet1;
-        iTemp.Mesh2Index = resources.MeshBullet2;
-        iTemp.TextureIndex = resources.TextureBullet;
-        iTemp.FireSoundIndex = resources.SoundFire;
-        table.insert(g_bullets, iTemp);
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        iTemp = bullet_module();
-        iTemp.GameLogic = g_game_logic;
-        iTemp.FramesToWait = 30;
-        iTemp.Mesh1Index = resources.MeshBullet1;
-        iTemp.Mesh2Index = resources.MeshBullet2;
-        iTemp.TextureIndex = resources.TextureBullet;
-        iTemp.FireSoundIndex = resources.SoundFire;
-        table.insert(g_bullets, iTemp);
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     if g_is_object_1_moving then
         g_object_1_animation_frame = g_object_1_animation_frame + 3;
 
-        MovePlatform(1, 0 - g_object_1_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
-        MovePlatform(2, g_object_1_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
+        MovePlatform_(1, 0 - g_object_1_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
+        MovePlatform_(2, g_object_1_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
         --       Seems maybe should delete the line?
         -- setext(#compose, 1);
@@ -137,8 +122,8 @@ function update(game_input, is_initializing)
     if g_is_object_2_moving then
         g_object_2_animation_frame = g_object_2_animation_frame + 3;
 
-        MovePlatform(3, 0 - g_object_2_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
-        MovePlatform(4, g_object_2_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
+        MovePlatform_(3, 0 - g_object_2_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
+        MovePlatform_(4, g_object_2_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
         --       Seems maybe should delete the line?
         -- setext(#compose, 1);
@@ -160,7 +145,7 @@ function update(game_input, is_initializing)
     if g_is_object_3_moving then
         g_object_3_animation_frame = g_object_3_animation_frame + 1;
 
-        MoveLadder(1, g_object_3_animation_frame);
+        MoveLadder_(1, g_object_3_animation_frame);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
         --       Seems maybe should delete the line?
         -- setext(#compose, 1);
@@ -175,7 +160,7 @@ function update(game_input, is_initializing)
     if g_is_object_4_moving then
         g_object_4_animation_frame = g_object_4_animation_frame + 1;
 
-        MoveLadder(2, g_object_4_animation_frame);
+        MoveLadder_(2, g_object_4_animation_frame);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
         --       Seems maybe should delete the line?
         -- setext(#compose, 1);
@@ -190,36 +175,52 @@ function update(game_input, is_initializing)
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+
+    g_hud_overlay = hud_overlay_module();
+
+    local iTemp = bullet_module();
+    iTemp.GameLogic = g_game_logic;
+    iTemp.FramesToWait = 100;
+    iTemp.Mesh1Index = resources.MeshBullet1;
+    iTemp.Mesh2Index = resources.MeshBullet2;
+    iTemp.TextureIndex = resources.TextureBullet;
+    iTemp.FireSoundIndex = resources.SoundFire;
+    iTemp.initialize();
+    table.insert(g_bullets, iTemp);
+
+    iTemp = bullet_module();
+    iTemp.GameLogic = g_game_logic;
+    iTemp.FramesToWait = 30;
+    iTemp.Mesh1Index = resources.MeshBullet1;
+    iTemp.Mesh2Index = resources.MeshBullet2;
+    iTemp.TextureIndex = resources.TextureBullet;
+    iTemp.FireSoundIndex = resources.SoundFire;
+    iTemp.initialize();
+    table.insert(g_bullets, iTemp);
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
 
-    return true;
-end
-
-function MoveLadder(iLadder, iPos)
-    select_ladder(iLadder);
-    local iX = get_script_selected_level_object_x1() + 508;
-    local iY = (get_script_selected_level_object_y1() + get_script_selected_level_object_y2()) / 2;
-    local iZ = get_script_selected_level_object_z1();
-
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(0 - iX, 0 - iY, 0 - iZ);
-    script_selected_mesh_rotate_matrix_z(iPos * 2);
-    script_selected_mesh_rotate_matrix_x(iPos);
-    script_selected_mesh_translate_matrix(iX, iY, iZ - iPos);
-end
-
-function MovePlatform(iPlat, iRotate, iTran, get_platform_x_value, get_platform_y_value)
-    select_platform(iPlat);
-    local iPlatX = get_platform_x_value();
-    local iPlatY = get_platform_y_value();
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
-    script_selected_mesh_rotate_matrix_z(iRotate);
-    script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
+    ProgressLevel_(game_input);
 end
 
 function on_collect_donut(game_input, iDonut)
@@ -251,12 +252,10 @@ function on_collect_donut(game_input, iDonut)
 end
 
 function reset()
-    if g_game_logic then
-        set_player_current_position_x(80);
-        set_player_current_position_y(65);
-        set_player_current_position_z(9);
-        g_game_logic.set_player_current_state(player_state.JSNORMAL);
-    end
+    set_player_current_position_x(80);
+    set_player_current_position_y(65);
+    set_player_current_position_z(9);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, bullet in ipairs(g_bullets) do
         bullet.reset_pos();

@@ -53,62 +53,62 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
 local g_bear = nil;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        g_bear = bear_module();
-        g_bear.GameLogic = g_game_logic;
-        g_bear.StandRightMeshResourceIndex = resources.MeshFyStand;
-        g_bear.MoveRightMeshResourceIndices = { resources.MeshFyRight1, resources.MeshFyRight2 };
-        g_bear.FallRightMeshResourceIndices = { resources.MeshFyFR1, resources.MeshFyFR2 };
-        g_bear.RestRightMeshResourceIndex = resources.MeshFyFlopR;
-        g_bear.ShakeRightMeshResourceIndices = { resources.MeshFySR1, resources.MeshFySR2 };
-        g_bear.StandLeftMeshResourceIndex = resources.MeshFyStandL;
-        g_bear.MoveLeftMeshResourceIndices = { resources.MeshFyLeft1, resources.MeshFyLeft2 };
-        g_bear.FallLeftMeshResourceIndices = { resources.MeshFyFL1, resources.MeshFyFL2 };
-        g_bear.RestLeftMeshResourceIndex = resources.MeshFyFlopL;
-        g_bear.ShakeLeftMeshResourceIndices = { resources.MeshFySL1, resources.MeshFySL2 };
-        g_bear.ClimbMeshResourceIndices = { resources.MeshFyLC1, resources.MeshFyLC2 };
-        g_bear.TextureResourceIndex = resources.TextureFur;
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     g_bear.update();
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    g_bear = bear_module();
+    g_bear.GameLogic = g_game_logic;
+    g_bear.StandRightMeshResourceIndex = resources.MeshFyStand;
+    g_bear.MoveRightMeshResourceIndices = { resources.MeshFyRight1, resources.MeshFyRight2 };
+    g_bear.FallRightMeshResourceIndices = { resources.MeshFyFR1, resources.MeshFyFR2 };
+    g_bear.RestRightMeshResourceIndex = resources.MeshFyFlopR;
+    g_bear.ShakeRightMeshResourceIndices = { resources.MeshFySR1, resources.MeshFySR2 };
+    g_bear.StandLeftMeshResourceIndex = resources.MeshFyStandL;
+    g_bear.MoveLeftMeshResourceIndices = { resources.MeshFyLeft1, resources.MeshFyLeft2 };
+    g_bear.FallLeftMeshResourceIndices = { resources.MeshFyFL1, resources.MeshFyFL2 };
+    g_bear.RestLeftMeshResourceIndex = resources.MeshFyFlopL;
+    g_bear.ShakeLeftMeshResourceIndices = { resources.MeshFySL1, resources.MeshFySL2 };
+    g_bear.ClimbMeshResourceIndices = { resources.MeshFyLC1, resources.MeshFyLC2 };
+    g_bear.TextureResourceIndex = resources.TextureFur;
+    g_bear.initialize();
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
 
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()

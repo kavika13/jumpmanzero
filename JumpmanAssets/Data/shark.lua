@@ -13,8 +13,6 @@ Module.CurrentPosZ = 0;
 Module.CurrentVelocityX = 0;
 Module.CurrentVelocityY = 0;
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_current_animation_frame_index;
 local g_move_animation_frame_index = 0;
@@ -22,7 +20,7 @@ local g_move_animation_frame_counter = 0;
 local g_turn_animation_frame_counter = 0;
 local g_turn_animation_is_active = false;
 
-local function PlayerMoving(game_input)
+local function PlayerMoving_(game_input)
     if game_input.move_left_action.is_pressed or game_input.move_right_action.is_pressed then
         return true;
     end
@@ -34,7 +32,7 @@ local function PlayerMoving(game_input)
     return false;
 end
 
-local function MoveShark(game_input)
+local function MoveShark_(game_input)
     local player_current_pos_x = get_player_current_position_x();
     local player_current_pos_y = get_player_current_position_y();
 
@@ -54,7 +52,7 @@ local function MoveShark(game_input)
         is_player_visible = true;
     end
 
-    if PlayerMoving(game_input) == 0 or player_current_pos_y > 113 then
+    if PlayerMoving_(game_input) == 0 or player_current_pos_y > 113 then
         is_player_visible = false;
     end
 
@@ -147,49 +145,47 @@ local function MoveShark(game_input)
     end
 end
 
+function Module.initialize()
+    g_animation_mesh_indices[1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
+    prioritize_object();
+    g_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
+    prioritize_object();
+    g_animation_mesh_indices[3] = new_mesh(Module.MoveRightMeshResourceIndices[3]);
+    prioritize_object();
+    g_animation_mesh_indices[4] = new_mesh(Module.MoveRightMeshResourceIndices[4]);
+    prioritize_object();
+
+    g_animation_mesh_indices[5] = new_mesh(Module.TurnRightMeshResourceIndices[1]);
+    prioritize_object();
+    g_animation_mesh_indices[6] = new_mesh(Module.TurnRightMeshResourceIndices[2]);
+    prioritize_object();
+    g_animation_mesh_indices[7] = new_mesh(Module.TurnRightMeshResourceIndices[3]);
+    prioritize_object();
+
+    g_animation_mesh_indices[11] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
+    prioritize_object();
+    g_animation_mesh_indices[12] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
+    prioritize_object();
+    g_animation_mesh_indices[13] = new_mesh(Module.MoveLeftMeshResourceIndices[3]);
+    prioritize_object();
+    g_animation_mesh_indices[14] = new_mesh(Module.MoveLeftMeshResourceIndices[4]);
+    prioritize_object();
+
+    g_animation_mesh_indices[15] = new_mesh(Module.TurnLeftMeshResourceIndices[1]);
+    prioritize_object();
+    g_animation_mesh_indices[16] = new_mesh(Module.TurnLeftMeshResourceIndices[2]);
+    prioritize_object();
+    g_animation_mesh_indices[17] = new_mesh(Module.TurnLeftMeshResourceIndices[3]);
+    prioritize_object();
+
+    Module.CurrentPosX = Module.StartPosX;
+    Module.CurrentPosY = Module.StartPosY;
+    Module.CurrentPosZ = 0.05;
+    Module.CurrentVelocityX = 1;
+    g_current_animation_frame_index = 1;
+end
+
 function Module.update(game_input)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_animation_mesh_indices[1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
-        prioritize_object();
-        g_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
-        prioritize_object();
-        g_animation_mesh_indices[3] = new_mesh(Module.MoveRightMeshResourceIndices[3]);
-        prioritize_object();
-        g_animation_mesh_indices[4] = new_mesh(Module.MoveRightMeshResourceIndices[4]);
-        prioritize_object();
-
-        g_animation_mesh_indices[5] = new_mesh(Module.TurnRightMeshResourceIndices[1]);
-        prioritize_object();
-        g_animation_mesh_indices[6] = new_mesh(Module.TurnRightMeshResourceIndices[2]);
-        prioritize_object();
-        g_animation_mesh_indices[7] = new_mesh(Module.TurnRightMeshResourceIndices[3]);
-        prioritize_object();
-
-        g_animation_mesh_indices[11] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
-        prioritize_object();
-        g_animation_mesh_indices[12] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
-        prioritize_object();
-        g_animation_mesh_indices[13] = new_mesh(Module.MoveLeftMeshResourceIndices[3]);
-        prioritize_object();
-        g_animation_mesh_indices[14] = new_mesh(Module.MoveLeftMeshResourceIndices[4]);
-        prioritize_object();
-
-        g_animation_mesh_indices[15] = new_mesh(Module.TurnLeftMeshResourceIndices[1]);
-        prioritize_object();
-        g_animation_mesh_indices[16] = new_mesh(Module.TurnLeftMeshResourceIndices[2]);
-        prioritize_object();
-        g_animation_mesh_indices[17] = new_mesh(Module.TurnLeftMeshResourceIndices[3]);
-        prioritize_object();
-
-        Module.CurrentPosX = Module.StartPosX;
-        Module.CurrentPosY = Module.StartPosY;
-        Module.CurrentPosZ = 0.05;
-        Module.CurrentVelocityX = 1;
-        g_current_animation_frame_index = 1;
-    end
-
     select_object_mesh(g_animation_mesh_indices[g_current_animation_frame_index]);
     set_object_visual_data(0, 0);
 
@@ -205,7 +201,7 @@ function Module.update(game_input)
         g_move_animation_frame_counter = 0;
     end
 
-    MoveShark(game_input);
+    MoveShark_(game_input);
 
     select_object_mesh(g_animation_mesh_indices[g_current_animation_frame_index]);
     script_selected_mesh_set_identity_matrix();

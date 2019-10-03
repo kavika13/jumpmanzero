@@ -1,5 +1,7 @@
 local Module = {};
 
+local kBlastParticleCount = 20;
+
 Module.PlayAreaCircumference = 0;
 Module.DonutIndex = 0;
 Module.DonutTextureResourceIndex = 0;
@@ -9,8 +11,6 @@ Module.BlastSoundResourceIndex = 0;
 Module.ShipPosX = 0;
 Module.ShipPosY = 0;
 Module.IsLongFinalBlast = false;
-
-local g_is_initialized = false;
 
 local g_animation_frames_since_launched = 0;
 
@@ -59,20 +59,15 @@ local function DoBlasting()
     end
 end
 
-function Module.update()
-    local iTemp = 0;
+function Module.initialize()
+    for iTemp = 0, kBlastParticleCount - 1 do
+        g_blast_particle_mesh_indices[iTemp] = new_mesh(Module.BlastParticleMeshResourceIndex);
+    end
+end
 
+function Module.update()
     if g_animation_frames_since_launched == 100 then
         return;
-    end
-
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        while iTemp < 20 do
-            g_blast_particle_mesh_indices[iTemp] = new_mesh(Module.BlastParticleMeshResourceIndex);
-            iTemp = iTemp + 1;
-        end
     end
 
     select_donut(Module.DonutIndex);
@@ -91,10 +86,9 @@ function Module.update()
         end
 
         if g_animation_frames_since_blast_started == 35 and not Module.IsLongFinalBlast then;
-            while iTemp < 20 do
+            for iTemp = 0, kBlastParticleCount - 1 do
                 select_object_mesh(g_blast_particle_mesh_indices[iTemp]);
                 set_object_visual_data(0, 0);
-                iTemp = iTemp + 1;
             end
 
             g_animation_frames_since_launched = 100;

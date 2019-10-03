@@ -23,8 +23,6 @@ local block_status = {
 };
 block_status = read_only.make_table_read_only(block_status);
 
-local g_is_initialized = false;
-
 local g_block_piece_mesh_indices = {};
 
 local g_block_piece_positions_x = {};
@@ -168,18 +166,16 @@ local function InitializeBlock_()
     g_current_block_status = block_status.INITIAL_POSITION;
 end
 
-function Module.update(all_blocks)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        for i = 1, kNUM_BLOCK_PIECES do
-            g_block_piece_mesh_indices[i] = new_mesh(Module.BlockPieceMeshResourceIndex);
-        end
-
-        InitializeBlock_();
-        PutBlockInStartingPos_(all_blocks);
+function Module.initialize(all_blocks)
+    for i = 1, kNUM_BLOCK_PIECES do
+        g_block_piece_mesh_indices[i] = new_mesh(Module.BlockPieceMeshResourceIndex);
     end
 
+    InitializeBlock_();
+    PutBlockInStartingPos_(all_blocks);
+end
+
+function Module.update(all_blocks)
     MoveBlock_(all_blocks);
     DrawBlock_();
 end

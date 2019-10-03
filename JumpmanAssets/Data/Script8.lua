@@ -39,8 +39,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -105,30 +103,12 @@ local function OnSpawnGoo_()
     return new_goo;
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_hud_overlay = hud_overlay_module();
-        g_frames_until_next_goo_spawn = 5;
-        SetStartPos_();
-        MovePyramid_();
-    end
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     g_frames_until_next_goo_spawn = g_frames_until_next_goo_spawn - 1;
@@ -147,6 +127,7 @@ function update(game_input, is_initializing)
         new_goo.InitialPosY[1] = g_goo_spawn_pos_y;
         new_goo.InitialPosY[2] = g_goo_spawn_pos_y;
         new_goo.InitialIsGrowing = true;
+        new_goo.initialize();
         g_currently_spawning_goo = new_goo;
     end
 
@@ -166,13 +147,33 @@ function update(game_input, is_initializing)
     for _, goo in ipairs(g_goos) do
         goo.update();
     end
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_hud_overlay = hud_overlay_module();
+    g_frames_until_next_goo_spawn = 5;
+    SetStartPos_();
+    MovePyramid_();
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
 
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()

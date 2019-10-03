@@ -24,8 +24,6 @@ local status_type = {
 };
 status_type = read_only.make_table_read_only(status_type);
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 local g_animation_frame_counter = 0;
@@ -295,7 +293,9 @@ local function MoveDonut_(all_run_donuts)
     end
 end
 
-local function Initialize_()
+function Module.initialize()
+    g_time_since_spawn = 0;
+
     -- TODO: Don't hard-code frame indices
     g_animation_mesh_indices[0] = new_mesh(Module.MoveMeshResourceIndices[1]);
     g_animation_mesh_indices[1] = new_mesh(Module.MoveMeshResourceIndices[2]);
@@ -307,32 +307,26 @@ local function Initialize_()
     g_animation_mesh_indices[6] = new_mesh(Module.HatchMeshResourceIndices[3]);
     g_animation_mesh_indices[7] = new_mesh(Module.HatchMeshResourceIndices[4]);
     g_animation_mesh_indices[8] = new_mesh(Module.HatchMeshResourceIndices[5]);
+
+    g_current_status = status_type.HATCHING;
+    g_current_status_counter = 0;
+
+    if Module.InitialPosX == 0 then
+        Module.InitialPosX = 50;
+        Module.InitialPosY = 2;
+    end
+
+    g_initial_pos_y = Module.InitialPosY;
+
+    if g_current_pos_x == 0 then
+        -- TODO: Why must pos_x, pos_y, pos_z be set even tho InitialPosX and InitialPosY are set, when hatched?
+        g_current_pos_z = 5;
+        g_current_pos_x = Module.InitialPosX;
+        g_current_pos_y = Module.InitialPosY;
+    end
 end
 
 function Module.update(all_run_donuts)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_time_since_spawn = 0;
-        Initialize_();
-        g_current_status = status_type.HATCHING;
-        g_current_status_counter = 0;
-
-        if Module.InitialPosX == 0 then
-            Module.InitialPosX = 50;
-            Module.InitialPosY = 2;
-        end
-
-        g_initial_pos_y = Module.InitialPosY;
-
-        if g_current_pos_x == 0 then
-            -- TODO: Why must pos_x, pos_y, pos_z be set even tho InitialPosX and InitialPosY are set, when hatched?
-            g_current_pos_z = 5;
-            g_current_pos_x = Module.InitialPosX;
-            g_current_pos_y = Module.InitialPosY;
-        end
-    end
-
     g_time_since_spawn = g_time_since_spawn + 1;
 
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);

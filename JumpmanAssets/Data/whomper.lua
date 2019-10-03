@@ -33,15 +33,13 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
 local g_whomper_mesh_index;
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_whomper_mesh_index = new_mesh(resources.MeshWhomper);
-    end
+function Module.initialize()
+    g_whomper_mesh_index = new_mesh(resources.MeshWhomper);
+end
 
+function Module.update()
     if Module.iR > 10 then
         Module.iRV = Module.iRV - 0.02;
     end

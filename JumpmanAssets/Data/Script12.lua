@@ -41,7 +41,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
 local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
@@ -50,50 +49,53 @@ local g_hud_overlay;
 local g_bees = {};
 local g_collected_donut_count = 0;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_game_logic.OnCollectDonutCallback = on_collect_donut;
-        g_hud_overlay = hud_overlay_module();
-        set_level_extent_x(220);
-    end
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     for _, bee in ipairs(g_bees) do
         bee.update();
     end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
 end
 
-function SpawnBee_()
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    g_hud_overlay = hud_overlay_module();
+    set_level_extent_x(220);
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
+end
+
+local function SpawnBee_()
     local bee = bee_module();
     bee.GameLogic = g_game_logic;
     bee.MoveLeftMeshResourceIndices = { resources.MeshBeeLeft1, resources.MeshBeeLeft2 };
     bee.MoveRightMeshResourceIndices = { resources.MeshBeeRight1, resources.MeshBeeRight2 };
     bee.TextureResourceIndex = resources.TextureBeeTexture;
     bee.BuzzSoundResourceIndex = resources.SoundBee;
+    bee.initialize();
     return bee;
 end
 

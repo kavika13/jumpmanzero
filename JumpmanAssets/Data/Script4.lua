@@ -78,8 +78,6 @@ local ninja_properties = {
 };
 ninja_properties = read_only.make_table_read_only(ninja_properties);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -88,6 +86,45 @@ local g_ninjas = {};
 
 local g_is_trap_door_triggering = false;
 local g_trap_door_fall_progress = 0;
+
+local function MovePlatform_(iPlat, iRotate, iTran)
+    select_platform(iPlat);
+    local iPlatX = get_script_selected_level_object_x2();
+    local iPlatY = get_script_selected_level_object_y2();
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
+    script_selected_mesh_rotate_matrix_z(iRotate);
+    script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
+end
+
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
+    end
+
+    if g_is_trap_door_triggering then
+        g_trap_door_fall_progress = g_trap_door_fall_progress + 3;
+        MovePlatform_(1, g_trap_door_fall_progress, 0);
+        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
+        --       Seems maybe should delete the line?
+        -- setext(#compose, 1);
+        select_platform(1);
+        set_script_selected_level_object_y1(get_script_selected_level_object_y1() - 3);
+
+        if g_trap_door_fall_progress >= 90 then
+            set_script_selected_level_object_y1(500);
+            set_script_selected_level_object_y2(500);
+            g_is_trap_door_triggering = false;
+        end
+    end
+
+    for _, ninja in ipairs(g_ninjas) do
+        ninja.update();
+    end
+end
 
 local function SpawnNinja_(pos_x, pos_y)
     new_ninja = ninja_module();
@@ -113,76 +150,40 @@ local function SpawnNinja_(pos_x, pos_y)
     new_ninja.InitialPosX = pos_x;
     new_ninja.InitialPosY = pos_y;
 
+    new_ninja.initialize();
+
     table.insert(g_ninjas, new_ninja);
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.OnCollectDonutCallback = on_collect_donut;
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    g_hud_overlay = hud_overlay_module();
 
-        g_hud_overlay = hud_overlay_module();
+    SpawnNinja_(120, 8);
+    SpawnNinja_(70, 40);
+    SpawnNinja_(30, 120);
+    SpawnNinja_(110, 80);
 
-        SpawnNinja_(120, 8);
-        SpawnNinja_(70, 40);
-        SpawnNinja_(30, 120);
-        SpawnNinja_(110, 80);
-    end
+    reset();
 
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    if g_is_trap_door_triggering then
-        g_trap_door_fall_progress = g_trap_door_fall_progress + 3;
-        MovePlatform(1, g_trap_door_fall_progress, 0);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
-        -- setext(#compose, 1);
-        select_platform(1);
-        set_script_selected_level_object_y1(get_script_selected_level_object_y1() - 3);
-
-        if g_trap_door_fall_progress >= 90 then
-            set_script_selected_level_object_y1(500);
-            set_script_selected_level_object_y2(500);
-            g_is_trap_door_triggering = false;
-        end
-    end
-
-    for _, ninja in ipairs(g_ninjas) do
-        ninja.update();
-    end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
 end
 
-function MovePlatform(iPlat, iRotate, iTran)
-    select_platform(iPlat);
-    local iPlatX = get_script_selected_level_object_x2();
-    local iPlatY = get_script_selected_level_object_y2();
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
-    script_selected_mesh_rotate_matrix_z(iRotate);
-    script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function on_collect_donut(game_input, iDonut)

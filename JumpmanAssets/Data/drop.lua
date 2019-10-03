@@ -8,8 +8,6 @@ Module.DropTextureResourceIndices = {};
 Module.IsTooCloseToOtherDropsCallback = nil;
 Module.FramesToWait = 0;
 
-local g_is_initialized = false;
-
 local g_frames_to_wait_before_start = 0;
 
 local g_drop_1_mesh_index;
@@ -21,7 +19,7 @@ local g_current_pos_y = 0;
 local g_animation_frame = 0;
 local g_animation_timer = 0;
 
-local function ResetMyPos()
+local function ResetMyPos_()
     local is_done = false;
     local object_count = get_script_object_count();
 
@@ -47,15 +45,14 @@ local function ResetMyPos()
     g_animation_timer = 0;
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_drop_2_mesh_index = new_mesh(Module.DropMeshResourceIndex);
-        g_drop_1_mesh_index = new_mesh(Module.DropMeshResourceIndex);
-        g_frames_to_wait_before_start = Module.FramesToWait;
-        ResetMyPos();
-    end
+function Module.initialize()
+    g_drop_2_mesh_index = new_mesh(Module.DropMeshResourceIndex);
+    g_drop_1_mesh_index = new_mesh(Module.DropMeshResourceIndex);
+    g_frames_to_wait_before_start = Module.FramesToWait;
+    ResetMyPos_();
+end
 
+function Module.update()
     if g_frames_to_wait_before_start > 0 then
         g_frames_to_wait_before_start = g_frames_to_wait_before_start - 1;
         return;
@@ -91,7 +88,7 @@ function Module.update()
         end
 
         if g_animation_frame > 3 then
-            ResetMyPos();
+            ResetMyPos_();
         end
 
         select_object_mesh(g_drop_1_mesh_index);

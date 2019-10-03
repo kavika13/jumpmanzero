@@ -44,8 +44,6 @@ resources = read_only.make_table_read_only(resources);
 
 local kTOP_WAVE_HEIGHT = 125;
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -58,77 +56,47 @@ local g_current_clock_hand_rotation = 0;
 local g_clock_timers = {};
 local kNumClockTimers = 20;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function SetClockPosition_(iPos)
+    select_picture(1);
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_translate_matrix(0 - 64, 0 - 48, 120);
+    script_selected_mesh_set_perspective_matrix();
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
-        select_object_mesh(g_clock_hand_mesh_index);
-        set_object_visual_data(resources.TextureBlack, 1);
-
-        g_wave = pause_wave_module();
-        g_wave.GameLogic = g_game_logic;
-        g_wave.SeaMeshResourceIndex = resources.MeshSea;
-        g_wave.WaveMeshResourceIndex = resources.MeshWave;
-        g_wave.SeaTextureResourceIndex = resources.TextureSea;
-        g_wave.Wave1TextureResourceIndex = resources.TextureWave1;
-        g_wave.Wave2TextureResourceIndex = resources.TextureWave2;
-        g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
-
-        g_clock_timers[10] = 1;
-        g_clock_timers[11] = 1;
-        g_clock_timers[12] = 1;
-        g_clock_timers[13] = 1;
-        g_clock_timers[14] = 1;
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    if g_clock_num_frames_left > 0 then
-        g_clock_num_frames_left = g_clock_num_frames_left - 1;
-        g_wave.TargetWaveHeight = 0 - 10;
-    else
-        g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
-    end
-
-    SetClockPosition(0 - g_clock_num_frames_left);
-    SpinLittleClocks();
-    CollideLittleClocks();
-
-    g_wave.update();
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
+    select_object_mesh(g_clock_hand_mesh_index);
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_rotate_matrix_z(iPos);
+    script_selected_mesh_translate_matrix(0 - 54, 0 - 38, 120);
+    script_selected_mesh_set_perspective_matrix();
 end
 
-function CollideLittleClocks()
+local function SpinLittleClocks_()
+    g_current_clock_hand_rotation = g_current_clock_hand_rotation + 5;
+
+    if g_current_clock_hand_rotation == 90 then
+        g_current_clock_hand_rotation = 270;
+    end
+
+    if g_current_clock_hand_rotation == 360 then
+        g_current_clock_hand_rotation = 0;
+    end
+end
+
+local function SpinClock_(iPic)
+    select_picture(iPic);
+    local iObjX = get_script_selected_level_object_x1();
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_translate_matrix(0 - iObjX, 0, 0);
+    script_selected_mesh_rotate_matrix_y(g_current_clock_hand_rotation);
+    script_selected_mesh_translate_matrix(iObjX, 0, 7);
+    set_object_visual_data(resources.TextureStopWatch, 1);
+end
+
+local function CollideLittleClocks_()
     local iLoop = 10;
 
     while iLoop < kNumClockTimers do
         if g_clock_timers[iLoop] and g_clock_timers[iLoop] > 0 and g_clock_timers[iLoop] < 10 then
-            SpinClock(iLoop);
+            SpinClock_(iLoop);
             select_picture(iLoop);
             local iClockX = get_script_selected_level_object_x1();
             local iClockY = get_script_selected_level_object_y1();
@@ -152,39 +120,71 @@ function CollideLittleClocks()
     end
 end
 
-function SpinClock(iPic)
-    select_picture(iPic);
-    local iObjX = get_script_selected_level_object_x1();
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(0 - iObjX, 0, 0);
-    script_selected_mesh_rotate_matrix_y(g_current_clock_hand_rotation);
-    script_selected_mesh_translate_matrix(iObjX, 0, 7);
-    set_object_visual_data(resources.TextureStopWatch, 1);
-end
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-function SpinLittleClocks()
-    g_current_clock_hand_rotation = g_current_clock_hand_rotation + 5;
-
-    if g_current_clock_hand_rotation == 90 then
-        g_current_clock_hand_rotation = 270;
+    if player_won then
+        return;
     end
 
-    if g_current_clock_hand_rotation == 360 then
-        g_current_clock_hand_rotation = 0;
+    if g_clock_num_frames_left > 0 then
+        g_clock_num_frames_left = g_clock_num_frames_left - 1;
+        g_wave.TargetWaveHeight = 0 - 10;
+    else
+        g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
     end
+
+    SetClockPosition_(0 - g_clock_num_frames_left);
+    SpinLittleClocks_();
+    CollideLittleClocks_();
+
+    g_wave.update();
 end
 
-function SetClockPosition(iPos)
-    select_picture(1);
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(0 - 64, 0 - 48, 120);
-    script_selected_mesh_set_perspective_matrix();
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
 
+    g_hud_overlay = hud_overlay_module();
+
+    g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
     select_object_mesh(g_clock_hand_mesh_index);
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_rotate_matrix_z(iPos);
-    script_selected_mesh_translate_matrix(0 - 54, 0 - 38, 120);
-    script_selected_mesh_set_perspective_matrix();
+    set_object_visual_data(resources.TextureBlack, 1);
+
+    g_wave = pause_wave_module();
+    g_wave.GameLogic = g_game_logic;
+    g_wave.SeaMeshResourceIndex = resources.MeshSea;
+    g_wave.WaveMeshResourceIndex = resources.MeshWave;
+    g_wave.SeaTextureResourceIndex = resources.TextureSea;
+    g_wave.Wave1TextureResourceIndex = resources.TextureWave1;
+    g_wave.Wave2TextureResourceIndex = resources.TextureWave2;
+    g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
+    g_wave.initialize();
+
+    g_clock_timers[10] = 1;
+    g_clock_timers[11] = 1;
+    g_clock_timers[12] = 1;
+    g_clock_timers[13] = 1;
+    g_clock_timers[14] = 1;
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()

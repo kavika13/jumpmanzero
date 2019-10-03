@@ -45,8 +45,6 @@ local move_direction = {
 };
 move_direction = read_only.make_table_read_only(move_direction);
 
-local g_is_initialized = false;
-
 local g_spawn_cooldown_timer = 0;
 
 local g_animation_mesh_indices = {};
@@ -280,7 +278,22 @@ local function MoveSheep_()
     end
 end
 
-local function Initialize_()
+function Module.copy_leader_properties(leader_sheep)
+    local iX, iY, iZ, dir = leader_sheep.get_movement_properties();
+    g_current_pos_x = iX;
+    g_current_pos_y = iY;
+    g_current_pos_z = iZ;
+    g_current_move_direction = dir;
+
+    -- TODO: Do these need to be copied?
+    local frame, air_time, count, ladder_z = leader_sheep.get_animation_properties();
+    g_animation_current_frame = frame;
+    g_jump_animation_time = air_time;
+    g_time_until_next_direction_change = count;
+    g_current_ladder_pos_z = ladder_z;
+end
+
+function Module.initialize()
     g_spawn_cooldown_timer = Module.SpawnCooldownTimer;
 
     g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = new_mesh(Module.SheepMoveLeftMeshResourceIndices[1]);
@@ -304,27 +317,7 @@ local function Initialize_()
     g_copter_mesh_index = new_mesh(Module.CopterMeshResourceIndex);
 end
 
-function Module.copy_leader_properties(leader_sheep)
-    local iX, iY, iZ, dir = leader_sheep.get_movement_properties();
-    g_current_pos_x = iX;
-    g_current_pos_y = iY;
-    g_current_pos_z = iZ;
-    g_current_move_direction = dir;
-
-    -- TODO: Do these need to be copied?
-    local frame, air_time, count, ladder_z = leader_sheep.get_animation_properties();
-    g_animation_current_frame = frame;
-    g_jump_animation_time = air_time;
-    g_time_until_next_direction_change = count;
-    g_current_ladder_pos_z = ladder_z;
-end
-
 function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        Initialize_();
-    end
-
     if g_spawn_cooldown_timer > 0 then
         g_spawn_cooldown_timer = g_spawn_cooldown_timer - 1;
         select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);

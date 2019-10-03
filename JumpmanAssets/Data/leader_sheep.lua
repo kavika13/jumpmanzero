@@ -43,8 +43,6 @@ local move_direction = {
 };
 move_direction = read_only.make_table_read_only(move_direction);
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 3 frames increments alt)
@@ -345,7 +343,7 @@ local function MoveSheep_(follower_sheep)
     end
 end
 
-local function Initialize_()
+function Module.initialize()
     g_current_pos_x = 250;
     g_current_pos_y = 115;
     g_current_pos_z = 2;
@@ -373,11 +371,6 @@ local function Initialize_()
 end
 
 function Module.update(follower_sheep)
-    if not g_is_initialized then
-        g_is_initialized = true;
-        Initialize_();
-    end
-
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_object_visual_data(0, 0);
 

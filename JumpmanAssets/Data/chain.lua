@@ -9,6 +9,8 @@ Module.LinkTextureResourceIndex = 0;
 
 Module.ChainLength = 30;
 
+local kCHAIN_LINK_COUNT = 30;
+
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
@@ -27,8 +29,6 @@ player_state = read_only.make_table_read_only(player_state);
 
 local kPLAYER_CHAIN_OFFSET_Y = 6;
 local kPLAYER_CHAIN_OFFSET_Z = 2;
-
-local g_is_initialized = false;
 
 local g_link_mesh_indices = {};
 
@@ -58,8 +58,9 @@ local function PositionChain_()
     local iOX = 0;
     local iOY = 0;
 
-    for iLink = 0, 29 do
+    for iLink = 0, kCHAIN_LINK_COUNT - 1 do
         -- TODO: Align links better with anchor point. They seem to wiggle around. Might be because of skipping link 0?
+        -- TODO: Also, link 0 seems like it might be floating off at 0,0 in the level. Adjust math to fix that
         local iSX = ((player_x * iLink) + (g_chain_anchor_pos_x * (30 - iLink))) / 30;
         local iSY = ((player_y * iLink) + (g_chain_anchor_pos_y * (30 - iLink))) / 30;
         local ToCenter = math.abs(15 - iLink) / 15;
@@ -222,16 +223,14 @@ local function EnforceMovement_()
     end
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        for iLoop = 0, 29 do
-            g_link_mesh_indices[iLoop] = new_mesh(Module.LinkMeshResourceIndex);
-            set_object_visual_data(Module.LinkTextureResourceIndex, 1);
-        end
+function Module.initialize()
+    for iLoop = 0, kCHAIN_LINK_COUNT -1 do
+        g_link_mesh_indices[iLoop] = new_mesh(Module.LinkMeshResourceIndex);
+        set_object_visual_data(Module.LinkTextureResourceIndex, 1);
     end
+end
 
+function Module.update()
     PositionChain_();
 
     g_dont_pull_player_up = false;

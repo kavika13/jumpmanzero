@@ -42,8 +42,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_init_stage_index = 0;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -54,84 +52,81 @@ local g_chain;
 local g_chain_length;
 local g_target_length;
 
-function update(game_input, is_initializing)
-    if g_init_stage_index == 1 then
-        for iLoop = 1, 4 do
-            local iTemp = bullet_module();
-            iTemp.GameLogic = g_game_logic;
-            iTemp.Mesh1Index = resources.MeshBullet1;
-            iTemp.Mesh2Index = resources.MeshBullet2;
-            iTemp.TextureIndex = resources.TextureBullet;
-            iTemp.FireSoundIndex = resources.SoundFire;
-            table.insert(g_bullets, iTemp);
-        end
-
-        g_init_stage_index = 2;
-
-        select_picture(1);
-        prioritize_object();
-
-        select_picture(100);
-        prioritize_object();
+function SetChainLength_()
+    if g_chain_length < g_target_length then
+        g_chain_length = g_chain_length + 1;
     end
 
-    if g_init_stage_index == 0 then
-        g_init_stage_index = 1;
-        g_chain_length = 10;
-        g_target_length = 20;
+    g_chain.ChainLength = g_chain_length;
+end
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_game_logic.OnCollectDonutCallback = on_collect_donut;
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        g_hud_overlay = hud_overlay_module();
-
-        g_chain = chain_module();
-        g_chain.GameLogic = g_game_logic;
-        g_chain.LinkMeshResourceIndex = resources.MeshChain;
-        g_chain.LinkTextureResourceIndex = resources.TextureChain;
+    if player_won then
+        return;
     end
 
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    SetChainLength();
+    SetChainLength_();
 
     g_chain.update();
 
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
-
-    if not g_is_first_update_complete then
-        if g_init_stage_index > 1 then
-            g_is_first_update_complete = true;
-        end
-
-        return false;
-    end
-
-    return true;
 end
 
-function SetChainLength()
-    if g_chain_length < g_target_length then
-        g_chain_length = g_chain_length + 1;
+function initialize(game_input)
+    g_chain_length = 10;
+    g_target_length = 20;
+
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+
+    g_hud_overlay = hud_overlay_module();
+
+    g_chain = chain_module();
+    g_chain.GameLogic = g_game_logic;
+    g_chain.LinkMeshResourceIndex = resources.MeshChain;
+    g_chain.LinkTextureResourceIndex = resources.TextureChain;
+    g_chain.initialize();
+
+    for iLoop = 1, 4 do
+        local new_bullet = bullet_module();
+        new_bullet.GameLogic = g_game_logic;
+        new_bullet.Mesh1Index = resources.MeshBullet1;
+        new_bullet.Mesh2Index = resources.MeshBullet2;
+        new_bullet.TextureIndex = resources.TextureBullet;
+        new_bullet.FireSoundIndex = resources.SoundFire;
+        new_bullet.initialize();
+        table.insert(g_bullets, new_bullet);
     end
 
-    g_chain.ChainLength = g_chain_length;
+    select_picture(1);
+    prioritize_object();
+
+    select_picture(100);
+    prioritize_object();
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function on_collect_donut(game_input, iDonut)

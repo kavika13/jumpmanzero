@@ -63,8 +63,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -76,7 +74,7 @@ local g_bullet;
 local g_block_object_indices = {};
 local kNUM_BLOCKS = 9;
 
-local function GetColor(iNum)
+local function GetColor_(iNum)
     return resources.TextureBoringBlue + iNum - 1;
 end
 
@@ -101,7 +99,7 @@ local function CreateBlock_(iNum)
     local new_block = puzzle_block_module();
     new_block.GameLogic = g_game_logic;
     new_block.BlockPieceMeshResourceIndex = resources.MeshGoo;
-    new_block.BlockPieceTextureResourceIndex = GetColor(iNum);
+    new_block.BlockPieceTextureResourceIndex = GetColor_(iNum);
     AssignBlockPieceInitialPositions_(g_puzzle_solution, new_block, iNum);
     return new_block;
 end
@@ -109,6 +107,10 @@ end
 local function InitializeBlocks_()
     for iTemp = 1, kNUM_BLOCKS do
         table.insert(g_puzzle_blocks, CreateBlock_(iTemp));
+    end
+
+    for _, puzzle_block in ipairs(g_puzzle_blocks) do
+        puzzle_block.initialize(g_puzzle_blocks);
     end
 end
 
@@ -126,48 +128,12 @@ local function ResetBlocks_()
     end
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_game_logic.OnCollectDonutCallback = on_collect_donut;
-
-        g_hud_overlay = hud_overlay_module();
-
-        set_current_camera_mode(camera_mode.PerspectiveFar);
-
-        select_donut(2);
-        set_script_selected_level_object_visible(0);
-
-        g_puzzle_solution = puzzle_solution_module();
-        g_puzzle_solution.find_new_layout();
-
-        InitializeBlocks_();
-
-        g_bullet = bullet_module();
-        g_bullet.GameLogic = g_game_logic;
-        g_bullet.FramesToWait = 100;
-        g_bullet.Mesh1Index = resources.MeshBullet1;
-        g_bullet.Mesh2Index = resources.MeshBullet2;
-        g_bullet.TextureIndex = resources.TextureBullet;
-        g_bullet.FireSoundIndex = resources.SoundFire;
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     for _, puzzle_block in ipairs(g_puzzle_blocks) do
@@ -178,16 +144,54 @@ function update(game_input, is_initializing)
 
     -- TODO: Change donut visual state when win imminent? Particles, dancing, glowing?
     -- TODO: Change donut visual state when reset is necessary? Greying out, animation, different "reset" mesh?
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
 end
 
-local function CheckForWin()
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+
+    g_hud_overlay = hud_overlay_module();
+
+    set_current_camera_mode(camera_mode.PerspectiveFar);
+
+    select_donut(2);
+    set_script_selected_level_object_visible(0);
+
+    g_puzzle_solution = puzzle_solution_module();  -- Doesn't have separate initialization function
+    g_puzzle_solution.find_new_layout();
+
+    InitializeBlocks_();
+
+    g_bullet = bullet_module();
+    g_bullet.GameLogic = g_game_logic;
+    g_bullet.FramesToWait = 100;
+    g_bullet.Mesh1Index = resources.MeshBullet1;
+    g_bullet.Mesh2Index = resources.MeshBullet2;
+    g_bullet.TextureIndex = resources.TextureBullet;
+    g_bullet.FireSoundIndex = resources.SoundFire;
+    g_bullet.initialize();
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
+end
+
+local function CheckForWin_()
     for _, puzzle_block in ipairs(g_puzzle_blocks) do
         if puzzle_block.is_above_the_board() then
             return false;
@@ -198,7 +202,7 @@ local function CheckForWin()
 end
 
 function on_collect_donut(game_input, iDonut)
-    if CheckForWin() then
+    if CheckForWin_() then
         g_game_logic.win();
         return;
     end
@@ -222,8 +226,5 @@ function reset()
     set_player_current_position_y(5);
     set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
-
-    if g_is_initialized then
-        g_bullet.reset_pos();
-    end
+    g_bullet.reset_pos();
 end

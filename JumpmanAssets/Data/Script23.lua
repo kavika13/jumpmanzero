@@ -61,14 +61,27 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
 local g_claw = nil;
 local g_jumpers = {};
+
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
+    end
+
+    g_claw.update(g_jumpers);
+
+    for _, jumper in ipairs(g_jumpers) do
+        jumper.update(g_jumpers);
+    end
+end
 
 function SpawnJumper_(start_alive)
     local new_jumper = jumper_module();
@@ -77,61 +90,49 @@ function SpawnJumper_(start_alive)
     new_jumper.EyesMeshResourceIndex = resources.MeshJuEyes;
     new_jumper.TextureResourceIndex = resources.TextureJumper;
     new_jumper.StartAlive = start_alive;
+    new_jumper.initialize();
     return new_jumper;
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
+    g_hud_overlay = hud_overlay_module();
 
-        g_hud_overlay = hud_overlay_module();
+    g_claw = claw_module();
+    g_claw.ClawMeshResourceIndex = resources.MeshClaw;
+    g_claw.ChainMeshResourceIndex = resources.MeshChain;
+    g_claw.DonutTextureResourceIndex = resources.TextureRedMetal;
+    g_claw.ClawTextureResourceIndex = resources.TextureEvenWood;
+    g_claw.ChainTextureResourceIndex = resources.TextureBoringGray;
+    g_claw.initialize();
 
-        g_claw = claw_module();
-        g_claw.ClawMeshResourceIndex = resources.MeshClaw;
-        g_claw.ChainMeshResourceIndex = resources.MeshChain;
-        g_claw.DonutTextureResourceIndex = resources.TextureRedMetal;
-        g_claw.ClawTextureResourceIndex = resources.TextureEvenWood;
-        g_claw.ChainTextureResourceIndex = resources.TextureBoringGray;
+    table.insert(g_jumpers, SpawnJumper_(true));
+    table.insert(g_jumpers, SpawnJumper_(false));
+    table.insert(g_jumpers, SpawnJumper_(true));
+    table.insert(g_jumpers, SpawnJumper_(false));
+    table.insert(g_jumpers, SpawnJumper_(false));
 
-        table.insert(g_jumpers, SpawnJumper_(true));
-        table.insert(g_jumpers, SpawnJumper_(false));
-        table.insert(g_jumpers, SpawnJumper_(true));
-        table.insert(g_jumpers, SpawnJumper_(false));
-        table.insert(g_jumpers, SpawnJumper_(false));
+    set_current_camera_mode(camera_mode.PerspectiveWide);
 
-        set_current_camera_mode(camera_mode.PerspectiveWide);
-    end
+    reset();
 
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
 
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
+function update(game_input)
+    if not g_title_is_done_scrolling then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+        return;
     end
 
-    g_claw.update(g_jumpers);
-
-    for _, jumper in ipairs(g_jumpers) do
-        jumper.update(g_jumpers);
-    end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()

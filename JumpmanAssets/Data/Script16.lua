@@ -46,8 +46,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -63,70 +61,72 @@ local function CreateTurtle_(iX, iY)
     new_turtle.TextureResourceIndex = resources.TextureTurtleTexture;
     new_turtle.InitialPosX = iX;
     new_turtle.InitialPosY = iY;
+    new_turtle.initialize();
     return new_turtle;
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        table.insert(g_turtles, CreateTurtle_(128, 8));
-        table.insert(g_turtles, CreateTurtle_(65, 12));
-        table.insert(g_turtles, CreateTurtle_(80, 10));
-
-        table.insert(g_turtles, CreateTurtle_(10, 66));
-        table.insert(g_turtles, CreateTurtle_(26, 42));
-
-        table.insert(g_turtles, CreateTurtle_(80, 40));
-
-        table.insert(g_turtles, CreateTurtle_(20, 88));
-        table.insert(g_turtles, CreateTurtle_(50, 88));
-
-        table.insert(g_turtles, CreateTurtle_(90, 111));
-        table.insert(g_turtles, CreateTurtle_(120, 113));
-
-        table.insert(g_turtles, CreateTurtle_(20, 118));
-
-        table.insert(g_turtles, CreateTurtle_(49, 144));
-        table.insert(g_turtles, CreateTurtle_(60, 144));
-
-        table.insert(g_turtles, CreateTurtle_(10, 172));
-        table.insert(g_turtles, CreateTurtle_(60, 172));
-
-        table.insert(g_turtles, CreateTurtle_(140, 170));
-        table.insert(g_turtles, CreateTurtle_(140, 145));
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     for _, turtle in ipairs(g_turtles) do
         turtle.update(game_input, g_turtles);
     end
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    table.insert(g_turtles, CreateTurtle_(128, 8));
+    table.insert(g_turtles, CreateTurtle_(65, 12));
+    table.insert(g_turtles, CreateTurtle_(80, 10));
+
+    table.insert(g_turtles, CreateTurtle_(10, 66));
+    table.insert(g_turtles, CreateTurtle_(26, 42));
+
+    table.insert(g_turtles, CreateTurtle_(80, 40));
+
+    table.insert(g_turtles, CreateTurtle_(20, 88));
+    table.insert(g_turtles, CreateTurtle_(50, 88));
+
+    table.insert(g_turtles, CreateTurtle_(90, 111));
+    table.insert(g_turtles, CreateTurtle_(120, 113));
+
+    table.insert(g_turtles, CreateTurtle_(20, 118));
+
+    table.insert(g_turtles, CreateTurtle_(49, 144));
+    table.insert(g_turtles, CreateTurtle_(60, 144));
+
+    table.insert(g_turtles, CreateTurtle_(10, 172));
+    table.insert(g_turtles, CreateTurtle_(60, 172));
+
+    table.insert(g_turtles, CreateTurtle_(140, 170));
+    table.insert(g_turtles, CreateTurtle_(140, 145));
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input, is_initializing)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
 
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()

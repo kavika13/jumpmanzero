@@ -25,8 +25,6 @@ local jumper_status_type = {
 };
 jumper_status_type = read_only.make_table_read_only(jumper_status_type);
 
-local g_is_initialized = false;
-
 local g_claw_mesh_indices = {};
 local g_chain_mesh_index = 0;
 
@@ -220,7 +218,7 @@ local function DrawChain_()
     set_object_visual_data(Module.ChainTextureResourceIndex, 1);
 end
 
-local function Initialize_()
+function Module.initialize()
     g_claw_rotation = 55;
     g_claw_current_pos_x = 40;
     g_claw_current_pos_y = 80;
@@ -234,15 +232,11 @@ local function Initialize_()
     g_claw_mesh_indices[3] = new_mesh(Module.ClawMeshResourceIndex);
 
     g_chain_mesh_index = new_mesh(Module.ChainMeshResourceIndex);
+
+    g_time_until_next_grab = 120;
 end
 
 function Module.update(all_jumpers)
-    if not g_is_initialized then
-        g_is_initialized = true;
-        Initialize_();
-        g_time_until_next_grab = 120;
-    end
-
     MoveChain_(all_jumpers);
 
     g_claw_rotation = g_claw_rotation + math.random(50, 90) / 300;

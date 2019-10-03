@@ -9,8 +9,6 @@ Module.FireSoundIndex = -1;
 
 Module.FramesToWait = 0;  -- TODO: Separate "initial" wait, so it can be reset?
 
-local g_is_initialized = false;
-
 local g_mesh_index_1;
 local g_mesh_index_2;
 
@@ -145,15 +143,14 @@ local function CheckOOB()
     end
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_mesh_index_1 = new_mesh(Module.Mesh1Index);
-        g_mesh_index_2 = new_mesh(Module.Mesh2Index);
-        g_maximum_pos_x = get_level_extent_x() + 40;
-        RestartBullet();
-    end
+function Module.initialize()
+    g_mesh_index_1 = new_mesh(Module.Mesh1Index);
+    g_mesh_index_2 = new_mesh(Module.Mesh2Index);
+    g_maximum_pos_x = get_level_extent_x() + 40;
+    RestartBullet();
+end
 
+function Module.update()
     if Module.FramesToWait > 0 then
         Module.FramesToWait = Module.FramesToWait - 1;
         return;

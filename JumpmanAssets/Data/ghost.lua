@@ -8,8 +8,6 @@ Module.MoveLeft1MeshResourceIndex = 0;
 Module.MoveLeft2MeshResourceIndex = 0;
 Module.TextureResourceIndex = 0;
 
-local g_is_initialized = false;
-
 local g_current_pos_x = 0;
 local g_current_pos_y = 0;
 local g_current_velocity_x = 0;
@@ -65,9 +63,7 @@ local function ResetPos()
     g_current_velocity_y = 1;
 end
 
-local function Initialize()
-    g_is_initialized = true;
-
+function Module.initialize()
     g_animation_mesh_indices[0] = new_mesh(Module.MoveRight1MeshResourceIndex);
     prioritize_object();
 
@@ -82,10 +78,6 @@ local function Initialize()
 end
 
 function Module.update()
-    if not g_is_initialized then
-        Initialize();
-    end
-
     select_object_mesh(g_animation_mesh_indices[g_animation_frame_index]);
     set_object_visual_data(0, 0);
 

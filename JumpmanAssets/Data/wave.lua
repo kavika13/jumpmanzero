@@ -10,8 +10,6 @@ Module.SeaTextureResourceIndex = 0;
 Module.Wave1TextureResourceIndex = 0;
 Module.Wave2TextureResourceIndex = 0;
 
-local g_is_initialized = false;
-
 local g_wave_1_mesh_index;
 local g_wave_2_mesh_index;
 local g_sea_mesh_index;
@@ -23,15 +21,13 @@ local g_current_velocity_y = 0.2;
 
 local g_wave_animation_cycle_degrees = 0;
 
+function Module.initialize()
+    g_wave_2_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
+    g_wave_1_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
+    g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
+end
+
 function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_wave_2_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
-        g_wave_1_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
-        g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
-    end
-
     g_current_pos_y = g_current_pos_y + g_current_velocity_y;
 
     if g_current_pos_y > 64 then

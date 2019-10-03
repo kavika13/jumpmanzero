@@ -6,8 +6,6 @@ Module.LeftMeshResourceIndices = {};
 Module.RightMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_current_animation_frame = 0;
 local g_flapping_animation_current_frame = 0;
@@ -19,7 +17,7 @@ local g_current_velocity_x;
 local g_current_velocity_y;
 local g_current_acceleration_direction_y;
 
-local function Move()
+local function Move_()
     if g_current_acceleration_direction_y == 1 then
         g_current_velocity_y = g_current_velocity_y + 0.035;
 
@@ -44,7 +42,7 @@ local function Move()
     end
 end
 
-local function SetFrame()
+local function SetFrame_()
     if g_current_acceleration_direction_y >= 0 then
         g_current_animation_frame = g_flapping_animation_current_frame;
     else
@@ -56,7 +54,7 @@ local function SetFrame()
     end
 end
 
-local function Animate()
+local function Animate_()
     g_flapping_animation_counter = g_flapping_animation_counter + 1;
 
     if g_flapping_animation_counter > 3 then
@@ -69,9 +67,7 @@ local function Animate()
     end
 end
 
-local function Initialize()
-    g_is_initialized = true;
-
+function Module.initialize()
     g_current_velocity_y = 0;
     g_current_acceleration_direction_y = 1;
     g_current_velocity_x = 0.8;
@@ -91,16 +87,12 @@ local function Initialize()
 end
 
 function Module.update()
-    if not g_is_initialized then
-        Initialize();
-    end
-
     select_object_mesh(g_animation_mesh_indices[g_current_animation_frame]);
     set_object_visual_data(0, 0);
 
-    Animate();
-    SetFrame();
-    Move();
+    Animate_();
+    SetFrame_();
+    Move_();
 
     select_object_mesh(g_animation_mesh_indices[g_current_animation_frame]);
     script_selected_mesh_set_identity_matrix();

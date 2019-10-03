@@ -41,8 +41,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -67,111 +65,7 @@ local g_animation_frame = 0;
 local g_small_gears_background_mesh_index;
 local g_large_gears_background_mesh_index;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        set_level_extent_x(200);
-
-        for iLoop = 1, 9 do
-            select_platform(iLoop);
-            SetPlatformData(iLoop);
-        end
-
-        g_small_gears_background_mesh_index = new_mesh(resources.MeshSphere);
-        g_large_gears_background_mesh_index = new_mesh(resources.MeshSphere);
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    g_animation_frame = g_animation_frame + 1;
-
-    local iNX = math.cos(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
-    local iNY = math.sin(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
-    SetPosition(6, iNX, iNY + 3);
-    DisplayPlatform(6);
-
-    iNX = math.cos(g_animation_frame * 2 / 3 * math.pi / 180.0) * 43 + 80;
-    iNY = math.sin(g_animation_frame * 2 / 3 * math.pi / 180.0) * 43 + 80;
-    SetPosition(1, iNX, iNY + 3);
-    DisplayPlatform(1);
-
-    iNX = math.cos(((0 - g_animation_frame) + 180) * math.pi / 180.0) * 21 + 80;
-    iNY = math.sin(((0 - g_animation_frame) + 180) * math.pi / 180.0) * 21 + 80;
-    SetPosition(7, iNX, iNY + 3);
-    DisplayPlatform(7);
-
-    iNX = math.cos((0 - g_animation_frame) * math.pi / 180.0) * 21 + 80;
-    iNY = math.sin((0 - g_animation_frame) * math.pi / 180.0) * 21 + 80;
-    SetPosition(2, iNX, iNY + 3);
-    DisplayPlatform(2);
-
-    iNX = Cycle(g_animation_frame, 5.5, 12, 76);
-    iNY = Cycle(g_animation_frame, 5.5, 175, 191);
-    SetPosition(8, iNX, iNY);
-    DisplayPlatform(8);
-
-    iNX = Cycle(g_animation_frame, 4.6, 97, 152);
-    iNY = Cycle(0 - g_animation_frame, 4.6, 188, 196);
-    SetPosition(9, iNX, iNY);
-    DisplayPlatform(9);
-
-    iNX = 145;
-    iNY = Cycle(g_animation_frame, 3, 28, 113);
-    SetPosition(3, iNX, iNY);
-    DisplayPlatform(3);
-
-    iNX = Cycle(g_animation_frame, 4.9, 66, 125);
-    iNY = 145;
-    SetPosition(4, iNX, iNY);
-    DisplayPlatform(4);
-
-    iNX = Cycle(g_animation_frame, 6, 4, 58);
-    iNY = 155;
-    SetPosition(5, iNX, iNY);
-    DisplayPlatform(5);
-
-    select_object_mesh(g_small_gears_background_mesh_index);
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_rotate_matrix_z(0 - g_animation_frame);
-    script_selected_mesh_scale_matrix(25, 25, 2);
-    script_selected_mesh_translate_matrix(80, 80, 7);
-    set_object_visual_data(resources.TextureBoringGray, 1);
-
-    select_object_mesh(g_large_gears_background_mesh_index);
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_rotate_matrix_z(g_animation_frame * 2 / 3);
-    script_selected_mesh_scale_matrix(50, 50, 2);
-    script_selected_mesh_translate_matrix(80, 80, 9);
-    set_object_visual_data(resources.TextureBoringGray, 1);
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
-end
-
-function Cycle(iCCount, iSpeed, iMin, iMax)
+function Cycle_(iCCount, iSpeed, iMin, iMax)
     local is_negative = false;
 
     if iCCount < 0 then
@@ -200,7 +94,7 @@ function Cycle(iCCount, iSpeed, iMin, iMax)
     return iPlace;
 end
 
-function SetPosition(iNum, iNX, iNY)
+function SetPosition_(iNum, iNX, iNY)
     local iLX;
     local iLY;
 
@@ -214,23 +108,7 @@ function SetPosition(iNum, iNX, iNY)
     g_platforms_y2[iNum] = iNY + iLY / 2;
 end
 
-function SetPlatformData(iNum)
-    g_platform_numbers[iNum] = get_script_selected_level_object_this();
-    g_platforms_x1[iNum] = get_script_selected_level_object_x1();
-    g_platforms_x2[iNum] = get_script_selected_level_object_x2();
-    g_platforms_y1[iNum] = get_script_selected_level_object_y1();
-    g_platforms_y2[iNum] = get_script_selected_level_object_y2();
-
-    g_platforms_original_x1[iNum] = get_script_selected_level_object_x1();
-    g_platforms_original_y1[iNum] = get_script_selected_level_object_y1();
-    g_platforms_original_x2[iNum] = get_script_selected_level_object_x2();
-    g_platforms_original_y2[iNum] = get_script_selected_level_object_y2();
-
-    g_platforms_previous_x1[iNum] = get_script_selected_level_object_x1();
-    g_platforms_previous_y1[iNum] = get_script_selected_level_object_y1();
-end
-
-function DisplayPlatform(iNum)
+local function DisplayPlatform_(iNum)
     abs_platform(g_platform_numbers[iNum]);
     set_script_selected_level_object_x1(g_platforms_x1[iNum]);
     set_script_selected_level_object_x2(g_platforms_x2[iNum]);
@@ -262,6 +140,127 @@ function DisplayPlatform(iNum)
             end
         end
     end
+end
+
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
+    end
+
+    g_animation_frame = g_animation_frame + 1;
+
+    local iNX = math.cos(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
+    local iNY = math.sin(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
+    SetPosition_(6, iNX, iNY + 3);
+    DisplayPlatform_(6);
+
+    iNX = math.cos(g_animation_frame * 2 / 3 * math.pi / 180.0) * 43 + 80;
+    iNY = math.sin(g_animation_frame * 2 / 3 * math.pi / 180.0) * 43 + 80;
+    SetPosition_(1, iNX, iNY + 3);
+    DisplayPlatform_(1);
+
+    iNX = math.cos(((0 - g_animation_frame) + 180) * math.pi / 180.0) * 21 + 80;
+    iNY = math.sin(((0 - g_animation_frame) + 180) * math.pi / 180.0) * 21 + 80;
+    SetPosition_(7, iNX, iNY + 3);
+    DisplayPlatform_(7);
+
+    iNX = math.cos((0 - g_animation_frame) * math.pi / 180.0) * 21 + 80;
+    iNY = math.sin((0 - g_animation_frame) * math.pi / 180.0) * 21 + 80;
+    SetPosition_(2, iNX, iNY + 3);
+    DisplayPlatform_(2);
+
+    iNX = Cycle_(g_animation_frame, 5.5, 12, 76);
+    iNY = Cycle_(g_animation_frame, 5.5, 175, 191);
+    SetPosition_(8, iNX, iNY);
+    DisplayPlatform_(8);
+
+    iNX = Cycle_(g_animation_frame, 4.6, 97, 152);
+    iNY = Cycle_(0 - g_animation_frame, 4.6, 188, 196);
+    SetPosition_(9, iNX, iNY);
+    DisplayPlatform_(9);
+
+    iNX = 145;
+    iNY = Cycle_(g_animation_frame, 3, 28, 113);
+    SetPosition_(3, iNX, iNY);
+    DisplayPlatform_(3);
+
+    iNX = Cycle_(g_animation_frame, 4.9, 66, 125);
+    iNY = 145;
+    SetPosition_(4, iNX, iNY);
+    DisplayPlatform_(4);
+
+    iNX = Cycle_(g_animation_frame, 6, 4, 58);
+    iNY = 155;
+    SetPosition_(5, iNX, iNY);
+    DisplayPlatform_(5);
+
+    select_object_mesh(g_small_gears_background_mesh_index);
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_rotate_matrix_z(0 - g_animation_frame);
+    script_selected_mesh_scale_matrix(25, 25, 2);
+    script_selected_mesh_translate_matrix(80, 80, 7);
+    set_object_visual_data(resources.TextureBoringGray, 1);
+
+    select_object_mesh(g_large_gears_background_mesh_index);
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_rotate_matrix_z(g_animation_frame * 2 / 3);
+    script_selected_mesh_scale_matrix(50, 50, 2);
+    script_selected_mesh_translate_matrix(80, 80, 9);
+    set_object_visual_data(resources.TextureBoringGray, 1);
+end
+
+function SetPlatformData_(iNum)
+    g_platform_numbers[iNum] = get_script_selected_level_object_this();
+    g_platforms_x1[iNum] = get_script_selected_level_object_x1();
+    g_platforms_x2[iNum] = get_script_selected_level_object_x2();
+    g_platforms_y1[iNum] = get_script_selected_level_object_y1();
+    g_platforms_y2[iNum] = get_script_selected_level_object_y2();
+
+    g_platforms_original_x1[iNum] = get_script_selected_level_object_x1();
+    g_platforms_original_y1[iNum] = get_script_selected_level_object_y1();
+    g_platforms_original_x2[iNum] = get_script_selected_level_object_x2();
+    g_platforms_original_y2[iNum] = get_script_selected_level_object_y2();
+
+    g_platforms_previous_x1[iNum] = get_script_selected_level_object_x1();
+    g_platforms_previous_y1[iNum] = get_script_selected_level_object_y1();
+end
+
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    set_level_extent_x(200);
+
+    for iLoop = 1, 9 do
+        select_platform(iLoop);
+        SetPlatformData_(iLoop);
+    end
+
+    g_small_gears_background_mesh_index = new_mesh(resources.MeshSphere);
+    g_large_gears_background_mesh_index = new_mesh(resources.MeshSphere);
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()

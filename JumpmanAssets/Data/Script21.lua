@@ -46,8 +46,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -69,75 +67,18 @@ local function RemoveSaw_(saw)
 end
 
 local function SpawnSaw_(initial_pos_x, initial_pos_y)
-    local saw = saw_module();
-    saw.GameLogic = g_game_logic;
-    saw.DestroyObjectCallback = RemoveSaw_;
-    saw.InitialPosX = initial_pos_x;
-    saw.InitialPosY = initial_pos_y;
-    saw.MeshResourceIndex = resources.MeshSaw;
-    saw.TextureResourceIndex = resources.TextureBoringGray;
-    return saw;
+    local new_saw = saw_module();
+    new_saw.GameLogic = g_game_logic;
+    new_saw.DestroyObjectCallback = RemoveSaw_;
+    new_saw.InitialPosX = initial_pos_x;
+    new_saw.InitialPosY = initial_pos_y;
+    new_saw.MeshResourceIndex = resources.MeshSaw;
+    new_saw.TextureResourceIndex = resources.TextureBoringGray;
+    new_saw.initialize();
+    return new_saw;
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        LoadFrogMeshes();
-
-        table.insert(g_saws, SpawnSaw_(80, 100));
-        table.insert(g_saws, SpawnSaw_(75, 100));
-        table.insert(g_saws, SpawnSaw_(85, 100));
-        table.insert(g_saws, SpawnSaw_(100, 45));
-        table.insert(g_saws, SpawnSaw_(105, 45));
-        table.insert(g_saws, SpawnSaw_(110, 45));
-        table.insert(g_saws, SpawnSaw_(115, 45));
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
-    set_object_visual_data(0, 0);
-
-    ControlFrog();
-
-    select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_scale_matrix(2, 2, 2);
-    script_selected_mesh_translate_matrix(23, 175, 18);
-    set_object_visual_data(resources.TextureFrog, 1);
-
-    for _, saw in ipairs(g_saws) do
-        saw.update();
-    end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
-end
-
-function ControlFrog()
+local function ControlFrog_()
     g_frog_animation_frame = g_frog_animation_frame - 1;
 
     if g_frog_animation_frame > 75 then
@@ -178,13 +119,72 @@ function ControlFrog()
     end
 end
 
-function LoadFrogMeshes()
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
+    end
+
+    select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
+    set_object_visual_data(0, 0);
+
+    ControlFrog_();
+
+    select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_scale_matrix(2, 2, 2);
+    script_selected_mesh_translate_matrix(23, 175, 18);
+    set_object_visual_data(resources.TextureFrog, 1);
+
+    for _, saw in ipairs(g_saws) do
+        saw.update();
+    end
+end
+
+local function LoadFrogMeshes_()
     g_frog_animation_meshes[0] = new_mesh(resources.MeshFrogL);
     g_frog_animation_meshes[1] = new_mesh(resources.MeshFrogB1);
     g_frog_animation_meshes[2] = new_mesh(resources.MeshFrogB2);
     g_frog_animation_meshes[3] = new_mesh(resources.MeshFrogB3);
     g_frog_animation_meshes[4] = new_mesh(resources.MeshFrogB4);
     g_frog_animation_meshes[5] = new_mesh(resources.MeshFrogB5);
+end
+
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    LoadFrogMeshes_();
+
+    table.insert(g_saws, SpawnSaw_(80, 100));
+    table.insert(g_saws, SpawnSaw_(75, 100));
+    table.insert(g_saws, SpawnSaw_(85, 100));
+    table.insert(g_saws, SpawnSaw_(100, 45));
+    table.insert(g_saws, SpawnSaw_(105, 45));
+    table.insert(g_saws, SpawnSaw_(110, 45));
+    table.insert(g_saws, SpawnSaw_(115, 45));
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()

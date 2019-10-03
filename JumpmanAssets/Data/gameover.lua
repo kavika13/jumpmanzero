@@ -73,23 +73,9 @@ local g_game_over_message_visible = false;
 local g_camera_pan_animation_timer = 0;
 local g_letter_drop_animation_timer = 0;
 
-function update(game_input, is_initializing)
+local function ProgressLevel_(game_input)
     set_player_freeze_cooldown_frame_count(100);
-    Module.GameLogic.set_player_current_state(player_state.JSNORMAL);
-
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_jumpman_mesh_index = new_mesh(resources.MeshDead);
-        select_platform(1);
-        script_selected_mesh_scale_matrix(30, 3, 3);
-        g_game_over_message_visible = false;
-        g_camera_pan_animation_timer = 100;
-    end
-
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
     g_game_logic.progress_game(game_input);
 
     set_fog(100, 200, 0, 0, 0);
@@ -167,13 +153,35 @@ function update(game_input, is_initializing)
         g_camera_pan_animation_timer = 0;
         g_letter_drop_animation_timer = 1;
     end
+end
 
-    return true;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_jumpman_mesh_index = new_mesh(resources.MeshDead);
+    select_platform(1);
+    script_selected_mesh_scale_matrix(30, 3, 3);
+    g_game_over_message_visible = false;
+    g_camera_pan_animation_timer = 100;
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    ProgressLevel_(game_input);
 end
 
 function reset()
     set_player_current_position_x(0);
     set_player_current_position_y(0);
     set_player_current_position_z(0);
-    Module.GameLogic.set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

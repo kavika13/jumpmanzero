@@ -24,16 +24,32 @@ local player_state = {
 };
 player_state = read_only.make_table_read_only(player_state);
 
-local g_is_initialized = false;
-
 local g_original_pos_z = 0;
 local g_current_pos_offset_z = 0;
 
-local g_current_state = 1;
-local g_current_move_direction = 0;
+local g_current_state = 1;  -- TODO: Use enums for these states
+local g_current_move_direction = 0;  -- TODO: Use enums for these states
 local g_animation_frame_count = 0;
 
-local function Progress()
+local function CheckForPlayer_()
+    g_current_state = 1;
+
+    local iPlat = Module.GameLogic.get_player_current_active_platform_index();
+
+    if iPlat == Module.ObjectIndex then
+        if Module.GameLogic.get_player_current_state() == player_state.JSLADDER then
+            return;
+        end
+
+        if Module.GameLogic.get_player_current_state() == player_state.JSVINE then
+            return;
+        end
+
+        g_current_state = 2;
+    end
+end
+
+local function Progress_()
     if g_current_move_direction == 0 then
         g_current_pos_offset_z = 0;
 
@@ -74,25 +90,7 @@ local function Progress()
     end
 end
 
-local function CheckForPlayer()
-    g_current_state = 1;
-
-    local iPlat = Module.GameLogic.get_player_current_active_platform_index();
-
-    if iPlat == Module.ObjectIndex then
-        if Module.GameLogic.get_player_current_state() == player_state.JSLADDER then
-            return;
-        end
-
-        if Module.GameLogic.get_player_current_state() == player_state.JSVINE then
-            return;
-        end
-
-        g_current_state = 2;
-    end
-end
-
-local function DrawStatus()
+local function DrawStatus_()
     abs_platform(Module.ObjectIndex);
 
     set_script_selected_level_object_z1(g_original_pos_z + g_current_pos_offset_z);
@@ -117,17 +115,16 @@ local function DrawStatus()
     end
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        abs_platform(Module.ObjectIndex);
-        g_original_pos_z = get_script_selected_level_object_z1();
-    end
+function Module.initialize()
+    abs_platform(Module.ObjectIndex);
+    g_original_pos_z = get_script_selected_level_object_z1();
+end
 
+function Module.update()
     if g_current_state ~= 0 then
-        CheckForPlayer();
-        Progress();
-        DrawStatus();
+        CheckForPlayer_();
+        Progress_();
+        DrawStatus_();
     end
 end
 

@@ -33,16 +33,14 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
 local g_propeller_mesh_index;
 local g_current_rotation = 0;
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_propeller_mesh_index = new_mesh(resources.MeshProp);
-    end
+function Module.initialize()
+    g_propeller_mesh_index = new_mesh(resources.MeshProp);
+end
 
+function Module.update()
     g_current_rotation = g_current_rotation + 4;
 
     if g_current_rotation >= 360 then

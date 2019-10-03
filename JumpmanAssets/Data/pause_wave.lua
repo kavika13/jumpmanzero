@@ -12,8 +12,6 @@ Module.Wave2TextureResourceIndex = 0;
 
 Module.TargetWaveHeight = 0;
 
-local g_is_initialized = false;
-
 local g_wave_1_mesh_index;
 local g_wave_2_mesh_index;
 local g_sea_mesh_index;
@@ -36,27 +34,25 @@ local function PrioritizeLevelObjects()
     end
 end
 
+function Module.initialize()
+    g_current_pos_y = Module.TargetWaveHeight;
+
+    g_wave_1_mesh_index =  new_mesh(Module.WaveMeshResourceIndex);
+    prioritize_object();
+    g_wave_2_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
+    prioritize_object();
+    g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
+    prioritize_object();
+
+    PrioritizeLevelObjects();
+
+    select_picture(100);  -- TODO: Pass this constant in? Also, which object is this? It makes the wave screw up transparency if not doing this
+    prioritize_object();
+
+    Pause = 1;  -- TODO: This variable doesn't exist? What was it in pausewave.jms?
+end
+
 function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_current_pos_y = Module.TargetWaveHeight;
-
-        g_wave_1_mesh_index =  new_mesh(Module.WaveMeshResourceIndex);
-        prioritize_object();
-        g_wave_2_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
-        prioritize_object();
-        g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
-        prioritize_object();
-
-        PrioritizeLevelObjects();
-
-        select_picture(100);  -- TODO: Pass this constant in? Also, which object is this? It makes the wave screw up transparency if not doing this
-        prioritize_object();
-
-        Pause = 1;
-    end
-
     if g_current_pos_y < Module.TargetWaveHeight then
         g_current_pos_y = g_current_pos_y + 0.7;
 

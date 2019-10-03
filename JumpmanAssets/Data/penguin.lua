@@ -11,8 +11,6 @@ Module.TextureResourceIndex = 0;
 
 Module.CountOfTimesToPreAdvanceMovement = 0;
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 6 frames increments alt)
@@ -24,7 +22,7 @@ local g_current_pos_y = 0;
 local g_current_pos_z = 0;
 local g_closeby_ladder_pos_z = 0;
 
-local function CheckForChange()
+local function CheckForChange_()
     if g_animation_movement_direction == 4 or g_animation_movement_direction == 3 then
         local _, iLad = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
@@ -75,7 +73,7 @@ local function CheckForChange()
     end
 end
 
-local function ProgressPenguin()
+local function ProgressPenguin_()
     if g_animation_movement_direction == 1 then
         g_current_pos_y = g_current_pos_y + 0.5;
         g_animation_current_frame = 6;
@@ -101,7 +99,7 @@ local function ProgressPenguin()
     end
 end
 
-local function AdjustZ(target_platform_index)
+local function AdjustZ_(target_platform_index)
     abs_platform(target_platform_index);
     local target_platform_pos_z = get_script_selected_level_object_z1();
 
@@ -114,9 +112,9 @@ local function AdjustZ(target_platform_index)
     end
 end
 
-local function MovePenguin()
-    CheckForChange();
-    ProgressPenguin();
+local function MovePenguin_()
+    CheckForChange_();
+    ProgressPenguin_();
 
     local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
 
@@ -133,11 +131,11 @@ local function MovePenguin()
     if g_animation_movement_direction == 1 or g_animation_movement_direction == 2 then
         g_current_pos_z = g_closeby_ladder_pos_z;
     else
-        AdjustZ(iPlat);
+        AdjustZ_(iPlat);
     end
 end
 
-local function AdvanceFrame()
+local function AdvanceFrame_()
     g_animation_frame_counter = g_animation_frame_counter + 1;
 
     if g_animation_frame_counter > 5 then
@@ -150,7 +148,7 @@ local function AdvanceFrame()
     end
 end
 
-local function Initialize()
+function Module.initialize()
     g_current_pos_x = 75;
     g_current_pos_y = 26;
     g_current_pos_z = 2;
@@ -159,7 +157,7 @@ local function Initialize()
     local counter = Module.CountOfTimesToPreAdvanceMovement;
 
     while counter > 0 do
-        MovePenguin();
+        MovePenguin_();
         counter = counter - 1;
     end
 
@@ -177,16 +175,11 @@ local function Initialize()
 end
 
 function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        Initialize();
-    end
-
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_object_visual_data(0, 0);
 
-    AdvanceFrame();
-    MovePenguin();
+    AdvanceFrame_();
+    MovePenguin_();
 
     -- Grabbing frame again because it may have changed
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);

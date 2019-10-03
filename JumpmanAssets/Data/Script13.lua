@@ -51,8 +51,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -63,76 +61,7 @@ local g_visibility_bitmask;
 local g_visibility_change_frames_left = 0;
 local g_background_rotation = 0;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_game_logic.OnCollectDonutCallback = on_collect_donut;
-
-        g_hud_overlay = hud_overlay_module();
-
-        local iTemp = bullet_module();
-        iTemp.GameLogic = g_game_logic;
-        iTemp.FramesToWait = 300;
-        iTemp.Mesh1Index = resources.MeshBullet1;
-        iTemp.Mesh2Index = resources.MeshBullet2;
-        iTemp.TextureIndex = resources.TextureBullet;
-        iTemp.FireSoundIndex = resources.SoundFire;
-        table.insert(g_bullets, iTemp);
-
-        SetConfig();
-        g_visibility_bitmask = 1;  -- Guarantee on first start that donuts are invisible
-        ResetVisible(g_visibility_bitmask);
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    if g_visibility_change_frames_left > 0 then
-        g_visibility_change_frames_left = g_visibility_change_frames_left - 1;
-
-        if math.random(1, 30) < g_visibility_change_frames_left then
-            ResetVisible(g_visibility_bitmask);
-        else
-            local iTemp = NextNum(g_visibility_bitmask);
-            ResetVisible(iTemp);
-        end
-
-        if g_visibility_change_frames_left == 0 then
-            g_visibility_bitmask = NextNum(g_visibility_bitmask);
-            ResetVisible(g_visibility_bitmask);
-        end
-    end
-
-    RotateBack();
-
-    for _, bullet in ipairs(g_bullets) do
-        bullet.update();
-    end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
-end
-
-function RotateBack()
+local function RotateBack_()
     g_background_rotation = g_background_rotation - 0.5;
 
     for iPic = 200, 203 do
@@ -145,7 +74,7 @@ function RotateBack()
     end
 end
 
-function SetConfig()
+local function SetConfig_()
     for iLoop = 256, 264, 2 do
         local iRnd = math.random(0, 1000) < 500;
 
@@ -165,7 +94,7 @@ function SetConfig()
     end
 end
 
-function ResetVisible(visibility_bitmask)
+local function ResetVisible_(visibility_bitmask)
     for iObj = 0, get_platform_object_count() - 1 do
         abs_platform(iObj);
         local iPlat = get_script_selected_level_object_number();
@@ -211,7 +140,7 @@ function ResetVisible(visibility_bitmask)
     end
 end
 
-function NextNum(iMove)
+function NextNum_(iMove)
     if iMove == 255 then
         -- Original code set g_visibility_bitmask = 1 here, like is currently being done
         -- This guarantees the donuts always flash after a death on first donut grab, but I *think* they will never disappear after that flash?
@@ -230,13 +159,84 @@ function NextNum(iMove)
     return iMove;
 end
 
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
+    end
+
+    if g_visibility_change_frames_left > 0 then
+        g_visibility_change_frames_left = g_visibility_change_frames_left - 1;
+
+        if math.random(1, 30) < g_visibility_change_frames_left then
+            ResetVisible_(g_visibility_bitmask);
+        else
+            local iTemp = NextNum_(g_visibility_bitmask);
+            ResetVisible_(iTemp);
+        end
+
+        if g_visibility_change_frames_left == 0 then
+            g_visibility_bitmask = NextNum_(g_visibility_bitmask);
+            ResetVisible_(g_visibility_bitmask);
+        end
+    end
+
+    RotateBack_();
+
+    for _, bullet in ipairs(g_bullets) do
+        bullet.update();
+    end
+end
+
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+
+    g_hud_overlay = hud_overlay_module();
+
+    local iTemp = bullet_module();
+    iTemp.GameLogic = g_game_logic;
+    iTemp.FramesToWait = 300;
+    iTemp.Mesh1Index = resources.MeshBullet1;
+    iTemp.Mesh2Index = resources.MeshBullet2;
+    iTemp.TextureIndex = resources.TextureBullet;
+    iTemp.FireSoundIndex = resources.SoundFire;
+    iTemp.initialize();
+    table.insert(g_bullets, iTemp);
+
+    SetConfig_();
+    g_visibility_bitmask = 1;  -- Guarantee on first start that donuts are invisible
+    ResetVisible_(g_visibility_bitmask);
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
+end
+
 function on_collect_donut()
     g_visibility_change_frames_left = 30;
 end
 
 function reset()
     g_visibility_bitmask = 255;
-    ResetVisible(g_visibility_bitmask);
+    ResetVisible_(g_visibility_bitmask);
     set_player_current_position_x(68);
     set_player_current_position_y(81);
     set_player_current_position_z(9);

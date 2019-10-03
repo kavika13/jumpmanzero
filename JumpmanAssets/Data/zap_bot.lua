@@ -49,8 +49,6 @@ Module.BehaviorType = 0;
 
 local kTURN_DURATION = 50;  -- TODO: Could make configurable. Would have to calculate frame thresholds, not hard-code
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 
@@ -218,7 +216,7 @@ local function SetFrame_()
     end
 end
 
-local function Initialize_()
+function Module.initialize()
     g_current_pos_x = Module.InitialPosX;
     g_current_pos_y = Module.InitialPosY;
     g_move_direction = move_direction.LEFT;
@@ -236,16 +234,12 @@ local function Initialize_()
 
     g_animation_mesh_indices[animation_frame.FIRE_RIGHT_1] = new_mesh(Module.BotFireRightMeshResourceIndices[1]);
     g_animation_mesh_indices[animation_frame.FIRE_RIGHT_2] = new_mesh(Module.BotFireRightMeshResourceIndices[2]);
+
+    g_wait_time_remaining = Module.WaitDuration;
+    g_laser_mesh_index = new_mesh(Module.LaserMeshResourceIndex);
 end
 
 function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        Initialize_();
-        g_wait_time_remaining = Module.WaitDuration;
-        g_laser_mesh_index = new_mesh(Module.LaserMeshResourceIndex);
-    end
-
     select_object_mesh(g_laser_mesh_index);
     set_object_visual_data(Module.LaserTextureResourceIndex, 0);
 

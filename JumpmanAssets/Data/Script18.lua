@@ -54,8 +54,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -72,120 +70,30 @@ local g_work_animation_frame = 0;
 local g_is_disarm_hud_visible = false;
 local g_disarm_progress = 0;
 
-local function CreateDABot_(iX, iY, iBehave, iTexture)
-    local new_bot = zap_bot_module();
+local function ShowWorking_(game_input)
+    set_player_is_visible(0);
+    local iPX = get_player_current_position_x();
+    local iPY = get_player_current_position_y();
+    local iPZ = get_player_current_position_z();
 
-    new_bot.GameLogic = g_game_logic;
+    g_work_animation_frame = g_work_animation_frame + 1;
 
-    new_bot.BotMoveLeftMeshResourceIndex = resources.MeshDABotL;
-    new_bot.BotMoveRightMeshResourceIndex = resources.MeshDABotR;
-    new_bot.BotTurnMeshResourceIndices = {
-        resources.MeshDABotT1,
-        resources.MeshDABotT2,
-        resources.MeshDABotT3,
-        resources.MeshDABotT4,
-        resources.MeshDABotT5,
-    };
-    new_bot.BotFireLeftMeshResourceIndices = { resources.MeshDABotLS1, resources.MeshDABotLS2 };
-    new_bot.BotFireRightMeshResourceIndices = { resources.MeshDABotRS1, resources.MeshDABotRS2 };
-    new_bot.LaserMeshResourceIndex = resources.MeshLaser;
-    new_bot.BotTextureResourceIndex = iTexture;
-    new_bot.LaserTextureResourceIndex = resources.TextureLaser;
-
-    new_bot.InitialPosX = iX;
-    new_bot.InitialPosY = iY;
-    new_bot.FireDuration = 70;
-    new_bot.WaitDuration = 50;
-    new_bot.BehaviorType = iBehave;
-
-    return new_bot;
-end
-
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        g_jumpman_work_1_mesh_index = new_mesh(resources.MeshJMWork1);
-        set_object_visual_data(0, 0);
-
-        g_jumpman_work_2_mesh_index = new_mesh(resources.MeshJMWork2);
-        set_object_visual_data(0, 0);
-
-        g_message_mesh_index = new_mesh(0);
-        g_progress_bar_mesh_index = new_mesh(0);
-        prioritize_object();
-
-        MoveDonuts();
-
-        -- TODO: Use behavior enum from zap_bot module instead of hard-coded numbers for 3rd parameter
-        table.insert(g_zap_bots, CreateDABot_(120, 10, 1, resources.TextureDABot));
-        table.insert(g_zap_bots, CreateDABot_(90, 85, 1, resources.TextureDABot));
-        table.insert(g_zap_bots, CreateDABot_(40, 86, 1, resources.TextureDABot));
-
-        table.insert(g_zap_bots, CreateDABot_(90, 45, 3, resources.TextureDABotO));
-        table.insert(g_zap_bots, CreateDABot_(90, 118, 3, resources.TextureDABotO));
-
-        table.insert(g_zap_bots, CreateDABot_(20, 150, 2, resources.TextureDABotB));
+    if g_work_animation_frame == 10 then
+        g_work_animation_frame = 0;
     end
 
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    CollideDonuts(game_input);
-
-    if g_is_disarm_hud_visible then
-        select_object_mesh(g_message_mesh_index);
-        script_selected_mesh_set_identity_matrix();
-        script_selected_mesh_scale_matrix(20, 20, 1);
-        script_selected_mesh_translate_matrix(0 - 54, 0 - 39, 120);
-        script_selected_mesh_set_perspective_matrix();
-        set_object_visual_data(resources.TextureDisarming, 1);
-
-        select_object_mesh(g_progress_bar_mesh_index);
-        script_selected_mesh_set_identity_matrix();
-        local iProg = (100 - g_disarm_progress) * 16.5 / 100;
-        script_selected_mesh_scale_matrix(iProg, 3.8, 1);
-        script_selected_mesh_translate_matrix((0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
-        script_selected_mesh_set_perspective_matrix();
-        set_object_visual_data(resources.TextureBoringGreen, 1);
+    if g_work_animation_frame > 5 then
+        select_object_mesh(g_jumpman_work_1_mesh_index);
     else
-        select_object_mesh(g_message_mesh_index);
-        set_object_visual_data(0, 0);
-
-        select_object_mesh(g_progress_bar_mesh_index);
-        set_object_visual_data(0, 0);
+        select_object_mesh(g_jumpman_work_2_mesh_index);
     end
 
-    for _, zap_bot in ipairs(g_zap_bots) do
-        zap_bot.update();
-    end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
+    script_selected_mesh_set_identity_matrix();
+    script_selected_mesh_translate_matrix(iPX, iPY + 6, iPZ + 1);
+    set_object_visual_data(resources.TextureJumpman, 1);
 end
 
-function CollideDonuts(game_input)
+local function CollideDonuts_(game_input)
     set_player_is_visible(1);
     g_is_disarm_hud_visible = false;
 
@@ -224,7 +132,7 @@ function CollideDonuts(game_input)
                 g_disarm_progress = iDN;
                 g_is_disarm_hud_visible = true;
 
-                ShowWorking(game_input, iDX);
+                ShowWorking_(game_input);
                 abs_donut(iObj);
 
                 if math.random(0, 100) < 20 then
@@ -246,30 +154,76 @@ function CollideDonuts(game_input)
     end
 end
 
-function ShowWorking(game_input, iDX)
-    set_player_is_visible(0);
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
-    local iPZ = get_player_current_position_z();
+local function CreateDABot_(initial_pos_x, initial_pos_y, behavior_type, texture_resource_index)
+    local new_bot = zap_bot_module();
 
-    g_work_animation_frame = g_work_animation_frame + 1;
+    new_bot.GameLogic = g_game_logic;
 
-    if g_work_animation_frame == 10 then
-        g_work_animation_frame = 0;
-    end
+    new_bot.BotMoveLeftMeshResourceIndex = resources.MeshDABotL;
+    new_bot.BotMoveRightMeshResourceIndex = resources.MeshDABotR;
+    new_bot.BotTurnMeshResourceIndices = {
+        resources.MeshDABotT1,
+        resources.MeshDABotT2,
+        resources.MeshDABotT3,
+        resources.MeshDABotT4,
+        resources.MeshDABotT5,
+    };
+    new_bot.BotFireLeftMeshResourceIndices = { resources.MeshDABotLS1, resources.MeshDABotLS2 };
+    new_bot.BotFireRightMeshResourceIndices = { resources.MeshDABotRS1, resources.MeshDABotRS2 };
+    new_bot.LaserMeshResourceIndex = resources.MeshLaser;
+    new_bot.BotTextureResourceIndex = texture_resource_index;
+    new_bot.LaserTextureResourceIndex = resources.TextureLaser;
 
-    if g_work_animation_frame > 5 then
-        select_object_mesh(g_jumpman_work_1_mesh_index);
-    else
-        select_object_mesh(g_jumpman_work_2_mesh_index);
-    end
+    new_bot.InitialPosX = initial_pos_x;
+    new_bot.InitialPosY = initial_pos_y;
+    new_bot.FireDuration = 70;
+    new_bot.WaitDuration = 50;
+    new_bot.BehaviorType = behavior_type;
 
-    script_selected_mesh_set_identity_matrix();
-    script_selected_mesh_translate_matrix(iPX, iPY + 6, iPZ + 1);
-    set_object_visual_data(resources.TextureJumpman, 1);
+    new_bot.initialize();
+
+    return new_bot;
 end
 
-function MoveDonuts()
+function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
+    end
+
+    CollideDonuts_(game_input);
+
+    if g_is_disarm_hud_visible then
+        select_object_mesh(g_message_mesh_index);
+        script_selected_mesh_set_identity_matrix();
+        script_selected_mesh_scale_matrix(20, 20, 1);
+        script_selected_mesh_translate_matrix(0 - 54, 0 - 39, 120);
+        script_selected_mesh_set_perspective_matrix();
+        set_object_visual_data(resources.TextureDisarming, 1);
+
+        select_object_mesh(g_progress_bar_mesh_index);
+        script_selected_mesh_set_identity_matrix();
+        local iProg = (100 - g_disarm_progress) * 16.5 / 100;
+        script_selected_mesh_scale_matrix(iProg, 3.8, 1);
+        script_selected_mesh_translate_matrix((0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
+        script_selected_mesh_set_perspective_matrix();
+        set_object_visual_data(resources.TextureBoringGreen, 1);
+    else
+        select_object_mesh(g_message_mesh_index);
+        set_object_visual_data(0, 0);
+
+        select_object_mesh(g_progress_bar_mesh_index);
+        set_object_visual_data(0, 0);
+    end
+
+    for _, zap_bot in ipairs(g_zap_bots) do
+        zap_bot.update();
+    end
+end
+
+local function MoveDonuts_()
     -- Move all the donuts to their -Y value, logically speaking (not visually),
     -- so they aren't immediately collected on contact
     local donut_count = get_donut_object_count();
@@ -278,6 +232,53 @@ function MoveDonuts()
         abs_donut(iDonut);
         set_script_selected_level_object_y1(0 - get_script_selected_level_object_y1());
     end
+end
+
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    g_jumpman_work_1_mesh_index = new_mesh(resources.MeshJMWork1);
+    set_object_visual_data(0, 0);
+
+    g_jumpman_work_2_mesh_index = new_mesh(resources.MeshJMWork2);
+    set_object_visual_data(0, 0);
+
+    g_message_mesh_index = new_mesh(0);
+    g_progress_bar_mesh_index = new_mesh(0);
+    prioritize_object();
+
+    MoveDonuts_();
+
+    -- TODO: Use behavior enum from zap_bot module instead of hard-coded numbers for 3rd parameter
+    table.insert(g_zap_bots, CreateDABot_(120, 10, 1, resources.TextureDABot));
+    table.insert(g_zap_bots, CreateDABot_(90, 85, 1, resources.TextureDABot));
+    table.insert(g_zap_bots, CreateDABot_(40, 86, 1, resources.TextureDABot));
+
+    table.insert(g_zap_bots, CreateDABot_(90, 45, 3, resources.TextureDABotO));
+    table.insert(g_zap_bots, CreateDABot_(90, 118, 3, resources.TextureDABotO));
+
+    table.insert(g_zap_bots, CreateDABot_(20, 150, 2, resources.TextureDABotB));
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()

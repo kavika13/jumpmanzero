@@ -54,8 +54,6 @@ local player_movement_direction = {
 };
 player_movement_direction = read_only.make_table_read_only(player_movement_direction);
 
-local g_is_initialized = false;
-
 local g_move_animation_frames = {};
 local g_move_animation_current_frame = 0;
 local g_move_animation_current_alt_frame = 0;  -- Alternates between 0 and 1. Offset applied to current frame
@@ -172,7 +170,7 @@ local function Animate_()
     end
 end
 
-local function Initialize_()
+function Module.initialize()
     g_current_pos_x = Module.InitialPosX;
     g_current_pos_y = Module.InitialPosY;
     g_current_status = status_type.MOVE_LEFT;
@@ -189,11 +187,6 @@ local function Initialize_()
 end
 
 function Module.update(game_input, all_turtles)
-    if not g_is_initialized then
-        g_is_initialized = true;
-        Initialize_();
-    end
-
     select_object_mesh(g_move_animation_frames[g_move_animation_current_frame]);
     set_object_visual_data(0, 0);
 

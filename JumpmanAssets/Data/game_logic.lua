@@ -1371,6 +1371,7 @@ local function AnimateDying_(game_input)
     end
 end
 
+-- Returns true if player won
 function Module.progress_game(game_input)
     if (g_player_current_state & player_state.JSDONE) == 0 then
         if get_player_freeze_cooldown_frame_count() ~= 0 then
@@ -1405,7 +1406,7 @@ function Module.progress_game(game_input)
 
         reset_perspective();
 
-        return true;
+        return false;
     else
         g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
 
@@ -1417,7 +1418,7 @@ function Module.progress_game(game_input)
             load_next_level();
         end
 
-        return false;
+        return true;
     end
 end
 

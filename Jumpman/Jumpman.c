@@ -1831,30 +1831,6 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
     }
 }
 
-static void CallLuaGameUpdate(lua_State* lua_state, GameInput* game_input, bool is_initializing) {
-    lua_getglobal(lua_state, "update");
-
-    if(lua_isfunction(lua_state, -1) != 0) {
-        if(is_initializing) {
-            // Don't pass real input to initialization "Update" calls
-            GameInput empty_input = { 0 };
-            PushGameInputAsTable(lua_state, &empty_input);
-        } else {
-            PushGameInputAsTable(lua_state, game_input);
-        }
-
-        lua_pushboolean(lua_state, is_initializing);
-
-        if(lua_pcall(lua_state, 2, 0, 0) != 0) {
-            const char* error_message = lua_tostring(lua_state, -1);
-            assert(false);  // TODO: Error handling
-        }
-    } else {
-        // Function is required
-        assert(false);  // TODO: Error handling
-    }
-}
-
 static void LoadLevel(const char* base_path, const char* filename) {
     char full_path[300];
     stbsp_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, filename);
@@ -2350,13 +2326,15 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
     }
 }
 
-static void ResetPlayer(int iNewLevel, GameInput* game_input) {
-    // TODO: Pass boolean iNewLevel to function?
-    CallLuaFunction(g_script_level_script_lua_state, "reset", game_input, false);
+static void UpdatePlayerGraphics(void);
+
+static void InitializeLevelScript(GameInput* game_input) {
+    CallLuaFunction(g_script_level_script_lua_state, "initialize", game_input, true);
+    UpdatePlayerGraphics();
 }
 
-static void ProgressGame(const char* base_path, GameInput* game_input, bool is_initializing) {
-    CallLuaGameUpdate(g_script_level_script_lua_state, game_input, is_initializing);
+static void ProgressGame(GameInput* game_input) {
+    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
 }
 
 static void SetGamePerspective(void) {
@@ -2479,14 +2457,8 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
     EndAndCommit3dLoad();
 
     BuildNavigation();
-    ResetPlayer(1, game_input);
     g_game_time_inactive = 0;
-
-    ProgressGame(base_path, game_input, true);
-    ProgressGame(base_path, game_input, true);
-    ProgressGame(base_path, game_input, true);
-    ProgressGame(base_path, game_input, true);
-    ProgressGame(base_path, game_input, true);
+    InitializeLevelScript(game_input);
 
     if(g_music_loop_start_music_time != 5550) {
         NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
@@ -2598,7 +2570,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
 
     if(g_game_status == kGameStatusInLevel) {
         if(!IsGameFrozen()) {
-            ProgressGame(base_path, game_input, false);
+            ProgressGame(game_input);
             UpdatePlayerGraphics();
         }
     }

@@ -48,8 +48,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -88,58 +86,17 @@ end
 
 OnSpawnRunDonut_ = function()
     local new_run_donut = CreateRunDonut_();
+    new_run_donut.initialize();
     table.insert(g_run_donuts, new_run_donut);
     return new_run_donut;
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        local iTemp = bullet_module();
-        iTemp.GameLogic = g_game_logic;
-        iTemp.FramesToWait = 100;
-        iTemp.Mesh1Index = resources.MeshBullet1;
-        iTemp.Mesh2Index = resources.MeshBullet2;
-        iTemp.TextureIndex = resources.TextureBullet;
-        iTemp.FireSoundIndex = resources.SoundFire;
-        table.insert(g_bullets, iTemp);
-
-        local iX = 40;
-
-        while iX < 150 do
-            local iY = 20;
-
-            while iY < 180 do
-                local new_run_donut = CreateRunDonut_();
-                new_run_donut.InitialPosX = iX + iY / 8;
-                new_run_donut.InitialPosY = iY;
-                table.insert(g_run_donuts, new_run_donut);
-                iY = iY + 30;
-            end
-
-            iX = iX + 20;
-        end
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     for _, run_donut in ipairs(g_run_donuts) do
@@ -149,13 +106,58 @@ function update(game_input, is_initializing)
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
     end
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    local iTemp = bullet_module();
+    iTemp.GameLogic = g_game_logic;
+    iTemp.FramesToWait = 100;
+    iTemp.Mesh1Index = resources.MeshBullet1;
+    iTemp.Mesh2Index = resources.MeshBullet2;
+    iTemp.TextureIndex = resources.TextureBullet;
+    iTemp.FireSoundIndex = resources.SoundFire;
+    iTemp.initialize();
+    table.insert(g_bullets, iTemp);
+
+    local iX = 40;
+
+    while iX < 150 do
+        local iY = 20;
+
+        while iY < 180 do
+            local new_run_donut = CreateRunDonut_();
+            new_run_donut.InitialPosX = iX + iY / 8;
+            new_run_donut.InitialPosY = iY;
+            new_run_donut.initialize();
+            table.insert(g_run_donuts, new_run_donut);
+            iY = iY + 30;
+        end
+
+        iX = iX + 20;
     end
 
-    return true;
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()

@@ -1,4 +1,13 @@
+local read_only = require "Data/read_only";
+
 local Module = {};
+
+-- TODO: Refactor so this module doesn't have to be instantiated, and export this variable on Module
+local goo_type = {
+    -- TODO: Figure out and fill out rest
+    TO_REMOVE = 0,
+};
+goo_type = read_only.make_table_read_only(goo_type);
 
 Module.GameLogic = nil;
 
@@ -8,19 +17,17 @@ Module.KillCallback = nil;
 Module.MeshResourceIndex = 0;
 Module.TextureResourceIndex = 0;
 
-Module.Type = 0;
+Module.Type = goo_type.TO_REMOVE;
 Module.InitialPosX = { 0, 0 };
 Module.InitialPosY = { 0, 0 };
 Module.InitialRotationZ = 0;
 Module.InitialIsGrowing = false;
 Module.InitialChildren = {};
 
-local g_is_initialized = false;
-
 local g_mesh_index = 0;
 local g_wobble_animation_counter = 0;
 
-local g_type = 0;  -- TODO: Don't hard-code type enum
+local g_type = goo_type.TO_REMOVE;
 local g_children = {};
 
 local g_is_growing = false;
@@ -39,8 +46,8 @@ local function ProgressVert_(iHead, iYV)
 
     local iHit, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x[iHead], g_current_pos_y[iHead], 8, 0);
 
-    if iPlat1 == 0 - 1 then
-        iHit = 0 - 70;
+    if iPlat1 == -1 then
+        iHit = -70;
     end
 
     if iHit >= g_current_pos_y[iHead] + iYV then
@@ -112,12 +119,14 @@ end
 local function MoveGoo_()
     if g_type == 4 then  -- TODO: Don't hard-code type enum
         if not g_is_growing then
-            ProgressVert_(1, 0 - 0.5);
+            ProgressVert_(1, -0.5);
         end
 
-        if ProgressVert_(2, 0 - 0.5) == 1 then
+        if ProgressVert_(2, -0.5) == 1 then
             if g_current_pos_y[2] > 0 then
-                g_children[1] = SpawnHorizontal_(1, 1, g_current_pos_x[2], g_current_pos_y[2], g_current_pos_x[2], g_current_pos_y[2]);
+                local new_goo = SpawnHorizontal_(1, 1, g_current_pos_x[2], g_current_pos_y[2], g_current_pos_x[2], g_current_pos_y[2]);
+                new_goo.initialize();
+                g_children[1] = new_goo;
                 g_type = 5;  -- TODO: Don't hard-code type enum
             end
 
@@ -131,8 +140,8 @@ local function MoveGoo_()
 
     if g_type == 5 then  -- TODO: Don't hard-code type enum
         if not g_is_growing then
-            if ProgressVert_(1, 0 - 0.5) == 1 then
-                g_type = 0;  -- TODO: Don't hard-code type enum
+            if ProgressVert_(1, -0.5) == 1 then
+                g_type = goo_type.TO_REMOVE;
 
                 if g_children[1] ~= nil then
                     g_children[1].stop_growing();
@@ -148,7 +157,9 @@ local function MoveGoo_()
 
         if iProgress == 1 then
             g_type = 7;  -- TODO: Don't hard-code type enum
-            g_children[2] = SpawnVertical_(g_current_pos_x[2] + 0.5, g_current_pos_y[2]);
+            local new_goo = SpawnVertical_(g_current_pos_x[2] + 0.5, g_current_pos_y[2]);
+            new_goo.initialize();
+            g_children[2] = new_goo;
             g_Outlet2 = true;
         end
 
@@ -157,11 +168,13 @@ local function MoveGoo_()
         end
 
         if g_type == 1 then  -- TODO: Don't hard-code type enum
-            local iProgress2 = ProgressHorz_(1, 0 - 0.5);
+            local iProgress2 = ProgressHorz_(1, -0.5);
 
             if iProgress2 == 1 then
                 g_type = 6;  -- TODO: Don't hard-code type enum
-                g_children[1] = SpawnVertical_(g_current_pos_x[1] - 0.5, g_current_pos_y[1]);
+                local new_goo = SpawnVertical_(g_current_pos_x[1] - 0.5, g_current_pos_y[1]);
+                new_goo.initialize();
+                g_children[1] = new_goo;
                 g_Outlet1 = true;
             end
 
@@ -178,7 +191,9 @@ local function MoveGoo_()
 
         if iProgress == 1 then
             g_type = 8;  -- TODO: Don't hard-code type enum
-            g_children[2] = SpawnVertical_(g_current_pos_x[2] + 0.5, g_current_pos_y[2]);
+            local new_goo = SpawnVertical_(g_current_pos_x[2] + 0.5, g_current_pos_y[2]);
+            new_goo.initialize();
+            g_children[2] = new_goo;
             g_Outlet2 = true;
         end
 
@@ -190,11 +205,13 @@ local function MoveGoo_()
     end
 
     if g_type == 7 then  -- TODO: Don't hard-code type enum
-        local iProgress = ProgressHorz_(1, 0 - 0.5);
+        local iProgress = ProgressHorz_(1, -0.5);
 
         if iProgress == 1 then
             g_type = 8;  -- TODO: Don't hard-code type enum
-            g_children[1] = SpawnVertical_(g_current_pos_x[1] - 0.5, g_current_pos_y[1]);
+            local new_goo = SpawnVertical_(g_current_pos_x[1] - 0.5, g_current_pos_y[1]);
+            new_goo.initialize();
+            g_children[1] = new_goo;
             g_Outlet1 = true;
         end
 
@@ -207,7 +224,7 @@ local function MoveGoo_()
 
     if g_type == 2 then  -- TODO: Don't hard-code type enum
         if ProgressHorz_(1, 0.5) == 1 then
-            g_type = 0;  -- TODO: Don't hard-code type enum
+            g_type = goo_type.TO_REMOVE;
 
             if g_children[2] ~= nil then
                 g_children[2].stop_growing();
@@ -218,8 +235,8 @@ local function MoveGoo_()
     end
 
     if g_type == 3 then  -- TODO: Don't hard-code type enum
-        if ProgressHorz_(2, 0 - 0.5) == 1 then
-            g_type = 0;  -- TODO: Don't hard-code type enum
+        if ProgressHorz_(2, -0.5) == 1 then
+            g_type = goo_type.TO_REMOVE;
 
             if g_children[1] ~= nil then
                 g_children[1].stop_growing();
@@ -235,6 +252,7 @@ local function MoveGoo_()
             local iNewY = (g_current_pos_y[1] + g_current_pos_y[2]) / 2;
             local new_goo = SpawnHorizontal_(2, 3, iNewX, iNewY, g_current_pos_x[2], g_current_pos_y[2]);
             new_goo.InitialChildren[2] = g_children[2];
+            new_goo.initialize();
             g_current_pos_x[2] = iNewX;
             g_current_pos_y[2] = iNewY;
             g_type = 3;  -- TODO: Don't hard-code type enum
@@ -309,25 +327,24 @@ local function DrawVertical_()
     script_selected_mesh_translate_matrix(g_current_pos_x[1] + 0.3, (g_current_pos_y[1] + g_current_pos_y[2]) / 2, 5);
 end
 
-function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        g_type = Module.Type;
-        g_current_pos_x[1] = Module.InitialPosX[1];
-        g_current_pos_x[2] = Module.InitialPosX[2];
-        g_current_pos_y[1] = Module.InitialPosY[1];
-        g_current_pos_y[2] = Module.InitialPosY[2];
-        g_current_rotation_z = Module.InitialRotationZ;
-        g_is_growing = Module.InitialIsGrowing;
-        g_children[1] = Module.InitialChildren[1];
-        g_children[2] = Module.InitialChildren[2];
-        g_mesh_index = new_mesh(Module.MeshResourceIndex);
-        set_object_visual_data(Module.TextureResourceIndex, 1);
-    end
+function Module.initialize()
+    g_type = Module.Type;
+    g_current_pos_x[1] = Module.InitialPosX[1];
+    g_current_pos_x[2] = Module.InitialPosX[2];
+    g_current_pos_y[1] = Module.InitialPosY[1];
+    g_current_pos_y[2] = Module.InitialPosY[2];
+    g_current_rotation_z = Module.InitialRotationZ;
+    g_is_growing = Module.InitialIsGrowing;
+    g_children[1] = Module.InitialChildren[1];
+    g_children[2] = Module.InitialChildren[2];
+    g_mesh_index = new_mesh(Module.MeshResourceIndex);
+    set_object_visual_data(Module.TextureResourceIndex, 1);
+end
 
+function Module.update()
     MoveGoo_();
 
-    if g_type == 0 then  -- TODO: Don't hard-code type enum
+    if g_type == goo_type.TO_REMOVE then
         delete_mesh(g_mesh_index);
         Module.KillCallback(Module);
         return;

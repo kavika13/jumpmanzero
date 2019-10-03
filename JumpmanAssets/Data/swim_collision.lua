@@ -28,18 +28,19 @@ Module.IsInTank = false;
 Module.SharkObject = nil;
 Module.FacingDirection = 0;  -- TODO: This doesn't get set to anything but 0 by the parent module. Is it the shark's facing direction or the players? Maybe just simplify the code?
 
-local function DoCollide(iX1, iY1, iX2, iY2)
-    local iDonuts = get_donut_object_count();
+local function DoCollide_(iX1, iY1, iX2, iY2)
+    -- TODO: Find out what iX1, iY1, iX2, iY2 are, more specifically, and rename them
+    local donut_count = get_donut_object_count();
     local is_win_detected = true;
 
-    for iObj = 0, iDonuts - 1 do
-        abs_donut(iObj);
+    for donut_object_index = 0, donut_count - 1 do
+        abs_donut(donut_object_index);
 
-        local iDX = get_script_selected_level_object_x1();
-        local iDY = get_script_selected_level_object_y1();
+        local donut_pos_x = get_script_selected_level_object_x1();
+        local donut_pos_y = get_script_selected_level_object_y1();
 
-        if iX1 < iDX + 2 and iX2 > iDX - 2 then
-            if iY1 < iDY + 2 and iY2 > iDY - 2 then
+        if iX1 < donut_pos_x + 2 and iX2 > donut_pos_x - 2 then
+            if iY1 < donut_pos_y + 2 and iY2 > donut_pos_y - 2 then
                 if get_script_selected_level_object_visible() then
                     play_sound_effect(Module.ChompSoundIndex);
                 end
@@ -82,6 +83,10 @@ local function DoCollide(iX1, iY1, iX2, iY2)
     end
 end
 
+function Module.initialize()
+    -- Nothing to do!
+end
+
 function Module.update()
     if not Module.IsInTank then
         return;
@@ -91,17 +96,17 @@ function Module.update()
     local iPY = get_player_current_position_y();
 
     if Module.FacingDirection == 0 then
-        DoCollide(iPX - 4, iPY + 3, iPX + 4, iPY + 7);
+        DoCollide_(iPX - 4, iPY + 3, iPX + 4, iPY + 7);
     elseif Module.FacingDirection == 1 then
-        DoCollide(iPX - 3, iPY, iPX + 3, iPY + 10);
+        DoCollide_(iPX - 3, iPY, iPX + 3, iPY + 10);
     elseif Module.FacingDirection == 2 then
-        DoCollide(iPX - 8, iPY + 6, iPX - 2, iPY + 8);
-        DoCollide(iPX + 2, iPY + 2, iPX + 8, iPY + 4);
+        DoCollide_(iPX - 8, iPY + 6, iPX - 2, iPY + 8);
+        DoCollide_(iPX + 2, iPY + 2, iPX + 8, iPY + 4);
     elseif Module.FacingDirection == 3 then
-        DoCollide(iPX - 5, iPY + 4, iPX + 5, iPY + 6);
+        DoCollide_(iPX - 5, iPY + 4, iPX + 5, iPY + 6);
     elseif Module.FacingDirection == 4 then
-        DoCollide(iPX + 2, iPY + 6, iPX + 8, iPY  +8);
-        DoCollide(iPX - 8, iPY + 2, iPX - 2, iPY + 4);
+        DoCollide_(iPX + 2, iPY + 6, iPX + 8, iPY  +8);
+        DoCollide_(iPX - 8, iPY + 2, iPX - 2, iPY + 4);
     end
 end
 

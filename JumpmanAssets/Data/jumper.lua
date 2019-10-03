@@ -17,8 +17,6 @@ local status_type = {
 };
 status_type = read_only.make_table_read_only(status_type);
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 
@@ -174,30 +172,28 @@ local function MoveJumper_(all_jumpers)
     g_curret_pos_y = g_curret_pos_y + g_current_velocity_y;
 end
 
-function Module.update(all_jumpers)
-    if not g_is_initialized then
-        g_is_initialized = true;
+function Module.initialize()
+    g_animation_mesh_indices[1] = new_mesh(Module.AnimationMeshResourceIndices[1]);
+    g_animation_mesh_indices[2] = new_mesh(Module.AnimationMeshResourceIndices[2]);
+    g_animation_mesh_indices[3] = new_mesh(Module.AnimationMeshResourceIndices[3]);
+    g_eye_mesh_index = new_mesh(Module.EyesMeshResourceIndex);
 
-        g_animation_mesh_indices[1] = new_mesh(Module.AnimationMeshResourceIndices[1]);
-        g_animation_mesh_indices[2] = new_mesh(Module.AnimationMeshResourceIndices[2]);
-        g_animation_mesh_indices[3] = new_mesh(Module.AnimationMeshResourceIndices[3]);
-        g_eye_mesh_index = new_mesh(Module.EyesMeshResourceIndex);
-
-        if not Module.StartAlive then
-            g_current_pos_x = -50;
-            g_curret_pos_y = -50;
-            g_current_velocity_y = -1;
-            g_animation_current_frame = 1;
-            g_current_status = status_type.STRANDED;
-        else
-            g_current_pos_x = 200;
-            g_curret_pos_y = math.random(20, 80);
-            g_current_velocity_y = -1;
-            g_animation_current_frame = 1;
-            g_current_status = status_type.JUMPING;
-        end
+    if not Module.StartAlive then
+        g_current_pos_x = -50;
+        g_curret_pos_y = -50;
+        g_current_velocity_y = -1;
+        g_animation_current_frame = 1;
+        g_current_status = status_type.STRANDED;
+    else
+        g_current_pos_x = 200;
+        g_curret_pos_y = math.random(20, 80);
+        g_current_velocity_y = -1;
+        g_animation_current_frame = 1;
+        g_current_status = status_type.JUMPING;
     end
+end
 
+function Module.update(all_jumpers)
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_object_visual_data(0, 0);
 

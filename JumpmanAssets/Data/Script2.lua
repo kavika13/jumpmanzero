@@ -45,8 +45,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -54,7 +52,7 @@ local g_hud_overlay;
 local g_drop_objects = {};
 local g_wave_object;
 
-local function IsDropTooCloseToOtherDrops(current_drop)
+local function IsDropTooCloseToOtherDrops_(current_drop)
     local current_x = current_drop.get_current_pos_x();
 
     for _, other_drop in ipairs(g_drop_objects) do
@@ -71,56 +69,12 @@ local function IsDropTooCloseToOtherDrops(current_drop)
     return false;
 end
 
-local function CreateDropObject(frames_to_wait)
-    local new_drop_object = drop_module();
-    new_drop_object.GameLogic = g_game_logic;
-    new_drop_object.IsTooCloseToOtherDropsCallback = IsDropTooCloseToOtherDrops;
-    new_drop_object.FramesToWait = frames_to_wait;
-    new_drop_object.DropMeshResourceIndex = resources.MeshDrop;
-    new_drop_object.DropTextureResourceIndices = { resources.TextureDrop, resources.TextureSplash1, resources.TextureSplash2, resources.TextureSplash3 };
-    return new_drop_object;
-end
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        table.insert(g_drop_objects, CreateDropObject(700));
-        table.insert(g_drop_objects, CreateDropObject(600));
-        table.insert(g_drop_objects, CreateDropObject(500));
-        table.insert(g_drop_objects, CreateDropObject(400));
-        table.insert(g_drop_objects, CreateDropObject(300));
-        table.insert(g_drop_objects, CreateDropObject(200));
-        table.insert(g_drop_objects, CreateDropObject(100));
-
-        local new_wave_object = wave_module();
-        new_wave_object.GameLogic = g_game_logic;
-        new_wave_object.SeaMeshResourceIndex = resources.MeshSea;
-        new_wave_object.WaveMeshResourceIndex = resources.MeshWave;
-        new_wave_object.SeaTextureResourceIndex = resources.TextureSea;
-        new_wave_object.Wave1TextureResourceIndex = resources.TextureWave1;
-        new_wave_object.Wave2TextureResourceIndex = resources.TextureWave2;
-        g_wave_object = new_wave_object;
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     for _, drop in ipairs(g_drop_objects) do
@@ -128,13 +82,59 @@ function update(game_input, is_initializing)
     end
 
     g_wave_object.update();
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+local function CreateDropObject_(frames_to_wait)
+    local new_drop_object = drop_module();
+    new_drop_object.GameLogic = g_game_logic;
+    new_drop_object.IsTooCloseToOtherDropsCallback = IsDropTooCloseToOtherDrops_;
+    new_drop_object.FramesToWait = frames_to_wait;
+    new_drop_object.DropMeshResourceIndex = resources.MeshDrop;
+    new_drop_object.DropTextureResourceIndices = { resources.TextureDrop, resources.TextureSplash1, resources.TextureSplash2, resources.TextureSplash3 };
+    new_drop_object.initialize();
+    return new_drop_object;
+end
+
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    table.insert(g_drop_objects, CreateDropObject_(700));
+    table.insert(g_drop_objects, CreateDropObject_(600));
+    table.insert(g_drop_objects, CreateDropObject_(500));
+    table.insert(g_drop_objects, CreateDropObject_(400));
+    table.insert(g_drop_objects, CreateDropObject_(300));
+    table.insert(g_drop_objects, CreateDropObject_(200));
+    table.insert(g_drop_objects, CreateDropObject_(100));
+
+    g_wave_object = wave_module();
+    g_wave_object.GameLogic = g_game_logic;
+    g_wave_object.SeaMeshResourceIndex = resources.MeshSea;
+    g_wave_object.WaveMeshResourceIndex = resources.MeshWave;
+    g_wave_object.SeaTextureResourceIndex = resources.TextureSea;
+    g_wave_object.Wave1TextureResourceIndex = resources.TextureWave1;
+    g_wave_object.Wave2TextureResourceIndex = resources.TextureWave2;
+    g_wave_object.initialize();
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
 
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()

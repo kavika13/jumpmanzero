@@ -40,8 +40,6 @@ resources = read_only.make_table_read_only(resources);
 
 local kPLAYER_DROP_AFTER_FLIP = 12;
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -56,120 +54,7 @@ local g_level_flipping_rotation = 0;
 local g_level_flipping_pause_frames_remaining = 0;
 local g_player_y_when_starting_flip = 0;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        set_level_extent_x(200);
-        DisableLadder(9);
-
-        StartBullet(500);
-        StartBullet(1000);
-        StartBullet(100);
-        StartBullet(30);
-
-        for iArrow = 1, 2 do
-            g_arrow_cooldown_frames[iArrow] = 0;
-        end
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
-    end
-
-    g_arrow_rotation = g_arrow_rotation + 5;
-
-    if g_arrow_rotation > 360 then
-        g_arrow_rotation = 0;
-    end
-
-    for iArrow = 1, 2 do
-        if g_arrow_cooldown_frames[iArrow] > 0 then
-            g_arrow_cooldown_frames[iArrow] = g_arrow_cooldown_frames[iArrow] - 1;
-            select_picture(iArrow);
-            set_object_visual_data(resources.TextureUpDown, 0);
-        else
-            AnimateArrow(iArrow);
-        end
-    end
-
-    if g_level_flipping_pause_frames_remaining > 0 then
-        g_level_flipping_pause_frames_remaining = g_level_flipping_pause_frames_remaining - 1;
-        return;
-    end
-
-    if g_level_flipping_state == 1 or g_level_flipping_state == 3 then
-        g_level_flipping_rotation = g_level_flipping_rotation + 2;
-        SpinLevel();
-
-        if g_level_flipping_rotation == 50 then
-            if g_level_flipping_state == 1 then
-                g_level_flipping_state = 2;
-                EnableLadder(9);
-            else
-                g_level_flipping_state = 0;
-            end
-
-            ReverseLevel();
-
-            if g_level_flipping_state == 0 then
-                DisableLadder(9);
-            end
-        end
-    end
-
-    for _, bullet in ipairs(g_bullets) do
-        bullet.update();
-    end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
-end
-
-function StartBullet(iWait)
-    local iTemp = bullet_module();
-    iTemp.GameLogic = g_game_logic;
-    iTemp.FramesToWait = iWait;
-    iTemp.Mesh1Index = resources.MeshBullet1;
-    iTemp.Mesh2Index = resources.MeshBullet2;
-    iTemp.TextureIndex = resources.TextureBullet;
-    iTemp.FireSoundIndex = resources.SoundFire;
-    table.insert(g_bullets, iTemp);
-end
-
-function DisableLadder(iLadder)
-    select_ladder(iLadder);
-    set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
-    script_selected_mesh_translate_matrix(0, 0 - 500, 0);
-end
-
-function EnableLadder(iLadder)
-    select_ladder(iLadder);
-    set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
-    script_selected_mesh_set_identity_matrix();
-end
-
-function AnimateArrow(iPic)
+local function AnimateArrow_(iPic)
     local is_reversed = false;
 
     if g_arrow_rotation > 90 and g_arrow_rotation < 270 then
@@ -211,32 +96,88 @@ function AnimateArrow(iPic)
     end
 end
 
-function ReverseLevel()
-    local iPY = (160 - g_player_y_when_starting_flip) - kPLAYER_DROP_AFTER_FLIP;
-    set_player_current_position_y(iPY);
+local function SpinPlatform_(iPY)
+    script_selected_mesh_set_identity_matrix();
 
-    for iObj = 0, get_platform_object_count() - 1 do
-        abs_platform(iObj);
-        ReversePlatform(0);
+    if g_level_flipping_state == 1 then
+        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        script_selected_mesh_translate_matrix(0, iPY, 0);
     end
 
-    for iObj = 0, get_ladder_object_count() - 1 do
-        abs_ladder(iObj);
-        ReverseLadder();
-    end
+    if g_level_flipping_state == 3 then
+        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        script_selected_mesh_rotate_matrix_x(180);
+        script_selected_mesh_translate_matrix(0, 80, 6);
 
-    for iObj = 0, get_donut_object_count() - 1 do
-        abs_donut(iObj);
-        ReverseDonut();
-    end
-
-    for iObj = 0, get_vine_object_count() - 1 do
-        abs_vine(iObj);
-        ReverseLadder();
+        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        script_selected_mesh_translate_matrix(0, iPY, 0);
     end
 end
 
-function ReversePlatform()
+local function SpinLadder_(iPY)
+    script_selected_mesh_set_identity_matrix();
+
+    if g_level_flipping_state == 1 then
+        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        script_selected_mesh_translate_matrix(0, iPY, 0);
+    end
+
+    if g_level_flipping_state == 3 then
+        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        script_selected_mesh_rotate_matrix_x(180);
+        script_selected_mesh_translate_matrix(0, 80, 2);
+
+        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        script_selected_mesh_translate_matrix(0, iPY, 0);
+    end
+end
+
+local function SpinLevel_()
+    local iNewY = 160 - g_player_y_when_starting_flip;
+    iNewY = iNewY - kPLAYER_DROP_AFTER_FLIP;
+
+    local iPY = 0;
+    iPY = iPY + g_player_y_when_starting_flip * (50 - g_level_flipping_rotation) + iNewY * g_level_flipping_rotation;
+    iPY = math.floor(iPY / 50) & 255;
+    set_player_current_position_y(iPY);
+
+    iNewY = 160 - g_player_y_when_starting_flip;
+    iPY = 0;
+    iPY = iPY + g_player_y_when_starting_flip * (50 - g_level_flipping_rotation) + iNewY * g_level_flipping_rotation;
+    iPY = math.floor(iPY / 50) & 255;
+
+    for iPlat = 0, get_platform_object_count() - 1 do
+        abs_platform(iPlat);
+        SpinPlatform_(iPY);
+    end
+
+    for iPlat = 0, get_ladder_object_count() - 1 do
+        abs_ladder(iPlat);
+        SpinLadder_(iPY);
+    end
+
+    for iPlat = 0, get_donut_object_count() - 1 do
+        abs_donut(iPlat);
+        SpinLadder_(iPY);
+    end
+
+    for iPlat = 0, get_vine_object_count() - 1 do
+        abs_vine(iPlat);
+        SpinLadder_(iPY);
+    end
+end
+
+local function EnableLadder_(iLadder)
+    select_ladder(iLadder);
+    set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
+    script_selected_mesh_set_identity_matrix();
+end
+
+local function ReversePlatform_()
     script_selected_mesh_set_identity_matrix();
 
     if g_level_flipping_state == 2 then
@@ -258,7 +199,20 @@ function ReversePlatform()
     end
 end
 
-function ReverseLadder()
+local function ReverseDonut_()
+    script_selected_mesh_set_identity_matrix();
+
+    if g_level_flipping_state == 2 then
+        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        script_selected_mesh_rotate_matrix_x(180);
+        script_selected_mesh_translate_matrix(0, 80, 2);
+    end
+
+    local SY = get_script_selected_level_object_y1();
+    set_script_selected_level_object_y1(160 - SY);
+end
+
+local function ReverseLadder_()
     script_selected_mesh_set_identity_matrix();
 
     if g_level_flipping_state == 2 then
@@ -273,92 +227,145 @@ function ReverseLadder()
     set_script_selected_level_object_y2(160 - SY1);
 end
 
-function ReverseDonut()
-    script_selected_mesh_set_identity_matrix();
-
-    if g_level_flipping_state == 2 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
-        script_selected_mesh_translate_matrix(0, 80, 2);
-    end
-
-    local SY = get_script_selected_level_object_y1();
-    set_script_selected_level_object_y1(160 - SY);
-end
-
-function SpinLevel()
-    local iNewY = 160 - g_player_y_when_starting_flip;
-    iNewY = iNewY - kPLAYER_DROP_AFTER_FLIP;
-
-    local iPY = 0;
-    iPY = iPY + g_player_y_when_starting_flip * (50 - g_level_flipping_rotation) + iNewY * g_level_flipping_rotation;
-    iPY = math.floor(iPY / 50) & 255;
+local function ReverseLevel_()
+    local iPY = (160 - g_player_y_when_starting_flip) - kPLAYER_DROP_AFTER_FLIP;
     set_player_current_position_y(iPY);
 
-    iNewY = 160 - g_player_y_when_starting_flip;
-    iPY = 0;
-    iPY = iPY + g_player_y_when_starting_flip * (50 - g_level_flipping_rotation) + iNewY * g_level_flipping_rotation;
-    iPY = math.floor(iPY / 50) & 255;
-
-    for iPlat = 0, get_platform_object_count() - 1 do
-        abs_platform(iPlat);
-        SpinPlatform(iPY);
+    for iObj = 0, get_platform_object_count() - 1 do
+        abs_platform(iObj);
+        ReversePlatform_(0);
     end
 
-    for iPlat = 0, get_ladder_object_count() - 1 do
-        abs_ladder(iPlat);
-        SpinLadder(iPY);
+    for iObj = 0, get_ladder_object_count() - 1 do
+        abs_ladder(iObj);
+        ReverseLadder_();
     end
 
-    for iPlat = 0, get_donut_object_count() - 1 do
-        abs_donut(iPlat);
-        SpinLadder(iPY);
+    for iObj = 0, get_donut_object_count() - 1 do
+        abs_donut(iObj);
+        ReverseDonut_();
     end
 
-    for iPlat = 0, get_vine_object_count() - 1 do
-        abs_vine(iPlat);
-        SpinLadder(iPY);
+    for iObj = 0, get_vine_object_count() - 1 do
+        abs_vine(iObj);
+        ReverseLadder_();
     end
 end
 
-function SpinPlatform(iPY)
-    script_selected_mesh_set_identity_matrix();
+local function DisableLadder_(iLadder)
+    select_ladder(iLadder);
+    set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
+    script_selected_mesh_translate_matrix(0, 0 - 500, 0);
+end
 
-    if g_level_flipping_state == 1 then
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+local function StartBullet_(frame_to_wait)
+    local new_bullet = bullet_module();
+    new_bullet.GameLogic = g_game_logic;
+    new_bullet.FramesToWait = frame_to_wait;
+    new_bullet.Mesh1Index = resources.MeshBullet1;
+    new_bullet.Mesh2Index = resources.MeshBullet2;
+    new_bullet.TextureIndex = resources.TextureBullet;
+    new_bullet.FireSoundIndex = resources.SoundFire;
+    new_bullet.initialize();
+    table.insert(g_bullets, new_bullet);
+end
+
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
     end
 
-    if g_level_flipping_state == 3 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
-        script_selected_mesh_translate_matrix(0, 80, 6);
+    g_arrow_rotation = g_arrow_rotation + 5;
 
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+    if g_arrow_rotation > 360 then
+        g_arrow_rotation = 0;
+    end
+
+    for iArrow = 1, 2 do
+        if g_arrow_cooldown_frames[iArrow] > 0 then
+            g_arrow_cooldown_frames[iArrow] = g_arrow_cooldown_frames[iArrow] - 1;
+            select_picture(iArrow);
+            set_object_visual_data(resources.TextureUpDown, 0);
+        else
+            AnimateArrow_(iArrow);
+        end
+    end
+
+    if g_level_flipping_pause_frames_remaining > 0 then
+        g_level_flipping_pause_frames_remaining = g_level_flipping_pause_frames_remaining - 1;
+        return;
+    end
+
+    if g_level_flipping_state == 1 or g_level_flipping_state == 3 then
+        g_level_flipping_rotation = g_level_flipping_rotation + 2;
+        SpinLevel_();
+
+        if g_level_flipping_rotation == 50 then
+            if g_level_flipping_state == 1 then
+                g_level_flipping_state = 2;
+                EnableLadder_(9);
+            else
+                g_level_flipping_state = 0;
+            end
+
+            ReverseLevel_();
+
+            if g_level_flipping_state == 0 then
+                DisableLadder_(9);
+            end
+        end
+    end
+
+    for _, bullet in ipairs(g_bullets) do
+        bullet.update();
     end
 end
 
-function SpinLadder(iPY)
-    script_selected_mesh_set_identity_matrix();
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
 
-    if g_level_flipping_state == 1 then
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+    g_hud_overlay = hud_overlay_module();
+
+    set_level_extent_x(200);
+    DisableLadder_(9);
+
+    StartBullet_(500);
+    StartBullet_(1000);
+    StartBullet_(100);
+    StartBullet_(30);
+
+    for iArrow = 1, 2 do
+        g_arrow_cooldown_frames[iArrow] = 0;
     end
 
-    if g_level_flipping_state == 3 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
-        script_selected_mesh_translate_matrix(0, 80, 2);
+    reset();
 
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+
+    -- TODO: Apparently this level takes 10 updates to fully settle jumpman... maybe he should be repositioned...
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()

@@ -73,8 +73,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -83,66 +81,70 @@ local g_tyrannosaurus;
 local g_triceratops;
 local g_pterodactyl;
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-
-        g_hud_overlay = hud_overlay_module();
-
-        g_tyrannosaurus = tyrannosaurus_module();
-        g_tyrannosaurus.GameLogic = g_game_logic;
-        g_tyrannosaurus.LeftStandMeshResourceIndex = resources.MeshTSaurStandL;
-        g_tyrannosaurus.RightStandMeshResourceIndex = resources.MeshTSaurStandR;
-        g_tyrannosaurus.LeftWalkMeshResourceIndices = { resources.MeshTSaurWalkL1, resources.MeshTSaurWalkL2, resources.MeshTSaurWalkL3, resources.MeshTSaurWalkL4 };
-        g_tyrannosaurus.RightWalkMeshResourceIndices = { resources.MeshTSaurWalkR1, resources.MeshTSaurWalkR2, resources.MeshTSaurWalkR3, resources.MeshTSaurWalkR4 };
-        g_tyrannosaurus.LeftYellMeshResourceIndices = { resources.MeshTSaurYL1, resources.MeshTSaurYL2, resources.MeshTSaurYL3, resources.MeshTSaurYL4 };
-        g_tyrannosaurus.RightYellMeshResourceIndices = { resources.MeshTSaurYR1, resources.MeshTSaurYR2, resources.MeshTSaurYR3, resources.MeshTSaurYR4 };
-        g_tyrannosaurus.RoarSoundResourceIndex = resources.SoundRoar;
-        g_tyrannosaurus.TextureResourceIndex = resources.TextureDinosaur;
-
-        g_triceratops = triceratops_module();
-        g_triceratops.GameLogic = g_game_logic;
-        g_triceratops.LeftStandMeshResourceIndex = resources.MeshTRSaurStandL;
-        g_triceratops.RightStandMeshResourceIndex = resources.MeshTRSaurStandR;
-        g_triceratops.LeftWalkMeshResourceIndices = { resources.MeshTRSaurWalkL1, resources.MeshTRSaurWalkL2 };
-        g_triceratops.RightWalkMeshResourceIndices = { resources.MeshTRSaurWalkR1, resources.MeshTRSaurWalkR2 };
-        g_triceratops.TextureResourceIndex = resources.TextureDinosaur;
-
-        g_pterodactyl = pterodactyl_module();
-        g_pterodactyl.GameLogic = g_game_logic;
-        g_pterodactyl.LeftMeshResourceIndices = { resources.MeshPSaurL1, resources.MeshPSaurL2, resources.MeshPSaurL3, resources.MeshPSaurL4 };
-        g_pterodactyl.RightMeshResourceIndices = { resources.MeshPSaurR1, resources.MeshPSaurR2, resources.MeshPSaurR3, resources.MeshPSaurR4 };
-        g_pterodactyl.TextureResourceIndex = resources.TextureDinosaur;
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     g_tyrannosaurus.update();
     g_triceratops.update();
     g_pterodactyl.update();
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+
+    g_hud_overlay = hud_overlay_module();
+
+    g_tyrannosaurus = tyrannosaurus_module();
+    g_tyrannosaurus.GameLogic = g_game_logic;
+    g_tyrannosaurus.LeftStandMeshResourceIndex = resources.MeshTSaurStandL;
+    g_tyrannosaurus.RightStandMeshResourceIndex = resources.MeshTSaurStandR;
+    g_tyrannosaurus.LeftWalkMeshResourceIndices = { resources.MeshTSaurWalkL1, resources.MeshTSaurWalkL2, resources.MeshTSaurWalkL3, resources.MeshTSaurWalkL4 };
+    g_tyrannosaurus.RightWalkMeshResourceIndices = { resources.MeshTSaurWalkR1, resources.MeshTSaurWalkR2, resources.MeshTSaurWalkR3, resources.MeshTSaurWalkR4 };
+    g_tyrannosaurus.LeftYellMeshResourceIndices = { resources.MeshTSaurYL1, resources.MeshTSaurYL2, resources.MeshTSaurYL3, resources.MeshTSaurYL4 };
+    g_tyrannosaurus.RightYellMeshResourceIndices = { resources.MeshTSaurYR1, resources.MeshTSaurYR2, resources.MeshTSaurYR3, resources.MeshTSaurYR4 };
+    g_tyrannosaurus.RoarSoundResourceIndex = resources.SoundRoar;
+    g_tyrannosaurus.TextureResourceIndex = resources.TextureDinosaur;
+    g_tyrannosaurus.initialize();
+
+    g_triceratops = triceratops_module();
+    g_triceratops.GameLogic = g_game_logic;
+    g_triceratops.LeftStandMeshResourceIndex = resources.MeshTRSaurStandL;
+    g_triceratops.RightStandMeshResourceIndex = resources.MeshTRSaurStandR;
+    g_triceratops.LeftWalkMeshResourceIndices = { resources.MeshTRSaurWalkL1, resources.MeshTRSaurWalkL2 };
+    g_triceratops.RightWalkMeshResourceIndices = { resources.MeshTRSaurWalkR1, resources.MeshTRSaurWalkR2 };
+    g_triceratops.TextureResourceIndex = resources.TextureDinosaur;
+    g_triceratops.initialize();
+
+    g_pterodactyl = pterodactyl_module();
+    g_pterodactyl.GameLogic = g_game_logic;
+    g_pterodactyl.LeftMeshResourceIndices = { resources.MeshPSaurL1, resources.MeshPSaurL2, resources.MeshPSaurL3, resources.MeshPSaurL4 };
+    g_pterodactyl.RightMeshResourceIndices = { resources.MeshPSaurR1, resources.MeshPSaurR2, resources.MeshPSaurR3, resources.MeshPSaurR4 };
+    g_pterodactyl.TextureResourceIndex = resources.TextureDinosaur;
+    g_pterodactyl.initialize();
+
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
     end
 
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()

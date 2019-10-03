@@ -11,8 +11,6 @@ Module.TextureResourceIndex = 0;
 local kMOVING_LEFT = 3;
 local kMOVING_RIGHT = 4;
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 
@@ -25,7 +23,7 @@ local g_frames_since_state_change;
 local g_current_state_animation_frame = 0;
 local g_current_state_animation_counter = 0;
 
-local function SetAngle()
+local function SetAngle_()
     local iHit1, _ = Module.GameLogic.find_platform(g_current_pos_x - 7, g_current_pos_y, 7, 2);
     iHit1 = (iHit1 / 256) * 256;
 
@@ -35,7 +33,7 @@ local function SetAngle()
     g_current_rotation_z = math.atan(iHit2 - iHit1, 14) * 180.0 / math.pi;
 end
 
-local function Move()
+local function Move_()
     if g_current_state == kMOVING_LEFT or g_current_state == kMOVING_RIGHT then
         local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
 
@@ -67,7 +65,7 @@ local function Move()
     end
 end
 
-local function SetFrame()
+local function SetFrame_()
     g_frames_since_state_change = g_frames_since_state_change + 1;
 
     if g_current_state == kMOVING_LEFT then
@@ -79,7 +77,7 @@ local function SetFrame()
     end
 end
 
-local function Animate()
+local function Animate_()
     g_current_state_animation_counter = g_current_state_animation_counter + 1;
 
     if g_current_state_animation_counter > 3 then
@@ -92,9 +90,7 @@ local function Animate()
     end
 end
 
-local function Initialize()
-    g_is_initialized = true;
-
+function Module.initialize()
     g_current_pos_x = 140;
     g_current_pos_y = 65;
     g_current_rotation_z = 0;
@@ -113,17 +109,13 @@ local function Initialize()
 end
 
 function Module.update()
-    if not g_is_initialized then
-        Initialize();
-    end
-
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_object_visual_data(0, 0);
 
-    Animate();
-    SetFrame();
-    Move();
-    SetAngle();
+    Animate_();
+    SetFrame_();
+    Move_();
+    SetAngle_();
 
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     script_selected_mesh_set_identity_matrix();

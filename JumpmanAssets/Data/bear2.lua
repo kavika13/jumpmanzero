@@ -69,8 +69,6 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_is_initialized = false;
-
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_RIGHT_1;
 local g_animation_frame_increment_timer = 0;  -- Ticks 0 through 5, then increases g_animation_frame_counter
@@ -416,7 +414,7 @@ local function MoveBear_()
     end
 end
 
-local function Initialize_()
+function Module.initialize()
     Module.reset_pos();
 
     local stand_right_mesh_index = new_mesh(Module.StandRightMeshResourceIndex);
@@ -458,11 +456,6 @@ local function Initialize_()
 end
 
 function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        Initialize_();
-    end
-
     if g_current_pos_y < 0 then
         Module.reset_pos();
     end

@@ -51,8 +51,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
-local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -63,15 +61,7 @@ local g_hang_animation_current_frame;
 local g_hang_animation_next_frame_counter = 0;
 local iHangMesh = {};
 
-local function StartBaboon(iX, iY);
-    local new_baboon = baboon_module();
-    new_baboon.GameLogic = g_game_logic;
-    new_baboon.StartX = iX - 2.5;
-    new_baboon.StartY = iY;
-    table.insert(baboons, new_baboon);
-end
-
-local function CheckHanging(game_input)
+local function CheckHanging_(game_input)
     for iDraw = 0, 19 do
         if iHangMesh[iDraw] and iHangMesh[iDraw] > 0 then
             select_object_mesh(iHangMesh[iDraw]);
@@ -138,7 +128,22 @@ local function CheckHanging(game_input)
     end
 end
 
-local function FixHangPlatforms()
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
+
+    if player_won then
+        return;
+    end
+
+    CheckHanging_(game_input);
+
+    for _, baboon in ipairs(baboons) do
+        baboon.update();
+    end
+end
+
+local function FixHangPlatforms_()
     local platform_count = get_platform_object_count();
 
     for iPlat = 0, platform_count - 1 do
@@ -180,60 +185,55 @@ local function FixHangPlatforms()
     prioritize_object();
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function StartBaboon_(initial_pos_x, initial_pos_y);
+    local new_baboon = baboon_module();
+    new_baboon.GameLogic = g_game_logic;
+    new_baboon.StartX = initial_pos_x - 2.5;
+    new_baboon.StartY = initial_pos_y;
+    new_baboon.initialize();
+    table.insert(baboons, new_baboon);
+end
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
 
-        g_hud_overlay = hud_overlay_module();
+    g_hud_overlay = hud_overlay_module();
 
-        g_hang_animation_current_frame = 1;
+    g_hang_animation_current_frame = 1;
 
-        FixHangPlatforms();
+    FixHangPlatforms_();
 
-        set_level_extent_x(260);
+    set_level_extent_x(260);
 
-        StartBaboon(76, 170);
-        StartBaboon(207, 90);
-        StartBaboon(138, 70);
-        StartBaboon(187, 30);
-        StartBaboon(227, 60);
-        StartBaboon(177, 120);
-        StartBaboon(32, 160);
+    StartBaboon_(76, 170);
+    StartBaboon_(207, 90);
+    StartBaboon_(138, 70);
+    StartBaboon_(187, 30);
+    StartBaboon_(227, 60);
+    StartBaboon_(177, 120);
+    StartBaboon_(32, 160);
 
-        StartBaboon(64, 60);
-        StartBaboon(84, 70);
-    end
+    StartBaboon_(64, 60);
+    StartBaboon_(84, 70);
 
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        local continue_update = g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
+    reset();
 
-        if not continue_update then
-            return true;
-        end
-    elseif g_is_first_update_complete then
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+        return;
     end
 
-    CheckHanging(game_input);
-
-    for _, baboon in ipairs(baboons) do
-        baboon.update();
-    end
-
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
-    end
-
-    return true;
+    ProgressLevel_(game_input);
 end
 
 function reset()
