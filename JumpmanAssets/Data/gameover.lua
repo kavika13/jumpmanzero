@@ -75,7 +75,7 @@ local g_letter_drop_animation_timer = 0;
 
 function update(game_input, is_initializing)
     set_player_freeze_cooldown_frame_count(100);
-    set_player_current_state(0);
+    set_player_current_state(player_state.JSNORMAL);
 
     if not g_is_initialized then
         g_is_initialized = true;

@@ -610,7 +610,6 @@ static int get_wall_y4(lua_State* lua_state) {
 static int queue_level_load(lua_State* lua_state) {
     const char* level_name_arg = luaL_checkstring(lua_state, 1);
     stbsp_snprintf(g_queued_level_load_filename, sizeof(g_queued_level_load_filename), "Data/%s.DAT", level_name_arg);
-    g_player_current_state = kPlayerStateNormal;
     g_game_status = kGameStatusLevelLoad;
     return 0;
 }
