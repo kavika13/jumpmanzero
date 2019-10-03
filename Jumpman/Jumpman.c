@@ -38,19 +38,6 @@ typedef enum {
     kGameMenuMusicStateMainLoopTrack = 2,
 } GameMenuMusicState;
 
-typedef enum {
-    kPlayerStateNormal = 0,
-    kPlayerStateJumping = 1,
-    kPlayerStateFalling = 8,
-    kPlayerStateLadder = 16,
-    kPlayerStateRoll = 64,
-    kPlayerStatePunch = 128,
-    kPlayerStateDying = 256,
-    kPlayerStateDone = 512,
-    kPlayerStateVine = 1024,
-    kPlayerStateSlide = 2048,
-} PlayerState;
-
 #define MAX_PLAYER_MESHES 100
 
 typedef enum {
