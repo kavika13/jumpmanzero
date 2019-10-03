@@ -249,7 +249,7 @@ function Module.update(game_input, all_turtles)
             end
 
             Module.GameLogic.set_player_current_state_frame_count(0);
-            set_player_no_roll_cooldown_frame_count(10);
+            Module.GameLogic.set_player_no_roll_cooldown_frame_count(10);
 
             if g_current_status == status_type.MOVE_LEFT then
                 g_current_status = status_type.HIDE_LEFT;

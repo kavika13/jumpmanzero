@@ -80,7 +80,7 @@ local function AnimateArrow_(iPic)
     if g_game_logic.is_player_colliding_with_rect(SX - 3, SY - 4, SX + 3, SY + 4) and
             (g_level_flipping_state == 0 or g_level_flipping_state == 2) then
         g_level_flipping_pause_frames_remaining = 25;
-        set_player_freeze_cooldown_frame_count(75);
+        g_game_logic.set_player_freeze_cooldown_frame_count(75);
 
         if g_level_flipping_state == 0 then
             g_level_flipping_state = 1;

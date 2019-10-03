@@ -364,7 +364,7 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    set_player_freeze_cooldown_frame_count(0);
+    g_game_logic.set_player_freeze_cooldown_frame_count(0);
     set_player_is_visible(1);
 
     g_frames_since_level_start = g_frames_since_level_start + 1;
@@ -407,7 +407,7 @@ local function ProgressLevel_(game_input)
             end
         end
 
-        set_player_freeze_cooldown_frame_count(2);
+        g_game_logic.set_player_freeze_cooldown_frame_count(2);
         set_player_is_visible(0);
 
         local iPX = get_player_current_position_x();
@@ -431,7 +431,7 @@ local function ProgressLevel_(game_input)
         set_object_visual_data(resources.TextureJumpman, 1);
 
         if g_game_logic.get_player_current_state() == player_state.JSDYING then
-            set_player_freeze_cooldown_frame_count(0);
+            g_game_logic.set_player_freeze_cooldown_frame_count(0);
         end
     else
         if g_game_logic.get_player_current_state() == 4096 then  -- TODO: Constant instead of hard coded number? What causes this state?

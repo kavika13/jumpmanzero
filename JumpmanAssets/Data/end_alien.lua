@@ -9,8 +9,6 @@ Module.AlienTextureResourceIndex = 0;
 Module.ShipTextureResourceIndex = 0;
 Module.GlassTextureResourceIndex = 0;
 
-local g_is_initialized = false;
-
 local g_frames_since_level_start = 0;
 
 local g_ship_top_mesh_index = 0;
@@ -132,20 +130,18 @@ local function ShowAlien_()
     set_object_visual_data(Module.GlassTextureResourceIndex, 1);
 end
 
+function Module.initialize()
+    g_alien_mesh_index = new_mesh(Module.AlienMeshResourceIndices[1]);
+    g_eye_1_mesh_index = new_mesh(Module.EyeMeshResourceIndex);
+    g_eye_2_mesh_index = new_mesh(Module.EyeMeshResourceIndex);
+    g_ship_base_mesh_index = new_mesh(Module.ShipBaseMeshResourceIndex);
+    g_ship_top_mesh_index = new_mesh(Module.ShipTopMeshResourceIndex);
+
+    g_current_pos_y = 130;
+end
+
 function Module.update()
     g_frames_since_level_start = g_frames_since_level_start + 1;
-
-    if not g_is_initialized then
-        g_is_initialized = true;
-
-        g_alien_mesh_index = new_mesh(Module.AlienMeshResourceIndices[1]);
-        g_eye_1_mesh_index = new_mesh(Module.EyeMeshResourceIndex);
-        g_eye_2_mesh_index = new_mesh(Module.EyeMeshResourceIndex);
-        g_ship_base_mesh_index = new_mesh(Module.ShipBaseMeshResourceIndex);
-        g_ship_top_mesh_index = new_mesh(Module.ShipTopMeshResourceIndex);
-
-        g_current_pos_y = 130;
-    end
 
     SetFacing_();
     ShowAlien_();

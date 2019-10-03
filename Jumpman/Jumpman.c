@@ -176,9 +176,6 @@ static PlayerMesh g_player_current_mesh;
 static PlayerMesh g_player_previous_mesh;
 static bool g_player_is_visible;
 
-static int g_player_no_roll_cooldown_frame_count;
-static int g_player_freeze_cooldown_frame_count;
-
 #define MAX_OBJECTSCRIPTS 5
 #define MAX_SCRIPTOBJECTS 60
 
@@ -638,11 +635,6 @@ static int get_player_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_no_roll_cooldown_frame_count);
-    return 1;
-}
-
 static int get_player_current_velocity_x(lua_State* lua_state) {
     lua_pushinteger(lua_state, g_player_velocity_x);
     return 1;
@@ -890,11 +882,6 @@ static int get_player_current_position_z(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_freeze_cooldown_frame_count);
-    return 1;
-}
-
 static int get_player_is_visible(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_player_is_visible);
     return 1;
@@ -972,21 +959,9 @@ static int set_player_current_position_z(lua_State* lua_state) {
     return 0;
 }
 
-static int set_player_freeze_cooldown_frame_count(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_freeze_cooldown_frame_count = (int)arg1;
-    return 0;
-}
-
 static int set_player_is_visible(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_is_visible = arg1;
-    return 0;
-}
-
-static int set_player_no_roll_cooldown_frame_count(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_no_roll_cooldown_frame_count = (int)arg1;
     return 0;
 }
 
@@ -1496,8 +1471,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_player_current_rotation_x_radians");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
-    lua_pushcfunction(lua_state, get_player_no_roll_cooldown_frame_count);
-    lua_setglobal(lua_state, "get_player_no_roll_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_player_current_velocity_x);
     lua_setglobal(lua_state, "get_player_current_velocity_x");
     lua_pushcfunction(lua_state, set_player_current_velocity_x);
@@ -1584,8 +1557,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_current_position_y");
     lua_pushcfunction(lua_state, get_player_current_position_z);
     lua_setglobal(lua_state, "get_player_current_position_z");
-    lua_pushcfunction(lua_state, get_player_freeze_cooldown_frame_count);
-    lua_setglobal(lua_state, "get_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_player_is_visible);
     lua_setglobal(lua_state, "get_player_is_visible");
     lua_pushcfunction(lua_state, get_remaining_life_count);
@@ -1614,12 +1585,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_player_current_position_y");
     lua_pushcfunction(lua_state, set_player_current_position_z);
     lua_setglobal(lua_state, "set_player_current_position_z");
-    lua_pushcfunction(lua_state, set_player_freeze_cooldown_frame_count);
-    lua_setglobal(lua_state, "set_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, set_player_is_visible);
     lua_setglobal(lua_state, "set_player_is_visible");
-    lua_pushcfunction(lua_state, set_player_no_roll_cooldown_frame_count);
-    lua_setglobal(lua_state, "set_player_no_roll_cooldown_frame_count");
     lua_pushcfunction(lua_state, set_remaining_life_count);
     lua_setglobal(lua_state, "set_remaining_life_count");
 
@@ -1775,8 +1742,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     long iMPlace;
     int iSounds;
 
-    g_player_freeze_cooldown_frame_count = 0;
-    g_player_no_roll_cooldown_frame_count = 0;
     g_player_is_visible = true;
 
     g_level_extent_x = 160;

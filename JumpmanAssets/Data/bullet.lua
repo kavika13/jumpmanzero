@@ -156,7 +156,7 @@ function Module.update()
         return;
     end
 
-    if get_player_freeze_cooldown_frame_count() ~= 0 then
+    if Module.GameLogic.get_player_freeze_cooldown_frame_count() ~= 0 then
         RestartBullet();
     end
 

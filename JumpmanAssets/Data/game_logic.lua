@@ -108,6 +108,8 @@ local g_player_current_special_action = player_special_action.NONE;
 local g_is_already_on_ladder = false;
 local g_player_dying_animation_state = -1;
 local g_player_dying_animation_state_frame_count = -1;
+local g_player_no_roll_cooldown_frame_count = 0
+local g_player_freeze_cooldown_frame_count = 0;
 
 local g_player_current_close_ladder_index = -1;
 local g_player_current_exact_ladder_index = -1;
@@ -838,7 +840,7 @@ MoveJumpmanJumping_ = function(game_input)
     end
 
     if game_input.move_down_action.is_pressed and
-            get_player_no_roll_cooldown_frame_count() == 0 and
+            g_player_no_roll_cooldown_frame_count == 0 and
             (g_player_current_direction == player_movement_direction.DIR_RIGHT or
                 g_player_current_direction == player_movement_direction.DIR_LEFT) then
         g_player_current_state_frame_count = 0;
@@ -1380,15 +1382,15 @@ end
 -- Returns true if player won
 function Module.progress_game(game_input)
     if (g_player_current_state & player_state.JSDONE) == 0 then
-        if get_player_freeze_cooldown_frame_count() ~= 0 then
-            set_player_freeze_cooldown_frame_count(get_player_freeze_cooldown_frame_count() - 1);
+        if g_player_freeze_cooldown_frame_count ~= 0 then
+            g_player_freeze_cooldown_frame_count = g_player_freeze_cooldown_frame_count - 1;
         end
 
-        if get_player_no_roll_cooldown_frame_count() ~= 0 then
-            set_player_no_roll_cooldown_frame_count(get_player_no_roll_cooldown_frame_count() - 1);
+        if g_player_no_roll_cooldown_frame_count ~= 0 then
+            g_player_no_roll_cooldown_frame_count = g_player_no_roll_cooldown_frame_count - 1;
         end
 
-        if (g_player_current_state & player_state.JSDYING) == 0 and get_player_freeze_cooldown_frame_count() == 0 then
+        if (g_player_current_state & player_state.JSDYING) == 0 and g_player_freeze_cooldown_frame_count == 0 then
             g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
             set_player_current_rotation_x_radians(0);
             set_player_current_mesh(player_mesh.STAND);
@@ -1405,7 +1407,7 @@ function Module.progress_game(game_input)
             GrabDonuts_(game_input);
         end
 
-        if (g_player_current_state & player_state.JSDYING) ~= 0 and get_player_freeze_cooldown_frame_count() == 0 then
+        if (g_player_current_state & player_state.JSDYING) ~= 0 and g_player_freeze_cooldown_frame_count == 0 then
             AnimateDying_(game_input);
             GrabDonuts_(game_input);
         end
@@ -1481,6 +1483,22 @@ end
 
 function Module.set_player_current_special_action(new_special_action)
     g_player_current_special_action = new_special_action;
+end
+
+function Module.get_player_no_roll_cooldown_frame_count()
+    return g_player_no_roll_cooldown_frame_count;
+end
+
+function Module.set_player_no_roll_cooldown_frame_count(new_frame_count)
+    g_player_no_roll_cooldown_frame_count = new_frame_count;
+end
+
+function Module.get_player_freeze_cooldown_frame_count()
+    return g_player_freeze_cooldown_frame_count;
+end
+
+function Module.set_player_freeze_cooldown_frame_count(new_frame_count)
+    g_player_freeze_cooldown_frame_count = new_frame_count;
 end
 
 function Module.find_vine(iX, iY)

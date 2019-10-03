@@ -74,7 +74,7 @@ local g_camera_pan_animation_timer = 0;
 local g_letter_drop_animation_timer = 0;
 
 local function ProgressLevel_(game_input)
-    set_player_freeze_cooldown_frame_count(100);
+    g_game_logic.set_player_freeze_cooldown_frame_count(100);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
     g_game_logic.progress_game(game_input);
 

@@ -522,7 +522,7 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    set_player_freeze_cooldown_frame_count(10);
+    g_game_logic.set_player_freeze_cooldown_frame_count(10);
     g_time_since_level_start = g_time_since_level_start + 1;
 
     local iFogBack = 0;
