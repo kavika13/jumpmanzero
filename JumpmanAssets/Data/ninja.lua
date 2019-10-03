@@ -338,7 +338,7 @@ local function CollidePlayer_()
         return;
     end
 
-    local current_player_special_action = get_player_current_special_action();
+    local current_player_special_action = Module.GameLogic.get_player_current_special_action();
     local iWin = 0;
 
     if g_current_status ~= status_type.FIX_DONUT and g_current_status ~= status_type.HIGH_RAGDOLL then

@@ -348,7 +348,7 @@ local function CheckJump_(game_input)
         end
 
         g_game_logic.set_player_current_state_frame_count(2);
-        set_player_current_special_action(0);
+        g_game_logic.set_player_current_special_action(0);  -- TODO: Don't hard-code enum
 
         return true;
     end

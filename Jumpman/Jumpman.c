@@ -51,12 +51,6 @@ typedef enum {
     kPlayerStateSlide = 2048,
 } PlayerState;
 
-typedef enum {
-    kPlayerSpecialActionNone = 0,
-    kPlayerSpecialActionKick = 1,
-    kPlayerSpecialActionPunch = 2,
-} PlayerSpecialAction;
-
 #define MAX_PLAYER_MESHES 100
 
 typedef enum {
@@ -201,8 +195,6 @@ static int g_player_velocity_x;
 static PlayerMesh g_player_current_mesh;
 static PlayerMesh g_player_previous_mesh;
 static bool g_player_is_visible;
-
-static PlayerSpecialAction g_player_current_special_action;
 
 static PlayerDyingAnimationState g_player_dying_animation_state;
 static int g_player_dying_animation_state_frame_count;
@@ -943,11 +935,6 @@ static int get_player_current_position_z(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_current_special_action(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_current_special_action);
-    return 1;
-}
-
 static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
     lua_pushinteger(lua_state, g_player_freeze_cooldown_frame_count);
     return 1;
@@ -1027,12 +1014,6 @@ static int set_player_current_position_y(lua_State* lua_state) {
 static int set_player_current_position_z(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_z = (float)arg1;
-    return 0;
-}
-
-static int set_player_current_special_action(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_current_special_action = arg1;
     return 0;
 }
 
@@ -1656,8 +1637,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_current_position_y");
     lua_pushcfunction(lua_state, get_player_current_position_z);
     lua_setglobal(lua_state, "get_player_current_position_z");
-    lua_pushcfunction(lua_state, get_player_current_special_action);
-    lua_setglobal(lua_state, "get_player_current_special_action");
     lua_pushcfunction(lua_state, get_player_freeze_cooldown_frame_count);
     lua_setglobal(lua_state, "get_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_player_is_visible);
@@ -1688,8 +1667,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_player_current_position_y");
     lua_pushcfunction(lua_state, set_player_current_position_z);
     lua_setglobal(lua_state, "set_player_current_position_z");
-    lua_pushcfunction(lua_state, set_player_current_special_action);
-    lua_setglobal(lua_state, "set_player_current_special_action");
     lua_pushcfunction(lua_state, set_player_freeze_cooldown_frame_count);
     lua_setglobal(lua_state, "set_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, set_player_is_visible);
