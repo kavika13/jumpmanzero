@@ -228,7 +228,7 @@ function update(game_input, is_initializing)
     if InTank() then
         g_swim_collision.IsInTank = true;
 
-        if get_player_current_state() == player_state.JSDYING then
+        if g_game_logic.get_player_current_state() == player_state.JSDYING then
             g_swim_death_spin_animation_frame = g_swim_death_spin_animation_frame + 1;
             g_swim_animation_frame = Cycle(g_frames_since_level_start, 22, 1, 3);
             g_swim_rotation_angle = g_swim_death_spin_animation_frame * 12;
@@ -273,12 +273,12 @@ function update(game_input, is_initializing)
         script_selected_mesh_translate_matrix(iDrawX, iDrawY + 5, 2);
         set_object_visual_data(resources.TextureJumpman, 1);
 
-        if get_player_current_state() == player_state.JSDYING then
+        if g_game_logic.get_player_current_state() == player_state.JSDYING then
             set_player_freeze_cooldown_frame_count(0);
         end
     else
-        if get_player_current_state() == 4096 then  -- TODO: Constant instead of hard coded number? What causes this state?
-            set_player_current_state(player_state.JSFALLING);
+        if g_game_logic.get_player_current_state() == 4096 then  -- TODO: Constant instead of hard coded number? What causes this state?
+            g_game_logic.set_player_current_state(player_state.JSFALLING);
         end
 
         g_swim_time_in_pool_frames = 0;
@@ -350,12 +350,12 @@ function StartSplashParticles(iX, iY)
     g_splash_scale_x = 1.4;
     g_splash_scale_y = 1.4;
 
-    if get_player_current_state() == player_state.JSROLL then
+    if g_game_logic.get_player_current_state() == player_state.JSROLL then
         g_splash_scale_x = 0.5;
         g_splash_scale_y = 1.1;
     end
 
-    if get_player_current_state() == player_state.JSJUMPING then
+    if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
         g_splash_scale_x = 1;
         g_splash_scale_y = 1.2;
     end
@@ -372,7 +372,7 @@ end
 function CheckJump(game_input)
     if game_input.jump_action.is_pressed and get_player_current_position_y() > kTOP_OF_POOL_Y - 2 then
         set_player_current_position_y(kTOP_OF_POOL_Y + 1);
-        set_player_current_state(player_state.JSJUMPING);
+        g_game_logic.set_player_current_state(player_state.JSJUMPING);
 
         if game_input.move_left_action.is_pressed then
             g_game_logic.set_player_current_direction(player_movement_direction.DIR_LEFT);
@@ -382,7 +382,7 @@ function CheckJump(game_input)
             g_game_logic.set_player_current_direction(player_movement_direction.DIR_UP);
         end
 
-        set_player_current_state_frame_count(2);
+        g_game_logic.set_player_current_state_frame_count(2);
         set_player_current_special_action(0);
 
         return true;
@@ -538,5 +538,5 @@ function reset()
     set_player_current_position_x(130);
     set_player_current_position_y(127);
     set_player_current_position_z(3);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

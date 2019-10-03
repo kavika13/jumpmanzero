@@ -221,7 +221,7 @@ function reset()
     set_player_current_position_x(8);
     set_player_current_position_y(5);
     set_player_current_position_z(3);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     if g_is_initialized then
         g_bullet.reset_pos();

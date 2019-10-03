@@ -616,5 +616,5 @@ function reset()
     set_player_current_position_x(80);
     set_player_current_position_y(79);
     set_player_current_position_z(3);
-    set_player_current_state(player_state.JSNORMAL);
+    Module.GameLogic.set_player_current_state(player_state.JSNORMAL);
 end

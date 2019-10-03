@@ -141,5 +141,5 @@ function reset()
     set_player_current_position_x(10);
     set_player_current_position_y(73);
     set_player_current_position_z(2);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

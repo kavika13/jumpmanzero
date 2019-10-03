@@ -365,7 +365,7 @@ function reset()
     set_player_current_position_x(80);
     set_player_current_position_y(8);
     set_player_current_position_z(9);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, bullet in ipairs(g_bullets) do
         bullet.reset_pos();

@@ -98,6 +98,9 @@ local player_dying_animation_state = {
 player_dying_animation_state = read_only.make_table_read_only(player_dying_animation_state);
 
 -- TODO: Do we have to initialize all these?
+local g_player_current_state = player_state.JSNORMAL;
+local g_player_current_state_frame_count = 0;
+local g_player_absolute_frame_count = 0;
 local g_player_old_position_x = 0;
 local g_player_old_position_y = 0;
 local g_player_current_direction = 0;
@@ -124,7 +127,7 @@ local MoveJumpmanPunch_ = nil;
 local function PlayerFloor_()
     local iFloor = 0;
 
-    if (get_player_current_state() & player_state.JSJUMPING) ~= 0 and get_player_current_state_frame_count() < 12 then
+    if (g_player_current_state & player_state.JSJUMPING) ~= 0 and g_player_current_state_frame_count < 12 then
         iFloor = 4;
     end
 
@@ -134,15 +137,15 @@ end
 local function PlayerHeight_()
     local iHeight = 14;
 
-    if (get_player_current_state() & player_state.JSROLL) ~= 0 then
+    if (g_player_current_state & player_state.JSROLL) ~= 0 then
         iHeight = 7;
     end
 
-    if (get_player_current_state() & player_state.JSPUNCH) ~= 0 then
+    if (g_player_current_state & player_state.JSPUNCH) ~= 0 then
         iHeight = 9;
     end
 
-    if (get_player_current_state() & player_state.JSDYING) ~= 0 then
+    if (g_player_current_state & player_state.JSDYING) ~= 0 then
         iHeight = 7;
     end
 
@@ -240,7 +243,7 @@ local function FindPlatform_(iX, iY, iHeight, iWide)
                     bGood = true;
                 end
 
-                if get_player_current_state() == player_state.JSROLL and get_player_current_state_frame_count() < 6 then
+                if g_player_current_state == player_state.JSROLL and g_player_current_state_frame_count < 6 then
                     bGood = false;
                 end
             else
@@ -373,14 +376,14 @@ local function PlayerCollide_(x1, y1, x2, y2)
     -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
     local player_pos_x = get_player_current_position_x();
     local player_pos_y = get_player_current_position_y();
-    local is_player_jumping = (get_player_current_state() & player_state.JSJUMPING) ~= 0;
-    local is_player_rolling = (get_player_current_state() & player_state.JSROLL) ~= 0;
+    local is_player_jumping = (g_player_current_state & player_state.JSJUMPING) ~= 0;
+    local is_player_rolling = (g_player_current_state & player_state.JSROLL) ~= 0;
 
     if is_player_jumping then
         if player_pos_x + 4 > x1 and player_pos_y + 9 > y1 and player_pos_x - 4 < x2 and player_pos_y + 4 < y2 then
             return true;
         end
-    elseif is_player_rolling and get_player_absolute_frame_count() < 12 then
+    elseif is_player_rolling and g_player_absolute_frame_count < 12 then
         if player_pos_x + 4 > x1 and player_pos_y + 7 > y1 and player_pos_x - 4 < x2 and player_pos_y + 3 < y2 then
             return true;
         end
@@ -431,7 +434,7 @@ local function CheckJumpStart_(iLeft, iUp, iRight, game_input)
     end
 
     set_player_current_special_action(player_special_action.NONE);
-    set_player_current_state_frame_count(0);
+    g_player_current_state_frame_count = 0;
 
     play_sound_effect(0);
 
@@ -476,11 +479,11 @@ local function AdjustPlayerZ_(iTargetZ, iTime)
 end
 
 MoveJumpmanVine_ = function(game_input)
-    set_player_current_state(player_state.JSVINE);
+    g_player_current_state = player_state.JSVINE;
     set_player_current_special_action(player_special_action.NONE);
 
     if g_player_current_close_vine_index == -1 then
-        set_player_current_state(player_state.JSNORMAL);
+        g_player_current_state = player_state.JSNORMAL;
         return;
     end
 
@@ -493,7 +496,7 @@ MoveJumpmanVine_ = function(game_input)
     end
 
     set_player_current_mesh(
-        (get_player_absolute_frame_count() & 2) ~= 0 and player_mesh.VINE_CLIMB_1 or player_mesh.VINE_CLIMB_2);
+        (g_player_absolute_frame_count & 2) ~= 0 and player_mesh.VINE_CLIMB_1 or player_mesh.VINE_CLIMB_2);
     AdjustPlayerZ_(get_vine_z1(g_player_current_close_vine_index) - 3, 0);
 
     if get_vine_y2(g_player_current_close_vine_index) < g_player_current_platform_y - 2 or
@@ -506,7 +509,7 @@ MoveJumpmanVine_ = function(game_input)
 
     local iVinX = get_vine_x1(g_player_current_close_vine_index);
 
-    if (get_player_absolute_frame_count() & 1) ~= 0 then
+    if (g_player_absolute_frame_count & 1) ~= 0 then
         if get_player_current_position_x() + 1 > iVinX and get_player_current_position_x() - 1 < iVinX then
             set_player_current_position_x(iVinX);
         elseif get_player_current_position_x() < iVinX then
@@ -518,12 +521,12 @@ MoveJumpmanVine_ = function(game_input)
 end
 
 MoveJumpmanLadder_ = function(game_input)
-    set_player_current_state(player_state.JSLADDER);
+    g_player_current_state = player_state.JSLADDER;
     set_player_current_special_action(player_special_action.NONE);
     g_is_already_on_ladder = true;
 
     if g_player_current_close_ladder_index == -1 then
-        set_player_current_state(player_state.JSNORMAL);
+        g_player_current_state = player_state.JSNORMAL;
         return;
     end
 
@@ -546,10 +549,10 @@ MoveJumpmanLadder_ = function(game_input)
             get_ladder_y1(g_player_current_close_ladder_index) - 5 > get_player_current_position_y() then
         set_player_current_position_y(get_player_current_position_y() + 1);
         set_player_current_mesh(
-            (get_player_absolute_frame_count() & 2) ~= 0 and player_mesh.LADDER_CLIMB_2 or player_mesh.LADDER_CLIMB_1);
+            (g_player_absolute_frame_count & 2) ~= 0 and player_mesh.LADDER_CLIMB_2 or player_mesh.LADDER_CLIMB_1);
     elseif game_input.move_up_action.is_pressed and not game_input.move_down_action.is_pressed then
         set_player_current_mesh(
-            (get_player_absolute_frame_count() & 2) ~= 0 and player_mesh.LADDER_CLIMB_2 or player_mesh.LADDER_CLIMB_1);
+            (g_player_absolute_frame_count & 2) ~= 0 and player_mesh.LADDER_CLIMB_2 or player_mesh.LADDER_CLIMB_1);
     end
 
     if game_input.move_down_action.is_pressed and
@@ -557,7 +560,7 @@ MoveJumpmanLadder_ = function(game_input)
                 get_player_current_position_y() > g_player_current_platform_y) then
         set_player_current_position_y(get_player_current_position_y() - 1);
         set_player_current_mesh(
-            (get_player_absolute_frame_count() & 2) ~= 0 and player_mesh.LADDER_CLIMB_2 or player_mesh.LADDER_CLIMB_1);
+            (g_player_absolute_frame_count & 2) ~= 0 and player_mesh.LADDER_CLIMB_2 or player_mesh.LADDER_CLIMB_1);
 
         if get_ladder_y2(g_player_current_close_ladder_index) >= g_player_current_platform_y - 3 and
                 get_player_current_position_y() < g_player_current_platform_y then
@@ -577,7 +580,7 @@ MoveJumpmanLadder_ = function(game_input)
 end
 
 MoveJumpmanNormal_ = function(game_input)
-    set_player_current_state(player_state.JSNORMAL);
+    g_player_current_state = player_state.JSNORMAL;
     set_player_current_special_action(player_special_action.NONE);
 
     AdjustPlayerZ_(
@@ -629,13 +632,13 @@ MoveJumpmanNormal_ = function(game_input)
 
     if game_input.move_left_action.is_pressed and not game_input.move_right_action.is_pressed then
         set_player_current_mesh(
-            (get_player_absolute_frame_count() & 2) ~= 0 and player_mesh.LEFT_1 or player_mesh.LEFT_2);
+            (g_player_absolute_frame_count & 2) ~= 0 and player_mesh.LEFT_1 or player_mesh.LEFT_2);
         set_player_current_position_x(get_player_current_position_x() - 1);
     end
 
     if game_input.move_right_action.is_pressed and not game_input.move_left_action.is_pressed then
         set_player_current_mesh(
-            (get_player_absolute_frame_count() & 2) ~= 0 and player_mesh.RIGHT_1 or player_mesh.RIGHT_2);
+            (g_player_absolute_frame_count & 2) ~= 0 and player_mesh.RIGHT_1 or player_mesh.RIGHT_2);
         set_player_current_position_x(get_player_current_position_x() + 1);
     end
 
@@ -645,14 +648,14 @@ MoveJumpmanNormal_ = function(game_input)
             g_player_current_platform_y > get_player_current_position_y() - 1 then
         set_player_current_position_y(g_player_current_platform_y);
     elseif g_player_current_platform_y < get_player_current_position_y() - 4 then
-        set_player_current_state_frame_count(0);
+        g_player_current_state_frame_count = 0;
         MoveJumpmanFalling_(game_input);
         return;
     elseif g_player_current_platform_y < get_player_current_position_y() - 1 then
         set_player_current_position_y(get_player_current_position_y() - 1);
     elseif g_player_current_platform_y > get_player_current_position_y() + 3 then
         set_player_current_mesh(
-            (get_player_absolute_frame_count() & 2) ~= 0 and player_mesh.VINE_CLIMB_1 or player_mesh.VINE_CLIMB_2);
+            (g_player_absolute_frame_count & 2) ~= 0 and player_mesh.VINE_CLIMB_1 or player_mesh.VINE_CLIMB_2);
         set_player_current_position_y(get_player_current_position_y() + 1);
         is_climbing = true;
     elseif g_player_current_platform_y > get_player_current_position_y() + 1 then
@@ -691,12 +694,12 @@ end
 
 local function DoDeathBounce_()
     stop_music_track_1();
-    set_player_current_state(player_state.JSDYING);
+    g_player_current_state = player_state.JSDYING;
     set_player_dying_animation_state(player_dying_animation_state.FALLING);
     set_player_dying_animation_state_frame_count(0);
     set_player_current_velocity_x(0);
-    set_player_absolute_frame_count(get_player_current_state_frame_count());
-    set_player_current_state_frame_count(1000);
+    g_player_absolute_frame_count = g_player_current_state_frame_count;
+    g_player_current_state_frame_count = 1000;
 
     local iRand = math.random(0, 0x7fff);
 
@@ -710,25 +713,25 @@ local function DoDeathBounce_()
 end
 
 MoveJumpmanFalling_ = function(game_input)
-    set_player_current_state(player_state.JSFALLING);
+    g_player_current_state = player_state.JSFALLING;
     set_player_current_special_action(player_special_action.NONE);
 
     set_player_current_position_y(get_player_current_position_y() - 1);
-    set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
-    set_player_current_rotation_x_radians(get_player_current_state_frame_count() / -10.0);
+    g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
+    set_player_current_rotation_x_radians(g_player_current_state_frame_count / -10.0);
     set_player_current_mesh(player_mesh.JUMP_UP);
 
-    if get_player_current_state_frame_count() > 10 then
+    if g_player_current_state_frame_count > 10 then
         set_player_current_position_y(get_player_current_position_y() - 0.5);
     end
 
-    if get_player_current_state_frame_count() > 20 then
+    if g_player_current_state_frame_count > 20 then
         set_player_current_position_y(get_player_current_position_y() - 0.5);
     end
 
     if get_player_current_position_y() <= g_player_current_platform_y and
             get_platform_extra(g_player_current_platform_index) ~= 3 then
-        if get_player_current_state_frame_count() < 10 then
+        if g_player_current_state_frame_count < 10 then
             MoveJumpmanNormal_(game_input);
             return;
         else
@@ -740,7 +743,7 @@ MoveJumpmanFalling_ = function(game_input)
 end
 
 MoveJumpmanJumping_ = function(game_input)
-    set_player_current_state(player_state.JSJUMPING);
+    g_player_current_state = player_state.JSJUMPING;
 
     if get_player_current_special_action() ~= player_special_action.KICK and
             game_input.attack_action.is_pressed and (
@@ -751,7 +754,7 @@ MoveJumpmanJumping_ = function(game_input)
 
     if g_player_current_exact_ladder_index ~= -1 and
             not game_input.attack_action.is_pressed and (
-                get_player_current_state_frame_count() > 15 or
+                g_player_current_state_frame_count > 15 or
                 not game_input.jump_action.is_pressed or
                 (g_player_current_direction == player_movement_direction.DIR_RIGHT and
                     game_input.move_left_action.is_pressed) or
@@ -763,7 +766,7 @@ MoveJumpmanJumping_ = function(game_input)
 
     if g_player_current_exact_vine_index ~= -1 and
             not game_input.attack_action.is_pressed and (
-                get_player_current_state_frame_count() > 10 or
+                g_player_current_state_frame_count > 10 or
                 not game_input.jump_action.is_pressed or
                 (g_player_current_direction == player_movement_direction.DIR_RIGHT and
                     game_input.move_left_action.is_pressed) or
@@ -773,7 +776,7 @@ MoveJumpmanJumping_ = function(game_input)
         return;
     end
 
-    if get_player_current_state_frame_count() > 50 then
+    if g_player_current_state_frame_count > 50 then
         if g_player_current_close_ladder_index ~= -1 then
             MoveJumpmanLadder_(game_input);
             return;
@@ -789,31 +792,31 @@ MoveJumpmanJumping_ = function(game_input)
     end
 
     if get_player_current_position_y() < g_player_current_platform_y and
-            get_player_current_state_frame_count() > 6 and
-            (not game_input.jump_action.is_pressed or get_player_current_state_frame_count() > 12) then
+            g_player_current_state_frame_count > 6 and
+            (not game_input.jump_action.is_pressed or g_player_current_state_frame_count > 12) then
         MoveJumpmanNormal_(game_input);
         return;
     end
 
-    set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
+    g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
 
-    if get_player_current_state_frame_count() == 1 then
+    if g_player_current_state_frame_count == 1 then
         set_player_current_position_y(get_player_current_position_y() + 1);
     end
 
-    if get_player_current_state_frame_count() < 5 or
-            get_player_current_state_frame_count() == 6 or
-            get_player_current_state_frame_count() == 8 or
-            get_player_current_state_frame_count() == 10 or
-            get_player_current_state_frame_count() == 12 then
+    if g_player_current_state_frame_count < 5 or
+            g_player_current_state_frame_count == 6 or
+            g_player_current_state_frame_count == 8 or
+            g_player_current_state_frame_count == 10 or
+            g_player_current_state_frame_count == 12 then
         set_player_current_position_y(get_player_current_position_y() + 1);
     end
 
-    if get_player_current_state_frame_count() > 26 or
-            get_player_current_state_frame_count() == 25 or
-            get_player_current_state_frame_count() == 23 or
-            get_player_current_state_frame_count() == 20 or
-            get_player_current_state_frame_count() == 17 then
+    if g_player_current_state_frame_count > 26 or
+            g_player_current_state_frame_count == 25 or
+            g_player_current_state_frame_count == 23 or
+            g_player_current_state_frame_count == 20 or
+            g_player_current_state_frame_count == 17 then
         set_player_current_position_y(get_player_current_position_y() - 1);
     end
 
@@ -835,13 +838,13 @@ MoveJumpmanJumping_ = function(game_input)
             get_player_no_roll_cooldown_frame_count() == 0 and
             (g_player_current_direction == player_movement_direction.DIR_RIGHT or
                 g_player_current_direction == player_movement_direction.DIR_LEFT) then
-        set_player_current_state_frame_count(0);
+        g_player_current_state_frame_count = 0;
         MoveJumpmanRoll_(game_input);
     end
 end
 
 MoveJumpmanSlide_ = function(game_input)
-    set_player_current_state(player_state.JSSLIDE);
+    g_player_current_state = player_state.JSSLIDE;
     set_player_current_special_action(player_special_action.NONE);
 
     local iExtra = get_platform_extra(g_player_current_platform_index);
@@ -852,14 +855,14 @@ MoveJumpmanSlide_ = function(game_input)
     end
 
     if get_player_current_position_y() > g_player_current_platform_y + 3 then
-        set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
+        g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
 
-        if get_player_current_state_frame_count() > 30 then
+        if g_player_current_state_frame_count > 30 then
             MoveJumpmanNormal_(game_input);
             return;
         end
     else
-        set_player_current_state_frame_count(0);
+        g_player_current_state_frame_count = 0;
     end
 
     if get_player_current_position_y() < g_player_current_platform_y + 1 then
@@ -882,44 +885,44 @@ MoveJumpmanSlide_ = function(game_input)
         end
     else
         if g_player_current_direction == player_movement_direction.DIR_RIGHT then
-            if get_player_current_state_frame_count() < 6 then
+            if g_player_current_state_frame_count < 6 then
                 if CheckJumpStart_(0, 0, 1, game_input) then
                     return;
                 end
             end
 
             set_player_current_position_x(get_player_current_position_x() +
-                ((30 - get_player_current_state_frame_count()) / 60.0 + 0.5));
+                ((30 - g_player_current_state_frame_count) / 60.0 + 0.5));
         end
 
         if g_player_current_direction == player_movement_direction.DIR_LEFT then
-            if get_player_current_state_frame_count() < 6 then
+            if g_player_current_state_frame_count < 6 then
                 if CheckJumpStart_(1, 0, 0, game_input) then
                     return;
                 end
             end
 
             set_player_current_position_x(get_player_current_position_x() -
-                ((30 - get_player_current_state_frame_count()) / 60.0 + 0.5));
+                ((30 - g_player_current_state_frame_count) / 60.0 + 0.5));
         end
     end
 
     if g_player_current_direction == player_movement_direction.DIR_RIGHT then
         set_player_current_mesh(player_mesh.SLIDE_RIGHT);
 
-        if (get_player_absolute_frame_count() & 7) == 1 or
-                (get_player_absolute_frame_count() & 7) == 2 or
-                (get_player_absolute_frame_count() & 7) == 4 or
-                (get_player_absolute_frame_count() & 7) == 5 then
+        if (g_player_absolute_frame_count & 7) == 1 or
+                (g_player_absolute_frame_count & 7) == 2 or
+                (g_player_absolute_frame_count & 7) == 4 or
+                (g_player_absolute_frame_count & 7) == 5 then
             set_player_current_mesh(player_mesh.SLIDE_RIGHT_B);
         end
     else
         set_player_current_mesh(player_mesh.SLIDE_LEFT);
 
-        if (get_player_absolute_frame_count() & 7) == 1 or
-                (get_player_absolute_frame_count() & 7) == 2 or
-                (get_player_absolute_frame_count() & 7) == 4 or
-                (get_player_absolute_frame_count() & 7) == 5 then
+        if (g_player_absolute_frame_count & 7) == 1 or
+                (g_player_absolute_frame_count & 7) == 2 or
+                (g_player_absolute_frame_count & 7) == 4 or
+                (g_player_absolute_frame_count & 7) == 5 then
             set_player_current_mesh(player_mesh.SLIDE_LEFT_B);
         end
     end
@@ -947,19 +950,19 @@ MoveJumpmanSlide_ = function(game_input)
 end
 
 MoveJumpmanRoll_ = function(game_input)
-    set_player_current_state(player_state.JSROLL);
+    g_player_current_state = player_state.JSROLL;
     set_player_current_special_action(player_special_action.NONE);
 
-    if get_player_current_state_frame_count() < 7 or
+    if g_player_current_state_frame_count < 7 or
             get_player_current_position_y() > g_player_current_platform_y + 1 then
-        set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
+        g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
 
-        if get_player_current_state_frame_count() > 50 then
+        if g_player_current_state_frame_count > 50 then
             MoveJumpmanNormal_(game_input);
             return;
         end
     else
-        set_player_current_state_frame_count(7);
+        g_player_current_state_frame_count = 7;
     end
 
     if get_player_current_position_y() <= g_player_current_platform_y and (
@@ -992,21 +995,21 @@ MoveJumpmanRoll_ = function(game_input)
     if not game_input.jump_action.is_pressed and
             get_player_current_position_y() <= g_player_current_platform_y + 0.1 and
             game_input.attack_action.is_pressed then
-        set_player_current_state_frame_count(0);
+        g_player_current_state_frame_count = 0;
         MoveJumpmanPunch_(game_input);
         return;
     end
 
     if g_player_current_exact_ladder_index ~= -1 and
             g_player_current_platform_y < get_player_current_position_y() and
-            get_player_current_state_frame_count() > 10 then
+            g_player_current_state_frame_count > 10 then
         MoveJumpmanLadder_(game_input);
         return;
     end
 
     if g_player_current_exact_vine_index ~= -1 and
             g_player_current_platform_y < get_player_current_position_y() and
-            get_player_current_state_frame_count() > 10 then
+            g_player_current_state_frame_count > 10 then
         MoveJumpmanVine_(game_input);
         return;
     end
@@ -1017,32 +1020,32 @@ MoveJumpmanRoll_ = function(game_input)
 
     local iVel = 1.3;
 
-    if get_player_current_state_frame_count() > 8 then
+    if g_player_current_state_frame_count > 8 then
         iVel = 1;
     end
 
-    if get_player_current_state_frame_count() > 25 then
+    if g_player_current_state_frame_count > 25 then
         iVel = 0.7;
     end
 
-    if get_player_current_state_frame_count() > 38 then
+    if g_player_current_state_frame_count > 38 then
         iVel = 0.3;
     end
 
     if g_player_current_direction == player_movement_direction.DIR_LEFT then
         set_player_current_position_x(get_player_current_position_x() - iVel);
-        set_player_current_mesh(player_mesh.ROLL_LEFT_1 + ((get_player_absolute_frame_count() & 6) >> 1));
+        set_player_current_mesh(player_mesh.ROLL_LEFT_1 + ((g_player_absolute_frame_count & 6) >> 1));
 
-        if get_player_current_state_frame_count() < 6 then
+        if g_player_current_state_frame_count < 6 then
             set_player_current_mesh(player_mesh.DIVE_LEFT);
         end
     end
 
     if g_player_current_direction == player_movement_direction.DIR_RIGHT then
         set_player_current_position_x(get_player_current_position_x() + iVel);
-        set_player_current_mesh(player_mesh.ROLL_RIGHT_1 + ((get_player_absolute_frame_count() & 6) >> 1));
+        set_player_current_mesh(player_mesh.ROLL_RIGHT_1 + ((g_player_absolute_frame_count & 6) >> 1));
 
-        if get_player_current_state_frame_count() < 6 then
+        if g_player_current_state_frame_count < 6 then
             set_player_current_mesh(player_mesh.DIVE_RIGHT);
         end
     end
@@ -1060,21 +1063,21 @@ MoveJumpmanRoll_ = function(game_input)
 end
 
 MoveJumpmanPunch_ = function(game_input)
-    set_player_current_state(player_state.JSPUNCH);
+    g_player_current_state = player_state.JSPUNCH;
     set_player_current_special_action(player_special_action.PUNCH);
 
-    if get_player_current_state_frame_count() > 20 or
-            (get_player_current_state_frame_count() < 12 and
+    if g_player_current_state_frame_count > 20 or
+            (g_player_current_state_frame_count < 12 and
                 get_player_current_position_y() < g_player_current_platform_y - 2) or
-            (get_player_current_state_frame_count() > 11 and
+            (g_player_current_state_frame_count > 11 and
                 get_player_current_position_y() <= g_player_current_platform_y) then
         MoveJumpmanNormal_(game_input);
         return;
     end
 
-    set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
+    g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
 
-    if get_player_current_state_frame_count() < 3 then
+    if g_player_current_state_frame_count < 3 then
         set_player_current_mesh(
             g_player_current_direction == player_movement_direction.DIR_RIGHT and player_mesh.PUNCH_RIGHT_1 or player_mesh.PUNCH_LEFT_1);
     else
@@ -1082,17 +1085,17 @@ MoveJumpmanPunch_ = function(game_input)
             g_player_current_direction == player_movement_direction.DIR_RIGHT and player_mesh.PUNCH_RIGHT_2 or player_mesh.PUNCH_LEFT_2);
     end
 
-    if get_player_current_state_frame_count() < 11 and get_player_current_state_frame_count() ~= 9 then
+    if g_player_current_state_frame_count < 11 and g_player_current_state_frame_count ~= 9 then
         set_player_current_position_y(get_player_current_position_y() + 1);
     end
 
-    if get_player_current_state_frame_count() > 12 and get_player_current_state_frame_count() ~= 14 then
+    if g_player_current_state_frame_count > 12 and g_player_current_state_frame_count ~= 14 then
         set_player_current_position_y(get_player_current_position_y() - 1);
     end
 
-    if get_player_current_state_frame_count() < 4 or
-            get_player_current_state_frame_count() == 5 or
-            get_player_current_state_frame_count() == 7 then
+    if g_player_current_state_frame_count < 4 or
+            g_player_current_state_frame_count == 5 or
+            g_player_current_state_frame_count == 7 then
         set_player_current_position_x(
             get_player_current_position_x() +
             (g_player_current_direction == player_movement_direction.DIR_RIGHT and 1 or -1));
@@ -1106,21 +1109,21 @@ local function MoveJumpman_(game_input)
 
     UpdateSituation_();
 
-    if (get_player_current_state() == player_state.JSVINE) then
+    if (g_player_current_state == player_state.JSVINE) then
         MoveJumpmanVine_(game_input);
-    elseif (get_player_current_state() == player_state.JSLADDER) then
+    elseif (g_player_current_state == player_state.JSLADDER) then
         MoveJumpmanLadder_(game_input);
-    elseif (get_player_current_state() == player_state.JSNORMAL) then
+    elseif (g_player_current_state == player_state.JSNORMAL) then
         MoveJumpmanNormal_(game_input);
-    elseif (get_player_current_state() == player_state.JSFALLING) then
+    elseif (g_player_current_state == player_state.JSFALLING) then
         MoveJumpmanFalling_(game_input);
-    elseif (get_player_current_state() == player_state.JSJUMPING) then
+    elseif (g_player_current_state == player_state.JSJUMPING) then
         MoveJumpmanJumping_(game_input);
-    elseif (get_player_current_state() == player_state.JSSLIDE) then
+    elseif (g_player_current_state == player_state.JSSLIDE) then
         MoveJumpmanSlide_(game_input);
-    elseif (get_player_current_state() == player_state.JSROLL) then
+    elseif (g_player_current_state == player_state.JSROLL) then
         MoveJumpmanRoll_(game_input);
-    elseif (get_player_current_state() == player_state.JSPUNCH) then
+    elseif (g_player_current_state == player_state.JSPUNCH) then
         MoveJumpmanPunch_(game_input);
     end
 
@@ -1138,8 +1141,8 @@ local function MoveJumpman_(game_input)
         if iCollide == 1 then
             set_player_current_position_y(get_player_current_position_y() - 1);
 
-            if get_player_current_state() == player_state.JSJUMPING and get_player_current_state_frame_count() < 15 then
-                set_player_current_state_frame_count(15);
+            if g_player_current_state == player_state.JSJUMPING and g_player_current_state_frame_count < 15 then
+                g_player_current_state_frame_count = 15;
             end
         end
 
@@ -1150,11 +1153,11 @@ local function MoveJumpman_(game_input)
         if iCollide == 3 then
             set_player_current_position_x(get_player_current_position_x() + 1);
 
-            if get_player_current_state() == player_state.JSJUMPING and get_player_current_state_frame_count() < 15 then
-                set_player_current_state_frame_count(16);
+            if g_player_current_state == player_state.JSJUMPING and g_player_current_state_frame_count < 15 then
+                g_player_current_state_frame_count = 16;
             end
 
-            if get_player_current_state() ~= player_state.JSJUMPING and
+            if g_player_current_state ~= player_state.JSJUMPING and
                     get_player_current_position_y() > g_player_current_platform_y - 1 and
                     get_player_current_position_y() >= g_player_old_position_y then
                 set_player_current_position_y(get_player_current_position_y() - 1);
@@ -1164,11 +1167,11 @@ local function MoveJumpman_(game_input)
         if iCollide == 4 then
             set_player_current_position_x(get_player_current_position_x() - 1);
 
-            if get_player_current_state() == player_state.JSJUMPING and get_player_current_state_frame_count() < 15 then
-                set_player_current_state_frame_count(16);
+            if g_player_current_state == player_state.JSJUMPING and g_player_current_state_frame_count < 15 then
+                g_player_current_state_frame_count = 16;
             end
 
-            if get_player_current_state() ~= player_state.JSJUMPING and
+            if g_player_current_state ~= player_state.JSJUMPING and
                     get_player_current_position_y() > g_player_current_platform_y - 1 and
                     get_player_current_position_y() >= g_player_old_position_y then
                 set_player_current_position_y(get_player_current_position_y() - 1);
@@ -1209,8 +1212,8 @@ local function GrabDonuts_(game_input)
 
         if iWon then
             stop_music_track_1();
-            set_player_current_state_frame_count(0);
-            set_player_current_state(player_state.JSDONE);
+            g_player_current_state_frame_count = 0;
+            g_player_current_state = player_state.JSDONE;
         else
             play_sound_effect(1);
         end
@@ -1237,33 +1240,33 @@ local function AnimateDying_(game_input)
             set_player_dying_animation_state(player_dying_animation_state.FALLING);
         end
 
-        set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+        g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
 
-        if get_player_current_state_frame_count() < 10 then
-            set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+        if g_player_current_state_frame_count < 10 then
+            g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
         end
 
-        if get_player_current_state_frame_count() < 5 then
-            set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+        if g_player_current_state_frame_count < 5 then
+            g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
         end
 
-        if get_player_current_state_frame_count() < 0 then
-            set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+        if g_player_current_state_frame_count < 0 then
+            g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
             set_player_current_mesh(player_mesh.DEAD);
         end
 
-        set_player_current_rotation_x_radians(get_player_absolute_frame_count() / -10.0);
+        set_player_current_rotation_x_radians(g_player_absolute_frame_count / -10.0);
 
-        if (get_player_absolute_frame_count() & 1) ~= 0 then
+        if (g_player_absolute_frame_count & 1) ~= 0 then
             set_player_current_position_x(get_player_current_position_x() + get_player_current_velocity_x());
         end
     end
 
     if get_player_dying_animation_state() == player_dying_animation_state.FALLING then
         set_player_current_mesh(player_mesh.JUMP_UP);
-        set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+        g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
         set_player_current_position_y(get_player_current_position_y() - 2);
-        set_player_current_rotation_x_radians(get_player_absolute_frame_count() / -10.0);
+        set_player_current_rotation_x_radians(g_player_absolute_frame_count / -10.0);
 
         local iSupport, iPlatform = FindPlatform_(
             get_player_current_position_x(), get_player_current_position_y(), 8, 2);
@@ -1272,7 +1275,7 @@ local function AnimateDying_(game_input)
         local bGrounded = get_player_current_position_y() + 4 <= iSupport;
         AdjustPlayerZ_(get_platform_z1(iPlatform) - 2, get_player_current_position_y() - iSupport);
 
-        if bGrounded and get_player_current_position_y() > -5 and iSupport < get_player_current_state_frame_count() then
+        if bGrounded and get_player_current_position_y() > -5 and iSupport < g_player_current_state_frame_count then
             set_player_current_velocity_x(0);
             local iRand = math.random(0, 0x7fff);
 
@@ -1284,7 +1287,7 @@ local function AnimateDying_(game_input)
                 set_player_current_velocity_x(1);
             end
 
-            set_player_current_state_frame_count(iSupport - 3);
+            g_player_current_state_frame_count = iSupport - 3;
             set_player_dying_animation_state(player_dying_animation_state.BOUNCING);
             set_player_dying_animation_state_frame_count(0);
 
@@ -1296,14 +1299,14 @@ local function AnimateDying_(game_input)
             if iPlatform == -1 then
                 set_player_dying_animation_state(player_dying_animation_state.FINAL_BOUNCE);
                 set_player_dying_animation_state_frame_count(0);
-                set_player_absolute_frame_count(0);
+                g_player_absolute_frame_count = 0;
             end
         end
 
         if get_player_current_position_y() < -2 and
                 get_player_dying_animation_state() == player_dying_animation_state.FALLING then
             set_player_dying_animation_state(player_dying_animation_state.FINAL_BOUNCE);
-            set_player_absolute_frame_count(0);
+            g_player_absolute_frame_count = 0;
         end
     end
 
@@ -1329,12 +1332,12 @@ local function AnimateDying_(game_input)
             play_death_music_track();
         end
 
-        set_player_absolute_frame_count(get_player_absolute_frame_count() + 4);
-        set_player_current_rotation_x_radians(get_player_absolute_frame_count() / -10.0);
+        g_player_absolute_frame_count = g_player_absolute_frame_count + 4;
+        set_player_current_rotation_x_radians(g_player_absolute_frame_count / -10.0);
 
         if dying_anim_frame_count > 30 then
             set_player_dying_animation_state(player_dying_animation_state.SPINNING_STARS);
-            set_player_absolute_frame_count(0);
+            g_player_absolute_frame_count = 0;
             set_player_current_rotation_x_radians(0);
         end
     end
@@ -1342,16 +1345,16 @@ local function AnimateDying_(game_input)
     if get_player_dying_animation_state() == player_dying_animation_state.SPINNING_STARS then
         select_object_mesh(get_player_mesh_index(player_mesh.STARS));
         script_selected_mesh_set_identity_matrix();
-        script_selected_mesh_rotate_matrix_y(get_player_absolute_frame_count() * 180.0 / 50.0);
+        script_selected_mesh_rotate_matrix_y(g_player_absolute_frame_count * 180.0 / 50.0);
         script_selected_mesh_translate_matrix(
             get_player_current_position_x(), get_player_current_position_y() + 12, get_player_current_position_z() + 1);
         set_object_visual_data(0, 1);
 
-        set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+        g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
         set_player_current_rotation_x_radians(0.1);
         set_player_current_mesh(player_mesh.DEAD);
 
-        if get_player_absolute_frame_count() == 85 then
+        if g_player_absolute_frame_count == 85 then
             set_object_visual_data(0, 0);
             set_remaining_life_count(get_remaining_life_count() - 1);
 
@@ -1369,7 +1372,7 @@ local function AnimateDying_(game_input)
 end
 
 function Module.progress_game(game_input)
-    if (get_player_current_state() & player_state.JSDONE) == 0 then
+    if (g_player_current_state & player_state.JSDONE) == 0 then
         if get_player_freeze_cooldown_frame_count() ~= 0 then
             set_player_freeze_cooldown_frame_count(get_player_freeze_cooldown_frame_count() - 1);
         end
@@ -1378,8 +1381,8 @@ function Module.progress_game(game_input)
             set_player_no_roll_cooldown_frame_count(get_player_no_roll_cooldown_frame_count() - 1);
         end
 
-        if (get_player_current_state() & player_state.JSDYING) == 0 and get_player_freeze_cooldown_frame_count() == 0 then
-            set_player_absolute_frame_count(get_player_absolute_frame_count() + 1);
+        if (g_player_current_state & player_state.JSDYING) == 0 and get_player_freeze_cooldown_frame_count() == 0 then
+            g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
             set_player_current_rotation_x_radians(0);
             set_player_current_mesh(player_mesh.STAND);
             MoveJumpman_(game_input);
@@ -1395,7 +1398,7 @@ function Module.progress_game(game_input)
             GrabDonuts_(game_input);
         end
 
-        if (get_player_current_state() & player_state.JSDYING) ~= 0 and get_player_freeze_cooldown_frame_count() == 0 then
+        if (g_player_current_state & player_state.JSDYING) ~= 0 and get_player_freeze_cooldown_frame_count() == 0 then
             AnimateDying_(game_input);
             GrabDonuts_(game_input);
         end
@@ -1404,13 +1407,13 @@ function Module.progress_game(game_input)
 
         return true;
     else
-        set_player_current_state_frame_count(get_player_current_state_frame_count() + 1);
+        g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
 
-        if get_player_current_state_frame_count() == 30 then
+        if g_player_current_state_frame_count == 30 then
             play_win_music_track();
         end
 
-        if get_player_current_state_frame_count() == 300 then
+        if g_player_current_state_frame_count == 300 then
             load_next_level();
         end
 
@@ -1419,22 +1422,38 @@ function Module.progress_game(game_input)
 end
 
 function Module.kill()
-    if (get_player_current_state() & player_state.JSDYING) == 0 then
+    if (g_player_current_state & player_state.JSDYING) == 0 then
         stop_music_track_1();
-        set_player_current_state(player_state.JSDYING);
+        g_player_current_state = player_state.JSDYING;
         set_player_current_special_action(player_special_action.NONE);
         set_player_dying_animation_state(player_dying_animation_state.FALLING);
         set_player_dying_animation_state_frame_count(0);
         set_player_current_velocity_x(0);
-        set_player_absolute_frame_count(get_player_current_state_frame_count());
-        set_player_current_state_frame_count(1000);
+        g_player_absolute_frame_count = g_player_current_state_frame_count;
+        g_player_current_state_frame_count = 1000;
     end
 end
 
 function Module.win()
     stop_music_track_1();
-    set_player_current_state_frame_count(0);
-    set_player_current_state(player_state.JSDONE);
+    g_player_current_state_frame_count = 0;
+    g_player_current_state = player_state.JSDONE;
+end
+
+function Module.get_player_current_state()
+    return g_player_current_state;
+end
+
+function Module.set_player_current_state(new_state)
+    g_player_current_state = new_state;
+end
+
+function Module.get_player_current_state_frame_count()
+    return g_player_current_state_frame_count;
+end
+
+function Module.set_player_current_state_frame_count(new_frame_count)
+    g_player_current_state_frame_count = new_frame_count;
 end
 
 function Module.get_player_current_active_platform_index()
@@ -1471,7 +1490,7 @@ end
 
 function Module.is_player_colliding_with_rect(x1, y1, x2, y2)
     -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
-    return PlayerCollide_(x1, y1, x2, y2) and get_player_current_state() ~= player_state.JSDYING;
+    return PlayerCollide_(x1, y1, x2, y2) and g_player_current_state ~= player_state.JSDYING;
 end
 
 return Module;

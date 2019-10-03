@@ -58,7 +58,7 @@ local function DoCollide(iX1, iY1, iX2, iY2)
         return;
     end
 
-    if get_player_current_state() == player_state.JSDYING then
+    if Module.GameLogic.get_player_current_state() == player_state.JSDYING then
         return;
     end
 

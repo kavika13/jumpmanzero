@@ -80,11 +80,11 @@ local function CheckForPlayer()
     local iPlat = Module.GameLogic.get_player_current_active_platform_index();
 
     if iPlat == Module.ObjectIndex then
-        if get_player_current_state() == player_state.JSLADDER then
+        if Module.GameLogic.get_player_current_state() == player_state.JSLADDER then
             return;
         end
 
-        if get_player_current_state() == player_state.JSVINE then
+        if Module.GameLogic.get_player_current_state() == player_state.JSVINE then
             return;
         end
 

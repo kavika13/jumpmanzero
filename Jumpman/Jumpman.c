@@ -202,11 +202,8 @@ static PlayerMesh g_player_current_mesh;
 static PlayerMesh g_player_previous_mesh;
 static bool g_player_is_visible;
 
-static PlayerState g_player_current_state;
 static PlayerSpecialAction g_player_current_special_action;
 
-static long g_player_absolute_frame_count;
-static long g_player_current_state_frame_count;
 static PlayerDyingAnimationState g_player_dying_animation_state;
 static int g_player_dying_animation_state_frame_count;
 
@@ -649,17 +646,6 @@ static int get_game_time_inactive(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_absolute_frame_count(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_absolute_frame_count);
-    return 1;
-}
-
-static int set_player_absolute_frame_count(lua_State* lua_state) {
-    lua_Integer new_frame_count_arg = luaL_checkinteger(lua_state, 1);
-    g_player_absolute_frame_count = (long)new_frame_count_arg;
-    return 0;
-}
-
 static int get_player_current_mesh(lua_State* lua_state) {
     lua_pushinteger(lua_state, g_player_current_mesh);
     return 1;
@@ -962,16 +948,6 @@ static int get_player_current_special_action(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_current_state(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_current_state);
-    return 1;
-}
-
-static int get_player_current_state_frame_count(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_current_state_frame_count);
-    return 1;
-}
-
 static int get_player_freeze_cooldown_frame_count(lua_State* lua_state) {
     lua_pushinteger(lua_state, g_player_freeze_cooldown_frame_count);
     return 1;
@@ -1057,18 +1033,6 @@ static int set_player_current_position_z(lua_State* lua_state) {
 static int set_player_current_special_action(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_special_action = arg1;
-    return 0;
-}
-
-static int set_player_current_state(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_current_state = arg1;
-    return 0;
-}
-
-static int set_player_current_state_frame_count(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_current_state_frame_count = (long)arg1;
     return 0;
 }
 
@@ -1588,10 +1552,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "stop_music_track_1");
     lua_pushcfunction(lua_state, get_game_time_inactive);
     lua_setglobal(lua_state, "get_game_time_inactive");
-    lua_pushcfunction(lua_state, get_player_absolute_frame_count);
-    lua_setglobal(lua_state, "get_player_absolute_frame_count");
-    lua_pushcfunction(lua_state, set_player_absolute_frame_count);
-    lua_setglobal(lua_state, "set_player_absolute_frame_count");
     lua_pushcfunction(lua_state, get_player_current_mesh);
     lua_setglobal(lua_state, "get_player_current_mesh");
     lua_pushcfunction(lua_state, set_player_current_mesh);
@@ -1698,10 +1658,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_current_position_z");
     lua_pushcfunction(lua_state, get_player_current_special_action);
     lua_setglobal(lua_state, "get_player_current_special_action");
-    lua_pushcfunction(lua_state, get_player_current_state);
-    lua_setglobal(lua_state, "get_player_current_state");
-    lua_pushcfunction(lua_state, get_player_current_state_frame_count);
-    lua_setglobal(lua_state, "get_player_current_state_frame_count");
     lua_pushcfunction(lua_state, get_player_freeze_cooldown_frame_count);
     lua_setglobal(lua_state, "get_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, get_player_is_visible);
@@ -1734,10 +1690,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_player_current_position_z");
     lua_pushcfunction(lua_state, set_player_current_special_action);
     lua_setglobal(lua_state, "set_player_current_special_action");
-    lua_pushcfunction(lua_state, set_player_current_state);
-    lua_setglobal(lua_state, "set_player_current_state");
-    lua_pushcfunction(lua_state, set_player_current_state_frame_count);
-    lua_setglobal(lua_state, "set_player_current_state_frame_count");
     lua_pushcfunction(lua_state, set_player_freeze_cooldown_frame_count);
     lua_setglobal(lua_state, "set_player_freeze_cooldown_frame_count");
     lua_pushcfunction(lua_state, set_player_is_visible);
@@ -2556,10 +2508,6 @@ static void LoadNextLevel(const char* base_path, GameInput* game_input) {
 }
 
 void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input) {
-    g_player_current_state = kPlayerStateNormal;
-    g_player_current_state_frame_count = 0;
-    g_player_current_rotation_x_radians = 0;
-
     g_just_launched_game = false;
     g_debug_level_is_specified = true;
     stbsp_snprintf(g_debug_level_filename, sizeof(g_debug_level_filename), "Data/%s.DAT", level_name);
@@ -2569,10 +2517,6 @@ void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput
 }
 
 void InitGameNormal(void) {
-    g_player_current_state = kPlayerStateNormal;
-    g_player_current_state_frame_count = 0;
-    g_player_current_rotation_x_radians = 0;
-
     g_just_launched_game = true;
     g_debug_level_is_specified = false;
     g_game_status = kGameStatusMenu;

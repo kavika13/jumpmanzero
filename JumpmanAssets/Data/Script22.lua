@@ -254,7 +254,7 @@ function DisplayPlatform(iNum)
         local iPY = get_player_current_position_y();
         set_player_current_position_x(iPX + iDX);
 
-        if get_player_current_state() == player_state.JSNORMAL then
+        if g_game_logic.get_player_current_state() == player_state.JSNORMAL then
             local iHeight = g_platforms_y1[iNum];
 
             if iHeight > iPY - 1 and iHeight < iPY + 2 then
@@ -268,5 +268,5 @@ function reset()
     set_player_current_position_x(150);
     set_player_current_position_y(7);
     set_player_current_position_z(3);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

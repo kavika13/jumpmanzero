@@ -34,7 +34,7 @@ local function ConveyPlatform_(iPlat, iDist)
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
 
-    if get_player_current_state() == player_state.JSJUMPING then
+    if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
         return;
     end
 
@@ -49,9 +49,9 @@ local function ConveyPlatform_(iPlat, iDist)
     if g_game_logic.get_player_current_active_platform_index() == iPN then
         iPX = iPX - iDist * 15;
 
-        if get_player_current_state() == 4096 then  -- TODO: Is this a custom state?
-            set_player_current_state(player_state.JSFALLING);
-            set_player_current_state_frame_count(0);
+        if g_game_logic.get_player_current_state() == 4096 then  -- TODO: Is this a custom state?
+            g_game_logic.set_player_current_state(player_state.JSFALLING);
+            g_game_logic.set_player_current_state_frame_count(0);
         end
 
         set_player_current_position_x(iPX);
@@ -154,5 +154,5 @@ function reset()
     set_player_current_position_x(20);
     set_player_current_position_y(21);
     set_player_current_position_z(3);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

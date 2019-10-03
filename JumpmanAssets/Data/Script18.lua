@@ -196,7 +196,7 @@ function CollideDonuts(game_input)
     set_object_visual_data(0, 0);
 
     -- Skip any progress checks if player is moving or not otherwise standing still
-    local iPStat = get_player_current_state();
+    local iPStat = g_game_logic.get_player_current_state();
 
     if iPStat ~= player_state.JSNORMAL then
         return;
@@ -284,5 +284,5 @@ function reset()
     set_player_current_position_x(10);
     set_player_current_position_y(4);
     set_player_current_position_z(2);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

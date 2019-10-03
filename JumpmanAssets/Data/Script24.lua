@@ -79,7 +79,8 @@ local function CheckHanging(game_input)
         end
     end
 
-    if get_player_current_state() == player_state.JSVINE or get_player_current_state() == player_state.JSLADDER then
+    if g_game_logic.get_player_current_state() == player_state.JSVINE or
+            g_game_logic.get_player_current_state() == player_state.JSLADDER then
         set_player_is_visible(1);
         return;
     end
@@ -88,12 +89,13 @@ local function CheckHanging(game_input)
     abs_platform(iPlat);
 
     if get_script_selected_level_object_extra() == 3 then
-        if get_player_current_state() == player_state.JSROLL then
-            set_player_current_state(player_state.JSNORMAL);
+        if g_game_logic.get_player_current_state() == player_state.JSROLL then
+            g_game_logic.set_player_current_state(player_state.JSNORMAL);
         end
 
-        if get_player_current_state() == player_state.JSFALLING and get_player_current_state_frame_count() < 40 then
-            set_player_current_state(player_state.JSNORMAL);
+        if g_game_logic.get_player_current_state() == player_state.JSFALLING and
+                g_game_logic.get_player_current_state_frame_count() < 40 then
+            g_game_logic.set_player_current_state(player_state.JSNORMAL);
         end
 
         set_player_is_visible(0);
@@ -126,7 +128,10 @@ local function CheckHanging(game_input)
 
         select_object_mesh(iHangMesh[iDraw]);
         script_selected_mesh_set_identity_matrix();
-        script_selected_mesh_translate_matrix(get_player_current_position_x(), get_player_current_position_y() + 2, get_player_current_position_z() + 1.5);
+        script_selected_mesh_translate_matrix(
+            get_player_current_position_x() + 0,
+            get_player_current_position_y() + 2,
+            get_player_current_position_z() + 1.5);
         set_object_visual_data(resources.TextureJumpman, 1);
     else
         set_player_is_visible(1);
@@ -235,5 +240,5 @@ function reset()
     set_player_current_position_x(15);
     set_player_current_position_y(6);
     set_player_current_position_z(3);
-    set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

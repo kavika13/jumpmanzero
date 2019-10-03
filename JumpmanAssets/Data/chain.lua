@@ -121,7 +121,7 @@ local function PlayerInBounds_()
 end
 
 local function AllowLongJumps_()
-    if get_player_current_state() ~= player_state.JSJUMPING then
+    if Module.GameLogic.get_player_current_state() ~= player_state.JSJUMPING then
         return;
     end
 
@@ -136,18 +136,19 @@ local function AllowLongJumps_()
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
 
-    if get_player_current_state_frame_count() > 20 then
-        set_player_current_state_frame_count(get_player_current_state_frame_count() + 3);
+    if Module.GameLogic.get_player_current_state_frame_count() > 20 then
+        Module.GameLogic.set_player_current_state_frame_count(
+            Module.GameLogic.get_player_current_state_frame_count() + 3);
     end
 
-    if get_player_current_state_frame_count() > 45 and iPY < g_chain_anchor_pos_y then
+    if Module.GameLogic.get_player_current_state_frame_count() > 45 and iPY < g_chain_anchor_pos_y then
         g_dont_pull_player_up = true;
-        set_player_current_state_frame_count(45);
+        Module.GameLogic.set_player_current_state_frame_count(45);
     end
 end
 
 local function AllowLongRoll_()
-    if get_player_current_state() ~= player_state.JSROLL then
+    if Module.GameLogic.get_player_current_state() ~= player_state.JSROLL then
         return;
     end
 
@@ -162,14 +163,15 @@ local function AllowLongRoll_()
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
 
-    if get_player_current_state_frame_count() > 8 and iPY < g_chain_anchor_pos_y then
+    if Module.GameLogic.get_player_current_state_frame_count() > 8 and iPY < g_chain_anchor_pos_y then
         g_dont_pull_player_up = true;
-        set_player_current_state_frame_count(8);
+        Module.GameLogic.set_player_current_state_frame_count(8);
     end
 end
 
 local function DisallowBadJumps_()
-    if get_player_current_state() ~= player_state.JSJUMPING and get_player_current_state() ~= player_state.JSROLL then
+    if Module.GameLogic.get_player_current_state() ~= player_state.JSJUMPING and
+            Module.GameLogic.get_player_current_state() ~= player_state.JSROLL then
         return;
     end
 
@@ -210,8 +212,8 @@ local function EnforceMovement_()
     if (player_y + kPLAYER_CHAIN_OFFSET_Y) < g_chain_anchor_pos_y and not g_dont_pull_player_up then
         set_player_current_position_y(player_y + 1);
 
-        if get_player_current_state() == player_state.JSFALLING then
-            set_player_current_state_frame_count(5);
+        if Module.GameLogic.get_player_current_state() == player_state.JSFALLING then
+            Module.GameLogic.set_player_current_state_frame_count(5);
         end
     end
 
@@ -235,7 +237,7 @@ function Module.update()
     g_dont_pull_player_up = false;
     g_dont_pull_player_down = false;
 
-    if get_player_current_state() == player_state.JSDYING then
+    if Module.GameLogic.get_player_current_state() == player_state.JSDYING then
         return;
     end
 

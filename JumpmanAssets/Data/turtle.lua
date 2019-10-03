@@ -212,7 +212,7 @@ function Module.update(game_input, all_turtles)
 
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
-    local iPStat = get_player_current_state();
+    local iPStat = Module.GameLogic.get_player_current_state();
 
     if iPStat & player_state.JSDYING ~= 0 then
         is_colliding = false;
@@ -245,17 +245,17 @@ function Module.update(game_input, all_turtles)
             g_current_status_counter = 0;
 
             if game_input.move_left_action.is_pressed then
-                set_player_current_state(player_state.JSJUMPING);
+                Module.GameLogic.set_player_current_state(player_state.JSJUMPING);
                 Module.GameLogic.set_player_current_direction(player_movement_direction.DIR_LEFT);
             elseif game_input.move_right_action.is_pressed then
-                set_player_current_state(player_state.JSJUMPING);
+                Module.GameLogic.set_player_current_state(player_state.JSJUMPING);
                 Module.GameLogic.set_player_current_direction(player_movement_direction.DIR_RIGHT);
             else
-                set_player_current_state(player_state.JSJUMPING);
+                Module.GameLogic.set_player_current_state(player_state.JSJUMPING);
                 Module.GameLogic.set_player_current_direction(player_movement_direction.DIR_UP);
             end
 
-            set_player_current_state_frame_count(0);
+            Module.GameLogic.set_player_current_state_frame_count(0);
             set_player_no_roll_cooldown_frame_count(10);
 
             if g_current_status == status_type.MOVE_LEFT then
