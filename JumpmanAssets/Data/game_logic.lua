@@ -106,6 +106,8 @@ local g_player_old_position_y = 0;
 local g_player_current_direction = 0;  -- TODO: This isn't in the enum. Add it?
 local g_player_current_special_action = player_special_action.NONE;
 local g_is_already_on_ladder = false;
+local g_player_dying_animation_state = -1;
+local g_player_dying_animation_state_frame_count = -1;
 
 local g_player_current_close_ladder_index = -1;
 local g_player_current_exact_ladder_index = -1;
@@ -696,8 +698,8 @@ end
 local function DoDeathBounce_()
     stop_music_track_1();
     g_player_current_state = player_state.JSDYING;
-    set_player_dying_animation_state(player_dying_animation_state.FALLING);
-    set_player_dying_animation_state_frame_count(0);
+    g_player_dying_animation_state = player_dying_animation_state.FALLING;
+    g_player_dying_animation_state_frame_count = 0;
     set_player_current_velocity_x(0);
     g_player_absolute_frame_count = g_player_current_state_frame_count;
     g_player_current_state_frame_count = 1000;
@@ -1224,10 +1226,10 @@ end
 local function AnimateDying_(game_input)
     g_player_current_active_platform_index = -1;
 
-    if get_player_dying_animation_state() == player_dying_animation_state.BOUNCING then
+    if g_player_dying_animation_state == player_dying_animation_state.BOUNCING then
         set_player_current_mesh(player_mesh.JUMP_UP);
-        set_player_dying_animation_state_frame_count(get_player_dying_animation_state_frame_count() + 1);
-        local dying_anim_frame_count = get_player_dying_animation_state_frame_count();
+        g_player_dying_animation_state_frame_count = g_player_dying_animation_state_frame_count + 1;
+        local dying_anim_frame_count = g_player_dying_animation_state_frame_count;
 
         if dying_anim_frame_count < 5 or dying_anim_frame_count == 6 then
             set_player_current_position_y(get_player_current_position_y() + 1);
@@ -1238,7 +1240,7 @@ local function AnimateDying_(game_input)
         end
 
         if dying_anim_frame_count > 15 then
-            set_player_dying_animation_state(player_dying_animation_state.FALLING);
+            g_player_dying_animation_state = player_dying_animation_state.FALLING;
         end
 
         g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
@@ -1263,7 +1265,7 @@ local function AnimateDying_(game_input)
         end
     end
 
-    if get_player_dying_animation_state() == player_dying_animation_state.FALLING then
+    if g_player_dying_animation_state == player_dying_animation_state.FALLING then
         set_player_current_mesh(player_mesh.JUMP_UP);
         g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
         set_player_current_position_y(get_player_current_position_y() - 2);
@@ -1289,8 +1291,8 @@ local function AnimateDying_(game_input)
             end
 
             g_player_current_state_frame_count = iSupport - 3;
-            set_player_dying_animation_state(player_dying_animation_state.BOUNCING);
-            set_player_dying_animation_state_frame_count(0);
+            g_player_dying_animation_state = player_dying_animation_state.BOUNCING;
+            g_player_dying_animation_state_frame_count = 0;
 
             play_sound_effect(2);
 
@@ -1298,23 +1300,23 @@ local function AnimateDying_(game_input)
             _, iPlatform = FindPlatform_(get_player_current_position_x(), get_player_current_position_y() - 8, 8, 2);
 
             if iPlatform == -1 then
-                set_player_dying_animation_state(player_dying_animation_state.FINAL_BOUNCE);
-                set_player_dying_animation_state_frame_count(0);
+                g_player_dying_animation_state = player_dying_animation_state.FINAL_BOUNCE;
+                g_player_dying_animation_state_frame_count = 0;
                 g_player_absolute_frame_count = 0;
             end
         end
 
         if get_player_current_position_y() < -2 and
-                get_player_dying_animation_state() == player_dying_animation_state.FALLING then
-            set_player_dying_animation_state(player_dying_animation_state.FINAL_BOUNCE);
+                g_player_dying_animation_state == player_dying_animation_state.FALLING then
+            g_player_dying_animation_state = player_dying_animation_state.FINAL_BOUNCE;
             g_player_absolute_frame_count = 0;
         end
     end
 
-    if get_player_dying_animation_state() == player_dying_animation_state.FINAL_BOUNCE then
+    if g_player_dying_animation_state == player_dying_animation_state.FINAL_BOUNCE then
         set_player_current_mesh(player_mesh.DEAD);
-        set_player_dying_animation_state_frame_count(get_player_dying_animation_state_frame_count() + 1);
-        local dying_anim_frame_count = get_player_dying_animation_state_frame_count();
+        g_player_dying_animation_state_frame_count = g_player_dying_animation_state_frame_count + 1;
+        local dying_anim_frame_count = g_player_dying_animation_state_frame_count;
 
         if dying_anim_frame_count < 10 or dying_anim_frame_count == 12 or dying_anim_frame_count == 14 then
             set_player_current_position_y(get_player_current_position_y() + 1);
@@ -1337,13 +1339,13 @@ local function AnimateDying_(game_input)
         set_player_current_rotation_x_radians(g_player_absolute_frame_count / -10.0);
 
         if dying_anim_frame_count > 30 then
-            set_player_dying_animation_state(player_dying_animation_state.SPINNING_STARS);
+            g_player_dying_animation_state = player_dying_animation_state.SPINNING_STARS;
             g_player_absolute_frame_count = 0;
             set_player_current_rotation_x_radians(0);
         end
     end
 
-    if get_player_dying_animation_state() == player_dying_animation_state.SPINNING_STARS then
+    if g_player_dying_animation_state == player_dying_animation_state.SPINNING_STARS then
         select_object_mesh(get_player_mesh_index(player_mesh.STARS));
         script_selected_mesh_set_identity_matrix();
         script_selected_mesh_rotate_matrix_y(g_player_absolute_frame_count * 180.0 / 50.0);
@@ -1362,6 +1364,9 @@ local function AnimateDying_(game_input)
             if get_remaining_life_count() == 0 then
                 queue_level_load("GameOver");
             else
+                g_player_dying_animation_state = -1;
+                g_player_dying_animation_state_frame_count = -1;
+
                 if Module.ResetPlayerCallback then
                     Module.ResetPlayerCallback(game_input);
                 end
@@ -1428,8 +1433,8 @@ function Module.kill()
         stop_music_track_1();
         g_player_current_state = player_state.JSDYING;
         g_player_current_special_action = player_special_action.NONE;
-        set_player_dying_animation_state(player_dying_animation_state.FALLING);
-        set_player_dying_animation_state_frame_count(0);
+        g_player_dying_animation_state = player_dying_animation_state.FALLING;
+        g_player_dying_animation_state_frame_count = 0;
         set_player_current_velocity_x(0);
         g_player_absolute_frame_count = g_player_current_state_frame_count;
         g_player_current_state_frame_count = 1000;

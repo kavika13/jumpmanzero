@@ -100,13 +100,6 @@ typedef enum {
 } PlayerMesh;
 
 typedef enum {
-    kPlayerDyingAnimationStateBouncing = 0,
-    kPlayerDyingAnimationStateFalling = 1,
-    kPlayerDyingAnimationStateFinalBounce = 2,
-    kPlayerDyingAnimationStateSpinningStars = 10,
-} PlayerDyingAnimationState;
-
-typedef enum {
     kNavigationTypeLadder = 1,
     kNavigationTypePlatform = 2,
     kNavigationTypePlatformFallLeft = 3,
@@ -195,9 +188,6 @@ static int g_player_velocity_x;
 static PlayerMesh g_player_current_mesh;
 static PlayerMesh g_player_previous_mesh;
 static bool g_player_is_visible;
-
-static PlayerDyingAnimationState g_player_dying_animation_state;
-static int g_player_dying_animation_state_frame_count;
 
 static int g_player_no_roll_cooldown_frame_count;
 static int g_player_freeze_cooldown_frame_count;
@@ -652,28 +642,6 @@ static int set_player_current_mesh(lua_State* lua_state) {
 static int set_player_current_rotation_x_radians(lua_State* lua_state) {
     double new_rotation_x_radians = luaL_checknumber(lua_state, 1);
     g_player_current_rotation_x_radians = (float)new_rotation_x_radians;
-    return 0;
-}
-
-static int get_player_dying_animation_state(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_dying_animation_state);
-    return 1;
-}
-
-static int set_player_dying_animation_state(lua_State* lua_state) {
-    lua_Integer new_dying_animation_state_arg = luaL_checkinteger(lua_state, 1);
-    g_player_dying_animation_state = (PlayerDyingAnimationState)new_dying_animation_state_arg;
-    return 0;
-}
-
-static int get_player_dying_animation_state_frame_count(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_dying_animation_state_frame_count);
-    return 1;
-}
-
-static int set_player_dying_animation_state_frame_count(lua_State* lua_state) {
-    lua_Integer new_frame_count_arg = luaL_checkinteger(lua_state, 1);
-    g_player_dying_animation_state_frame_count = (int)new_frame_count_arg;
     return 0;
 }
 
@@ -1539,14 +1507,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_player_current_mesh");
     lua_pushcfunction(lua_state, set_player_current_rotation_x_radians);
     lua_setglobal(lua_state, "set_player_current_rotation_x_radians");
-    lua_pushcfunction(lua_state, get_player_dying_animation_state);
-    lua_setglobal(lua_state, "get_player_dying_animation_state");
-    lua_pushcfunction(lua_state, set_player_dying_animation_state);
-    lua_setglobal(lua_state, "set_player_dying_animation_state");
-    lua_pushcfunction(lua_state, get_player_dying_animation_state_frame_count);
-    lua_setglobal(lua_state, "get_player_dying_animation_state_frame_count");
-    lua_pushcfunction(lua_state, set_player_dying_animation_state_frame_count);
-    lua_setglobal(lua_state, "set_player_dying_animation_state_frame_count");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
     lua_pushcfunction(lua_state, get_player_no_roll_cooldown_frame_count);
