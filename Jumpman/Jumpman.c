@@ -20,7 +20,7 @@ typedef enum {
     kGameStatusExiting = 0,
     kGameStatusMenu = 1,
     kGameStatusInLevel = 2,
-    kGameStatusGameOver = 3,
+    kGameStatusLevelLoad = 3,
 } GameStatus;
 
 typedef enum {
@@ -170,6 +170,7 @@ static GameMenuMusicState g_target_menu_selected_music;
 static bool g_just_launched_game;
 static bool g_debug_level_is_specified;
 static char g_debug_level_filename[300];
+static char g_queued_level_load_filename[300];
 static int g_remaining_life_count;
 static long g_game_time_inactive;
 
@@ -606,10 +607,11 @@ static int get_wall_y4(lua_State* lua_state) {
     return 1;
 }
 
-static int game_over(lua_State* lua_state) {
-    // TODO: Replace this with a queue_level_load(string level_name) function, queue_level_load("GameOver")
+static int queue_level_load(lua_State* lua_state) {
+    const char* level_name_arg = luaL_checkstring(lua_state, 1);
+    stbsp_snprintf(g_queued_level_load_filename, sizeof(g_queued_level_load_filename), "Data/%s.DAT", level_name_arg);
     g_player_current_state = kPlayerStateNormal;
-    g_game_status = kGameStatusGameOver;
+    g_game_status = kGameStatusLevelLoad;
     return 0;
 }
 
@@ -1584,8 +1586,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_wall_y3");
     lua_pushcfunction(lua_state, get_wall_y4);
     lua_setglobal(lua_state, "get_wall_y4");
-    lua_pushcfunction(lua_state, game_over);
-    lua_setglobal(lua_state, "game_over");
+    lua_pushcfunction(lua_state, queue_level_load);
+    lua_setglobal(lua_state, "queue_level_load");
     lua_pushcfunction(lua_state, restart_music_track_1);
     lua_setglobal(lua_state, "restart_music_track_1");
     lua_pushcfunction(lua_state, play_death_music_track);
@@ -2673,11 +2675,11 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
         }
     }
 
-    if(g_game_status == kGameStatusGameOver) {
-        // This temporary state is necessary so the game can load a specific non-campaign level, that isn't a menu.
+    if(g_game_status == kGameStatusLevelLoad) {
+        // This temporary state is necessary so the game can load a specific level that isn't a menu.
         // It can't be loaded directly from the API function because loading levels frees the currently running script.
-        stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", "");
-        PrepLevel(base_path, "Data/GameOver.DAT", game_input);
+        PrepLevel(base_path, g_queued_level_load_filename, game_input);
+        g_queued_level_load_filename[0] = '\0';
         g_game_status = kGameStatusInLevel;
     }
 }

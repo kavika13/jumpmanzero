@@ -1356,7 +1356,7 @@ local function AnimateDying_(game_input)
             set_remaining_life_count(get_remaining_life_count() - 1);
 
             if get_remaining_life_count() == 0 then
-                game_over();
+                queue_level_load("GameOver");
             else
                 if Module.ResetPlayerCallback then
                     Module.ResetPlayerCallback(game_input);
