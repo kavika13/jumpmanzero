@@ -502,6 +502,7 @@ local function ShowSomething_()
         new_end_alien.AlienTextureResourceIndex = resources.TextureAlien;
         new_end_alien.ShipTextureResourceIndex = resources.TextureShipMetal;
         new_end_alien.GlassTextureResourceIndex = resources.TextureShipGlass;
+        new_end_alien.initialize();
         g_end_alien = new_end_alien;
     elseif g_time_since_level_start < 2400 then
         g_time_since_level_start = g_time_since_level_start;
@@ -513,34 +514,12 @@ local function ShowSomething_()
     end
 end
 
-function update(game_input, is_initializing)
-    if not g_is_initialized then
-        g_is_initialized = true;
+local function ProgressLevel_(game_input)
+    local player_won = g_game_logic.progress_game(game_input);
+    g_hud_overlay.update(game_input);
 
-        g_game_logic = game_logic_module();
-        g_game_logic.ResetPlayerCallback = reset;
-        g_game_logic.OnCollectDonutCallback = on_collect_donut;
-
-        g_hud_overlay = hud_overlay_module();
-
-        g_time_since_level_start = 0;
-        set_remaining_life_count(0);
-        set_current_camera_mode(camera_mode.PerspectiveFixed);
-
-        for iTemp = 0, 19 do
-            g_object_mesh_indices[iTemp] = new_mesh(0);
-        end
-    end
-
-    -- TODO: Can probably make a parent meta script that calls into this and into hud_overlay.
-    --       That should simplify this logic drastically.
-    --       Probably best to do that with the level loader refactor?
-    if is_initializing or g_title_is_done_scrolling then
-        g_game_logic.progress_game(game_input);
-        g_hud_overlay.update(game_input);
-    elseif g_is_first_update_complete then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
-        return false;
+    if player_won then
+        return;
     end
 
     set_player_freeze_cooldown_frame_count(10);
@@ -586,6 +565,7 @@ function update(game_input, is_initializing)
     elseif g_time_since_level_start == 3100 then
         local new_credits = credits_module();
         new_credits.TextureResourceIndex = resources.TextureRedMetal;
+        new_credits.initialize();
         g_credits = new_credits;
 
         select_platform(1);
@@ -603,18 +583,45 @@ function update(game_input, is_initializing)
     if g_credits then
         g_credits.update();
     end
+end
 
-    if not g_is_first_update_complete then
-        g_is_first_update_complete = true;
-        return false;
+function initialize(game_input)
+    g_game_logic = game_logic_module();
+    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+
+    g_hud_overlay = hud_overlay_module();
+
+    g_time_since_level_start = 0;
+    set_remaining_life_count(0);
+    set_current_camera_mode(camera_mode.PerspectiveFixed);
+
+    for iTemp = 0, 19 do
+        g_object_mesh_indices[iTemp] = new_mesh(0);
     end
 
-    return true;
+    reset();
+
+    -- Make sure staged initialization has happened, and Jumpman has floated to the floor
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+    ProgressLevel_(game_input);
+end
+
+function update(game_input)
+    if not g_title_is_done_scrolling then
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        return;
+    end
+
+    ProgressLevel_(game_input);
 end
 
 function reset()
     set_player_current_position_x(80);
     set_player_current_position_y(79);
     set_player_current_position_z(3);
-    Module.GameLogic.set_player_current_state(player_state.JSNORMAL);
+    g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end
