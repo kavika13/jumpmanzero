@@ -573,7 +573,7 @@ int main(int arguments_count, char* arguments[]) {
     srand((unsigned)previous_frame_time);  // TODO: Seed prng with something that will actually be unique
 
     if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(g_game_base_path, arguments[1], &game_state.current_input);
+        InitGameDebugLevel(g_game_base_path, arguments[1]);
     } else {
         InitGameNormal();
     }

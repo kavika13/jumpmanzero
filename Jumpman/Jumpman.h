@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 long Init3D(void);
-void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input);
+void InitGameDebugLevel(const char* base_path, const char* level_name);
 void InitGameNormal(void);
 void UpdateGame(const char* base_path, GameInput* game_input);
 void DrawGame(void);

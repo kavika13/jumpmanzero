@@ -153,8 +153,8 @@ typedef struct {
     int ObjectNumber;
 } LevelObject;
 
-static void PrepLevel(const char* base_path, const char* level_filename, GameInput* game_input);
-static void LoadNextLevel(const char* base_path, GameInput* game_input);
+static void PrepLevel(const char* base_path, const char* level_filename);
+static void LoadNextLevel(const char* base_path);
 static long LoadMesh(const char* base_path, char* sFileName);
 static void LoadMeshes(const char* base_path);
 static void SetGamePerspective(void);
@@ -2328,8 +2328,9 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
 
 static void UpdatePlayerGraphics(void);
 
-static void InitializeLevelScript(GameInput* game_input) {
-    CallLuaFunction(g_script_level_script_lua_state, "initialize", game_input, true);
+static void InitializeLevelScript(void) {
+    GameInput empty_game_input = { 0 };  // TODO: Don't even pass input to initialize
+    CallLuaFunction(g_script_level_script_lua_state, "initialize", &empty_game_input, true);
     UpdatePlayerGraphics();
 }
 
@@ -2445,7 +2446,7 @@ static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filenam
     free(sData);
 }
 
-static void PrepLevel(const char* base_path, const char* level_filename, GameInput* game_input) {
+static void PrepLevel(const char* base_path, const char* level_filename) {
     Clear3dData();
     Begin3dLoad();
 
@@ -2458,32 +2459,32 @@ static void PrepLevel(const char* base_path, const char* level_filename, GameInp
 
     BuildNavigation();
     g_game_time_inactive = 0;
-    InitializeLevelScript(game_input);
+    InitializeLevelScript();
 
     if(g_music_loop_start_music_time != 5550) {
         NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
     }
 }
 
-static void LoadNextLevel(const char* base_path, GameInput* game_input) {
+static void LoadNextLevel(const char* base_path) {
     if(g_debug_level_is_specified) {
         g_remaining_life_count = 5;
-        PrepLevel(base_path, g_debug_level_filename, game_input);
+        PrepLevel(base_path, g_debug_level_filename);
     } else {
         char level_filename[200];
         char level_title[50];
         ++g_level_set_current_level_index;
         GetLevelInCurrentLevelSet(level_filename, sizeof(level_filename), level_title, sizeof(level_title), g_level_set_current_level_index);
         stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", level_title);
-        PrepLevel(base_path, level_filename, game_input);
+        PrepLevel(base_path, level_filename);
     }
 }
 
-void InitGameDebugLevel(const char* base_path, const char* level_name, GameInput* game_input) {
+void InitGameDebugLevel(const char* base_path, const char* level_name) {
     g_just_launched_game = false;
     g_debug_level_is_specified = true;
     stbsp_snprintf(g_debug_level_filename, sizeof(g_debug_level_filename), "Data/%s.DAT", level_name);
-    LoadNextLevel(base_path, game_input);
+    LoadNextLevel(base_path);
     g_level_set_current_level_index = 0;
     g_game_status = kGameStatusInLevel;
 }
@@ -2562,7 +2563,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
 
         if(g_game_status == kGameStatusInLevel) {
             g_level_set_current_level_index = 0;
-            LoadNextLevel(base_path, game_input);
+            LoadNextLevel(base_path);
         }
 
         g_just_launched_game = false;
@@ -2577,14 +2578,14 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
 
     if(g_game_status == kGameStatusLevelLoad) {
         // Loading levels frees the currently running script, so this can't be done in the API function itself
-        PrepLevel(base_path, g_queued_level_load_filename, game_input);
+        PrepLevel(base_path, g_queued_level_load_filename);
         g_queued_level_load_filename[0] = '\0';
         g_game_status = kGameStatusInLevel;
     }
 
     if(g_game_status == kGameStatusNextLevelLoad) {
         // Loading levels frees the currently running script, so this can't be done in the API function itself
-        LoadNextLevel(base_path, game_input);
+        LoadNextLevel(base_path);
         g_game_status = kGameStatusInLevel;
     }
 }
