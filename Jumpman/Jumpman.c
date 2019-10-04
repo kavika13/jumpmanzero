@@ -86,13 +86,6 @@ typedef enum {
     kPlayerMeshBored5 = 40,
 } PlayerMesh;
 
-typedef enum {
-    kNavigationTypeLadder = 1,
-    kNavigationTypePlatform = 2,
-    kNavigationTypePlatformFallLeft = 3,
-    kNavigationTypePlatformFallRight = 4,
-} NavigationType;
-
 typedef struct {
     long X1, X2, X3, X4;
     long Y1, Y2, Y3, Y4;
@@ -101,12 +94,6 @@ typedef struct {
     int Visible;
     char Func[10];
     long Extra;
-
-    size_t NavCount;
-    long NavTo[10];
-    NavigationType NavToType[10];
-    int NavDist;
-    long NavChoice;
 
     long MeshSize;
     long* Mesh;
@@ -245,63 +232,6 @@ static int get_ladder_z1(lua_State* lua_state) {
     return 1;
 }
 
-static int get_ladder_nav_count(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavCount);
-    return 1;
-}
-
-static int set_ladder_nav_count(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_count_arg = luaL_checkinteger(lua_state, 2);
-    g_ladder_objects[ladder_index].NavCount = (size_t)nav_count_arg;
-    return 0;
-}
-
-static int get_ladder_nav_to(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_index = luaL_checkinteger(lua_state, 2);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavToType[nav_index]);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavTo[nav_index]);
-    return 2;
-}
-
-static int add_ladder_nav_to(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_type_arg = luaL_checkinteger(lua_state, 2);
-    lua_Integer target_object_index = luaL_checkinteger(lua_state, 3);
-    g_ladder_objects[ladder_index].NavToType[g_ladder_objects[ladder_index].NavCount] = nav_type_arg;
-    g_ladder_objects[ladder_index].NavTo[g_ladder_objects[ladder_index].NavCount] = (long)target_object_index;
-    ++g_ladder_objects[ladder_index].NavCount;
-    return 0;
-}
-
-static int get_ladder_nav_distance(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavDist);
-    return 1;
-}
-
-static int set_ladder_nav_distance(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_distance_arg = luaL_checkinteger(lua_state, 2);
-    g_ladder_objects[ladder_index].NavDist = (int)nav_distance_arg;
-    return 0;
-}
-
-static int get_ladder_nav_choice(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavChoice);
-    return 1;
-}
-
-static int set_ladder_nav_choice(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_choice_arg = luaL_checkinteger(lua_state, 2);
-    g_ladder_objects[ladder_index].NavChoice = (long)nav_choice_arg;
-    return 0;
-}
-
 static int get_vine_x1(lua_State* lua_state) {
     lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_vine_objects[vine_index].X1);
@@ -360,63 +290,6 @@ static int get_platform_z1(lua_State* lua_state) {
     lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_platform_objects[platform_index].Z1);
     return 1;
-}
-
-static int get_platform_nav_count(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavCount);
-    return 1;
-}
-
-static int set_platform_nav_count(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_count_arg = luaL_checkinteger(lua_state, 2);
-    g_platform_objects[platform_index].NavCount = (size_t)nav_count_arg;
-    return 0;
-}
-
-static int get_platform_nav_to(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_index = luaL_checkinteger(lua_state, 2);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavToType[nav_index]);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavTo[nav_index]);
-    return 2;
-}
-
-static int add_platform_nav_to(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_type_arg = luaL_checkinteger(lua_state, 2);
-    lua_Integer target_object_index = luaL_checkinteger(lua_state, 3);
-    g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].NavCount] = nav_type_arg;
-    g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].NavCount] = (long)target_object_index;
-    ++g_platform_objects[platform_index].NavCount;
-    return 0;
-}
-
-static int get_platform_nav_distance(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavDist);
-    return 1;
-}
-
-static int set_platform_nav_distance(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_distance_arg = luaL_checkinteger(lua_state, 2);
-    g_platform_objects[platform_index].NavDist = (int)nav_distance_arg;
-    return 0;
-}
-
-static int get_platform_nav_choice(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavChoice);
-    return 1;
-}
-
-static int set_platform_nav_choice(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer nav_choice_arg = luaL_checkinteger(lua_state, 2);
-    g_platform_objects[platform_index].NavChoice = (long)nav_choice_arg;
-    return 0;
 }
 
 static int get_wall_x1(lua_State* lua_state) {
@@ -1206,22 +1079,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_ladder_y2");
     lua_pushcfunction(lua_state, get_ladder_z1);
     lua_setglobal(lua_state, "get_ladder_z1");
-    lua_pushcfunction(lua_state, get_ladder_nav_count);
-    lua_setglobal(lua_state, "get_ladder_nav_count");
-    lua_pushcfunction(lua_state, set_ladder_nav_count);
-    lua_setglobal(lua_state, "set_ladder_nav_count");
-    lua_pushcfunction(lua_state, get_ladder_nav_to);
-    lua_setglobal(lua_state, "get_ladder_nav_to");
-    lua_pushcfunction(lua_state, add_ladder_nav_to);
-    lua_setglobal(lua_state, "add_ladder_nav_to");
-    lua_pushcfunction(lua_state, get_ladder_nav_distance);
-    lua_setglobal(lua_state, "get_ladder_nav_distance");
-    lua_pushcfunction(lua_state, set_ladder_nav_distance);
-    lua_setglobal(lua_state, "set_ladder_nav_distance");
-    lua_pushcfunction(lua_state, get_ladder_nav_choice);
-    lua_setglobal(lua_state, "get_ladder_nav_choice");
-    lua_pushcfunction(lua_state, set_ladder_nav_choice);
-    lua_setglobal(lua_state, "set_ladder_nav_choice");
     lua_pushcfunction(lua_state, get_vine_x1);
     lua_setglobal(lua_state, "get_vine_x1");
     lua_pushcfunction(lua_state, get_vine_y1);
@@ -1242,22 +1099,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_platform_y2");
     lua_pushcfunction(lua_state, get_platform_z1);
     lua_setglobal(lua_state, "get_platform_z1");
-    lua_pushcfunction(lua_state, get_platform_nav_count);
-    lua_setglobal(lua_state, "get_platform_nav_count");
-    lua_pushcfunction(lua_state, set_platform_nav_count);
-    lua_setglobal(lua_state, "set_platform_nav_count");
-    lua_pushcfunction(lua_state, get_platform_nav_to);
-    lua_setglobal(lua_state, "get_platform_nav_to");
-    lua_pushcfunction(lua_state, add_platform_nav_to);
-    lua_setglobal(lua_state, "add_platform_nav_to");
-    lua_pushcfunction(lua_state, get_platform_nav_distance);
-    lua_setglobal(lua_state, "get_platform_nav_distance");
-    lua_pushcfunction(lua_state, set_platform_nav_distance);
-    lua_setglobal(lua_state, "set_platform_nav_distance");
-    lua_pushcfunction(lua_state, get_platform_nav_choice);
-    lua_setglobal(lua_state, "get_platform_nav_choice");
-    lua_pushcfunction(lua_state, set_platform_nav_choice);
-    lua_setglobal(lua_state, "set_platform_nav_choice");
     lua_pushcfunction(lua_state, get_wall_x1);
     lua_setglobal(lua_state, "get_wall_x1");
     lua_pushcfunction(lua_state, get_wall_x2);
