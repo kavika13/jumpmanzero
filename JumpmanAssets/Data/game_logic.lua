@@ -179,38 +179,6 @@ local g_ladder_nav_select = {};  -- Map of ladder index to single Nav Select ent
 local g_platform_nav_select = {};  -- Map of platform index to single Nav Select entry
 
 -- TODO: Refactor below code and remove these functions. Probably won't need as much error checking after that!
-local function init_ladder_nav_to(ladder_index)
-    assert(ladder_index ~= nil, "init_ladder_nav_to - ladder_index parameter must not be nil");
-    g_ladder_nav_to_entries[ladder_index] = {};
-end
-
-local function get_ladder_nav_to_count(ladder_index)
-    assert(ladder_index ~= nil, "get_ladder_nav_to_count - ladder_index parameter must not be nil");
-    assert(g_ladder_nav_to_entries[ladder_index] ~= nil, "get_ladder_nav_to_count - given ladder_index was not previously initialized");
-    return #g_ladder_nav_to_entries[ladder_index];
-end
-
-local function get_ladder_nav_to(ladder_index, nav_to_index)
-    assert(ladder_index ~= nil, "get_ladder_nav_to - ladder_index parameter must not be nil");
-    assert(nav_to_index ~= nil, "get_ladder_nav_to - nav_to_index parameter must not be nil");
-    assert(g_ladder_nav_to_entries[ladder_index] ~= nil, "get_ladder_nav_to - given ladder_index was not previously initialized");
-    assert(g_ladder_nav_to_entries[ladder_index][nav_to_index] ~= nil, "get_ladder_nav_to - given nav_to_index was not previously added");
-    return
-        g_ladder_nav_to_entries[ladder_index][nav_to_index].type,
-        g_ladder_nav_to_entries[ladder_index][nav_to_index].object_index;
-end
-
-local function add_ladder_nav_to(ladder_index, nav_to_type, object_index)
-    assert(ladder_index ~= nil, "add_ladder_nav_to - ladder_index parameter must not be nil");
-    assert(nav_to_type ~= nil, "add_ladder_nav_to - nav_to_type parameter must not be nil");
-    assert(object_index ~= nil, "add_ladder_nav_to - object_index parameter must not be nil");
-    assert(g_ladder_nav_to_entries[ladder_index] ~= nil, "add_ladder_nav_to - given ladder_index was not previously initialized");
-    table.insert(g_ladder_nav_to_entries[ladder_index], {
-        type = nav_to_type,
-        object_index = object_index
-    });
-end
-
 local function init_ladder_nav_select(ladder_index)
     assert(ladder_index ~= nil, "init_ladder_nav_select - ladder_index parameter must not be nil");
     g_ladder_nav_select[ladder_index] = { distance = 5000, encoded_object_index = -1 };  -- TODO: Is -1 valid here?
@@ -246,43 +214,12 @@ end
 
 
 
-local function init_platform_nav_to(platform_index)
-    assert(platform_index ~= nil, "init_platform_nav_to - platform_index parameter must not be nil");
-    g_platform_nav_to_entries[platform_index] = {};
-end
-
-local function get_platform_nav_to_count(platform_index)
-    assert(platform_index ~= nil, "get_platform_nav_to_count - platform_index parameter must not be nil");
-    assert(g_platform_nav_to_entries[platform_index] ~= nil, "get_platform_nav_to_count - given platform_index was not previously initialized");
-    return #g_platform_nav_to_entries[platform_index];
-end
-
-local function get_platform_nav_to(platform_index, nav_index)
-    assert(platform_index ~= nil, "get_platform_nav_to - platform_index parameter must not be nil");
-    assert(nav_index ~= nil, "get_platform_nav_to - nav_index parameter must not be nil");
-    assert(g_platform_nav_to_entries[platform_index] ~= nil, "get_platform_nav_to - given platform_index was not previously added: " .. platform_index);
-    assert(g_platform_nav_to_entries[platform_index][nav_index] ~= nil, "get_platform_nav_to - given nav_index was not previously added: " .. nav_index);
-    return
-        g_platform_nav_to_entries[platform_index][nav_index].type,
-        g_platform_nav_to_entries[platform_index][nav_index].object_index;
-end
-
-local function add_platform_nav_to(platform_index, nav_to_type, object_index)
-    assert(platform_index ~= nil, "add_platform_nav_to - platform_index parameter must not be nil");
-    assert(nav_to_type ~= nil, "add_platform_nav_to - nav_to_type parameter must not be nil");
-    assert(object_index ~= nil, "add_platform_nav_to - object_index parameter must not be nil");
-    table.insert(g_platform_nav_to_entries[platform_index], {
-        type = nav_to_type,
-        object_index = object_index
-    });
-end
-
 local function init_platform_nav_select(platform_index)
     assert(platform_index ~= nil, "init_platform_nav_select - platform_index parameter must not be nil");
     g_platform_nav_select[platform_index] = { distance = 5000, encoded_object_index = -1 };  -- TODO: Is -1 valid here?
 end
 
-local function get_platform_nav_distance(platform_index)  -- TODO: Refactor before checking in, to add function that adds entries with distance + encoded_object_index both set?
+local function get_platform_nav_distance(platform_index)
     assert(platform_index ~= nil, "get_platform_nav_distance - platform_index parameter must not be nil");
     assert(g_platform_nav_select[platform_index] ~= nil, "get_platform_nav_distance - given platform_index was not previously added");
     assert(g_platform_nav_select[platform_index].distance ~= nil, "get_platform_nav_distance - given distance was not previously set");
@@ -461,11 +398,11 @@ end
 
 local function BuildNavigation_()
     for ladder_index = 0, get_ladder_object_count() - 1 do
-        init_ladder_nav_to(ladder_index);
+        g_ladder_nav_to_entries[ladder_index] = {};
     end
 
     for platform_index = 0, get_platform_object_count() - 1 do
-        init_platform_nav_to(platform_index);
+        g_platform_nav_to_entries[platform_index] = {};
 
         local platform_x1 = get_platform_x1(platform_index);
         local platform_y1 = get_platform_y1(platform_index);
@@ -478,7 +415,10 @@ local function BuildNavigation_()
                 nav_type = navigation_type.PLATFORM_FALL_LEFT;
             end
 
-            add_platform_nav_to(platform_index, nav_type, next_platform_index);
+            table.insert(g_platform_nav_to_entries[platform_index], {
+                type = nav_type,
+                object_index = next_platform_index
+            });
         end
 
         local platform_x2 = get_platform_x2(platform_index);
@@ -492,7 +432,10 @@ local function BuildNavigation_()
                 nav_type = navigation_type.PLATFORM_FALL_RIGHT;
             end
 
-            add_platform_nav_to(platform_index, nav_type, next_platform_index);
+            table.insert(g_platform_nav_to_entries[platform_index], {
+                type = nav_type,
+                object_index = next_platform_index
+            });
         end
 
         for ladder_index = 0, get_ladder_object_count() - 1 do
@@ -513,8 +456,14 @@ local function BuildNavigation_()
                 local ladder_y2 = get_ladder_y2(ladder_index);
 
                 if platform_height < ladder_y1 + 2 and platform_height > ladder_y2 - 2 then
-                    add_platform_nav_to(platform_index, navigation_type.LADDER, ladder_index);
-                    add_ladder_nav_to(ladder_index, navigation_type.PLATFORM, platform_index);
+                    table.insert(g_platform_nav_to_entries[platform_index], {
+                        type = navigation_type.LADDER,
+                        object_index = ladder_index
+                    });
+                    table.insert(g_ladder_nav_to_entries[ladder_index], {
+                        type = navigation_type.PLATFORM,
+                        object_index = platform_index
+                    });
                 end
             end
         end
@@ -564,8 +513,9 @@ local function GetNavDir_(from_object_index, to_object_index, nav_from_type, nav
         if not is_done then
             for ladder_index = 0, get_ladder_object_count() - 1 do
                 if get_ladder_nav_distance(ladder_index) < 5000 then
-                    for nav_to_index = 1, get_ladder_nav_to_count(ladder_index) do
-                        local ladder_nav_to_type, nav_to_object_index = get_ladder_nav_to(ladder_index, nav_to_index);
+                    for nav_to_index = 1, #g_ladder_nav_to_entries[ladder_index] do
+                        local ladder_nav_to_type = g_ladder_nav_to_entries[ladder_index][nav_to_index].type;
+                        local nav_to_object_index = g_ladder_nav_to_entries[ladder_index][nav_to_index].object_index;
                         local ladder_nav_distance = get_ladder_nav_distance(ladder_index);
 
                         if ladder_nav_to_type == navigation_type.PLATFORM then
@@ -584,8 +534,9 @@ local function GetNavDir_(from_object_index, to_object_index, nav_from_type, nav
 
             for platform_index = 0, get_platform_object_count() - 1 do
                 if get_platform_nav_distance(platform_index) < 5000 then
-                    for nav_index = 1, get_platform_nav_to_count(platform_index) do
-                        local platform_nav_to_type, nav_to_object_index = get_platform_nav_to(platform_index, nav_index);
+                    for nav_index = 1, #g_platform_nav_to_entries[platform_index] do
+                        local platform_nav_to_type = g_platform_nav_to_entries[platform_index][nav_index].type;
+                        local nav_to_object_index = g_platform_nav_to_entries[platform_index][nav_index].object_index;
                         -- Get platform_index nav distance each time in case it gets modified inside the loop
                         local platform_nav_distance = get_platform_nav_distance(platform_index);
 
