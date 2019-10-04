@@ -114,7 +114,7 @@ function initialize(game_input)
     table.insert(g_jumpers, SpawnJumper_(false));
     table.insert(g_jumpers, SpawnJumper_(false));
 
-    set_current_camera_mode(camera_mode.PerspectiveWide);
+    g_game_logic.set_current_camera_mode(camera_mode.PerspectiveWide);
 
     reset();
 

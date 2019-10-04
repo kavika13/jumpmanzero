@@ -42,6 +42,21 @@ local player_special_action = {
 };
 player_special_action = read_only.make_table_read_only(player_special_action);
 
+-- TODO: Expose this to callers?
+local camera_mode = {
+    -- TODO: Rename these?
+    PerspectiveNormal = 0,
+    PerspectiveCloseUp = 1,
+    PerspectiveFar = 2,
+    PerspectiveWide = 3,
+    PerspectiveFollow = 4,
+    PerspectiveFixed = 5,
+    PerspectiveAbove = 20,
+    PerspectiveFlat = 21,
+    PerspectiveFarAbove = 22,
+};
+camera_mode = read_only.make_table_read_only(camera_mode);
+
 local player_mesh = {
     STAND = 1,
     LEFT_1 = 2,
@@ -118,6 +133,12 @@ local g_player_current_active_platform_index = -1;  -- Masked out if player is d
 local g_player_current_platform_y = 0;
 local g_player_current_close_vine_index = -1;
 local g_player_current_exact_vine_index = -1;
+
+local g_current_camera_mode = camera_mode.PerspectiveNormal;
+local g_camera_current_pos_x = 0;
+local g_camera_current_pos_y = 0;
+local g_camera_track_player_pos_x = 0;
+local g_camera_track_player_pos_y = 0;
 
 -- Movement function calls are almost cyclic, so there's no perfect function order. Pre-declaring them here instead
 local MoveJumpmanVine_ = nil;
@@ -1412,7 +1433,7 @@ function Module.progress_game(game_input)
             GrabDonuts_(game_input);
         end
 
-        reset_perspective();
+        Module.reset_perspective();
 
         return false;
     else
@@ -1427,6 +1448,84 @@ function Module.progress_game(game_input)
         end
 
         return true;
+    end
+end
+
+function Module.reset_perspective()
+    if get_player_current_position_x() > -50 then
+        g_camera_track_player_pos_x = get_player_current_position_x();
+    end
+
+    g_camera_track_player_pos_y = get_player_current_position_y();
+
+    local target_pos_x = g_camera_track_player_pos_x / 2 + get_level_extent_x() / 4;
+    local target_pos_y = g_camera_track_player_pos_y;
+
+    if target_pos_x < 35 then
+        target_pos_x = 35;
+    end
+
+    if target_pos_x > get_level_extent_x() - 45 then
+        target_pos_x = get_level_extent_x() - 45;
+    end
+
+    g_camera_current_pos_x = (g_camera_current_pos_x + target_pos_x) / 2;
+    g_camera_current_pos_y = (g_camera_current_pos_y + target_pos_y) / 2;
+
+    if g_camera_current_pos_x < target_pos_x - 10 or g_camera_current_pos_x > target_pos_x + 10 then
+        g_camera_current_pos_x = target_pos_x;
+    end
+
+    if g_camera_current_pos_y < target_pos_y - 10 or g_camera_current_pos_y > target_pos_y + 10 then
+        g_camera_current_pos_y = target_pos_y;
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveNormal then
+        set_perspective(
+            g_camera_current_pos_x, g_camera_current_pos_y + 40.0, -115.0,
+            g_camera_current_pos_x, g_camera_current_pos_y, 0.0);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveCloseUp then
+        set_perspective(
+            get_player_current_position_x(), g_camera_current_pos_y + 35.0, -95.0,
+            get_player_current_position_x(), g_camera_current_pos_y + 7, 0.0);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveFar then
+        set_perspective(80, g_camera_current_pos_y + 50, -195.0, 80, g_camera_current_pos_y, 0);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveWide then
+        set_perspective(
+            get_player_current_position_x(), g_camera_current_pos_y / 2 + 60.0, -110,
+            get_player_current_position_x(), g_camera_current_pos_y / 2 + 32.0, 0);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveFollow then
+        set_perspective(
+            get_player_current_position_x(), g_camera_current_pos_y / 2 + 60.0, -110,
+            get_player_current_position_x(), g_camera_current_pos_y / 2 + 32.0, 0);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveFixed then
+        set_perspective(70, 110, -60, 100, 90, 0);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveAbove then
+        set_perspective(80, 150, 0.0, 80, 80, 30);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveFlat then
+        set_perspective(
+            get_player_current_position_x(), get_player_current_position_y(), -75.0,
+            get_player_current_position_x(), get_player_current_position_y(), 0.0);
+    end
+
+    if g_current_camera_mode == camera_mode.PerspectiveFarAbove then
+        set_perspective(
+            get_player_current_position_x(), get_player_current_position_y() + 60, -95.0,
+            get_player_current_position_x(), get_player_current_position_y(), 0.0);
     end
 end
 
@@ -1499,6 +1598,10 @@ end
 
 function Module.set_player_freeze_cooldown_frame_count(new_frame_count)
     g_player_freeze_cooldown_frame_count = new_frame_count;
+end
+
+function Module.set_current_camera_mode(new_camera_mode)
+    g_current_camera_mode = new_camera_mode;
 end
 
 function Module.find_vine(iX, iY)

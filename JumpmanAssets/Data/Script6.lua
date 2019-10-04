@@ -148,7 +148,7 @@ function initialize(game_input)
 
     g_hud_overlay = hud_overlay_module();
 
-    set_current_camera_mode(camera_mode.PerspectiveCloseUp);
+    g_game_logic.set_current_camera_mode(camera_mode.PerspectiveCloseUp);
 
     g_ghost = ghost_module();
     g_ghost.GameLogic = g_game_logic;

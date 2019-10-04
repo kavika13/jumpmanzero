@@ -153,7 +153,7 @@ function initialize(game_input)
 
     g_hud_overlay = hud_overlay_module();
 
-    set_current_camera_mode(camera_mode.PerspectiveFar);
+    g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFar);
 
     select_donut(2);
     set_script_selected_level_object_visible(0);

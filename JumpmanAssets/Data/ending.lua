@@ -594,7 +594,7 @@ function initialize(game_input)
 
     g_time_since_level_start = 0;
     set_remaining_life_count(0);
-    set_current_camera_mode(camera_mode.PerspectiveFixed);
+    g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFixed);
 
     for iTemp = 0, 19 do
         g_object_mesh_indices[iTemp] = new_mesh(0);

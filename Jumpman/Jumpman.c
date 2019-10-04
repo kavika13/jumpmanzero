@@ -93,18 +93,6 @@ typedef enum {
     kNavigationTypePlatformFallRight = 4,
 } NavigationType;
 
-typedef enum {
-    kCameraModeNormal = 0,
-    kCameraModeCloseUp = 1,
-    kCameraModeFar = 2,
-    kCameraModeNotSureWhatThisIs = 3,  // TODO: What should this mode be named? When is it used?
-    kCameraModeSpaceLevel = 4,
-    kCameraModeEndingLevel = 5,
-    kCameraModeAbove = 20,
-    kCameraModeFlat = 21,
-    kCameraModeFarAbove = 22,
-} CameraMode;
-
 typedef struct {
     long X1, X2, X3, X4;
     long Y1, Y2, Y3, Y4;
@@ -131,7 +119,6 @@ static void PrepLevel(const char* base_path, const char* level_filename);
 static void LoadNextLevel(const char* base_path);
 static long LoadMesh(const char* base_path, char* sFileName);
 static void LoadMeshes(const char* base_path);
-static void SetGamePerspective(void);
 static int FindObject(LevelObject* lObj, int iCount, int iFind);
 static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
 
@@ -154,7 +141,6 @@ static int g_music_loop_start_music_time;  // TODO: I think it gets specified in
 static char g_music_background_track_filename[200];
 static char g_music_death_track_filename[200];
 static char g_music_win_track_filename[200];
-static CameraMode g_current_camera_mode;
 
 static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
@@ -836,11 +822,6 @@ static int set_script_selected_level_object_z2(lua_State* lua_state) {
 
 // script global variable accessors (getters)
 
-static int get_current_camera_mode(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_current_camera_mode);
-    return 1;
-}
-
 static int get_donut_object_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_donut_object_count);
     return 1;
@@ -927,12 +908,6 @@ static int get_current_fps(lua_State* lua_state) {
 }
 
 // script global variable accessors (setters)
-
-static int set_current_camera_mode(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_current_camera_mode = (CameraMode)arg1;
-    return 0;
-}
 
 static int set_level_extent_x(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
@@ -1333,8 +1308,16 @@ static int script_delete_mesh(lua_State* lua_state) {
     return 0;
 }
 
-static int script_reset_perspective(lua_State* lua_state) {
-    SetGamePerspective();
+static int script_set_perspective(lua_State* lua_state) {
+    double camera_x_arg = luaL_checknumber(lua_state, 1);
+    double camera_y_arg = luaL_checknumber(lua_state, 2);
+    double camera_z_arg = luaL_checknumber(lua_state, 3);
+    double look_at_x_arg = luaL_checknumber(lua_state, 4);
+    double look_at_y_arg = luaL_checknumber(lua_state, 5);
+    double look_at_z_arg = luaL_checknumber(lua_state, 6);
+    SetPerspective(
+        (float)camera_x_arg, (float)camera_y_arg, (float)camera_z_arg,
+        (float)look_at_x_arg, (float)look_at_y_arg, (float)look_at_z_arg);
     return 0;
 }
 
@@ -1538,8 +1521,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, set_script_selected_level_object_z2);
     lua_setglobal(lua_state, "set_script_selected_level_object_z2");
 
-    lua_pushcfunction(lua_state, get_current_camera_mode);
-    lua_setglobal(lua_state, "get_current_camera_mode");
     lua_pushcfunction(lua_state, get_donut_object_count);
     lua_setglobal(lua_state, "get_donut_object_count");
     lua_pushcfunction(lua_state, get_ladder_object_count);
@@ -1574,8 +1555,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_last_key_pressed");
     lua_pushcfunction(lua_state, get_current_fps);
     lua_setglobal(lua_state, "get_current_fps");
-    lua_pushcfunction(lua_state, set_current_camera_mode);
-    lua_setglobal(lua_state, "set_current_camera_mode");
     lua_pushcfunction(lua_state, set_level_extent_x);
     lua_setglobal(lua_state, "set_level_extent_x");
     lua_pushcfunction(lua_state, set_player_current_position_x);
@@ -1629,8 +1608,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "select_object_mesh");
     lua_pushcfunction(lua_state, script_delete_mesh);
     lua_setglobal(lua_state, "delete_mesh");
-    lua_pushcfunction(lua_state, script_reset_perspective);
-    lua_setglobal(lua_state, "reset_perspective");
+    lua_pushcfunction(lua_state, script_set_perspective);
+    lua_setglobal(lua_state, "set_perspective");
     lua_pushcfunction(lua_state, script_select_platform);
     lua_setglobal(lua_state, "select_platform");
     lua_pushcfunction(lua_state, script_select_ladder);
@@ -1745,7 +1724,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
     g_level_extent_x = 160;
 
-    g_current_camera_mode = kCameraModeNormal;
     g_loaded_texture_count = 0;
     g_loaded_mesh_count = 0;
     g_loaded_script_count = 0;
@@ -2223,78 +2201,6 @@ static void InitializeLevelScript(void) {
 
 static void ProgressGame(GameInput* game_input) {
     CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
-}
-
-static void SetGamePerspective(void) {
-    static float iCamX, iCamY;
-    static float iPX, iPY;
-    float iTX, iTY;
-
-    if(g_player_current_position_x > -50) {
-        iPX = g_player_current_position_x;
-    }
-
-    iPY = g_player_current_position_y;
-
-    iTX = iPX / 2 + g_level_extent_x / 4;
-    iTY = iPY;
-
-    if(iTX < 35) {
-        iTX = 35;
-    }
-
-    if(iTX > g_level_extent_x - 45) {
-        iTX = (float)(g_level_extent_x - 45);
-    }
-
-    iCamX = (iCamX + iTX) / 2;
-    iCamY = (iCamY + iTY) / 2;
-
-    if(iCamX < iTX - 10 || iCamX > iTX + 10) {
-        iCamX = iTX;
-    }
-
-    if(iCamY < iTY - 10 || iCamY > iTY + 10) {
-        iCamY = iTY;
-    }
-
-    if(g_current_camera_mode == kCameraModeNormal) {
-        SetPerspective(iCamX, iCamY + 40.0f, -115.0f, iCamX, iCamY, 0.0f);
-    }
-
-    if(g_current_camera_mode == kCameraModeCloseUp) {
-        SetPerspective(g_player_current_position_x, iCamY + 35.0f, -95.0f, g_player_current_position_x, iCamY + 7, 0.0f);
-    }
-
-    if(g_current_camera_mode == kCameraModeFar) {
-        SetPerspective(80, iCamY + 50, -195.0f, 80, iCamY, 0);
-    }
-
-    if(g_current_camera_mode == kCameraModeNotSureWhatThisIs) {
-        // TODO: What should this mode be named? When is it used?
-        //       Old comment - SetPerspective(0, 0.0f, -185.0f, 0, 0, 0.0f);  - Should this be ignored?
-        SetPerspective(g_player_current_position_x, iCamY / 2 + 60.0f, -110, g_player_current_position_x, iCamY / 2 + 32.0f, 0);
-    }
-
-    if(g_current_camera_mode == kCameraModeSpaceLevel) {
-        SetPerspective(g_player_current_position_x, iCamY / 2 + 60.0f, -110, g_player_current_position_x, iCamY / 2 + 32.0f, 0);
-    }
-
-    if(g_current_camera_mode == kCameraModeEndingLevel) {
-        SetPerspective(70, 110, -60, 100, 90, 0);
-    }
-
-    if(g_current_camera_mode == kCameraModeAbove) {
-        SetPerspective(80, 150, 0.0f, 80, 80, 30);
-    }
-
-    if(g_current_camera_mode == kCameraModeFlat) {
-        SetPerspective(g_player_current_position_x, g_player_current_position_y, -75.0f, g_player_current_position_x, g_player_current_position_y, 0.0f);
-    }
-
-    if(g_current_camera_mode == kCameraModeFarAbove) {
-        SetPerspective(g_player_current_position_x, g_player_current_position_y + 60, -95.0f, g_player_current_position_x, g_player_current_position_y, 0.0f);
-    }
 }
 
 static void UpdatePlayerGraphics(void) {

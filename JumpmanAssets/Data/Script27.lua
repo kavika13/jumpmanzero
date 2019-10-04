@@ -116,11 +116,11 @@ local function RingPlatforms_()
     if iPX < 0 then
         iPX = iPX + kPLAY_AREA_CIRCUMFERENCE;
         set_player_current_position_x(iPX);
-        reset_perspective();
+        g_game_logic.reset_perspective();
     elseif iPX >= kPLAY_AREA_CIRCUMFERENCE then
         iPX = iPX - kPLAY_AREA_CIRCUMFERENCE;
         set_player_current_position_x(iPX);
-        reset_perspective();
+        g_game_logic.reset_perspective();
     end
 
     select_picture(100);
@@ -415,7 +415,7 @@ function initialize(game_input)
     g_donuts_to_collect_count = 20;
 
     set_fog(90, 400, 0, 0, 0);
-    set_current_camera_mode(camera_mode.PerspectiveFollow);
+    g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFollow);
 
     g_alien_mesh_index = new_mesh(resources.MeshAlien1);
     g_eye_1_mesh_index = new_mesh(resources.MeshCube);
