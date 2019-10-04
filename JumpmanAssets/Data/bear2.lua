@@ -2,12 +2,14 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local nav_type = {
-    NTLadder = 1,
-    NTPlatform = 2,
+-- TODO: Get from game logic module
+local navigation_type = {
+    LADDER = 1,
+    PLATFORM = 2,
+    PLATFORM_FALL_LEFT = 3,
+    PLATFORM_FALL_RIGHT = 4,
 };
-nav_type = read_only.make_table_read_only(nav_type);
+navigation_type = read_only.make_table_read_only(navigation_type);
 
 Module.GameLogic = nil;
 
@@ -223,8 +225,8 @@ local function CheckForOptions_()
         return;
     end
 
-    local iChoice = get_navigation_dir(
-        self_platform_index, player_platform_index, nav_type.NTPlatform, nav_type.NTPlatform);
+    local iChoice = Module.GameLogic.get_navigation_dir(
+        self_platform_index, player_platform_index, navigation_type.PLATFORM, navigation_type.PLATFORM);
 
     if iChoice < 0 then
         g_current_status = status_type.SHAKING;

@@ -102,7 +102,7 @@ typedef struct {
     char Func[10];
     long Extra;
 
-    int Navs;
+    size_t NavCount;
     long NavTo[10];
     NavigationType NavToType[10];
     int NavDist;
@@ -115,12 +115,8 @@ typedef struct {
     int ObjectNumber;
 } LevelObject;
 
-static void PrepLevel(const char* base_path, const char* level_filename);
-static void LoadNextLevel(const char* base_path);
 static long LoadMesh(const char* base_path, char* sFileName);
-static void LoadMeshes(const char* base_path);
-static int FindObject(LevelObject* lObj, int iCount, int iFind);
-static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform);
+static void LoadPlayerMeshes(const char* base_path);
 
 static char g_level_set_current_set_filename[100];
 static int g_level_set_current_level_index;
@@ -168,190 +164,14 @@ static LevelObject g_wall_objects[50];
 static int g_backdrop_object_count;
 static LevelObject g_backdrop_objects[30];
 
-// SCRIPT
+// ------------------- LUA SCRIPT -------------------------------
+
 static LevelObject* g_script_selected_level_object;
 static long g_script_selected_mesh_index;
 
 static lua_State* g_script_level_script_lua_state = NULL;
 
-// ------------------------------- BASIC GAME STUFF ----------------------------
-
-static void BuildNavigation(void) {
-    for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
-        g_ladder_objects[ladder_index].Navs = 0;
-    }
-
-    for(int platform_index = 0; platform_index < g_platform_object_count; ++platform_index) {
-        g_platform_objects[platform_index].Navs = 0;
-
-        float next_platform_y;
-        long next_platform_index;
-        GetNextPlatform(g_platform_objects[platform_index].X1 - 4, g_platform_objects[platform_index].Y1, 4, 2, &next_platform_y, &next_platform_index);
-
-        if(next_platform_index >= 0) {
-            NavigationType nav_type = kNavigationTypePlatform;
-
-            if(next_platform_y < g_platform_objects[platform_index].Y1 - 4) {
-                nav_type = kNavigationTypePlatformFallLeft;
-            }
-
-            g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].Navs] = next_platform_index;
-            g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].Navs] = nav_type;
-            ++g_platform_objects[platform_index].Navs;
-        }
-
-        GetNextPlatform(g_platform_objects[platform_index].X2 + 4, g_platform_objects[platform_index].Y2, 4, 2, &next_platform_y, &next_platform_index);
-
-        if(next_platform_index >= 0) {
-            NavigationType nav_type = kNavigationTypePlatform;
-
-            if(next_platform_y < g_platform_objects[platform_index].Y2 - 4) {
-                nav_type = kNavigationTypePlatformFallRight;
-            }
-
-            g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].Navs] = next_platform_index;
-            g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].Navs] = nav_type;
-            ++g_platform_objects[platform_index].Navs;
-        }
-
-        for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
-            if(g_platform_objects[platform_index].X1 < g_ladder_objects[ladder_index].X1 && g_platform_objects[platform_index].X2 > g_ladder_objects[ladder_index].X1) {
-                long ladder_pos_x = g_ladder_objects[ladder_index].X1;
-                long platform_length = g_platform_objects[platform_index].X2 - g_platform_objects[platform_index].X1;
-                // TODO: the platform_height variable name might not be quite correct. Seems to correlate ladder's position with platform height and platform length, then compare to ladder bottom/top
-                long platform_height = g_platform_objects[platform_index].Y1 * abs((int)(g_platform_objects[platform_index].X2 - ladder_pos_x)) + g_platform_objects[platform_index].Y2 * abs((int)(g_platform_objects[platform_index].X1 - ladder_pos_x));
-                platform_height /= platform_length;
-
-                if(platform_height < g_ladder_objects[ladder_index].Y1 + 2 && platform_height > g_ladder_objects[ladder_index].Y2 - 2) {
-                    g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].Navs] = ladder_index;
-                    g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].Navs] = kNavigationTypeLadder;
-                    ++g_platform_objects[platform_index].Navs;
-
-                    g_ladder_objects[ladder_index].NavTo[g_ladder_objects[ladder_index].Navs] = platform_index;
-                    g_ladder_objects[ladder_index].NavToType[g_ladder_objects[ladder_index].Navs] = kNavigationTypePlatform;
-                    ++g_ladder_objects[ladder_index].Navs;
-                }
-            }
-        }
-    }
-
-    return;
-}
-
-static long GetNavDir(long iFrom, long iTo, NavigationType nav_from_type, NavigationType nav_to_type) {
-    for(int platform_index = 0; platform_index < g_platform_object_count; ++platform_index) {
-        g_platform_objects[platform_index].NavDist = 5000;
-    }
-
-    for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
-        g_ladder_objects[ladder_index].NavDist = 5000;
-    }
-
-    if(iFrom < 0 || iTo < 0) {
-        return -1;
-    }
-
-    if(nav_from_type == kNavigationTypeLadder) {
-        g_ladder_objects[iFrom].NavDist = 0;
-    }
-
-    if(nav_from_type == kNavigationTypePlatform) {
-        g_platform_objects[iFrom].NavDist = 0;
-    }
-
-    bool is_done = false;
-
-    for(int repeat_count = 0; repeat_count < 50 && !is_done; ++repeat_count) {
-        for(int ladder_index = 0; ladder_index < g_ladder_object_count; ++ladder_index) {
-            if(g_ladder_objects[ladder_index].NavDist < 5000) {
-                for(int nav_index = 0; nav_index < g_ladder_objects[ladder_index].Navs; ++nav_index) {
-                    if(g_ladder_objects[ladder_index].NavToType[nav_index] == kNavigationTypePlatform) {
-                        long iNavTo = g_ladder_objects[ladder_index].NavTo[nav_index];
-
-                        if(g_platform_objects[iNavTo].NavDist > g_ladder_objects[ladder_index].NavDist + 1) {
-                            g_platform_objects[iNavTo].NavDist = g_ladder_objects[ladder_index].NavDist + 1;
-                            g_platform_objects[iNavTo].NavChoice = g_ladder_objects[ladder_index].NavChoice;
-
-                            if(g_ladder_objects[ladder_index].NavDist == 0) {
-                                g_platform_objects[iNavTo].NavChoice = iNavTo;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for(int platform_index = 0; platform_index < g_platform_object_count; ++platform_index) {
-            if(g_platform_objects[platform_index].NavDist < 5000) {
-                NavigationType nav_type;
-
-                for(int nav_index = 0; nav_index < g_platform_objects[platform_index].Navs; ++nav_index) {
-                    nav_type = g_platform_objects[platform_index].NavToType[nav_index];
-
-                    if(nav_type != kNavigationTypeLadder) {
-                        long iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
-
-                        if(g_platform_objects[iNavTo].NavDist > g_platform_objects[platform_index].NavDist + 1) {
-                            g_platform_objects[iNavTo].NavDist = g_platform_objects[platform_index].NavDist + 1;
-                            g_platform_objects[iNavTo].NavChoice = g_platform_objects[platform_index].NavChoice;
-
-                            if(g_platform_objects[platform_index].NavDist == 0) {
-                                if(nav_type == kNavigationTypePlatform) {
-                                    g_platform_objects[iNavTo].NavChoice = iNavTo;
-                                }
-
-                                if(nav_type == kNavigationTypePlatformFallLeft) {
-                                    g_platform_objects[iNavTo].NavChoice = iNavTo + 2000;
-                                }
-
-                                if(nav_type == kNavigationTypePlatformFallRight) {
-                                    g_platform_objects[iNavTo].NavChoice = iNavTo + 3000;
-                                }
-                            }
-                        }
-                    }
-
-                    if(nav_type == kNavigationTypeLadder) {
-                        long iNavTo = g_platform_objects[platform_index].NavTo[nav_index];
-
-                        if(g_ladder_objects[iNavTo].NavDist > g_platform_objects[platform_index].NavDist + 1) {
-                            g_ladder_objects[iNavTo].NavDist = g_platform_objects[platform_index].NavDist + 1;
-                            g_ladder_objects[iNavTo].NavChoice = g_platform_objects[platform_index].NavChoice;
-
-                            if(g_platform_objects[platform_index].NavDist == 0) {
-                                g_ladder_objects[iNavTo].NavChoice = iNavTo + 1000;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if(nav_to_type == kNavigationTypeLadder && g_ladder_objects[iTo].NavDist < 5000) {
-            is_done = true;
-        }
-
-        if(nav_to_type != kNavigationTypeLadder && g_platform_objects[iTo].NavDist < 5000) {
-            is_done = true;
-        }
-    }
-
-    if(!is_done) {
-        return -1;
-    }
-
-    long iChoice = 0;
-
-    if(nav_to_type == kNavigationTypeLadder) {
-        iChoice = g_ladder_objects[iTo].NavChoice;
-    }
-
-    if(nav_to_type != kNavigationTypeLadder) {
-        iChoice = g_platform_objects[iTo].NavChoice;
-    }
-
-    return iChoice;
-}
+// Potentially temporary engine functions, during refactor of game logic from out of engine into script
 
 static int FindObject(LevelObject* lObj, int iCount, int iFind) {
     int iLoop = -1;
@@ -364,17 +184,6 @@ static int FindObject(LevelObject* lObj, int iCount, int iFind) {
 
     return -1;
 }
-
-static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
-    int iCopy = -1;
-
-    while(++iCopy < lObj->MeshSize) {
-        oData[*iPlace] = lObj->Mesh[iCopy];
-        ++*iPlace;
-    }
-}
-
-// Potentially temporary engine functions, during refactor of game logic from out of engine into script
 
 static int get_donut_mesh_number(lua_State* lua_state) {
     lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
@@ -436,6 +245,63 @@ static int get_ladder_z1(lua_State* lua_state) {
     return 1;
 }
 
+static int get_ladder_nav_count(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavCount);
+    return 1;
+}
+
+static int set_ladder_nav_count(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_count_arg = luaL_checkinteger(lua_state, 2);
+    g_ladder_objects[ladder_index].NavCount = (size_t)nav_count_arg;
+    return 0;
+}
+
+static int get_ladder_nav_to(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_index = luaL_checkinteger(lua_state, 2);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavToType[nav_index]);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavTo[nav_index]);
+    return 2;
+}
+
+static int add_ladder_nav_to(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_type_arg = luaL_checkinteger(lua_state, 2);
+    lua_Integer target_object_index = luaL_checkinteger(lua_state, 3);
+    g_ladder_objects[ladder_index].NavToType[g_ladder_objects[ladder_index].NavCount] = nav_type_arg;
+    g_ladder_objects[ladder_index].NavTo[g_ladder_objects[ladder_index].NavCount] = (long)target_object_index;
+    ++g_ladder_objects[ladder_index].NavCount;
+    return 0;
+}
+
+static int get_ladder_nav_distance(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavDist);
+    return 1;
+}
+
+static int set_ladder_nav_distance(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_distance_arg = luaL_checkinteger(lua_state, 2);
+    g_ladder_objects[ladder_index].NavDist = (int)nav_distance_arg;
+    return 0;
+}
+
+static int get_ladder_nav_choice(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].NavChoice);
+    return 1;
+}
+
+static int set_ladder_nav_choice(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_choice_arg = luaL_checkinteger(lua_state, 2);
+    g_ladder_objects[ladder_index].NavChoice = (long)nav_choice_arg;
+    return 0;
+}
+
 static int get_vine_x1(lua_State* lua_state) {
     lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_vine_objects[vine_index].X1);
@@ -494,6 +360,63 @@ static int get_platform_z1(lua_State* lua_state) {
     lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_platform_objects[platform_index].Z1);
     return 1;
+}
+
+static int get_platform_nav_count(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavCount);
+    return 1;
+}
+
+static int set_platform_nav_count(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_count_arg = luaL_checkinteger(lua_state, 2);
+    g_platform_objects[platform_index].NavCount = (size_t)nav_count_arg;
+    return 0;
+}
+
+static int get_platform_nav_to(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_index = luaL_checkinteger(lua_state, 2);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavToType[nav_index]);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavTo[nav_index]);
+    return 2;
+}
+
+static int add_platform_nav_to(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_type_arg = luaL_checkinteger(lua_state, 2);
+    lua_Integer target_object_index = luaL_checkinteger(lua_state, 3);
+    g_platform_objects[platform_index].NavToType[g_platform_objects[platform_index].NavCount] = nav_type_arg;
+    g_platform_objects[platform_index].NavTo[g_platform_objects[platform_index].NavCount] = (long)target_object_index;
+    ++g_platform_objects[platform_index].NavCount;
+    return 0;
+}
+
+static int get_platform_nav_distance(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavDist);
+    return 1;
+}
+
+static int set_platform_nav_distance(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_distance_arg = luaL_checkinteger(lua_state, 2);
+    g_platform_objects[platform_index].NavDist = (int)nav_distance_arg;
+    return 0;
+}
+
+static int get_platform_nav_choice(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].NavChoice);
+    return 1;
+}
+
+static int set_platform_nav_choice(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer nav_choice_arg = luaL_checkinteger(lua_state, 2);
+    g_platform_objects[platform_index].NavChoice = (long)nav_choice_arg;
+    return 0;
 }
 
 static int get_wall_x1(lua_State* lua_state) {
@@ -649,18 +572,6 @@ static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
     // TODO: Remove pre-multiplication from scripts, and divide from here
     ScrollTexture(g_script_selected_mesh_index, (float)arg_x / 16.0f, (float)arg_y / 16.0f);
     return 0;
-}
-
-static int get_navigation_dir(lua_State* lua_state) {
-    lua_Integer arg_from_object_abs_index = luaL_checkinteger(lua_state, 1);
-    lua_Integer arg_to_object_abs_index = luaL_checkinteger(lua_state, 2);
-    lua_Integer arg_from_object_type = luaL_checkinteger(lua_state, 3);
-    lua_Integer arg_to_object_type = luaL_checkinteger(lua_state, 4);
-    long result = GetNavDir(
-        (long)arg_from_object_abs_index, (long)arg_to_object_abs_index,
-        (NavigationType)arg_from_object_type, (NavigationType)arg_to_object_type);
-    lua_pushinteger(lua_state, result);
-    return 1;
 }
 
 // script script_selected_level_object accessors (getters)
@@ -1295,6 +1206,22 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_ladder_y2");
     lua_pushcfunction(lua_state, get_ladder_z1);
     lua_setglobal(lua_state, "get_ladder_z1");
+    lua_pushcfunction(lua_state, get_ladder_nav_count);
+    lua_setglobal(lua_state, "get_ladder_nav_count");
+    lua_pushcfunction(lua_state, set_ladder_nav_count);
+    lua_setglobal(lua_state, "set_ladder_nav_count");
+    lua_pushcfunction(lua_state, get_ladder_nav_to);
+    lua_setglobal(lua_state, "get_ladder_nav_to");
+    lua_pushcfunction(lua_state, add_ladder_nav_to);
+    lua_setglobal(lua_state, "add_ladder_nav_to");
+    lua_pushcfunction(lua_state, get_ladder_nav_distance);
+    lua_setglobal(lua_state, "get_ladder_nav_distance");
+    lua_pushcfunction(lua_state, set_ladder_nav_distance);
+    lua_setglobal(lua_state, "set_ladder_nav_distance");
+    lua_pushcfunction(lua_state, get_ladder_nav_choice);
+    lua_setglobal(lua_state, "get_ladder_nav_choice");
+    lua_pushcfunction(lua_state, set_ladder_nav_choice);
+    lua_setglobal(lua_state, "set_ladder_nav_choice");
     lua_pushcfunction(lua_state, get_vine_x1);
     lua_setglobal(lua_state, "get_vine_x1");
     lua_pushcfunction(lua_state, get_vine_y1);
@@ -1315,6 +1242,22 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_platform_y2");
     lua_pushcfunction(lua_state, get_platform_z1);
     lua_setglobal(lua_state, "get_platform_z1");
+    lua_pushcfunction(lua_state, get_platform_nav_count);
+    lua_setglobal(lua_state, "get_platform_nav_count");
+    lua_pushcfunction(lua_state, set_platform_nav_count);
+    lua_setglobal(lua_state, "set_platform_nav_count");
+    lua_pushcfunction(lua_state, get_platform_nav_to);
+    lua_setglobal(lua_state, "get_platform_nav_to");
+    lua_pushcfunction(lua_state, add_platform_nav_to);
+    lua_setglobal(lua_state, "add_platform_nav_to");
+    lua_pushcfunction(lua_state, get_platform_nav_distance);
+    lua_setglobal(lua_state, "get_platform_nav_distance");
+    lua_pushcfunction(lua_state, set_platform_nav_distance);
+    lua_setglobal(lua_state, "set_platform_nav_distance");
+    lua_pushcfunction(lua_state, get_platform_nav_choice);
+    lua_setglobal(lua_state, "get_platform_nav_choice");
+    lua_pushcfunction(lua_state, set_platform_nav_choice);
+    lua_setglobal(lua_state, "set_platform_nav_choice");
     lua_pushcfunction(lua_state, get_wall_x1);
     lua_setglobal(lua_state, "get_wall_x1");
     lua_pushcfunction(lua_state, get_wall_x2);
@@ -1367,8 +1310,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_z");
     lua_pushcfunction(lua_state, script_selected_mesh_scroll_texture);
     lua_setglobal(lua_state, "script_selected_mesh_scroll_texture");
-    lua_pushcfunction(lua_state, get_navigation_dir);
-    lua_setglobal(lua_state, "get_navigation_dir");
 
     lua_pushcfunction(lua_state, get_script_selected_level_object_extra);
     lua_setglobal(lua_state, "get_script_selected_level_object_extra");
@@ -1565,6 +1506,30 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
         if(is_required) {
             assert(false);  // TODO: Error handling
         }
+    }
+}
+
+static void InitializeLevelScript(void) {
+    GameInput empty_game_input = { 0 };  // TODO: Don't even pass input to initialize
+    CallLuaFunction(g_script_level_script_lua_state, "initialize", &empty_game_input, true);
+}
+
+static void ProgressGame(GameInput* game_input) {
+    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
+}
+
+void DrawGame(void) {
+    Render();
+}
+
+// ------------------- LEVEL LOADING AND GLOBAL GAME STATE  -------------------------------
+
+static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
+    int iCopy = -1;
+
+    while(++iCopy < lObj->MeshSize) {
+        oData[*iPlace] = lObj->Mesh[iCopy];
+        ++*iPlace;
     }
 }
 
@@ -1999,77 +1964,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     ++g_loaded_texture_count;
 }
 
-static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* iSupport, long* iPlatform) {
-    long iP;
-    float iH;
-    long iLen;
-    long iEX;
-    long iExtra;
-    int bGood;
-
-    *iPlatform = -1;
-    *iSupport = -1;
-
-    iP = -1;
-    iExtra = 0;
-
-    while(++iP < g_platform_object_count) {
-        if(g_platform_objects[iP].X1 <= iX + iWide && g_platform_objects[iP].X2 >= iX - iWide) {
-            iEX = iX;
-
-            if(iEX < g_platform_objects[iP].X1) {
-                iEX = g_platform_objects[iP].X1;
-            }
-
-            if(iEX > g_platform_objects[iP].X2) {
-                iEX = g_platform_objects[iP].X2;
-            }
-
-            iLen = g_platform_objects[iP].X2 - g_platform_objects[iP].X1;
-            iH = (float)(g_platform_objects[iP].Y1) * abs((int)(g_platform_objects[iP].X2 - iEX)) + (float)(g_platform_objects[iP].Y2) * abs((int)(g_platform_objects[iP].X1 - iEX));
-            iH /= iLen;
-
-            bGood = 0;
-
-            if(g_platform_objects[iP].Extra == 3) {
-                if(iH < iY + 1.5 && iH >= iY) {
-                    bGood = 1;
-                }
-
-                // This function is only used for navigation now, so don't need to check this state
-                // if(g_player_current_state == kPlayerStateRoll && g_player_current_state_frame_count < 6) {
-                //     bGood = 0;
-                // }
-            } else {
-                if(iH < iY + iHeight) {
-                    bGood = 1;
-                }
-            }
-
-            if(bGood && (iH > *iSupport || (iH == *iSupport && (iExtra == 1 || iExtra == 2)))) {
-                *iSupport = iH;
-                *iPlatform = iP;
-                iExtra = g_platform_objects[iP].Extra;
-            }
-        }
-    }
-}
-
-static void InitializeLevelScript(void) {
-    GameInput empty_game_input = { 0 };  // TODO: Don't even pass input to initialize
-    CallLuaFunction(g_script_level_script_lua_state, "initialize", &empty_game_input, true);
-}
-
-static void ProgressGame(GameInput* game_input) {
-    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
-}
-
-void DrawGame(void) {
-    Render();
-}
-
-// ------------------- OTHER STUFF -------------------------------
-
 static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filename_size, char* level_title, size_t level_title_size, int level_set_index) {
     long iLen;
     char sTemp[20] = { 0 };
@@ -2090,12 +1984,11 @@ static void PrepLevel(const char* base_path, const char* level_filename) {
 
     SetFog(0, 0, 0, 0, 0);
 
-    LoadMeshes(base_path);
+    LoadPlayerMeshes(base_path);
     LoadLevel(base_path, level_filename);
 
     EndAndCommit3dLoad();
 
-    BuildNavigation();
     InitializeLevelScript();
 
     if(g_music_loop_start_music_time != 5550) {
@@ -2220,6 +2113,8 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
     }
 }
 
+// ------------------- MESH SETUP -------------------------------
+
 long Init3D(void) {
     int iLoop = -1;
 
@@ -2271,7 +2166,7 @@ static long LoadMesh(const char* base_path, char* sFileName) {
     return iObjectNum;
 }
 
-static void LoadMeshes(const char* base_path) {
+static void LoadPlayerMeshes(const char* base_path) {
     g_player_mesh_indices[kPlayerMeshStand] = LoadMesh(base_path, "Stand.MSH");
     g_player_mesh_indices[kPlayerMeshLeft1] = LoadMesh(base_path, "Left1.MSH");
     g_player_mesh_indices[kPlayerMeshLeft2] = LoadMesh(base_path, "Left2.MSH");

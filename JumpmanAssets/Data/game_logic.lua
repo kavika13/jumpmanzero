@@ -57,6 +57,15 @@ local camera_mode = {
 };
 camera_mode = read_only.make_table_read_only(camera_mode);
 
+-- TODO: Expose this to callers?
+local navigation_type = {
+    LADDER = 1,
+    PLATFORM = 2,
+    PLATFORM_FALL_LEFT = 3,
+    PLATFORM_FALL_RIGHT = 4,
+};
+navigation_type = read_only.make_table_read_only(navigation_type);
+
 local player_mesh = {
     STAND = 1,
     LEFT_1 = 2,
@@ -299,6 +308,183 @@ local function FindPlatform_(iX, iY, iHeight, iWide)
     end
 
     return iSupport, iPlatform;
+end
+
+local function BuildNavigation_()
+    for ladder_index = 0, get_ladder_object_count() - 1 do
+        set_ladder_nav_count(ladder_index, 0);
+    end
+
+    for platform_index = 0, get_platform_object_count() - 1 do
+        set_platform_nav_count(platform_index, 0);
+
+        local platform_x1 = get_platform_x1(platform_index);
+        local platform_y1 = get_platform_y1(platform_index);
+        local next_platform_y, next_platform_index = FindPlatform_(platform_x1 - 4, platform_y1, 4, 2);
+
+        if next_platform_index >= 0 then
+            local nav_type = navigation_type.PLATFORM;
+
+            if next_platform_y < platform_y1 - 4 then
+                nav_type = navigation_type.PLATFORM_FALL_LEFT;
+            end
+
+            add_platform_nav_to(platform_index, nav_type, next_platform_index);
+        end
+
+        local platform_x2 = get_platform_x2(platform_index);
+        local platform_y2 = get_platform_y2(platform_index);
+        next_platform_y, next_platform_index = FindPlatform_(platform_x2 + 4, platform_y2, 4, 2);
+
+        if next_platform_index >= 0 then
+            local nav_type = navigation_type.PLATFORM;
+
+            if next_platform_y < platform_y2 - 4 then
+                nav_type = navigation_type.PLATFORM_FALL_RIGHT;
+            end
+
+            add_platform_nav_to(platform_index, nav_type, next_platform_index);
+        end
+
+        for ladder_index = 0, get_ladder_object_count() - 1 do
+            local ladder_pos_x = get_ladder_x1(ladder_index);
+
+            if platform_x1 < ladder_pos_x and platform_x2 > ladder_pos_x then
+                local platform_length = platform_x2 - platform_x1;
+
+                -- TODO: The platform_height variable name might not be quite correct.
+                --       Seems to correlate ladder's position with platform height and platform length,
+                --          then compare to ladder bottom/top
+                local platform_height =
+                    platform_y1 * math.abs(math.floor(platform_x2 - ladder_pos_x)) +
+                    platform_y2 * math.abs(math.floor(platform_x1 - ladder_pos_x));
+                platform_height = platform_height / platform_length;
+
+                local ladder_y1 = get_ladder_y1(ladder_index);
+                local ladder_y2 = get_ladder_y2(ladder_index);
+
+                if platform_height < ladder_y1 + 2 and platform_height > ladder_y2 - 2 then
+                    add_platform_nav_to(platform_index, navigation_type.LADDER, ladder_index);
+                    add_ladder_nav_to(ladder_index, navigation_type.PLATFORM, platform_index);
+                end
+            end
+        end
+    end
+end
+
+local function GetNavDir_(from_object_index, to_object_index, nav_from_type, nav_to_type)
+    for platform_index = 0, get_platform_object_count() - 1 do
+        set_platform_nav_distance(platform_index, 5000);
+    end
+
+    for ladder_index = 0, get_ladder_object_count() - 1 do
+        set_ladder_nav_distance(ladder_index, 5000);
+    end
+
+    if from_object_index < 0 or to_object_index < 0 then
+        return -1;
+    end
+
+    if nav_from_type == navigation_type.LADDER then
+        set_ladder_nav_distance(from_object_index, 0);
+    end
+
+    if nav_from_type == navigation_type.PLATFORM then
+        set_platform_nav_distance(from_object_index, 0);
+    end
+
+    local is_done = false;
+
+    for repeat_count = 0, 49 do  -- TODO: Use constant
+        if not is_done then
+            for ladder_index = 0, get_ladder_object_count() - 1 do
+                if get_ladder_nav_distance(ladder_index) < 5000 then
+                    for nav_index = 0, get_ladder_nav_count(ladder_index) - 1 do
+                        local ladder_nav_to_type, nav_to_object_index = get_ladder_nav_to(ladder_index, nav_index);
+                        local ladder_nav_distance = get_ladder_nav_distance(ladder_index);
+
+                        if ladder_nav_to_type == navigation_type.PLATFORM then
+                            if get_platform_nav_distance(nav_to_object_index) > ladder_nav_distance + 1 then
+                                set_platform_nav_distance(nav_to_object_index, ladder_nav_distance + 1);
+                                set_platform_nav_choice(nav_to_object_index, get_ladder_nav_choice(ladder_index));
+
+                                if ladder_nav_distance == 0 then
+                                    set_platform_nav_choice(nav_to_object_index, nav_to_object_index);
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            for platform_index = 0, get_platform_object_count() - 1 do
+                if get_platform_nav_distance(platform_index) < 5000 then
+                    for nav_index = 0, get_platform_nav_count(platform_index) - 1 do
+                        local platform_nav_to_type, nav_to_object_index = get_platform_nav_to(platform_index, nav_index);
+                        -- Get platform_index nav distance each time in case it gets modified inside the loop
+                        local platform_nav_distance = get_platform_nav_distance(platform_index);
+
+                        if platform_nav_to_type ~= navigation_type.LADDER then
+                            if get_platform_nav_distance(nav_to_object_index) > platform_nav_distance + 1 then
+                                set_platform_nav_distance(nav_to_object_index, platform_nav_distance + 1);
+                                set_platform_nav_choice(nav_to_object_index, get_platform_nav_choice(platform_index));
+
+                                -- Re-get platform_index nav distance in case it gets modified just above this
+                                if get_platform_nav_distance(platform_index) == 0 then
+                                    if platform_nav_to_type == navigation_type.PLATFORM then
+                                        set_platform_nav_choice(nav_to_object_index, nav_to_object_index);
+                                    end
+
+                                    if platform_nav_to_type == navigation_type.PLATFORM_FALL_LEFT then
+                                        set_platform_nav_choice(nav_to_object_index, nav_to_object_index + 2000);
+                                    end
+
+                                    if platform_nav_to_type == navigation_type.PLATFORM_FALL_RIGHT then
+                                        set_platform_nav_choice(nav_to_object_index, nav_to_object_index + 3000);
+                                    end
+                                end
+                            end
+                        end
+
+                        if platform_nav_to_type == navigation_type.LADDER then
+                            if get_ladder_nav_distance(nav_to_object_index) > platform_nav_distance + 1 then
+                                set_ladder_nav_distance(nav_to_object_index, platform_nav_distance + 1);
+                                set_ladder_nav_choice(nav_to_object_index, get_platform_nav_choice(platform_index));
+
+                                if platform_nav_distance == 0 then
+                                    set_ladder_nav_choice(nav_to_object_index, nav_to_object_index + 1000);
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+            if nav_to_type == navigation_type.LADDER and get_ladder_nav_distance(to_object_index) < 5000 then
+                is_done = true;
+            end
+
+            if nav_to_type ~= navigation_type.LADDER and get_platform_nav_distance(to_object_index) < 5000 then
+                is_done = true;
+            end
+        end
+    end
+
+    if not is_done then
+        return -1;
+    end
+
+    local nav_choice = 0;
+
+    if nav_to_type == navigation_type.LADDER then
+        nav_choice = get_ladder_nav_choice(to_object_index);
+    end
+
+    if nav_to_type ~= navigation_type.LADDER then
+        nav_choice = get_platform_nav_choice(to_object_index);
+    end
+
+    return nav_choice;
 end
 
 local function PointInQuad_(iX0, iY0, iX1, iY1, iX2, iY2, iX3, iY3, iX4, iY4)
@@ -1422,6 +1608,15 @@ local function AnimateDying_(game_input)
     end
 end
 
+function Module.initialize()
+    -- Nothing here for now!
+end
+
+-- Required if you want to use get_navigation_dir function. Otherwise don't call it, to speed up level load
+function Module.build_navigation()
+    BuildNavigation_();
+end
+
 -- Returns true if player won
 function Module.progress_game(game_input)
     g_game_time_inactive = g_game_time_inactive + 1;
@@ -1716,6 +1911,10 @@ end
 function Module.is_player_colliding_with_rect(x1, y1, x2, y2)
     -- TODO: Figure out what "x1", "y1", "x2", "y2" mean, and change names to reflect that
     return PlayerCollide_(x1, y1, x2, y2) and g_player_current_state ~= player_state.JSDYING;
+end
+
+function Module.get_navigation_dir(from_object_index, to_object_index, nav_from_type, nav_to_type)
+    return GetNavDir_(from_object_index, to_object_index, nav_from_type, nav_to_type);
 end
 
 return Module;
