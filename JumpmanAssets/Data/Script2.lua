@@ -82,6 +82,8 @@ local function ProgressLevel_(game_input)
     end
 
     g_wave_object.update();
+
+    g_game_logic.update_player_graphics();
 end
 
 local function CreateDropObject_(frames_to_wait)

@@ -60,6 +60,8 @@ local function ProgressLevel_(game_input)
     for _, bee in ipairs(g_bees) do
         bee.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

@@ -82,6 +82,8 @@ local function ProgressLevel_(game_input)
     for _, whomper in ipairs(whompers) do
         whomper.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 local function CreateProp_(iX, iY, iR, iZ)

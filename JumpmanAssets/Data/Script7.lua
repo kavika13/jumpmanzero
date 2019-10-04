@@ -140,6 +140,8 @@ local function ProgressLevel_(game_input)
     CollideLittleClocks_();
 
     g_wave.update();
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

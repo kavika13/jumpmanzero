@@ -365,7 +365,7 @@ local function ProgressLevel_(game_input)
     end
 
     g_game_logic.set_player_freeze_cooldown_frame_count(0);
-    set_player_is_visible(1);
+    g_game_logic.set_player_is_visible(true);
 
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
@@ -408,7 +408,7 @@ local function ProgressLevel_(game_input)
         end
 
         g_game_logic.set_player_freeze_cooldown_frame_count(2);
-        set_player_is_visible(0);
+        g_game_logic.set_player_is_visible(false);
 
         local iPX = get_player_current_position_x();
         local iPY = get_player_current_position_y();
@@ -444,6 +444,8 @@ local function ProgressLevel_(game_input)
 
     g_shark.update(game_input);
     g_swim_collision.update();
+
+    g_game_logic.update_player_graphics();
 end
 
 local function InitSplashParticles_()

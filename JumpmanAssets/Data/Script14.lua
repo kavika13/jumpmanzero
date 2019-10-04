@@ -144,6 +144,8 @@ local function ProgressLevel_(game_input)
 
     -- TODO: Change donut visual state when win imminent? Particles, dancing, glowing?
     -- TODO: Change donut visual state when reset is necessary? Greying out, animation, different "reset" mesh?
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

@@ -92,6 +92,8 @@ local function ProgressLevel_(game_input)
     g_tyrannosaurus.update();
     g_triceratops.update();
     g_pterodactyl.update();
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

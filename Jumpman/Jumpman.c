@@ -156,11 +156,7 @@ static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 static float g_player_current_position_x;
 static float g_player_current_position_y;
 static float g_player_current_position_z;
-static float g_player_current_rotation_x_radians;
 static int g_player_velocity_x;
-static PlayerMesh g_player_current_mesh;
-static PlayerMesh g_player_previous_mesh;
-static bool g_player_is_visible;
 
 #define MAX_OBJECTSCRIPTS 5
 #define MAX_SCRIPTOBJECTS 60
@@ -597,23 +593,6 @@ static int get_game_time_inactive(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_current_mesh(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_current_mesh);
-    return 1;
-}
-
-static int set_player_current_mesh(lua_State* lua_state) {
-    lua_Integer new_mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    g_player_current_mesh = (PlayerMesh)new_mesh_index_arg;
-    return 0;
-}
-
-static int set_player_current_rotation_x_radians(lua_State* lua_state) {
-    double new_rotation_x_radians = luaL_checknumber(lua_state, 1);
-    g_player_current_rotation_x_radians = (float)new_rotation_x_radians;
-    return 0;
-}
-
 static int get_player_mesh_index(lua_State* lua_state) {
     lua_Integer player_mesh_arg = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_player_mesh_indices[player_mesh_arg]);
@@ -862,11 +841,6 @@ static int get_player_current_position_z(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_is_visible(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_is_visible);
-    return 1;
-}
-
 static int get_remaining_life_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_remaining_life_count);
     return 1;
@@ -930,12 +904,6 @@ static int set_player_current_position_y(lua_State* lua_state) {
 static int set_player_current_position_z(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_player_current_position_z = (float)arg1;
-    return 0;
-}
-
-static int set_player_is_visible(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_is_visible = arg1;
     return 0;
 }
 
@@ -1445,12 +1413,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "stop_music_track_1");
     lua_pushcfunction(lua_state, get_game_time_inactive);
     lua_setglobal(lua_state, "get_game_time_inactive");
-    lua_pushcfunction(lua_state, get_player_current_mesh);
-    lua_setglobal(lua_state, "get_player_current_mesh");
-    lua_pushcfunction(lua_state, set_player_current_mesh);
-    lua_setglobal(lua_state, "set_player_current_mesh");
-    lua_pushcfunction(lua_state, set_player_current_rotation_x_radians);
-    lua_setglobal(lua_state, "set_player_current_rotation_x_radians");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
     lua_pushcfunction(lua_state, get_player_current_velocity_x);
@@ -1537,8 +1499,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_player_current_position_y");
     lua_pushcfunction(lua_state, get_player_current_position_z);
     lua_setglobal(lua_state, "get_player_current_position_z");
-    lua_pushcfunction(lua_state, get_player_is_visible);
-    lua_setglobal(lua_state, "get_player_is_visible");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
     lua_pushcfunction(lua_state, get_vine_object_count);
@@ -1563,8 +1523,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_player_current_position_y");
     lua_pushcfunction(lua_state, set_player_current_position_z);
     lua_setglobal(lua_state, "set_player_current_position_z");
-    lua_pushcfunction(lua_state, set_player_is_visible);
-    lua_setglobal(lua_state, "set_player_is_visible");
     lua_pushcfunction(lua_state, set_remaining_life_count);
     lua_setglobal(lua_state, "set_remaining_life_count");
 
@@ -1719,8 +1677,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     long* oData;
     long iMPlace;
     int iSounds;
-
-    g_player_is_visible = true;
 
     g_level_extent_x = 160;
 
@@ -2191,32 +2147,13 @@ static void GetNextPlatform(long iX, long iY, long iHeight, long iWide, float* i
     }
 }
 
-static void UpdatePlayerGraphics(void);
-
 static void InitializeLevelScript(void) {
     GameInput empty_game_input = { 0 };  // TODO: Don't even pass input to initialize
     CallLuaFunction(g_script_level_script_lua_state, "initialize", &empty_game_input, true);
-    UpdatePlayerGraphics();
 }
 
 static void ProgressGame(GameInput* game_input) {
     CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
-}
-
-static void UpdatePlayerGraphics(void) {
-    // TODO: Is this breaking the swim level, or is the swim level itself broken?
-    IdentityMatrix(g_player_mesh_indices[g_player_current_mesh]);
-    RotateMatrixX(g_player_mesh_indices[g_player_current_mesh], g_player_current_rotation_x_radians * 180.0f / 3.14f);
-    TranslateMatrix(g_player_mesh_indices[g_player_current_mesh], g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
-
-    if(g_player_is_visible) {
-        SetObjectData(g_player_mesh_indices[g_player_current_mesh], 0, 1);
-    }
-
-    if(g_player_current_mesh != g_player_previous_mesh) {
-        SetObjectData(g_player_mesh_indices[g_player_previous_mesh], 0, 0);
-        g_player_previous_mesh = g_player_current_mesh;
-    }
 }
 
 void DrawGame(void) {
@@ -2365,7 +2302,6 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
     if(g_game_status == kGameStatusInLevel) {
         if(!IsGameFrozen()) {
             ProgressGame(game_input);
-            UpdatePlayerGraphics();
         }
     }
 

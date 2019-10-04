@@ -71,7 +71,7 @@ local g_is_disarm_hud_visible = false;
 local g_disarm_progress = 0;
 
 local function ShowWorking_(game_input)
-    set_player_is_visible(0);
+    g_game_logic.set_player_is_visible(false);
     local iPX = get_player_current_position_x();
     local iPY = get_player_current_position_y();
     local iPZ = get_player_current_position_z();
@@ -94,7 +94,7 @@ local function ShowWorking_(game_input)
 end
 
 local function CollideDonuts_(game_input)
-    set_player_is_visible(1);
+    g_game_logic.set_player_is_visible(true);
     g_is_disarm_hud_visible = false;
 
     select_object_mesh(g_jumpman_work_1_mesh_index);
@@ -221,6 +221,8 @@ function ProgressLevel_(game_input)
     for _, zap_bot in ipairs(g_zap_bots) do
         zap_bot.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 local function MoveDonuts_()

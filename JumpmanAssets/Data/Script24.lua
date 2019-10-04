@@ -71,7 +71,7 @@ local function CheckHanging_(game_input)
 
     if g_game_logic.get_player_current_state() == player_state.JSVINE or
             g_game_logic.get_player_current_state() == player_state.JSLADDER then
-        set_player_is_visible(1);
+        g_game_logic.set_player_is_visible(true);
         return;
     end
 
@@ -88,7 +88,7 @@ local function CheckHanging_(game_input)
             g_game_logic.set_player_current_state(player_state.JSNORMAL);
         end
 
-        set_player_is_visible(0);
+        g_game_logic.set_player_is_visible(false);
         g_hang_animation_next_frame_counter = g_hang_animation_next_frame_counter + 1;
 
         if g_hang_animation_next_frame_counter > 4 then
@@ -124,7 +124,7 @@ local function CheckHanging_(game_input)
             get_player_current_position_z() + 1.5);
         set_object_visual_data(resources.TextureJumpman, 1);
     else
-        set_player_is_visible(1);
+        g_game_logic.set_player_is_visible(true);
     end
 end
 
@@ -141,6 +141,8 @@ local function ProgressLevel_(game_input)
     for _, baboon in ipairs(baboons) do
         baboon.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 local function FixHangPlatforms_()

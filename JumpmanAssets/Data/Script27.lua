@@ -390,6 +390,8 @@ local function ProgressLevel_(game_input)
         beam.ShipSinkAmount = g_ship_sink_amount + g_ship_sink_delay_timer;
         beam.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 local function CreateBlob_(start_pos_x, start_pos_y)

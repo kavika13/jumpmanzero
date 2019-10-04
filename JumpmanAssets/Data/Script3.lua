@@ -68,6 +68,8 @@ local function ProgressLevel_(game_input)
     end
 
     g_bear.update();
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

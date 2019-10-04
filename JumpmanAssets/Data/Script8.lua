@@ -147,6 +147,8 @@ local function ProgressLevel_(game_input)
     for _, goo in ipairs(g_goos) do
         goo.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

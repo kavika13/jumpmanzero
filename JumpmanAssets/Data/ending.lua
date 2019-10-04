@@ -127,7 +127,7 @@ local g_current_pos_y = 0;
 
 local function ClearAll_()
     set_player_current_position_x(0);
-    set_player_is_visible(0);
+    g_game_logic.set_player_is_visible(false);
 
     for iTemp = 0, 19 do
         select_object_mesh(g_object_mesh_indices[iTemp]);
@@ -136,7 +136,7 @@ local function ClearAll_()
 end
 
 local function ShowPlayerStanding_(iAT)
-    set_player_is_visible(1);
+    g_game_logic.set_player_is_visible(true);
     set_player_current_position_x(80);
 end
 
@@ -583,6 +583,8 @@ local function ProgressLevel_(game_input)
     if g_credits then
         g_credits.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

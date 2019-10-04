@@ -124,6 +124,8 @@ local function ProgressLevel_(game_input)
     for _, ninja in ipairs(g_ninjas) do
         ninja.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 local function SpawnNinja_(pos_x, pos_y)

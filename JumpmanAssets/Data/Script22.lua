@@ -210,6 +210,8 @@ local function ProgressLevel_(game_input)
     script_selected_mesh_scale_matrix(50, 50, 2);
     script_selected_mesh_translate_matrix(80, 80, 9);
     set_object_visual_data(resources.TextureBoringGray, 1);
+
+    g_game_logic.update_player_graphics();
 end
 
 function SetPlatformData_(iNum)

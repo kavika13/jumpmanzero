@@ -141,6 +141,8 @@ local function ProgressLevel_(game_input)
     for _, saw in ipairs(g_saws) do
         saw.update();
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 local function LoadFrogMeshes_()

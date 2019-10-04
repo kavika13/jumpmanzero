@@ -81,6 +81,8 @@ local function ProgressLevel_(game_input)
     for _, jumper in ipairs(g_jumpers) do
         jumper.update(g_jumpers);
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 function SpawnJumper_(start_alive)

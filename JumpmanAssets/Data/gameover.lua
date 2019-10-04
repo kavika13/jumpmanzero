@@ -80,7 +80,7 @@ local function ProgressLevel_(game_input)
 
     set_fog(100, 200, 0, 0, 0);
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveCloseUp);
-    set_player_is_visible(0);
+    g_game_logic.set_player_is_visible(false);
 
     if g_camera_pan_animation_timer > 25 then
         g_camera_pan_animation_timer = g_camera_pan_animation_timer - 0.5;
@@ -153,6 +153,8 @@ local function ProgressLevel_(game_input)
         g_camera_pan_animation_timer = 0;
         g_letter_drop_animation_timer = 1;
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)

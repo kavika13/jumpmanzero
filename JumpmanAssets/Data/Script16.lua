@@ -76,6 +76,8 @@ local function ProgressLevel_(game_input)
     for _, turtle in ipairs(g_turtles) do
         turtle.update(game_input, g_turtles);
     end
+
+    g_game_logic.update_player_graphics();
 end
 
 function initialize(game_input)
