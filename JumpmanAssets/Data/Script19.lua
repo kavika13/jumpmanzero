@@ -30,8 +30,8 @@ local function ConveyPlatform_(iPlat, iDist)
     select_platform(iPlat);
     script_selected_mesh_scroll_texture(iDist * 16, 0);
 
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = g_game_logic.get_player_current_position_x();
+    local iPY = g_game_logic.get_player_current_position_y();
 
     if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
         return;
@@ -53,13 +53,8 @@ local function ConveyPlatform_(iPlat, iDist)
             g_game_logic.set_player_current_state_frame_count(0);
         end
 
-        set_player_current_position_x(iPX);
+        g_game_logic.set_player_current_position_x(iPX);
     end
-
-    -- if (iHit + 1) >= iPY then
-    --     iPX = iPX - iDist * 15;
-    --     set_player_current_position_x(iPX);
-    -- end
 end
 
 local function ProgressLevel_(game_input)
@@ -155,8 +150,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(20);
-    set_player_current_position_y(21);
-    set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_x(20);
+    g_game_logic.set_player_current_position_y(21);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

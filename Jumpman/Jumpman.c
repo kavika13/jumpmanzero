@@ -153,11 +153,6 @@ static long g_player_mesh_indices[MAX_PLAYER_MESHES];
 static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
 static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
-static float g_player_current_position_x;
-static float g_player_current_position_y;
-static float g_player_current_position_z;
-static int g_player_velocity_x;
-
 #define MAX_OBJECTSCRIPTS 5
 #define MAX_SCRIPTOBJECTS 60
 
@@ -599,17 +594,6 @@ static int get_player_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_current_velocity_x(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_player_velocity_x);
-    return 1;
-}
-
-static int set_player_current_velocity_x(lua_State* lua_state) {
-    lua_Integer new_velocity_x_arg = luaL_checkinteger(lua_state, 1);
-    g_player_velocity_x = (int)new_velocity_x_arg;
-    return 0;
-}
-
 static int get_just_launched_game(lua_State* lua_state) {
     lua_pushboolean(lua_state, g_just_launched_game);
     return 1;
@@ -826,21 +810,6 @@ static int get_platform_object_count(lua_State* lua_state) {
     return 1;
 }
 
-static int get_player_current_position_x(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_current_position_x);
-    return 1;
-}
-
-static int get_player_current_position_y(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_current_position_y);
-    return 1;
-}
-
-static int get_player_current_position_z(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_player_current_position_z);
-    return 1;
-}
-
 static int get_remaining_life_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_remaining_life_count);
     return 1;
@@ -886,24 +855,6 @@ static int get_current_fps(lua_State* lua_state) {
 static int set_level_extent_x(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_level_extent_x = (int)arg1;
-    return 0;
-}
-
-static int set_player_current_position_x(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_current_position_x = (float)arg1;
-    return 0;
-}
-
-static int set_player_current_position_y(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_current_position_y = (float)arg1;
-    return 0;
-}
-
-static int set_player_current_position_z(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_player_current_position_z = (float)arg1;
     return 0;
 }
 
@@ -1415,10 +1366,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_game_time_inactive");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
-    lua_pushcfunction(lua_state, get_player_current_velocity_x);
-    lua_setglobal(lua_state, "get_player_current_velocity_x");
-    lua_pushcfunction(lua_state, set_player_current_velocity_x);
-    lua_setglobal(lua_state, "set_player_current_velocity_x");
     lua_pushcfunction(lua_state, get_just_launched_game);
     lua_setglobal(lua_state, "get_just_launched_game");
 
@@ -1493,12 +1440,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_loaded_texture_count");
     lua_pushcfunction(lua_state, get_platform_object_count);
     lua_setglobal(lua_state, "get_platform_object_count");
-    lua_pushcfunction(lua_state, get_player_current_position_x);
-    lua_setglobal(lua_state, "get_player_current_position_x");
-    lua_pushcfunction(lua_state, get_player_current_position_y);
-    lua_setglobal(lua_state, "get_player_current_position_y");
-    lua_pushcfunction(lua_state, get_player_current_position_z);
-    lua_setglobal(lua_state, "get_player_current_position_z");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
     lua_pushcfunction(lua_state, get_vine_object_count);
@@ -1517,12 +1458,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_current_fps");
     lua_pushcfunction(lua_state, set_level_extent_x);
     lua_setglobal(lua_state, "set_level_extent_x");
-    lua_pushcfunction(lua_state, set_player_current_position_x);
-    lua_setglobal(lua_state, "set_player_current_position_x");
-    lua_pushcfunction(lua_state, set_player_current_position_y);
-    lua_setglobal(lua_state, "set_player_current_position_y");
-    lua_pushcfunction(lua_state, set_player_current_position_z);
-    lua_setglobal(lua_state, "set_player_current_position_z");
     lua_pushcfunction(lua_state, set_remaining_life_count);
     lua_setglobal(lua_state, "set_remaining_life_count");
 

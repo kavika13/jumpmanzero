@@ -203,8 +203,8 @@ function Module.update(game_input, all_turtles)
 
     local is_colliding = true;
 
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
     local iPStat = Module.GameLogic.get_player_current_state();
 
     if iPStat & player_state.JSDYING ~= 0 then

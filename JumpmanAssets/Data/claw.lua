@@ -2,6 +2,8 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.ClawMeshResourceIndex = 0;
 Module.ChainMeshResourceIndex = 0;
 Module.DonutTextureResourceIndex = 0;
@@ -53,7 +55,7 @@ local function FindStranded_(all_jumpers)
 end
 
 local function FindDonut_()
-    local iPX = get_player_current_position_x();
+    local iPX = Module.GameLogic.get_player_current_position_x();
     local iDonuts = get_donut_object_count();
 
     for iLoop = 0, iDonuts - 1 do
@@ -71,8 +73,8 @@ local function FindDonut_()
 end
 
 local function MoveChain_(all_jumpers)
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     g_time_until_next_grab = g_time_until_next_grab + 1;
 

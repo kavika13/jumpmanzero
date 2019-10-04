@@ -114,9 +114,9 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(6);
-    set_player_current_position_y(7);
-    set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_x(6);
+    g_game_logic.set_player_current_position_y(7);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     if g_bear then

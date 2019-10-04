@@ -90,8 +90,8 @@ local function Move_()
         g_time_since_fire_start = 1;
         return;
     elseif Module.BehaviorType == behavior_type.STAND then
-        local player_pos_x = get_player_current_position_x();
-        local player_pos_y = get_player_current_position_y();
+        local player_pos_x = Module.GameLogic.get_player_current_position_x();
+        local player_pos_y = Module.GameLogic.get_player_current_position_y();
 
         if player_pos_y < g_current_pos_y + 6 and player_pos_y > g_current_pos_y - 6 then
             if player_pos_x < g_current_pos_x and g_move_direction == move_direction.LEFT then
@@ -107,8 +107,8 @@ local function Move_()
             end
         end
     elseif Module.BehaviorType == behavior_type.CHASE then
-        local player_pos_x = get_player_current_position_x();
-        local player_pos_y = get_player_current_position_y();
+        local player_pos_x = Module.GameLogic.get_player_current_position_x();
+        local player_pos_y = Module.GameLogic.get_player_current_position_y();
 
         if player_pos_y < g_current_pos_y + 6 and player_pos_y > g_current_pos_y - 6 then
             if player_pos_x < g_current_pos_x and g_move_direction == move_direction.LEFT then

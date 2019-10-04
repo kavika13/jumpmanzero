@@ -103,6 +103,7 @@ function initialize(game_input)
     g_hud_overlay = hud_overlay_module();
 
     g_claw = claw_module();
+    g_claw.GameLogic = g_game_logic;
     g_claw.ClawMeshResourceIndex = resources.MeshClaw;
     g_claw.ChainMeshResourceIndex = resources.MeshChain;
     g_claw.DonutTextureResourceIndex = resources.TextureRedMetal;
@@ -138,9 +139,9 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(10);
-    set_player_current_position_y(5);
-    set_player_current_position_z(2);
+    g_game_logic.set_player_current_position_x(10);
+    g_game_logic.set_player_current_position_y(5);
+    g_game_logic.set_player_current_position_z(2);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, jumper in ipairs(g_jumpers) do

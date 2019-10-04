@@ -126,9 +126,9 @@ function on_collect_donut()
 end
 
 function reset()
-    set_player_current_position_x(80);
-    set_player_current_position_y(7);
-    set_player_current_position_z(2);
+    g_game_logic.set_player_current_position_x(80);
+    g_game_logic.set_player_current_position_y(7);
+    g_game_logic.set_player_current_position_z(2);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, bee in ipairs(g_bees) do

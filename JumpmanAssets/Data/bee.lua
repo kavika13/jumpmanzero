@@ -31,8 +31,8 @@ local function MoveBee_()
     g_current_pos_x = g_current_pos_x + g_current_velocity_x * 3 / 4;
     g_current_pos_y = g_current_pos_y + g_current_velocity_y * 5 / 8;
 
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     if g_current_pos_x < iPX - 110 then
         g_current_pos_x = iPX + 110;
@@ -80,8 +80,8 @@ function Module.initialize()
     g_move_animation_mesh_indices[1] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
     g_move_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
     g_move_animation_mesh_indices[3] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
-    g_current_pos_x = get_player_current_position_x() + 100;
-    g_current_pos_y = get_player_current_position_y();
+    g_current_pos_x = Module.GameLogic.get_player_current_position_x() + 100;
+    g_current_pos_y = Module.GameLogic.get_player_current_position_y();
     g_current_velocity_x = -1;
     g_current_velocity_y = 0;
     g_vision_strength = math.random(15, 30);
@@ -99,7 +99,7 @@ function Module.update()
         g_move_animation_counter = 0;
     end
 
-    if g_current_velocity_x < 0 or (g_current_velocity_x == 0 and get_player_current_position_x() < g_current_pos_x) then
+    if g_current_velocity_x < 0 or (g_current_velocity_x == 0 and Module.GameLogic.get_player_current_position_x() < g_current_pos_x) then
         g_move_animation_current_frame_index = (g_move_animation_counter < 2 and 1 or 0) + 2;
     else
         g_move_animation_current_frame_index = g_move_animation_counter < 2 and 1 or 0;

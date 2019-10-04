@@ -181,8 +181,8 @@ local function CheckForOptions_()
         return;
     end
 
-    local player_pos_x = get_player_current_position_x();
-    local player_pos_y = get_player_current_position_y();
+    local player_pos_x = Module.GameLogic.get_player_current_position_x();
+    local player_pos_y = Module.GameLogic.get_player_current_position_y();
     local _, player_platform_index = Module.GameLogic.find_platform(player_pos_x, player_pos_y, 3, 2);
     local _, self_platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 3, 2);
 
@@ -203,13 +203,13 @@ local function CheckForOptions_()
             abs_ladder(g_current_ladder_object_index);
 
             if get_script_selected_level_object_y1() > g_current_pos_y + 7 and
-                    g_current_pos_y + 5 < get_player_current_position_y() then
+                    g_current_pos_y + 5 < Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.UP;
                 g_current_velocity_x = 0;
             end
 
             if get_script_selected_level_object_y2() < g_current_pos_y - 7 and
-                    g_current_pos_y - 5 > get_player_current_position_y() then
+                    g_current_pos_y - 5 > Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.DOWN;
                 g_current_velocity_x = 0;
             end

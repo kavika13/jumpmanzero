@@ -92,8 +92,8 @@ function Module.update()
         return;
     end
 
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     if Module.FacingDirection == 0 then
         DoCollide_(iPX - 4, iPY + 3, iPX + 4, iPY + 7);

@@ -63,8 +63,8 @@ local function MoveJumper_(all_jumpers)
         return 0;
     end
 
-    local iPY = get_player_current_position_y();
-    local iPX = get_player_current_position_x();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_curret_pos_y, 1, 1);
 
@@ -204,10 +204,10 @@ function Module.update(all_jumpers)
     script_selected_mesh_translate_matrix(g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
     set_object_visual_data(Module.TextureResourceIndex, 1);
 
-    local iEyeX = (get_player_current_position_x() - g_current_pos_x) / 85;
+    local iEyeX = (Module.GameLogic.get_player_current_position_x() - g_current_pos_x) / 85;
     local iEyeX = iEyeX - 0.5;
 
-    iEyeY = (get_player_current_position_y() - g_curret_pos_y) / 85;
+    iEyeY = (Module.GameLogic.get_player_current_position_y() - g_curret_pos_y) / 85;
     iEyeY = iEyeY + 9.2 + g_eye_offset_y;
 
     select_object_mesh(g_eye_mesh_index);

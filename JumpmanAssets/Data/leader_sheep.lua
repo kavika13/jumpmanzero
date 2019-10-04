@@ -154,8 +154,8 @@ local function CheckForChange_()
         end
     end
 
-    local player_pos_x = get_player_current_position_x();
-    local player_pos_y = get_player_current_position_y();
+    local player_pos_x = Module.GameLogic.get_player_current_position_x();
+    local player_pos_y = Module.GameLogic.get_player_current_position_y();
     local iNewDir = 0;
 
     if bUp and player_pos_y > g_current_pos_y + 10 then

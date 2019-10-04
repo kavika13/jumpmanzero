@@ -239,9 +239,9 @@ end
 function reset()
     g_visibility_bitmask = 255;
     ResetVisible_(g_visibility_bitmask);
-    set_player_current_position_x(68);
-    set_player_current_position_y(81);
-    set_player_current_position_z(9);
+    g_game_logic.set_player_current_position_x(68);
+    g_game_logic.set_player_current_position_y(81);
+    g_game_logic.set_player_current_position_z(9);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, bullet in ipairs(g_bullets) do

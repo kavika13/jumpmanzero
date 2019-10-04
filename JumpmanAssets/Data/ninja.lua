@@ -182,11 +182,11 @@ local function MoveNinja_()
             end
 
             if g_current_velocity_x == 0 then
-                if g_current_pos_x < get_player_current_position_x() then
+                if g_current_pos_x < Module.GameLogic.get_player_current_position_x() then
                     g_current_velocity_x = 0.6;
                 end
 
-                if g_current_pos_x > get_player_current_position_x() then
+                if g_current_pos_x > Module.GameLogic.get_player_current_position_x() then
                     g_current_velocity_x = -0.6;
                 end
             end
@@ -200,8 +200,8 @@ local function MoveNinja_()
 
         g_current_pos_x = g_current_pos_x + g_current_velocity_x;
 
-        local iDif = (g_current_pos_x + 44 * g_current_velocity_x) - get_player_current_position_x();
-        local player_pos_y = get_player_current_position_y();
+        local iDif = (g_current_pos_x + 44 * g_current_velocity_x) - Module.GameLogic.get_player_current_position_x();
+        local player_pos_y = Module.GameLogic.get_player_current_position_y();
 
         if iDif > 0 - 2 and iDif < 2 and g_current_status_counter > 20 then
             if player_pos_y > g_current_pos_y - 15 and player_pos_y <= g_current_pos_y then
@@ -354,7 +354,7 @@ local function CollidePlayer_()
             iWin = -1;
         end
 
-        if get_player_current_position_y() >= g_current_pos_y - 2 then
+        if Module.GameLogic.get_player_current_position_y() >= g_current_pos_y - 2 then
             iWin = -1;
         end
     end

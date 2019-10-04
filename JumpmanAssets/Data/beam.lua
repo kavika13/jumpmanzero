@@ -39,17 +39,17 @@ local g_is_blast_visible = false;
 
 local function SetTarget_()
     if Module.BeamType == 2 then
-        g_target_pos_x = math.cos((Module.ParmDir + 10) * math.pi / 180.0) * 60 + get_player_current_position_x();
+        g_target_pos_x = math.cos((Module.ParmDir + 10) * math.pi / 180.0) * 60 + Module.GameLogic.get_player_current_position_x();
         g_target_pos_y = 30 - math.sin(g_frames_since_beam_started * 2 * math.pi / 180.0) * 25;
         g_target_pos_z = math.sin((Module.ParmDir + 10) * math.pi / 180.0) * 60 + 60;
         iCollideDir = Module.ParmDir + 10;
     elseif Module.BeamType == 3 then
-        g_target_pos_x = math.cos((Module.ParmDir - 10) * math.pi / 180.0) * 60 + get_player_current_position_x();
+        g_target_pos_x = math.cos((Module.ParmDir - 10) * math.pi / 180.0) * 60 + Module.GameLogic.get_player_current_position_x();
         g_target_pos_y = 40 + math.sin(g_frames_since_beam_started * math.pi / 180.0) * 40;
         g_target_pos_z = math.sin((Module.ParmDir - 10) * math.pi / 180.0) * 60 + 60;
         iCollideDir = Module.ParmDir - 10;
     else
-        g_target_pos_x = math.cos(Module.ParmDir * math.pi / 180.0) * 60 + get_player_current_position_x();
+        g_target_pos_x = math.cos(Module.ParmDir * math.pi / 180.0) * 60 + Module.GameLogic.get_player_current_position_x();
         g_target_pos_y = 50 + math.sin(g_frames_since_beam_started * 2 * math.pi / 180.0) * 25;
         g_target_pos_z = math.sin(Module.ParmDir * math.pi / 180.0) * 60 + 60;
         iCollideDir = Module.ParmDir;
@@ -146,7 +146,7 @@ end
 function Module.update()
     g_frames_since_beam_started = g_frames_since_beam_started + 1;
 
-    local iPX = get_player_current_position_x();
+    local iPX = Module.GameLogic.get_player_current_position_x();
 
     if iPX > 150 and g_previous_player_pos_x < 100 then
         g_previous_player_pos_x = g_previous_player_pos_x + Module.PlayAreaCircumference;

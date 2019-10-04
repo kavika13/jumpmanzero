@@ -21,8 +21,8 @@ local function MoveGhost()
     local ghost_acceleration = 0.03;
     local ghost_max_velocity = 0.65;
 
-    local player_pos_x = get_player_current_position_x();
-    local player_pos_y = get_player_current_position_y();
+    local player_pos_x = Module.GameLogic.get_player_current_position_x();
+    local player_pos_y = Module.GameLogic.get_player_current_position_y();
 
     if player_pos_x >= g_current_pos_x then
         g_current_velocity_x = g_current_velocity_x + ghost_acceleration;

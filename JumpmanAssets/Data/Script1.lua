@@ -254,9 +254,9 @@ function on_collect_donut(game_input, iDonut)
 end
 
 function reset()
-    set_player_current_position_x(80);
-    set_player_current_position_y(65);
-    set_player_current_position_z(9);
+    g_game_logic.set_player_current_position_x(80);
+    g_game_logic.set_player_current_position_y(65);
+    g_game_logic.set_player_current_position_z(9);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, bullet in ipairs(g_bullets) do

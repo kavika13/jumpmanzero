@@ -140,8 +140,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(10);
-    set_player_current_position_y(73);
-    set_player_current_position_z(2);
+    g_game_logic.set_player_current_position_x(10);
+    g_game_logic.set_player_current_position_y(73);
+    g_game_logic.set_player_current_position_z(2);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

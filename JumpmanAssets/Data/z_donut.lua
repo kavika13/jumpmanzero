@@ -2,6 +2,8 @@ local Module = {};
 
 local kBlastParticleCount = 20;
 
+Module.GameLogic = nil;
+
 Module.PlayAreaCircumference = 0;
 Module.DonutIndex = 0;
 Module.DonutTextureResourceIndex = 0;
@@ -106,7 +108,7 @@ function Module.update()
     iY = iY / 65;
 
     local iDist = 75 - g_animation_frames_since_launched;
-    local iPX = get_player_current_position_x();
+    local iPX = Module.GameLogic.get_player_current_position_x();
 
     local iX = get_script_selected_level_object_x1();
     script_selected_mesh_set_identity_matrix();

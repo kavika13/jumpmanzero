@@ -72,9 +72,9 @@ local g_disarm_progress = 0;
 
 local function ShowWorking_(game_input)
     g_game_logic.set_player_is_visible(false);
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
-    local iPZ = get_player_current_position_z();
+    local iPX = g_game_logic.get_player_current_position_x();
+    local iPY = g_game_logic.get_player_current_position_y();
+    local iPZ = g_game_logic.get_player_current_position_z();
 
     g_work_animation_frame = g_work_animation_frame + 1;
 
@@ -284,8 +284,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(10);
-    set_player_current_position_y(4);
-    set_player_current_position_z(2);
+    g_game_logic.set_player_current_position_x(10);
+    g_game_logic.set_player_current_position_y(4);
+    g_game_logic.set_player_current_position_z(2);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

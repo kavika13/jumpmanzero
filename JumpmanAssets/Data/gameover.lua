@@ -134,8 +134,8 @@ local function ProgressLevel_(game_input)
 
     set_fog(80, 150 + g_camera_pan_animation_timer * 3, 0, 0, 0);
 
-    set_player_current_position_x(80);
-    set_player_current_position_y(70 + g_camera_pan_animation_timer);
+    g_game_logic.set_player_current_position_x(80);
+    g_game_logic.set_player_current_position_y(70 + g_camera_pan_animation_timer);
 
     select_object_mesh(g_jumpman_mesh_index);
     script_selected_mesh_set_identity_matrix();
@@ -182,8 +182,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(0);
-    set_player_current_position_y(0);
-    set_player_current_position_z(0);
+    g_game_logic.set_player_current_position_x(0);
+    g_game_logic.set_player_current_position_y(0);
+    g_game_logic.set_player_current_position_z(0);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

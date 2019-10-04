@@ -111,15 +111,15 @@ local g_eye_waggle_y2 = 0;
 local g_are_beams_deployed = false;
 
 local function RingPlatforms_()
-    local iPX = get_player_current_position_x();
+    local iPX = g_game_logic.get_player_current_position_x();
 
     if iPX < 0 then
         iPX = iPX + kPLAY_AREA_CIRCUMFERENCE;
-        set_player_current_position_x(iPX);
+        g_game_logic.set_player_current_position_x(iPX);
         g_game_logic.reset_perspective();
     elseif iPX >= kPLAY_AREA_CIRCUMFERENCE then
         iPX = iPX - kPLAY_AREA_CIRCUMFERENCE;
-        set_player_current_position_x(iPX);
+        g_game_logic.set_player_current_position_x(iPX);
         g_game_logic.reset_perspective();
     end
 
@@ -180,7 +180,7 @@ local function RingPlatforms_()
 end
 
 local function SetFacing_()
-    local iPX = get_player_current_position_x();
+    local iPX = g_game_logic.get_player_current_position_x();
 
     if iPX > 150 and g_previous_player_position_x < 100 then
         g_previous_player_position_x = g_previous_player_position_x + kPLAY_AREA_CIRCUMFERENCE;
@@ -210,10 +210,10 @@ local function AdjustEyeWaggling_(iValue)
 end
 
 local function ShowAlien_()
-    local iTargetY = get_player_current_position_y() + 30;
+    local iTargetY = g_game_logic.get_player_current_position_y() + 30;
 
     if iTargetY > 80 then
-        iTargetY = get_player_current_position_y() - 40;
+        iTargetY = g_game_logic.get_player_current_position_y() - 40;
     end
 
     if g_ship_sink_delay_timer > 0 then
@@ -274,7 +274,7 @@ local function ShowAlien_()
     script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(g_eye_waggle_x2 - 1, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
-    script_selected_mesh_translate_matrix(get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
+    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
     set_object_visual_data(resources.TextureBrightRed, 1);;
 
     select_object_mesh(g_eye_2_mesh_index);
@@ -282,7 +282,7 @@ local function ShowAlien_()
     script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(1 + g_eye_waggle_x2, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
-    script_selected_mesh_translate_matrix(get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
+    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
     set_object_visual_data(resources.TextureBrightRed, 1);
 
     select_object_mesh(g_alien_mesh_index);
@@ -296,7 +296,7 @@ local function ShowAlien_()
 
     script_selected_mesh_scale_matrix(0.55, 0.6, 0.7);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
-    script_selected_mesh_translate_matrix(get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
+    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
     set_object_visual_data(resources.TextureAlien, 1);
 
     iWiggleX = iWiggleX + g_ship_sink_amount / 2;
@@ -306,10 +306,10 @@ local function ShowAlien_()
     script_selected_mesh_scale_matrix(11, 11, 11);
     script_selected_mesh_rotate_matrix_y(g_ship_y_rotation);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
-    script_selected_mesh_translate_matrix(get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
+    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
     set_object_visual_data(resources.TextureShipMetal, 1);
 
-    g_ship_draw_position_x = get_player_current_position_x() + iWiggleX;
+    g_ship_draw_position_x = g_game_logic.get_player_current_position_x() + iWiggleX;
     g_ship_draw_position_y = g_ship_y_position;
 
     iWiggleX = iWiggleX - g_ship_sink_amount;
@@ -319,7 +319,7 @@ local function ShowAlien_()
     script_selected_mesh_scale_matrix(12, 14, 14);
     script_selected_mesh_rotate_matrix_y(g_ship_y_rotation);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
-    script_selected_mesh_translate_matrix(get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
+    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
     set_object_visual_data(resources.TextureShipGlass, 1);
 end
 
@@ -339,7 +339,7 @@ local function CreateBeam_(beam_type, beam_color_texture_resource_index, parm_di
 end
 
 local function BeginBeams_()
-    local iPoint = get_player_current_position_x() * 360 / kPLAY_AREA_CIRCUMFERENCE;
+    local iPoint = g_game_logic.get_player_current_position_x() * 360 / kPLAY_AREA_CIRCUMFERENCE;
     iPoint = math.floor(iPoint) & 511;
 
     local beam_3 = CreateBeam_(3, resources.TextureBrightGreen, iPoint);
@@ -468,6 +468,7 @@ end
 function on_collect_donut(game_input, iGot)
     if g_donuts_to_collect_count < 11 then
         local new_z_donut = z_donut_module();
+        new_z_donut.GameLogic = g_game_logic;
         new_z_donut.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;
         new_z_donut.DonutIndex = iGot;
         new_z_donut.DonutTextureResourceIndex = resources.TextureRedMetal;
@@ -495,8 +496,8 @@ function on_collect_donut(game_input, iGot)
 end
 
 function reset()
-    set_player_current_position_x(145);
-    set_player_current_position_y(10);
-    set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_x(145);
+    g_game_logic.set_player_current_position_y(10);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

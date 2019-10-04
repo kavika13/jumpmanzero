@@ -91,7 +91,7 @@ local function AnimateArrow_(iPic)
         end
 
         g_level_flipping_rotation = 0;
-        g_player_y_when_starting_flip = get_player_current_position_y();
+        g_player_y_when_starting_flip = g_game_logic.get_player_current_position_y();
         g_arrow_cooldown_frames[iPic] = 300;
     end
 end
@@ -143,7 +143,7 @@ local function SpinLevel_()
     local iPY = 0;
     iPY = iPY + g_player_y_when_starting_flip * (50 - g_level_flipping_rotation) + iNewY * g_level_flipping_rotation;
     iPY = math.floor(iPY / 50) & 255;
-    set_player_current_position_y(iPY);
+    g_game_logic.set_player_current_position_y(iPY);
 
     iNewY = 160 - g_player_y_when_starting_flip;
     iPY = 0;
@@ -229,7 +229,7 @@ end
 
 local function ReverseLevel_()
     local iPY = (160 - g_player_y_when_starting_flip) - kPLAYER_DROP_AFTER_FLIP;
-    set_player_current_position_y(iPY);
+    g_game_logic.set_player_current_position_y(iPY);
 
     for iObj = 0, get_platform_object_count() - 1 do
         abs_platform(iObj);
@@ -371,9 +371,9 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(80);
-    set_player_current_position_y(8);
-    set_player_current_position_z(9);
+    g_game_logic.set_player_current_position_x(80);
+    g_game_logic.set_player_current_position_y(8);
+    g_game_logic.set_player_current_position_z(9);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, bullet in ipairs(g_bullets) do

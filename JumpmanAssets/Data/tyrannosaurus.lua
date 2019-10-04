@@ -41,8 +41,8 @@ local function Move_()
         g_current_pos_y = iHit;
     end
 
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     if g_current_state == kMOVING_LEFT or g_current_state == kMOVING_RIGHT then
         if g_current_state == kMOVING_LEFT then

@@ -69,7 +69,7 @@ local function MoveBlob_()
 end
 
 local function ShowBlob_()
-    local iPX = get_player_current_position_x();
+    local iPX = Module.GameLogic.get_player_current_position_x();
     select_object_mesh(g_blob_mesh_index);
     script_selected_mesh_set_identity_matrix();
     script_selected_mesh_scale_matrix(0.6, 0.5, 0.8);

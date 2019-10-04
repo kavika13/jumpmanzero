@@ -195,9 +195,9 @@ function on_collect_donut(game_input, iDonut)
 end
 
 function reset()
-    set_player_current_position_x(20);
-    set_player_current_position_y(7);
-    set_player_current_position_z(1);
+    g_game_logic.set_player_current_position_x(20);
+    g_game_logic.set_player_current_position_y(7);
+    g_game_logic.set_player_current_position_z(1);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
     for _, ninja in ipairs(g_ninjas) do

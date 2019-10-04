@@ -40,9 +40,9 @@ local g_dont_pull_player_down = false;
 local g_player_air = 0;  -- TODO: Return this from the function instead of making it global?
 
 local function PositionChain_()
-    local player_x = get_player_current_position_x();
-    local player_y = get_player_current_position_y() + kPLAYER_CHAIN_OFFSET_Y;
-    local player_z = get_player_current_position_z() + kPLAYER_CHAIN_OFFSET_Z;
+    local player_x = Module.GameLogic.get_player_current_position_x();
+    local player_y = Module.GameLogic.get_player_current_position_y() + kPLAYER_CHAIN_OFFSET_Y;
+    local player_z = Module.GameLogic.get_player_current_position_z() + kPLAYER_CHAIN_OFFSET_Z;
 
     local xDif = math.abs(g_chain_anchor_pos_x - player_x);
     local yDif = math.abs(g_chain_anchor_pos_y - player_y);
@@ -93,8 +93,8 @@ local function PositionChain_()
 end
 
 local function PlayerGrounded_()
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
     local iHit, iPlat = Module.GameLogic.find_platform(iPX, iPY, 12, 2);
 
     g_player_air = iPY - iHit;
@@ -107,8 +107,8 @@ local function PlayerGrounded_()
 end
 
 local function PlayerInBounds_()
-    local player_x = get_player_current_position_x();
-    local player_y = get_player_current_position_y() + kPLAYER_CHAIN_OFFSET_Y;
+    local player_x = Module.GameLogic.get_player_current_position_x();
+    local player_y = Module.GameLogic.get_player_current_position_y() + kPLAYER_CHAIN_OFFSET_Y;
 
     local distance = math.floor(math.sqrt(  -- Original function call truncated, so truncating here
         (g_chain_anchor_pos_x - player_x) * (g_chain_anchor_pos_x - player_x) +
@@ -134,8 +134,8 @@ local function AllowLongJumps_()
         return;
     end
 
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     if Module.GameLogic.get_player_current_state_frame_count() > 20 then
         Module.GameLogic.set_player_current_state_frame_count(
@@ -161,8 +161,8 @@ local function AllowLongRoll_()
         return;
     end
 
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     if Module.GameLogic.get_player_current_state_frame_count() > 8 and iPY < g_chain_anchor_pos_y then
         g_dont_pull_player_up = true;
@@ -180,7 +180,7 @@ local function DisallowBadJumps_()
         return;
     end
 
-    if get_player_current_position_y() < g_chain_anchor_pos_y then
+    if Module.GameLogic.get_player_current_position_y() < g_chain_anchor_pos_y then
         return;
     end
 
@@ -194,24 +194,24 @@ local function EnforceMovement_()
         return;
     end
 
-    local player_x = get_player_current_position_x();
-    local player_y = get_player_current_position_y();
+    local player_x = Module.GameLogic.get_player_current_position_x();
+    local player_y = Module.GameLogic.get_player_current_position_y();
 
     if player_x < g_chain_anchor_pos_x - 1 then
-        set_player_current_position_x(player_x + 1);
+        Module.GameLogic.set_player_current_position_x(player_x + 1);
     elseif player_x > g_chain_anchor_pos_x + 1 then
-        set_player_current_position_x(player_x - 1);
+        Module.GameLogic.set_player_current_position_x(player_x - 1);
     end
 
     if not PlayerGrounded_() then
         if g_player_air < 2 then
-            set_player_current_position_y(player_y - 1);
+            Module.GameLogic.set_player_current_position_y(player_y - 1);
             return;
         end
     end
 
     if (player_y + kPLAYER_CHAIN_OFFSET_Y) < g_chain_anchor_pos_y and not g_dont_pull_player_up then
-        set_player_current_position_y(player_y + 1);
+        Module.GameLogic.set_player_current_position_y(player_y + 1);
 
         if Module.GameLogic.get_player_current_state() == player_state.JSFALLING then
             Module.GameLogic.set_player_current_state_frame_count(5);
@@ -219,7 +219,7 @@ local function EnforceMovement_()
     end
 
     if (player_y + kPLAYER_CHAIN_OFFSET_Y) > g_chain_anchor_pos_y and not g_dont_pull_player_down then
-        set_player_current_position_y(player_y - 1);
+        Module.GameLogic.set_player_current_position_y(player_y - 1);
     end
 end
 

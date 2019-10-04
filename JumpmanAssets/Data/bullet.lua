@@ -29,8 +29,8 @@ local g_pos_z_correction_current_frame_index = 0;
 local function CheckFire()
     g_frames_since_restarted = g_frames_since_restarted + 1;
 
-    local player_x = get_player_current_position_x();
-    local player_y = get_player_current_position_y() + 6;
+    local player_x = Module.GameLogic.get_player_current_position_x();
+    local player_y = Module.GameLogic.get_player_current_position_y() + 6;
 
     if player_x + 1 > g_current_pos_x and player_x <= g_current_pos_x and g_frames_since_restarted > 100 then
         g_is_firing = true;
@@ -87,8 +87,8 @@ local function RestartBullet()
     g_is_firing = false;
     g_frames_since_restarted = 0;
 
-    local player_x = get_player_current_position_x();
-    local player_y = get_player_current_position_y();
+    local player_x = Module.GameLogic.get_player_current_position_x();
+    local player_y = Module.GameLogic.get_player_current_position_y();
 
     iType = math.random(1, 100);
 

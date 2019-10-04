@@ -103,14 +103,14 @@ local function CheckHanging_(game_input)
         local iDraw = 0;
 
         if game_input.move_right_action.is_pressed then
-            if get_player_current_position_x() > get_script_selected_level_object_x2() - 3 then
-                set_player_current_position_x(get_player_current_position_x() - 1);
+            if g_game_logic.get_player_current_position_x() > get_script_selected_level_object_x2() - 3 then
+                g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() - 1);
             else
                 iDraw = g_hang_animation_current_frame;
             end
         elseif game_input.move_left_action.is_pressed then
-            if get_player_current_position_x() < get_script_selected_level_object_x1() + 2 then
-                set_player_current_position_x(get_player_current_position_x() + 1);
+            if g_game_logic.get_player_current_position_x() < get_script_selected_level_object_x1() + 2 then
+                g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() + 1);
             else
                 iDraw = g_hang_animation_current_frame + 10;
             end
@@ -119,9 +119,9 @@ local function CheckHanging_(game_input)
         select_object_mesh(iHangMesh[iDraw]);
         script_selected_mesh_set_identity_matrix();
         script_selected_mesh_translate_matrix(
-            get_player_current_position_x() + 0,
-            get_player_current_position_y() + 2,
-            get_player_current_position_z() + 1.5);
+            g_game_logic.get_player_current_position_x() + 0,
+            g_game_logic.get_player_current_position_y() + 2,
+            g_game_logic.get_player_current_position_z() + 1.5);
         set_object_visual_data(resources.TextureJumpman, 1);
     else
         g_game_logic.set_player_is_visible(true);
@@ -239,8 +239,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(15);
-    set_player_current_position_y(6);
-    set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_x(15);
+    g_game_logic.set_player_current_position_y(6);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

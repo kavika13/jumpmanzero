@@ -173,8 +173,8 @@ local function MoveSplashParticles_()
 end
 
 local function InTank_()
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = g_game_logic.get_player_current_position_x();
+    local iPY = g_game_logic.get_player_current_position_y();
 
     if iPY > 11 and iPX > 16 then
         if iPY < kTOP_OF_POOL_Y and iPX < 135 then
@@ -264,19 +264,19 @@ local function Swim_(game_input)
         iMY = iMY / 1.4;
     end
 
-    local iOldPX = get_player_current_position_x();
-    local iOldPY = get_player_current_position_y();
+    local iOldPX = g_game_logic.get_player_current_position_x();
+    local iOldPY = g_game_logic.get_player_current_position_y();
 
-    set_player_current_position_x(iOldPX + iMX);
+    g_game_logic.set_player_current_position_x(iOldPX + iMX);
 
     if not InTank_() then
-        set_player_current_position_x(iOldPX);
+        g_game_logic.set_player_current_position_x(iOldPX);
     end
 
-    set_player_current_position_y(iOldPY + iMY);
+    g_game_logic.set_player_current_position_y(iOldPY + iMY);
 
     if not InTank_() then
-        set_player_current_position_y(iOldPY);
+        g_game_logic.set_player_current_position_y(iOldPY);
     end
 
     iSpeed = 30;
@@ -335,8 +335,8 @@ local function StartSplashParticles_(iX, iY)
 end
 
 local function CheckJump_(game_input)
-    if game_input.jump_action.is_pressed and get_player_current_position_y() > kTOP_OF_POOL_Y - 2 then
-        set_player_current_position_y(kTOP_OF_POOL_Y + 1);
+    if game_input.jump_action.is_pressed and g_game_logic.get_player_current_position_y() > kTOP_OF_POOL_Y - 2 then
+        g_game_logic.set_player_current_position_y(kTOP_OF_POOL_Y + 1);
         g_game_logic.set_player_current_state(player_state.JSJUMPING);
 
         if game_input.move_left_action.is_pressed then
@@ -396,7 +396,8 @@ local function ProgressLevel_(game_input)
         end
 
         if g_swim_time_in_pool_frames == 0 then
-            StartSplashParticles_(get_player_current_position_x(), get_player_current_position_y());
+            StartSplashParticles_(
+                g_game_logic.get_player_current_position_x(), g_game_logic.get_player_current_position_y());
         end
 
         g_swim_time_in_pool_frames = g_swim_time_in_pool_frames + 1;
@@ -410,8 +411,8 @@ local function ProgressLevel_(game_input)
         g_game_logic.set_player_freeze_cooldown_frame_count(2);
         g_game_logic.set_player_is_visible(false);
 
-        local iPX = get_player_current_position_x();
-        local iPY = get_player_current_position_y();
+        local iPX = g_game_logic.get_player_current_position_x();
+        local iPY = g_game_logic.get_player_current_position_y();
         local iDrawY;
         local iDrawX;
 
@@ -463,6 +464,7 @@ function initialize(game_input)
     g_hud_overlay = hud_overlay_module();
 
     g_shark = shark_module();
+    g_shark.GameLogic = g_game_logic;
     g_shark.MoveRightMeshResourceIndices = { resources.MeshShark1, resources.MeshShark2, resources.MeshShark1, resources.MeshShark3 };
     g_shark.TurnRightMeshResourceIndices = { resources.MeshSharkT1, resources.MeshSharkT2, resources.MeshSharkT3 };
     g_shark.MoveLeftMeshResourceIndices = { resources.MeshSharkL1, resources.MeshSharkL2, resources.MeshSharkL1, resources.MeshSharkL3 };
@@ -538,8 +540,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(130);
-    set_player_current_position_y(127);
-    set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_x(130);
+    g_game_logic.set_player_current_position_y(127);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

@@ -89,8 +89,8 @@ local function CheckForChange_()
 end
 
 local function ChangeDirections_(all_run_donuts)
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     if iPY - 10 < g_current_pos_y and iPY + 10 > g_current_pos_y then
         if iPX < g_current_pos_x and iPX + 20 > g_current_pos_x then

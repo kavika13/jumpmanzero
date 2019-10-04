@@ -55,7 +55,7 @@ function Module.update()
     script_selected_mesh_translate_matrix(Module.iX, Module.iY, Module.iZ);
     set_object_visual_data(resources.TextureBoringGray, 1);
 
-    local iPX = get_player_current_position_x();
+    local iPX = Module.GameLogic.get_player_current_position_x();
     local current_rotation = Module.iR + g_current_rotation;
 
     if (current_rotation > 85 and current_rotation < 95) or (current_rotation > 265 and current_rotation < 275) then

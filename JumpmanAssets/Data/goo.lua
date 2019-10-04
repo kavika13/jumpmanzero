@@ -272,8 +272,8 @@ end
 
 local function DrawHorizontal_()
     -- TODO: Why does horizontal kill the player, but no collision detection is in here?
-    local iPX = get_player_current_position_x();
-    local iPY = get_player_current_position_y();
+    local iPX = Module.GameLogic.get_player_current_position_x();
+    local iPY = Module.GameLogic.get_player_current_position_y();
 
     if iPX < g_current_pos_x[2] + 2 and iPX > g_current_pos_x[1] - 2 then
         local iPH, iPlat = Module.GameLogic.find_platform(iPX, iPY, 8, 2);

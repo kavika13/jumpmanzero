@@ -128,15 +128,15 @@ local function DisplayPlatform_(iNum)
     g_platforms_previous_y1[iNum] = g_platforms_y1[iNum];
 
     if g_game_logic.get_player_current_active_platform_index() == g_platform_numbers[iNum] then
-        local iPX = get_player_current_position_x();
-        local iPY = get_player_current_position_y();
-        set_player_current_position_x(iPX + iDX);
+        local iPX = g_game_logic.get_player_current_position_x();
+        local iPY = g_game_logic.get_player_current_position_y();
+        g_game_logic.set_player_current_position_x(iPX + iDX);
 
         if g_game_logic.get_player_current_state() == player_state.JSNORMAL then
             local iHeight = g_platforms_y1[iNum];
 
             if iHeight > iPY - 1 and iHeight < iPY + 2 then
-                set_player_current_position_y(iHeight);
+                g_game_logic.set_player_current_position_y(iHeight);
             end
         end
     end
@@ -266,8 +266,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(150);
-    set_player_current_position_y(7);
-    set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_x(150);
+    g_game_logic.set_player_current_position_y(7);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

@@ -126,7 +126,7 @@ local g_current_pos_x = 0;
 local g_current_pos_y = 0;
 
 local function ClearAll_()
-    set_player_current_position_x(0);
+    g_game_logic.set_player_current_position_x(0);
     g_game_logic.set_player_is_visible(false);
 
     for iTemp = 0, 19 do
@@ -137,7 +137,7 @@ end
 
 local function ShowPlayerStanding_(iAT)
     g_game_logic.set_player_is_visible(true);
-    set_player_current_position_x(80);
+    g_game_logic.set_player_current_position_x(80);
 end
 
 local function Cycle_(iCCount, iSpeed, iMin, iMax)
@@ -622,8 +622,8 @@ function update(game_input)
 end
 
 function reset()
-    set_player_current_position_x(80);
-    set_player_current_position_y(79);
-    set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_x(80);
+    g_game_logic.set_player_current_position_y(79);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end

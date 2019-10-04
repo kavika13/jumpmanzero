@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.MoveRightMeshResourceIndices = {};
 Module.TurnRightMeshResourceIndices = {};
 Module.MoveLeftMeshResourceIndices = {};
@@ -33,8 +35,8 @@ local function PlayerMoving_(game_input)
 end
 
 local function MoveShark_(game_input)
-    local player_current_pos_x = get_player_current_position_x();
-    local player_current_pos_y = get_player_current_position_y();
+    local player_current_pos_x = Module.GameLogic.get_player_current_position_x();
+    local player_current_pos_y = Module.GameLogic.get_player_current_position_y();
 
     if player_current_pos_y < Module.CurrentPosY and Module.CurrentVelocityY > -1.2 then
         Module.CurrentVelocityY = Module.CurrentVelocityY - 0.09;
