@@ -134,7 +134,6 @@ static bool g_debug_level_is_specified;
 static char g_debug_level_filename[300];
 static char g_queued_level_load_filename[300];
 static int g_remaining_life_count;
-static long g_game_time_inactive;
 
 static int g_music_loop_start_music_time;  // TODO: I think it gets specified in milliseconds, but it should be in music time, due to the API that was used before
 
@@ -579,11 +578,6 @@ static int play_death_music_track(lua_State* lua_state) {
 static int stop_music_track_1(lua_State* lua_state) {
     StopMusic1();  // TODO: Error checking?
     return 0;
-}
-
-static int get_game_time_inactive(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_game_time_inactive);
-    return 1;
 }
 
 static int get_player_mesh_index(lua_State* lua_state) {
@@ -1349,8 +1343,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "play_death_music_track");
     lua_pushcfunction(lua_state, stop_music_track_1);
     lua_setglobal(lua_state, "stop_music_track_1");
-    lua_pushcfunction(lua_state, get_game_time_inactive);
-    lua_setglobal(lua_state, "get_game_time_inactive");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
     lua_pushcfunction(lua_state, get_just_launched_game);
@@ -2104,7 +2096,6 @@ static void PrepLevel(const char* base_path, const char* level_filename) {
     EndAndCommit3dLoad();
 
     BuildNavigation();
-    g_game_time_inactive = 0;
     InitializeLevelScript();
 
     if(g_music_loop_start_music_time != 5550) {
@@ -2197,12 +2188,6 @@ static void InteractMenu(GameInput* game_input) {
 }
 
 void UpdateGame(const char* base_path, GameInput* game_input) {
-    ++g_game_time_inactive;
-
-    if(game_input->move_left_action.is_pressed + game_input->move_right_action.is_pressed || game_input->move_up_action.is_pressed || game_input->move_down_action.is_pressed || game_input->jump_action.is_pressed) {
-        g_game_time_inactive = 0;
-    }
-
     if(g_game_status == kGameStatusMenu) {
         LoadJumpmanMenu(base_path);
         InteractMenu(game_input);

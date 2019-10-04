@@ -112,6 +112,8 @@ local player_dying_animation_state = {
 };
 player_dying_animation_state = read_only.make_table_read_only(player_dying_animation_state);
 
+local g_game_time_inactive = 0;
+
 -- TODO: Do we have to initialize all these?
 local g_player_current_state = player_state.JSNORMAL;
 local g_player_current_state_frame_count = 0;
@@ -1422,6 +1424,14 @@ end
 
 -- Returns true if player won
 function Module.progress_game(game_input)
+    g_game_time_inactive = g_game_time_inactive + 1;
+
+    if game_input.move_left_action.is_pressed or game_input.move_right_action.is_pressed or
+            game_input.move_up_action.is_pressed or game_input.move_down_action.is_pressed or
+            game_input.jump_action.is_pressed then
+        g_game_time_inactive = 0;
+    end
+
     if (g_player_current_state & player_state.JSDONE) == 0 then
         if g_player_freeze_cooldown_frame_count ~= 0 then
             g_player_freeze_cooldown_frame_count = g_player_freeze_cooldown_frame_count - 1;
@@ -1439,8 +1449,8 @@ function Module.progress_game(game_input)
 
             if g_player_current_mesh == player_mesh.STAND and
                     g_player_is_visible and
-                    get_game_time_inactive() > 400 then
-                local iTemp = math.floor((get_game_time_inactive() % 400) / 6);
+                    g_game_time_inactive > 400 then
+                local iTemp = math.floor((g_game_time_inactive % 400) / 6);
                 iTemp = iTemp > 10 and 2 or (iTemp & 1);
                 g_player_current_mesh = player_mesh.BORED_1 + iTemp;
             end
