@@ -236,7 +236,7 @@ function initialize(game_input)
 
     g_hud_overlay = hud_overlay_module();
 
-    set_level_extent_x(200);
+    g_game_logic.set_level_extent_x(200);
 
     for iLoop = 1, 9 do
         select_platform(iLoop);

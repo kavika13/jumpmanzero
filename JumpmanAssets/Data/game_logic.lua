@@ -142,6 +142,8 @@ local g_player_current_platform_y = 0;
 local g_player_current_close_vine_index = -1;
 local g_player_current_exact_vine_index = -1;
 
+local g_level_extent_x = 160;
+
 local g_current_camera_mode = camera_mode.PerspectiveNormal;
 local g_camera_current_pos_x = 0;
 local g_camera_current_pos_y = 0;
@@ -1499,15 +1501,15 @@ function Module.reset_perspective()
 
     g_camera_track_player_pos_y = g_player_current_position_y;
 
-    local target_pos_x = g_camera_track_player_pos_x / 2 + get_level_extent_x() / 4;
+    local target_pos_x = g_camera_track_player_pos_x / 2 + g_level_extent_x / 4;
     local target_pos_y = g_camera_track_player_pos_y;
 
     if target_pos_x < 35 then
         target_pos_x = 35;
     end
 
-    if target_pos_x > get_level_extent_x() - 45 then
-        target_pos_x = get_level_extent_x() - 45;
+    if target_pos_x > g_level_extent_x - 45 then
+        target_pos_x = g_level_extent_x - 45;
     end
 
     g_camera_current_pos_x = (g_camera_current_pos_x + target_pos_x) / 2;
@@ -1671,6 +1673,14 @@ end
 
 function Module.set_current_camera_mode(new_camera_mode)
     g_current_camera_mode = new_camera_mode;
+end
+
+function Module.get_level_extent_x()
+    return g_level_extent_x;
+end
+
+function Module.set_level_extent_x(new_level_extent_x)
+    g_level_extent_x = new_level_extent_x;
 end
 
 function Module.find_vine(iX, iY)

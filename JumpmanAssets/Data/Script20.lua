@@ -119,7 +119,7 @@ function initialize(game_input)
     SetResourceProperties_(g_leader_sheep, resources.TextureLSheep);
     g_leader_sheep.initialize();
 
-    set_level_extent_x(270);
+    g_game_logic.set_level_extent_x(270);
 
     for iLoop = 0, 5 do
         CreateSheep_();

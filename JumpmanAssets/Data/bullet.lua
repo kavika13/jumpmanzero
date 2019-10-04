@@ -146,7 +146,7 @@ end
 function Module.initialize()
     g_mesh_index_1 = new_mesh(Module.Mesh1Index);
     g_mesh_index_2 = new_mesh(Module.Mesh2Index);
-    g_maximum_pos_x = get_level_extent_x() + 40;
+    g_maximum_pos_x = Module.GameLogic.get_level_extent_x() + 40;
     RestartBullet();
 end
 

@@ -332,7 +332,7 @@ function initialize(game_input)
 
     g_hud_overlay = hud_overlay_module();
 
-    set_level_extent_x(200);
+    g_game_logic.set_level_extent_x(200);
     DisableLadder_(9);
 
     StartBullet_(500);

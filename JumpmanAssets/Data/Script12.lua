@@ -69,7 +69,7 @@ function initialize(game_input)
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.OnCollectDonutCallback = on_collect_donut;
     g_hud_overlay = hud_overlay_module();
-    set_level_extent_x(220);
+    g_game_logic.set_level_extent_x(220);
 
     reset();
 

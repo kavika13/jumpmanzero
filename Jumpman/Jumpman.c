@@ -173,8 +173,6 @@ static LevelObject g_backdrop_objects[30];
 static LevelObject* g_script_selected_level_object;
 static long g_script_selected_mesh_index;
 
-static long g_level_extent_x;
-
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // ------------------------------- BASIC GAME STUFF ----------------------------
@@ -795,11 +793,6 @@ static int get_ladder_object_count(lua_State* lua_state) {
     return 1;
 }
 
-static int get_level_extent_x(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_level_extent_x);
-    return 1;
-}
-
 static int get_loaded_texture_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_loaded_texture_count);
     return 1;
@@ -851,12 +844,6 @@ static int get_current_fps(lua_State* lua_state) {
 }
 
 // script global variable accessors (setters)
-
-static int set_level_extent_x(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_level_extent_x = (int)arg1;
-    return 0;
-}
 
 static int set_remaining_life_count(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
@@ -1434,8 +1421,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_donut_object_count");
     lua_pushcfunction(lua_state, get_ladder_object_count);
     lua_setglobal(lua_state, "get_ladder_object_count");
-    lua_pushcfunction(lua_state, get_level_extent_x);
-    lua_setglobal(lua_state, "get_level_extent_x");
     lua_pushcfunction(lua_state, get_loaded_texture_count);
     lua_setglobal(lua_state, "get_loaded_texture_count");
     lua_pushcfunction(lua_state, get_platform_object_count);
@@ -1456,8 +1441,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_last_key_pressed");
     lua_pushcfunction(lua_state, get_current_fps);
     lua_setglobal(lua_state, "get_current_fps");
-    lua_pushcfunction(lua_state, set_level_extent_x);
-    lua_setglobal(lua_state, "set_level_extent_x");
     lua_pushcfunction(lua_state, set_remaining_life_count);
     lua_setglobal(lua_state, "set_remaining_life_count");
 
@@ -1612,8 +1595,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     long* oData;
     long iMPlace;
     int iSounds;
-
-    g_level_extent_x = 160;
 
     g_loaded_texture_count = 0;
     g_loaded_mesh_count = 0;

@@ -206,7 +206,7 @@ function initialize(game_input)
 
     FixHangPlatforms_();
 
-    set_level_extent_x(260);
+    g_game_logic.set_level_extent_x(260);
 
     StartBaboon_(76, 170);
     StartBaboon_(207, 90);
