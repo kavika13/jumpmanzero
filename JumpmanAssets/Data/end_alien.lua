@@ -103,9 +103,9 @@ local function ShowAlien_()
     script_selected_mesh_rotate_matrix_y(10);
 
     if g_frames_since_level_start & 8 then
-        script_selected_mesh_change_mesh(Module.AlienMeshResourceIndices[1]);
+        set_mesh_to_mesh(g_alien_mesh_index, Module.AlienMeshResourceIndices[1]);
     else
-        script_selected_mesh_change_mesh(Module.AlienMeshResourceIndices[2]);
+        set_mesh_to_mesh(g_alien_mesh_index, Module.AlienMeshResourceIndices[2]);
     end
 
     scale_mesh_matrix(g_alien_mesh_index, 0.55, 0.6, 0.7);

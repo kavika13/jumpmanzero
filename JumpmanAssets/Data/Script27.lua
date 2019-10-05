@@ -294,9 +294,9 @@ local function ShowAlien_()
     set_identity_mesh_matrix(g_alien_mesh_index);
 
     if g_frames_since_level_start & 8 then
-        script_selected_mesh_change_mesh(resources.MeshAlien1);
+        set_mesh_to_mesh(g_alien_mesh_index, resources.MeshAlien1);
     else
-        script_selected_mesh_change_mesh(resources.MeshAlien2);
+        set_mesh_to_mesh(g_alien_mesh_index, resources.MeshAlien2);
     end
 
     scale_mesh_matrix(g_alien_mesh_index, 0.55, 0.6, 0.7);

@@ -182,7 +182,7 @@ local function ShowPlayerGrooving_(iAT)
     select_object_mesh(g_object_mesh_indices[1]);
 
     iFrame = resources.MeshDance1 + iFrame;
-    script_selected_mesh_change_mesh(iFrame);
+    set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     script_selected_mesh_translate_matrix(80 + iWiggle, 85, 1.5);
     set_object_visual_data(resources.TextureJumpman, 1);
@@ -200,7 +200,7 @@ local function ShowPlayerLeaving_(iAT)
 
     select_object_mesh(g_object_mesh_indices[1]);
 
-    script_selected_mesh_change_mesh(iFrame);
+    set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     script_selected_mesh_translate_matrix(80 - iAT, 85, 1.5);
     set_object_visual_data(resources.TextureJumpman, 1);
@@ -241,7 +241,7 @@ local function ShowBear_(iAT)
 
     select_object_mesh(g_object_mesh_indices[1]);
 
-    script_selected_mesh_change_mesh(iFrame);
+    set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     scale_mesh_matrix(g_object_mesh_indices[1], 1, 1, 1.3);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 7, 1.5);
@@ -279,7 +279,7 @@ local function ShowSheep_(iAT)
         end
 
         select_object_mesh(g_object_mesh_indices[iSheep]);
-        script_selected_mesh_change_mesh(iFrame);
+        set_mesh_to_mesh(g_object_mesh_indices[iSheep], iFrame);
         set_identity_mesh_matrix(g_object_mesh_indices[iSheep]);
         script_selected_mesh_translate_matrix(iSheepX, iSheepY, 2);
         set_object_visual_data(resources.TextureSheep, 1);
@@ -314,7 +314,7 @@ local function ShowTurtles_(iAT)
             iTurtY = iTurtY - iTemp;
         end
 
-        script_selected_mesh_change_mesh(iFrame);
+        set_mesh_to_mesh(g_object_mesh_indices[iTurt], iFrame);
         script_selected_mesh_translate_matrix(iTurtX, iTurtY, 2);
         set_object_visual_data(resources.TextureTurtleTexture, 1);
     end
@@ -361,7 +361,7 @@ local function ShowDonuts_(iAT)
             iFrame = resources.MeshRunDonut1 + (iAT & 4) / 4;
         end
 
-        script_selected_mesh_change_mesh(iFrame);
+        set_mesh_to_mesh(g_object_mesh_indices[iDon], iFrame);
         script_selected_mesh_translate_matrix(iDonX, iDonY, iZ);
         set_object_visual_data(resources.TextureRunDonut, 1);
     end
@@ -399,7 +399,7 @@ local function ShowDino_(iAT)
         iFrame = resources.MeshTSaurWalkR1 + Cycle_(iAT, 60, 0, 3);
     end
 
-    script_selected_mesh_change_mesh(iFrame);
+    set_mesh_to_mesh(g_object_mesh_indices[0], iFrame);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 0);
     set_object_visual_data(resources.TextureDinosaur, 1);
 end
@@ -433,7 +433,7 @@ local function JumpmanChase_(iAT)
     select_object_mesh(g_object_mesh_indices[0]);
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
     scale_mesh_matrix(g_object_mesh_indices[0], 1, 1, 1);
-    script_selected_mesh_change_mesh(iFrame);
+    set_mesh_to_mesh(g_object_mesh_indices[0], iFrame);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 3);
     set_object_visual_data(resources.TextureJumpman, 1);
 end
@@ -443,7 +443,7 @@ local function ShowRocket_(iAT)
     local iRZ = math.sin(iAT * 3 * math.pi / 180.0) * 10;
 
     select_object_mesh(g_object_mesh_indices[0]);
-    script_selected_mesh_change_mesh(resources.MeshRocket);
+    set_mesh_to_mesh(g_object_mesh_indices[0], resources.MeshRocket);
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
     script_selected_mesh_rotate_matrix_y(iAT / 3);
     script_selected_mesh_rotate_matrix_z(iRZ);
@@ -453,7 +453,7 @@ local function ShowRocket_(iAT)
 
     for iBlip = 1, 14 do
         select_object_mesh(g_object_mesh_indices[iBlip]);
-        script_selected_mesh_change_mesh(resources.MeshSquare);
+        set_mesh_to_mesh(g_object_mesh_indices[iBlip], resources.MeshSquare);
         set_identity_mesh_matrix(g_object_mesh_indices[iBlip]);
         local iSize = math.random(3, 6);
         scale_mesh_matrix(g_object_mesh_indices[iBlip], iSize, iSize, 1);

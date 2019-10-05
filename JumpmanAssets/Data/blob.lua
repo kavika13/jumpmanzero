@@ -35,8 +35,7 @@ local function Animate_()
         frame_index = Module.MoveRightMeshResourceIndices[frame_index];
     end
 
-    select_object_mesh(g_blob_mesh_index);
-    script_selected_mesh_change_mesh(frame_index);
+    set_mesh_to_mesh(g_blob_mesh_index, frame_index);
 end
 
 local function MoveBlob_()

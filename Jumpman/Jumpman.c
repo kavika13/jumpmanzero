@@ -378,9 +378,10 @@ static int get_just_launched_game(lua_State* lua_state) {
 // script 3d object utility functions
 // TODO: Change these to accept a mesh index instead of using g_script_selected_mesh_index
 
-static int script_selected_mesh_change_mesh(lua_State* lua_state) {
-    double new_mesh_index_arg = luaL_checknumber(lua_state, 1);
-    ChangeMesh(g_script_selected_mesh_index, g_script_mesh_indices[(size_t)new_mesh_index_arg]);
+static int set_mesh_to_mesh(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    lua_Integer new_mesh_index_arg = luaL_checkinteger(lua_state, 2);
+    ChangeMesh((long)mesh_index_arg, g_script_mesh_indices[new_mesh_index_arg]);
     return 0;
 }
 
@@ -1232,8 +1233,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_just_launched_game");
 
     // TODO: Remove the word "script" when exposing these functions?
-    lua_pushcfunction(lua_state, script_selected_mesh_change_mesh);
-    lua_setglobal(lua_state, "script_selected_mesh_change_mesh");
+    lua_pushcfunction(lua_state, set_mesh_to_mesh);
+    lua_setglobal(lua_state, "set_mesh_to_mesh");
     lua_pushcfunction(lua_state, set_identity_mesh_matrix);
     lua_setglobal(lua_state, "set_identity_mesh_matrix");
     lua_pushcfunction(lua_state, undo_camera_perspective_on_mesh_matrix);
