@@ -26,22 +26,23 @@ local g_hud_overlay;
 local propellers = {};
 local whompers = {};
 
-local function ConveyPlatform_(iPlat, iDist)
-    select_platform(iPlat);
-    script_selected_mesh_scroll_texture(iDist * 16, 0);
-
-    local iPX = g_game_logic.get_player_current_position_x();
-    local iPY = g_game_logic.get_player_current_position_y();
+local function ConveyPlatform_(platform_num, iDist)
+    select_platform(platform_num);
+    local platform_mesh_index = find_platform_mesh_index(platform_num);
+    scroll_texture_on_mesh(platform_mesh_index, iDist * 16, 0);
 
     if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
         return;
     end
 
-    local iHit, iPN = g_game_logic.find_platform(iPX, iPY, 14, 2);
+    local iPX = g_game_logic.get_player_current_position_x();
+    local iPY = g_game_logic.get_player_current_position_y();
+
+    local _, iPN = g_game_logic.find_platform(iPX, iPY, 14, 2);
 
     abs_platform(iPN);
 
-    if iPlat ~= get_script_selected_level_object_number() then
+    if platform_num ~= get_script_selected_level_object_number() then
         return;
     end
 

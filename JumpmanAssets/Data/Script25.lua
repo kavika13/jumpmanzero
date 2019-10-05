@@ -369,11 +369,13 @@ local function ProgressLevel_(game_input)
 
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
-    select_picture(1);
-    script_selected_mesh_scroll_texture(0.025, 0.025);
+    select_picture(1);  -- TODO: Use constant for num
+    local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
+    scroll_texture_on_mesh(backdrop_mesh_index, 0.025, 0.025);
 
-    select_picture(6);
-    script_selected_mesh_scroll_texture(0.04, 0.04);
+    select_picture(6);  -- TODO: Use constant for num
+    backdrop_mesh_index = find_backdrop_mesh_index(6);  -- TODO: Use constant for num
+    scroll_texture_on_mesh(backdrop_mesh_index, 0.04, 0.04);
 
     select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
     set_object_visual_data(0, 0);

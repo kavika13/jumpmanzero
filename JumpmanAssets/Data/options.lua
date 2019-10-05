@@ -299,8 +299,9 @@ function update(game_input)
     g_time_since_current_selection = g_time_since_current_selection + 5;
     ShowLetters_();
 
-    select_picture(100);
-    script_selected_mesh_scroll_texture(0.01, 0.01);
+    select_picture(100);  -- TODO: Use constant for num
+    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+    scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
 
     if g_is_game_selected and g_time_since_current_selection > 250 and g_option_selected_index == 9 then
         save_config_options();

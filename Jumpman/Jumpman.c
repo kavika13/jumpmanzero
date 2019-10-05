@@ -432,11 +432,12 @@ static int script_selected_mesh_rotate_matrix_z(lua_State* lua_state) {
     return 0;
 }
 
-static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
-    double arg_x = luaL_checknumber(lua_state, 1);
-    double arg_y = luaL_checknumber(lua_state, 2);
+static int scroll_texture_on_mesh(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    double arg_x = luaL_checknumber(lua_state, 2);
+    double arg_y = luaL_checknumber(lua_state, 3);
     // TODO: Remove pre-multiplication from scripts, and divide from here
-    ScrollTexture(g_script_selected_mesh_index, (float)arg_x / 16.0f, (float)arg_y / 16.0f);
+    ScrollTexture((long)mesh_index_arg, (float)arg_x / 16.0f, (float)arg_y / 16.0f);
     return 0;
 }
 
@@ -1247,8 +1248,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_y");
     lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_z);
     lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_z");
-    lua_pushcfunction(lua_state, script_selected_mesh_scroll_texture);
-    lua_setglobal(lua_state, "script_selected_mesh_scroll_texture");
+    lua_pushcfunction(lua_state, scroll_texture_on_mesh);
+    lua_setglobal(lua_state, "scroll_texture_on_mesh");
 
     lua_pushcfunction(lua_state, get_script_selected_level_object_extra);
     lua_setglobal(lua_state, "get_script_selected_level_object_extra");

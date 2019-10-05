@@ -265,7 +265,7 @@ function Module.update()
         local iTemp = math.random(50, 100) * 0.1;
         iTemp = iTemp / 2;
         scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
-        script_selected_mesh_scroll_texture(iTemp, 0);
+        scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
         script_selected_mesh_translate_matrix(g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 36, g_current_pos_y + 7.5,
@@ -280,7 +280,7 @@ function Module.update()
         local iTemp = math.random(50, 100) * -0.1;
         iTemp = iTemp / 2;
         scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
-        script_selected_mesh_scroll_texture(iTemp, 0);
+        scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
         script_selected_mesh_translate_matrix(g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x + 5, g_current_pos_y + 7.5,

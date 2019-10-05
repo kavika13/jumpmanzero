@@ -75,10 +75,10 @@ local function ProgressLevel_(game_input)
     end
 
     select_picture(5);  -- TODO: This is the waterfall backdrop. Use a constant, or get from resources
-    local backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant
+    local backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     script_selected_mesh_translate_matrix(0, 0, 10);
-    script_selected_mesh_scroll_texture(0, -0.15);
+    scroll_texture_on_mesh(backdrop_mesh_index, 0, -0.15);
 
     for _, plat in ipairs(g_disappearing_platforms) do
         plat.update();
