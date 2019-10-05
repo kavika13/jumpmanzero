@@ -390,8 +390,9 @@ static int set_identity_mesh_matrix(lua_State* lua_state) {
     return 0;
 }
 
-static int script_selected_mesh_set_perspective_matrix(lua_State* lua_state) {
-    PerspectiveMatrix(g_script_selected_mesh_index);
+static int undo_camera_perspective_on_mesh_matrix(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    PerspectiveMatrix((long)mesh_index_arg);
     return 0;
 }
 
@@ -1232,8 +1233,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "script_selected_mesh_change_mesh");
     lua_pushcfunction(lua_state, set_identity_mesh_matrix);
     lua_setglobal(lua_state, "set_identity_mesh_matrix");
-    lua_pushcfunction(lua_state, script_selected_mesh_set_perspective_matrix);
-    lua_setglobal(lua_state, "script_selected_mesh_set_perspective_matrix");
+    lua_pushcfunction(lua_state, undo_camera_perspective_on_mesh_matrix);
+    lua_setglobal(lua_state, "undo_camera_perspective_on_mesh_matrix");
     lua_pushcfunction(lua_state, script_selected_mesh_translate_matrix);
     lua_setglobal(lua_state, "script_selected_mesh_translate_matrix");
     lua_pushcfunction(lua_state, script_selected_mesh_scale_matrix);

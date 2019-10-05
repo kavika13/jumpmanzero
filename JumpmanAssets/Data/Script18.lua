@@ -201,7 +201,7 @@ function ProgressLevel_(game_input)
         set_identity_mesh_matrix(g_message_mesh_index);
         script_selected_mesh_scale_matrix(20, 20, 1);
         script_selected_mesh_translate_matrix(0 - 54, 0 - 39, 120);
-        script_selected_mesh_set_perspective_matrix();
+        undo_camera_perspective_on_mesh_matrix(g_message_mesh_index);
         set_object_visual_data(resources.TextureDisarming, 1);
 
         select_object_mesh(g_progress_bar_mesh_index);
@@ -209,7 +209,7 @@ function ProgressLevel_(game_input)
         local iProg = (100 - g_disarm_progress) * 16.5 / 100;
         script_selected_mesh_scale_matrix(iProg, 3.8, 1);
         script_selected_mesh_translate_matrix((0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
-        script_selected_mesh_set_perspective_matrix();
+        undo_camera_perspective_on_mesh_matrix(g_progress_bar_mesh_index);
         set_object_visual_data(resources.TextureBoringGreen, 1);
     else
         select_object_mesh(g_message_mesh_index);

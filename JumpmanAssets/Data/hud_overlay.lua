@@ -30,14 +30,14 @@ local function ShowRemaining_()
     -- set_identity_mesh_matrix(g_jumpman_hud_background_icon);
     -- script_selected_mesh_scale_matrix(16, 8, 1);
     -- script_selected_mesh_translate_matrix(44, -34, 92);
-    -- script_selected_mesh_set_perspective_matrix();
+    -- undo_camera_perspective_on_mesh_matrix(g_jumpman_hud_background_icon);
 
     select_object_mesh(g_jumpman_icon_mesh_index);
     set_object_visual_data(0, 1);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
     set_identity_mesh_matrix(g_jumpman_icon_mesh_index);
     script_selected_mesh_scale_matrix(0.5, 0.5, 0.5);
     script_selected_mesh_translate_matrix(40, -34, 90);
-    script_selected_mesh_set_perspective_matrix();
+    undo_camera_perspective_on_mesh_matrix(g_jumpman_icon_mesh_index);
 end
 
 local function ShowPerformance_(game_input, lives_remaining)
@@ -68,7 +68,7 @@ local function ShowPerformance_(game_input, lives_remaining)
             set_identity_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1]);
             script_selected_mesh_scale_matrix(0.5, 0.5, 0.2);
             script_selected_mesh_translate_matrix(47, -33, 90);
-            script_selected_mesh_set_perspective_matrix();
+            undo_camera_perspective_on_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1]);
         else
             set_object_visual_data(0, 0);
         end
@@ -79,7 +79,7 @@ local function ShowPerformance_(game_input, lives_remaining)
             set_object_visual_data(letter_texture_resource_index, 1);
             set_identity_mesh_matrix(g_fps_first_number_mesh_indices[iNum + 1]);
             script_selected_mesh_translate_matrix(-40, 30, 90);
-            script_selected_mesh_set_perspective_matrix();
+            undo_camera_perspective_on_mesh_matrix(g_fps_first_number_mesh_indices[iNum + 1]);
         else
             set_object_visual_data(0, 0);
         end
@@ -90,7 +90,7 @@ local function ShowPerformance_(game_input, lives_remaining)
             set_object_visual_data(letter_texture_resource_index, 1);
             set_identity_mesh_matrix(g_fps_second_number_mesh_indices[iNum + 1]);
             script_selected_mesh_translate_matrix(-34, 30, 90);
-            script_selected_mesh_set_perspective_matrix();
+            undo_camera_perspective_on_mesh_matrix(g_fps_second_number_mesh_indices[iNum + 1]);
         else
             set_object_visual_data(0, 0);
         end
@@ -101,7 +101,7 @@ local function ShowPerformance_(game_input, lives_remaining)
             set_object_visual_data(letter_texture_resource_index, 1);
             set_identity_mesh_matrix(g_fps_third_number_mesh_indices[iNum + 1]);
             script_selected_mesh_translate_matrix(-28, 30, 90);
-            script_selected_mesh_set_perspective_matrix();
+            undo_camera_perspective_on_mesh_matrix(g_fps_third_number_mesh_indices[iNum + 1]);
         else
             set_object_visual_data(0, 0);
         end
@@ -129,7 +129,7 @@ local function ShowLevelTitleAnimation_(animation_time)
                 script_selected_mesh_translate_matrix(0, 0, 5);
                 script_selected_mesh_rotate_matrix_y(iX);
                 script_selected_mesh_translate_matrix(0, 0, 8);
-                script_selected_mesh_set_perspective_matrix();
+                undo_camera_perspective_on_mesh_matrix(letter_mesh_index);
                 set_object_visual_data(get_loaded_texture_count() - 1, 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
                 is_animation_still_active = true;
             else

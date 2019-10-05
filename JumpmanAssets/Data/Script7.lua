@@ -57,17 +57,17 @@ local g_clock_timers = {};
 local kNumClockTimers = 20;
 
 local function SetClockPosition_(iPos)
-    select_picture(1);
-    local backdrop_mesh_index = find_backdrop_mesh_index(1);
+    select_picture(1);  -- TODO: Use constant for num
+    local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     script_selected_mesh_translate_matrix(0 - 64, 0 - 48, 120);
-    script_selected_mesh_set_perspective_matrix();
+    undo_camera_perspective_on_mesh_matrix(backdrop_mesh_index);
 
     select_object_mesh(g_clock_hand_mesh_index);
     set_identity_mesh_matrix(g_clock_hand_mesh_index);
     script_selected_mesh_rotate_matrix_z(iPos);
     script_selected_mesh_translate_matrix(0 - 54, 0 - 38, 120);
-    script_selected_mesh_set_perspective_matrix();
+    undo_camera_perspective_on_mesh_matrix(g_clock_hand_mesh_index);
 end
 
 local function SpinLittleClocks_()
