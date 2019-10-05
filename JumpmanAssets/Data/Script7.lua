@@ -58,12 +58,13 @@ local kNumClockTimers = 20;
 
 local function SetClockPosition_(iPos)
     select_picture(1);
-    script_selected_mesh_set_identity_matrix();
+    local backdrop_mesh_index = find_backdrop_mesh_index(1);
+    set_identity_mesh_matrix(backdrop_mesh_index);
     script_selected_mesh_translate_matrix(0 - 64, 0 - 48, 120);
     script_selected_mesh_set_perspective_matrix();
 
     select_object_mesh(g_clock_hand_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_clock_hand_mesh_index);
     script_selected_mesh_rotate_matrix_z(iPos);
     script_selected_mesh_translate_matrix(0 - 54, 0 - 38, 120);
     script_selected_mesh_set_perspective_matrix();
@@ -84,7 +85,8 @@ end
 local function SpinClock_(iPic)
     select_picture(iPic);
     local iObjX = get_script_selected_level_object_x1();
-    script_selected_mesh_set_identity_matrix();
+    local backdrop_mesh_index = find_backdrop_mesh_index(iPic);
+    set_identity_mesh_matrix(backdrop_mesh_index);
     script_selected_mesh_translate_matrix(0 - iObjX, 0, 0);
     script_selected_mesh_rotate_matrix_y(g_current_clock_hand_rotation);
     script_selected_mesh_translate_matrix(iObjX, 0, 7);

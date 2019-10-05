@@ -323,7 +323,7 @@ function Module.update()
         select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
 
         if (g_spawn_cooldown_timer & 2) and (g_spawn_cooldown_timer < 50) then
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
             script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
             set_object_visual_data(Module.SheepTextureResourceIndex, 1);
         else
@@ -341,14 +341,14 @@ function Module.update()
     MoveSheep_();
 
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
     set_object_visual_data(Module.SheepTextureResourceIndex, 1);
 
     if g_copter_current_scale > 0 then
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
         select_object_mesh(g_copter_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_copter_mesh_index);
         script_selected_mesh_rotate_matrix_x(270);
         script_selected_mesh_rotate_matrix_y(g_copter_current_rotation_y);
         script_selected_mesh_translate_matrix(0, 4, 0);

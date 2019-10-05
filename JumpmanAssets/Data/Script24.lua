@@ -117,7 +117,7 @@ local function CheckHanging_(game_input)
         end
 
         select_object_mesh(iHangMesh[iDraw]);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(iHangMesh[iDraw]);
         script_selected_mesh_translate_matrix(
             g_game_logic.get_player_current_position_x() + 0,
             g_game_logic.get_player_current_position_y() + 2,

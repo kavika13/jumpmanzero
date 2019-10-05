@@ -113,7 +113,7 @@ function Module.update()
     MoveBaboon_();
 
     select_object_mesh(g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index]);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6, g_current_pos_z);
     set_object_visual_data(resources.TextureBaboon, 1);
 

@@ -103,7 +103,7 @@ local function ShowLetters()
 
         if current_letter_mesh_id > 0 then
             select_object_mesh(current_letter_mesh_id);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(current_letter_mesh_id);
 
             if g_is_game_selected then
                 if g_title_selected_index == current_letter_title_index then

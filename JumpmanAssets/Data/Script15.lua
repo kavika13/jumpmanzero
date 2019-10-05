@@ -75,7 +75,8 @@ local function ProgressLevel_(game_input)
     end
 
     select_picture(5);  -- TODO: This is the waterfall backdrop. Use a constant, or get from resources
-    script_selected_mesh_set_identity_matrix();
+    local backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant
+    set_identity_mesh_matrix(backdrop_mesh_index);
     script_selected_mesh_translate_matrix(0, 0, 10);
     script_selected_mesh_scroll_texture(0, -0.15);
 

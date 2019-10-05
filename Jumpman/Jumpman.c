@@ -153,24 +153,12 @@ static LevelObject g_backdrop_objects[30];
 
 // ------------------- LUA SCRIPT -------------------------------
 
-static LevelObject* g_script_selected_level_object;
-static long g_script_selected_mesh_index;
+static LevelObject* g_script_selected_level_object;  // TODO: Get rid of this!
+static long g_script_selected_mesh_index;  // TODO: Get rid of this!
 
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
-
-static int FindObject(LevelObject* lObj, int iCount, int iFind) {
-    int iLoop = -1;
-
-    while(++iLoop < iCount) {
-        if(lObj[iLoop].Num == iFind) {
-            return iLoop;
-        }
-    }
-
-    return -1;
-}
 
 static int get_donut_mesh_number(lua_State* lua_state) {
     lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
@@ -388,6 +376,7 @@ static int get_just_launched_game(lua_State* lua_state) {
 }
 
 // script 3d object utility functions
+// TODO: Change these to accept a mesh index instead of using g_script_selected_mesh_index
 
 static int script_selected_mesh_change_mesh(lua_State* lua_state) {
     double new_mesh_index_arg = luaL_checknumber(lua_state, 1);
@@ -395,8 +384,9 @@ static int script_selected_mesh_change_mesh(lua_State* lua_state) {
     return 0;
 }
 
-static int script_selected_mesh_set_identity_matrix(lua_State* lua_state) {
-    IdentityMatrix(g_script_selected_mesh_index);
+static int set_identity_mesh_matrix(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    IdentityMatrix((long)mesh_index_arg);
     return 0;
 }
 
@@ -444,118 +434,6 @@ static int script_selected_mesh_scroll_texture(lua_State* lua_state) {
     double arg_y = luaL_checknumber(lua_state, 2);
     // TODO: Remove pre-multiplication from scripts, and divide from here
     ScrollTexture(g_script_selected_mesh_index, (float)arg_x / 16.0f, (float)arg_y / 16.0f);
-    return 0;
-}
-
-// script script_selected_level_object accessors (getters)
-// TODO: Maybe pass in the id instead of global "selected" state for all these
-
-static int get_script_selected_level_object_extra(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Extra);
-    return 1;
-}
-
-static int get_script_selected_level_object_number(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Num);
-    return 1;
-}
-
-static int get_script_selected_level_object_this(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
-    return 1;
-}
-
-static int get_script_selected_level_object_visible(lua_State* lua_state) {
-    lua_pushboolean(lua_state, g_script_selected_level_object->Visible);
-    return 1;
-}
-
-static int get_script_selected_level_object_x1(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->X1);
-    return 1;
-}
-
-static int get_script_selected_level_object_x2(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->X2);
-    return 1;
-}
-
-static int get_script_selected_level_object_y1(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
-    return 1;
-}
-
-static int get_script_selected_level_object_y2(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Y2);
-    return 1;
-}
-
-static int get_script_selected_level_object_z1(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Z1);
-    return 1;
-}
-
-static int get_script_selected_level_object_z2(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Z2);
-    return 1;
-}
-
-// script script_selected_level_object accessors (setters)
-// TODO: Maybe pass in the id instead of global "selected" state for all these
-
-static int set_script_selected_level_object_number(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Num = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_texture(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Texture = (int)arg1;
-    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
-    return 0;
-}
-
-static int set_script_selected_level_object_visible(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Visible = (int)arg1;
-    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
-    return 0;
-}
-
-static int set_script_selected_level_object_x1(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->X1 = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_x2(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->X2 = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_y1(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Y1 = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_y2(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Y2 = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_z1(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Z1 = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_z2(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Z2 = (int)arg1;
     return 0;
 }
 
@@ -669,39 +547,6 @@ static int set_object_visual_data(lua_State* lua_state) {
 
 static int prioritize_object(lua_State* lua_state) {
     PrioritizeObject(g_script_selected_mesh_index);
-    return 0;
-}
-
-// TODO: Rename these abs functions. They select an object and mesh?  Do other things select the same object, but not the mesh?
-//       I believe they select by absolute index in that object type, so you can loop through all of them
-//       So maybe it should be "select_xyz_at_index" or something, and the other should be called "select_xyz_with_object_num"?
-//       Or maybe we should get rid of these "selection" things to begin with, and just have functions to query the right index, then manipulate objects via index
-// TODO: Maybe return the id instead of global "selected" state for all these
-static int script_abs_platform(lua_State* lua_state) {
-    double platform_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_platform_objects[(size_t)platform_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-    return 0;
-}
-
-static int script_abs_ladder(lua_State* lua_state) {
-    double ladder_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_ladder_objects[(size_t)ladder_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-    return 0;
-}
-
-static int script_abs_donut(lua_State* lua_state) {
-    double donut_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_donut_objects[(size_t)donut_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
-    return 0;
-}
-
-static int script_abs_vine(lua_State* lua_state) {
-    double vine_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -979,13 +824,6 @@ static int play_sound_effect(lua_State* lua_state) {
     return 0;
 }
 
-// TODO: Maybe return the id instead of global "selected" state for this
-static int script_select_object_mesh(lua_State* lua_state) {
-    double mesh_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_mesh_index = (long)mesh_index;
-    return 0;
-}
-
 static int script_delete_mesh(lua_State* lua_state) {
     double mesh_index = luaL_checknumber(lua_state, 1);
     DeleteMesh((long)mesh_index);
@@ -1005,7 +843,54 @@ static int script_set_perspective(lua_State* lua_state) {
     return 0;
 }
 
-// TODO: Maybe return the id instead of global "selected" state for all these
+// TODO: Remove these once g_script_selected_level_object and g_script_selected_mesh_index are gone
+
+static int script_abs_platform(lua_State* lua_state) {
+    double platform_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_platform_objects[(size_t)platform_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_abs_ladder(lua_State* lua_state) {
+    double ladder_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_ladder_objects[(size_t)ladder_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_abs_donut(lua_State* lua_state) {
+    double donut_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_donut_objects[(size_t)donut_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_abs_vine(lua_State* lua_state) {
+    double vine_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
+    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
+    return 0;
+}
+
+static int script_select_object_mesh(lua_State* lua_state) {
+    double mesh_index = luaL_checknumber(lua_state, 1);
+    g_script_selected_mesh_index = (long)mesh_index;
+    return 0;
+}
+
+static int FindObject(LevelObject* lObj, int iCount, int iFind) {
+    int iLoop = -1;
+
+    while(++iLoop < iCount) {
+        if(lObj[iLoop].Num == iFind) {
+            return iLoop;
+        }
+    }
+
+    return -1;
+}
+
 static int script_select_platform(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_platform_objects, g_platform_object_count, (int)new_object_index);
@@ -1052,6 +937,216 @@ static int script_select_wall(lua_State* lua_state) {
     g_script_selected_level_object = &g_wall_objects[object_index];
     g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
+}
+
+static int get_script_selected_level_object_extra(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Extra);
+    return 1;
+}
+
+static int get_script_selected_level_object_number(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Num);
+    return 1;
+}
+
+static int get_script_selected_level_object_this(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
+    return 1;
+}
+
+static int get_script_selected_level_object_visible(lua_State* lua_state) {
+    lua_pushboolean(lua_state, g_script_selected_level_object->Visible);
+    return 1;
+}
+
+static int get_script_selected_level_object_x1(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->X1);
+    return 1;
+}
+
+static int get_script_selected_level_object_x2(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->X2);
+    return 1;
+}
+
+static int get_script_selected_level_object_y1(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
+    return 1;
+}
+
+static int get_script_selected_level_object_y2(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Y2);
+    return 1;
+}
+
+static int get_script_selected_level_object_z1(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Z1);
+    return 1;
+}
+
+static int get_script_selected_level_object_z2(lua_State* lua_state) {
+    lua_pushnumber(lua_state, g_script_selected_level_object->Z2);
+    return 1;
+}
+
+static int set_script_selected_level_object_number(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Num = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_texture(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Texture = (int)arg1;
+    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
+    return 0;
+}
+
+static int set_script_selected_level_object_visible(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Visible = (int)arg1;
+    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
+    return 0;
+}
+
+static int set_script_selected_level_object_x1(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->X1 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_x2(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->X2 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_y1(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Y1 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_y2(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Y2 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_z1(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Z1 = (int)arg1;
+    return 0;
+}
+
+static int set_script_selected_level_object_z2(lua_State* lua_state) {
+    double arg1 = luaL_checknumber(lua_state, 1);
+    g_script_selected_level_object->Z2 = (int)arg1;
+    return 0;
+}
+
+// TODO: Remove these once level loader is in Lua, and mesh indices are kept there
+
+static int get_platform_mesh_index(lua_State* lua_state) {
+    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
+    // TODO: Better runtime error handling than assert
+    assert(platform_index > -1 && platform_index < g_platform_object_count && "get_platform_mesh_index was outside the range of current active platform objects");
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].MeshNumber);
+    return 1;
+}
+
+static int get_ladder_mesh_index(lua_State* lua_state) {
+    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
+    // TODO: Better runtime error handling than assert
+    assert(ladder_index > -1 && ladder_index < g_ladder_object_count && "get_ladder_mesh_index was outside the range of current active ladder objects");
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].MeshNumber);
+    return 1;
+}
+
+static int get_donut_mesh_index(lua_State* lua_state) {
+    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
+    // TODO: Better runtime error handling than assert
+    assert(donut_index > -1 && donut_index < g_donut_object_count && "get_donut_mesh_index was outside the range of current active donut objects");
+    lua_pushinteger(lua_state, g_donut_objects[donut_index].MeshNumber);
+    return 1;
+}
+
+static int get_vine_mesh_index(lua_State* lua_state) {
+    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
+    // TODO: Better runtime error handling than assert
+    assert(vine_index > -1 && vine_index < g_vine_object_count && "get_vine_mesh_index was outside the range of current active vine objects");
+    lua_pushinteger(lua_state, g_vine_objects[vine_index].MeshNumber);
+    return 1;
+}
+
+static int get_backdrop_mesh_index(lua_State* lua_state) {
+    lua_Integer backdrop_index = luaL_checkinteger(lua_state, 1);
+    // TODO: Better runtime error handling than assert
+    assert(backdrop_index > -1 && backdrop_index < g_backdrop_object_count && "get_backdrop_mesh_index was outside the range of current active backdrop objects");
+    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].MeshNumber);
+    return 1;
+}
+
+static int get_wall_mesh_index(lua_State* lua_state) {
+    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
+    // TODO: Better runtime error handling than assert
+    assert(wall_index > -1 && wall_index < g_wall_object_count && "get_wall_mesh_index was outside the range of current active wall objects");
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].MeshNumber);
+    return 1;
+}
+
+static int find_platform_mesh_index(lua_State* lua_state) {
+    lua_Integer platform_num = luaL_checkinteger(lua_state, 1);
+    int platform_index = FindObject(g_platform_objects, g_platform_object_count, (int)platform_num);
+    // TODO: Better runtime error handling than assert
+    assert(platform_index != -1 && "find_platform_mesh_index could not find platform with given num id (specified in level data)");
+    lua_pushinteger(lua_state, g_platform_objects[platform_index].MeshNumber);
+    return 1;
+}
+
+static int find_ladder_mesh_index(lua_State* lua_state) {
+    lua_Integer ladder_num = luaL_checkinteger(lua_state, 1);
+    int ladder_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)ladder_num);
+    // TODO: Better runtime error handling than assert
+    assert(ladder_index != -1 && "find_ladder_mesh_index could not find ladder with given num id (specified in level data)");
+    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].MeshNumber);
+    return 1;
+}
+
+static int find_donut_mesh_index(lua_State* lua_state) {
+    lua_Integer donut_num = luaL_checkinteger(lua_state, 1);
+    int donut_index = FindObject(g_donut_objects, g_donut_object_count, (int)donut_num);
+    // TODO: Better runtime error handling than assert
+    assert(donut_index != -1 && "find_donut_mesh_index could not find donut with given num id (specified in level data)");
+    lua_pushinteger(lua_state, g_donut_objects[donut_index].MeshNumber);
+    return 1;
+}
+
+static int find_vine_mesh_index(lua_State* lua_state) {
+    lua_Integer vine_num = luaL_checkinteger(lua_state, 1);
+    int vine_index = FindObject(g_vine_objects, g_vine_object_count, (int)vine_num);
+    // TODO: Better runtime error handling than assert
+    assert(vine_index != -1 && "find_vine_mesh_index could not find vine with given num id (specified in level data)");
+    lua_pushinteger(lua_state, g_vine_objects[vine_index].MeshNumber);
+    return 1;
+}
+
+static int find_backdrop_mesh_index(lua_State* lua_state) {
+    lua_Integer backdrop_num = luaL_checkinteger(lua_state, 1);
+    int backdrop_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)backdrop_num);
+    // TODO: Better runtime error handling than assert
+    assert(backdrop_index != -1 && "find_backdrop_mesh_index could not find backdrop with given num id (specified in level data)");
+    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].MeshNumber);
+    return 1;
+}
+
+static int find_wall_mesh_index(lua_State* lua_state) {
+    lua_Integer wall_num = luaL_checkinteger(lua_state, 1);
+    int wall_index = FindObject(g_wall_objects, g_wall_object_count, (int)wall_num);
+    // TODO: Better runtime error handling than assert
+    assert(wall_index != -1 && "find_wall_mesh_index could not find wall with given num id (specified in level data)");
+    lua_pushinteger(lua_state, g_wall_objects[wall_index].MeshNumber);
+    return 1;
 }
 
 static void RegisterLuaScriptFunctions(lua_State* lua_state) {
@@ -1135,8 +1230,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     // TODO: Remove the word "script" when exposing these functions?
     lua_pushcfunction(lua_state, script_selected_mesh_change_mesh);
     lua_setglobal(lua_state, "script_selected_mesh_change_mesh");
-    lua_pushcfunction(lua_state, script_selected_mesh_set_identity_matrix);
-    lua_setglobal(lua_state, "script_selected_mesh_set_identity_matrix");
+    lua_pushcfunction(lua_state, set_identity_mesh_matrix);
+    lua_setglobal(lua_state, "set_identity_mesh_matrix");
     lua_pushcfunction(lua_state, script_selected_mesh_set_perspective_matrix);
     lua_setglobal(lua_state, "script_selected_mesh_set_perspective_matrix");
     lua_pushcfunction(lua_state, script_selected_mesh_translate_matrix);
@@ -1255,12 +1350,40 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
     lua_pushcfunction(lua_state, script_select_object_mesh);
+
     lua_setglobal(lua_state, "select_object_mesh");
     lua_pushcfunction(lua_state, script_delete_mesh);
     lua_setglobal(lua_state, "delete_mesh");
     lua_pushcfunction(lua_state, script_set_perspective);
     lua_setglobal(lua_state, "set_perspective");
     lua_pushcfunction(lua_state, script_select_platform);
+
+    lua_pushcfunction(lua_state, get_platform_mesh_index);
+    lua_setglobal(lua_state, "get_platform_mesh_index");
+    lua_pushcfunction(lua_state, get_ladder_mesh_index);
+    lua_setglobal(lua_state, "get_ladder_mesh_index");
+    lua_pushcfunction(lua_state, get_donut_mesh_index);
+    lua_setglobal(lua_state, "get_donut_mesh_index");
+    lua_pushcfunction(lua_state, get_vine_mesh_index);
+    lua_setglobal(lua_state, "get_vine_mesh_index");
+    lua_pushcfunction(lua_state, get_backdrop_mesh_index);
+    lua_setglobal(lua_state, "get_backdrop_mesh_index");
+    lua_pushcfunction(lua_state, get_wall_mesh_index);
+    lua_setglobal(lua_state, "get_wall_mesh_index");
+
+    lua_pushcfunction(lua_state, find_platform_mesh_index);
+    lua_setglobal(lua_state, "find_platform_mesh_index");
+    lua_pushcfunction(lua_state, find_ladder_mesh_index);
+    lua_setglobal(lua_state, "find_ladder_mesh_index");
+    lua_pushcfunction(lua_state, find_donut_mesh_index);
+    lua_setglobal(lua_state, "find_donut_mesh_index");
+    lua_pushcfunction(lua_state, find_vine_mesh_index);
+    lua_setglobal(lua_state, "find_vine_mesh_index");
+    lua_pushcfunction(lua_state, find_backdrop_mesh_index);
+    lua_setglobal(lua_state, "find_backdrop_mesh_index");
+    lua_pushcfunction(lua_state, find_wall_mesh_index);
+    lua_setglobal(lua_state, "find_wall_mesh_index");
+
     lua_setglobal(lua_state, "select_platform");
     lua_pushcfunction(lua_state, script_select_ladder);
     lua_setglobal(lua_state, "select_ladder");

@@ -103,7 +103,7 @@ local function DrawFire_()
         local iBY = g_target_pos_y + math.random(1, 50) / 50;
 
         select_object_mesh(g_blast_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_blast_mesh_index);
         script_selected_mesh_scale_matrix(8, 8, 1);
 
         if g_frames_since_beam_started & 4 ~= 0 then
@@ -115,7 +115,7 @@ local function DrawFire_()
     end
 
     select_object_mesh(g_beam_1_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_beam_1_mesh_index);
     script_selected_mesh_translate_matrix(0.5, 0, 0);
     script_selected_mesh_scale_matrix(g_gun_to_target_distance, 1, 1);
     script_selected_mesh_rotate_matrix_z(g_gun_tilt_rotation);
@@ -124,7 +124,7 @@ local function DrawFire_()
     set_object_visual_data(Module.BeamColorTextureResourceIndex, 1);
 
     select_object_mesh(g_beam_2_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_beam_2_mesh_index);
     script_selected_mesh_rotate_matrix_x(g_frames_since_beam_started * 34);
     script_selected_mesh_translate_matrix(0.5, 0, 0);
     script_selected_mesh_scale_matrix(g_gun_to_target_distance, 3, 2);

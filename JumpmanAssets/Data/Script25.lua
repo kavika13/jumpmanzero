@@ -152,7 +152,7 @@ local function MoveSplashParticles_()
         else
             is_any_particle_visible = true;
             select_object_mesh(g_splash_particle_mesh_indices[iLoop]);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(g_splash_particle_mesh_indices[iLoop]);
 
             if iLoop & 1 then
                 script_selected_mesh_scale_matrix(3, 2, 1);
@@ -426,7 +426,7 @@ local function ProgressLevel_(game_input)
         end
 
         select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_swim_animation_mesh_indices[g_swim_animation_frame]);
         script_selected_mesh_rotate_matrix_z(g_swim_rotation_angle);
         script_selected_mesh_translate_matrix(iDrawX, iDrawY + 5, 2);
         set_object_visual_data(resources.TextureJumpman, 1);

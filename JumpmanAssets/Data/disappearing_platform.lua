@@ -105,7 +105,8 @@ local function DrawStatus_()
         set_script_selected_level_object_y2(0 - get_script_selected_level_object_y2());
     end
 
-    script_selected_mesh_set_identity_matrix();
+    local platform_mesh_index = get_platform_mesh_index(Module.ObjectIndex);
+    set_identity_mesh_matrix(platform_mesh_index);
     script_selected_mesh_translate_matrix(0, 0, g_current_pos_offset_z);
 
     if g_current_move_direction == 0 then

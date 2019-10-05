@@ -183,7 +183,7 @@ local function ShowPlayerGrooving_(iAT)
 
     iFrame = resources.MeshDance1 + iFrame;
     script_selected_mesh_change_mesh(iFrame);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_object_mesh_indices[1]);
     script_selected_mesh_translate_matrix(80 + iWiggle, 85, 1.5);
     set_object_visual_data(resources.TextureJumpman, 1);
 end
@@ -201,7 +201,7 @@ local function ShowPlayerLeaving_(iAT)
     select_object_mesh(g_object_mesh_indices[1]);
 
     script_selected_mesh_change_mesh(iFrame);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_object_mesh_indices[1]);
     script_selected_mesh_translate_matrix(80 - iAT, 85, 1.5);
     set_object_visual_data(resources.TextureJumpman, 1);
 end
@@ -242,7 +242,7 @@ local function ShowBear_(iAT)
     select_object_mesh(g_object_mesh_indices[1]);
 
     script_selected_mesh_change_mesh(iFrame);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_object_mesh_indices[1]);
     script_selected_mesh_scale_matrix(1, 1, 1.3);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 7, 1.5);
     set_object_visual_data(resources.TextureFur, 1);
@@ -280,7 +280,7 @@ local function ShowSheep_(iAT)
 
         select_object_mesh(g_object_mesh_indices[iSheep]);
         script_selected_mesh_change_mesh(iFrame);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_object_mesh_indices[iSheep]);
         script_selected_mesh_translate_matrix(iSheepX, iSheepY, 2);
         set_object_visual_data(resources.TextureSheep, 1);
     end
@@ -300,7 +300,7 @@ local function ShowTurtles_(iAT)
         local iTurtY = 84;
 
         select_object_mesh(g_object_mesh_indices[iTurt]);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_object_mesh_indices[iTurt]);
 
         if iTurtX < 101 then
             iFrame = resources.MeshTurtGR1 + Cycle_(iAT, 90, 0, 1);
@@ -342,7 +342,7 @@ local function ShowDonuts_(iAT)
         local iDonY = g_current_pos_y;
 
         select_object_mesh(g_object_mesh_indices[iDon]);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_object_mesh_indices[iDon]);
         script_selected_mesh_scale_matrix(0.5, 0.5, 1);
 
         local iFrame = 0;
@@ -369,7 +369,7 @@ end
 
 local function ShowDino_(iAT)
     select_object_mesh(g_object_mesh_indices[0]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_object_mesh_indices[0]);
     script_selected_mesh_scale_matrix(1.3, 1.3, 1.3);
 
     g_current_pos_x = 80;
@@ -431,7 +431,7 @@ local function JumpmanChase_(iAT)
     g_current_pos_x = (iAT * 4 / 5) + 40;
 
     select_object_mesh(g_object_mesh_indices[0]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_object_mesh_indices[0]);
     script_selected_mesh_scale_matrix(1, 1, 1);
     script_selected_mesh_change_mesh(iFrame);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 3);
@@ -444,7 +444,7 @@ local function ShowRocket_(iAT)
 
     select_object_mesh(g_object_mesh_indices[0]);
     script_selected_mesh_change_mesh(resources.MeshRocket);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_object_mesh_indices[0]);
     script_selected_mesh_rotate_matrix_y(iAT / 3);
     script_selected_mesh_rotate_matrix_z(iRZ);
     script_selected_mesh_scale_matrix(2, 2, 2);
@@ -454,7 +454,7 @@ local function ShowRocket_(iAT)
     for iBlip = 1, 14 do
         select_object_mesh(g_object_mesh_indices[iBlip]);
         script_selected_mesh_change_mesh(resources.MeshSquare);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_object_mesh_indices[iBlip]);
         local iSize = math.random(3, 6);
         script_selected_mesh_scale_matrix(iSize, iSize, 1);
 

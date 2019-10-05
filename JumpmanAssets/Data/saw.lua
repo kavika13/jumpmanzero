@@ -175,7 +175,7 @@ function Module.update()
     end
 
     select_object_mesh(g_saw_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_saw_mesh_index);
     script_selected_mesh_rotate_matrix_z(g_current_rotation_z_degrees);
     script_selected_mesh_scale_matrix(0.75, 0.75, 0.75);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 4, g_current_pos_z - 0.1);

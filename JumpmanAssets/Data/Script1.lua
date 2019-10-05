@@ -66,24 +66,26 @@ local g_object_3_animation_frame = 0;
 local g_is_object_4_moving = false;
 local g_object_4_animation_frame = 0;
 
-local function MoveLadder_(iLadder, iPos)
-    select_ladder(iLadder);
+local function MoveLadder_(iLadderNum, iPos)
+    select_ladder(iLadderNum);
     local iX = get_script_selected_level_object_x1() + 508;
     local iY = (get_script_selected_level_object_y1() + get_script_selected_level_object_y2()) / 2;
     local iZ = get_script_selected_level_object_z1();
 
-    script_selected_mesh_set_identity_matrix();
+    local ladder_mesh_index = find_ladder_mesh_index(iLadderNum);
+    set_identity_mesh_matrix(ladder_mesh_index);
     script_selected_mesh_translate_matrix(0 - iX, 0 - iY, 0 - iZ);
     script_selected_mesh_rotate_matrix_z(iPos * 2);
     script_selected_mesh_rotate_matrix_x(iPos);
     script_selected_mesh_translate_matrix(iX, iY, iZ - iPos);
 end
 
-local function MovePlatform_(iPlat, iRotate, iTran, get_platform_x_value, get_platform_y_value)
-    select_platform(iPlat);
+local function MovePlatform_(iPlatNum, iRotate, iTran, get_platform_x_value, get_platform_y_value)
+    select_platform(iPlatNum);
     local iPlatX = get_platform_x_value();
     local iPlatY = get_platform_y_value();
-    script_selected_mesh_set_identity_matrix();
+    local platform_mesh_index = find_platform_mesh_index(iPlatNum);
+    set_identity_mesh_matrix(platform_mesh_index);
     script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
     script_selected_mesh_rotate_matrix_z(iRotate);
     script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
@@ -102,8 +104,7 @@ local function ProgressLevel_(game_input)
 
         MovePlatform_(1, 0 - g_object_1_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
         MovePlatform_(2, g_object_1_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_1_animation_frame > 56 then
@@ -124,8 +125,7 @@ local function ProgressLevel_(game_input)
 
         MovePlatform_(3, 0 - g_object_2_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
         MovePlatform_(4, g_object_2_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_2_animation_frame > 56 then
@@ -146,8 +146,7 @@ local function ProgressLevel_(game_input)
         g_object_3_animation_frame = g_object_3_animation_frame + 1;
 
         MoveLadder_(1, g_object_3_animation_frame);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_3_animation_frame == 80 then
@@ -161,8 +160,7 @@ local function ProgressLevel_(game_input)
         g_object_4_animation_frame = g_object_4_animation_frame + 1;
 
         MoveLadder_(2, g_object_4_animation_frame);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_4_animation_frame == 80 then

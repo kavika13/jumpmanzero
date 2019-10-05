@@ -46,7 +46,7 @@ local function DoBlasting()
         local iBR = math.random(1, 360);
         local iSize = math.random(10, 13);
 
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_blast_particle_mesh_indices[iTemp]);
         script_selected_mesh_scale_matrix(iSize, iSize, 1);
         script_selected_mesh_rotate_matrix_z(iBR);
 
@@ -111,7 +111,8 @@ function Module.update()
     local iPX = Module.GameLogic.get_player_current_position_x();
 
     local iX = get_script_selected_level_object_x1();
-    script_selected_mesh_set_identity_matrix();
+    local donut_mesh_index = find_donut_mesh_index(Module.DonutIndex);
+    set_identity_mesh_matrix(donut_mesh_index);  -- TODO: select_object_mesh is called above for blast particles. Is this still the right object?
     script_selected_mesh_scale_matrix(1, 1, 5);
     script_selected_mesh_translate_matrix(0 - iX, 0, 0 - iDist);
     script_selected_mesh_rotate_matrix_y((iPX - iX) * 360 / Module.PlayAreaCircumference);

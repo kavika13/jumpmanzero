@@ -133,7 +133,7 @@ local function ProgressLevel_(game_input)
     ControlFrog_();
 
     select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
     script_selected_mesh_scale_matrix(2, 2, 2);
     script_selected_mesh_translate_matrix(23, 175, 18);
     set_object_visual_data(resources.TextureFrog, 1);

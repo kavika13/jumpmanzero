@@ -57,7 +57,8 @@ local function MovePyramid_()
 
     while iPic < 6 do
         select_picture(iPic + 200);
-        script_selected_mesh_set_identity_matrix();
+        local picture_mesh_index = find_backdrop_mesh_index(iPic + 200);
+        set_identity_mesh_matrix(picture_mesh_index);
         script_selected_mesh_translate_matrix(0, -65, -35);
         iPic = iPic + 1;
     end

@@ -27,14 +27,14 @@ local function ShowRemaining_()
 
     -- select_object_mesh(g_jumpman_hud_background_icon);
     -- set_object_visual_data(square_icon_texture_resource_index, 0);
-    -- script_selected_mesh_set_identity_matrix();
+    -- set_identity_mesh_matrix(g_jumpman_hud_background_icon);
     -- script_selected_mesh_scale_matrix(16, 8, 1);
     -- script_selected_mesh_translate_matrix(44, -34, 92);
     -- script_selected_mesh_set_perspective_matrix();
 
     select_object_mesh(g_jumpman_icon_mesh_index);
     set_object_visual_data(0, 1);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_jumpman_icon_mesh_index);
     script_selected_mesh_scale_matrix(0.5, 0.5, 0.5);
     script_selected_mesh_translate_matrix(40, -34, 90);
     script_selected_mesh_set_perspective_matrix();
@@ -65,7 +65,7 @@ local function ShowPerformance_(game_input, lives_remaining)
 
         if iNum == lives_remaining and lives_remaining > 0 then
             set_object_visual_data(letter_texture_resource_index, 1);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1]);
             script_selected_mesh_scale_matrix(0.5, 0.5, 0.2);
             script_selected_mesh_translate_matrix(47, -33, 90);
             script_selected_mesh_set_perspective_matrix();
@@ -77,7 +77,7 @@ local function ShowPerformance_(game_input, lives_remaining)
 
         if iNum == fps_hundreds_digit and game_input.debug_action.is_pressed then
             set_object_visual_data(letter_texture_resource_index, 1);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(g_fps_first_number_mesh_indices[iNum + 1]);
             script_selected_mesh_translate_matrix(-40, 30, 90);
             script_selected_mesh_set_perspective_matrix();
         else
@@ -88,7 +88,7 @@ local function ShowPerformance_(game_input, lives_remaining)
 
         if iNum == fps_tens_digit and game_input.debug_action.is_pressed then
             set_object_visual_data(letter_texture_resource_index, 1);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(g_fps_second_number_mesh_indices[iNum + 1]);
             script_selected_mesh_translate_matrix(-34, 30, 90);
             script_selected_mesh_set_perspective_matrix();
         else
@@ -99,7 +99,7 @@ local function ShowPerformance_(game_input, lives_remaining)
 
         if iNum == fps_ones_digit and game_input.debug_action.is_pressed then
             set_object_visual_data(letter_texture_resource_index, 1);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(g_fps_third_number_mesh_indices[iNum + 1]);
             script_selected_mesh_translate_matrix(-28, 30, 90);
             script_selected_mesh_set_perspective_matrix();
         else
@@ -124,7 +124,7 @@ local function ShowLevelTitleAnimation_(animation_time)
             select_object_mesh(letter_mesh_index);
 
             if iX > -90 and iX < 90 then
-                script_selected_mesh_set_identity_matrix();
+                set_identity_mesh_matrix(letter_mesh_index);
                 script_selected_mesh_scale_matrix(0.16, 0.16, 0.16);
                 script_selected_mesh_translate_matrix(0, 0, 5);
                 script_selected_mesh_rotate_matrix_y(iX);

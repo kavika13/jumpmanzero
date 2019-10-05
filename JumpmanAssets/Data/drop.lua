@@ -69,12 +69,12 @@ function Module.update()
         end
 
         select_object_mesh(g_drop_1_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_drop_1_mesh_index);
         script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 8);
         set_object_visual_data(Module.DropTextureResourceIndices[1], 1);
 
         select_object_mesh(g_drop_2_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_drop_2_mesh_index);
         script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 9);
         set_object_visual_data(Module.DropTextureResourceIndices[1], 1);
     end
@@ -92,12 +92,12 @@ function Module.update()
         end
 
         select_object_mesh(g_drop_1_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_drop_1_mesh_index);
         script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 8);
         set_object_visual_data(Module.DropTextureResourceIndices[1 + g_animation_frame], 1);
 
         select_object_mesh(g_drop_2_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_drop_2_mesh_index);
         script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 9);
         set_object_visual_data(Module.DropTextureResourceIndices[1 + g_animation_frame], 1);
     end

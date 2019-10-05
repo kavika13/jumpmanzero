@@ -83,7 +83,7 @@ local function ShowAlien_()
     g_eye_waggle_y2 = AdjustEyeWaggling_(g_eye_waggle_y2);
 
     select_object_mesh(g_eye_1_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_eye_1_mesh_index);
     script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(g_eye_waggle_x2 - 1, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
@@ -91,7 +91,7 @@ local function ShowAlien_()
     set_object_visual_data(Module.EyeTextureResourceIndex, 1);
 
     select_object_mesh(g_eye_2_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_eye_2_mesh_index);
     script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(1 + g_eye_waggle_x2, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
@@ -99,7 +99,7 @@ local function ShowAlien_()
     set_object_visual_data(Module.EyeTextureResourceIndex, 1);
 
     select_object_mesh(g_alien_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_alien_mesh_index);
     script_selected_mesh_rotate_matrix_y(10);
 
     if g_frames_since_level_start & 8 then
@@ -114,7 +114,7 @@ local function ShowAlien_()
     set_object_visual_data(Module.AlienTextureResourceIndex, 1);
 
     select_object_mesh(g_ship_base_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_ship_base_mesh_index);
     script_selected_mesh_scale_matrix(11, 11, 11);
     script_selected_mesh_rotate_matrix_y(g_current_rotation_y);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
@@ -122,7 +122,7 @@ local function ShowAlien_()
     set_object_visual_data(Module.ShipTextureResourceIndex, 1);
 
     select_object_mesh(g_ship_top_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_ship_top_mesh_index);
     script_selected_mesh_scale_matrix(12, 14, 14);
     script_selected_mesh_rotate_matrix_y(g_current_rotation_y);
     script_selected_mesh_rotate_matrix_z(iRotateZ);

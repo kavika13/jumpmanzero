@@ -111,7 +111,7 @@ local function ProgressLevel_(game_input)
 
         for letter_index, current_mesh_index in ipairs(g_game_over_letter_mesh_indices) do
             select_object_mesh(current_mesh_index);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(current_mesh_index);
             script_selected_mesh_scale_matrix(2, 2, 1);
 
             local iTemp = g_letter_drop_animation_timer + letter_index * 5 - 50;
@@ -138,7 +138,7 @@ local function ProgressLevel_(game_input)
     g_game_logic.set_player_current_position_y(70 + g_camera_pan_animation_timer);
 
     select_object_mesh(g_jumpman_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_jumpman_mesh_index);
     script_selected_mesh_scale_matrix(3, 3, 3);
     script_selected_mesh_translate_matrix(80, 80, 0);
     set_object_visual_data(resources.TextureJumpman, 1);

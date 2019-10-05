@@ -28,7 +28,7 @@ local function DrawParticles()
         local iZ = (5 * Module.PercentComplete) - 500;
 
         select_object_mesh(iDM);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(iDM);
         script_selected_mesh_rotate_matrix_y((100 - Module.PercentComplete) * math.sin(iBit * math.pi / 180.0) * 10);
         script_selected_mesh_scale_matrix(4, 4, 4);
         script_selected_mesh_translate_matrix(iDX, iDY, iZ);

@@ -71,7 +71,7 @@ end
 local function ShowBlob_()
     local iPX = Module.GameLogic.get_player_current_position_x();
     select_object_mesh(g_blob_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_blob_mesh_index);
     script_selected_mesh_scale_matrix(0.6, 0.5, 0.8);
     script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
     script_selected_mesh_translate_matrix(0, 0, -75);

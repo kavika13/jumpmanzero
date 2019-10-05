@@ -134,7 +134,8 @@ local function MoveChain_(all_jumpers)
             g_claw_current_pos_y = g_claw_current_pos_y - 1;
         end
 
-        script_selected_mesh_set_identity_matrix();
+        local donut_mesh_index = get_donut_mesh_index(g_rescued_donut_index);
+        set_identity_mesh_matrix(donut_mesh_index);
         script_selected_mesh_translate_matrix(
             g_claw_current_pos_x - get_script_selected_level_object_x1(),
             g_claw_current_pos_y - get_script_selected_level_object_y1(),
@@ -143,7 +144,7 @@ local function MoveChain_(all_jumpers)
 
         if iOldX == g_claw_current_pos_x and iOldY == g_claw_current_pos_y then
             set_script_selected_level_object_visible(1);
-            script_selected_mesh_set_identity_matrix();
+            set_identity_mesh_matrix(donut_mesh_index);
             g_current_status = status_type.GHOSTING_PLAYER;
             g_time_until_next_grab = 50;
         end
@@ -203,7 +204,7 @@ end
 
 local function DrawClaw_(current_animation_frame, iAngle, iSpread)
     select_object_mesh(g_claw_mesh_indices[current_animation_frame]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_claw_mesh_indices[current_animation_frame]);
     script_selected_mesh_translate_matrix(0, -5, 0);
     script_selected_mesh_rotate_matrix_z(iSpread);
     script_selected_mesh_rotate_matrix_y(iAngle);
@@ -213,7 +214,7 @@ end
 
 local function DrawChain_()
     select_object_mesh(g_chain_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_chain_mesh_index);
     script_selected_mesh_translate_matrix(0, -0.5, 0);
     script_selected_mesh_scale_matrix(0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
     script_selected_mesh_translate_matrix(g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);

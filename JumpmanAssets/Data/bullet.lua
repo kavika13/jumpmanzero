@@ -211,14 +211,14 @@ function Module.update()
     end
 
     select_object_mesh(g_mesh_index_1);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_mesh_index_1);
     script_selected_mesh_rotate_matrix_x(g_current_rotation_x);
     script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
     set_object_visual_data(Module.TextureIndex, 1);
 
     select_object_mesh(g_mesh_index_2);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_mesh_index_2);
     script_selected_mesh_rotate_matrix_y(90);
     script_selected_mesh_rotate_matrix_x(g_current_rotation_x);
     script_selected_mesh_rotate_matrix_z(g_current_rotation_z);

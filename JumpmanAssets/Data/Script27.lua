@@ -123,8 +123,9 @@ local function RingPlatforms_()
         g_game_logic.reset_perspective();
     end
 
-    select_picture(100);
-    script_selected_mesh_set_identity_matrix();
+    select_picture(100);  -- TODO: Use constant
+    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant
+    set_identity_mesh_matrix(backdrop_mesh_index);
     script_selected_mesh_translate_matrix(iPX - 80, 0, 0);
 
     local iPlats = get_platform_object_count();
@@ -135,44 +136,48 @@ local function RingPlatforms_()
         local x2 = get_script_selected_level_object_x2();
         local iAve = (x1 + x2) / 2;
 
-        script_selected_mesh_set_identity_matrix();
+        local platform_mesh_index = get_platform_mesh_index(iPlat);
+        set_identity_mesh_matrix(platform_mesh_index);
         script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
         script_selected_mesh_scale_matrix(1.64, 1, 1);
         script_selected_mesh_rotate_matrix_y((iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         script_selected_mesh_translate_matrix(iPX, 0, 75);
     end
 
-    iPlats = get_vine_object_count();
+    local iVines = get_vine_object_count();
 
-    for iPlat = 0, iPlats - 1 do
-        abs_vine(iPlat);
+    for iVine = 0, iVines - 1 do
+        abs_vine(iVine);
         local iAve = get_script_selected_level_object_x1();
 
-        script_selected_mesh_set_identity_matrix();
+        local vine_mesh_index = get_vine_mesh_index(iVine);
+        set_identity_mesh_matrix(vine_mesh_index);
         script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
         script_selected_mesh_rotate_matrix_y((iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         script_selected_mesh_translate_matrix(iPX, 0, 75);
     end
 
-    iPlats = get_ladder_object_count();
+    local iLadders = get_ladder_object_count();
 
-    for iPlat = 0, iPlats - 1 do
-        abs_ladder(iPlat);
+    for iLadder = 0, iLadders - 1 do
+        abs_ladder(iLadder);
         local iAve = get_script_selected_level_object_x1();
 
-        script_selected_mesh_set_identity_matrix();
+        local ladder_mesh_index = get_ladder_mesh_index(iLadder);
+        set_identity_mesh_matrix(ladder_mesh_index);
         script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
         script_selected_mesh_rotate_matrix_y((iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         script_selected_mesh_translate_matrix(iPX, 0, 75);
     end
 
-    iPlats = get_donut_object_count();
+    local iDonuts = get_donut_object_count();
 
-    for iPlat = 0, iPlats - 1 do
-        abs_donut(iPlat);
+    for iDonut = 0, iDonuts - 1 do
+        abs_donut(iDonut);
         local iAve = get_script_selected_level_object_x1();
 
-        script_selected_mesh_set_identity_matrix();
+        local donut_mesh_index = get_donut_mesh_index(iDonut);
+        set_identity_mesh_matrix(donut_mesh_index);
         script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
         script_selected_mesh_rotate_matrix_y((iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         script_selected_mesh_translate_matrix(iPX, 0, 75);
@@ -270,7 +275,7 @@ local function ShowAlien_()
     iRotateZ = iRotateZ + g_ship_sink_amount;
 
     select_object_mesh(g_eye_1_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_eye_1_mesh_index);
     script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(g_eye_waggle_x2 - 1, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
@@ -278,7 +283,7 @@ local function ShowAlien_()
     set_object_visual_data(resources.TextureBrightRed, 1);;
 
     select_object_mesh(g_eye_2_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_eye_2_mesh_index);
     script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(1 + g_eye_waggle_x2, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
@@ -286,7 +291,7 @@ local function ShowAlien_()
     set_object_visual_data(resources.TextureBrightRed, 1);
 
     select_object_mesh(g_alien_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_alien_mesh_index);
 
     if g_frames_since_level_start & 8 then
         script_selected_mesh_change_mesh(resources.MeshAlien1);
@@ -302,7 +307,7 @@ local function ShowAlien_()
     iWiggleX = iWiggleX + g_ship_sink_amount / 2;
 
     select_object_mesh(g_ship_base_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_ship_base_mesh_index);
     script_selected_mesh_scale_matrix(11, 11, 11);
     script_selected_mesh_rotate_matrix_y(g_ship_y_rotation);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
@@ -315,7 +320,7 @@ local function ShowAlien_()
     iWiggleX = iWiggleX - g_ship_sink_amount;
 
     select_object_mesh(g_ship_top_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_ship_top_mesh_index);
     script_selected_mesh_scale_matrix(12, 14, 14);
     script_selected_mesh_rotate_matrix_y(g_ship_y_rotation);
     script_selected_mesh_rotate_matrix_z(iRotateZ);

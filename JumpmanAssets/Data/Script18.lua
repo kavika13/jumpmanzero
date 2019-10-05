@@ -84,11 +84,12 @@ local function ShowWorking_(game_input)
 
     if g_work_animation_frame > 5 then
         select_object_mesh(g_jumpman_work_1_mesh_index);
+        set_identity_mesh_matrix(g_jumpman_work_1_mesh_index);
     else
         select_object_mesh(g_jumpman_work_2_mesh_index);
+        set_identity_mesh_matrix(g_jumpman_work_2_mesh_index);
     end
 
-    script_selected_mesh_set_identity_matrix();
     script_selected_mesh_translate_matrix(iPX, iPY + 6, iPZ + 1);
     set_object_visual_data(resources.TextureJumpman, 1);
 end
@@ -197,14 +198,14 @@ function ProgressLevel_(game_input)
 
     if g_is_disarm_hud_visible then
         select_object_mesh(g_message_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_message_mesh_index);
         script_selected_mesh_scale_matrix(20, 20, 1);
         script_selected_mesh_translate_matrix(0 - 54, 0 - 39, 120);
         script_selected_mesh_set_perspective_matrix();
         set_object_visual_data(resources.TextureDisarming, 1);
 
         select_object_mesh(g_progress_bar_mesh_index);
-        script_selected_mesh_set_identity_matrix();
+        set_identity_mesh_matrix(g_progress_bar_mesh_index);
         local iProg = (100 - g_disarm_progress) * 16.5 / 100;
         script_selected_mesh_scale_matrix(iProg, 3.8, 1);
         script_selected_mesh_translate_matrix((0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);

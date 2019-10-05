@@ -103,7 +103,7 @@ function Module.update()
     end
 
     select_object_mesh(g_animation_mesh_indices[g_animation_frame_index]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_frame_index]);
     script_selected_mesh_translate_matrix(g_current_pos_x + iAdapt, g_current_pos_y + 5, 0 - 0.25);
     set_object_visual_data(Module.TextureResourceIndex, 1);
 

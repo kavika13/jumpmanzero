@@ -64,9 +64,10 @@ local g_background_rotation = 0;
 local function RotateBack_()
     g_background_rotation = g_background_rotation - 0.5;
 
-    for iPic = 200, 203 do
-        select_picture(iPic);
-        script_selected_mesh_set_identity_matrix();
+    for iBackdropNum = 200, 203 do  -- TODO: Use constants
+        select_picture(iBackdropNum);
+        local backdrop_mesh_index = find_backdrop_mesh_index(iBackdropNum);
+        set_identity_mesh_matrix(backdrop_mesh_index);
         script_selected_mesh_translate_matrix(-80, -40, 0);
         script_selected_mesh_scale_matrix(1.1, 1.1, 1);
         script_selected_mesh_rotate_matrix_z(g_background_rotation);

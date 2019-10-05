@@ -206,7 +206,7 @@ function Module.update(game_input)
     MoveShark_(game_input);
 
     select_object_mesh(g_animation_mesh_indices[g_current_animation_frame_index]);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_animation_mesh_indices[g_current_animation_frame_index]);
     script_selected_mesh_translate_matrix(Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
     set_object_visual_data(Module.TextureResourceIndex, 1);
 end

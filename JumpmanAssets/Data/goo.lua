@@ -284,7 +284,7 @@ local function DrawHorizontal_()
     end
 
     select_object_mesh(g_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_mesh_index);
 
     local iDX = g_current_pos_x[2] - g_current_pos_x[1];
     local iDY = g_current_pos_y[2] - g_current_pos_y[1];
@@ -321,7 +321,7 @@ local function DrawVertical_()
     end
 
     select_object_mesh(g_mesh_index);
-    script_selected_mesh_set_identity_matrix();
+    set_identity_mesh_matrix(g_mesh_index);
     script_selected_mesh_scale_matrix(g_current_pos_y[1] - g_current_pos_y[2], 1.3, 3);
     script_selected_mesh_rotate_matrix_z(90);
     script_selected_mesh_translate_matrix(g_current_pos_x[1] + 0.3, (g_current_pos_y[1] + g_current_pos_y[2]) / 2, 5);
