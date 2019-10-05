@@ -1624,9 +1624,10 @@ local function AnimateDying_(game_input)
     end
 
     if g_player_dying_animation_state == player_dying_animation_state.SPINNING_STARS then
-        select_object_mesh(get_player_mesh_index(player_mesh.STARS));
-        set_identity_mesh_matrix(get_player_mesh_index(player_mesh.STARS));
-        script_selected_mesh_rotate_matrix_y(g_player_absolute_frame_count * 180.0 / 50.0);
+        local stars_mesh_index = get_player_mesh_index(player_mesh.STARS);
+        select_object_mesh(stars_mesh_index);
+        set_identity_mesh_matrix(stars_mesh_index);
+        rotate_y_mesh_matrix(stars_mesh_index, g_player_absolute_frame_count * 180.0 / 50.0);
         script_selected_mesh_translate_matrix(
             g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z + 1);
         set_object_visual_data(0, 1);

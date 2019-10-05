@@ -445,7 +445,7 @@ local function ShowRocket_(iAT)
     select_object_mesh(g_object_mesh_indices[0]);
     set_mesh_to_mesh(g_object_mesh_indices[0], resources.MeshRocket);
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
-    script_selected_mesh_rotate_matrix_y(iAT / 3);
+    rotate_y_mesh_matrix(g_object_mesh_indices[0], iAT / 3);
     script_selected_mesh_rotate_matrix_z(iRZ);
     scale_mesh_matrix(g_object_mesh_indices[0], 2, 2, 2);
     script_selected_mesh_translate_matrix(130, g_current_pos_y, 10);
@@ -465,7 +465,7 @@ local function ShowRocket_(iAT)
         local iBX = math.sin(iBA * math.pi / 180.0) * iBD;
         local iBY = math.cos(iBA * math.pi / 180.0) * iBD;
         script_selected_mesh_translate_matrix(iBX, iBY - 15, 0);
-        script_selected_mesh_rotate_matrix_y(10);
+        rotate_y_mesh_matrix(g_object_mesh_indices[iBlip], 10);
         script_selected_mesh_rotate_matrix_z(iRZ);
 
         script_selected_mesh_translate_matrix(132.5, g_current_pos_y, 12);

@@ -111,11 +111,13 @@ function Module.update()
     local iPX = Module.GameLogic.get_player_current_position_x();
 
     local iX = get_script_selected_level_object_x1();
+
+    -- TODO: select_object_mesh is called above for blast particles. Is this still the right object?
     local donut_mesh_index = find_donut_mesh_index(Module.DonutIndex);
-    set_identity_mesh_matrix(donut_mesh_index);  -- TODO: select_object_mesh is called above for blast particles. Is this still the right object?
+    set_identity_mesh_matrix(donut_mesh_index);
     scale_mesh_matrix(donut_mesh_index, 1, 1, 5);
     script_selected_mesh_translate_matrix(0 - iX, 0, 0 - iDist);
-    script_selected_mesh_rotate_matrix_y((iPX - iX) * 360 / Module.PlayAreaCircumference);
+    rotate_y_mesh_matrix(donut_mesh_index, (iPX - iX) * 360 / Module.PlayAreaCircumference);
     script_selected_mesh_translate_matrix(iPX, iY - get_script_selected_level_object_y1(), iZ);
     set_object_visual_data(Module.DonutTextureResourceIndex, 1);
 end

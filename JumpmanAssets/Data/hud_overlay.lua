@@ -127,7 +127,7 @@ local function ShowLevelTitleAnimation_(animation_time)
                 set_identity_mesh_matrix(letter_mesh_index);
                 scale_mesh_matrix(letter_mesh_index, 0.16, 0.16, 0.16);
                 script_selected_mesh_translate_matrix(0, 0, 5);
-                script_selected_mesh_rotate_matrix_y(iX);
+                rotate_y_mesh_matrix(letter_mesh_index, iX);
                 script_selected_mesh_translate_matrix(0, 0, 8);
                 undo_camera_perspective_on_mesh_matrix(letter_mesh_index);
                 set_object_visual_data(get_loaded_texture_count() - 1, 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?

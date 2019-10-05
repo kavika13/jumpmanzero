@@ -88,7 +88,7 @@ local function SpinClock_(iPic)
     local backdrop_mesh_index = find_backdrop_mesh_index(iPic);
     set_identity_mesh_matrix(backdrop_mesh_index);
     script_selected_mesh_translate_matrix(0 - iObjX, 0, 0);
-    script_selected_mesh_rotate_matrix_y(g_current_clock_hand_rotation);
+    rotate_y_mesh_matrix(backdrop_mesh_index, g_current_clock_hand_rotation);
     script_selected_mesh_translate_matrix(iObjX, 0, 7);
     set_object_visual_data(resources.TextureStopWatch, 1);
 end

@@ -100,7 +100,7 @@ local function ShowAlien_()
 
     select_object_mesh(g_alien_mesh_index);
     set_identity_mesh_matrix(g_alien_mesh_index);
-    script_selected_mesh_rotate_matrix_y(10);
+    rotate_y_mesh_matrix(g_alien_mesh_index, 10);
 
     if g_frames_since_level_start & 8 then
         set_mesh_to_mesh(g_alien_mesh_index, Module.AlienMeshResourceIndices[1]);
@@ -116,7 +116,7 @@ local function ShowAlien_()
     select_object_mesh(g_ship_base_mesh_index);
     set_identity_mesh_matrix(g_ship_base_mesh_index);
     scale_mesh_matrix(g_ship_base_mesh_index, 11, 11, 11);
-    script_selected_mesh_rotate_matrix_y(g_current_rotation_y);
+    rotate_y_mesh_matrix(g_ship_base_mesh_index, g_current_rotation_y);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
     script_selected_mesh_translate_matrix(iBaseX + iWiggleX, g_current_pos_y, iBaseZ + 1);
     set_object_visual_data(Module.ShipTextureResourceIndex, 1);
@@ -124,7 +124,7 @@ local function ShowAlien_()
     select_object_mesh(g_ship_top_mesh_index);
     set_identity_mesh_matrix(g_ship_top_mesh_index);
     scale_mesh_matrix(g_ship_top_mesh_index, 12, 14, 14);
-    script_selected_mesh_rotate_matrix_y(g_current_rotation_y);
+    rotate_y_mesh_matrix(g_ship_top_mesh_index, g_current_rotation_y);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
     script_selected_mesh_translate_matrix(iBaseX + iWiggleX, g_current_pos_y - 3, iBaseZ + 1);
     set_object_visual_data(Module.GlassTextureResourceIndex, 1);

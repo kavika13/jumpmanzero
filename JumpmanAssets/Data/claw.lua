@@ -203,11 +203,12 @@ local function MoveChain_(all_jumpers)
 end
 
 local function DrawClaw_(current_animation_frame, iAngle, iSpread)
-    select_object_mesh(g_claw_mesh_indices[current_animation_frame]);
-    set_identity_mesh_matrix(g_claw_mesh_indices[current_animation_frame]);
+    local anim_mesh_index = g_claw_mesh_indices[current_animation_frame];
+    select_object_mesh(anim_mesh_index);
+    set_identity_mesh_matrix(anim_mesh_index);
     script_selected_mesh_translate_matrix(0, -5, 0);
     script_selected_mesh_rotate_matrix_z(iSpread);
-    script_selected_mesh_rotate_matrix_y(iAngle);
+    rotate_y_mesh_matrix(anim_mesh_index, iAngle);
     script_selected_mesh_translate_matrix(g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
     set_object_visual_data(Module.ClawTextureResourceIndex, 1);
 end

@@ -119,7 +119,7 @@ local function DrawFire_()
     script_selected_mesh_translate_matrix(0.5, 0, 0);
     scale_mesh_matrix(g_beam_1_mesh_index, g_gun_to_target_distance, 1, 1);
     script_selected_mesh_rotate_matrix_z(g_gun_tilt_rotation);
-    script_selected_mesh_rotate_matrix_y(g_gun_pan_rotation);
+    rotate_y_mesh_matrix(g_beam_1_mesh_index, g_gun_pan_rotation);
     script_selected_mesh_translate_matrix(g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
     set_object_visual_data(Module.BeamColorTextureResourceIndex, 1);
 
@@ -129,7 +129,7 @@ local function DrawFire_()
     script_selected_mesh_translate_matrix(0.5, 0, 0);
     scale_mesh_matrix(g_beam_2_mesh_index, g_gun_to_target_distance, 3, 2);
     script_selected_mesh_rotate_matrix_z(g_gun_tilt_rotation);
-    script_selected_mesh_rotate_matrix_y(g_gun_pan_rotation);
+    rotate_y_mesh_matrix(g_beam_2_mesh_index, g_gun_pan_rotation);
     script_selected_mesh_translate_matrix(g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
     set_object_visual_data(Module.BeamTextureResourceIndex, 1);
 end
