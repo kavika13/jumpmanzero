@@ -413,9 +413,10 @@ static int scale_mesh_matrix(lua_State* lua_state) {
     return 0;
 }
 
-static int script_selected_mesh_rotate_matrix_x(lua_State* lua_state) {
-    double arg_degrees = luaL_checknumber(lua_state, 1);
-    RotateMatrixX(g_script_selected_mesh_index, (float)arg_degrees);
+static int rotate_x_mesh_matrix(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    double arg_degrees = luaL_checknumber(lua_state, 2);
+    RotateMatrixX((long)mesh_index_arg, (float)arg_degrees);
     return 0;
 }
 
@@ -1240,8 +1241,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "script_selected_mesh_translate_matrix");
     lua_pushcfunction(lua_state, scale_mesh_matrix);
     lua_setglobal(lua_state, "scale_mesh_matrix");
-    lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_x);
-    lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_x");
+    lua_pushcfunction(lua_state, rotate_x_mesh_matrix);
+    lua_setglobal(lua_state, "rotate_x_mesh_matrix");
     lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_y);
     lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_y");
     lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_z);

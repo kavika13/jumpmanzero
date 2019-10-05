@@ -76,7 +76,7 @@ local function MoveLadder_(iLadderNum, iPos)
     set_identity_mesh_matrix(ladder_mesh_index);
     script_selected_mesh_translate_matrix(0 - iX, 0 - iY, 0 - iZ);
     script_selected_mesh_rotate_matrix_z(iPos * 2);
-    script_selected_mesh_rotate_matrix_x(iPos);
+    rotate_x_mesh_matrix(ladder_mesh_index, iPos);
     script_selected_mesh_translate_matrix(iX, iY, iZ - iPos);
 end
 

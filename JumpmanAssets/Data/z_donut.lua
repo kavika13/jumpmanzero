@@ -52,7 +52,7 @@ local function DoBlasting()
 
         if iTemp > 10 then
             script_selected_mesh_translate_matrix(0, 0, -10);
-            script_selected_mesh_rotate_matrix_x(math.random(1, 90));
+            rotate_x_mesh_matrix(g_blast_particle_mesh_indices[iTemp], math.random(1, 90));
             script_selected_mesh_translate_matrix(0, 0, 10);
         end
 

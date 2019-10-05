@@ -111,7 +111,7 @@ local function ShowJMLetters()
         local iDZ = iZ + iHeight;
 
         if iHeight > 3 then
-            script_selected_mesh_rotate_matrix_x((iHeight - 3) * 10);
+            rotate_x_mesh_matrix(g_title_letter_mesh_ids[iChar], (iHeight - 3) * 10);
         end
 
         script_selected_mesh_translate_matrix(iDX, iDY, iDZ);
@@ -217,7 +217,7 @@ local function ShowLetters()
                     local iTempTime = (g_time_since_current_selection * 4) - (iX * 4) + (iFirstX * 4) + 10;
 
                     if iTempTime > 0 and iTempTime < 360 then
-                        script_selected_mesh_rotate_matrix_x(iTempTime);
+                        rotate_x_mesh_matrix(current_letter_mesh_id, iTempTime);
                     end
 
                     script_selected_mesh_translate_matrix(iDX, iDY, iDZ);

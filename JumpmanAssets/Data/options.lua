@@ -211,7 +211,7 @@ local function ShowLetters_()
                     local iTempTime = (g_time_since_current_selection * 4) - (iX * 4) + (iFirstX * 4) + 10;
 
                     if iTempTime > 0 and iTempTime < 360 then
-                        script_selected_mesh_rotate_matrix_x(iTempTime);
+                        rotate_x_mesh_matrix(current_letter_mesh_id, iTempTime);
                     end
 
                     script_selected_mesh_translate_matrix(iDX, iDY, iDZ);

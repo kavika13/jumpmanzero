@@ -86,7 +86,7 @@ function Module.update()
     set_identity_mesh_matrix(g_whomper_mesh_index);
     scale_mesh_matrix(g_whomper_mesh_index, 8, 8, 8);
     script_selected_mesh_translate_matrix(0, -12, 0);
-    script_selected_mesh_rotate_matrix_x(Module.iR);
+    rotate_x_mesh_matrix(g_whomper_mesh_index, Module.iR);
     script_selected_mesh_translate_matrix(Module.iX, Module.iY, 2);
     set_object_visual_data(resources.TextureBoringGray, 1);
 

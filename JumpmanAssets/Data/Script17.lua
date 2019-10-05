@@ -75,7 +75,7 @@ local function AnimateArrow_(iPic)
         script_selected_mesh_rotate_matrix_y(180);
     end
 
-    script_selected_mesh_rotate_matrix_x(g_arrow_rotation);
+    rotate_x_mesh_matrix(backdrop_mesh_index, g_arrow_rotation);
     script_selected_mesh_translate_matrix(SX, SY, 0);
 
     if g_game_logic.is_player_colliding_with_rect(SX - 3, SY - 4, SX + 3, SY + 4) and
@@ -104,17 +104,17 @@ local function SpinPlatform_(iPlat, iPY)
 
     if g_level_flipping_state == 1 then
         script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        rotate_x_mesh_matrix(platform_mesh_index, g_level_flipping_rotation * 180 / 50);
         script_selected_mesh_translate_matrix(0, iPY, 0);
     end
 
     if g_level_flipping_state == 3 then
         script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
+        rotate_x_mesh_matrix(platform_mesh_index, 180);
         script_selected_mesh_translate_matrix(0, 80, 6);
 
         script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        rotate_x_mesh_matrix(platform_mesh_index, g_level_flipping_rotation * 180 / 50);
         script_selected_mesh_translate_matrix(0, iPY, 0);
     end
 end
@@ -124,17 +124,17 @@ local function SpinLadderDonutOrVine_(mesh_index, iPY)
 
     if g_level_flipping_state == 1 then
         script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        rotate_x_mesh_matrix(mesh_index, g_level_flipping_rotation * 180 / 50);
         script_selected_mesh_translate_matrix(0, iPY, 0);
     end
 
     if g_level_flipping_state == 3 then
         script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
+        rotate_x_mesh_matrix(mesh_index, 180);
         script_selected_mesh_translate_matrix(0, 80, 2);
 
         script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
-        script_selected_mesh_rotate_matrix_x(g_level_flipping_rotation * 180 / 50);
+        rotate_x_mesh_matrix(mesh_index, g_level_flipping_rotation * 180 / 50);
         script_selected_mesh_translate_matrix(0, iPY, 0);
     end
 end
@@ -190,7 +190,7 @@ local function ReversePlatform_(iObj)
 
     if g_level_flipping_state == 2 then
         script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
+        rotate_x_mesh_matrix(platform_mesh_index, 180);
         script_selected_mesh_translate_matrix(0, 80, 6);
     end
 
@@ -214,7 +214,7 @@ local function ReverseDonut_(iObj)
 
     if g_level_flipping_state == 2 then
         script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
+        rotate_x_mesh_matrix(donut_mesh_index, 180);
         script_selected_mesh_translate_matrix(0, 80, 2);
     end
 
@@ -227,7 +227,7 @@ local function ReverseLadderOrVine_(mesh_index)
 
     if g_level_flipping_state == 2 then
         script_selected_mesh_translate_matrix(0, 0 - 80, 0);
-        script_selected_mesh_rotate_matrix_x(180);
+        rotate_x_mesh_matrix(mesh_index, 180);
         script_selected_mesh_translate_matrix(0, 80, 2);
     end
 

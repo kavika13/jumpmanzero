@@ -349,7 +349,7 @@ function Module.update()
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
         select_object_mesh(g_copter_mesh_index);
         set_identity_mesh_matrix(g_copter_mesh_index);
-        script_selected_mesh_rotate_matrix_x(270);
+        rotate_x_mesh_matrix(g_copter_mesh_index, 270);
         script_selected_mesh_rotate_matrix_y(g_copter_current_rotation_y);
         script_selected_mesh_translate_matrix(0, 4, 0);
         scale_mesh_matrix(g_copter_mesh_index, g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
