@@ -213,7 +213,7 @@ function Module.update()
     select_object_mesh(g_mesh_index_1);
     set_identity_mesh_matrix(g_mesh_index_1);
     rotate_x_mesh_matrix(g_mesh_index_1, g_current_rotation_x);
-    script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
+    rotate_z_mesh_matrix(g_mesh_index_1, g_current_rotation_z);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
     set_object_visual_data(Module.TextureIndex, 1);
 
@@ -221,7 +221,7 @@ function Module.update()
     set_identity_mesh_matrix(g_mesh_index_2);
     rotate_y_mesh_matrix(g_mesh_index_2, 90);
     rotate_x_mesh_matrix(g_mesh_index_2, g_current_rotation_x);
-    script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
+    rotate_z_mesh_matrix(g_mesh_index_2, g_current_rotation_z);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
     set_object_visual_data(Module.TextureIndex, 1);
 end

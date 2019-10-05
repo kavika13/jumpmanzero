@@ -71,7 +71,7 @@ local function AnimateArrow_(iPic)
     script_selected_mesh_translate_matrix(0 - SX, 0 - SY, 0);
 
     if is_reversed then
-        script_selected_mesh_rotate_matrix_z(180);
+        rotate_z_mesh_matrix(backdrop_mesh_index, 180);
         rotate_y_mesh_matrix(backdrop_mesh_index, 180);
     end
 

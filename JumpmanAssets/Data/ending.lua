@@ -298,9 +298,10 @@ local function ShowTurtles_(iAT)
     for iTurt = 0, 3 do
         local iTurtX = g_current_pos_x - iTurt * 16;
         local iTurtY = 84;
+        local mesh_index = g_object_mesh_indices[iTurt];
 
-        select_object_mesh(g_object_mesh_indices[iTurt]);
-        set_identity_mesh_matrix(g_object_mesh_indices[iTurt]);
+        select_object_mesh(mesh_index);
+        set_identity_mesh_matrix(mesh_index);
 
         if iTurtX < 101 then
             iFrame = resources.MeshTurtGR1 + Cycle_(iAT, 90, 0, 1);
@@ -309,12 +310,12 @@ local function ShowTurtles_(iAT)
             local iRZ = (iTurtX - 101)* - 5;
             local iTemp = math.sin(iTurt * 63 * math.pi / 180.0) * 20 + 10;
             iRZ = iRZ * iTemp / 20;
-            script_selected_mesh_rotate_matrix_z(iRZ);
+            rotate_z_mesh_matrix(mesh_index, iRZ);
             iTemp = (iTurtX - 101) * math.sin((iTurt * 111 + 20) * math.pi / 180.0);
             iTurtY = iTurtY - iTemp;
         end
 
-        set_mesh_to_mesh(g_object_mesh_indices[iTurt], iFrame);
+        set_mesh_to_mesh(mesh_index, iFrame);
         script_selected_mesh_translate_matrix(iTurtX, iTurtY, 2);
         set_object_visual_data(resources.TextureTurtleTexture, 1);
     end
@@ -368,9 +369,10 @@ local function ShowDonuts_(iAT)
 end
 
 local function ShowDino_(iAT)
-    select_object_mesh(g_object_mesh_indices[0]);
-    set_identity_mesh_matrix(g_object_mesh_indices[0]);
-    scale_mesh_matrix(g_object_mesh_indices[0], 1.3, 1.3, 1.3);
+    local mesh_index = g_object_mesh_indices[0];
+    select_object_mesh(mesh_index);
+    set_identity_mesh_matrix(mesh_index);
+    scale_mesh_matrix(mesh_index, 1.3, 1.3, 1.3);
 
     g_current_pos_x = 80;
     g_current_pos_y = 93;
@@ -391,15 +393,15 @@ local function ShowDino_(iAT)
         iFrame = iFrame + resources.MeshTSaurYR1;
     elseif iAT < 220 then
         g_current_pos_y = g_current_pos_y + (iAT - 200) / 4;
-        script_selected_mesh_rotate_matrix_z((iAT - 200) * 3);
+        rotate_z_mesh_matrix(mesh_index, (iAT - 200) * 3);
         iFrame = resources.MeshTSaurWalkR1 + Cycle_(iAT, 60, 0, 3);
     else
         g_current_pos_y = g_current_pos_y + 5+(iAT - 220) / 2;
-        script_selected_mesh_rotate_matrix_z((iAT - 200) * 3);
+        rotate_z_mesh_matrix(mesh_index, (iAT - 200) * 3);
         iFrame = resources.MeshTSaurWalkR1 + Cycle_(iAT, 60, 0, 3);
     end
 
-    set_mesh_to_mesh(g_object_mesh_indices[0], iFrame);
+    set_mesh_to_mesh(mesh_index, iFrame);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 0);
     set_object_visual_data(resources.TextureDinosaur, 1);
 end
@@ -442,21 +444,23 @@ local function ShowRocket_(iAT)
     g_current_pos_y = 20 + iAT / 2;
     local iRZ = math.sin(iAT * 3 * math.pi / 180.0) * 10;
 
-    select_object_mesh(g_object_mesh_indices[0]);
-    set_mesh_to_mesh(g_object_mesh_indices[0], resources.MeshRocket);
-    set_identity_mesh_matrix(g_object_mesh_indices[0]);
-    rotate_y_mesh_matrix(g_object_mesh_indices[0], iAT / 3);
-    script_selected_mesh_rotate_matrix_z(iRZ);
-    scale_mesh_matrix(g_object_mesh_indices[0], 2, 2, 2);
+    local mesh_index = g_object_mesh_indices[0];
+    select_object_mesh(mesh_index);
+    set_mesh_to_mesh(mesh_index, resources.MeshRocket);
+    set_identity_mesh_matrix(mesh_index);
+    rotate_y_mesh_matrix(mesh_index, iAT / 3);
+    rotate_z_mesh_matrix(mesh_index, iRZ);
+    scale_mesh_matrix(mesh_index, 2, 2, 2);
     script_selected_mesh_translate_matrix(130, g_current_pos_y, 10);
     set_object_visual_data(resources.TextureDABotO, 1);
 
     for iBlip = 1, 14 do
-        select_object_mesh(g_object_mesh_indices[iBlip]);
-        set_mesh_to_mesh(g_object_mesh_indices[iBlip], resources.MeshSquare);
-        set_identity_mesh_matrix(g_object_mesh_indices[iBlip]);
+        local blip_mesh_index = g_object_mesh_indices[iBlip];
+        select_object_mesh(blip_mesh_index);
+        set_mesh_to_mesh(blip_mesh_index, resources.MeshSquare);
+        set_identity_mesh_matrix(blip_mesh_index);
         local iSize = math.random(3, 6);
-        scale_mesh_matrix(g_object_mesh_indices[iBlip], iSize, iSize, 1);
+        scale_mesh_matrix(blip_mesh_index, iSize, iSize, 1);
 
         local iBA = math.random(150, 210);
         local iBD = math.random(5, 20) * math.random(5, 20);
@@ -465,8 +469,8 @@ local function ShowRocket_(iAT)
         local iBX = math.sin(iBA * math.pi / 180.0) * iBD;
         local iBY = math.cos(iBA * math.pi / 180.0) * iBD;
         script_selected_mesh_translate_matrix(iBX, iBY - 15, 0);
-        rotate_y_mesh_matrix(g_object_mesh_indices[iBlip], 10);
-        script_selected_mesh_rotate_matrix_z(iRZ);
+        rotate_y_mesh_matrix(blip_mesh_index, 10);
+        rotate_z_mesh_matrix(blip_mesh_index, iRZ);
 
         script_selected_mesh_translate_matrix(132.5, g_current_pos_y, 12);
         set_object_visual_data(resources.TextureBlast1, 1);

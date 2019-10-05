@@ -72,7 +72,7 @@ local function ShowBlob_()
     select_object_mesh(g_blob_mesh_index);
     set_identity_mesh_matrix(g_blob_mesh_index);
     scale_mesh_matrix(g_blob_mesh_index, 0.6, 0.5, 0.8);
-    script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
+    rotate_z_mesh_matrix(g_blob_mesh_index, g_current_rotation_z);
     script_selected_mesh_translate_matrix(0, 0, -75);
     rotate_y_mesh_matrix(g_blob_mesh_index, (iPX - g_current_pos_x) * 360 / Module.PlayAreaCircumference);
     script_selected_mesh_translate_matrix(iPX, g_current_pos_y - 0.6, 75.3);

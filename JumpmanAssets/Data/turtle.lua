@@ -187,7 +187,8 @@ function Module.initialize()
 end
 
 function Module.update(game_input, all_turtles)
-    select_object_mesh(g_move_animation_frames[g_move_animation_current_frame]);
+    -- TODO: Animate through changemesh, instead of set_object_visual_data?
+    select_object_mesh(g_move_animation_frames[g_move_animation_current_frame]);  -- Previous frame
     set_object_visual_data(0, 0);
 
     Animate_();
@@ -195,9 +196,10 @@ function Module.update(game_input, all_turtles)
     Move_(all_turtles);
     SetAngle_();
 
-    select_object_mesh(g_move_animation_frames[g_move_animation_current_frame]);
-    set_identity_mesh_matrix(g_move_animation_frames[g_move_animation_current_frame]);
-    script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
+    local anim_mesh_index = g_move_animation_frames[g_move_animation_current_frame];
+    select_object_mesh(anim_mesh_index);
+    set_identity_mesh_matrix(anim_mesh_index);
+    rotate_z_mesh_matrix(anim_mesh_index, g_current_rotation_z);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 4.4, 2);
     set_object_visual_data(Module.TextureResourceIndex, 2);
 

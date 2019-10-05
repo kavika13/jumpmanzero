@@ -207,7 +207,7 @@ local function DrawClaw_(current_animation_frame, iAngle, iSpread)
     select_object_mesh(anim_mesh_index);
     set_identity_mesh_matrix(anim_mesh_index);
     script_selected_mesh_translate_matrix(0, -5, 0);
-    script_selected_mesh_rotate_matrix_z(iSpread);
+    rotate_z_mesh_matrix(anim_mesh_index, iSpread);
     rotate_y_mesh_matrix(anim_mesh_index, iAngle);
     script_selected_mesh_translate_matrix(g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
     set_object_visual_data(Module.ClawTextureResourceIndex, 1);

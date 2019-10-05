@@ -65,7 +65,7 @@ local function SetClockPosition_(iPos)
 
     select_object_mesh(g_clock_hand_mesh_index);
     set_identity_mesh_matrix(g_clock_hand_mesh_index);
-    script_selected_mesh_rotate_matrix_z(iPos);
+    rotate_z_mesh_matrix(g_clock_hand_mesh_index, iPos);
     script_selected_mesh_translate_matrix(0 - 54, 0 - 38, 120);
     undo_camera_perspective_on_mesh_matrix(g_clock_hand_mesh_index);
 end

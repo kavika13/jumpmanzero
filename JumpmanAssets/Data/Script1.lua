@@ -75,7 +75,7 @@ local function MoveLadder_(iLadderNum, iPos)
     local ladder_mesh_index = find_ladder_mesh_index(iLadderNum);
     set_identity_mesh_matrix(ladder_mesh_index);
     script_selected_mesh_translate_matrix(0 - iX, 0 - iY, 0 - iZ);
-    script_selected_mesh_rotate_matrix_z(iPos * 2);
+    rotate_z_mesh_matrix(ladder_mesh_index, iPos * 2);
     rotate_x_mesh_matrix(ladder_mesh_index, iPos);
     script_selected_mesh_translate_matrix(iX, iY, iZ - iPos);
 end
@@ -87,7 +87,7 @@ local function MovePlatform_(iPlatNum, iRotate, iTran, get_platform_x_value, get
     local platform_mesh_index = find_platform_mesh_index(iPlatNum);
     set_identity_mesh_matrix(platform_mesh_index);
     script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
-    script_selected_mesh_rotate_matrix_z(iRotate);
+    rotate_z_mesh_matrix(platform_mesh_index, iRotate);
     script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
 end
 

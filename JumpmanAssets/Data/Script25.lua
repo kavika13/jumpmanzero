@@ -377,6 +377,8 @@ local function ProgressLevel_(game_input)
     backdrop_mesh_index = find_backdrop_mesh_index(6);  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.04, 0.04);
 
+    -- TODO: Looks like jumpman's last animation frame isn't disappearing anymore when the player jumps in water.
+    --       The bug might be in game_logic.lua.update_player_graphics, or it might be here
     select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
     set_object_visual_data(0, 0);
 
@@ -427,9 +429,10 @@ local function ProgressLevel_(game_input)
             iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
         end
 
-        select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
-        set_identity_mesh_matrix(g_swim_animation_mesh_indices[g_swim_animation_frame]);
-        script_selected_mesh_rotate_matrix_z(g_swim_rotation_angle);
+        local swim_anim_mesh_index = g_swim_animation_mesh_indices[g_swim_animation_frame];
+        select_object_mesh(swim_anim_mesh_index);
+        set_identity_mesh_matrix(swim_anim_mesh_index);
+        rotate_z_mesh_matrix(swim_anim_mesh_index, g_swim_rotation_angle);
         script_selected_mesh_translate_matrix(iDrawX, iDrawY + 5, 2);
         set_object_visual_data(resources.TextureJumpman, 1);
 

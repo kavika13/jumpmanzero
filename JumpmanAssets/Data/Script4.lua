@@ -94,7 +94,7 @@ local function MovePlatform_(iPlat, iRotate, iTran)
     local platform_mesh_index = find_platform_mesh_index(iPlat);
     set_identity_mesh_matrix(platform_mesh_index);
     script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
-    script_selected_mesh_rotate_matrix_z(iRotate);
+    rotate_z_mesh_matrix(platform_mesh_index, iRotate);
     script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
 end
 

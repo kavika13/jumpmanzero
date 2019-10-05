@@ -360,10 +360,11 @@ function Module.update(all_run_donuts)
     MoveDonut_(all_run_donuts);
 
     if g_current_status > status_type.DEAD then
-        select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-        set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
-        scale_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame], 0.6, 0.6, 1);
-        script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
+        local new_frame_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
+        select_object_mesh(new_frame_mesh_index);
+        set_identity_mesh_matrix(new_frame_mesh_index);
+        scale_mesh_matrix(new_frame_mesh_index, 0.6, 0.6, 1);
+        rotate_z_mesh_matrix(new_frame_mesh_index, g_current_rotation_z);
         script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
         set_object_visual_data(Module.TextureResourceIndex, 1);
     end

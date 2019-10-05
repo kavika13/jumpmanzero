@@ -291,7 +291,7 @@ local function DrawHorizontal_()
     local iLen = math.floor(math.sqrt(iDX * iDX + iDY * iDY)) + 1;
 
     scale_mesh_matrix(g_mesh_index, iLen, 1, 3);
-    script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
+    rotate_z_mesh_matrix(g_mesh_index, g_current_rotation_z);
 
     g_wobble_animation_counter = g_wobble_animation_counter + 1;
 
@@ -323,7 +323,7 @@ local function DrawVertical_()
     select_object_mesh(g_mesh_index);
     set_identity_mesh_matrix(g_mesh_index);
     scale_mesh_matrix(g_mesh_index, g_current_pos_y[1] - g_current_pos_y[2], 1.3, 3);
-    script_selected_mesh_rotate_matrix_z(90);
+    rotate_z_mesh_matrix(g_mesh_index, 90);
     script_selected_mesh_translate_matrix(g_current_pos_x[1] + 0.3, (g_current_pos_y[1] + g_current_pos_y[2]) / 2, 5);
 end
 

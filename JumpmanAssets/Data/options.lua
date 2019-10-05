@@ -220,7 +220,7 @@ local function ShowLetters_()
                     local iDZ = 0 + g_time_since_current_selection / 15;
                     local iDX = iX + ((g_time_since_current_selection / 100) * math.sin((iY * 10 + iX * 27) * math.pi / 180.0) * 50);
                     local iDY = iY + ((g_time_since_current_selection / 100) * math.sin((iY * 10 + iX * 59) * math.pi / 180.0) * 50);
-                    script_selected_mesh_rotate_matrix_z(g_time_since_current_selection + iX);
+                    rotate_z_mesh_matrix(current_letter_mesh_id, g_time_since_current_selection + iX);
                     script_selected_mesh_translate_matrix(iDX, iDY, iDZ);
                     set_object_visual_data(resources.TextureRachBlue, 1);
                 end

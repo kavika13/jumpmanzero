@@ -86,7 +86,7 @@ local function ShowAlien_()
     set_identity_mesh_matrix(g_eye_1_mesh_index);
     scale_mesh_matrix(g_eye_1_mesh_index, 0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(g_eye_waggle_x2 - 1, 0, 0);
-    script_selected_mesh_rotate_matrix_z(iRotateZ);
+    rotate_z_mesh_matrix(g_eye_1_mesh_index, iRotateZ);
     script_selected_mesh_translate_matrix(iBaseX + iWiggleX, g_current_pos_y + 10 + 1 + g_eye_waggle_y1, iBaseZ);
     set_object_visual_data(Module.EyeTextureResourceIndex, 1);
 
@@ -94,7 +94,7 @@ local function ShowAlien_()
     set_identity_mesh_matrix(g_eye_2_mesh_index);
     scale_mesh_matrix(g_eye_2_mesh_index, 0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(1 + g_eye_waggle_x2, 0, 0);
-    script_selected_mesh_rotate_matrix_z(iRotateZ);
+    rotate_z_mesh_matrix(g_eye_2_mesh_index, iRotateZ);
     script_selected_mesh_translate_matrix(iBaseX + iWiggleX, g_current_pos_y + 10 + 1 + g_eye_waggle_y2, iBaseZ);
     set_object_visual_data(Module.EyeTextureResourceIndex, 1);
 
@@ -109,7 +109,7 @@ local function ShowAlien_()
     end
 
     scale_mesh_matrix(g_alien_mesh_index, 0.55, 0.6, 0.7);
-    script_selected_mesh_rotate_matrix_z(iRotateZ);
+    rotate_z_mesh_matrix(g_alien_mesh_index, iRotateZ);
     script_selected_mesh_translate_matrix(iBaseX + iWiggleX, g_current_pos_y + 10, iBaseZ);
     set_object_visual_data(Module.AlienTextureResourceIndex, 1);
 
@@ -117,7 +117,7 @@ local function ShowAlien_()
     set_identity_mesh_matrix(g_ship_base_mesh_index);
     scale_mesh_matrix(g_ship_base_mesh_index, 11, 11, 11);
     rotate_y_mesh_matrix(g_ship_base_mesh_index, g_current_rotation_y);
-    script_selected_mesh_rotate_matrix_z(iRotateZ);
+    rotate_z_mesh_matrix(g_ship_base_mesh_index, iRotateZ);
     script_selected_mesh_translate_matrix(iBaseX + iWiggleX, g_current_pos_y, iBaseZ + 1);
     set_object_visual_data(Module.ShipTextureResourceIndex, 1);
 
@@ -125,7 +125,7 @@ local function ShowAlien_()
     set_identity_mesh_matrix(g_ship_top_mesh_index);
     scale_mesh_matrix(g_ship_top_mesh_index, 12, 14, 14);
     rotate_y_mesh_matrix(g_ship_top_mesh_index, g_current_rotation_y);
-    script_selected_mesh_rotate_matrix_z(iRotateZ);
+    rotate_z_mesh_matrix(g_ship_top_mesh_index, iRotateZ);
     script_selected_mesh_translate_matrix(iBaseX + iWiggleX, g_current_pos_y - 3, iBaseZ + 1);
     set_object_visual_data(Module.GlassTextureResourceIndex, 1);
 end

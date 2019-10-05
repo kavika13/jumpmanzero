@@ -70,7 +70,7 @@ local function RotateBack_()
         set_identity_mesh_matrix(backdrop_mesh_index);
         script_selected_mesh_translate_matrix(-80, -40, 0);
         scale_mesh_matrix(backdrop_mesh_index, 1.1, 1.1, 1);
-        script_selected_mesh_rotate_matrix_z(g_background_rotation);
+        rotate_z_mesh_matrix(backdrop_mesh_index, g_background_rotation);
         script_selected_mesh_translate_matrix(80, 40, 0);
     end
 end

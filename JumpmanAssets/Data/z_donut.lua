@@ -27,7 +27,6 @@ local function DoBlasting()
     end
 
     for iTemp = 0, iShow - 1 do
-        select_object_mesh(g_blast_particle_mesh_indices[iTemp]);
         local iBD = math.random(1, 10) * math.random(1, 10);
         iBD = (iBD / 6) + math.random(3, 15);
         local iBA = math.random(1, 360);
@@ -46,13 +45,16 @@ local function DoBlasting()
         local iBR = math.random(1, 360);
         local iSize = math.random(10, 13);
 
-        set_identity_mesh_matrix(g_blast_particle_mesh_indices[iTemp]);
-        scale_mesh_matrix(g_blast_particle_mesh_indices[iTemp], iSize, iSize, 1);
-        script_selected_mesh_rotate_matrix_z(iBR);
+        local mesh_index = g_blast_particle_mesh_indices[iTemp];
+        select_object_mesh(mesh_index);
+
+        set_identity_mesh_matrix(mesh_index);
+        scale_mesh_matrix(mesh_index, iSize, iSize, 1);
+        rotate_z_mesh_matrix(mesh_index, iBR);
 
         if iTemp > 10 then
             script_selected_mesh_translate_matrix(0, 0, -10);
-            rotate_x_mesh_matrix(g_blast_particle_mesh_indices[iTemp], math.random(1, 90));
+            rotate_x_mesh_matrix(mesh_index, math.random(1, 90));
             script_selected_mesh_translate_matrix(0, 0, 10);
         end
 

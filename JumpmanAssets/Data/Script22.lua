@@ -200,14 +200,14 @@ local function ProgressLevel_(game_input)
 
     select_object_mesh(g_small_gears_background_mesh_index);
     set_identity_mesh_matrix(g_small_gears_background_mesh_index);
-    script_selected_mesh_rotate_matrix_z(0 - g_animation_frame);
+    rotate_z_mesh_matrix(g_small_gears_background_mesh_index, 0 - g_animation_frame);
     scale_mesh_matrix(g_small_gears_background_mesh_index, 25, 25, 2);
     script_selected_mesh_translate_matrix(80, 80, 7);
     set_object_visual_data(resources.TextureBoringGray, 1);
 
     select_object_mesh(g_large_gears_background_mesh_index);
     set_identity_mesh_matrix(g_large_gears_background_mesh_index);
-    script_selected_mesh_rotate_matrix_z(g_animation_frame * 2 / 3);
+    rotate_z_mesh_matrix(g_large_gears_background_mesh_index, g_animation_frame * 2 / 3);
     scale_mesh_matrix(g_large_gears_background_mesh_index, 50, 50, 2);
     script_selected_mesh_translate_matrix(80, 80, 9);
     set_object_visual_data(resources.TextureBoringGray, 1);
