@@ -107,7 +107,7 @@ function Module.update()
 
     select_object_mesh(g_sea_mesh_index);
     set_identity_mesh_matrix(g_sea_mesh_index);
-    script_selected_mesh_scale_matrix(1, 1.5, 1);
+    scale_mesh_matrix(g_sea_mesh_index, 1, 1.5, 1);
     script_selected_mesh_translate_matrix(g_current_pos_x1 + iAdj1, g_current_pos_y + iHeight1 / 5, 0 - 0.1);
     set_object_visual_data(Module.SeaTextureResourceIndex, 1);
 

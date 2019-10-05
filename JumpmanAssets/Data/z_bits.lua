@@ -30,7 +30,7 @@ local function DrawParticles()
         select_object_mesh(iDM);
         set_identity_mesh_matrix(iDM);
         script_selected_mesh_rotate_matrix_y((100 - Module.PercentComplete) * math.sin(iBit * math.pi / 180.0) * 10);
-        script_selected_mesh_scale_matrix(4, 4, 4);
+        scale_mesh_matrix(iDM, 4, 4, 4);
         script_selected_mesh_translate_matrix(iDX, iDY, iZ);
         set_object_visual_data(Module.TextureResourceIndex, 1);
     end

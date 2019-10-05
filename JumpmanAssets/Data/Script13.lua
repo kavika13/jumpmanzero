@@ -69,7 +69,7 @@ local function RotateBack_()
         local backdrop_mesh_index = find_backdrop_mesh_index(iBackdropNum);
         set_identity_mesh_matrix(backdrop_mesh_index);
         script_selected_mesh_translate_matrix(-80, -40, 0);
-        script_selected_mesh_scale_matrix(1.1, 1.1, 1);
+        scale_mesh_matrix(backdrop_mesh_index, 1.1, 1.1, 1);
         script_selected_mesh_rotate_matrix_z(g_background_rotation);
         script_selected_mesh_translate_matrix(80, 40, 0);
     end

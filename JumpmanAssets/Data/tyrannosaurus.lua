@@ -181,7 +181,7 @@ function Module.update()
 
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
-    script_selected_mesh_scale_matrix(2, 2, 1.5);
+    scale_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame], 2, 2, 1.5);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 19, 3);
     set_object_visual_data(Module.TextureResourceIndex, 2);
 

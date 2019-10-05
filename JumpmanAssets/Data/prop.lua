@@ -49,7 +49,7 @@ function Module.update()
 
     select_object_mesh(g_propeller_mesh_index);
     set_identity_mesh_matrix(g_propeller_mesh_index);
-    script_selected_mesh_scale_matrix(6, 8, 2);
+    scale_mesh_matrix(g_propeller_mesh_index, 6, 8, 2);
     script_selected_mesh_rotate_matrix_x(90);
     script_selected_mesh_rotate_matrix_y(g_current_rotation + Module.iR);
     script_selected_mesh_translate_matrix(Module.iX, Module.iY, Module.iZ);

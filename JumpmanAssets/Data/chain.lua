@@ -82,7 +82,7 @@ local function PositionChain_()
 
             select_object_mesh(g_link_mesh_indices[iLink]);
             set_identity_mesh_matrix(g_link_mesh_indices[iLink]);
-            script_selected_mesh_scale_matrix(LinkLength * 1.6, 1, 1);
+            scale_mesh_matrix(g_link_mesh_indices[iLink], LinkLength * 1.6, 1, 1);
             script_selected_mesh_rotate_matrix_z(Angle);
             script_selected_mesh_translate_matrix(iSX + 1, iSY, player_z);
         end

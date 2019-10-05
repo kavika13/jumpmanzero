@@ -104,7 +104,7 @@ local function DrawFire_()
 
         select_object_mesh(g_blast_mesh_index);
         set_identity_mesh_matrix(g_blast_mesh_index);
-        script_selected_mesh_scale_matrix(8, 8, 1);
+        scale_mesh_matrix(g_blast_mesh_index, 8, 8, 1);
 
         if g_frames_since_beam_started & 4 ~= 0 then
             script_selected_mesh_rotate_matrix_z(180);
@@ -117,7 +117,7 @@ local function DrawFire_()
     select_object_mesh(g_beam_1_mesh_index);
     set_identity_mesh_matrix(g_beam_1_mesh_index);
     script_selected_mesh_translate_matrix(0.5, 0, 0);
-    script_selected_mesh_scale_matrix(g_gun_to_target_distance, 1, 1);
+    scale_mesh_matrix(g_beam_1_mesh_index, g_gun_to_target_distance, 1, 1);
     script_selected_mesh_rotate_matrix_z(g_gun_tilt_rotation);
     script_selected_mesh_rotate_matrix_y(g_gun_pan_rotation);
     script_selected_mesh_translate_matrix(g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
@@ -127,7 +127,7 @@ local function DrawFire_()
     set_identity_mesh_matrix(g_beam_2_mesh_index);
     script_selected_mesh_rotate_matrix_x(g_frames_since_beam_started * 34);
     script_selected_mesh_translate_matrix(0.5, 0, 0);
-    script_selected_mesh_scale_matrix(g_gun_to_target_distance, 3, 2);
+    scale_mesh_matrix(g_beam_2_mesh_index, g_gun_to_target_distance, 3, 2);
     script_selected_mesh_rotate_matrix_z(g_gun_tilt_rotation);
     script_selected_mesh_rotate_matrix_y(g_gun_pan_rotation);
     script_selected_mesh_translate_matrix(g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);

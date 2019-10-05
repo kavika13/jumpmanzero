@@ -391,7 +391,7 @@ function Module.update(follower_sheep)
         script_selected_mesh_rotate_matrix_x(270);
         script_selected_mesh_rotate_matrix_y(g_copter_current_rotation_y);
         script_selected_mesh_translate_matrix(0, 4, 0);
-        script_selected_mesh_scale_matrix(g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
+        scale_mesh_matrix(g_copter_mesh_index, g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
         script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
         set_object_visual_data(Module.CopterTextureResourceIndex, 1);
     else

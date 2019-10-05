@@ -216,7 +216,7 @@ local function DrawChain_()
     select_object_mesh(g_chain_mesh_index);
     set_identity_mesh_matrix(g_chain_mesh_index);
     script_selected_mesh_translate_matrix(0, -0.5, 0);
-    script_selected_mesh_scale_matrix(0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
+    scale_mesh_matrix(g_chain_mesh_index, 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
     script_selected_mesh_translate_matrix(g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);
     set_object_visual_data(Module.ChainTextureResourceIndex, 1);
 end

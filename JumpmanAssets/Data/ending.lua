@@ -243,7 +243,7 @@ local function ShowBear_(iAT)
 
     script_selected_mesh_change_mesh(iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
-    script_selected_mesh_scale_matrix(1, 1, 1.3);
+    scale_mesh_matrix(g_object_mesh_indices[1], 1, 1, 1.3);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 7, 1.5);
     set_object_visual_data(resources.TextureFur, 1);
 end
@@ -343,7 +343,7 @@ local function ShowDonuts_(iAT)
 
         select_object_mesh(g_object_mesh_indices[iDon]);
         set_identity_mesh_matrix(g_object_mesh_indices[iDon]);
-        script_selected_mesh_scale_matrix(0.5, 0.5, 1);
+        scale_mesh_matrix(g_object_mesh_indices[iDon], 0.5, 0.5, 1);
 
         local iFrame = 0;
 
@@ -370,7 +370,7 @@ end
 local function ShowDino_(iAT)
     select_object_mesh(g_object_mesh_indices[0]);
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
-    script_selected_mesh_scale_matrix(1.3, 1.3, 1.3);
+    scale_mesh_matrix(g_object_mesh_indices[0], 1.3, 1.3, 1.3);
 
     g_current_pos_x = 80;
     g_current_pos_y = 93;
@@ -432,7 +432,7 @@ local function JumpmanChase_(iAT)
 
     select_object_mesh(g_object_mesh_indices[0]);
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
-    script_selected_mesh_scale_matrix(1, 1, 1);
+    scale_mesh_matrix(g_object_mesh_indices[0], 1, 1, 1);
     script_selected_mesh_change_mesh(iFrame);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 3);
     set_object_visual_data(resources.TextureJumpman, 1);
@@ -447,7 +447,7 @@ local function ShowRocket_(iAT)
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
     script_selected_mesh_rotate_matrix_y(iAT / 3);
     script_selected_mesh_rotate_matrix_z(iRZ);
-    script_selected_mesh_scale_matrix(2, 2, 2);
+    scale_mesh_matrix(g_object_mesh_indices[0], 2, 2, 2);
     script_selected_mesh_translate_matrix(130, g_current_pos_y, 10);
     set_object_visual_data(resources.TextureDABotO, 1);
 
@@ -456,7 +456,7 @@ local function ShowRocket_(iAT)
         script_selected_mesh_change_mesh(resources.MeshSquare);
         set_identity_mesh_matrix(g_object_mesh_indices[iBlip]);
         local iSize = math.random(3, 6);
-        script_selected_mesh_scale_matrix(iSize, iSize, 1);
+        scale_mesh_matrix(g_object_mesh_indices[iBlip], iSize, iSize, 1);
 
         local iBA = math.random(150, 210);
         local iBD = math.random(5, 20) * math.random(5, 20);

@@ -65,7 +65,7 @@ local function ShowJMLetters()
     for iChar = 1, #g_title_letter_mesh_ids do
         select_object_mesh(g_title_letter_mesh_ids[iChar]);
         set_identity_mesh_matrix(g_title_letter_mesh_ids[iChar]);
-        script_selected_mesh_scale_matrix(2, 0.8, iThick);
+        scale_mesh_matrix(g_title_letter_mesh_ids[iChar], 2, 0.8, iThick);
 
         local iX = iChar * 15 + 20;
 
@@ -206,7 +206,7 @@ local function ShowLetters()
         if current_letter_mesh_id > 0 then
             select_object_mesh(current_letter_mesh_id);
             set_identity_mesh_matrix(current_letter_mesh_id);
-            script_selected_mesh_scale_matrix(0.7, 0.7, 1);
+            scale_mesh_matrix(current_letter_mesh_id, 0.7, 0.7, 1);
 
             if g_is_game_selected then
                 if g_option_selected_index == current_letter_title_index then

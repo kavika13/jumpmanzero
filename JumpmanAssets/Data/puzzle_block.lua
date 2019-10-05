@@ -139,7 +139,7 @@ local function DrawBlock_()
     for iLoop = 1, kNUM_BLOCK_PIECES do
         select_object_mesh(g_block_piece_mesh_indices[iLoop]);
         set_identity_mesh_matrix(g_block_piece_mesh_indices[iLoop]);
-        script_selected_mesh_scale_matrix(kBLOCK_PIECE_WIDTH + 0.2, kBLOCK_PIECE_HEIGHT + 0.2, 3.8);
+        scale_mesh_matrix(g_block_piece_mesh_indices[iLoop], kBLOCK_PIECE_WIDTH + 0.2, kBLOCK_PIECE_HEIGHT + 0.2, 3.8);
 
         if g_current_block_status == block_status.PREPARING_TO_FALL then
             -- TODO: Possible to rotate all shaking pieces as one?

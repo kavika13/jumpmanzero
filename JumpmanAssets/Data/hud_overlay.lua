@@ -28,14 +28,14 @@ local function ShowRemaining_()
     -- select_object_mesh(g_jumpman_hud_background_icon);
     -- set_object_visual_data(square_icon_texture_resource_index, 0);
     -- set_identity_mesh_matrix(g_jumpman_hud_background_icon);
-    -- script_selected_mesh_scale_matrix(16, 8, 1);
+    -- scale_mesh_matrix(g_jumpman_hud_background_icon, 16, 8, 1);
     -- script_selected_mesh_translate_matrix(44, -34, 92);
     -- undo_camera_perspective_on_mesh_matrix(g_jumpman_hud_background_icon);
 
     select_object_mesh(g_jumpman_icon_mesh_index);
     set_object_visual_data(0, 1);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
     set_identity_mesh_matrix(g_jumpman_icon_mesh_index);
-    script_selected_mesh_scale_matrix(0.5, 0.5, 0.5);
+    scale_mesh_matrix(g_jumpman_icon_mesh_index, 0.5, 0.5, 0.5);
     script_selected_mesh_translate_matrix(40, -34, 90);
     undo_camera_perspective_on_mesh_matrix(g_jumpman_icon_mesh_index);
 end
@@ -66,7 +66,7 @@ local function ShowPerformance_(game_input, lives_remaining)
         if iNum == lives_remaining and lives_remaining > 0 then
             set_object_visual_data(letter_texture_resource_index, 1);
             set_identity_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1]);
-            script_selected_mesh_scale_matrix(0.5, 0.5, 0.2);
+            scale_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1], 0.5, 0.5, 0.2);
             script_selected_mesh_translate_matrix(47, -33, 90);
             undo_camera_perspective_on_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1]);
         else
@@ -125,7 +125,7 @@ local function ShowLevelTitleAnimation_(animation_time)
 
             if iX > -90 and iX < 90 then
                 set_identity_mesh_matrix(letter_mesh_index);
-                script_selected_mesh_scale_matrix(0.16, 0.16, 0.16);
+                scale_mesh_matrix(letter_mesh_index, 0.16, 0.16, 0.16);
                 script_selected_mesh_translate_matrix(0, 0, 5);
                 script_selected_mesh_rotate_matrix_y(iX);
                 script_selected_mesh_translate_matrix(0, 0, 8);

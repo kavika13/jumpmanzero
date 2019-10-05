@@ -139,7 +139,7 @@ local function RingPlatforms_()
         local platform_mesh_index = get_platform_mesh_index(iPlat);
         set_identity_mesh_matrix(platform_mesh_index);
         script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
-        script_selected_mesh_scale_matrix(1.64, 1, 1);
+        scale_mesh_matrix(platform_mesh_index, 1.64, 1, 1);
         script_selected_mesh_rotate_matrix_y((iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         script_selected_mesh_translate_matrix(iPX, 0, 75);
     end
@@ -276,7 +276,7 @@ local function ShowAlien_()
 
     select_object_mesh(g_eye_1_mesh_index);
     set_identity_mesh_matrix(g_eye_1_mesh_index);
-    script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
+    scale_mesh_matrix(g_eye_1_mesh_index, 0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(g_eye_waggle_x2 - 1, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
     script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
@@ -284,7 +284,7 @@ local function ShowAlien_()
 
     select_object_mesh(g_eye_2_mesh_index);
     set_identity_mesh_matrix(g_eye_2_mesh_index);
-    script_selected_mesh_scale_matrix(0.6, 0.6, 0.7);
+    scale_mesh_matrix(g_eye_2_mesh_index, 0.6, 0.6, 0.7);
     script_selected_mesh_translate_matrix(1 + g_eye_waggle_x2, 0, 0);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
     script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
@@ -299,7 +299,7 @@ local function ShowAlien_()
         script_selected_mesh_change_mesh(resources.MeshAlien2);
     end
 
-    script_selected_mesh_scale_matrix(0.55, 0.6, 0.7);
+    scale_mesh_matrix(g_alien_mesh_index, 0.55, 0.6, 0.7);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
     script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
     set_object_visual_data(resources.TextureAlien, 1);
@@ -308,7 +308,7 @@ local function ShowAlien_()
 
     select_object_mesh(g_ship_base_mesh_index);
     set_identity_mesh_matrix(g_ship_base_mesh_index);
-    script_selected_mesh_scale_matrix(11, 11, 11);
+    scale_mesh_matrix(g_ship_base_mesh_index, 11, 11, 11);
     script_selected_mesh_rotate_matrix_y(g_ship_y_rotation);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
     script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
@@ -321,7 +321,7 @@ local function ShowAlien_()
 
     select_object_mesh(g_ship_top_mesh_index);
     set_identity_mesh_matrix(g_ship_top_mesh_index);
-    script_selected_mesh_scale_matrix(12, 14, 14);
+    scale_mesh_matrix(g_ship_top_mesh_index, 12, 14, 14);
     script_selected_mesh_rotate_matrix_y(g_ship_y_rotation);
     script_selected_mesh_rotate_matrix_z(iRotateZ);
     script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);

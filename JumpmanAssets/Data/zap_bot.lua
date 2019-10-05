@@ -251,7 +251,7 @@ function Module.update()
 
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
-    script_selected_mesh_scale_matrix(0.7, 0.55, 1);
+    scale_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame], 0.7, 0.55, 1);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
     set_object_visual_data(Module.BotTextureResourceIndex, 1);
 
@@ -264,7 +264,7 @@ function Module.update()
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * 0.1;
         iTemp = iTemp / 2;
-        script_selected_mesh_scale_matrix(35, 4, 0);
+        scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
         script_selected_mesh_scroll_texture(iTemp, 0);
         script_selected_mesh_translate_matrix(g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(
@@ -279,7 +279,7 @@ function Module.update()
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * -0.1;
         iTemp = iTemp / 2;
-        script_selected_mesh_scale_matrix(35, 4, 0);
+        scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
         script_selected_mesh_scroll_texture(iTemp, 0);
         script_selected_mesh_translate_matrix(g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(

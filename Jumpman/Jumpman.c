@@ -404,11 +404,12 @@ static int script_selected_mesh_translate_matrix(lua_State* lua_state) {
     return 0;
 }
 
-static int script_selected_mesh_scale_matrix(lua_State* lua_state) {
-    double arg_x = luaL_checknumber(lua_state, 1);
-    double arg_y = luaL_checknumber(lua_state, 2);
-    double arg_z = luaL_checknumber(lua_state, 3);
-    ScaleMatrix(g_script_selected_mesh_index, (float)arg_x, (float)arg_y, (float)arg_z);
+static int scale_mesh_matrix(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    double arg_x = luaL_checknumber(lua_state, 2);
+    double arg_y = luaL_checknumber(lua_state, 3);
+    double arg_z = luaL_checknumber(lua_state, 4);
+    ScaleMatrix((long)mesh_index_arg, (float)arg_x, (float)arg_y, (float)arg_z);
     return 0;
 }
 
@@ -1237,8 +1238,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "undo_camera_perspective_on_mesh_matrix");
     lua_pushcfunction(lua_state, script_selected_mesh_translate_matrix);
     lua_setglobal(lua_state, "script_selected_mesh_translate_matrix");
-    lua_pushcfunction(lua_state, script_selected_mesh_scale_matrix);
-    lua_setglobal(lua_state, "script_selected_mesh_scale_matrix");
+    lua_pushcfunction(lua_state, scale_mesh_matrix);
+    lua_setglobal(lua_state, "scale_mesh_matrix");
     lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_x);
     lua_setglobal(lua_state, "script_selected_mesh_rotate_matrix_x");
     lua_pushcfunction(lua_state, script_selected_mesh_rotate_matrix_y);

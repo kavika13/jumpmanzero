@@ -120,7 +120,7 @@ function Module.update()
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
     script_selected_mesh_rotate_matrix_z(g_current_rotation_z);
-    script_selected_mesh_scale_matrix(1.5, 1.5, 1.5);
+    scale_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame], 1.5, 1.5, 1.5);
     script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 13, 9);
     set_object_visual_data(Module.TextureResourceIndex, 2);
 

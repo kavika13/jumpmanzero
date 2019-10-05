@@ -201,7 +201,7 @@ local function ShowLetters_()
         if current_letter_mesh_id > 0 and not iHide then
             select_object_mesh(current_letter_mesh_id);
             set_identity_mesh_matrix(current_letter_mesh_id);
-            script_selected_mesh_scale_matrix(1, 0.7, 1);
+            scale_mesh_matrix(current_letter_mesh_id, 1, 0.7, 1);
 
             if g_is_game_selected then
                 if g_option_selected_index == current_letter_title_index then

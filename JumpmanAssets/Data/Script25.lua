@@ -155,9 +155,9 @@ local function MoveSplashParticles_()
             set_identity_mesh_matrix(g_splash_particle_mesh_indices[iLoop]);
 
             if iLoop & 1 then
-                script_selected_mesh_scale_matrix(3, 2, 1);
+                scale_mesh_matrix(g_splash_particle_mesh_indices[iLoop], 3, 2, 1);
             else
-                script_selected_mesh_scale_matrix(5, 3, 1);
+                scale_mesh_matrix(g_splash_particle_mesh_indices[iLoop], 5, 3, 1);
             end
 
             script_selected_mesh_translate_matrix(g_splash_particle_start_x + iDX / 200, g_splash_particle_start_y + iDY / 200, -1);
