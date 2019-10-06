@@ -188,8 +188,9 @@ function Module.initialize()
 end
 
 function Module.update(game_input)
-    select_object_mesh(g_animation_mesh_indices[g_current_animation_frame_index]);
-    set_object_visual_data(0, 0);
+    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
+    select_object_mesh(g_animation_mesh_indices[g_current_animation_frame_index]);  -- Previous frame
+    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_current_animation_frame_index], 0, 0);
 
     g_move_animation_frame_counter = g_move_animation_frame_counter + 1;
 
@@ -205,10 +206,11 @@ function Module.update(game_input)
 
     MoveShark_(game_input);
 
-    select_object_mesh(g_animation_mesh_indices[g_current_animation_frame_index]);
-    set_identity_mesh_matrix(g_animation_mesh_indices[g_current_animation_frame_index]);
-    script_selected_mesh_translate_matrix(Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
-    set_object_visual_data(Module.TextureResourceIndex, 1);
+    local anim_mesh_index = g_animation_mesh_indices[g_current_animation_frame_index];
+    select_object_mesh(anim_mesh_index);
+    set_identity_mesh_matrix(anim_mesh_index);
+    translate_mesh_matrix(anim_mesh_index, Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
+    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
 end
 
 return Module;

@@ -39,8 +39,8 @@ local function ShowChars_()
 
         set_identity_mesh_matrix(current_char_mesh_index);
         scale_mesh_matrix(current_char_mesh_index, 1.8, 2, 2);
-        script_selected_mesh_translate_matrix(g_letter_pos_x[current_char_i], g_letter_pos_y[current_char_i], 70);
-        set_object_visual_data(Module.TextureResourceIndex, 1);
+        translate_mesh_matrix(current_char_mesh_index, g_letter_pos_x[current_char_i], g_letter_pos_y[current_char_i], 70);
+        set_texture_and_is_visible_on_mesh(current_char_mesh_index, Module.TextureResourceIndex, 1);
         g_letter_pos_y[current_char_i] = g_letter_pos_y[current_char_i] + 0.4;
 
         if g_letter_pos_y[current_char_i] > 140 then

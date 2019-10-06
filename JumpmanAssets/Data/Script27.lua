@@ -126,7 +126,7 @@ local function RingPlatforms_()
     select_picture(100);  -- TODO: Use constant
     local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(iPX - 80, 0, 0);
+    translate_mesh_matrix(backdrop_mesh_index, iPX - 80, 0, 0);
 
     local iPlats = get_platform_object_count();
 
@@ -138,10 +138,10 @@ local function RingPlatforms_()
 
         local platform_mesh_index = get_platform_mesh_index(iPlat);
         set_identity_mesh_matrix(platform_mesh_index);
-        script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
+        translate_mesh_matrix(platform_mesh_index, 0 - iAve, 0, -75);
         scale_mesh_matrix(platform_mesh_index, 1.64, 1, 1);
         rotate_y_mesh_matrix(platform_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        script_selected_mesh_translate_matrix(iPX, 0, 75);
+        translate_mesh_matrix(platform_mesh_index, iPX, 0, 75);
     end
 
     local iVines = get_vine_object_count();
@@ -152,9 +152,9 @@ local function RingPlatforms_()
 
         local vine_mesh_index = get_vine_mesh_index(iVine);
         set_identity_mesh_matrix(vine_mesh_index);
-        script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
+        translate_mesh_matrix(vine_mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(vine_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        script_selected_mesh_translate_matrix(iPX, 0, 75);
+        translate_mesh_matrix(vine_mesh_index, iPX, 0, 75);
     end
 
     local iLadders = get_ladder_object_count();
@@ -165,9 +165,9 @@ local function RingPlatforms_()
 
         local ladder_mesh_index = get_ladder_mesh_index(iLadder);
         set_identity_mesh_matrix(ladder_mesh_index);
-        script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
+        translate_mesh_matrix(ladder_mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(ladder_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        script_selected_mesh_translate_matrix(iPX, 0, 75);
+        translate_mesh_matrix(ladder_mesh_index, iPX, 0, 75);
     end
 
     local iDonuts = get_donut_object_count();
@@ -178,9 +178,9 @@ local function RingPlatforms_()
 
         local donut_mesh_index = get_donut_mesh_index(iDonut);
         set_identity_mesh_matrix(donut_mesh_index);
-        script_selected_mesh_translate_matrix(0 - iAve, 0, -75);
+        translate_mesh_matrix(donut_mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(donut_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        script_selected_mesh_translate_matrix(iPX, 0, 75);
+        translate_mesh_matrix(donut_mesh_index, iPX, 0, 75);
     end
 end
 
@@ -277,18 +277,18 @@ local function ShowAlien_()
     select_object_mesh(g_eye_1_mesh_index);
     set_identity_mesh_matrix(g_eye_1_mesh_index);
     scale_mesh_matrix(g_eye_1_mesh_index, 0.6, 0.6, 0.7);
-    script_selected_mesh_translate_matrix(g_eye_waggle_x2 - 1, 0, 0);
+    translate_mesh_matrix(g_eye_1_mesh_index, g_eye_waggle_x2 - 1, 0, 0);
     rotate_z_mesh_matrix(g_eye_1_mesh_index, iRotateZ);
-    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
-    set_object_visual_data(resources.TextureBrightRed, 1);;
+    translate_mesh_matrix(g_eye_1_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
+    set_texture_and_is_visible_on_mesh(g_eye_1_mesh_index, resources.TextureBrightRed, 1);;
 
     select_object_mesh(g_eye_2_mesh_index);
     set_identity_mesh_matrix(g_eye_2_mesh_index);
     scale_mesh_matrix(g_eye_2_mesh_index, 0.6, 0.6, 0.7);
-    script_selected_mesh_translate_matrix(1 + g_eye_waggle_x2, 0, 0);
+    translate_mesh_matrix(g_eye_2_mesh_index, 1 + g_eye_waggle_x2, 0, 0);
     rotate_z_mesh_matrix(g_eye_2_mesh_index, iRotateZ);
-    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
-    set_object_visual_data(resources.TextureBrightRed, 1);
+    translate_mesh_matrix(g_eye_2_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
+    set_texture_and_is_visible_on_mesh(g_eye_2_mesh_index, resources.TextureBrightRed, 1);
 
     select_object_mesh(g_alien_mesh_index);
     set_identity_mesh_matrix(g_alien_mesh_index);
@@ -301,8 +301,8 @@ local function ShowAlien_()
 
     scale_mesh_matrix(g_alien_mesh_index, 0.55, 0.6, 0.7);
     rotate_z_mesh_matrix(g_alien_mesh_index, iRotateZ);
-    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
-    set_object_visual_data(resources.TextureAlien, 1);
+    translate_mesh_matrix(g_alien_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
+    set_texture_and_is_visible_on_mesh(g_alien_mesh_index, resources.TextureAlien, 1);
 
     iWiggleX = iWiggleX + g_ship_sink_amount / 2;
 
@@ -311,8 +311,8 @@ local function ShowAlien_()
     scale_mesh_matrix(g_ship_base_mesh_index, 11, 11, 11);
     rotate_y_mesh_matrix(g_ship_base_mesh_index, g_ship_y_rotation);
     rotate_z_mesh_matrix(g_ship_base_mesh_index, iRotateZ);
-    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
-    set_object_visual_data(resources.TextureShipMetal, 1);
+    translate_mesh_matrix(g_ship_base_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
+    set_texture_and_is_visible_on_mesh(g_ship_base_mesh_index, resources.TextureShipMetal, 1);
 
     g_ship_draw_position_x = g_game_logic.get_player_current_position_x() + iWiggleX;
     g_ship_draw_position_y = g_ship_y_position;
@@ -324,8 +324,8 @@ local function ShowAlien_()
     scale_mesh_matrix(g_ship_top_mesh_index, 12, 14, 14);
     rotate_y_mesh_matrix(g_ship_top_mesh_index, g_ship_y_rotation);
     rotate_z_mesh_matrix(g_ship_top_mesh_index, iRotateZ);
-    script_selected_mesh_translate_matrix(g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
-    set_object_visual_data(resources.TextureShipGlass, 1);
+    translate_mesh_matrix(g_ship_top_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
+    set_texture_and_is_visible_on_mesh(g_ship_top_mesh_index, resources.TextureShipGlass, 1);
 end
 
 local function CreateBeam_(beam_type, beam_color_texture_resource_index, parm_dir)
@@ -464,10 +464,11 @@ function update(game_input)
     ProgressLevel_(game_input);
 end
 
-local function RefreshDonut_(donut_index)
-    select_donut(donut_index);
+local function RefreshDonut_(donut_num)
+    select_donut(donut_num);
+    local mesh_index = find_donut_mesh_index(donut_num);
     set_script_selected_level_object_visible(1);
-    set_object_visual_data(resources.TextureRedMetal, 1);
+    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureRedMetal, 1);
 end
 
 function on_collect_donut(game_input, iGot)

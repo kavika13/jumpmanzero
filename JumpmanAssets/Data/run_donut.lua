@@ -329,8 +329,9 @@ end
 function Module.update(all_run_donuts)
     g_time_since_spawn = g_time_since_spawn + 1;
 
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_object_visual_data(0, 0);
+    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
+    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);  -- Previous frame
+    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     if g_current_status == status_type.NORMAL or g_current_status == status_type.JUMP or
             g_current_status == status_type.HATCHING or g_current_status == status_type.LAYING_EGG then
@@ -365,8 +366,8 @@ function Module.update(all_run_donuts)
         set_identity_mesh_matrix(new_frame_mesh_index);
         scale_mesh_matrix(new_frame_mesh_index, 0.6, 0.6, 1);
         rotate_z_mesh_matrix(new_frame_mesh_index, g_current_rotation_z);
-        script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
-        set_object_visual_data(Module.TextureResourceIndex, 1);
+        translate_mesh_matrix(new_frame_mesh_index, g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
+        set_texture_and_is_visible_on_mesh(new_frame_mesh_index, Module.TextureResourceIndex, 1);
     end
 end
 

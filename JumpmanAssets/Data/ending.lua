@@ -131,7 +131,7 @@ local function ClearAll_()
 
     for iTemp = 0, 19 do
         select_object_mesh(g_object_mesh_indices[iTemp]);
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(g_object_mesh_indices[iTemp], 0, 0);
     end
 end
 
@@ -184,8 +184,8 @@ local function ShowPlayerGrooving_(iAT)
     iFrame = resources.MeshDance1 + iFrame;
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
-    script_selected_mesh_translate_matrix(80 + iWiggle, 85, 1.5);
-    set_object_visual_data(resources.TextureJumpman, 1);
+    translate_mesh_matrix(g_object_mesh_indices[1], 80 + iWiggle, 85, 1.5);
+    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[1], resources.TextureJumpman, 1);
 end
 
 local function ShowPlayerLeaving_(iAT)
@@ -202,8 +202,8 @@ local function ShowPlayerLeaving_(iAT)
 
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
-    script_selected_mesh_translate_matrix(80 - iAT, 85, 1.5);
-    set_object_visual_data(resources.TextureJumpman, 1);
+    translate_mesh_matrix(g_object_mesh_indices[1], 80 - iAT, 85, 1.5);
+    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[1], resources.TextureJumpman, 1);
 end
 
 local function ShowBear_(iAT)
@@ -244,8 +244,8 @@ local function ShowBear_(iAT)
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     scale_mesh_matrix(g_object_mesh_indices[1], 1, 1, 1.3);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 7, 1.5);
-    set_object_visual_data(resources.TextureFur, 1);
+    translate_mesh_matrix(g_object_mesh_indices[1], g_current_pos_x, g_current_pos_y + 7, 1.5);
+    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[1], resources.TextureFur, 1);
 end
 
 local function ShowSheep_(iAT)
@@ -281,8 +281,8 @@ local function ShowSheep_(iAT)
         select_object_mesh(g_object_mesh_indices[iSheep]);
         set_mesh_to_mesh(g_object_mesh_indices[iSheep], iFrame);
         set_identity_mesh_matrix(g_object_mesh_indices[iSheep]);
-        script_selected_mesh_translate_matrix(iSheepX, iSheepY, 2);
-        set_object_visual_data(resources.TextureSheep, 1);
+        translate_mesh_matrix(g_object_mesh_indices[iSheep], iSheepX, iSheepY, 2);
+        set_texture_and_is_visible_on_mesh(g_object_mesh_indices[iSheep], resources.TextureSheep, 1);
     end
 end
 
@@ -316,8 +316,8 @@ local function ShowTurtles_(iAT)
         end
 
         set_mesh_to_mesh(mesh_index, iFrame);
-        script_selected_mesh_translate_matrix(iTurtX, iTurtY, 2);
-        set_object_visual_data(resources.TextureTurtleTexture, 1);
+        translate_mesh_matrix(mesh_index, iTurtX, iTurtY, 2);
+        set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureTurtleTexture, 1);
     end
 end
 
@@ -363,8 +363,8 @@ local function ShowDonuts_(iAT)
         end
 
         set_mesh_to_mesh(g_object_mesh_indices[iDon], iFrame);
-        script_selected_mesh_translate_matrix(iDonX, iDonY, iZ);
-        set_object_visual_data(resources.TextureRunDonut, 1);
+        translate_mesh_matrix(g_object_mesh_indices[iDon], iDonX, iDonY, iZ);
+        set_texture_and_is_visible_on_mesh(g_object_mesh_indices[iDon], resources.TextureRunDonut, 1);
     end
 end
 
@@ -402,8 +402,8 @@ local function ShowDino_(iAT)
     end
 
     set_mesh_to_mesh(mesh_index, iFrame);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 0);
-    set_object_visual_data(resources.TextureDinosaur, 1);
+    translate_mesh_matrix(mesh_index, g_current_pos_x, g_current_pos_y, 0);
+    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureDinosaur, 1);
 end
 
 local function JumpmanChase_(iAT)
@@ -436,8 +436,8 @@ local function JumpmanChase_(iAT)
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
     scale_mesh_matrix(g_object_mesh_indices[0], 1, 1, 1);
     set_mesh_to_mesh(g_object_mesh_indices[0], iFrame);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, 3);
-    set_object_visual_data(resources.TextureJumpman, 1);
+    translate_mesh_matrix(g_object_mesh_indices[0], g_current_pos_x, g_current_pos_y, 3);
+    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[0], resources.TextureJumpman, 1);
 end
 
 local function ShowRocket_(iAT)
@@ -451,8 +451,8 @@ local function ShowRocket_(iAT)
     rotate_y_mesh_matrix(mesh_index, iAT / 3);
     rotate_z_mesh_matrix(mesh_index, iRZ);
     scale_mesh_matrix(mesh_index, 2, 2, 2);
-    script_selected_mesh_translate_matrix(130, g_current_pos_y, 10);
-    set_object_visual_data(resources.TextureDABotO, 1);
+    translate_mesh_matrix(mesh_index, 130, g_current_pos_y, 10);
+    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureDABotO, 1);
 
     for iBlip = 1, 14 do
         local blip_mesh_index = g_object_mesh_indices[iBlip];
@@ -468,12 +468,12 @@ local function ShowRocket_(iAT)
 
         local iBX = math.sin(iBA * math.pi / 180.0) * iBD;
         local iBY = math.cos(iBA * math.pi / 180.0) * iBD;
-        script_selected_mesh_translate_matrix(iBX, iBY - 15, 0);
+        translate_mesh_matrix(blip_mesh_index, iBX, iBY - 15, 0);
         rotate_y_mesh_matrix(blip_mesh_index, 10);
         rotate_z_mesh_matrix(blip_mesh_index, iRZ);
 
-        script_selected_mesh_translate_matrix(132.5, g_current_pos_y, 12);
-        set_object_visual_data(resources.TextureBlast1, 1);
+        translate_mesh_matrix(blip_mesh_index, 132.5, g_current_pos_y, 12);
+        set_texture_and_is_visible_on_mesh(blip_mesh_index, resources.TextureBlast1, 1);
     end
 end
 
@@ -572,12 +572,14 @@ local function ProgressLevel_(game_input)
         new_credits.initialize();
         g_credits = new_credits;
 
-        select_platform(1);
-        set_object_visual_data(0, 0);
+        select_platform(1);  -- TODO: Use constant for num
+        local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
+        set_texture_and_is_visible_on_mesh(platform_mesh_index, 0, 0);
 
-        select_picture(100);
-        script_selected_mesh_translate_matrix(40, 0, 20);
-        set_object_visual_data(resources.TextureBlack, 1);
+        select_picture(100);  -- TODO: Use constant for num
+        local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+        translate_mesh_matrix(backdrop_mesh_index, 40, 0, 20);
+        set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureBlack, 1);
     end
 
     if g_end_alien then

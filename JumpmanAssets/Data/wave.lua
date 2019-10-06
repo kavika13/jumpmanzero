@@ -63,18 +63,18 @@ function Module.update()
 
     select_object_mesh(g_wave_1_mesh_index);
     set_identity_mesh_matrix(g_wave_1_mesh_index);
-    script_selected_mesh_translate_matrix(g_current_pos_x1 + iAdj1, g_current_pos_y + iHeight1, 0 - 0.1);
-    set_object_visual_data(Module.Wave1TextureResourceIndex, 1);
+    translate_mesh_matrix(g_wave_1_mesh_index, g_current_pos_x1 + iAdj1, g_current_pos_y + iHeight1, 0 - 0.1);
+    set_texture_and_is_visible_on_mesh(g_wave_1_mesh_index, Module.Wave1TextureResourceIndex, 1);
 
     select_object_mesh(g_sea_mesh_index);
     set_identity_mesh_matrix(g_sea_mesh_index);
-    script_selected_mesh_translate_matrix(g_current_pos_x1 + iAdj1, g_current_pos_y + iHeight1, 0 - 0.1);
-    set_object_visual_data(Module.SeaTextureResourceIndex, 1);
+    translate_mesh_matrix(g_sea_mesh_index, g_current_pos_x1 + iAdj1, g_current_pos_y + iHeight1, 0 - 0.1);
+    set_texture_and_is_visible_on_mesh(g_sea_mesh_index, Module.SeaTextureResourceIndex, 1);
 
     select_object_mesh(g_wave_2_mesh_index);
     set_identity_mesh_matrix(g_wave_2_mesh_index);
-    script_selected_mesh_translate_matrix(g_current_pos_x2 + iAdj2, g_current_pos_y + iHeight2, 6.5);
-    set_object_visual_data(Module.Wave2TextureResourceIndex, 1);
+    translate_mesh_matrix(g_wave_2_mesh_index, g_current_pos_x2 + iAdj2, g_current_pos_y + iHeight2, 6.5);
+    set_texture_and_is_visible_on_mesh(g_wave_2_mesh_index, Module.Wave2TextureResourceIndex, 1);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             0 - 500, g_current_pos_y - 500,

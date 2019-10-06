@@ -60,13 +60,13 @@ local function SetClockPosition_(iPos)
     select_picture(1);  -- TODO: Use constant for num
     local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(0 - 64, 0 - 48, 120);
+    translate_mesh_matrix(backdrop_mesh_index, 0 - 64, 0 - 48, 120);
     undo_camera_perspective_on_mesh_matrix(backdrop_mesh_index);
 
     select_object_mesh(g_clock_hand_mesh_index);
     set_identity_mesh_matrix(g_clock_hand_mesh_index);
     rotate_z_mesh_matrix(g_clock_hand_mesh_index, iPos);
-    script_selected_mesh_translate_matrix(0 - 54, 0 - 38, 120);
+    translate_mesh_matrix(g_clock_hand_mesh_index, 0 - 54, 0 - 38, 120);
     undo_camera_perspective_on_mesh_matrix(g_clock_hand_mesh_index);
 end
 
@@ -87,10 +87,10 @@ local function SpinClock_(iPic)
     local iObjX = get_script_selected_level_object_x1();
     local backdrop_mesh_index = find_backdrop_mesh_index(iPic);
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(0 - iObjX, 0, 0);
+    translate_mesh_matrix(backdrop_mesh_index, 0 - iObjX, 0, 0);
     rotate_y_mesh_matrix(backdrop_mesh_index, g_current_clock_hand_rotation);
-    script_selected_mesh_translate_matrix(iObjX, 0, 7);
-    set_object_visual_data(resources.TextureStopWatch, 1);
+    translate_mesh_matrix(backdrop_mesh_index, iObjX, 0, 7);
+    set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureStopWatch, 1);
 end
 
 local function CollideLittleClocks_()
@@ -110,7 +110,8 @@ local function CollideLittleClocks_()
                 g_clock_num_frames_left = g_clock_num_frames_left + 140;
                 g_clock_timers[iLoop] = 500;
                 select_picture(iLoop);
-                set_object_visual_data(resources.TextureStopWatch, 0);
+                local backdrop_mesh_index = find_backdrop_mesh_index(iLoop);
+                set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureStopWatch, 0);
             end
         end
 
@@ -154,7 +155,7 @@ function initialize(game_input)
 
     g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
     select_object_mesh(g_clock_hand_mesh_index);
-    set_object_visual_data(resources.TextureBlack, 1);
+    set_texture_and_is_visible_on_mesh(g_clock_hand_mesh_index, resources.TextureBlack, 1);
 
     g_wave = pause_wave_module();
     g_wave.GameLogic = g_game_logic;

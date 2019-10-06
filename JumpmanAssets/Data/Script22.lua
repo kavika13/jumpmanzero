@@ -120,7 +120,7 @@ local function DisplayPlatform_(iNum)
 
     local platform_mesh_index = get_platform_mesh_index(g_platform_numbers[iNum]);
     set_identity_mesh_matrix(platform_mesh_index);
-    script_selected_mesh_translate_matrix(iDX, iDY, 0);
+    translate_mesh_matrix(platform_mesh_index, iDX, iDY, 0);
 
     iDX = g_platforms_x1[iNum] - g_platforms_previous_x1[iNum];
     iDY = g_platforms_y1[iNum] - g_platforms_previous_y1[iNum];
@@ -202,15 +202,15 @@ local function ProgressLevel_(game_input)
     set_identity_mesh_matrix(g_small_gears_background_mesh_index);
     rotate_z_mesh_matrix(g_small_gears_background_mesh_index, 0 - g_animation_frame);
     scale_mesh_matrix(g_small_gears_background_mesh_index, 25, 25, 2);
-    script_selected_mesh_translate_matrix(80, 80, 7);
-    set_object_visual_data(resources.TextureBoringGray, 1);
+    translate_mesh_matrix(g_small_gears_background_mesh_index, 80, 80, 7);
+    set_texture_and_is_visible_on_mesh(g_small_gears_background_mesh_index, resources.TextureBoringGray, 1);
 
     select_object_mesh(g_large_gears_background_mesh_index);
     set_identity_mesh_matrix(g_large_gears_background_mesh_index);
     rotate_z_mesh_matrix(g_large_gears_background_mesh_index, g_animation_frame * 2 / 3);
     scale_mesh_matrix(g_large_gears_background_mesh_index, 50, 50, 2);
-    script_selected_mesh_translate_matrix(80, 80, 9);
-    set_object_visual_data(resources.TextureBoringGray, 1);
+    translate_mesh_matrix(g_large_gears_background_mesh_index, 80, 80, 9);
+    set_texture_and_is_visible_on_mesh(g_large_gears_background_mesh_index, resources.TextureBoringGray, 1);
 
     g_game_logic.update_player_graphics();
 end

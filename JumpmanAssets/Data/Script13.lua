@@ -68,30 +68,33 @@ local function RotateBack_()
         select_picture(iBackdropNum);
         local backdrop_mesh_index = find_backdrop_mesh_index(iBackdropNum);
         set_identity_mesh_matrix(backdrop_mesh_index);
-        script_selected_mesh_translate_matrix(-80, -40, 0);
+        translate_mesh_matrix(backdrop_mesh_index, -80, -40, 0);
         scale_mesh_matrix(backdrop_mesh_index, 1.1, 1.1, 1);
         rotate_z_mesh_matrix(backdrop_mesh_index, g_background_rotation);
-        script_selected_mesh_translate_matrix(80, 40, 0);
+        translate_mesh_matrix(backdrop_mesh_index, 80, 40, 0);
     end
 end
 
 local function SetConfig_()
     for iLoop = 256, 264, 2 do
         local iRnd = math.random(0, 1000) < 500;
+        local mesh_index;
 
         if iRnd then
             select_platform(iLoop + 1);
             set_script_selected_level_object_number(iLoop - 251);
             select_platform(iLoop);
+            mesh_index = find_platform_mesh_index(iLoop);
         else
             select_platform(iLoop);
             set_script_selected_level_object_number(iLoop - 247);
             select_platform(iLoop + 1);
+            mesh_index = find_platform_mesh_index(iLoop + 1);
         end
 
         set_script_selected_level_object_y1(500);
         set_script_selected_level_object_y2(500);
-        script_selected_mesh_translate_matrix(0, 0, 2000);
+        translate_mesh_matrix(mesh_index, 0, 0, 2000);
     end
 end
 
@@ -99,44 +102,48 @@ local function ResetVisible_(visibility_bitmask)
     for iObj = 0, get_platform_object_count() - 1 do
         abs_platform(iObj);
         local iPlat = get_script_selected_level_object_number();
+        local mesh_index = get_platform_mesh_index(iObj);
 
         if (iPlat & visibility_bitmask) ~= 0 then
-            set_object_visual_data(resources.TextureClassicPlatform, 1);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureClassicPlatform, 1);
         else
-            set_object_visual_data(resources.TextureInvisible, 1);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
         end
     end
 
     for iObj = 0, get_ladder_object_count() - 1 do
         abs_ladder(iObj);
         local iPlat = get_script_selected_level_object_number();
+        local mesh_index = get_ladder_mesh_index(iObj);
 
         if (iPlat & visibility_bitmask) ~= 0 then
-            set_object_visual_data(resources.TextureBlueMarble, 1);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
         else
-            set_object_visual_data(resources.TextureInvisible, 1);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
         end
     end
 
     for iObj = 0, get_vine_object_count() - 1 do
         abs_vine(iObj);
         local iPlat = get_script_selected_level_object_number();
+        local mesh_index = get_vine_mesh_index(iObj);
 
         if (iPlat & visibility_bitmask) ~= 0 then
-            set_object_visual_data(resources.TextureBlueMarble, 1);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
         else
-            set_object_visual_data(resources.TextureInvisible, 1);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
         end
     end
 
     for iObj = 0, get_donut_object_count() - 1 do
         abs_donut(iObj);
         local iPlat = get_script_selected_level_object_number();
+        local mesh_index = get_donut_mesh_index(iObj);
 
         if visibility_bitmask == 1 then
-            set_object_visual_data(resources.TextureInvisible, get_script_selected_level_object_visible() and 1 or 0);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, get_script_selected_level_object_visible() and 1 or 0);
         else
-            set_object_visual_data(resources.TextureRedMetal, get_script_selected_level_object_visible() and 1 or 0);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureRedMetal, get_script_selected_level_object_visible() and 1 or 0);
         end
     end
 end

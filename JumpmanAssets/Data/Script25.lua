@@ -146,22 +146,24 @@ local function MoveSplashParticles_()
         iDrag = iDrag * iDrag;
         iDY = iDY - iDrag;
 
+        local mesh_index = g_splash_particle_mesh_indices[iLoop];
+
         if iDY < -1 then
-            select_object_mesh(g_splash_particle_mesh_indices[iLoop]);
-            set_object_visual_data(0, 0);
+            select_object_mesh(mesh_index);
+            set_texture_and_is_visible_on_mesh(mesh_index, 0, 0);
         else
             is_any_particle_visible = true;
-            select_object_mesh(g_splash_particle_mesh_indices[iLoop]);
-            set_identity_mesh_matrix(g_splash_particle_mesh_indices[iLoop]);
+            select_object_mesh(mesh_index);
+            set_identity_mesh_matrix(mesh_index);
 
             if iLoop & 1 then
-                scale_mesh_matrix(g_splash_particle_mesh_indices[iLoop], 3, 2, 1);
+                scale_mesh_matrix(mesh_index, 3, 2, 1);
             else
-                scale_mesh_matrix(g_splash_particle_mesh_indices[iLoop], 5, 3, 1);
+                scale_mesh_matrix(mesh_index, 5, 3, 1);
             end
 
-            script_selected_mesh_translate_matrix(g_splash_particle_start_x + iDX / 200, g_splash_particle_start_y + iDY / 200, -1);
-            set_object_visual_data(resources.TextureSBit, 1);
+            translate_mesh_matrix(mesh_index, g_splash_particle_start_x + iDX / 200, g_splash_particle_start_y + iDY / 200, -1);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureSBit, 1);
         end
     end
 
@@ -379,8 +381,8 @@ local function ProgressLevel_(game_input)
 
     -- TODO: Looks like jumpman's last animation frame isn't disappearing anymore when the player jumps in water.
     --       The bug might be in game_logic.lua.update_player_graphics, or it might be here
-    select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);
-    set_object_visual_data(0, 0);
+    select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);  -- Previous frame
+    set_texture_and_is_visible_on_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame], 0, 0);
 
     if g_splash_particle_time > 0 then
         MoveSplashParticles_();
@@ -433,8 +435,8 @@ local function ProgressLevel_(game_input)
         select_object_mesh(swim_anim_mesh_index);
         set_identity_mesh_matrix(swim_anim_mesh_index);
         rotate_z_mesh_matrix(swim_anim_mesh_index, g_swim_rotation_angle);
-        script_selected_mesh_translate_matrix(iDrawX, iDrawY + 5, 2);
-        set_object_visual_data(resources.TextureJumpman, 1);
+        translate_mesh_matrix(swim_anim_mesh_index, iDrawX, iDrawY + 5, 2);
+        set_texture_and_is_visible_on_mesh(swim_anim_mesh_index, resources.TextureJumpman, 1);
 
         if g_game_logic.get_player_current_state() == player_state.JSDYING then
             g_game_logic.set_player_freeze_cooldown_frame_count(0);

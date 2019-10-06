@@ -65,7 +65,7 @@ local function CheckHanging_(game_input)
     for iDraw = 0, 19 do
         if iHangMesh[iDraw] and iHangMesh[iDraw] > 0 then
             select_object_mesh(iHangMesh[iDraw]);
-            set_object_visual_data(0, 0);
+            set_texture_and_is_visible_on_mesh(iHangMesh[iDraw], 0, 0);
         end
     end
 
@@ -118,11 +118,12 @@ local function CheckHanging_(game_input)
 
         select_object_mesh(iHangMesh[iDraw]);
         set_identity_mesh_matrix(iHangMesh[iDraw]);
-        script_selected_mesh_translate_matrix(
+        translate_mesh_matrix(
+            iHangMesh[iDraw],
             g_game_logic.get_player_current_position_x() + 0,
             g_game_logic.get_player_current_position_y() + 2,
             g_game_logic.get_player_current_position_z() + 1.5);
-        set_object_visual_data(resources.TextureJumpman, 1);
+        set_texture_and_is_visible_on_mesh(iHangMesh[iDraw], resources.TextureJumpman, 1);
     else
         g_game_logic.set_player_is_visible(true);
     end

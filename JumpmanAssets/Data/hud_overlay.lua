@@ -26,17 +26,17 @@ local function ShowRemaining_()
     -- local square_icon_texture_resource_index = get_loaded_texture_count() - 2;  -- Hud BG texture always loaded second to last after a level loaded - TODO: Don't hard code that?
 
     -- select_object_mesh(g_jumpman_hud_background_icon);
-    -- set_object_visual_data(square_icon_texture_resource_index, 0);
+    -- set_texture_and_is_visible_on_mesh(g_jumpman_hud_background_icon, square_icon_texture_resource_index, 0);
     -- set_identity_mesh_matrix(g_jumpman_hud_background_icon);
     -- scale_mesh_matrix(g_jumpman_hud_background_icon, 16, 8, 1);
-    -- script_selected_mesh_translate_matrix(44, -34, 92);
+    -- translate_mesh_matrix(g_jumpman_hud_background_icon, 44, -34, 92);
     -- undo_camera_perspective_on_mesh_matrix(g_jumpman_hud_background_icon);
 
     select_object_mesh(g_jumpman_icon_mesh_index);
-    set_object_visual_data(0, 1);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
+    set_texture_and_is_visible_on_mesh(g_jumpman_icon_mesh_index, 0, 1);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
     set_identity_mesh_matrix(g_jumpman_icon_mesh_index);
     scale_mesh_matrix(g_jumpman_icon_mesh_index, 0.5, 0.5, 0.5);
-    script_selected_mesh_translate_matrix(40, -34, 90);
+    translate_mesh_matrix(g_jumpman_icon_mesh_index, 40, -34, 90);
     undo_camera_perspective_on_mesh_matrix(g_jumpman_icon_mesh_index);
 end
 
@@ -61,49 +61,53 @@ local function ShowPerformance_(game_input, lives_remaining)
     local fps_ones_digit = fps_count;
 
     for iNum = 0, 9 do
-        select_object_mesh(g_life_count_number_mesh_indices[iNum + 1]);
+        local life_count_digit_mesh_index = g_life_count_number_mesh_indices[iNum + 1];
+        select_object_mesh(life_count_digit_mesh_index);
 
         if iNum == lives_remaining and lives_remaining > 0 then
-            set_object_visual_data(letter_texture_resource_index, 1);
-            set_identity_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1]);
-            scale_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1], 0.5, 0.5, 0.2);
-            script_selected_mesh_translate_matrix(47, -33, 90);
-            undo_camera_perspective_on_mesh_matrix(g_life_count_number_mesh_indices[iNum + 1]);
+            set_texture_and_is_visible_on_mesh(life_count_digit_mesh_index, letter_texture_resource_index, 1);
+            set_identity_mesh_matrix(life_count_digit_mesh_index);
+            scale_mesh_matrix(life_count_digit_mesh_index, 0.5, 0.5, 0.2);
+            translate_mesh_matrix(life_count_digit_mesh_index, 47, -33, 90);
+            undo_camera_perspective_on_mesh_matrix(life_count_digit_mesh_index);
         else
-            set_object_visual_data(0, 0);
+            set_texture_and_is_visible_on_mesh(life_count_digit_mesh_index, 0, 0);
         end
 
-        select_object_mesh(g_fps_first_number_mesh_indices[iNum + 1]);
+        local fps_first_numer_mesh_index = g_fps_first_number_mesh_indices[iNum + 1];
+        select_object_mesh(fps_first_numer_mesh_index);
 
         if iNum == fps_hundreds_digit and game_input.debug_action.is_pressed then
-            set_object_visual_data(letter_texture_resource_index, 1);
-            set_identity_mesh_matrix(g_fps_first_number_mesh_indices[iNum + 1]);
-            script_selected_mesh_translate_matrix(-40, 30, 90);
-            undo_camera_perspective_on_mesh_matrix(g_fps_first_number_mesh_indices[iNum + 1]);
+            set_texture_and_is_visible_on_mesh(fps_first_numer_mesh_index, letter_texture_resource_index, 1);
+            set_identity_mesh_matrix(fps_first_numer_mesh_index);
+            translate_mesh_matrix(fps_first_numer_mesh_index, -40, 30, 90);
+            undo_camera_perspective_on_mesh_matrix(fps_first_numer_mesh_index);
         else
-            set_object_visual_data(0, 0);
+            set_texture_and_is_visible_on_mesh(fps_first_numer_mesh_index, 0, 0);
         end
 
-        select_object_mesh(g_fps_second_number_mesh_indices[iNum + 1]);
+        local fps_second_numer_mesh_index = g_fps_second_number_mesh_indices[iNum + 1];
+        select_object_mesh(fps_second_numer_mesh_index);
 
         if iNum == fps_tens_digit and game_input.debug_action.is_pressed then
-            set_object_visual_data(letter_texture_resource_index, 1);
-            set_identity_mesh_matrix(g_fps_second_number_mesh_indices[iNum + 1]);
-            script_selected_mesh_translate_matrix(-34, 30, 90);
-            undo_camera_perspective_on_mesh_matrix(g_fps_second_number_mesh_indices[iNum + 1]);
+            set_texture_and_is_visible_on_mesh(fps_second_numer_mesh_index, letter_texture_resource_index, 1);
+            set_identity_mesh_matrix(fps_second_numer_mesh_index);
+            translate_mesh_matrix(fps_second_numer_mesh_index, -34, 30, 90);
+            undo_camera_perspective_on_mesh_matrix(fps_second_numer_mesh_index);
         else
-            set_object_visual_data(0, 0);
+            set_texture_and_is_visible_on_mesh(fps_second_numer_mesh_index, 0, 0);
         end
 
-        select_object_mesh(g_fps_third_number_mesh_indices[iNum + 1]);
+        local fps_third_numer_mesh_index = g_fps_third_number_mesh_indices[iNum + 1];
+        select_object_mesh(fps_third_numer_mesh_index);
 
         if iNum == fps_ones_digit and game_input.debug_action.is_pressed then
-            set_object_visual_data(letter_texture_resource_index, 1);
-            set_identity_mesh_matrix(g_fps_third_number_mesh_indices[iNum + 1]);
-            script_selected_mesh_translate_matrix(-28, 30, 90);
-            undo_camera_perspective_on_mesh_matrix(g_fps_third_number_mesh_indices[iNum + 1]);
+            set_texture_and_is_visible_on_mesh(fps_third_numer_mesh_index, letter_texture_resource_index, 1);
+            set_identity_mesh_matrix(fps_third_numer_mesh_index);
+            translate_mesh_matrix(fps_third_numer_mesh_index, -28, 30, 90);
+            undo_camera_perspective_on_mesh_matrix(fps_third_numer_mesh_index);
         else
-            set_object_visual_data(0, 0);
+            set_texture_and_is_visible_on_mesh(fps_third_numer_mesh_index, 0, 0);
         end
     end
 end
@@ -126,14 +130,14 @@ local function ShowLevelTitleAnimation_(animation_time)
             if iX > -90 and iX < 90 then
                 set_identity_mesh_matrix(letter_mesh_index);
                 scale_mesh_matrix(letter_mesh_index, 0.16, 0.16, 0.16);
-                script_selected_mesh_translate_matrix(0, 0, 5);
+                translate_mesh_matrix(letter_mesh_index, 0, 0, 5);
                 rotate_y_mesh_matrix(letter_mesh_index, iX);
-                script_selected_mesh_translate_matrix(0, 0, 8);
+                translate_mesh_matrix(letter_mesh_index, 0, 0, 8);
                 undo_camera_perspective_on_mesh_matrix(letter_mesh_index);
-                set_object_visual_data(get_loaded_texture_count() - 1, 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
+                set_texture_and_is_visible_on_mesh(letter_mesh_index, get_loaded_texture_count() - 1, 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
                 is_animation_still_active = true;
             else
-                set_object_visual_data(0, 0);
+                set_texture_and_is_visible_on_mesh(letter_mesh_index, 0, 0);
             end
         end
 

@@ -110,28 +110,28 @@ local function DrawFire_()
             rotate_z_mesh_matrix(g_blast_mesh_index, 180);
         end
 
-        script_selected_mesh_translate_matrix(iBX - 0.5, iBY, g_target_pos_z - 2);
-        set_object_visual_data(Module.BlastTextureResourceIndex, 1);
+        translate_mesh_matrix(g_blast_mesh_index, iBX - 0.5, iBY, g_target_pos_z - 2);
+        set_texture_and_is_visible_on_mesh(g_blast_mesh_index, Module.BlastTextureResourceIndex, 1);
     end
 
     select_object_mesh(g_beam_1_mesh_index);
     set_identity_mesh_matrix(g_beam_1_mesh_index);
-    script_selected_mesh_translate_matrix(0.5, 0, 0);
+    translate_mesh_matrix(g_beam_1_mesh_index, 0.5, 0, 0);
     scale_mesh_matrix(g_beam_1_mesh_index, g_gun_to_target_distance, 1, 1);
     rotate_z_mesh_matrix(g_beam_1_mesh_index, g_gun_tilt_rotation);
     rotate_y_mesh_matrix(g_beam_1_mesh_index, g_gun_pan_rotation);
-    script_selected_mesh_translate_matrix(g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
-    set_object_visual_data(Module.BeamColorTextureResourceIndex, 1);
+    translate_mesh_matrix(g_beam_1_mesh_index, g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
+    set_texture_and_is_visible_on_mesh(g_beam_1_mesh_index, Module.BeamColorTextureResourceIndex, 1);
 
     select_object_mesh(g_beam_2_mesh_index);
     set_identity_mesh_matrix(g_beam_2_mesh_index);
     rotate_x_mesh_matrix(g_beam_2_mesh_index, g_frames_since_beam_started * 34);
-    script_selected_mesh_translate_matrix(0.5, 0, 0);
+    translate_mesh_matrix(g_beam_2_mesh_index, 0.5, 0, 0);
     scale_mesh_matrix(g_beam_2_mesh_index, g_gun_to_target_distance, 3, 2);
     rotate_z_mesh_matrix(g_beam_2_mesh_index, g_gun_tilt_rotation);
     rotate_y_mesh_matrix(g_beam_2_mesh_index, g_gun_pan_rotation);
-    script_selected_mesh_translate_matrix(g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
-    set_object_visual_data(Module.BeamTextureResourceIndex, 1);
+    translate_mesh_matrix(g_beam_2_mesh_index, g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
+    set_texture_and_is_visible_on_mesh(g_beam_2_mesh_index, Module.BeamTextureResourceIndex, 1);
 end
 
 function Module.initialize()
@@ -165,11 +165,13 @@ function Module.update()
 
     if Module.ShipSinkAmount > 0 then
         select_object_mesh(g_blast_mesh_index);
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(g_blast_mesh_index, 0, 0);
+
         select_object_mesh(g_beam_1_mesh_index);
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(g_beam_1_mesh_index, 0, 0);
+
         select_object_mesh(g_beam_2_mesh_index);
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(g_beam_2_mesh_index, 0, 0);
         return;
     end
 

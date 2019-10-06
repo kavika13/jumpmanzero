@@ -88,8 +88,9 @@ function Module.initialize()
 end
 
 function Module.update()
-    select_object_mesh(g_move_animation_mesh_indices[g_move_animation_current_frame_index]);
-    set_object_visual_data(0, 0);
+    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
+    select_object_mesh(g_move_animation_mesh_indices[g_move_animation_current_frame_index]);  -- Previous frame
+    set_texture_and_is_visible_on_mesh(g_move_animation_mesh_indices[g_move_animation_current_frame_index], 0, 0);
 
     MoveBee_();
 
@@ -105,10 +106,11 @@ function Module.update()
         g_move_animation_current_frame_index = g_move_animation_counter < 2 and 1 or 0;
     end
 
-    select_object_mesh(g_move_animation_mesh_indices[g_move_animation_current_frame_index]);
-    set_identity_mesh_matrix(g_move_animation_mesh_indices[g_move_animation_current_frame_index]);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6, 0);
-    set_object_visual_data(Module.TextureResourceIndex, 1);
+    local anim_mesh_index = g_move_animation_mesh_indices[g_move_animation_current_frame_index];
+    select_object_mesh(anim_mesh_index);
+    set_identity_mesh_matrix(anim_mesh_index);
+    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 6, 0);
+    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y + 5,

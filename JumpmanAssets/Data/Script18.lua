@@ -82,16 +82,18 @@ local function ShowWorking_(game_input)
         g_work_animation_frame = 0;
     end
 
+    local mesh_index;
+
     if g_work_animation_frame > 5 then
-        select_object_mesh(g_jumpman_work_1_mesh_index);
-        set_identity_mesh_matrix(g_jumpman_work_1_mesh_index);
+        mesh_index = g_jumpman_work_1_mesh_index;
     else
-        select_object_mesh(g_jumpman_work_2_mesh_index);
-        set_identity_mesh_matrix(g_jumpman_work_2_mesh_index);
+        mesh_index = g_jumpman_work_2_mesh_index;
     end
 
-    script_selected_mesh_translate_matrix(iPX, iPY + 6, iPZ + 1);
-    set_object_visual_data(resources.TextureJumpman, 1);
+    select_object_mesh(mesh_index);
+    set_identity_mesh_matrix(mesh_index);
+    translate_mesh_matrix(mesh_index, iPX, iPY + 6, iPZ + 1);
+    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureJumpman, 1);
 end
 
 local function CollideDonuts_(game_input)
@@ -99,10 +101,10 @@ local function CollideDonuts_(game_input)
     g_is_disarm_hud_visible = false;
 
     select_object_mesh(g_jumpman_work_1_mesh_index);
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_jumpman_work_1_mesh_index, 0, 0);
 
     select_object_mesh(g_jumpman_work_2_mesh_index);
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_jumpman_work_2_mesh_index, 0, 0);
 
     -- Skip any progress checks if player is moving or not otherwise standing still
     local iPStat = g_game_logic.get_player_current_state();
@@ -200,23 +202,23 @@ function ProgressLevel_(game_input)
         select_object_mesh(g_message_mesh_index);
         set_identity_mesh_matrix(g_message_mesh_index);
         scale_mesh_matrix(g_message_mesh_index, 20, 20, 1);
-        script_selected_mesh_translate_matrix(0 - 54, 0 - 39, 120);
+        translate_mesh_matrix(g_message_mesh_index, 0 - 54, 0 - 39, 120);
         undo_camera_perspective_on_mesh_matrix(g_message_mesh_index);
-        set_object_visual_data(resources.TextureDisarming, 1);
+        set_texture_and_is_visible_on_mesh(g_message_mesh_index, resources.TextureDisarming, 1);
 
         select_object_mesh(g_progress_bar_mesh_index);
         set_identity_mesh_matrix(g_progress_bar_mesh_index);
         local iProg = (100 - g_disarm_progress) * 16.5 / 100;
         scale_mesh_matrix(g_progress_bar_mesh_index, iProg, 3.8, 1);
-        script_selected_mesh_translate_matrix((0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
+        translate_mesh_matrix(g_progress_bar_mesh_index, (0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
         undo_camera_perspective_on_mesh_matrix(g_progress_bar_mesh_index);
-        set_object_visual_data(resources.TextureBoringGreen, 1);
+        set_texture_and_is_visible_on_mesh(g_progress_bar_mesh_index, resources.TextureBoringGreen, 1);
     else
         select_object_mesh(g_message_mesh_index);
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(g_message_mesh_index, 0, 0);
 
         select_object_mesh(g_progress_bar_mesh_index);
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(g_progress_bar_mesh_index, 0, 0);
     end
 
     for _, zap_bot in ipairs(g_zap_bots) do
@@ -244,10 +246,10 @@ function initialize(game_input)
     g_hud_overlay = hud_overlay_module();
 
     g_jumpman_work_1_mesh_index = new_mesh(resources.MeshJMWork1);
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_jumpman_work_1_mesh_index, 0, 0);
 
     g_jumpman_work_2_mesh_index = new_mesh(resources.MeshJMWork2);
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_jumpman_work_2_mesh_index, 0, 0);
 
     g_message_mesh_index = new_mesh(0);
     g_progress_bar_mesh_index = new_mesh(0);

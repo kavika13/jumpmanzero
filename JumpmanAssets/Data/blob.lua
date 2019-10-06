@@ -73,10 +73,10 @@ local function ShowBlob_()
     set_identity_mesh_matrix(g_blob_mesh_index);
     scale_mesh_matrix(g_blob_mesh_index, 0.6, 0.5, 0.8);
     rotate_z_mesh_matrix(g_blob_mesh_index, g_current_rotation_z);
-    script_selected_mesh_translate_matrix(0, 0, -75);
+    translate_mesh_matrix(g_blob_mesh_index, 0, 0, -75);
     rotate_y_mesh_matrix(g_blob_mesh_index, (iPX - g_current_pos_x) * 360 / Module.PlayAreaCircumference);
-    script_selected_mesh_translate_matrix(iPX, g_current_pos_y - 0.6, 75.3);
-    set_object_visual_data(Module.TextureResourceIndex, 1);
+    translate_mesh_matrix(g_blob_mesh_index, iPX, g_current_pos_y - 0.6, 75.3);
+    set_texture_and_is_visible_on_mesh(g_blob_mesh_index, Module.TextureResourceIndex, 1);
 end
 
 function Module.initialize()

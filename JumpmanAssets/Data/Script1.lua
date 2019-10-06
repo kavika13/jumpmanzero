@@ -74,10 +74,10 @@ local function MoveLadder_(iLadderNum, iPos)
 
     local ladder_mesh_index = find_ladder_mesh_index(iLadderNum);
     set_identity_mesh_matrix(ladder_mesh_index);
-    script_selected_mesh_translate_matrix(0 - iX, 0 - iY, 0 - iZ);
+    translate_mesh_matrix(ladder_mesh_index, 0 - iX, 0 - iY, 0 - iZ);
     rotate_z_mesh_matrix(ladder_mesh_index, iPos * 2);
     rotate_x_mesh_matrix(ladder_mesh_index, iPos);
-    script_selected_mesh_translate_matrix(iX, iY, iZ - iPos);
+    translate_mesh_matrix(ladder_mesh_index, iX, iY, iZ - iPos);
 end
 
 local function MovePlatform_(iPlatNum, iRotate, iTran, get_platform_x_value, get_platform_y_value)
@@ -86,9 +86,9 @@ local function MovePlatform_(iPlatNum, iRotate, iTran, get_platform_x_value, get
     local iPlatY = get_platform_y_value();
     local platform_mesh_index = find_platform_mesh_index(iPlatNum);
     set_identity_mesh_matrix(platform_mesh_index);
-    script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
+    translate_mesh_matrix(platform_mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
     rotate_z_mesh_matrix(platform_mesh_index, iRotate);
-    script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
+    translate_mesh_matrix(platform_mesh_index, iPlatX + iTran, iPlatY, 0);
 end
 
 local function ProgressLevel_(game_input)
@@ -102,6 +102,7 @@ local function ProgressLevel_(game_input)
     if g_is_object_1_moving then
         g_object_1_animation_frame = g_object_1_animation_frame + 3;
 
+        -- TODO: Use constant for num
         MovePlatform_(1, 0 - g_object_1_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
         MovePlatform_(2, g_object_1_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
@@ -123,6 +124,7 @@ local function ProgressLevel_(game_input)
     if g_is_object_2_moving then
         g_object_2_animation_frame = g_object_2_animation_frame + 3;
 
+        -- TODO: Use constant for num
         MovePlatform_(3, 0 - g_object_2_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
         MovePlatform_(4, g_object_2_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
@@ -151,8 +153,9 @@ local function ProgressLevel_(game_input)
 
         if g_object_3_animation_frame == 80 then
             g_is_object_3_moving = false;
-            select_ladder(1);
-            script_selected_mesh_translate_matrix(1000, 0, 0);
+            select_ladder(1);  -- TODO: Use constant for num
+            local mesh_index = find_ladder_mesh_index(1);  -- TODO: Use constant for num
+            translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
     end
 
@@ -165,8 +168,9 @@ local function ProgressLevel_(game_input)
 
         if g_object_4_animation_frame == 80 then
             g_is_object_4_moving = false;
-            select_ladder(2);
-            script_selected_mesh_translate_matrix(1000, 0, 0);
+            select_ladder(2);  -- TODO: Use constant for num
+            local mesh_index = find_ladder_mesh_index(2);  -- TODO: Use constant for num
+            translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
     end
 
@@ -224,29 +228,29 @@ function update(game_input)
     ProgressLevel_(game_input);
 end
 
-function on_collect_donut(game_input, iDonut)
-    if iDonut == 1 then
+function on_collect_donut(game_input, donut_num)
+    if donut_num == 1 then  -- TODO: Use constant for num
         g_is_object_1_moving = true;
         iPosition1 = 0;
     end
 
-    if iDonut == 2 then
+    if donut_num == 2 then  -- TODO: Use constant for num
         g_is_object_2_moving = true;
         iPosition2 = 0;
     end
 
-    if iDonut == 3 then
+    if donut_num == 3 then  -- TODO: Use constant for num
         g_is_object_3_moving = true;
         iPosition3 = 0;
-        select_ladder(1);
+        select_ladder(1);  -- TODO: Use constant for num
         local iX = get_script_selected_level_object_x1();
         set_script_selected_level_object_x1(iX - 500);
     end
 
-    if iDonut == 4 then
+    if donut_num == 4 then  -- TODO: Use constant for num
         g_is_object_4_moving = true;
         iPosition4 = 0;
-        select_ladder(2);
+        select_ladder(2);  -- TODO: Use constant for num
         local iX = get_script_selected_level_object_x1();
         set_script_selected_level_object_x1(iX - 500);
     end

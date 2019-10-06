@@ -85,10 +85,10 @@ function Module.update()
     select_object_mesh(g_whomper_mesh_index);
     set_identity_mesh_matrix(g_whomper_mesh_index);
     scale_mesh_matrix(g_whomper_mesh_index, 8, 8, 8);
-    script_selected_mesh_translate_matrix(0, -12, 0);
+    translate_mesh_matrix(g_whomper_mesh_index, 0, -12, 0);
     rotate_x_mesh_matrix(g_whomper_mesh_index, Module.iR);
-    script_selected_mesh_translate_matrix(Module.iX, Module.iY, 2);
-    set_object_visual_data(resources.TextureBoringGray, 1);
+    translate_mesh_matrix(g_whomper_mesh_index, Module.iX, Module.iY, 2);
+    set_texture_and_is_visible_on_mesh(g_whomper_mesh_index, resources.TextureBoringGray, 1);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             Module.iX - 4.5, Module.iY - 25,

@@ -1466,18 +1466,19 @@ end
 local function GrabDonuts_(game_input)
     local iGot = false;
 
-    for iLoop = 0, get_donut_object_count() - 1 do
-        if get_donut_is_visible(iLoop) and
+    for donut_index = 0, get_donut_object_count() - 1 do
+        if get_donut_is_visible(donut_index) and
                 PlayerCollide_(
-                    get_donut_x1(iLoop) - 3, get_donut_y1(iLoop) - 4,
-                    get_donut_x1(iLoop) + 3, get_donut_y1(iLoop) + 2) then
-            abs_donut(iLoop);
+                    get_donut_x1(donut_index) - 3, get_donut_y1(donut_index) - 4,
+                    get_donut_x1(donut_index) + 3, get_donut_y1(donut_index) + 2) then
+            abs_donut(donut_index);
+            local donut_mesh_index = get_donut_mesh_index(donut_index);
             set_script_selected_level_object_visible(0);
-            set_object_visual_data(get_donut_texture_index(iLoop), 0);
+            set_texture_and_is_visible_on_mesh(donut_index, get_donut_texture_index(donut_index), 0);
             iGot = true;
 
             if Module.OnCollectDonutCallback then
-                Module.OnCollectDonutCallback(game_input, get_donut_number(iLoop));
+                Module.OnCollectDonutCallback(game_input, get_donut_number(donut_index));
             end
         end
     end
@@ -1628,16 +1629,17 @@ local function AnimateDying_(game_input)
         select_object_mesh(stars_mesh_index);
         set_identity_mesh_matrix(stars_mesh_index);
         rotate_y_mesh_matrix(stars_mesh_index, g_player_absolute_frame_count * 180.0 / 50.0);
-        script_selected_mesh_translate_matrix(
+        translate_mesh_matrix(
+            stars_mesh_index,
             g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z + 1);
-        set_object_visual_data(0, 1);
+        set_texture_and_is_visible_on_mesh(stars_mesh_index, 0, 1);
 
         g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
         g_player_current_rotation_x_radians = 0.1;
         g_player_current_mesh = player_mesh.DEAD;
 
         if g_player_absolute_frame_count == 85 then
-            set_object_visual_data(0, 0);
+            set_texture_and_is_visible_on_mesh(stars_mesh_index, 0, 0);
             set_remaining_life_count(get_remaining_life_count() - 1);
 
             if get_remaining_life_count() == 0 then
@@ -1733,16 +1735,17 @@ function Module.update_player_graphics()
 
     set_identity_mesh_matrix(current_player_mesh_index);
     rotate_x_mesh_matrix(current_player_mesh_index, g_player_current_rotation_x_radians * 180.0 / 3.14);
-    script_selected_mesh_translate_matrix(
+    translate_mesh_matrix(
+        current_player_mesh_index,
         g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
 
     if g_player_is_visible then
-        set_object_visual_data(0, 1);  -- TODO: Don't hard-code texture index?
+        set_texture_and_is_visible_on_mesh(current_player_mesh_index, 0, 1);  -- TODO: Don't hard-code texture index?
     end
 
     if g_player_current_mesh ~= g_player_previous_mesh then
         select_object_mesh(get_player_mesh_index(g_player_previous_mesh))
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(get_player_mesh_index(g_player_previous_mesh), 0, 0);
         g_player_previous_mesh = g_player_current_mesh;
     end
 end

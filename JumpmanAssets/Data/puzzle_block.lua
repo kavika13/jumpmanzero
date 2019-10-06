@@ -129,7 +129,7 @@ local function PutBlockInStartingPos_(all_blocks)
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
         select_object_mesh(g_block_piece_mesh_indices[iLoop]);
-        set_object_visual_data(Module.BlockPieceTextureResourceIndex, 1);
+        set_texture_and_is_visible_on_mesh(g_block_piece_mesh_indices[iLoop], Module.BlockPieceTextureResourceIndex, 1);
     end
 end
 
@@ -145,12 +145,14 @@ local function DrawBlock_()
         if g_current_block_status == block_status.PREPARING_TO_FALL then
             -- TODO: Possible to rotate all shaking pieces as one?
             rotate_z_mesh_matrix(block_piece_mesh_index, iShake);
-            script_selected_mesh_translate_matrix(
+            translate_mesh_matrix(
+                block_piece_mesh_index,
                 g_block_piece_positions_x[iLoop] * kBLOCK_PIECE_WIDTH + 41 + kBLOCK_PIECE_WIDTH / 2 + math.random(0, 2) - 1,
                 g_block_piece_positions_y[iLoop] * kBLOCK_PIECE_HEIGHT + 4,
                 2.5);
         else
-            script_selected_mesh_translate_matrix(
+            translate_mesh_matrix(
+                block_piece_mesh_index,
                 g_block_piece_positions_x[iLoop] * kBLOCK_PIECE_WIDTH + 41 + kBLOCK_PIECE_WIDTH / 2,
                 g_block_piece_positions_y[iLoop] * kBLOCK_PIECE_HEIGHT + 4,
                 2.5);

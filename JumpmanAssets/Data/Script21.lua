@@ -127,16 +127,18 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
-    set_object_visual_data(0, 0);
+    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
+    select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);  -- Previous frame
+    set_texture_and_is_visible_on_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index], 0, 0);
 
     ControlFrog_();
 
-    select_object_mesh(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
-    set_identity_mesh_matrix(g_frog_animation_meshes[g_frog_animation_current_mesh_index]);
-    scale_mesh_matrix(g_frog_animation_meshes[g_frog_animation_current_mesh_index], 2, 2, 2);
-    script_selected_mesh_translate_matrix(23, 175, 18);
-    set_object_visual_data(resources.TextureFrog, 1);
+    local anim_mesh_index = g_frog_animation_meshes[g_frog_animation_current_mesh_index];
+    select_object_mesh(anim_mesh_index);
+    set_identity_mesh_matrix(anim_mesh_index);
+    scale_mesh_matrix(anim_mesh_index, 2, 2, 2);
+    translate_mesh_matrix(anim_mesh_index, 23, 175, 18);
+    set_texture_and_is_visible_on_mesh(anim_mesh_index, resources.TextureFrog, 1);
 
     for _, saw in ipairs(g_saws) do
         saw.update();

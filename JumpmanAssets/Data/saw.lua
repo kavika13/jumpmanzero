@@ -178,8 +178,8 @@ function Module.update()
     set_identity_mesh_matrix(g_saw_mesh_index);
     rotate_z_mesh_matrix(g_saw_mesh_index, g_current_rotation_z_degrees);
     scale_mesh_matrix(g_saw_mesh_index, 0.75, 0.75, 0.75);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 4, g_current_pos_z - 0.1);
-    set_object_visual_data(Module.TextureResourceIndex, 1);
+    translate_mesh_matrix(g_saw_mesh_index, g_current_pos_x, g_current_pos_y + 4, g_current_pos_z - 0.1);
+    set_texture_and_is_visible_on_mesh(g_saw_mesh_index, Module.TextureResourceIndex, 1);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y + 1,

@@ -54,21 +54,21 @@ local g_level_flipping_rotation = 0;
 local g_level_flipping_pause_frames_remaining = 0;
 local g_player_y_when_starting_flip = 0;
 
-local function AnimateArrow_(iPic)
+local function AnimateArrow_(backdrop_num)
     local is_reversed = false;
 
     if g_arrow_rotation > 90 and g_arrow_rotation < 270 then
         is_reversed = true;
     end
 
-    select_picture(iPic);
+    select_picture(backdrop_num);
     local SY = get_script_selected_level_object_y1();
     local SX = get_script_selected_level_object_x1();
-    set_object_visual_data(resources.TextureUpDown, 1);
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(iPic);
+    local backdrop_mesh_index = find_backdrop_mesh_index(backdrop_num);
+    set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureUpDown, 1);
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(0 - SX, 0 - SY, 0);
+    translate_mesh_matrix(backdrop_mesh_index, 0 - SX, 0 - SY, 0);
 
     if is_reversed then
         rotate_z_mesh_matrix(backdrop_mesh_index, 180);
@@ -76,7 +76,7 @@ local function AnimateArrow_(iPic)
     end
 
     rotate_x_mesh_matrix(backdrop_mesh_index, g_arrow_rotation);
-    script_selected_mesh_translate_matrix(SX, SY, 0);
+    translate_mesh_matrix(backdrop_mesh_index, SX, SY, 0);
 
     if g_game_logic.is_player_colliding_with_rect(SX - 3, SY - 4, SX + 3, SY + 4) and
             (g_level_flipping_state == 0 or g_level_flipping_state == 2) then
@@ -93,29 +93,29 @@ local function AnimateArrow_(iPic)
 
         g_level_flipping_rotation = 0;
         g_player_y_when_starting_flip = g_game_logic.get_player_current_position_y();
-        g_arrow_cooldown_frames[iPic] = 300;
+        g_arrow_cooldown_frames[backdrop_num] = 300;
     end
 end
 
-local function SpinPlatform_(iPlat, iPY)
-    abs_platform(iPlat);
-    local platform_mesh_index = get_platform_mesh_index(iPlat);
+local function SpinPlatform_(platform_index, iPY)
+    abs_platform(platform_index);
+    local platform_mesh_index = get_platform_mesh_index(platform_index);
     set_identity_mesh_matrix(platform_mesh_index);
 
     if g_level_flipping_state == 1 then
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        translate_mesh_matrix(platform_mesh_index, 0, 0 - g_player_y_when_starting_flip, 0);
         rotate_x_mesh_matrix(platform_mesh_index, g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+        translate_mesh_matrix(platform_mesh_index, 0, iPY, 0);
     end
 
     if g_level_flipping_state == 3 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        translate_mesh_matrix(platform_mesh_index, 0, 0 - 80, 0);
         rotate_x_mesh_matrix(platform_mesh_index, 180);
-        script_selected_mesh_translate_matrix(0, 80, 6);
+        translate_mesh_matrix(platform_mesh_index, 0, 80, 6);
 
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        translate_mesh_matrix(platform_mesh_index, 0, 0 - g_player_y_when_starting_flip, 0);
         rotate_x_mesh_matrix(platform_mesh_index, g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+        translate_mesh_matrix(platform_mesh_index, 0, iPY, 0);
     end
 end
 
@@ -123,19 +123,19 @@ local function SpinLadderDonutOrVine_(mesh_index, iPY)
     set_identity_mesh_matrix(mesh_index);
 
     if g_level_flipping_state == 1 then
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        translate_mesh_matrix(mesh_index, 0, 0 - g_player_y_when_starting_flip, 0);
         rotate_x_mesh_matrix(mesh_index, g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+        translate_mesh_matrix(mesh_index, 0, iPY, 0);
     end
 
     if g_level_flipping_state == 3 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        translate_mesh_matrix(mesh_index, 0, 0 - 80, 0);
         rotate_x_mesh_matrix(mesh_index, 180);
-        script_selected_mesh_translate_matrix(0, 80, 2);
+        translate_mesh_matrix(mesh_index, 0, 80, 2);
 
-        script_selected_mesh_translate_matrix(0, 0 - g_player_y_when_starting_flip, 0);
+        translate_mesh_matrix(mesh_index, 0, 0 - g_player_y_when_starting_flip, 0);
         rotate_x_mesh_matrix(mesh_index, g_level_flipping_rotation * 180 / 50);
-        script_selected_mesh_translate_matrix(0, iPY, 0);
+        translate_mesh_matrix(mesh_index, 0, iPY, 0);
     end
 end
 
@@ -176,22 +176,22 @@ local function SpinLevel_()
     end
 end
 
-local function EnableLadder_(ladder_num)  -- Note: Not ladder_index
+local function EnableLadder_(ladder_num)
     select_ladder(ladder_num);
     set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
     local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
     set_identity_mesh_matrix(ladder_mesh_index);
 end
 
-local function ReversePlatform_(iObj)
-    abs_platform(iObj);
-    local platform_mesh_index = get_platform_mesh_index(iObj);
+local function ReversePlatform_(platform_index)
+    abs_platform(platform_index);
+    local platform_mesh_index = get_platform_mesh_index(platform_index);
     set_identity_mesh_matrix(platform_mesh_index);
 
     if g_level_flipping_state == 2 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        translate_mesh_matrix(platform_mesh_index, 0, 0 - 80, 0);
         rotate_x_mesh_matrix(platform_mesh_index, 180);
-        script_selected_mesh_translate_matrix(0, 80, 6);
+        translate_mesh_matrix(platform_mesh_index, 0, 80, 6);
     end
 
     if g_level_flipping_state == 2 then
@@ -207,15 +207,15 @@ local function ReversePlatform_(iObj)
     end
 end
 
-local function ReverseDonut_(iObj)
-    abs_donut(iObj);
-    local donut_mesh_index = get_donut_mesh_index(iObj);
+local function ReverseDonut_(donut_index)
+    abs_donut(donut_index);
+    local donut_mesh_index = get_donut_mesh_index(donut_index);
     set_identity_mesh_matrix(donut_mesh_index);
 
     if g_level_flipping_state == 2 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        translate_mesh_matrix(donut_mesh_index, 0, 0 - 80, 0);
         rotate_x_mesh_matrix(donut_mesh_index, 180);
-        script_selected_mesh_translate_matrix(0, 80, 2);
+        translate_mesh_matrix(donut_mesh_index, 0, 80, 2);
     end
 
     local SY = get_script_selected_level_object_y1();
@@ -226,9 +226,9 @@ local function ReverseLadderOrVine_(mesh_index)
     set_identity_mesh_matrix(mesh_index);
 
     if g_level_flipping_state == 2 then
-        script_selected_mesh_translate_matrix(0, 0 - 80, 0);
+        translate_mesh_matrix(mesh_index, 0, 0 - 80, 0);
         rotate_x_mesh_matrix(mesh_index, 180);
-        script_selected_mesh_translate_matrix(0, 80, 2);
+        translate_mesh_matrix(mesh_index, 0, 80, 2);
     end
 
     local SY1 = get_script_selected_level_object_y1();
@@ -262,10 +262,11 @@ local function ReverseLevel_()
     end
 end
 
-local function DisableLadder_(ladder_num)  -- Note: Not ladder_index
+local function DisableLadder_(ladder_num)
     select_ladder(ladder_num);
+    local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
     set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
-    script_selected_mesh_translate_matrix(0, 0 - 500, 0);
+    translate_mesh_matrix(ladder_mesh_index, 0, 0 - 500, 0);
 end
 
 local function StartBullet_(frame_to_wait)
@@ -294,13 +295,14 @@ local function ProgressLevel_(game_input)
         g_arrow_rotation = 0;
     end
 
-    for iArrow = 1, 2 do
-        if g_arrow_cooldown_frames[iArrow] > 0 then
-            g_arrow_cooldown_frames[iArrow] = g_arrow_cooldown_frames[iArrow] - 1;
-            select_picture(iArrow);
-            set_object_visual_data(resources.TextureUpDown, 0);
+    for arrow_num = 1, 2 do
+        if g_arrow_cooldown_frames[arrow_num] > 0 then
+            g_arrow_cooldown_frames[arrow_num] = g_arrow_cooldown_frames[arrow_num] - 1;
+            select_picture(arrow_num);
+            local backdrop_mesh_index = find_backdrop_mesh_index(arrow_num);
+            set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureUpDown, 0);
         else
-            AnimateArrow_(iArrow);
+            AnimateArrow_(arrow_num);
         end
     end
 

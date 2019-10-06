@@ -304,9 +304,9 @@ local function DrawHorizontal_()
     end
 
     if g_wobble_animation_counter > 2 then
-        script_selected_mesh_translate_matrix((g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 + 0.04, 5);
+        translate_mesh_matrix(g_mesh_index, (g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 + 0.04, 5);
     else
-        script_selected_mesh_translate_matrix((g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 - 0.04, 5);
+        translate_mesh_matrix(g_mesh_index, (g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 - 0.04, 5);
     end
 end
 
@@ -324,7 +324,7 @@ local function DrawVertical_()
     set_identity_mesh_matrix(g_mesh_index);
     scale_mesh_matrix(g_mesh_index, g_current_pos_y[1] - g_current_pos_y[2], 1.3, 3);
     rotate_z_mesh_matrix(g_mesh_index, 90);
-    script_selected_mesh_translate_matrix(g_current_pos_x[1] + 0.3, (g_current_pos_y[1] + g_current_pos_y[2]) / 2, 5);
+    translate_mesh_matrix(g_mesh_index, g_current_pos_x[1] + 0.3, (g_current_pos_y[1] + g_current_pos_y[2]) / 2, 5);
 end
 
 function Module.initialize()
@@ -338,7 +338,7 @@ function Module.initialize()
     g_children[1] = Module.InitialChildren[1];
     g_children[2] = Module.InitialChildren[2];
     g_mesh_index = new_mesh(Module.MeshResourceIndex);
-    set_object_visual_data(Module.TextureResourceIndex, 1);
+    set_texture_and_is_visible_on_mesh(g_mesh_index, Module.TextureResourceIndex, 1);
 end
 
 function Module.update()

@@ -15,7 +15,7 @@ local g_particle_count = 0;
 
 local function DrawParticles()
     for iBit = 1, g_particle_count do
-        local iDM = g_particle_mesh_indices[iBit];
+        local particle_mesh_index = g_particle_mesh_indices[iBit];
 
         local iDX = g_particle_current_pos_x[iBit] * (100 - Module.PercentComplete);
         iDX = iDX + (g_particle_target_pos_x[iBit] * Module.PercentComplete);
@@ -27,12 +27,12 @@ local function DrawParticles()
 
         local iZ = (5 * Module.PercentComplete) - 500;
 
-        select_object_mesh(iDM);
-        set_identity_mesh_matrix(iDM);
-        rotate_y_mesh_matrix(iDM, (100 - Module.PercentComplete) * math.sin(iBit * math.pi / 180.0) * 10);
-        scale_mesh_matrix(iDM, 4, 4, 4);
-        script_selected_mesh_translate_matrix(iDX, iDY, iZ);
-        set_object_visual_data(Module.TextureResourceIndex, 1);
+        select_object_mesh(particle_mesh_index);
+        set_identity_mesh_matrix(particle_mesh_index);
+        rotate_y_mesh_matrix(particle_mesh_index, (100 - Module.PercentComplete) * math.sin(iBit * math.pi / 180.0) * 10);
+        scale_mesh_matrix(particle_mesh_index, 4, 4, 4);
+        translate_mesh_matrix(particle_mesh_index, iDX, iDY, iZ);
+        set_texture_and_is_visible_on_mesh(particle_mesh_index, Module.TextureResourceIndex, 1);
     end
 end
 

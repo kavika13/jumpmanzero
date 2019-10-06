@@ -194,7 +194,7 @@ local function ShowLetters_()
             if g_flash_animation_current_menu_option_index == current_letter_title_index and iX > 80 and g_flash_animation_timer > 6 then
                 iHide = true;
                 select_object_mesh(current_letter_mesh_id);
-                set_object_visual_data(0, 0);
+                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, 0, 0);
             end
         end
 
@@ -214,15 +214,15 @@ local function ShowLetters_()
                         rotate_x_mesh_matrix(current_letter_mesh_id, iTempTime);
                     end
 
-                    script_selected_mesh_translate_matrix(iDX, iDY, iDZ);
-                    set_object_visual_data(resources.TextureBoringBlue, 1);
+                    translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
+                    set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureBoringBlue, 1);
                 else
                     local iDZ = 0 + g_time_since_current_selection / 15;
                     local iDX = iX + ((g_time_since_current_selection / 100) * math.sin((iY * 10 + iX * 27) * math.pi / 180.0) * 50);
                     local iDY = iY + ((g_time_since_current_selection / 100) * math.sin((iY * 10 + iX * 59) * math.pi / 180.0) * 50);
                     rotate_z_mesh_matrix(current_letter_mesh_id, g_time_since_current_selection + iX);
-                    script_selected_mesh_translate_matrix(iDX, iDY, iDZ);
-                    set_object_visual_data(resources.TextureRachBlue, 1);
+                    translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
+                    set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
                 end
             elseif g_option_selected_index == current_letter_title_index then
                 local iMoveScale;
@@ -237,8 +237,8 @@ local function ShowLetters_()
                 local iDX = iX;
                 local iDY = iY;
 
-                script_selected_mesh_translate_matrix(iDX, iDY, iDZ);
-                set_object_visual_data(resources.TextureBoringBlue, 1);
+                translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
+                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureBoringBlue, 1);
             elseif g_option_previous_selected_index == current_letter_title_index then
                 local iTempTime = (50 - g_time_since_current_selection);
 
@@ -258,11 +258,11 @@ local function ShowLetters_()
                 local iDX = iX;
                 local iDY = iY;
 
-                script_selected_mesh_translate_matrix(iDX, iDY, iDZ);
-                set_object_visual_data(resources.TextureRachBlue, 1);
+                translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
+                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
             else
-                script_selected_mesh_translate_matrix(iX, iY, 0);
-                set_object_visual_data(resources.TextureRachBlue, 1);
+                translate_mesh_matrix(current_letter_mesh_id, iX, iY, 0);
+                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
             end
         end
 

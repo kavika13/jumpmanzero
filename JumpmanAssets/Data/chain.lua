@@ -85,7 +85,7 @@ local function PositionChain_()
             set_identity_mesh_matrix(mesh_index);
             scale_mesh_matrix(mesh_index, LinkLength * 1.6, 1, 1);
             rotate_z_mesh_matrix(mesh_index, Angle);
-            script_selected_mesh_translate_matrix(iSX + 1, iSY, player_z);
+            translate_mesh_matrix(mesh_index, iSX + 1, iSY, player_z);
         end
 
         iOX = iSX;
@@ -227,7 +227,7 @@ end
 function Module.initialize()
     for iLoop = 0, kCHAIN_LINK_COUNT -1 do
         g_link_mesh_indices[iLoop] = new_mesh(Module.LinkMeshResourceIndex);
-        set_object_visual_data(Module.LinkTextureResourceIndex, 1);
+        set_texture_and_is_visible_on_mesh(g_link_mesh_indices[iLoop], Module.LinkTextureResourceIndex, 1);
     end
 end
 

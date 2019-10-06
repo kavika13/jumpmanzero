@@ -70,10 +70,10 @@ local function RestartBullet()
     local iVel = 0;
 
     select_object_mesh(g_mesh_index_1);
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_mesh_index_1, 0, 0);
 
     select_object_mesh(g_mesh_index_2);
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_mesh_index_2, 0, 0);
 
     local iType = math.random(1, 100);
 
@@ -214,16 +214,16 @@ function Module.update()
     set_identity_mesh_matrix(g_mesh_index_1);
     rotate_x_mesh_matrix(g_mesh_index_1, g_current_rotation_x);
     rotate_z_mesh_matrix(g_mesh_index_1, g_current_rotation_z);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
-    set_object_visual_data(Module.TextureIndex, 1);
+    translate_mesh_matrix(g_mesh_index_1, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
+    set_texture_and_is_visible_on_mesh(g_mesh_index_1, Module.TextureIndex, 1);
 
     select_object_mesh(g_mesh_index_2);
     set_identity_mesh_matrix(g_mesh_index_2);
     rotate_y_mesh_matrix(g_mesh_index_2, 90);
     rotate_x_mesh_matrix(g_mesh_index_2, g_current_rotation_x);
     rotate_z_mesh_matrix(g_mesh_index_2, g_current_rotation_z);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
-    set_object_visual_data(Module.TextureIndex, 1);
+    translate_mesh_matrix(g_mesh_index_2, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
+    set_texture_and_is_visible_on_mesh(g_mesh_index_2, Module.TextureIndex, 1);
 end
 
 function Module.reset_pos()

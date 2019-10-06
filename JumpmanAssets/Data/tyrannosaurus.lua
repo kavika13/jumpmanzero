@@ -172,9 +172,9 @@ function Module.initialize()
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_object_visual_data?
+    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);  -- Previous frame
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     Animate_();
     SetFrame_();
@@ -184,8 +184,8 @@ function Module.update()
     select_object_mesh(anim_mesh_index);
     set_identity_mesh_matrix(anim_mesh_index);
     scale_mesh_matrix(anim_mesh_index, 2, 2, 1.5);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 19, 3);
-    set_object_visual_data(Module.TextureResourceIndex, 2);
+    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 19, 3);
+    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 2);
 
     if g_current_state == kMOVING_LEFT or g_current_state == kYELLING_LEFT then
         if Module.GameLogic.is_player_colliding_with_rect(

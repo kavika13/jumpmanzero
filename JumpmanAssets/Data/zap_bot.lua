@@ -241,32 +241,33 @@ end
 
 function Module.update()
     select_object_mesh(g_laser_mesh_index);
-    set_object_visual_data(Module.LaserTextureResourceIndex, 0);
+    set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 0);
 
     select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_object_visual_data(0, 0);
+    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     SetFrame_();
     Move_();
 
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
-    scale_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame], 0.7, 0.55, 1);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
-    set_object_visual_data(Module.BotTextureResourceIndex, 1);
+    local new_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
+    select_object_mesh(new_mesh_index);
+    set_identity_mesh_matrix(new_mesh_index);
+    scale_mesh_matrix(new_mesh_index, 0.7, 0.55, 1);
+    translate_mesh_matrix(new_mesh_index, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
+    set_texture_and_is_visible_on_mesh(new_mesh_index, Module.BotTextureResourceIndex, 1);
 
     local is_colliding = false;
 
     if g_move_direction == move_direction.LEFT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
         select_object_mesh(g_laser_mesh_index);
-        set_object_visual_data(Module.LaserTextureResourceIndex, 1);
+        set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 1);
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * 0.1;
         iTemp = iTemp / 2;
         scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
         scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
-        script_selected_mesh_translate_matrix(g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
+        translate_mesh_matrix(g_laser_mesh_index, g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 36, g_current_pos_y + 7.5,
             g_current_pos_x - 5, g_current_pos_y + 11);
@@ -275,13 +276,13 @@ function Module.update()
     if g_move_direction == move_direction.RIGHT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
         select_object_mesh(g_laser_mesh_index);
-        set_object_visual_data(Module.LaserTextureResourceIndex, 1);
+        set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 1);
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * -0.1;
         iTemp = iTemp / 2;
         scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
         scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
-        script_selected_mesh_translate_matrix(g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
+        translate_mesh_matrix(g_laser_mesh_index, g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x + 5, g_current_pos_y + 7.5,
             g_current_pos_x + 36, g_current_pos_y + 11);

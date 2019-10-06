@@ -320,30 +320,34 @@ end
 function Module.update()
     if g_spawn_cooldown_timer > 0 then
         g_spawn_cooldown_timer = g_spawn_cooldown_timer - 1;
-        select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
+
+        local mesh_index = g_animation_mesh_indices[g_animation_current_frame];
+        select_object_mesh(mesh_index);
 
         if (g_spawn_cooldown_timer & 2) and (g_spawn_cooldown_timer < 50) then
-            set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
-            script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
-            set_object_visual_data(Module.SheepTextureResourceIndex, 1);
+            set_identity_mesh_matrix(mesh_index);
+            translate_mesh_matrix(mesh_index, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
+            set_texture_and_is_visible_on_mesh(mesh_index, Module.SheepTextureResourceIndex, 1);
         else
-            set_object_visual_data(0, 0);
+            set_texture_and_is_visible_on_mesh(mesh_index, 0, 0);
         end
 
         return;
     end
 
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_object_visual_data(0, 0);
+    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
+    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);  -- Previous frame
+    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     g_copter_current_scale = 0;
     AdvanceFrame_();
     MoveSheep_();
 
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
-    set_object_visual_data(Module.SheepTextureResourceIndex, 1);
+    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
+    select_object_mesh(anim_mesh_index);
+    set_identity_mesh_matrix(anim_mesh_index);
+    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
+    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.SheepTextureResourceIndex, 1);
 
     if g_copter_current_scale > 0 then
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
@@ -351,13 +355,13 @@ function Module.update()
         set_identity_mesh_matrix(g_copter_mesh_index);
         rotate_x_mesh_matrix(g_copter_mesh_index, 270);
         rotate_y_mesh_matrix(g_copter_mesh_index, g_copter_current_rotation_y);
-        script_selected_mesh_translate_matrix(0, 4, 0);
+        translate_mesh_matrix(g_copter_mesh_index, 0, 4, 0);
         scale_mesh_matrix(g_copter_mesh_index, g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
-        script_selected_mesh_translate_matrix(g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
-        set_object_visual_data(Module.CopterTextureResourceIndex, 1);
+        translate_mesh_matrix(g_copter_mesh_index, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
+        set_texture_and_is_visible_on_mesh(g_copter_mesh_index, Module.CopterTextureResourceIndex, 1);
     else
         select_object_mesh(g_copter_mesh_index);
-        set_object_visual_data(0, 0);
+        set_texture_and_is_visible_on_mesh(g_copter_mesh_index, 0, 0);
     end
 
     if Module.GameLogic.is_player_colliding_with_rect(

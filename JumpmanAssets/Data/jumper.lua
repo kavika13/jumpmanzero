@@ -194,15 +194,17 @@ function Module.initialize()
 end
 
 function Module.update(all_jumpers)
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_object_visual_data(0, 0);
+    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
+    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);  -- Previous frame
+    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     MoveJumper_(all_jumpers);
 
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_animation_mesh_indices[g_animation_current_frame]);
-    script_selected_mesh_translate_matrix(g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
-    set_object_visual_data(Module.TextureResourceIndex, 1);
+    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
+    select_object_mesh(anim_mesh_index);
+    set_identity_mesh_matrix(anim_mesh_index);
+    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
+    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
 
     local iEyeX = (Module.GameLogic.get_player_current_position_x() - g_current_pos_x) / 85;
     local iEyeX = iEyeX - 0.5;
@@ -212,8 +214,8 @@ function Module.update(all_jumpers)
 
     select_object_mesh(g_eye_mesh_index);
     set_identity_mesh_matrix(g_eye_mesh_index);
-    script_selected_mesh_translate_matrix(g_current_pos_x + iEyeX, g_curret_pos_y + iEyeY, g_current_pos_z);
-    set_object_visual_data(Module.TextureResourceIndex, 1);
+    translate_mesh_matrix(g_eye_mesh_index, g_current_pos_x + iEyeX, g_curret_pos_y + iEyeY, g_current_pos_z);
+    set_texture_and_is_visible_on_mesh(g_eye_mesh_index, Module.TextureResourceIndex, 1);
 
     if g_current_status == status_type.JUMPING then
         if Module.GameLogic.is_player_colliding_with_rect(

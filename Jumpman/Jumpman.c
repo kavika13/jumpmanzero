@@ -396,11 +396,12 @@ static int undo_camera_perspective_on_mesh_matrix(lua_State* lua_state) {
     return 0;
 }
 
-static int script_selected_mesh_translate_matrix(lua_State* lua_state) {  // TODO: Make take mesh index param
-    double arg_x = luaL_checknumber(lua_state, 1);
-    double arg_y = luaL_checknumber(lua_state, 2);
-    double arg_z = luaL_checknumber(lua_state, 3);
-    TranslateMatrix(g_script_selected_mesh_index, (float)arg_x, (float)arg_y, (float)arg_z);
+static int translate_mesh_matrix(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    double arg_x = luaL_checknumber(lua_state, 2);
+    double arg_y = luaL_checknumber(lua_state, 3);
+    double arg_z = luaL_checknumber(lua_state, 4);
+    TranslateMatrix((long)mesh_index_arg, (float)arg_x, (float)arg_y, (float)arg_z);
     return 0;
 }
 
@@ -544,10 +545,11 @@ static int new_char_mesh(lua_State* lua_state) {
     return 1;
 }
 
-static int set_object_visual_data(lua_State* lua_state) {
-    double texture_index = luaL_checknumber(lua_state, 1);
-    double is_visible = luaL_checknumber(lua_state, 2);
-    SetObjectData(g_script_selected_mesh_index, (long)texture_index, (int)is_visible);
+static int set_texture_and_is_visible_on_mesh(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    double texture_index = luaL_checknumber(lua_state, 2);
+    double is_visible = luaL_checknumber(lua_state, 3);
+    SetObjectData((long)mesh_index_arg, (long)texture_index, (int)is_visible);
     return 0;
 }
 
@@ -1240,8 +1242,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_identity_mesh_matrix");
     lua_pushcfunction(lua_state, undo_camera_perspective_on_mesh_matrix);
     lua_setglobal(lua_state, "undo_camera_perspective_on_mesh_matrix");
-    lua_pushcfunction(lua_state, script_selected_mesh_translate_matrix);
-    lua_setglobal(lua_state, "script_selected_mesh_translate_matrix");
+    lua_pushcfunction(lua_state, translate_mesh_matrix);
+    lua_setglobal(lua_state, "translate_mesh_matrix");
     lua_pushcfunction(lua_state, scale_mesh_matrix);
     lua_setglobal(lua_state, "scale_mesh_matrix");
     lua_pushcfunction(lua_state, rotate_x_mesh_matrix);
@@ -1323,8 +1325,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "new_mesh");
     lua_pushcfunction(lua_state, new_char_mesh);
     lua_setglobal(lua_state, "new_char_mesh");
-    lua_pushcfunction(lua_state, set_object_visual_data);
-    lua_setglobal(lua_state, "set_object_visual_data");
+    lua_pushcfunction(lua_state, set_texture_and_is_visible_on_mesh);
+    lua_setglobal(lua_state, "set_texture_and_is_visible_on_mesh");
     lua_pushcfunction(lua_state, prioritize_object);
     lua_setglobal(lua_state, "prioritize_object");
     lua_pushcfunction(lua_state, script_abs_platform);

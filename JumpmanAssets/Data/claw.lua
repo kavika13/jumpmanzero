@@ -136,11 +136,12 @@ local function MoveChain_(all_jumpers)
 
         local donut_mesh_index = get_donut_mesh_index(g_rescued_donut_index);
         set_identity_mesh_matrix(donut_mesh_index);
-        script_selected_mesh_translate_matrix(
+        translate_mesh_matrix(
+            donut_mesh_index,
             g_claw_current_pos_x - get_script_selected_level_object_x1(),
             g_claw_current_pos_y - get_script_selected_level_object_y1(),
             0 - get_script_selected_level_object_z1());
-        set_object_visual_data(Module.DonutTextureResourceIndex, 1);
+        set_texture_and_is_visible_on_mesh(donut_mesh_index, Module.DonutTextureResourceIndex, 1);
 
         if iOldX == g_claw_current_pos_x and iOldY == g_claw_current_pos_y then
             set_script_selected_level_object_visible(1);
@@ -206,20 +207,20 @@ local function DrawClaw_(current_animation_frame, iAngle, iSpread)
     local anim_mesh_index = g_claw_mesh_indices[current_animation_frame];
     select_object_mesh(anim_mesh_index);
     set_identity_mesh_matrix(anim_mesh_index);
-    script_selected_mesh_translate_matrix(0, -5, 0);
+    translate_mesh_matrix(anim_mesh_index, 0, -5, 0);
     rotate_z_mesh_matrix(anim_mesh_index, iSpread);
     rotate_y_mesh_matrix(anim_mesh_index, iAngle);
-    script_selected_mesh_translate_matrix(g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
-    set_object_visual_data(Module.ClawTextureResourceIndex, 1);
+    translate_mesh_matrix(anim_mesh_index, g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
+    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.ClawTextureResourceIndex, 1);
 end
 
 local function DrawChain_()
     select_object_mesh(g_chain_mesh_index);
     set_identity_mesh_matrix(g_chain_mesh_index);
-    script_selected_mesh_translate_matrix(0, -0.5, 0);
+    translate_mesh_matrix(g_chain_mesh_index, 0, -0.5, 0);
     scale_mesh_matrix(g_chain_mesh_index, 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
-    script_selected_mesh_translate_matrix(g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);
-    set_object_visual_data(Module.ChainTextureResourceIndex, 1);
+    translate_mesh_matrix(g_chain_mesh_index, g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);
+    set_texture_and_is_visible_on_mesh(g_chain_mesh_index, Module.ChainTextureResourceIndex, 1);
 end
 
 function Module.initialize()

@@ -127,8 +127,8 @@ local function ProgressLevel_(game_input)
                 iX = iX + 5;
             end
 
-            script_selected_mesh_translate_matrix(iX, iTemp, 0);
-            set_object_visual_data(resources.TextureNewMetal, 1);
+            translate_mesh_matrix(current_mesh_index, iX, iTemp, 0);
+            set_texture_and_is_visible_on_mesh(current_mesh_index, resources.TextureNewMetal, 1);
         end
     end
 
@@ -140,8 +140,8 @@ local function ProgressLevel_(game_input)
     select_object_mesh(g_jumpman_mesh_index);
     set_identity_mesh_matrix(g_jumpman_mesh_index);
     scale_mesh_matrix(g_jumpman_mesh_index, 3, 3, 3);
-    script_selected_mesh_translate_matrix(80, 80, 0);
-    set_object_visual_data(resources.TextureJumpman, 1);
+    translate_mesh_matrix(g_jumpman_mesh_index, 80, 80, 0);
+    set_texture_and_is_visible_on_mesh(g_jumpman_mesh_index, resources.TextureJumpman, 1);
 
     local is_select_action_pressed = game_input.select_action.just_pressed;
 

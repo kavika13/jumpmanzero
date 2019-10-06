@@ -79,9 +79,9 @@ local function ProgressLevel_(game_input)
     if g_is_wall_moving then
         g_wall_animation_frame = g_wall_animation_frame + 1;
         select_wall(33);  -- TODO: Use constant for num
-        local wall_mesh_index = find_wall_mesh_index(33);
+        local wall_mesh_index = find_wall_mesh_index(33);  -- TODO: Use constant for num
         set_identity_mesh_matrix(wall_mesh_index);
-        script_selected_mesh_translate_matrix(0, 0, g_wall_animation_frame / 10);
+        translate_mesh_matrix(wall_mesh_index, 0, 0, g_wall_animation_frame / 10);
 
         if g_wall_animation_frame == 45 then
             select_wall(33);  -- TODO: Use constant for num
@@ -101,9 +101,9 @@ local function ProgressLevel_(game_input)
     end
 
     select_picture(1);  -- TODO: Use constant for num
-    local backdrop_mesh_index = find_backdrop_mesh_index(1);
+    local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(iPX, iPY, 0);
+    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     if g_spotlight_animation_frame > 2 then
         set_script_selected_level_object_texture(resources.TextureRing2);
@@ -112,32 +112,33 @@ local function ProgressLevel_(game_input)
     end
 
     select_picture(2);  -- TODO: Use constant for num
-    local backdrop_mesh_index = find_backdrop_mesh_index(2);  -- TODO: Use constant for num
+    backdrop_mesh_index = find_backdrop_mesh_index(2);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(iPX, iPY, 0);
+    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     select_picture(3);  -- TODO: Use constant for num
-    local backdrop_mesh_index = find_backdrop_mesh_index(3);  -- TODO: Use constant for num
+    backdrop_mesh_index = find_backdrop_mesh_index(3);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(iPX, iPY, 0);
+    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     select_picture(4);  -- TODO: Use constant for num
-    local backdrop_mesh_index = find_backdrop_mesh_index(4);  -- TODO: Use constant for num
+    backdrop_mesh_index = find_backdrop_mesh_index(4);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(iPX, iPY, 0);
+    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     select_picture(5);  -- TODO: Use constant for num
-    local backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant for num
+    backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
-    script_selected_mesh_translate_matrix(iPX, iPY, 0);
+    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     g_painting_with_eyes_animation_frame = g_painting_with_eyes_animation_frame + 1;
 
     select_picture(100);  -- TODO: Use constant for num
-    set_object_visual_data(resources.TexturePainting, 1);
+    backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+    set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TexturePainting, 1);
 
     if g_painting_with_eyes_animation_frame > 10 then
-        set_object_visual_data(resources.TexturePainting2, 1);
+        set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TexturePainting2, 1);
     end
 
     if g_painting_with_eyes_animation_frame > 20 then
@@ -195,7 +196,7 @@ function on_collect_donut(game_input, iDonut)
         set_script_selected_level_object_y1(get_script_selected_level_object_y1() + 6);
         local vine_mesh_index = find_vine_mesh_index(1);  -- TODO: Use constant for num
         set_identity_mesh_matrix(vine_mesh_index);
-        script_selected_mesh_translate_matrix(0, 6, 0);
+        translate_mesh_matrix(vine_mesh_index, 0, 6, 0);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
         --       Seems maybe should delete the line?
         -- setext(#compose, 1);
@@ -207,7 +208,7 @@ function on_collect_donut(game_input, iDonut)
         set_script_selected_level_object_y1(get_script_selected_level_object_y1() + 8);
         local vine_mesh_index = find_vine_mesh_index(2);  -- TODO: Use constant for num
         set_identity_mesh_matrix(vine_mesh_index);
-        script_selected_mesh_translate_matrix(0, 8, 0);
+        translate_mesh_matrix(vine_mesh_index, 0, 8, 0);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
         --       Seems maybe should delete the line?
         -- setext(#compose, 1);
@@ -218,12 +219,12 @@ function on_collect_donut(game_input, iDonut)
         set_script_selected_level_object_y1(get_script_selected_level_object_y1() - 26);
         local wall_mesh_index = find_wall_mesh_index(2);  -- TODO: Use constant for num
         set_identity_mesh_matrix(wall_mesh_index);
-        script_selected_mesh_translate_matrix(0, 0 - 70, 0);
+        translate_mesh_matrix(wall_mesh_index, 0, 0 - 70, 0);
 
         select_picture(12);  -- TODO: Use constant for num
         local backdrop_mesh_index = find_backdrop_mesh_index(12);  -- TODO: Use constant for num
         set_identity_mesh_matrix(backdrop_mesh_index);
-        script_selected_mesh_translate_matrix(0, 0 - 70, 0);
+        translate_mesh_matrix(backdrop_mesh_index, 0, 0 - 70, 0);
         -- TODO: This doesn't seem to do anything in the code, at least not for #compose
         --       Seems maybe should delete the line?
         -- setext(#compose, 1);

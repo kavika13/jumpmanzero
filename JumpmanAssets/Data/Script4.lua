@@ -87,15 +87,15 @@ local g_ninjas = {};
 local g_is_trap_door_triggering = false;
 local g_trap_door_fall_progress = 0;
 
-local function MovePlatform_(iPlat, iRotate, iTran)
-    select_platform(iPlat);
+local function MovePlatform_(platform_num, iRotate, iTran)
+    select_platform(platform_num);
     local iPlatX = get_script_selected_level_object_x2();
     local iPlatY = get_script_selected_level_object_y2();
-    local platform_mesh_index = find_platform_mesh_index(iPlat);
+    local platform_mesh_index = find_platform_mesh_index(platform_num);
     set_identity_mesh_matrix(platform_mesh_index);
-    script_selected_mesh_translate_matrix(0 - iPlatX, 0 - iPlatY, 0);
+    translate_mesh_matrix(platform_mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
     rotate_z_mesh_matrix(platform_mesh_index, iRotate);
-    script_selected_mesh_translate_matrix(iPlatX + iTran, iPlatY, 0);
+    translate_mesh_matrix(platform_mesh_index, iPlatX + iTran, iPlatY, 0);
 end
 
 local function ProgressLevel_(game_input)
