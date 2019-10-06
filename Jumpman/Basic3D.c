@@ -471,7 +471,17 @@ void SetObjectData(long iNum, long iTexture, int iVisible) {
     long iRNum = g_object_redirects[iNum];
     g_object_texture_index[iRNum] = iTexture;
     g_object_is_visible[iRNum] = iVisible;
-    g_object_uv_offset[iRNum] = (const hmm_vec2){ 0 };
+    g_object_uv_offset[iRNum] = (const hmm_vec2){ 0 };  // TODO: Expose this separately?
+}
+
+void SetObjectTextureIndex(long iNum, long texture_index) {
+    long iRNum = g_object_redirects[iNum];
+    g_object_texture_index[iRNum] = texture_index;
+}
+
+void SetObjectIsVisible(long iNum, bool is_visible) {
+    long iRNum = g_object_redirects[iNum];
+    g_object_is_visible[iRNum] = is_visible ? 1 : 0;
 }
 
 void ResizeViewport(int width, int height) {

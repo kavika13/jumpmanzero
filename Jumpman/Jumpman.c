@@ -516,7 +516,7 @@ static int set_remaining_life_count(lua_State* lua_state) {
 
 // script utility functions
 
-static int new_mesh(lua_State* lua_state) {
+static int new_mesh(lua_State* lua_state) {  // TODO: Verify scripts don't rely on g_script_selected_mesh_index
     double script_mesh_index = luaL_checknumber(lua_state, 1);
     long iNew;
     CopyObject(g_script_mesh_indices[(size_t)script_mesh_index], &iNew);
@@ -525,7 +525,7 @@ static int new_mesh(lua_State* lua_state) {
     return 1;
 }
 
-static int new_char_mesh(lua_State* lua_state) {
+static int new_char_mesh(lua_State* lua_state) {  // TODO: Verify scripts don't rely on g_script_selected_mesh_index
     lua_Integer ascii_value_arg = luaL_checkinteger(lua_state, 1);
     long iNew;
 
@@ -553,7 +553,7 @@ static int set_texture_and_is_visible_on_mesh(lua_State* lua_state) {
     return 0;
 }
 
-static int prioritize_object(lua_State* lua_state) {
+static int prioritize_object(lua_State* lua_state) {  // TODO: Make take mesh index param
     PrioritizeObject(g_script_selected_mesh_index);
     return 0;
 }
@@ -1003,14 +1003,14 @@ static int set_script_selected_level_object_number(lua_State* lua_state) {
     return 0;
 }
 
-static int set_script_selected_level_object_texture(lua_State* lua_state) {
+static int set_script_selected_level_object_texture(lua_State* lua_state) {  // TODO: Make take mesh index param
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Texture = (int)arg1;
     SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
     return 0;
 }
 
-static int set_script_selected_level_object_visible(lua_State* lua_state) {
+static int set_script_selected_level_object_visible(lua_State* lua_state) {  // TODO: Make take mesh index param
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Visible = (int)arg1;
     SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);

@@ -24,6 +24,8 @@ void Reset3d(void);  // TODO: Is this function necessary anymore? Used for reset
 void DoCleanUp(void);
 void CreateObject(long* iParams, long iCount, long* iNum);
 void SetObjectData(long iNum, long iTexture, int iVisible);
+void SetObjectTextureIndex(long iNum, long texture_index);
+void SetObjectIsVisible(long iNum, bool is_visible);
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
 void CopyObject(long iObject, long* iNum);
 void PrioritizeObject(long o1);
