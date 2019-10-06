@@ -1569,7 +1569,7 @@ local function AnimateDying_(game_input)
                 g_player_current_velocity_x = 1;
             end
 
-            g_player_current_state_frame_count = iSupport - 3;
+            g_player_current_state_frame_count = math.floor(iSupport - 3);  -- frame count must stay an integer value
             g_player_dying_animation_state = player_dying_animation_state.BOUNCING;
             g_player_dying_animation_state_frame_count = 0;
 
@@ -1856,11 +1856,11 @@ function Module.set_player_current_state(new_state)
 end
 
 function Module.get_player_current_state_frame_count()
-    return g_player_current_state_frame_count;
+    return math.floor(g_player_current_state_frame_count);
 end
 
 function Module.set_player_current_state_frame_count(new_frame_count)
-    g_player_current_state_frame_count = new_frame_count;
+    g_player_current_state_frame_count = math.floor(new_frame_count);
 end
 
 function Module.set_player_is_visible(new_is_visible)
