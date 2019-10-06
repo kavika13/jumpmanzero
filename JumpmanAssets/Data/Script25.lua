@@ -490,37 +490,37 @@ function initialize(game_input)
     g_swim_collision.initialize();
 
     g_swim_animation_mesh_indices[1] = new_mesh(resources.MeshGroove1);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[1]);
 
     g_swim_animation_mesh_indices[2] = new_mesh(resources.MeshGroove2);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[2]);
 
     g_swim_animation_mesh_indices[3] = new_mesh(resources.MeshGroove3);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[3]);
 
     g_swim_animation_mesh_indices[11] = new_mesh(resources.MeshSwimL1);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[11]);
 
     g_swim_animation_mesh_indices[12] = new_mesh(resources.MeshSwimL2);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[12]);
 
     g_swim_animation_mesh_indices[13] = new_mesh(resources.MeshSwimL3);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[13]);
 
     g_swim_animation_mesh_indices[14] = new_mesh(resources.MeshSwimL4);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[14]);
 
     g_swim_animation_mesh_indices[21] = new_mesh(resources.MeshSwimR1);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[21]);
 
     g_swim_animation_mesh_indices[22] = new_mesh(resources.MeshSwimR2);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[22]);
 
     g_swim_animation_mesh_indices[23] = new_mesh(resources.MeshSwimR3);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[23]);
 
     g_swim_animation_mesh_indices[24] = new_mesh(resources.MeshSwimR4);
-    prioritize_object();
+    move_mesh_to_front(g_swim_animation_mesh_indices[24]);
 
     InitSplashParticles_();
 

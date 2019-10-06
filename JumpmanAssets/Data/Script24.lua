@@ -161,31 +161,31 @@ local function FixHangPlatforms_()
     end
 
     iHangMesh[0] = new_mesh(resources.MeshHang);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[0]);
 
     iHangMesh[1] = new_mesh(resources.MeshHang1);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[1]);
 
     iHangMesh[2] = new_mesh(resources.MeshHang2);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[2]);
 
     iHangMesh[3] = new_mesh(resources.MeshHang3);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[3]);
 
     iHangMesh[4] = new_mesh(resources.MeshHang4);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[4]);
 
     iHangMesh[11] = new_mesh(resources.MeshHangL1);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[11]);
 
     iHangMesh[12] = new_mesh(resources.MeshHangL2);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[12]);
 
     iHangMesh[13] = new_mesh(resources.MeshHangL3);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[13]);
 
     iHangMesh[14] = new_mesh(resources.MeshHangL4);
-    prioritize_object();
+    move_mesh_to_front(iHangMesh[14]);
 end
 
 local function StartBaboon_(initial_pos_x, initial_pos_y);

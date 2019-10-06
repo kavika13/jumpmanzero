@@ -23,14 +23,16 @@ local g_current_pos_y = 125;
 local g_wave_animation_cycle_degrees = 0;
 
 local function PrioritizeLevelObjects()
-    for iLoop = 0, get_platform_object_count() - 1 do
-        abs_platform(iLoop);
-        prioritize_object();
+    for platform_index = 0, get_platform_object_count() - 1 do
+        abs_platform(platform_index);
+        local platform_mesh_index = get_platform_mesh_index(platform_index);
+        move_mesh_to_front(platform_mesh_index);
     end
 
-    for iLoop = 0, get_ladder_object_count() - 1 do
-        abs_ladder(iLoop);
-        prioritize_object();
+    for ladder_index = 0, get_ladder_object_count() - 1 do
+        abs_ladder(ladder_index);
+        local ladder_mesh_index = get_ladder_mesh_index(ladder_index);
+        move_mesh_to_front(ladder_mesh_index);
     end
 end
 
@@ -38,16 +40,17 @@ function Module.initialize()
     g_current_pos_y = Module.TargetWaveHeight;
 
     g_wave_1_mesh_index =  new_mesh(Module.WaveMeshResourceIndex);
-    prioritize_object();
+    move_mesh_to_front(g_wave_1_mesh_index);
     g_wave_2_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
-    prioritize_object();
+    move_mesh_to_front(g_wave_2_mesh_index);
     g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
-    prioritize_object();
+    move_mesh_to_front(g_sea_mesh_index);
 
     PrioritizeLevelObjects();
 
     select_picture(100);  -- TODO: Pass this constant in? Also, which object is this? It makes the wave screw up transparency if not doing this
-    prioritize_object();
+    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+    move_mesh_to_front(backdrop_mesh_index);
 
     Pause = 1;  -- TODO: This variable doesn't exist? What was it in pausewave.jms?
 end

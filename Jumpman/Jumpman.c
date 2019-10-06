@@ -553,8 +553,9 @@ static int set_texture_and_is_visible_on_mesh(lua_State* lua_state) {
     return 0;
 }
 
-static int prioritize_object(lua_State* lua_state) {  // TODO: Make take mesh index param
-    PrioritizeObject(g_script_selected_mesh_index);
+static int move_mesh_to_front(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    PrioritizeObject((long)mesh_index_arg);
     return 0;
 }
 
@@ -1327,8 +1328,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "new_char_mesh");
     lua_pushcfunction(lua_state, set_texture_and_is_visible_on_mesh);
     lua_setglobal(lua_state, "set_texture_and_is_visible_on_mesh");
-    lua_pushcfunction(lua_state, prioritize_object);
-    lua_setglobal(lua_state, "prioritize_object");
+    lua_pushcfunction(lua_state, move_mesh_to_front);
+    lua_setglobal(lua_state, "move_mesh_to_front");
     lua_pushcfunction(lua_state, script_abs_platform);
     lua_setglobal(lua_state, "abs_platform");
     lua_pushcfunction(lua_state, script_abs_ladder);

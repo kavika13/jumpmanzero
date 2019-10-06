@@ -65,16 +65,16 @@ end
 
 function Module.initialize()
     g_animation_mesh_indices[0] = new_mesh(Module.MoveRight1MeshResourceIndex);
-    prioritize_object();
+    move_mesh_to_front(g_animation_mesh_indices[0]);
 
     g_animation_mesh_indices[1] = new_mesh(Module.MoveRight2MeshResourceIndex);
-    prioritize_object();
+    move_mesh_to_front(g_animation_mesh_indices[1]);
 
     g_animation_mesh_indices[2] = new_mesh(Module.MoveLeft1MeshResourceIndex);
-    prioritize_object();
+    move_mesh_to_front(g_animation_mesh_indices[2]);
 
     g_animation_mesh_indices[3] = new_mesh(Module.MoveLeft2MeshResourceIndex);
-    prioritize_object();
+    move_mesh_to_front(g_animation_mesh_indices[3]);
 end
 
 function Module.update()

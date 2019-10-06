@@ -251,9 +251,9 @@ function initialize(game_input)
     g_jumpman_work_2_mesh_index = new_mesh(resources.MeshJMWork2);
     set_texture_and_is_visible_on_mesh(g_jumpman_work_2_mesh_index, 0, 0);
 
-    g_message_mesh_index = new_mesh(0);
-    g_progress_bar_mesh_index = new_mesh(0);
-    prioritize_object();
+    g_message_mesh_index = new_mesh(0);  -- TODO: Use constant for mesh index
+    g_progress_bar_mesh_index = new_mesh(0);  -- TODO: Use constant for mesh index
+    move_mesh_to_front(g_progress_bar_mesh_index);
 
     MoveDonuts_();
 

@@ -151,16 +151,23 @@ end
 
 function Module.update(game_input)
     if not g_is_initialized then
+        -- TODO: Separate initialize function?
         g_is_initialized = true;
 
         for iNum = 0, 9 do
             g_fps_first_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            move_mesh_to_front(g_fps_first_number_mesh_indices[iNum + 1]);
+
             g_fps_second_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            move_mesh_to_front(g_fps_second_number_mesh_indices[iNum + 1]);
+
             g_fps_third_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            move_mesh_to_front(g_fps_third_number_mesh_indices[iNum + 1]);
+
             g_life_count_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            move_mesh_to_front(g_life_count_number_mesh_indices[iNum + 1]);
         end
 
-        prioritize_object();
         InitializeLetters_();
 
         g_jumpman_icon_mesh_index = new_char_mesh(94);
