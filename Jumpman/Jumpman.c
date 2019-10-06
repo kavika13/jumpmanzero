@@ -1004,10 +1004,10 @@ static int set_script_selected_level_object_number(lua_State* lua_state) {
     return 0;
 }
 
-static int set_script_selected_level_object_texture(lua_State* lua_state) {  // TODO: Make take mesh index param
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Texture = (int)arg1;
-    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
+static int set_texture_on_mesh(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    lua_Integer texture_index_arg = luaL_checkinteger(lua_state, 2);
+    SetObjectTextureIndex((long)mesh_index_arg, (long)texture_index_arg);
     return 0;
 }
 
@@ -1278,8 +1278,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_z2");
     lua_pushcfunction(lua_state, set_script_selected_level_object_number);
     lua_setglobal(lua_state, "set_script_selected_level_object_number");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_texture);
-    lua_setglobal(lua_state, "set_script_selected_level_object_texture");
+    lua_pushcfunction(lua_state, set_texture_on_mesh);
+    lua_setglobal(lua_state, "set_texture_on_mesh");
     lua_pushcfunction(lua_state, set_script_selected_level_object_visible);
     lua_setglobal(lua_state, "set_script_selected_level_object_visible");
     lua_pushcfunction(lua_state, set_script_selected_level_object_x1);
