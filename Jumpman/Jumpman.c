@@ -158,12 +158,6 @@ static lua_State* g_script_level_script_lua_state = NULL;
 
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
 
-static int get_donut_mesh_number(lua_State* lua_state) {
-    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_donut_objects[donut_index].MeshNumber);
-    return 1;
-}
-
 static int get_donut_number(lua_State* lua_state) {
     lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_donut_objects[donut_index].Num);
@@ -1215,8 +1209,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
     // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
-    lua_pushcfunction(lua_state, get_donut_mesh_number);
-    lua_setglobal(lua_state, "get_donut_mesh_number");
     lua_pushcfunction(lua_state, get_donut_number);
     lua_setglobal(lua_state, "get_donut_number");
     lua_pushcfunction(lua_state, get_donut_texture_index);
