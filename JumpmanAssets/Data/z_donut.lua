@@ -46,8 +46,6 @@ local function DoBlasting()
         local iSize = math.random(10, 13);
 
         local mesh_index = g_blast_particle_mesh_indices[iTemp];
-        select_object_mesh(mesh_index);
-
         set_identity_mesh_matrix(mesh_index);
         scale_mesh_matrix(mesh_index, iSize, iSize, 1);
         rotate_z_mesh_matrix(mesh_index, iBR);

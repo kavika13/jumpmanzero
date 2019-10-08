@@ -171,7 +171,6 @@ function Module.update()
         g_current_rotation_z_degrees = g_current_rotation_z_degrees + 6;
     end
 
-    select_object_mesh(g_saw_mesh_index);
     set_identity_mesh_matrix(g_saw_mesh_index);
     rotate_z_mesh_matrix(g_saw_mesh_index, g_current_rotation_z_degrees);
     scale_mesh_matrix(g_saw_mesh_index, 0.75, 0.75, 0.75);

@@ -193,13 +193,11 @@ local function ShowLetters_()
         if current_letter_mesh_id > 0 then
             if g_flash_animation_current_menu_option_index == current_letter_title_index and iX > 80 and g_flash_animation_timer > 6 then
                 iHide = true;
-                select_object_mesh(current_letter_mesh_id);
                 set_texture_and_is_visible_on_mesh(current_letter_mesh_id, 0, 0);
             end
         end
 
         if current_letter_mesh_id > 0 and not iHide then
-            select_object_mesh(current_letter_mesh_id);
             set_identity_mesh_matrix(current_letter_mesh_id);
             scale_mesh_matrix(current_letter_mesh_id, 1, 0.7, 1);
 

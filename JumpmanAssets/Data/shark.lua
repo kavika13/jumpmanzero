@@ -189,7 +189,6 @@ end
 
 function Module.update(game_input)
     -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    select_object_mesh(g_animation_mesh_indices[g_current_animation_frame_index]);  -- Previous frame
     set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_current_animation_frame_index], 0, 0);
 
     g_move_animation_frame_counter = g_move_animation_frame_counter + 1;
@@ -207,7 +206,6 @@ function Module.update(game_input)
     MoveShark_(game_input);
 
     local anim_mesh_index = g_animation_mesh_indices[g_current_animation_frame_index];
-    select_object_mesh(anim_mesh_index);
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
     set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);

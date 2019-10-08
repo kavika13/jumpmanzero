@@ -81,7 +81,6 @@ local function PositionChain_()
             end
 
             local mesh_index = g_link_mesh_indices[iLink];
-            select_object_mesh(mesh_index);
             set_identity_mesh_matrix(mesh_index);
             scale_mesh_matrix(mesh_index, LinkLength * 1.6, 1, 1);
             rotate_z_mesh_matrix(mesh_index, Angle);

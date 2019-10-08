@@ -63,7 +63,6 @@ local function SetClockPosition_(iPos)
     translate_mesh_matrix(backdrop_mesh_index, 0 - 64, 0 - 48, 120);
     undo_camera_perspective_on_mesh_matrix(backdrop_mesh_index);
 
-    select_object_mesh(g_clock_hand_mesh_index);
     set_identity_mesh_matrix(g_clock_hand_mesh_index);
     rotate_z_mesh_matrix(g_clock_hand_mesh_index, iPos);
     translate_mesh_matrix(g_clock_hand_mesh_index, 0 - 54, 0 - 38, 120);
@@ -155,7 +154,6 @@ function initialize(game_input)
     g_hud_overlay = hud_overlay_module();
 
     g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
-    select_object_mesh(g_clock_hand_mesh_index);
     set_texture_and_is_visible_on_mesh(g_clock_hand_mesh_index, resources.TextureBlack, 1);
 
     g_wave = pause_wave_module();

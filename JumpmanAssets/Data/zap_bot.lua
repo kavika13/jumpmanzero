@@ -239,17 +239,13 @@ function Module.initialize()
 end
 
 function Module.update()
-    select_object_mesh(g_laser_mesh_index);
     set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 0);
-
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     SetFrame_();
     Move_();
 
     local new_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    select_object_mesh(new_mesh_index);
     set_identity_mesh_matrix(new_mesh_index);
     scale_mesh_matrix(new_mesh_index, 0.7, 0.55, 1);
     translate_mesh_matrix(new_mesh_index, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
@@ -259,7 +255,6 @@ function Module.update()
 
     if g_move_direction == move_direction.LEFT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
-        select_object_mesh(g_laser_mesh_index);
         set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 1);
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * 0.1;
@@ -274,7 +269,6 @@ function Module.update()
 
     if g_move_direction == move_direction.RIGHT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
-        select_object_mesh(g_laser_mesh_index);
         set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 1);
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * -0.1;

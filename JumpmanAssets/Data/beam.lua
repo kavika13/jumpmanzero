@@ -102,7 +102,6 @@ local function DrawFire_()
         local iBX = g_target_pos_x + math.random(1, 50) / 50;
         local iBY = g_target_pos_y + math.random(1, 50) / 50;
 
-        select_object_mesh(g_blast_mesh_index);
         set_identity_mesh_matrix(g_blast_mesh_index);
         scale_mesh_matrix(g_blast_mesh_index, 8, 8, 1);
 
@@ -114,7 +113,6 @@ local function DrawFire_()
         set_texture_and_is_visible_on_mesh(g_blast_mesh_index, Module.BlastTextureResourceIndex, 1);
     end
 
-    select_object_mesh(g_beam_1_mesh_index);
     set_identity_mesh_matrix(g_beam_1_mesh_index);
     translate_mesh_matrix(g_beam_1_mesh_index, 0.5, 0, 0);
     scale_mesh_matrix(g_beam_1_mesh_index, g_gun_to_target_distance, 1, 1);
@@ -123,7 +121,6 @@ local function DrawFire_()
     translate_mesh_matrix(g_beam_1_mesh_index, g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
     set_texture_and_is_visible_on_mesh(g_beam_1_mesh_index, Module.BeamColorTextureResourceIndex, 1);
 
-    select_object_mesh(g_beam_2_mesh_index);
     set_identity_mesh_matrix(g_beam_2_mesh_index);
     rotate_x_mesh_matrix(g_beam_2_mesh_index, g_frames_since_beam_started * 34);
     translate_mesh_matrix(g_beam_2_mesh_index, 0.5, 0, 0);
@@ -164,13 +161,8 @@ function Module.update()
     g_previous_player_pos_x = iPX;
 
     if Module.ShipSinkAmount > 0 then
-        select_object_mesh(g_blast_mesh_index);
         set_texture_and_is_visible_on_mesh(g_blast_mesh_index, 0, 0);
-
-        select_object_mesh(g_beam_1_mesh_index);
         set_texture_and_is_visible_on_mesh(g_beam_1_mesh_index, 0, 0);
-
-        select_object_mesh(g_beam_2_mesh_index);
         set_texture_and_is_visible_on_mesh(g_beam_2_mesh_index, 0, 0);
         return;
     end

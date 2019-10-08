@@ -35,8 +35,6 @@ local function ShowChars_()
     local to_delete = {};
 
     for current_char_i, current_char_mesh_index in ipairs(g_letter_mesh_indices) do
-        select_object_mesh(current_char_mesh_index);
-
         set_identity_mesh_matrix(current_char_mesh_index);
         scale_mesh_matrix(current_char_mesh_index, 1.8, 2, 2);
         translate_mesh_matrix(current_char_mesh_index, g_letter_pos_x[current_char_i], g_letter_pos_y[current_char_i], 70);

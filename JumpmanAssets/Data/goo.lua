@@ -283,7 +283,6 @@ local function DrawHorizontal_()
         end
     end
 
-    select_object_mesh(g_mesh_index);
     set_identity_mesh_matrix(g_mesh_index);
 
     local iDX = g_current_pos_x[2] - g_current_pos_x[1];
@@ -320,7 +319,6 @@ local function DrawVertical_()
         Module.GameLogic.kill();
     end
 
-    select_object_mesh(g_mesh_index);
     set_identity_mesh_matrix(g_mesh_index);
     scale_mesh_matrix(g_mesh_index, g_current_pos_y[1] - g_current_pos_y[2], 1.3, 3);
     rotate_z_mesh_matrix(g_mesh_index, 90);

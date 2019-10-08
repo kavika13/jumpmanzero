@@ -202,7 +202,6 @@ end
 
 local function DrawClaw_(current_animation_frame, iAngle, iSpread)
     local anim_mesh_index = g_claw_mesh_indices[current_animation_frame];
-    select_object_mesh(anim_mesh_index);
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, 0, -5, 0);
     rotate_z_mesh_matrix(anim_mesh_index, iSpread);
@@ -212,7 +211,6 @@ local function DrawClaw_(current_animation_frame, iAngle, iSpread)
 end
 
 local function DrawChain_()
-    select_object_mesh(g_chain_mesh_index);
     set_identity_mesh_matrix(g_chain_mesh_index);
     translate_mesh_matrix(g_chain_mesh_index, 0, -0.5, 0);
     scale_mesh_matrix(g_chain_mesh_index, 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);

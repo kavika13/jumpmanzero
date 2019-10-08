@@ -194,13 +194,11 @@ end
 
 function Module.update(all_jumpers)
     -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);  -- Previous frame
     set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     MoveJumper_(all_jumpers);
 
     local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    select_object_mesh(anim_mesh_index);
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
     set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
@@ -211,7 +209,6 @@ function Module.update(all_jumpers)
     iEyeY = (Module.GameLogic.get_player_current_position_y() - g_curret_pos_y) / 85;
     iEyeY = iEyeY + 9.2 + g_eye_offset_y;
 
-    select_object_mesh(g_eye_mesh_index);
     set_identity_mesh_matrix(g_eye_mesh_index);
     translate_mesh_matrix(g_eye_mesh_index, g_current_pos_x + iEyeX, g_curret_pos_y + iEyeY, g_current_pos_z);
     set_texture_and_is_visible_on_mesh(g_eye_mesh_index, Module.TextureResourceIndex, 1);

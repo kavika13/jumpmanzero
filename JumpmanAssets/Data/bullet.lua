@@ -69,10 +69,7 @@ local function RestartBullet()
     local iSupp = 0;
     local iVel = 0;
 
-    select_object_mesh(g_mesh_index_1);
     set_texture_and_is_visible_on_mesh(g_mesh_index_1, 0, 0);
-
-    select_object_mesh(g_mesh_index_2);
     set_texture_and_is_visible_on_mesh(g_mesh_index_2, 0, 0);
 
     local iType = math.random(1, 100);
@@ -206,14 +203,12 @@ function Module.update()
         Module.GameLogic.kill();
     end
 
-    select_object_mesh(g_mesh_index_1);
     set_identity_mesh_matrix(g_mesh_index_1);
     rotate_x_mesh_matrix(g_mesh_index_1, g_current_rotation_x);
     rotate_z_mesh_matrix(g_mesh_index_1, g_current_rotation_z);
     translate_mesh_matrix(g_mesh_index_1, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
     set_texture_and_is_visible_on_mesh(g_mesh_index_1, Module.TextureIndex, 1);
 
-    select_object_mesh(g_mesh_index_2);
     set_identity_mesh_matrix(g_mesh_index_2);
     rotate_y_mesh_matrix(g_mesh_index_2, 90);
     rotate_x_mesh_matrix(g_mesh_index_2, g_current_rotation_x);

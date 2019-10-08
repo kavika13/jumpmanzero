@@ -149,11 +149,9 @@ local function MoveSplashParticles_()
         local mesh_index = g_splash_particle_mesh_indices[iLoop];
 
         if iDY < -1 then
-            select_object_mesh(mesh_index);
             set_texture_and_is_visible_on_mesh(mesh_index, 0, 0);
         else
             is_any_particle_visible = true;
-            select_object_mesh(mesh_index);
             set_identity_mesh_matrix(mesh_index);
 
             if iLoop & 1 then
@@ -381,7 +379,6 @@ local function ProgressLevel_(game_input)
 
     -- TODO: Looks like jumpman's last animation frame isn't disappearing anymore when the player jumps in water.
     --       The bug might be in game_logic.lua.update_player_graphics, or it might be here
-    select_object_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame]);  -- Previous frame
     set_texture_and_is_visible_on_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame], 0, 0);
 
     if g_splash_particle_time > 0 then
@@ -432,7 +429,6 @@ local function ProgressLevel_(game_input)
         end
 
         local swim_anim_mesh_index = g_swim_animation_mesh_indices[g_swim_animation_frame];
-        select_object_mesh(swim_anim_mesh_index);
         set_identity_mesh_matrix(swim_anim_mesh_index);
         rotate_z_mesh_matrix(swim_anim_mesh_index, g_swim_rotation_angle);
         translate_mesh_matrix(swim_anim_mesh_index, iDrawX, iDrawY + 5, 2);

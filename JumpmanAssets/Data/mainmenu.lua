@@ -63,7 +63,6 @@ local function ShowJMLetters()
     end
 
     for iChar = 1, #g_title_letter_mesh_ids do
-        select_object_mesh(g_title_letter_mesh_ids[iChar]);
         set_identity_mesh_matrix(g_title_letter_mesh_ids[iChar]);
         scale_mesh_matrix(g_title_letter_mesh_ids[iChar], 2, 0.8, iThick);
 
@@ -204,7 +203,6 @@ local function ShowLetters()
         local current_letter_mesh_id = g_option_letter_mesh_ids[current_letter_index];
 
         if current_letter_mesh_id > 0 then
-            select_object_mesh(current_letter_mesh_id);
             set_identity_mesh_matrix(current_letter_mesh_id);
             scale_mesh_matrix(current_letter_mesh_id, 0.7, 0.7, 1);
 

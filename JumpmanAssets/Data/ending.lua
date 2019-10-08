@@ -130,7 +130,6 @@ local function ClearAll_()
     g_game_logic.set_player_is_visible(false);
 
     for iTemp = 0, 19 do
-        select_object_mesh(g_object_mesh_indices[iTemp]);
         set_texture_and_is_visible_on_mesh(g_object_mesh_indices[iTemp], 0, 0);
     end
 end
@@ -179,8 +178,6 @@ local function ShowPlayerGrooving_(iAT)
     local iFrame = Cycle_(iAT, 30, 0, 4);
     local iWiggle = Cycle_(iAT, 30, 0, 4) / 3;
 
-    select_object_mesh(g_object_mesh_indices[1]);
-
     iFrame = resources.MeshDance1 + iFrame;
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
@@ -197,8 +194,6 @@ local function ShowPlayerLeaving_(iAT)
         iFrame = Cycle_(iAT, 90, 0, 3);
         iFrame = resources.MeshRollLeft1 + iFrame;
     end
-
-    select_object_mesh(g_object_mesh_indices[1]);
 
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
@@ -239,8 +234,6 @@ local function ShowBear_(iAT)
         iFrame = resources.MeshFyLeft1 + iFrame;
     end
 
-    select_object_mesh(g_object_mesh_indices[1]);
-
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     scale_mesh_matrix(g_object_mesh_indices[1], 1, 1, 1.3);
@@ -278,7 +271,6 @@ local function ShowSheep_(iAT)
             iSheepY = iSheepY - (iSheepX - 115) / 2;
         end
 
-        select_object_mesh(g_object_mesh_indices[iSheep]);
         set_mesh_to_mesh(g_object_mesh_indices[iSheep], iFrame);
         set_identity_mesh_matrix(g_object_mesh_indices[iSheep]);
         translate_mesh_matrix(g_object_mesh_indices[iSheep], iSheepX, iSheepY, 2);
@@ -300,7 +292,6 @@ local function ShowTurtles_(iAT)
         local iTurtY = 84;
         local mesh_index = g_object_mesh_indices[iTurt];
 
-        select_object_mesh(mesh_index);
         set_identity_mesh_matrix(mesh_index);
 
         if iTurtX < 101 then
@@ -342,7 +333,6 @@ local function ShowDonuts_(iAT)
         local iDonX = 69 + iDon * 10;
         local iDonY = g_current_pos_y;
 
-        select_object_mesh(g_object_mesh_indices[iDon]);
         set_identity_mesh_matrix(g_object_mesh_indices[iDon]);
         scale_mesh_matrix(g_object_mesh_indices[iDon], 0.5, 0.5, 1);
 
@@ -370,7 +360,6 @@ end
 
 local function ShowDino_(iAT)
     local mesh_index = g_object_mesh_indices[0];
-    select_object_mesh(mesh_index);
     set_identity_mesh_matrix(mesh_index);
     scale_mesh_matrix(mesh_index, 1.3, 1.3, 1.3);
 
@@ -432,7 +421,6 @@ local function JumpmanChase_(iAT)
 
     g_current_pos_x = (iAT * 4 / 5) + 40;
 
-    select_object_mesh(g_object_mesh_indices[0]);
     set_identity_mesh_matrix(g_object_mesh_indices[0]);
     scale_mesh_matrix(g_object_mesh_indices[0], 1, 1, 1);
     set_mesh_to_mesh(g_object_mesh_indices[0], iFrame);
@@ -445,7 +433,6 @@ local function ShowRocket_(iAT)
     local iRZ = math.sin(iAT * 3 * math.pi / 180.0) * 10;
 
     local mesh_index = g_object_mesh_indices[0];
-    select_object_mesh(mesh_index);
     set_mesh_to_mesh(mesh_index, resources.MeshRocket);
     set_identity_mesh_matrix(mesh_index);
     rotate_y_mesh_matrix(mesh_index, iAT / 3);
@@ -456,7 +443,6 @@ local function ShowRocket_(iAT)
 
     for iBlip = 1, 14 do
         local blip_mesh_index = g_object_mesh_indices[iBlip];
-        select_object_mesh(blip_mesh_index);
         set_mesh_to_mesh(blip_mesh_index, resources.MeshSquare);
         set_identity_mesh_matrix(blip_mesh_index);
         local iSize = math.random(3, 6);

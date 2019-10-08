@@ -329,7 +329,6 @@ function Module.update(all_run_donuts)
     g_time_since_spawn = g_time_since_spawn + 1;
 
     -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    select_object_mesh(g_animation_mesh_indices[g_animation_current_frame]);  -- Previous frame
     set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
 
     if g_current_status == status_type.NORMAL or g_current_status == status_type.JUMP or
@@ -361,7 +360,6 @@ function Module.update(all_run_donuts)
 
     if g_current_status > status_type.DEAD then
         local new_frame_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-        select_object_mesh(new_frame_mesh_index);
         set_identity_mesh_matrix(new_frame_mesh_index);
         scale_mesh_matrix(new_frame_mesh_index, 0.6, 0.6, 1);
         rotate_z_mesh_matrix(new_frame_mesh_index, g_current_rotation_z);

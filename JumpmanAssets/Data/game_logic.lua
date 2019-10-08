@@ -1628,7 +1628,6 @@ local function AnimateDying_(game_input)
 
     if g_player_dying_animation_state == player_dying_animation_state.SPINNING_STARS then
         local stars_mesh_index = get_player_mesh_index(player_mesh.STARS);
-        select_object_mesh(stars_mesh_index);
         set_identity_mesh_matrix(stars_mesh_index);
         rotate_y_mesh_matrix(stars_mesh_index, g_player_absolute_frame_count * 180.0 / 50.0);
         translate_mesh_matrix(
@@ -1736,8 +1735,6 @@ function Module.update_player_graphics()
     -- TODO: Also the baboon level looks a bit strange when jumping on horizontal climb vines/platforms (script24)
     local current_player_mesh_index = get_player_mesh_index(g_player_current_mesh);
 
-    select_object_mesh(current_player_mesh_index);
-
     set_identity_mesh_matrix(current_player_mesh_index);
     rotate_x_mesh_matrix(current_player_mesh_index, g_player_current_rotation_x_radians * 180.0 / 3.14);
     translate_mesh_matrix(
@@ -1749,7 +1746,6 @@ function Module.update_player_graphics()
     end
 
     if g_player_current_mesh ~= g_player_previous_mesh then
-        select_object_mesh(get_player_mesh_index(g_player_previous_mesh))
         set_texture_and_is_visible_on_mesh(get_player_mesh_index(g_player_previous_mesh), 0, 0);
         g_player_previous_mesh = g_player_current_mesh;
     end

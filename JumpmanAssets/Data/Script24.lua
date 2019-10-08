@@ -64,7 +64,6 @@ local iHangMesh = {};
 local function CheckHanging_(game_input)
     for iDraw = 0, 19 do
         if iHangMesh[iDraw] and iHangMesh[iDraw] > 0 then
-            select_object_mesh(iHangMesh[iDraw]);
             set_texture_and_is_visible_on_mesh(iHangMesh[iDraw], 0, 0);
         end
     end
@@ -116,7 +115,6 @@ local function CheckHanging_(game_input)
             end
         end
 
-        select_object_mesh(iHangMesh[iDraw]);
         set_identity_mesh_matrix(iHangMesh[iDraw]);
         translate_mesh_matrix(
             iHangMesh[iDraw],

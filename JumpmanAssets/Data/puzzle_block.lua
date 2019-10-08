@@ -128,7 +128,6 @@ local function PutBlockInStartingPos_(all_blocks)
     end
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
-        select_object_mesh(g_block_piece_mesh_indices[iLoop]);
         set_texture_and_is_visible_on_mesh(g_block_piece_mesh_indices[iLoop], Module.BlockPieceTextureResourceIndex, 1);
     end
 end
@@ -138,7 +137,6 @@ local function DrawBlock_()
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
         local block_piece_mesh_index = g_block_piece_mesh_indices[iLoop];
-        select_object_mesh(block_piece_mesh_index);
         set_identity_mesh_matrix(block_piece_mesh_index);
         scale_mesh_matrix(block_piece_mesh_index, kBLOCK_PIECE_WIDTH + 0.2, kBLOCK_PIECE_HEIGHT + 0.2, 3.8);
 

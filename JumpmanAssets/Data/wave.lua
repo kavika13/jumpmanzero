@@ -61,17 +61,14 @@ function Module.update()
     local iAdj1 = math.cos((g_wave_animation_cycle_degrees - 90) * math.pi / 180.0) * 512 / 300 - 13;
     local iAdj2 = math.cos(g_wave_animation_cycle_degrees * math.pi / 180.0) * 512 / 300 - 13;
 
-    select_object_mesh(g_wave_1_mesh_index);
     set_identity_mesh_matrix(g_wave_1_mesh_index);
     translate_mesh_matrix(g_wave_1_mesh_index, g_current_pos_x1 + iAdj1, g_current_pos_y + iHeight1, 0 - 0.1);
     set_texture_and_is_visible_on_mesh(g_wave_1_mesh_index, Module.Wave1TextureResourceIndex, 1);
 
-    select_object_mesh(g_sea_mesh_index);
     set_identity_mesh_matrix(g_sea_mesh_index);
     translate_mesh_matrix(g_sea_mesh_index, g_current_pos_x1 + iAdj1, g_current_pos_y + iHeight1, 0 - 0.1);
     set_texture_and_is_visible_on_mesh(g_sea_mesh_index, Module.SeaTextureResourceIndex, 1);
 
-    select_object_mesh(g_wave_2_mesh_index);
     set_identity_mesh_matrix(g_wave_2_mesh_index);
     translate_mesh_matrix(g_wave_2_mesh_index, g_current_pos_x2 + iAdj2, g_current_pos_y + iHeight2, 6.5);
     set_texture_and_is_visible_on_mesh(g_wave_2_mesh_index, Module.Wave2TextureResourceIndex, 1);

@@ -979,11 +979,6 @@ static int script_abs_vine(lua_State* lua_state) {
     return 0;
 }
 
-static int script_select_object_mesh(lua_State* lua_state) {
-    double mesh_index = luaL_checknumber(lua_state, 1);
-    return 0;
-}
-
 static int FindObject(LevelObject* lObj, int iCount, int iFind) {
     int iLoop = -1;
 
@@ -1048,11 +1043,6 @@ static int get_script_selected_level_object_number(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_selected_level_object_this(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
-    return 1;
-}
-
 static int get_script_selected_level_object_x1(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_script_selected_level_object->X1);
     return 1;
@@ -1076,18 +1066,6 @@ static int get_script_selected_level_object_y2(lua_State* lua_state) {
 static int set_script_selected_level_object_number(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Num = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_x1(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->X1 = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_x2(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->X2 = (int)arg1;
     return 0;
 }
 
@@ -1365,8 +1343,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_extra");
     lua_pushcfunction(lua_state, get_script_selected_level_object_number);
     lua_setglobal(lua_state, "get_script_selected_level_object_number");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_this);
-    lua_setglobal(lua_state, "get_script_selected_level_object_this");
     lua_pushcfunction(lua_state, get_script_selected_level_object_x1);
     lua_setglobal(lua_state, "get_script_selected_level_object_x1");
     lua_pushcfunction(lua_state, get_script_selected_level_object_x2);
@@ -1381,10 +1357,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_texture_on_mesh");
     lua_pushcfunction(lua_state, set_mesh_is_visible);
     lua_setglobal(lua_state, "set_mesh_is_visible");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_x1);
-    lua_setglobal(lua_state, "set_script_selected_level_object_x1");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_x2);
-    lua_setglobal(lua_state, "set_script_selected_level_object_x2");
 
     lua_pushcfunction(lua_state, get_donut_object_count);
     lua_setglobal(lua_state, "get_donut_object_count");
@@ -1447,9 +1419,7 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_game_list");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
-    lua_pushcfunction(lua_state, script_select_object_mesh);
 
-    lua_setglobal(lua_state, "select_object_mesh");
     lua_pushcfunction(lua_state, script_delete_mesh);
     lua_setglobal(lua_state, "delete_mesh");
     lua_pushcfunction(lua_state, script_set_perspective);

@@ -88,7 +88,6 @@ end
 
 function Module.update()
     -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    select_object_mesh(g_animation_mesh_indices[g_current_animation_frame]);  -- Previous frame
     set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_current_animation_frame], 0, 0);
 
     Animate_();
@@ -96,7 +95,6 @@ function Module.update()
     Move_();
 
     local anim_mesh_index = g_animation_mesh_indices[g_current_animation_frame];
-    select_object_mesh(anim_mesh_index);
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y, 3);
     set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 2);
