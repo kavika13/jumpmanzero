@@ -202,6 +202,7 @@ function update(game_input)
     scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
 
     if g_is_game_selected and g_time_since_current_selection > 450 then
+        set_remaining_life_count(7);  -- TODO: This doesn't seem like the best place for this?
         game_start(g_title_selected_index - 1);  -- Expects 0-based title index
     end
 

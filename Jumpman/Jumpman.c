@@ -855,7 +855,6 @@ static int script_game_start(lua_State* lua_state) {
     }
 
     char sFileName[300];
-    g_remaining_life_count = 7;  // TODO: Setting this value should probably be elsewhere
     stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data", game_base_path);
 
     cf_dir_t dir;
