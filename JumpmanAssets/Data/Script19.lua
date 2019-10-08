@@ -38,15 +38,13 @@ local function ConveyPlatform_(platform_num, iDist)
     local iPX = g_game_logic.get_player_current_position_x();
     local iPY = g_game_logic.get_player_current_position_y();
 
-    local _, iPN = g_game_logic.find_platform(iPX, iPY, 14, 2);
+    local _, platform_index = g_game_logic.find_platform(iPX, iPY, 14, 2);
 
-    abs_platform(iPN);
-
-    if platform_num ~= get_script_selected_level_object_number() then
+    if platform_num ~= get_platform_number(platform_index) then
         return;
     end
 
-    if g_game_logic.get_player_current_active_platform_index() == iPN then
+    if g_game_logic.get_player_current_active_platform_index() == platform_index then
         iPX = iPX - iDist * 15;
 
         if g_game_logic.get_player_current_state() == 4096 then  -- TODO: Is this a custom state?

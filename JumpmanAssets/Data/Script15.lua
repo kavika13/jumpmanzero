@@ -49,15 +49,11 @@ local g_disappearing_platforms = {};
 local iBlow = 0;
 
 local function InitPlatforms_()
-    local iPlat = 0;
-
-    for iPlat = 0, get_platform_object_count() - 1 do
-        abs_platform(iPlat);
-
-        if get_script_selected_level_object_number() ~= 0 then
+    for platform_index = 0, get_platform_object_count() - 1 do
+        if get_platform_number(platform_index) ~= 0 then
             local new_disappearing_platform = disappearing_platform_module();
             new_disappearing_platform.GameLogic = g_game_logic;
-            new_disappearing_platform.ObjectIndex = iPlat;
+            new_disappearing_platform.ObjectIndex = platform_index;
             new_disappearing_platform.GoodColorTextureResourceIndex = resources.TextureYellowPlatform;
             new_disappearing_platform.BadColorTextureResourceIndex = resources.TextureRedPlatform;
             new_disappearing_platform.initialize();

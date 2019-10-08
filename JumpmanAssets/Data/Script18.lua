@@ -117,7 +117,6 @@ local function CollideDonuts_(game_input)
 
     for donut_index = 0, iCount - 1 do
         -- TODO: Add manual collect flag to game logic, so this doesn't have to resort to repositioning tricks
-        abs_donut(donut_index);
         local iDX = get_donut_x1(donut_index);
         local iDY = get_donut_y1(donut_index);
 
@@ -128,19 +127,18 @@ local function CollideDonuts_(game_input)
 
         if not g_game_logic.get_donut_is_collected(donut_index) then
             if g_game_logic.is_player_colliding_with_rect(iDX - 3, iDY - 5, iDX + 3, iDY + 5) then
-                local iDN = get_script_selected_level_object_number();
+                local iDN = get_donut_number(donut_index);
                 g_disarm_progress = iDN;
                 g_is_disarm_hud_visible = true;
 
                 ShowWorking_(game_input);
-                abs_donut(donut_index);
 
                 if math.random(0, 100) < 20 then
                     return;
                 end
 
                 if iDN > 1 then
-                    set_script_selected_level_object_number(iDN - 1);
+                    set_donut_number(donut_index, iDN - 1);
                 else
                     iDN = 0;
                     -- Move object to actual positive Y value so it gets collected

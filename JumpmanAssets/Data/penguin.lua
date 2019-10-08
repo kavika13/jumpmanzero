@@ -27,25 +27,23 @@ local function CheckForChange_()
         local _, ladder_index = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
         if ladder_index >= 0 then
-            abs_ladder(ladder_index);
-
             if g_current_pos_x == get_ladder_x1(ladder_index) then
                 g_closeby_ladder_pos_z = get_ladder_z1(ladder_index);
-                local iSign = get_script_selected_level_object_number();
+                local iSign = get_ladder_number(ladder_index);
 
-                if iSign == 41 then
+                if iSign == 41 then  -- TODO: Use constant for num?
                     g_animation_movement_direction = 4;
-                    set_script_selected_level_object_number(14);
+                    set_ladder_number(ladder_index, 14);  -- TODO: Use constant for num?
                     return;
                 end
 
-                if iSign == 14 then
+                if iSign == 14 then  -- TODO: Use constant for num?
                     g_animation_movement_direction = 1;
-                    set_script_selected_level_object_number(41);
+                    set_ladder_number(ladder_index, 41);  -- TODO: Use constant for num?
                     return;
                 end
 
-                if iSign == 141 then
+                if iSign == 141 then  -- TODO: Use constant for num?
                     g_animation_movement_direction = 4;
 
                     if get_ladder_y2(ladder_index) > g_current_pos_y - 5 then
@@ -63,11 +61,10 @@ local function CheckForChange_()
     end
 
     if g_animation_movement_direction == 1 or g_animation_movement_direction == 2 then
-        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
-        abs_platform(iPlat);
+        local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
 
         if iHit == g_current_pos_y then
-            g_animation_movement_direction = get_script_selected_level_object_number();
+            g_animation_movement_direction = get_platform_number(platform_index);
             return;
         end
     end

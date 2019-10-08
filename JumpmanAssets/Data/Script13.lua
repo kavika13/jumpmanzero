@@ -64,9 +64,8 @@ local g_background_rotation = 0;
 local function RotateBack_()
     g_background_rotation = g_background_rotation - 0.5;
 
-    for iBackdropNum = 200, 203 do  -- TODO: Use constants
-        select_picture(iBackdropNum);
-        local backdrop_mesh_index = find_backdrop_mesh_index(iBackdropNum);
+    for backdrop_num = 200, 203 do  -- TODO: Use constant for num
+        local backdrop_mesh_index = find_backdrop_mesh_index(backdrop_num);
         set_identity_mesh_matrix(backdrop_mesh_index);
         translate_mesh_matrix(backdrop_mesh_index, -80, -40, 0);
         scale_mesh_matrix(backdrop_mesh_index, 1.1, 1.1, 1);
@@ -76,23 +75,23 @@ local function RotateBack_()
 end
 
 local function SetConfig_()
-    for iLoop = 256, 264, 2 do
+    for platform_base_num = 256, 264, 2 do  -- TODO: Use constant for num
         local iRnd = math.random(0, 1000) < 500;
         local platform_index;
         local mesh_index;
 
         if iRnd then
-            select_platform(iLoop + 1);
-            set_script_selected_level_object_number(iLoop - 251);
-            select_platform(iLoop);
-            mesh_index = find_platform_mesh_index(iLoop);
-            platform_index = find_platform_index(iLoop);
+            local other_platform_index = find_platform_index(platform_base_num + 1);
+            set_platform_number(other_platform_index, platform_base_num - 251);
+
+            mesh_index = find_platform_mesh_index(platform_base_num);
+            platform_index = find_platform_index(platform_base_num);
         else
-            select_platform(iLoop);
-            set_script_selected_level_object_number(iLoop - 247);
-            select_platform(iLoop + 1);
-            mesh_index = find_platform_mesh_index(iLoop + 1);
-            platform_index = find_platform_index(iLoop + 1);
+            local other_platform_index = find_platform_index(platform_base_num);
+            set_platform_number(other_platform_index, platform_base_num - 247);
+
+            mesh_index = find_platform_mesh_index(platform_base_num + 1);
+            platform_index = find_platform_index(platform_base_num + 1);
         end
 
         set_platform_y1(platform_index, 500);
@@ -103,11 +102,10 @@ end
 
 local function ResetVisible_(visibility_bitmask)
     for platform_index = 0, get_platform_object_count() - 1 do
-        abs_platform(platform_index);
-        local iPlat = get_script_selected_level_object_number();
+        local platform_num = get_platform_number(platform_index);
         local mesh_index = get_platform_mesh_index(platform_index);
 
-        if (iPlat & visibility_bitmask) ~= 0 then
+        if (platform_num & visibility_bitmask) ~= 0 then
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureClassicPlatform, 1);
         else
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
@@ -115,11 +113,10 @@ local function ResetVisible_(visibility_bitmask)
     end
 
     for ladder_index = 0, get_ladder_object_count() - 1 do
-        abs_ladder(ladder_index);
-        local iPlat = get_script_selected_level_object_number();
+        local ladder_number = get_ladder_number(ladder_index);
         local mesh_index = get_ladder_mesh_index(ladder_index);
 
-        if (iPlat & visibility_bitmask) ~= 0 then
+        if (ladder_number & visibility_bitmask) ~= 0 then
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
         else
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
@@ -127,11 +124,10 @@ local function ResetVisible_(visibility_bitmask)
     end
 
     for vine_index = 0, get_vine_object_count() - 1 do
-        abs_vine(vine_index);
-        local iPlat = get_script_selected_level_object_number();
+        local vine_number = get_vine_number(vine_index);
         local mesh_index = get_vine_mesh_index(vine_index);
 
-        if (iPlat & visibility_bitmask) ~= 0 then
+        if (vine_number & visibility_bitmask) ~= 0 then
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
         else
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
@@ -139,8 +135,6 @@ local function ResetVisible_(visibility_bitmask)
     end
 
     for donut_index = 0, get_donut_object_count() - 1 do
-        abs_donut(donut_index);
-        local iPlat = get_script_selected_level_object_number();
         local mesh_index = get_donut_mesh_index(donut_index);
 
         -- TODO: Does this just want to set the texture? Should it do just that instead?
