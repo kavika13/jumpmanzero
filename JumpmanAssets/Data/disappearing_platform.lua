@@ -93,7 +93,7 @@ end
 local function DrawStatus_()
     abs_platform(Module.ObjectIndex);
 
-    set_script_selected_level_object_z1(g_original_pos_z + g_current_pos_offset_z);
+    set_platform_z1(Module.ObjectIndex, g_original_pos_z + g_current_pos_offset_z);
 
     if g_original_pos_z + g_current_pos_offset_z > 10 and get_script_selected_level_object_y1() > 0 then
         set_script_selected_level_object_y1(0 - get_script_selected_level_object_y1());

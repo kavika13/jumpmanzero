@@ -272,6 +272,13 @@ static int get_platform_z1(lua_State* lua_state) {
     return 1;
 }
 
+static int set_platform_z1(lua_State* lua_state) {
+    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_platform_objects[platform_index_arg].Z1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
+}
+
 static int get_wall_x1(lua_State* lua_state) {
     lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_wall_objects[wall_index].X1);
@@ -1012,12 +1019,6 @@ static int set_script_selected_level_object_y2(lua_State* lua_state) {
     return 0;
 }
 
-static int set_script_selected_level_object_z1(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Z1 = (int)arg1;
-    return 0;
-}
-
 // TODO: Remove these once level loader is in Lua, and mesh indices are kept there
 
 static int get_platform_mesh_index(lua_State* lua_state) {
@@ -1172,6 +1173,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_platform_y2");
     lua_pushcfunction(lua_state, get_platform_z1);
     lua_setglobal(lua_state, "get_platform_z1");
+    lua_pushcfunction(lua_state, set_platform_z1);
+    lua_setglobal(lua_state, "set_platform_z1");
     lua_pushcfunction(lua_state, get_wall_x1);
     lua_setglobal(lua_state, "get_wall_x1");
     lua_pushcfunction(lua_state, get_wall_x2);
@@ -1255,8 +1258,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_script_selected_level_object_y1");
     lua_pushcfunction(lua_state, set_script_selected_level_object_y2);
     lua_setglobal(lua_state, "set_script_selected_level_object_y2");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_z1);
-    lua_setglobal(lua_state, "set_script_selected_level_object_z1");
 
     lua_pushcfunction(lua_state, get_donut_object_count);
     lua_setglobal(lua_state, "get_donut_object_count");
