@@ -1058,11 +1058,6 @@ static int get_script_selected_level_object_y1(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_selected_level_object_y2(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Y2);
-    return 1;
-}
-
 static int set_script_selected_level_object_number(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Num = (int)arg1;
@@ -1349,8 +1344,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_x2");
     lua_pushcfunction(lua_state, get_script_selected_level_object_y1);
     lua_setglobal(lua_state, "get_script_selected_level_object_y1");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_y2);
-    lua_setglobal(lua_state, "get_script_selected_level_object_y2");
     lua_pushcfunction(lua_state, set_script_selected_level_object_number);
     lua_setglobal(lua_state, "set_script_selected_level_object_number");
     lua_pushcfunction(lua_state, set_texture_on_mesh);
