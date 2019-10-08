@@ -78,14 +78,13 @@ local function ProgressLevel_(game_input)
 
     if g_is_wall_moving then
         g_wall_animation_frame = g_wall_animation_frame + 1;
-        select_wall(33);  -- TODO: Use constant for num
         local wall_mesh_index = find_wall_mesh_index(33);  -- TODO: Use constant for num
         set_identity_mesh_matrix(wall_mesh_index);
         translate_mesh_matrix(wall_mesh_index, 0, 0, g_wall_animation_frame / 10);
 
         if g_wall_animation_frame == 45 then
-            select_wall(33);  -- TODO: Use constant for num
-            set_script_selected_level_object_y1(0 - 26);
+            local wall_index = find_wall_index(33);  -- TODO: Use constant for num
+            set_wall_y1(wall_index, 0 - 26);
             g_wall_animation_frame = 0;
             g_is_wall_moving = false;
         end
@@ -100,7 +99,6 @@ local function ProgressLevel_(game_input)
         g_spotlight_animation_frame = 0;
     end
 
-    select_picture(1);  -- TODO: Use constant for num
     local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
@@ -111,29 +109,24 @@ local function ProgressLevel_(game_input)
         set_texture_on_mesh(backdrop_mesh_index, resources.TextureRing);
     end
 
-    select_picture(2);  -- TODO: Use constant for num
     backdrop_mesh_index = find_backdrop_mesh_index(2);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
-    select_picture(3);  -- TODO: Use constant for num
     backdrop_mesh_index = find_backdrop_mesh_index(3);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
-    select_picture(4);  -- TODO: Use constant for num
     backdrop_mesh_index = find_backdrop_mesh_index(4);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
-    select_picture(5);  -- TODO: Use constant for num
     backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     g_painting_with_eyes_animation_frame = g_painting_with_eyes_animation_frame + 1;
 
-    select_picture(100);  -- TODO: Use constant for num
     backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
     set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TexturePainting, 1);
 
@@ -192,7 +185,6 @@ function on_collect_donut(game_input, iDonut)
     if iDonut == 1 then
         g_is_wall_moving = true;
         g_wall_animation_frame = 1;  -- TODO: Is this necessary to do here?
-        select_vine(1);  -- TODO: Use constant for num
         local vine_index = find_vine_index(1);  -- TODO: Use constant for num
         set_vine_y2(vine_index, get_vine_y2(vine_index) + 6);
         set_vine_y1(vine_index, get_vine_y1(vine_index) + 6);
@@ -204,7 +196,6 @@ function on_collect_donut(game_input, iDonut)
     end
 
     if iDonut == 2 then
-        select_vine(2);  -- TODO: Use constant for num
         local vine_index = find_vine_index(2);  -- TODO: Use constant for num
         set_vine_y2(vine_index, get_vine_y2(vine_index) + 8);
         set_vine_y1(vine_index, get_vine_y1(vine_index) + 8);
@@ -216,14 +207,12 @@ function on_collect_donut(game_input, iDonut)
     end
 
     if iDonut == 3 then
-        select_wall(2);  -- TODO: Use constant for num
         local wall_index = find_wall_index(2);  -- TODO: Use constant for num
         set_wall_y1(wall_index, get_wall_y1(wall_index) - 26);
         local wall_mesh_index = find_wall_mesh_index(2);  -- TODO: Use constant for num
         set_identity_mesh_matrix(wall_mesh_index);
         translate_mesh_matrix(wall_mesh_index, 0, 0 - 70, 0);
 
-        select_picture(12);  -- TODO: Use constant for num
         local backdrop_mesh_index = find_backdrop_mesh_index(12);  -- TODO: Use constant for num
         set_identity_mesh_matrix(backdrop_mesh_index);
         translate_mesh_matrix(backdrop_mesh_index, 0, 0 - 70, 0);

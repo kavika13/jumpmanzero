@@ -61,9 +61,9 @@ local function AnimateArrow_(backdrop_num)
         is_reversed = true;
     end
 
-    select_picture(backdrop_num);
-    local SY = get_script_selected_level_object_y1();
-    local SX = get_script_selected_level_object_x1();
+    local backdrop_index = find_backdrop_index(backdrop_num);
+    local SY = get_backdrop_y1(backdrop_index);
+    local SX = get_backdrop_x1(backdrop_index);
 
     local backdrop_mesh_index = find_backdrop_mesh_index(backdrop_num);
     set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureUpDown, 1);
@@ -98,7 +98,6 @@ local function AnimateArrow_(backdrop_num)
 end
 
 local function SpinPlatform_(platform_index, iPY)
-    abs_platform(platform_index);
     local platform_mesh_index = get_platform_mesh_index(platform_index);
     set_identity_mesh_matrix(platform_mesh_index);
 
@@ -153,32 +152,30 @@ local function SpinLevel_()
     iPY = iPY + g_player_y_when_starting_flip * (50 - g_level_flipping_rotation) + iNewY * g_level_flipping_rotation;
     iPY = math.floor(iPY / 50) & 255;
 
-    for iPlat = 0, get_platform_object_count() - 1 do
-        SpinPlatform_(iPlat, iPY);
+    for platform_index = 0, get_platform_object_count() - 1 do
+        SpinPlatform_(platform_index, iPY);
     end
 
-    for iLadder = 0, get_ladder_object_count() - 1 do
-        abs_ladder(iLadder);
-        local ladder_mesh_index = get_ladder_mesh_index(iLadder);
+    for ladder_index = 0, get_ladder_object_count() - 1 do
+        local ladder_mesh_index = get_ladder_mesh_index(ladder_index);
         SpinLadderDonutOrVine_(ladder_mesh_index, iPY);
     end
 
-    for iDonut = 0, get_donut_object_count() - 1 do
-        abs_donut(iDonut);
-        local donut_mesh_index = get_donut_mesh_index(iDonut);
+    for donut_index = 0, get_donut_object_count() - 1 do
+        local donut_mesh_index = get_donut_mesh_index(donut_index);
         SpinLadderDonutOrVine_(donut_mesh_index, iPY);
     end
 
-    for iVine = 0, get_vine_object_count() - 1 do
-        abs_vine(iVine);
-        local vine_mesh_index = get_vine_mesh_index(iVine);
+    for vine_index = 0, get_vine_object_count() - 1 do
+        local vine_mesh_index = get_vine_mesh_index(vine_index);
         SpinLadderDonutOrVine_(vine_mesh_index, iPY);
     end
 end
 
 local function EnableLadder_(ladder_num)
-    select_ladder(ladder_num);
-    set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
+    local ladder_index = find_ladder_index(ladder_num);
+    set_ladder_x1(ladder_index, 0 - get_ladder_x1(ladder_index));
+
     local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
     set_identity_mesh_matrix(ladder_mesh_index);
 end
@@ -207,7 +204,6 @@ local function ReversePlatform_(platform_index)
 end
 
 local function ReverseDonut_(donut_index)
-    abs_donut(donut_index);
     local donut_mesh_index = get_donut_mesh_index(donut_index);
     set_identity_mesh_matrix(donut_mesh_index);
 
@@ -217,8 +213,8 @@ local function ReverseDonut_(donut_index)
         translate_mesh_matrix(donut_mesh_index, 0, 80, 2);
     end
 
-    local SY = get_script_selected_level_object_y1();
-    set_script_selected_level_object_y1(160 - SY);
+    local SY = get_donut_y1(donut_index);
+    set_donut_y1(donut_index, 160 - SY);
 end
 
 local function ReverseLadder_(ladder_index)
@@ -275,9 +271,9 @@ local function ReverseLevel_()
 end
 
 local function DisableLadder_(ladder_num)
-    select_ladder(ladder_num);
+    local ladder_index = find_ladder_index(ladder_num);
     local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
-    set_script_selected_level_object_x1(0 - get_script_selected_level_object_x1());
+    set_ladder_x1(ladder_index, 0 - get_ladder_x1(ladder_index));
     translate_mesh_matrix(ladder_mesh_index, 0, 0 - 500, 0);
 end
 
@@ -310,7 +306,6 @@ local function ProgressLevel_(game_input)
     for arrow_num = 1, 2 do
         if g_arrow_cooldown_frames[arrow_num] > 0 then
             g_arrow_cooldown_frames[arrow_num] = g_arrow_cooldown_frames[arrow_num] - 1;
-            select_picture(arrow_num);
             local backdrop_mesh_index = find_backdrop_mesh_index(arrow_num);
             set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureUpDown, 0);
         else
@@ -330,7 +325,7 @@ local function ProgressLevel_(game_input)
         if g_level_flipping_rotation == 50 then
             if g_level_flipping_state == 1 then
                 g_level_flipping_state = 2;
-                EnableLadder_(9);
+                EnableLadder_(9);  -- TODO: Use constant for num
             else
                 g_level_flipping_state = 0;
             end
@@ -338,7 +333,7 @@ local function ProgressLevel_(game_input)
             ReverseLevel_();
 
             if g_level_flipping_state == 0 then
-                DisableLadder_(9);
+                DisableLadder_(9);  -- TODO: Use constant for num
             end
         end
     end
@@ -358,7 +353,7 @@ function initialize(game_input)
     g_hud_overlay = hud_overlay_module();
 
     g_game_logic.set_level_extent_x(200);
-    DisableLadder_(9);
+    DisableLadder_(9);  -- TODO: Use constant for num
 
     StartBullet_(500);
     StartBullet_(1000);

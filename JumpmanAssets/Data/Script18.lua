@@ -120,9 +120,10 @@ local function CollideDonuts_(game_input)
     local iCount = get_donut_object_count();
 
     for donut_index = 0, iCount - 1 do
+        -- TODO: Add manual collect flag to game logic, so this doesn't have to resort to repositioning tricks
         abs_donut(donut_index);
-        local iDX = get_script_selected_level_object_x1();
-        local iDY = get_script_selected_level_object_y1();
+        local iDX = get_donut_x1(donut_index);
+        local iDY = get_donut_y1(donut_index);
 
         if iDY < 0 then
             -- Get actual Y value to test against the player's pos rather than the temporary (-Y) value
@@ -147,7 +148,7 @@ local function CollideDonuts_(game_input)
                 else
                     iDN = 0;
                     -- Move object to actual positive Y value so it gets collected
-                    set_script_selected_level_object_y1(iDY);
+                    set_donut_y1(donut_index, iDY);
                     g_is_disarm_hud_visible = false;
                 end
 
@@ -233,9 +234,8 @@ local function MoveDonuts_()
     -- so they aren't immediately collected on contact
     local donut_count = get_donut_object_count();
 
-    for iDonut = 0, donut_count - 1 do
-        abs_donut(iDonut);
-        set_script_selected_level_object_y1(0 - get_script_selected_level_object_y1());
+    for donut_index = 0, donut_count - 1 do
+        set_donut_y1(donut_index, 0 - get_donut_y1(donut_index));
     end
 end
 

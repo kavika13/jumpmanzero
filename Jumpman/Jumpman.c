@@ -188,6 +188,13 @@ static int get_donut_y1(lua_State* lua_state) {
     return 1;
 }
 
+static int set_donut_y1(lua_State* lua_state) {
+    lua_Integer donut_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_donut_objects[donut_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
+}
+
 static int get_ladder_x1(lua_State* lua_state) {
     lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_ladder_objects[ladder_index].X1);
@@ -394,6 +401,18 @@ static int get_wall_y3(lua_State* lua_state) {
 static int get_wall_y4(lua_State* lua_state) {
     lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_wall_objects[wall_index].Y4);
+    return 1;
+}
+
+static int get_backdrop_x1(lua_State* lua_state) {
+    lua_Integer backdrop_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].X1);
+    return 1;
+}
+
+static int get_backdrop_y1(lua_State* lua_state) {
+    lua_Integer backdrop_index = luaL_checkinteger(lua_state, 1);
+    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].Y1);
     return 1;
 }
 
@@ -1072,12 +1091,6 @@ static int set_script_selected_level_object_x2(lua_State* lua_state) {
     return 0;
 }
 
-static int set_script_selected_level_object_y1(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Y1 = (int)arg1;
-    return 0;
-}
-
 // TODO: Remove these once level loader is in Lua, and mesh indices are kept there
 
 static int get_platform_mesh_index(lua_State* lua_state) {
@@ -1201,6 +1214,13 @@ static int find_backdrop_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
+static int find_backdrop_index(lua_State* lua_state) {
+    lua_Integer backdrop_num = luaL_checkinteger(lua_state, 1);
+    int backdrop_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)backdrop_num);
+    lua_pushinteger(lua_state, backdrop_index);
+    return 1;
+}
+
 static int find_wall_mesh_index(lua_State* lua_state) {
     lua_Integer wall_num = luaL_checkinteger(lua_state, 1);
     int wall_index = FindObject(g_wall_objects, g_wall_object_count, (int)wall_num);
@@ -1232,6 +1252,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_donut_x1");
     lua_pushcfunction(lua_state, get_donut_y1);
     lua_setglobal(lua_state, "get_donut_y1");
+    lua_pushcfunction(lua_state, set_donut_y1);
+    lua_setglobal(lua_state, "set_donut_y1");
     lua_pushcfunction(lua_state, get_ladder_x1);
     lua_setglobal(lua_state, "get_ladder_x1");
     lua_pushcfunction(lua_state, set_ladder_x1);
@@ -1298,6 +1320,10 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_wall_y3");
     lua_pushcfunction(lua_state, get_wall_y4);
     lua_setglobal(lua_state, "get_wall_y4");
+    lua_pushcfunction(lua_state, get_backdrop_x1);
+    lua_setglobal(lua_state, "get_backdrop_x1");
+    lua_pushcfunction(lua_state, get_backdrop_y1);
+    lua_setglobal(lua_state, "get_backdrop_y1");
     lua_pushcfunction(lua_state, load_next_level);
     lua_setglobal(lua_state, "load_next_level");
     lua_pushcfunction(lua_state, queue_level_load);
@@ -1359,8 +1385,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_script_selected_level_object_x1");
     lua_pushcfunction(lua_state, set_script_selected_level_object_x2);
     lua_setglobal(lua_state, "set_script_selected_level_object_x2");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_y1);
-    lua_setglobal(lua_state, "set_script_selected_level_object_y1");
 
     lua_pushcfunction(lua_state, get_donut_object_count);
     lua_setglobal(lua_state, "get_donut_object_count");
@@ -1463,6 +1487,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_vine_index");
     lua_pushcfunction(lua_state, find_backdrop_mesh_index);
     lua_setglobal(lua_state, "find_backdrop_mesh_index");
+    lua_pushcfunction(lua_state, find_backdrop_index);
+    lua_setglobal(lua_state, "find_backdrop_index");
     lua_pushcfunction(lua_state, find_wall_mesh_index);
     lua_setglobal(lua_state, "find_wall_mesh_index");
     lua_pushcfunction(lua_state, find_wall_index);
