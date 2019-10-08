@@ -78,6 +78,7 @@ end
 local function SetConfig_()
     for iLoop = 256, 264, 2 do
         local iRnd = math.random(0, 1000) < 500;
+        local platform_index;
         local mesh_index;
 
         if iRnd then
@@ -85,15 +86,17 @@ local function SetConfig_()
             set_script_selected_level_object_number(iLoop - 251);
             select_platform(iLoop);
             mesh_index = find_platform_mesh_index(iLoop);
+            platform_index = find_platform_index(iLoop);
         else
             select_platform(iLoop);
             set_script_selected_level_object_number(iLoop - 247);
             select_platform(iLoop + 1);
             mesh_index = find_platform_mesh_index(iLoop + 1);
+            platform_index = find_platform_index(iLoop + 1);
         end
 
-        set_script_selected_level_object_y1(500);
-        set_script_selected_level_object_y2(500);
+        set_platform_y1(platform_index, 500);
+        set_platform_y2(platform_index, 500);
         translate_mesh_matrix(mesh_index, 0, 0, 2000);
     end
 end

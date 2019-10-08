@@ -91,18 +91,16 @@ local function Progress_()
 end
 
 local function DrawStatus_()
-    abs_platform(Module.ObjectIndex);
-
     set_platform_z1(Module.ObjectIndex, g_original_pos_z + g_current_pos_offset_z);
 
-    if g_original_pos_z + g_current_pos_offset_z > 10 and get_script_selected_level_object_y1() > 0 then
-        set_script_selected_level_object_y1(0 - get_script_selected_level_object_y1());
-        set_script_selected_level_object_y2(0 - get_script_selected_level_object_y2());
+    if g_original_pos_z + g_current_pos_offset_z > 10 and get_platform_y1(Module.ObjectIndex) > 0 then
+        set_platform_y1(Module.ObjectIndex, 0 - get_platform_y1(Module.ObjectIndex));
+        set_platform_y2(Module.ObjectIndex, 0 - get_platform_y2(Module.ObjectIndex));
     end
 
-    if g_original_pos_z + g_current_pos_offset_z < 10 and get_script_selected_level_object_y1() < 0 then
-        set_script_selected_level_object_y1(0 - get_script_selected_level_object_y1());
-        set_script_selected_level_object_y2(0 - get_script_selected_level_object_y2());
+    if g_original_pos_z + g_current_pos_offset_z < 10 and get_platform_y1(Module.ObjectIndex) < 0 then
+        set_platform_y1(Module.ObjectIndex, 0 - get_platform_y1(Module.ObjectIndex));
+        set_platform_y2(Module.ObjectIndex, 0 - get_platform_y2(Module.ObjectIndex));
     end
 
     local platform_mesh_index = get_platform_mesh_index(Module.ObjectIndex);
@@ -117,8 +115,7 @@ local function DrawStatus_()
 end
 
 function Module.initialize()
-    abs_platform(Module.ObjectIndex);
-    g_original_pos_z = get_script_selected_level_object_z1();
+    g_original_pos_z = get_platform_z1(Module.ObjectIndex);
 end
 
 function Module.update()

@@ -87,11 +87,11 @@ local g_ninjas = {};
 local g_is_trap_door_triggering = false;
 local g_trap_door_fall_progress = 0;
 
-local function MovePlatform_(platform_num, iRotate, iTran)
-    select_platform(platform_num);
-    local iPlatX = get_script_selected_level_object_x2();
-    local iPlatY = get_script_selected_level_object_y2();
-    local platform_mesh_index = find_platform_mesh_index(platform_num);
+local function MovePlatform_(platform_index, iRotate, iTran)
+    local iPlatX = get_platform_x2(platform_index);
+    local iPlatY = get_platform_y2(platform_index);
+
+    local platform_mesh_index = get_platform_mesh_index(platform_index);
     set_identity_mesh_matrix(platform_mesh_index);
     translate_mesh_matrix(platform_mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
     rotate_z_mesh_matrix(platform_mesh_index, iRotate);
@@ -108,16 +108,18 @@ local function ProgressLevel_(game_input)
 
     if g_is_trap_door_triggering then
         g_trap_door_fall_progress = g_trap_door_fall_progress + 3;
-        MovePlatform_(1, g_trap_door_fall_progress, 0);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+
+        local platform_index = find_platform_index(1);  -- TODO: Use constant for num
+        MovePlatform_(platform_index, g_trap_door_fall_progress, 0);
+
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
-        select_platform(1);
-        set_script_selected_level_object_y1(get_script_selected_level_object_y1() - 3);
+
+        set_platform_y1(platform_index, get_platform_y1(platform_index) - 3);
 
         if g_trap_door_fall_progress >= 90 then
-            set_script_selected_level_object_y1(500);
-            set_script_selected_level_object_y2(500);
+            set_platform_y1(platform_index, 500);
+            set_platform_y2(platform_index, 500);
             g_is_trap_door_triggering = false;
         end
     end

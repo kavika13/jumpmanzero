@@ -46,7 +46,7 @@ local g_title_is_done_scrolling = false;
 local g_game_logic;
 local g_hud_overlay;
 
-local g_platform_numbers = {};
+local g_platform_indices = {};
 local g_platforms_x1 = {};
 local g_platforms_y1 = {};
 local g_platforms_x2 = {};
@@ -109,16 +109,16 @@ function SetPosition_(iNum, iNX, iNY)
 end
 
 local function DisplayPlatform_(iNum)
-    abs_platform(g_platform_numbers[iNum]);
-    set_script_selected_level_object_x1(g_platforms_x1[iNum]);
-    set_script_selected_level_object_x2(g_platforms_x2[iNum]);
-    set_script_selected_level_object_y1(g_platforms_y1[iNum]);
-    set_script_selected_level_object_y2(g_platforms_y2[iNum]);
+    local platform_index = g_platform_indices[iNum];
+    set_platform_x1(platform_index, g_platforms_x1[iNum]);
+    set_platform_x2(platform_index, g_platforms_x2[iNum]);
+    set_platform_y1(platform_index, g_platforms_y1[iNum]);
+    set_platform_y2(platform_index, g_platforms_y2[iNum]);
 
     local iDX = g_platforms_x1[iNum] - g_platforms_original_x1[iNum];
     local iDY = g_platforms_y1[iNum] - g_platforms_original_y1[iNum];
 
-    local platform_mesh_index = get_platform_mesh_index(g_platform_numbers[iNum]);
+    local platform_mesh_index = get_platform_mesh_index(platform_index);
     set_identity_mesh_matrix(platform_mesh_index);
     translate_mesh_matrix(platform_mesh_index, iDX, iDY, 0);
 
@@ -128,7 +128,7 @@ local function DisplayPlatform_(iNum)
     g_platforms_previous_x1[iNum] = g_platforms_x1[iNum];
     g_platforms_previous_y1[iNum] = g_platforms_y1[iNum];
 
-    if g_game_logic.get_player_current_active_platform_index() == g_platform_numbers[iNum] then
+    if g_game_logic.get_player_current_active_platform_index() == platform_index then
         local iPX = g_game_logic.get_player_current_position_x();
         local iPY = g_game_logic.get_player_current_position_y();
         g_game_logic.set_player_current_position_x(iPX + iDX);
@@ -215,20 +215,22 @@ local function ProgressLevel_(game_input)
     g_game_logic.update_player_graphics();
 end
 
-function SetPlatformData_(iNum)
-    g_platform_numbers[iNum] = get_script_selected_level_object_this();
-    g_platforms_x1[iNum] = get_script_selected_level_object_x1();
-    g_platforms_x2[iNum] = get_script_selected_level_object_x2();
-    g_platforms_y1[iNum] = get_script_selected_level_object_y1();
-    g_platforms_y2[iNum] = get_script_selected_level_object_y2();
+function SetPlatformData_(platform_num)
+    local platform_index = find_platform_index(platform_num);
 
-    g_platforms_original_x1[iNum] = get_script_selected_level_object_x1();
-    g_platforms_original_y1[iNum] = get_script_selected_level_object_y1();
-    g_platforms_original_x2[iNum] = get_script_selected_level_object_x2();
-    g_platforms_original_y2[iNum] = get_script_selected_level_object_y2();
+    g_platform_indices[platform_num] = platform_index;
+    g_platforms_x1[platform_num] = get_platform_x1(platform_index);
+    g_platforms_x2[platform_num] = get_platform_x2(platform_index);
+    g_platforms_y1[platform_num] = get_platform_y1(platform_index);
+    g_platforms_y2[platform_num] = get_platform_y2(platform_index);
 
-    g_platforms_previous_x1[iNum] = get_script_selected_level_object_x1();
-    g_platforms_previous_y1[iNum] = get_script_selected_level_object_y1();
+    g_platforms_original_x1[platform_num] = get_platform_x1(platform_index);
+    g_platforms_original_y1[platform_num] = get_platform_y1(platform_index);
+    g_platforms_original_x2[platform_num] = get_platform_x2(platform_index);
+    g_platforms_original_y2[platform_num] = get_platform_y2(platform_index);
+
+    g_platforms_previous_x1[platform_num] = get_platform_x1(platform_index);
+    g_platforms_previous_y1[platform_num] = get_platform_y1(platform_index);
 end
 
 function initialize(game_input)
@@ -240,9 +242,8 @@ function initialize(game_input)
 
     g_game_logic.set_level_extent_x(200);
 
-    for iLoop = 1, 9 do
-        select_platform(iLoop);
-        SetPlatformData_(iLoop);
+    for platform_num = 1, 9 do
+        SetPlatformData_(platform_num);
     end
 
     g_small_gears_background_mesh_index = new_mesh(resources.MeshSphere);

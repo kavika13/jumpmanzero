@@ -200,10 +200,24 @@ static int get_ladder_y1(lua_State* lua_state) {
     return 1;
 }
 
+static int set_ladder_y1(lua_State* lua_state) {
+    lua_Integer ladder_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_ladder_objects[ladder_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
+}
+
 static int get_ladder_y2(lua_State* lua_state) {
     lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Y2);
     return 1;
+}
+
+static int set_ladder_y2(lua_State* lua_state) {
+    lua_Integer ladder_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_ladder_objects[ladder_index_arg].Y2 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
 }
 
 static int get_ladder_z1(lua_State* lua_state) {
@@ -224,10 +238,24 @@ static int get_vine_y1(lua_State* lua_state) {
     return 1;
 }
 
+static int set_vine_y1(lua_State* lua_state) {
+    lua_Integer vine_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_vine_objects[vine_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
+}
+
 static int get_vine_y2(lua_State* lua_state) {
     lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_vine_objects[vine_index].Y2);
     return 1;
+}
+
+static int set_vine_y2(lua_State* lua_state) {
+    lua_Integer vine_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_vine_objects[vine_index_arg].Y2 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
 }
 
 static int get_vine_z1(lua_State* lua_state) {
@@ -248,10 +276,24 @@ static int get_platform_x1(lua_State* lua_state) {
     return 1;
 }
 
+static int set_platform_x1(lua_State* lua_state) {
+    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_platform_objects[platform_index_arg].X1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
+}
+
 static int get_platform_x2(lua_State* lua_state) {
     lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_platform_objects[platform_index].X2);
     return 1;
+}
+
+static int set_platform_x2(lua_State* lua_state) {
+    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_platform_objects[platform_index_arg].X2 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
 }
 
 static int get_platform_y1(lua_State* lua_state) {
@@ -260,10 +302,24 @@ static int get_platform_y1(lua_State* lua_state) {
     return 1;
 }
 
+static int set_platform_y1(lua_State* lua_state) {
+    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_platform_objects[platform_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
+}
+
 static int get_platform_y2(lua_State* lua_state) {
     lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_platform_objects[platform_index].Y2);
     return 1;
+}
+
+static int set_platform_y2(lua_State* lua_state) {
+    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_platform_objects[platform_index_arg].Y2 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
 }
 
 static int get_platform_z1(lua_State* lua_state) {
@@ -307,6 +363,13 @@ static int get_wall_y1(lua_State* lua_state) {
     lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_wall_objects[wall_index].Y1);
     return 1;
+}
+
+static int set_wall_y1(lua_State* lua_state) {
+    lua_Integer wall_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_wall_objects[wall_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
 }
 
 static int get_wall_y2(lua_State* lua_state) {
@@ -1013,12 +1076,6 @@ static int set_script_selected_level_object_y1(lua_State* lua_state) {
     return 0;
 }
 
-static int set_script_selected_level_object_y2(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Y2 = (int)arg1;
-    return 0;
-}
-
 // TODO: Remove these once level loader is in Lua, and mesh indices are kept there
 
 static int get_platform_mesh_index(lua_State* lua_state) {
@@ -1078,6 +1135,13 @@ static int find_platform_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
+static int find_platform_index(lua_State* lua_state) {
+    lua_Integer platform_num = luaL_checkinteger(lua_state, 1);
+    int platform_index = FindObject(g_platform_objects, g_platform_object_count, (int)platform_num);
+    lua_pushinteger(lua_state, platform_index);
+    return 1;
+}
+
 static int find_ladder_mesh_index(lua_State* lua_state) {
     lua_Integer ladder_num = luaL_checkinteger(lua_state, 1);
     int ladder_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)ladder_num);
@@ -1112,6 +1176,13 @@ static int find_vine_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
+static int find_vine_index(lua_State* lua_state) {
+    lua_Integer vine_num = luaL_checkinteger(lua_state, 1);
+    int vine_index = FindObject(g_vine_objects, g_vine_object_count, (int)vine_num);
+    lua_pushinteger(lua_state, vine_index);
+    return 1;
+}
+
 static int find_backdrop_mesh_index(lua_State* lua_state) {
     lua_Integer backdrop_num = luaL_checkinteger(lua_state, 1);
     int backdrop_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)backdrop_num);
@@ -1127,6 +1198,13 @@ static int find_wall_mesh_index(lua_State* lua_state) {
     // TODO: Better runtime error handling than assert
     assert(wall_index != -1 && "find_wall_mesh_index could not find wall with given num id (specified in level data)");
     lua_pushinteger(lua_state, g_wall_objects[wall_index].MeshNumber);
+    return 1;
+}
+
+static int find_wall_index(lua_State* lua_state) {
+    lua_Integer wall_num = luaL_checkinteger(lua_state, 1);
+    int wall_index = FindObject(g_wall_objects, g_wall_object_count, (int)wall_num);
+    lua_pushinteger(lua_state, wall_index);
     return 1;
 }
 
@@ -1149,28 +1227,44 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_ladder_x1");
     lua_pushcfunction(lua_state, get_ladder_y1);
     lua_setglobal(lua_state, "get_ladder_y1");
+    lua_pushcfunction(lua_state, set_ladder_y1);
+    lua_setglobal(lua_state, "set_ladder_y1");
     lua_pushcfunction(lua_state, get_ladder_y2);
     lua_setglobal(lua_state, "get_ladder_y2");
+    lua_pushcfunction(lua_state, set_ladder_y2);
+    lua_setglobal(lua_state, "set_ladder_y2");
     lua_pushcfunction(lua_state, get_ladder_z1);
     lua_setglobal(lua_state, "get_ladder_z1");
     lua_pushcfunction(lua_state, get_vine_x1);
     lua_setglobal(lua_state, "get_vine_x1");
     lua_pushcfunction(lua_state, get_vine_y1);
     lua_setglobal(lua_state, "get_vine_y1");
+    lua_pushcfunction(lua_state, set_vine_y1);
+    lua_setglobal(lua_state, "set_vine_y1");
     lua_pushcfunction(lua_state, get_vine_y2);
     lua_setglobal(lua_state, "get_vine_y2");
+    lua_pushcfunction(lua_state, set_vine_y2);
+    lua_setglobal(lua_state, "set_vine_y2");
     lua_pushcfunction(lua_state, get_vine_z1);
     lua_setglobal(lua_state, "get_vine_z1");
     lua_pushcfunction(lua_state, get_platform_extra);
     lua_setglobal(lua_state, "get_platform_extra");
     lua_pushcfunction(lua_state, get_platform_x1);
     lua_setglobal(lua_state, "get_platform_x1");
+    lua_pushcfunction(lua_state, set_platform_x1);
+    lua_setglobal(lua_state, "set_platform_x1");
     lua_pushcfunction(lua_state, get_platform_x2);
     lua_setglobal(lua_state, "get_platform_x2");
+    lua_pushcfunction(lua_state, set_platform_x2);
+    lua_setglobal(lua_state, "set_platform_x2");
     lua_pushcfunction(lua_state, get_platform_y1);
     lua_setglobal(lua_state, "get_platform_y1");
+    lua_pushcfunction(lua_state, set_platform_y1);
+    lua_setglobal(lua_state, "set_platform_y1");
     lua_pushcfunction(lua_state, get_platform_y2);
     lua_setglobal(lua_state, "get_platform_y2");
+    lua_pushcfunction(lua_state, set_platform_y2);
+    lua_setglobal(lua_state, "set_platform_y2");
     lua_pushcfunction(lua_state, get_platform_z1);
     lua_setglobal(lua_state, "get_platform_z1");
     lua_pushcfunction(lua_state, set_platform_z1);
@@ -1185,6 +1279,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_wall_x4");
     lua_pushcfunction(lua_state, get_wall_y1);
     lua_setglobal(lua_state, "get_wall_y1");
+    lua_pushcfunction(lua_state, set_wall_y1);
+    lua_setglobal(lua_state, "set_wall_y1");
     lua_pushcfunction(lua_state, get_wall_y2);
     lua_setglobal(lua_state, "get_wall_y2");
     lua_pushcfunction(lua_state, get_wall_y3);
@@ -1256,8 +1352,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_script_selected_level_object_x2");
     lua_pushcfunction(lua_state, set_script_selected_level_object_y1);
     lua_setglobal(lua_state, "set_script_selected_level_object_y1");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_y2);
-    lua_setglobal(lua_state, "set_script_selected_level_object_y2");
 
     lua_pushcfunction(lua_state, get_donut_object_count);
     lua_setglobal(lua_state, "get_donut_object_count");
@@ -1344,6 +1438,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, find_platform_mesh_index);
     lua_setglobal(lua_state, "find_platform_mesh_index");
+    lua_pushcfunction(lua_state, find_platform_index);
+    lua_setglobal(lua_state, "find_platform_index");
     lua_pushcfunction(lua_state, find_ladder_mesh_index);
     lua_setglobal(lua_state, "find_ladder_mesh_index");
     lua_pushcfunction(lua_state, find_donut_mesh_index);
@@ -1352,10 +1448,14 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_donut_index");
     lua_pushcfunction(lua_state, find_vine_mesh_index);
     lua_setglobal(lua_state, "find_vine_mesh_index");
+    lua_pushcfunction(lua_state, find_vine_index);
+    lua_setglobal(lua_state, "find_vine_index");
     lua_pushcfunction(lua_state, find_backdrop_mesh_index);
     lua_setglobal(lua_state, "find_backdrop_mesh_index");
     lua_pushcfunction(lua_state, find_wall_mesh_index);
     lua_setglobal(lua_state, "find_wall_mesh_index");
+    lua_pushcfunction(lua_state, find_wall_index);
+    lua_setglobal(lua_state, "find_wall_index");
 
     lua_setglobal(lua_state, "select_platform");
     lua_pushcfunction(lua_state, script_select_ladder);

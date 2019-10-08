@@ -80,11 +80,12 @@ local function MoveLadder_(iLadderNum, iPos)
     translate_mesh_matrix(ladder_mesh_index, iX, iY, iZ - iPos);
 end
 
-local function MovePlatform_(iPlatNum, iRotate, iTran, get_platform_x_value, get_platform_y_value)
-    select_platform(iPlatNum);
-    local iPlatX = get_platform_x_value();
-    local iPlatY = get_platform_y_value();
-    local platform_mesh_index = find_platform_mesh_index(iPlatNum);
+local function MovePlatform_(platform_num, iRotate, iTran, get_platform_x_value, get_platform_y_value)
+    local platform_index = find_platform_index(platform_num);
+    local iPlatX = get_platform_x_value(platform_index);
+    local iPlatY = get_platform_y_value(platform_index);
+
+    local platform_mesh_index = find_platform_mesh_index(platform_num);
     set_identity_mesh_matrix(platform_mesh_index);
     translate_mesh_matrix(platform_mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
     rotate_z_mesh_matrix(platform_mesh_index, iRotate);
@@ -103,21 +104,21 @@ local function ProgressLevel_(game_input)
         g_object_1_animation_frame = g_object_1_animation_frame + 3;
 
         -- TODO: Use constant for num
-        MovePlatform_(1, 0 - g_object_1_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
-        MovePlatform_(2, g_object_1_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
+        MovePlatform_(1, 0 - g_object_1_animation_frame, 1, get_platform_x1, get_platform_y1);
+        MovePlatform_(2, g_object_1_animation_frame, 0 - 1, get_platform_x2, get_platform_y2);
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_1_animation_frame > 56 then
             g_is_object_1_moving = false;
 
-            select_platform(1);
-            set_script_selected_level_object_y1(500);
-            set_script_selected_level_object_y2(500);
+            local platform_index = find_platform_index(1);  -- TODO: Use constant for num
+            set_platform_y1(platform_index, 500);
+            set_platform_y2(platform_index, 500);
 
-            select_platform(2);
-            set_script_selected_level_object_y1(500);
-            set_script_selected_level_object_y2(500);
+            platform_index = find_platform_index(2);  -- TODO: Use constant for num
+            set_platform_y1(platform_index, 500);
+            set_platform_y2(platform_index, 500);
         end
     end
 
@@ -125,8 +126,8 @@ local function ProgressLevel_(game_input)
         g_object_2_animation_frame = g_object_2_animation_frame + 3;
 
         -- TODO: Use constant for num
-        MovePlatform_(3, 0 - g_object_2_animation_frame, 1, get_script_selected_level_object_x1, get_script_selected_level_object_y1);
-        MovePlatform_(4, g_object_2_animation_frame, 0 - 1, get_script_selected_level_object_x2, get_script_selected_level_object_y2);
+        MovePlatform_(3, 0 - g_object_2_animation_frame, 1, get_platform_x1, get_platform_y1);
+        MovePlatform_(4, g_object_2_animation_frame, 0 - 1, get_platform_x2, get_platform_y2);
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
@@ -134,13 +135,13 @@ local function ProgressLevel_(game_input)
             g_object_2_animation_frame = 56;
             g_is_object_2_moving = false;
 
-            select_platform(3);
-            set_script_selected_level_object_y1(500);
-            set_script_selected_level_object_y2(500);
+            local platform_index = find_platform_index(3);  -- TODO: Use constant for num
+            set_platform_y1(platform_index, 500);
+            set_platform_y2(platform_index, 500);
 
-            select_platform(4);
-            set_script_selected_level_object_y1(500);
-            set_script_selected_level_object_y2(500);
+            platform_index = find_platform_index(4);  -- TODO: Use constant for num
+            set_platform_y1(platform_index, 500);
+            set_platform_y2(platform_index, 500);
         end
     end
 

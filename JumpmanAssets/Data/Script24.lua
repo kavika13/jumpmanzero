@@ -153,10 +153,10 @@ local function FixHangPlatforms_()
         abs_platform(iPlat);
 
         if get_script_selected_level_object_extra() == 3 then
-            local iY = get_script_selected_level_object_y1();
-            set_script_selected_level_object_y1(iY - 11);
-            iY = get_script_selected_level_object_y2();
-            set_script_selected_level_object_y2(iY - 11);
+            local iY = get_platform_y1(iPlat);
+            set_platform_y1(iPlat, iY - 11);
+            iY = get_platform_y2(iPlat);
+            set_platform_y2(iPlat, iY - 11);
         end
     end
 

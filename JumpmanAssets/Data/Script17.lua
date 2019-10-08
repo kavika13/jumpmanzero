@@ -184,7 +184,6 @@ local function EnableLadder_(ladder_num)
 end
 
 local function ReversePlatform_(platform_index)
-    abs_platform(platform_index);
     local platform_mesh_index = get_platform_mesh_index(platform_index);
     set_identity_mesh_matrix(platform_mesh_index);
 
@@ -195,15 +194,15 @@ local function ReversePlatform_(platform_index)
     end
 
     if g_level_flipping_state == 2 then
-        local SY = get_script_selected_level_object_y1();
-        set_script_selected_level_object_y1(163 - SY);
-        SY = get_script_selected_level_object_y2();
-        set_script_selected_level_object_y2(163 - SY);
+        local SY = get_platform_y1(platform_index);
+        set_platform_y1(platform_index, 163 - SY);
+        SY = get_platform_y2(platform_index);
+        set_platform_y2(platform_index, 163 - SY);
     else
-        local SY = get_script_selected_level_object_y1();
-        set_script_selected_level_object_y1(163 - SY);
-        SY = get_script_selected_level_object_y2();
-        set_script_selected_level_object_y2(163 - SY);
+        local SY = get_platform_y1(platform_index);
+        set_platform_y1(platform_index, 163 - SY);
+        SY = get_platform_y2(platform_index);
+        set_platform_y2(platform_index, 163 - SY);
     end
 end
 
@@ -222,7 +221,8 @@ local function ReverseDonut_(donut_index)
     set_script_selected_level_object_y1(160 - SY);
 end
 
-local function ReverseLadderOrVine_(mesh_index)
+local function ReverseLadder_(ladder_index)
+    local mesh_index = get_ladder_mesh_index(ladder_index);
     set_identity_mesh_matrix(mesh_index);
 
     if g_level_flipping_state == 2 then
@@ -231,34 +231,46 @@ local function ReverseLadderOrVine_(mesh_index)
         translate_mesh_matrix(mesh_index, 0, 80, 2);
     end
 
-    local SY1 = get_script_selected_level_object_y1();
-    local SY2 = get_script_selected_level_object_y2();
-    set_script_selected_level_object_y1(160 - SY2);
-    set_script_selected_level_object_y2(160 - SY1);
+    local SY1 = get_ladder_y1(ladder_index);
+    local SY2 = get_ladder_y2(ladder_index);
+    set_ladder_y1(ladder_index, 160 - SY2);
+    set_ladder_y2(ladder_index, 160 - SY1);
+end
+
+local function ReverseVine_(vine_index)
+    local vine_mesh_index = get_vine_mesh_index(vine_index);
+    set_identity_mesh_matrix(vine_mesh_index);
+
+    if g_level_flipping_state == 2 then
+        translate_mesh_matrix(vine_mesh_index, 0, 0 - 80, 0);
+        rotate_x_mesh_matrix(vine_mesh_index, 180);
+        translate_mesh_matrix(vine_mesh_index, 0, 80, 2);
+    end
+
+    local SY1 = get_vine_y1(vine_index);
+    local SY2 = get_vine_y2(vine_index);
+    set_vine_y1(vine_index, 160 - SY2);
+    set_vine_y2(vine_index, 160 - SY1);
 end
 
 local function ReverseLevel_()
     local iPY = (160 - g_player_y_when_starting_flip) - kPLAYER_DROP_AFTER_FLIP;
     g_game_logic.set_player_current_position_y(iPY);
 
-    for iObj = 0, get_platform_object_count() - 1 do
-        ReversePlatform_(iObj);
+    for platform_index = 0, get_platform_object_count() - 1 do
+        ReversePlatform_(platform_index);
     end
 
-    for iObj = 0, get_ladder_object_count() - 1 do
-        abs_ladder(iObj);
-        local ladder_mesh_index = get_ladder_mesh_index(iObj);
-        ReverseLadderOrVine_(ladder_mesh_index);
+    for ladder_index = 0, get_ladder_object_count() - 1 do
+        ReverseLadder_(ladder_index);
     end
 
-    for iObj = 0, get_donut_object_count() - 1 do
-        ReverseDonut_(iObj);
+    for donut_index = 0, get_donut_object_count() - 1 do
+        ReverseDonut_(donut_index);
     end
 
-    for iObj = 0, get_vine_object_count() - 1 do
-        abs_vine(iObj);
-        local vine_mesh_index = get_vine_mesh_index(iObj);
-        ReverseLadderOrVine_(vine_mesh_index);
+    for vine_index = 0, get_vine_object_count() - 1 do
+        ReverseVine_(vine_index);
     end
 end
 

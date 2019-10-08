@@ -193,31 +193,32 @@ function on_collect_donut(game_input, iDonut)
         g_is_wall_moving = true;
         g_wall_animation_frame = 1;  -- TODO: Is this necessary to do here?
         select_vine(1);  -- TODO: Use constant for num
-        set_script_selected_level_object_y2(get_script_selected_level_object_y2() + 6);
-        set_script_selected_level_object_y1(get_script_selected_level_object_y1() + 6);
+        local vine_index = find_vine_index(1);  -- TODO: Use constant for num
+        set_vine_y2(vine_index, get_vine_y2(vine_index) + 6);
+        set_vine_y1(vine_index, get_vine_y1(vine_index) + 6);
         local vine_mesh_index = find_vine_mesh_index(1);  -- TODO: Use constant for num
         set_identity_mesh_matrix(vine_mesh_index);
         translate_mesh_matrix(vine_mesh_index, 0, 6, 0);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
     end
 
     if iDonut == 2 then
         select_vine(2);  -- TODO: Use constant for num
-        set_script_selected_level_object_y2(get_script_selected_level_object_y2() + 8);
-        set_script_selected_level_object_y1(get_script_selected_level_object_y1() + 8);
+        local vine_index = find_vine_index(2);  -- TODO: Use constant for num
+        set_vine_y2(vine_index, get_vine_y2(vine_index) + 8);
+        set_vine_y1(vine_index, get_vine_y1(vine_index) + 8);
         local vine_mesh_index = find_vine_mesh_index(2);  -- TODO: Use constant for num
         set_identity_mesh_matrix(vine_mesh_index);
         translate_mesh_matrix(vine_mesh_index, 0, 8, 0);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
     end
 
     if iDonut == 3 then
         select_wall(2);  -- TODO: Use constant for num
-        set_script_selected_level_object_y1(get_script_selected_level_object_y1() - 26);
+        local wall_index = find_wall_index(2);  -- TODO: Use constant for num
+        set_wall_y1(wall_index, get_wall_y1(wall_index) - 26);
         local wall_mesh_index = find_wall_mesh_index(2);  -- TODO: Use constant for num
         set_identity_mesh_matrix(wall_mesh_index);
         translate_mesh_matrix(wall_mesh_index, 0, 0 - 70, 0);
@@ -226,8 +227,7 @@ function on_collect_donut(game_input, iDonut)
         local backdrop_mesh_index = find_backdrop_mesh_index(12);  -- TODO: Use constant for num
         set_identity_mesh_matrix(backdrop_mesh_index);
         translate_mesh_matrix(backdrop_mesh_index, 0, 0 - 70, 0);
-        -- TODO: This doesn't seem to do anything in the code, at least not for #compose
-        --       Seems maybe should delete the line?
+        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
     end
 end
