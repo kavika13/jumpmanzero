@@ -74,10 +74,9 @@ local function CheckHanging_(game_input)
         return;
     end
 
-    local iPlat = g_game_logic.get_player_current_active_platform_index();
-    abs_platform(iPlat);
+    local platform_index = g_game_logic.get_player_current_active_platform_index();
 
-    if get_script_selected_level_object_extra() == 3 then
+    if get_platform_extra(platform_index) == 3 then
         if g_game_logic.get_player_current_state() == player_state.JSROLL then
             g_game_logic.set_player_current_state(player_state.JSNORMAL);
         end
@@ -102,13 +101,13 @@ local function CheckHanging_(game_input)
         local iDraw = 0;
 
         if game_input.move_right_action.is_pressed then
-            if g_game_logic.get_player_current_position_x() > get_script_selected_level_object_x2() - 3 then
+            if g_game_logic.get_player_current_position_x() > get_platform_x2(platform_index) - 3 then
                 g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() - 1);
             else
                 iDraw = g_hang_animation_current_frame;
             end
         elseif game_input.move_left_action.is_pressed then
-            if g_game_logic.get_player_current_position_x() < get_script_selected_level_object_x1() + 2 then
+            if g_game_logic.get_player_current_position_x() < get_platform_x1(platform_index) + 2 then
                 g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() + 1);
             else
                 iDraw = g_hang_animation_current_frame + 10;
@@ -147,14 +146,12 @@ end
 local function FixHangPlatforms_()
     local platform_count = get_platform_object_count();
 
-    for iPlat = 0, platform_count - 1 do
-        abs_platform(iPlat);
-
-        if get_script_selected_level_object_extra() == 3 then
-            local iY = get_platform_y1(iPlat);
-            set_platform_y1(iPlat, iY - 11);
-            iY = get_platform_y2(iPlat);
-            set_platform_y2(iPlat, iY - 11);
+    for platform_index = 0, platform_count - 1 do
+        if get_platform_extra(platform_index) == 3 then
+            local iY = get_platform_y1(platform_index);
+            set_platform_y1(platform_index, iY - 11);
+            iY = get_platform_y2(platform_index);
+            set_platform_y2(platform_index, iY - 11);
         end
     end
 

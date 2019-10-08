@@ -1066,22 +1066,17 @@ static int script_select_wall(lua_State* lua_state) {
     return 0;
 }
 
-static int get_script_selected_level_object_extra(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Extra);
-    return 1;
-}
-
-static int get_script_selected_level_object_x1(lua_State* lua_state) {
+static int get_script_selected_level_object_x1(lua_State* lua_state) {  // TODO: Replace this
     lua_pushnumber(lua_state, g_script_selected_level_object->X1);
     return 1;
 }
 
-static int get_script_selected_level_object_x2(lua_State* lua_state) {
+static int get_script_selected_level_object_x2(lua_State* lua_state) {  // TODO: Replace this
     lua_pushnumber(lua_state, g_script_selected_level_object->X2);
     return 1;
 }
 
-static int get_script_selected_level_object_y1(lua_State* lua_state) {
+static int get_script_selected_level_object_y1(lua_State* lua_state) {  // TODO: Replace this
     lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
     return 1;
 }
@@ -1346,7 +1341,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, get_just_launched_game);
     lua_setglobal(lua_state, "get_just_launched_game");
 
-    // TODO: Remove the word "script" when exposing these functions?
     lua_pushcfunction(lua_state, set_mesh_to_mesh);
     lua_setglobal(lua_state, "set_mesh_to_mesh");
     lua_pushcfunction(lua_state, set_identity_mesh_matrix);
@@ -1366,8 +1360,7 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, scroll_texture_on_mesh);
     lua_setglobal(lua_state, "scroll_texture_on_mesh");
 
-    lua_pushcfunction(lua_state, get_script_selected_level_object_extra);
-    lua_setglobal(lua_state, "get_script_selected_level_object_extra");
+    // TODO: Remove the word "script" when exposing these functions?
     lua_pushcfunction(lua_state, get_script_selected_level_object_x1);
     lua_setglobal(lua_state, "get_script_selected_level_object_x1");
     lua_pushcfunction(lua_state, get_script_selected_level_object_x2);
