@@ -24,13 +24,11 @@ local g_wave_animation_cycle_degrees = 0;
 
 local function PrioritizeLevelObjects()
     for platform_index = 0, get_platform_object_count() - 1 do
-        abs_platform(platform_index);
         local platform_mesh_index = get_platform_mesh_index(platform_index);
         move_mesh_to_front(platform_mesh_index);
     end
 
     for ladder_index = 0, get_ladder_object_count() - 1 do
-        abs_ladder(ladder_index);
         local ladder_mesh_index = get_ladder_mesh_index(ladder_index);
         move_mesh_to_front(ladder_mesh_index);
     end
@@ -48,7 +46,6 @@ function Module.initialize()
 
     PrioritizeLevelObjects();
 
-    select_picture(100);  -- TODO: Pass this constant in? Also, which object is this? It makes the wave screw up transparency if not doing this
     local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
     move_mesh_to_front(backdrop_mesh_index);
 

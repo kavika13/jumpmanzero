@@ -161,7 +161,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_jumpman_mesh_index = new_mesh(resources.MeshDead);
-    select_platform(1);  -- TODO: Use constant for num
+
     local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
     scale_mesh_matrix(platform_mesh_index, 30, 3, 3);
     g_game_over_message_visible = false;

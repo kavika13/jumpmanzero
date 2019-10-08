@@ -27,7 +27,6 @@ local propellers = {};
 local whompers = {};
 
 local function ConveyPlatform_(platform_num, iDist)
-    select_platform(platform_num);
     local platform_mesh_index = find_platform_mesh_index(platform_num);
     scroll_texture_on_mesh(platform_mesh_index, iDist * 16, 0);
 
@@ -64,10 +63,10 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    ConveyPlatform_(1, 0.04);
-    ConveyPlatform_(2, -0.02);
-    ConveyPlatform_(3, 0.04);
-    ConveyPlatform_(4, -0.04);
+    ConveyPlatform_(1, 0.04);  -- TODO: Use constant for num
+    ConveyPlatform_(2, -0.02);  -- TODO: Use constant for num
+    ConveyPlatform_(3, 0.04);  -- TODO: Use constant for num
+    ConveyPlatform_(4, -0.04);  -- TODO: Use constant for num
 
     for _, propeller in ipairs(propellers) do
         propeller.update();

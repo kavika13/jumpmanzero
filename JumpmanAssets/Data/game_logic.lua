@@ -1473,7 +1473,6 @@ local function GrabDonuts_(game_input)
                 PlayerCollide_(
                     get_donut_x1(donut_index) - 3, get_donut_y1(donut_index) - 4,
                     get_donut_x1(donut_index) + 3, get_donut_y1(donut_index) + 2) then
-            abs_donut(donut_index);
             g_donut_is_collected[donut_index] = true;
             local donut_mesh_index = get_donut_mesh_index(donut_index);
             set_texture_and_is_visible_on_mesh(donut_mesh_index, get_donut_texture_index(donut_index), 0);

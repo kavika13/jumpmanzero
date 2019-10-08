@@ -198,7 +198,6 @@ function update(game_input)
     g_time_since_current_selection = g_time_since_current_selection + 5;
     ShowLetters();
 
-    select_picture(100);  -- TODO: Use constant for num
     local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
 

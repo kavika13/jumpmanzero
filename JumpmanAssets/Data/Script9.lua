@@ -107,11 +107,9 @@ function initialize(game_input)
         table.insert(g_bullets, new_bullet);
     end
 
-    select_picture(1);  -- TODO: Use constant for num
     local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
     move_mesh_to_front(backdrop_mesh_index);
 
-    select_picture(100);  -- TODO: Use constant for num
     backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
     move_mesh_to_front(backdrop_mesh_index);
 

@@ -158,9 +158,9 @@ function initialize(game_input)
 
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFar);
 
-    select_donut(2);  -- TODO: Use constant for num
     local donut_index = find_donut_index(2);  -- TODO: Use constant for num
     g_game_logic.set_donut_is_collected(donut_index, true);
+
     local donut_mesh_index = find_donut_mesh_index(2);  -- TODO: Use constant for num
     set_mesh_is_visible(donut_mesh_index, false);
 
@@ -214,17 +214,17 @@ function on_collect_donut(game_input, donut_num)
     end
 
     if donut_num == 1 then
-        select_donut(2);  -- TODO: Use constant for num
         local donut_index = find_donut_index(2);  -- TODO: Use constant for num
         g_game_logic.set_donut_is_collected(donut_index, false);  -- TODO: Set mesh to visible?
+
         local donut_mesh_index = find_donut_mesh_index(2);  -- TODO: Use constant for num
         set_mesh_is_visible(donut_mesh_index, true);
     end
 
     if donut_num == 2 then
-        select_donut(1);  -- TODO: Use constant for num
         local donut_index = find_donut_index(1);  -- TODO: Use constant for num
         g_game_logic.set_donut_is_collected(donut_index, false);  -- TODO: Set mesh to visible?
+
         local donut_mesh_index = find_donut_mesh_index(1);  -- TODO: Use constant for num
         set_mesh_is_visible(donut_mesh_index, true);
     end

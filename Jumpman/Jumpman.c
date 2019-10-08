@@ -152,8 +152,6 @@ static LevelObject g_backdrop_objects[30];
 
 // ------------------- LUA SCRIPT -------------------------------
 
-static LevelObject* g_script_selected_level_object;  // TODO: Get rid of this!
-
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
@@ -986,86 +984,6 @@ static int script_set_perspective(lua_State* lua_state) {
     return 0;
 }
 
-// TODO: Remove these once g_script_selected_level_object is  gone
-
-static int script_abs_platform(lua_State* lua_state) {
-    double platform_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_platform_objects[(size_t)platform_index];
-    return 0;
-}
-
-static int script_abs_ladder(lua_State* lua_state) {
-    double ladder_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_ladder_objects[(size_t)ladder_index];
-    return 0;
-}
-
-static int script_abs_donut(lua_State* lua_state) {
-    double donut_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_donut_objects[(size_t)donut_index];
-    return 0;
-}
-
-static int script_abs_vine(lua_State* lua_state) {
-    double vine_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
-    return 0;
-}
-
-static int FindObject(LevelObject* lObj, int iCount, int iFind) {
-    int iLoop = -1;
-
-    while(++iLoop < iCount) {
-        if(lObj[iLoop].Num == iFind) {
-            return iLoop;
-        }
-    }
-
-    return -1;
-}
-
-static int script_select_platform(lua_State* lua_state) {
-    double new_object_index = luaL_checknumber(lua_state, 1);
-    int object_index = FindObject(g_platform_objects, g_platform_object_count, (int)new_object_index);
-    g_script_selected_level_object = &g_platform_objects[object_index];
-    return 0;
-}
-
-static int script_select_ladder(lua_State* lua_state) {
-    double new_object_index = luaL_checknumber(lua_state, 1);
-    int object_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)new_object_index);
-    g_script_selected_level_object = &g_ladder_objects[object_index];
-    return 0;
-}
-
-static int script_select_donut(lua_State* lua_state) {
-    double new_object_index = luaL_checknumber(lua_state, 1);
-    int object_index = FindObject(g_donut_objects, g_donut_object_count, (int)new_object_index);
-    g_script_selected_level_object = &g_donut_objects[object_index];
-    return 0;
-}
-
-static int script_select_vine(lua_State* lua_state) {
-    double new_object_index = luaL_checknumber(lua_state, 1);
-    int object_index = FindObject(g_vine_objects, g_vine_object_count, (int)new_object_index);
-    g_script_selected_level_object = &g_vine_objects[object_index];
-    return 0;
-}
-
-static int script_select_picture(lua_State* lua_state) {
-    double new_object_index = luaL_checknumber(lua_state, 1);
-    int object_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)new_object_index);
-    g_script_selected_level_object = &g_backdrop_objects[object_index];
-    return 0;
-}
-
-static int script_select_wall(lua_State* lua_state) {
-    double new_object_index = luaL_checknumber(lua_state, 1);
-    int object_index = FindObject(g_wall_objects, g_wall_object_count, (int)new_object_index);
-    g_script_selected_level_object = &g_wall_objects[object_index];
-    return 0;
-}
-
 // TODO: Remove these once level loader is in Lua, and mesh indices are kept there
 
 static int get_platform_mesh_index(lua_State* lua_state) {
@@ -1114,6 +1032,18 @@ static int get_wall_mesh_index(lua_State* lua_state) {
     assert(wall_index > -1 && wall_index < g_wall_object_count && "get_wall_mesh_index was outside the range of current active wall objects");
     lua_pushinteger(lua_state, g_wall_objects[wall_index].MeshNumber);
     return 1;
+}
+
+static int FindObject(LevelObject* lObj, int iCount, int iFind) {
+    int iLoop = -1;
+
+    while(++iLoop < iCount) {
+        if(lObj[iLoop].Num == iFind) {
+            return iLoop;
+        }
+    }
+
+    return -1;
 }
 
 static int find_platform_mesh_index(lua_State* lua_state) {
@@ -1309,6 +1239,7 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_backdrop_x1");
     lua_pushcfunction(lua_state, get_backdrop_y1);
     lua_setglobal(lua_state, "get_backdrop_y1");
+
     lua_pushcfunction(lua_state, load_next_level);
     lua_setglobal(lua_state, "load_next_level");
     lua_pushcfunction(lua_state, queue_level_load);
@@ -1382,16 +1313,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_texture_and_is_visible_on_mesh");
     lua_pushcfunction(lua_state, move_mesh_to_front);
     lua_setglobal(lua_state, "move_mesh_to_front");
-    lua_pushcfunction(lua_state, script_abs_platform);
-    lua_setglobal(lua_state, "abs_platform");
-    lua_pushcfunction(lua_state, script_abs_ladder);
-    lua_setglobal(lua_state, "abs_ladder");
-    lua_pushcfunction(lua_state, script_abs_donut);
-    lua_setglobal(lua_state, "abs_donut");
-    lua_pushcfunction(lua_state, script_abs_vine);
-    lua_setglobal(lua_state, "abs_vine");
-    lua_pushcfunction(lua_state, script_set_fog);
-    lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, script_get_current_level_title);
     lua_setglobal(lua_state, "get_current_level_title");
     lua_pushcfunction(lua_state, get_config_option_string);
@@ -1415,7 +1336,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "delete_mesh");
     lua_pushcfunction(lua_state, script_set_perspective);
     lua_setglobal(lua_state, "set_perspective");
-    lua_pushcfunction(lua_state, script_select_platform);
 
     lua_pushcfunction(lua_state, get_platform_mesh_index);
     lua_setglobal(lua_state, "get_platform_mesh_index");
@@ -1454,18 +1374,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_wall_mesh_index");
     lua_pushcfunction(lua_state, find_wall_index);
     lua_setglobal(lua_state, "find_wall_index");
-
-    lua_setglobal(lua_state, "select_platform");
-    lua_pushcfunction(lua_state, script_select_ladder);
-    lua_setglobal(lua_state, "select_ladder");
-    lua_pushcfunction(lua_state, script_select_donut);
-    lua_setglobal(lua_state, "select_donut");
-    lua_pushcfunction(lua_state, script_select_vine);
-    lua_setglobal(lua_state, "select_vine");
-    lua_pushcfunction(lua_state, script_select_picture);
-    lua_setglobal(lua_state, "select_picture");
-    lua_pushcfunction(lua_state, script_select_wall);
-    lua_setglobal(lua_state, "select_wall");
 }
 
 static void LoadLuaScript(const char* base_path, const char* filename, lua_State** new_lua_state) {

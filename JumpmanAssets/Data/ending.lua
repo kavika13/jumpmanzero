@@ -558,11 +558,9 @@ local function ProgressLevel_(game_input)
         new_credits.initialize();
         g_credits = new_credits;
 
-        select_platform(1);  -- TODO: Use constant for num
         local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
         set_texture_and_is_visible_on_mesh(platform_mesh_index, 0, 0);
 
-        select_picture(100);  -- TODO: Use constant for num
         local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
         translate_mesh_matrix(backdrop_mesh_index, 40, 0, 20);
         set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureBlack, 1);
