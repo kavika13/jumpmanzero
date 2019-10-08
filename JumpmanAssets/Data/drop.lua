@@ -21,7 +21,6 @@ local g_animation_timer = 0;
 
 local function ResetMyPos_()
     local is_done = false;
-    local object_count = get_script_object_count();
 
     g_current_pos_x = Module.GameLogic.get_player_current_position_x();
     g_current_pos_y = 0;

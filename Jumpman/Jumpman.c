@@ -479,11 +479,6 @@ static int get_wall_object_count(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_object_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, MAX_SCRIPTOBJECTS);
-    return 1;
-}
-
 static int get_is_sound_enabled(lua_State* lua_state) {
     lua_pushboolean(lua_state, GetIsSoundEnabled());
     return 1;
@@ -541,7 +536,7 @@ static int new_char_mesh(lua_State* lua_state) {
     return 1;
 }
 
-static int set_texture_and_is_visible_on_mesh(lua_State* lua_state) {
+static int set_texture_and_is_visible_on_mesh(lua_State* lua_state) {  // TODO: Replace with set_texture_on_mesh, set_mesh_is_visible
     lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
     double texture_index = luaL_checknumber(lua_state, 2);
     double is_visible = luaL_checknumber(lua_state, 3);
@@ -987,11 +982,6 @@ static int get_script_selected_level_object_z1(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_selected_level_object_z2(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Z2);
-    return 1;
-}
-
 static int set_script_selected_level_object_number(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Num = (int)arg1;
@@ -1025,12 +1015,6 @@ static int set_script_selected_level_object_y2(lua_State* lua_state) {
 static int set_script_selected_level_object_z1(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Z1 = (int)arg1;
-    return 0;
-}
-
-static int set_script_selected_level_object_z2(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Z2 = (int)arg1;
     return 0;
 }
 
@@ -1257,8 +1241,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_y2");
     lua_pushcfunction(lua_state, get_script_selected_level_object_z1);
     lua_setglobal(lua_state, "get_script_selected_level_object_z1");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_z2);
-    lua_setglobal(lua_state, "get_script_selected_level_object_z2");
     lua_pushcfunction(lua_state, set_script_selected_level_object_number);
     lua_setglobal(lua_state, "set_script_selected_level_object_number");
     lua_pushcfunction(lua_state, set_texture_on_mesh);
@@ -1275,8 +1257,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_script_selected_level_object_y2");
     lua_pushcfunction(lua_state, set_script_selected_level_object_z1);
     lua_setglobal(lua_state, "set_script_selected_level_object_z1");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_z2);
-    lua_setglobal(lua_state, "set_script_selected_level_object_z2");
 
     lua_pushcfunction(lua_state, get_donut_object_count);
     lua_setglobal(lua_state, "get_donut_object_count");
@@ -1292,8 +1272,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_vine_object_count");
     lua_pushcfunction(lua_state, get_wall_object_count);
     lua_setglobal(lua_state, "get_wall_object_count");
-    lua_pushcfunction(lua_state, get_script_object_count);
-    lua_setglobal(lua_state, "get_script_object_count");
     lua_pushcfunction(lua_state, get_is_sound_enabled);
     lua_setglobal(lua_state, "get_is_sound_enabled");
     lua_pushcfunction(lua_state, get_is_music_enabled);
