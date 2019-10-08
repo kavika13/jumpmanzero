@@ -175,22 +175,18 @@ function Module.update()
 
     CheckOOB();
 
-    local _, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 8, 4);
-    abs_platform(iPlat1);
-    iPlat1 = get_script_selected_level_object_z1();
-
-    local _, iPlat2 = Module.GameLogic.find_platform(g_current_pos_x + g_current_velocity_x * 6, (g_current_pos_y) + (g_current_velocity_y * 6), 8, 4);
-    abs_platform(iPlat2);
-    iPlat2 = get_script_selected_level_object_z1();
-
-    local iBest = (iPlat1 + iPlat2) / 2;
+    local _, current_platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 8, 4);
+    local _, future_platform_index = Module.GameLogic.find_platform(
+        g_current_pos_x + g_current_velocity_x * 6, g_current_pos_y + g_current_velocity_y * 6,
+        8, 4);
+    local interp_platform_z = (get_platform_z1(current_platform_index) + get_platform_z1(future_platform_index)) / 2;
 
     if g_pos_z_correction_current_frame_index == 2 then
-        if iBest > g_current_pos_z then
+        if interp_platform_z > g_current_pos_z then
             g_current_pos_z = g_current_pos_z + 1;
         end
 
-        if iBest < g_current_pos_z then
+        if interp_platform_z < g_current_pos_z then
             g_current_pos_z = g_current_pos_z - 1;
         end
     end

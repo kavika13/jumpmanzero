@@ -24,13 +24,13 @@ local g_closeby_ladder_pos_z = 0;
 
 local function CheckForChange_()
     if g_animation_movement_direction == 4 or g_animation_movement_direction == 3 then
-        local _, iLad = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
+        local _, ladder_index = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
-        if iLad >= 0 then
-            abs_ladder(iLad);
+        if ladder_index >= 0 then
+            abs_ladder(ladder_index);
 
-            if g_current_pos_x == get_script_selected_level_object_x1() then
-                g_closeby_ladder_pos_z = get_script_selected_level_object_z1();
+            if g_current_pos_x == get_ladder_x1(ladder_index) then
+                g_closeby_ladder_pos_z = get_ladder_z1(ladder_index);
                 local iSign = get_script_selected_level_object_number();
 
                 if iSign == 41 then
@@ -48,7 +48,7 @@ local function CheckForChange_()
                 if iSign == 141 then
                     g_animation_movement_direction = 4;
 
-                    if get_script_selected_level_object_y2() > g_current_pos_y - 5 then
+                    if get_ladder_y2(ladder_index) > g_current_pos_y - 5 then
                         g_animation_movement_direction = 1;
                     end
 
@@ -100,8 +100,7 @@ local function ProgressPenguin_()
 end
 
 local function AdjustZ_(target_platform_index)
-    abs_platform(target_platform_index);
-    local target_platform_pos_z = get_script_selected_level_object_z1();
+    local target_platform_pos_z = get_platform_z1(target_platform_index);
 
     if g_current_pos_z < target_platform_pos_z then
         g_current_pos_z = g_current_pos_z + 1;

@@ -66,20 +66,20 @@ local function MoveJumper_(all_jumpers)
     local iPX = Module.GameLogic.get_player_current_position_x();
     local iPY = Module.GameLogic.get_player_current_position_y();
 
-    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_curret_pos_y, 1, 1);
+    local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_curret_pos_y, 1, 1);
 
     if g_current_status == status_type.JUMPING then
         local iOHit = iHit;
-        local iOPlat = iPlat;
+        local orig_platform_index = platform_index;
 
         if math.random(1, 100) > 70 then
-            iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, iHit - 4, 1, 1);
+            iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, iHit - 4, 1, 1);
         elseif g_is_dodging and iPY < g_curret_pos_y - 2 then
-            iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, iHit - 4, 1, 1);
+            iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, iHit - 4, 1, 1);
         end
 
         if iHit < 0 then
-            iPlat = iOPlat;
+            platform_index = orig_platform_index;
             iHit = iOHit;
         end
     end
@@ -90,8 +90,7 @@ local function MoveJumper_(all_jumpers)
         iHit = -100;
         iNewZ = 0;
     else
-        abs_platform(iPlat);
-        iNewZ = get_script_selected_level_object_z1() - 1;
+        iNewZ = get_platform_z1(platform_index) - 1;
     end
 
     if g_current_status == status_type.CROUCHED or iNewZ < g_current_pos_z then

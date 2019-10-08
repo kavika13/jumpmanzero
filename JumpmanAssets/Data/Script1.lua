@@ -66,13 +66,13 @@ local g_object_3_animation_frame = 0;
 local g_is_object_4_moving = false;
 local g_object_4_animation_frame = 0;
 
-local function MoveLadder_(iLadderNum, iPos)
-    select_ladder(iLadderNum);
-    local iX = get_script_selected_level_object_x1() + 508;
-    local iY = (get_script_selected_level_object_y1() + get_script_selected_level_object_y2()) / 2;
-    local iZ = get_script_selected_level_object_z1();
+local function MoveLadder_(ladder_num, iPos)
+    local ladder_index = find_ladder_index(ladder_num);
+    local iX = get_ladder_x1(ladder_index) + 508;
+    local iY = (get_ladder_y1(ladder_index) + get_ladder_y2(ladder_index)) / 2;
+    local iZ = get_ladder_z1(ladder_index);
 
-    local ladder_mesh_index = find_ladder_mesh_index(iLadderNum);
+    local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
     set_identity_mesh_matrix(ladder_mesh_index);
     translate_mesh_matrix(ladder_mesh_index, 0 - iX, 0 - iY, 0 - iZ);
     rotate_z_mesh_matrix(ladder_mesh_index, iPos * 2);
@@ -148,13 +148,12 @@ local function ProgressLevel_(game_input)
     if g_is_object_3_moving then
         g_object_3_animation_frame = g_object_3_animation_frame + 1;
 
-        MoveLadder_(1, g_object_3_animation_frame);
+        MoveLadder_(1, g_object_3_animation_frame);  -- TODO: Use constant for num
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_3_animation_frame == 80 then
             g_is_object_3_moving = false;
-            select_ladder(1);  -- TODO: Use constant for num
             local mesh_index = find_ladder_mesh_index(1);  -- TODO: Use constant for num
             translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
@@ -163,13 +162,12 @@ local function ProgressLevel_(game_input)
     if g_is_object_4_moving then
         g_object_4_animation_frame = g_object_4_animation_frame + 1;
 
-        MoveLadder_(2, g_object_4_animation_frame);
+        MoveLadder_(2, g_object_4_animation_frame);  -- TODO: Use constant for num
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_4_animation_frame == 80 then
             g_is_object_4_moving = false;
-            select_ladder(2);  -- TODO: Use constant for num
             local mesh_index = find_ladder_mesh_index(2);  -- TODO: Use constant for num
             translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
@@ -243,17 +241,17 @@ function on_collect_donut(game_input, donut_num)
     if donut_num == 3 then  -- TODO: Use constant for num
         g_is_object_3_moving = true;
         iPosition3 = 0;
-        select_ladder(1);  -- TODO: Use constant for num
-        local iX = get_script_selected_level_object_x1();
-        set_script_selected_level_object_x1(iX - 500);
+        local ladder_index = find_ladder_index(1);  -- TODO: Use constant for num
+        local iX = get_ladder_x1(ladder_index);
+        set_ladder_x1(ladder_index, iX - 500);
     end
 
     if donut_num == 4 then  -- TODO: Use constant for num
         g_is_object_4_moving = true;
         iPosition4 = 0;
-        select_ladder(2);  -- TODO: Use constant for num
-        local iX = get_script_selected_level_object_x1();
-        set_script_selected_level_object_x1(iX - 500);
+        local ladder_index = find_ladder_index(2);  -- TODO: Use constant for num
+        local iX = get_ladder_x1(ladder_index);
+        set_ladder_x1(ladder_index, iX - 500);
     end
 end
 

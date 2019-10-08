@@ -194,6 +194,13 @@ static int get_ladder_x1(lua_State* lua_state) {
     return 1;
 }
 
+static int set_ladder_x1(lua_State* lua_state) {
+    lua_Integer ladder_index_arg = luaL_checkinteger(lua_state, 1);
+    double value_arg = luaL_checknumber(lua_state, 2);
+    g_ladder_objects[ladder_index_arg].X1 = (long)value_arg;  // Intentionally truncating double to integer
+    return 0;
+}
+
 static int get_ladder_y1(lua_State* lua_state) {
     lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Y1);
@@ -1047,11 +1054,6 @@ static int get_script_selected_level_object_y2(lua_State* lua_state) {
     return 1;
 }
 
-static int get_script_selected_level_object_z1(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_script_selected_level_object->Z1);
-    return 1;
-}
-
 static int set_script_selected_level_object_number(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Num = (int)arg1;
@@ -1151,6 +1153,13 @@ static int find_ladder_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
+static int find_ladder_index(lua_State* lua_state) {
+    lua_Integer ladder_num = luaL_checkinteger(lua_state, 1);
+    int ladder_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)ladder_num);
+    lua_pushinteger(lua_state, ladder_index);
+    return 1;
+}
+
 static int find_donut_mesh_index(lua_State* lua_state) {
     lua_Integer donut_num = luaL_checkinteger(lua_state, 1);
     int donut_index = FindObject(g_donut_objects, g_donut_object_count, (int)donut_num);
@@ -1225,6 +1234,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_donut_y1");
     lua_pushcfunction(lua_state, get_ladder_x1);
     lua_setglobal(lua_state, "get_ladder_x1");
+    lua_pushcfunction(lua_state, set_ladder_x1);
+    lua_setglobal(lua_state, "set_ladder_x1");
     lua_pushcfunction(lua_state, get_ladder_y1);
     lua_setglobal(lua_state, "get_ladder_y1");
     lua_pushcfunction(lua_state, set_ladder_y1);
@@ -1338,8 +1349,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_y1");
     lua_pushcfunction(lua_state, get_script_selected_level_object_y2);
     lua_setglobal(lua_state, "get_script_selected_level_object_y2");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_z1);
-    lua_setglobal(lua_state, "get_script_selected_level_object_z1");
     lua_pushcfunction(lua_state, set_script_selected_level_object_number);
     lua_setglobal(lua_state, "set_script_selected_level_object_number");
     lua_pushcfunction(lua_state, set_texture_on_mesh);
@@ -1442,6 +1451,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_platform_index");
     lua_pushcfunction(lua_state, find_ladder_mesh_index);
     lua_setglobal(lua_state, "find_ladder_mesh_index");
+    lua_pushcfunction(lua_state, find_ladder_index);
+    lua_setglobal(lua_state, "find_ladder_index");
     lua_pushcfunction(lua_state, find_donut_mesh_index);
     lua_setglobal(lua_state, "find_donut_mesh_index");
     lua_pushcfunction(lua_state, find_donut_index);

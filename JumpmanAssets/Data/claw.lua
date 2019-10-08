@@ -59,8 +59,7 @@ local function FindDonut_()
     local iDonuts = get_donut_object_count();
 
     for donut_index = 0, iDonuts - 1 do
-        abs_donut(donut_index);
-        local iDX = get_script_selected_level_object_x1();
+        local iDX = get_donut_x1(donut_index);
 
         if Module.GameLogic.get_donut_is_collected(donut_index) then
             if iDX > iPX - 60 and iDX < iPX + 60 then
@@ -120,17 +119,15 @@ local function MoveChain_(all_jumpers)
         local iOldY = g_claw_current_pos_y;
         g_claw_degrees_open = 5;
 
-        abs_donut(g_rescued_donut_index);
-
-        if g_claw_current_pos_x < get_script_selected_level_object_x1() - 1 then
+        if g_claw_current_pos_x < get_donut_x1(g_rescued_donut_index) - 1 then
             g_claw_current_pos_x = g_claw_current_pos_x + 1;
-        elseif g_claw_current_pos_x > get_script_selected_level_object_x1() + 1 then
+        elseif g_claw_current_pos_x > get_donut_x1(g_rescued_donut_index) + 1 then
             g_claw_current_pos_x = g_claw_current_pos_x - 1;
         end
 
-        if g_claw_current_pos_y < get_script_selected_level_object_y1() - 1 then
+        if g_claw_current_pos_y < get_donut_y1(g_rescued_donut_index) - 1 then
             g_claw_current_pos_y = g_claw_current_pos_y + 1;
-        elseif g_claw_current_pos_y > get_script_selected_level_object_y1() + 1 then
+        elseif g_claw_current_pos_y > get_donut_y1(g_rescued_donut_index) + 1 then
             g_claw_current_pos_y = g_claw_current_pos_y - 1;
         end
 
@@ -138,9 +135,9 @@ local function MoveChain_(all_jumpers)
         set_identity_mesh_matrix(donut_mesh_index);
         translate_mesh_matrix(
             donut_mesh_index,
-            g_claw_current_pos_x - get_script_selected_level_object_x1(),
-            g_claw_current_pos_y - get_script_selected_level_object_y1(),
-            0 - get_script_selected_level_object_z1());
+            g_claw_current_pos_x - get_donut_x1(g_rescued_donut_index),
+            g_claw_current_pos_y - get_donut_y1(g_rescued_donut_index),
+            0 - get_donut_z1(g_rescued_donut_index));
         set_texture_and_is_visible_on_mesh(donut_mesh_index, Module.DonutTextureResourceIndex, 1);
 
         if iOldX == g_claw_current_pos_x and iOldY == g_claw_current_pos_y then

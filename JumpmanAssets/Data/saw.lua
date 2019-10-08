@@ -24,13 +24,12 @@ local g_current_direction = 0;  -- TODO: Rename and refactor? Currently this is 
 
 local function MoveSaw_()
     if not g_is_on_ladder then
-        local iLad, _ = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
+        local ladder_index, _ = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
-        if iLad > -1 then
-            abs_ladder(iLad);
-            local iLadX = get_script_selected_level_object_x1();
-            local iLadZ = get_script_selected_level_object_z1();
-            local iLadY2 = get_script_selected_level_object_y2();
+        if ladder_index > -1 then
+            local iLadX = get_ladder_x1(ladder_index);
+            local iLadZ = get_ladder_z1(ladder_index);
+            local iLadY2 = get_ladder_y2(ladder_index);
 
             if iLadX > g_current_pos_x - 1 and iLadX < g_current_pos_x + 1 then
                 if math.random(1, 100) > 74 and iLadY2 < g_current_pos_y - 5 then
@@ -51,7 +50,7 @@ local function MoveSaw_()
             return;
         end
 
-        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 3, 4);
+        local iHit, _ = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 3, 4);
 
         if iHit > g_current_pos_y then
             g_is_on_ladder = false;
@@ -67,10 +66,8 @@ local function MoveSaw_()
         end
     end
 
-    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 6, 4);
-
-    abs_platform(iPlat);
-    local iTargetZ = get_script_selected_level_object_z1();
+    local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 6, 4);
+    local iTargetZ = get_platform_z1(platform_index);
 
     if iHit < 1 then
         iHit = -100;

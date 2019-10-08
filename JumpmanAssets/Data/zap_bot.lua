@@ -134,9 +134,8 @@ local function Move_()
     end
 
     if g_move_direction == move_direction.LEFT or g_move_direction == move_direction.RIGHT then
-        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-        abs_platform(iPlat);
-        g_current_pos_z = get_script_selected_level_object_z1();
+        local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
+        g_current_pos_z = get_platform_z1(platform_index);
 
         if iHit < g_current_pos_y - 1 then
             g_current_pos_y = g_current_pos_y - 1;
@@ -150,7 +149,7 @@ local function Move_()
     if g_move_direction == move_direction.LEFT then
         g_current_pos_x = g_current_pos_x - 0.7;
 
-        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x - 7, g_current_pos_y, 5, 2);
+        local iHit, _ = Module.GameLogic.find_platform(g_current_pos_x - 7, g_current_pos_y, 5, 2);
 
         if iHit < g_current_pos_y - 6 then
             g_move_direction = move_direction.RIGHT;
@@ -161,7 +160,7 @@ local function Move_()
     if g_move_direction == move_direction.RIGHT then
         g_current_pos_x = g_current_pos_x + 0.7;
 
-        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x + 7, g_current_pos_y, 5, 2);
+        local iHit, _ = Module.GameLogic.find_platform(g_current_pos_x + 7, g_current_pos_y, 5, 2);
 
         if iHit < g_current_pos_y - 6 then
             g_move_direction = move_direction.LEFT;

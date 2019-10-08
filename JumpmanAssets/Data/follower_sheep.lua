@@ -89,15 +89,14 @@ local function CheckForChange_()
     local bNewDir = false;
 
     if g_current_move_direction == move_direction.RIGHT or g_current_move_direction == move_direction.LEFT then
-        local iLad, _ = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
+        local ladder_index, _ = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
-        if iLad < 0 then
+        if ladder_index < 0 then
             return;
         end
 
-        abs_ladder(iLad);
-        iLadderX = get_script_selected_level_object_x1();
-        g_current_ladder_pos_z = get_script_selected_level_object_z1();
+        iLadderX = get_ladder_x1(ladder_index);
+        g_current_ladder_pos_z = get_ladder_z1(ladder_index);
 
         if g_current_pos_x < (iLadderX - 0.5) or g_current_pos_x > (iLadderX + 0.5) then
             return;
@@ -107,8 +106,7 @@ local function CheckForChange_()
     end
 
     if g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN then
-        local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
-        abs_platform(iPlat);
+        local iHit, _ = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
 
         if iHit == g_current_pos_y then
             bNewDir = true;
@@ -209,9 +207,8 @@ local function ProgressSheep_()
     end
 end
 
-local function AdjustZ_(iPlatNum)
-    abs_platform(iPlatNum);
-    local iPlatZ = get_script_selected_level_object_z1();
+local function AdjustZ_(platform_index)
+    local iPlatZ = get_platform_z1(platform_index);
 
     if g_current_pos_z < iPlatZ then
         g_current_pos_z = g_current_pos_z + 1;
@@ -239,7 +236,7 @@ local function MoveSheep_()
     CheckForChange_();
     ProgressSheep_();
 
-    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
+    local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
 
     if g_current_move_direction == move_direction.LEFT or g_current_move_direction == move_direction.RIGHT then
         if iHit < g_current_pos_y then
@@ -274,7 +271,7 @@ local function MoveSheep_()
     if g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN then
         g_current_pos_z = g_current_ladder_pos_z;
     else
-        AdjustZ_(iPlat);
+        AdjustZ_(platform_index);
     end
 end
 

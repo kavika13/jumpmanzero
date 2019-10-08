@@ -120,12 +120,11 @@ end
 local function CheckForHalt_()
     if g_current_move_direction == move_direction.RIGHT or g_current_move_direction == move_direction.LEFT then
         g_current_ladder_object_index = -1;
-        local _, iLad = Module.GameLogic.find_ladder(g_current_pos_x + 1, g_current_pos_y);
+        local _, ladder_index = Module.GameLogic.find_ladder(g_current_pos_x + 1, g_current_pos_y);
 
-        if iLad >= 0 then
-            g_current_ladder_object_index = iLad;
-            abs_ladder(iLad);
-            g_current_ladder_pos_z = get_script_selected_level_object_z1();
+        if ladder_index >= 0 then
+            g_current_ladder_object_index = ladder_index;
+            g_current_ladder_pos_z = get_ladder_z1(ladder_index);
             g_current_move_direction = move_direction.NONE;
             return;
         end
@@ -202,15 +201,13 @@ local function CheckForOptions_()
         end
 
         if g_current_ladder_object_index >= 0 then
-            abs_ladder(g_current_ladder_object_index);
-
-            if get_script_selected_level_object_y1() > g_current_pos_y + 7 and
+            if get_ladder_y1(g_current_ladder_object_index) > g_current_pos_y + 7 and
                     g_current_pos_y + 5 < Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.UP;
                 g_current_velocity_x = 0;
             end
 
-            if get_script_selected_level_object_y2() < g_current_pos_y - 7 and
+            if get_ladder_y2(g_current_ladder_object_index) < g_current_pos_y - 7 and
                     g_current_pos_y - 5 > Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.DOWN;
                 g_current_velocity_x = 0;
@@ -235,21 +232,21 @@ local function CheckForOptions_()
     end
 
     if iChoice > 999 and iChoice < 2000 then
-        abs_ladder(iChoice - 1000);
+        local chosen_ladder_index = iChoice - 1000;
 
-        if iChoice - 1000 == g_current_ladder_object_index then
-            if get_script_selected_level_object_y1() > g_current_pos_y + 7 then
+        if chosen_ladder_index == g_current_ladder_object_index then
+            if get_ladder_y1(chosen_ladder_index) > g_current_pos_y + 7 then
                 g_current_move_direction = move_direction.UP;
                 g_current_velocity_x = 0;
             end
 
-            if get_script_selected_level_object_y2() < g_current_pos_y - 7 then
+            if get_ladder_y2(chosen_ladder_index) < g_current_pos_y - 7 then
                 g_current_move_direction = move_direction.DOWN;
                 g_current_velocity_x = 0;
             end
-        elseif g_current_pos_x < get_script_selected_level_object_x1() + 7 then
+        elseif g_current_pos_x < get_ladder_x1(chosen_ladder_index) + 7 then
             g_current_move_direction = move_direction.RIGHT;
-        elseif g_current_pos_x > get_script_selected_level_object_x1() + 7 then
+        elseif g_current_pos_x > get_ladder_x1(chosen_ladder_index) + 7 then
             g_current_move_direction = move_direction.LEFT;
         end
     end
@@ -259,9 +256,7 @@ local function CheckForOptions_()
     elseif iChoice > 1999 then
         g_current_move_direction = move_direction.LEFT;
     elseif iChoice < 1000 then
-        abs_platform(iChoice);
-
-        if get_script_selected_level_object_x1() < g_current_pos_x then
+        if get_platform_x1(iChoice) < g_current_pos_x then
             g_current_move_direction = move_direction.LEFT;
         else
             g_current_move_direction = move_direction.RIGHT;
@@ -323,9 +318,8 @@ local function FallBear_()
     end
 end
 
-local function AdjustZ_(iPlatNum)
-    abs_platform(iPlatNum);
-    local iPlatZ = get_script_selected_level_object_z1();
+local function AdjustZ_(platform_index)
+    local iPlatZ = get_platform_z1(platform_index);
 
     if g_current_pos_z < iPlatZ then
         g_current_pos_z = g_current_pos_z + 1;
@@ -348,13 +342,13 @@ local function MoveBear_()
         FallBear_();
     end
 
-    local iHit, iPlat = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
+    local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 5, 4, 2);
 
     if g_current_status == status_type.NORMAL and
             (g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN) then
         g_current_pos_z = g_current_ladder_pos_z;
     else
-        AdjustZ_(iPlat);
+        AdjustZ_(platform_index);
     end
 
     if g_current_status == status_type.FALLING and iHit >= g_current_pos_y + 3 then
