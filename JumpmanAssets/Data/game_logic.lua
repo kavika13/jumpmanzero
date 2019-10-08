@@ -1957,6 +1957,12 @@ function Module.find_vine(iX, iY)
     return FindVine_(iX, iY);
 end
 
+-- Get the ladder_index of the closest ladder to the specified coordinates.
+--
+-- Returns: ladder_index_near, ladder_index_exact
+--
+-- ladder_index_near will be -1 if there is no ladder close by
+-- ladder_index_exact will be -1 if the nearest ladder is not an exact match (fairly common)
 function Module.find_ladder(iX, iY)
     -- TODO: Figure out what "iX", "iY" mean, and change names to reflect that
     return FindLadder_(iX, iY);
