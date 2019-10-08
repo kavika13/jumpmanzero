@@ -119,8 +119,8 @@ local function CollideDonuts_(game_input)
 
     local iCount = get_donut_object_count();
 
-    for iObj = 0, iCount - 1 do
-        abs_donut(iObj);
+    for donut_index = 0, iCount - 1 do
+        abs_donut(donut_index);
         local iDX = get_script_selected_level_object_x1();
         local iDY = get_script_selected_level_object_y1();
 
@@ -129,14 +129,14 @@ local function CollideDonuts_(game_input)
             iDY = 0 - iDY;
         end
 
-        if get_script_selected_level_object_visible() then
+        if not g_game_logic.get_donut_is_collected(donut_index) then
             if g_game_logic.is_player_colliding_with_rect(iDX - 3, iDY - 5, iDX + 3, iDY + 5) then
                 local iDN = get_script_selected_level_object_number();
                 g_disarm_progress = iDN;
                 g_is_disarm_hud_visible = true;
 
                 ShowWorking_(game_input);
-                abs_donut(iObj);
+                abs_donut(donut_index);
 
                 if math.random(0, 100) < 20 then
                     return;
@@ -242,6 +242,7 @@ end
 function initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
 

@@ -416,6 +416,7 @@ function initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
 
@@ -466,17 +467,18 @@ end
 
 local function RefreshDonut_(donut_num)
     select_donut(donut_num);
+    local donut_index = find_donut_index(donut_num);
+    g_game_logic.set_donut_is_collected(donut_index, false);
     local mesh_index = find_donut_mesh_index(donut_num);
-    set_script_selected_level_object_visible(1);
-    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureRedMetal, 1);
+    set_mesh_is_visible(mesh_index, true);
 end
 
-function on_collect_donut(game_input, iGot)
+function on_collect_donut(game_input, donut_num)
     if g_donuts_to_collect_count < 11 then
         local new_z_donut = z_donut_module();
         new_z_donut.GameLogic = g_game_logic;
         new_z_donut.PlayAreaCircumference = kPLAY_AREA_CIRCUMFERENCE;
-        new_z_donut.DonutIndex = iGot;
+        new_z_donut.DonutNum = donut_num;
         new_z_donut.DonutTextureResourceIndex = resources.TextureRedMetal;
         new_z_donut.LightningTextureResourceIndex = resources.TextureLightning;
         new_z_donut.BlastParticleMeshResourceIndex = resources.MeshSquare;

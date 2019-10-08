@@ -5,7 +5,7 @@ local kBlastParticleCount = 20;
 Module.GameLogic = nil;
 
 Module.PlayAreaCircumference = 0;
-Module.DonutIndex = 0;
+Module.DonutNum = 0;
 Module.DonutTextureResourceIndex = 0;
 Module.LightningTextureResourceIndex = 0;
 Module.BlastParticleMeshResourceIndex = 0;
@@ -74,14 +74,16 @@ function Module.update()
         return;
     end
 
-    select_donut(Module.DonutIndex);
-    local donut_mesh_index = find_donut_mesh_index(Module.DonutIndex);
+    select_donut(Module.DonutNum);
+    local donut_mesh_index = find_donut_mesh_index(Module.DonutNum);
 
     if g_animation_frames_since_launched < 65 then
+        set_mesh_is_visible(donut_mesh_index, true);
         g_animation_frames_since_launched = g_animation_frames_since_launched + 1;
     else
-        set_texture_and_is_visible_on_mesh(donut_mesh_index, 0, 0);
-        set_script_selected_level_object_visible(0);
+        local donut_index = find_donut_index(Module.DonutNum);
+        Module.GameLogic.set_donut_is_collected(donut_index, true);
+        set_mesh_is_visible(donut_mesh_index, false);
 
         DoBlasting();
         g_animation_frames_since_blast_started = g_animation_frames_since_blast_started + 1;
@@ -92,8 +94,7 @@ function Module.update()
 
         if g_animation_frames_since_blast_started == 35 and not Module.IsLongFinalBlast then;
             for iTemp = 0, kBlastParticleCount - 1 do
-                select_object_mesh(g_blast_particle_mesh_indices[iTemp]);
-                set_texture_and_is_visible_on_mesh(g_blast_particle_mesh_indices[iTemp], 0, 0);
+                set_mesh_is_visible(g_blast_particle_mesh_indices[iTemp], false);
             end
 
             g_animation_frames_since_launched = 100;
@@ -115,14 +116,14 @@ function Module.update()
 
     local iX = get_script_selected_level_object_x1();
 
-    -- TODO: select_object_mesh is called above for blast particles, in DoBlasting(). Is this still the right object?
-    --       It seems like it's leaving collected z-donuts visible now, because of the last line, which is not right
+    -- TODO: Any reason to keep this code if the donut becomes invisible?
+    --       Check through the motion code, and make sure it doesn't affect the blasting particles.
+    --       If not, move up into the top of the `if` above
     set_identity_mesh_matrix(donut_mesh_index);
     scale_mesh_matrix(donut_mesh_index, 1, 1, 5);
     translate_mesh_matrix(donut_mesh_index, 0 - iX, 0, 0 - iDist);
     rotate_y_mesh_matrix(donut_mesh_index, (iPX - iX) * 360 / Module.PlayAreaCircumference);
     translate_mesh_matrix(donut_mesh_index, iPX, iY - get_script_selected_level_object_y1(), iZ);
-    set_texture_and_is_visible_on_mesh(donut_mesh_index, Module.DonutTextureResourceIndex, 1);
 end
 
 return Module;

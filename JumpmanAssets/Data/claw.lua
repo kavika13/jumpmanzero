@@ -58,13 +58,13 @@ local function FindDonut_()
     local iPX = Module.GameLogic.get_player_current_position_x();
     local iDonuts = get_donut_object_count();
 
-    for iLoop = 0, iDonuts - 1 do
-        abs_donut(iLoop);
+    for donut_index = 0, iDonuts - 1 do
+        abs_donut(donut_index);
         local iDX = get_script_selected_level_object_x1();
 
-        if not get_script_selected_level_object_visible() then
+        if Module.GameLogic.get_donut_is_collected(donut_index) then
             if iDX > iPX - 60 and iDX < iPX + 60 then
-                g_rescued_donut_index = iLoop;
+                g_rescued_donut_index = donut_index;
                 g_current_status = status_type.RESCUING_GRABBED_DONUT;
                 return;
             end
@@ -144,7 +144,7 @@ local function MoveChain_(all_jumpers)
         set_texture_and_is_visible_on_mesh(donut_mesh_index, Module.DonutTextureResourceIndex, 1);
 
         if iOldX == g_claw_current_pos_x and iOldY == g_claw_current_pos_y then
-            set_script_selected_level_object_visible(1);
+            Module.GameLogic.set_donut_is_collected(g_rescued_donut_index, false);
             set_identity_mesh_matrix(donut_mesh_index);
             g_current_status = status_type.GHOSTING_PLAYER;
             g_time_until_next_grab = 50;

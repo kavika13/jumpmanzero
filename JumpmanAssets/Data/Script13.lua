@@ -99,10 +99,10 @@ local function SetConfig_()
 end
 
 local function ResetVisible_(visibility_bitmask)
-    for iObj = 0, get_platform_object_count() - 1 do
-        abs_platform(iObj);
+    for platform_index = 0, get_platform_object_count() - 1 do
+        abs_platform(platform_index);
         local iPlat = get_script_selected_level_object_number();
-        local mesh_index = get_platform_mesh_index(iObj);
+        local mesh_index = get_platform_mesh_index(platform_index);
 
         if (iPlat & visibility_bitmask) ~= 0 then
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureClassicPlatform, 1);
@@ -111,10 +111,10 @@ local function ResetVisible_(visibility_bitmask)
         end
     end
 
-    for iObj = 0, get_ladder_object_count() - 1 do
-        abs_ladder(iObj);
+    for ladder_index = 0, get_ladder_object_count() - 1 do
+        abs_ladder(ladder_index);
         local iPlat = get_script_selected_level_object_number();
-        local mesh_index = get_ladder_mesh_index(iObj);
+        local mesh_index = get_ladder_mesh_index(ladder_index);
 
         if (iPlat & visibility_bitmask) ~= 0 then
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
@@ -123,10 +123,10 @@ local function ResetVisible_(visibility_bitmask)
         end
     end
 
-    for iObj = 0, get_vine_object_count() - 1 do
-        abs_vine(iObj);
+    for vine_index = 0, get_vine_object_count() - 1 do
+        abs_vine(vine_index);
         local iPlat = get_script_selected_level_object_number();
-        local mesh_index = get_vine_mesh_index(iObj);
+        local mesh_index = get_vine_mesh_index(vine_index);
 
         if (iPlat & visibility_bitmask) ~= 0 then
             set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
@@ -135,15 +135,16 @@ local function ResetVisible_(visibility_bitmask)
         end
     end
 
-    for iObj = 0, get_donut_object_count() - 1 do
-        abs_donut(iObj);
+    for donut_index = 0, get_donut_object_count() - 1 do
+        abs_donut(donut_index);
         local iPlat = get_script_selected_level_object_number();
-        local mesh_index = get_donut_mesh_index(iObj);
+        local mesh_index = get_donut_mesh_index(donut_index);
 
+        -- TODO: Does this just want to set the texture? Should it do just that instead?
         if visibility_bitmask == 1 then
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, get_script_selected_level_object_visible() and 1 or 0);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, g_game_logic.get_donut_is_collected(donut_index) and 0 or 1);
         else
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureRedMetal, get_script_selected_level_object_visible() and 1 or 0);
+            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureRedMetal, g_game_logic.get_donut_is_collected(donut_index) and 0 or 1);
         end
     end
 end
@@ -204,6 +205,7 @@ function initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
 

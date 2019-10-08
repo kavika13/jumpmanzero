@@ -160,6 +160,7 @@ end
 function initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.initialize();
 
     g_jumpman_mesh_index = new_mesh(resources.MeshDead);
     select_platform(1);  -- TODO: Use constant for num

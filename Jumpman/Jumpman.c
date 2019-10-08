@@ -91,7 +91,6 @@ typedef struct {
     long Y1, Y2, Y3, Y4;
     long Z1, Z2;
     long Num;
-    int Visible;
     char Func[10];
     long Extra;
 
@@ -154,7 +153,6 @@ static LevelObject g_backdrop_objects[30];
 // ------------------- LUA SCRIPT -------------------------------
 
 static LevelObject* g_script_selected_level_object;  // TODO: Get rid of this!
-static long g_script_selected_mesh_index;  // TODO: Get rid of this!
 
 static lua_State* g_script_level_script_lua_state = NULL;
 
@@ -175,12 +173,6 @@ static int get_donut_number(lua_State* lua_state) {
 static int get_donut_texture_index(lua_State* lua_state) {
     lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_donut_objects[donut_index].Texture);
-    return 1;
-}
-
-static int get_donut_is_visible(lua_State* lua_state) {
-    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
-    lua_pushboolean(lua_state, g_donut_objects[donut_index].Visible != 0);
     return 1;
 }
 
@@ -326,6 +318,12 @@ static int get_wall_y4(lua_State* lua_state) {
     lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_wall_objects[wall_index].Y4);
     return 1;
+}
+
+static bool lua_checkbool(lua_State* L, int arg) {
+    luaL_checktype(L, arg, LUA_TBOOLEAN);
+    int d = lua_toboolean(L, arg);
+    return d;
 }
 
 static int load_next_level(lua_State* lua_state) {
@@ -516,16 +514,15 @@ static int set_remaining_life_count(lua_State* lua_state) {
 
 // script utility functions
 
-static int new_mesh(lua_State* lua_state) {  // TODO: Verify scripts don't rely on g_script_selected_mesh_index
+static int new_mesh(lua_State* lua_state) {
     double script_mesh_index = luaL_checknumber(lua_state, 1);
     long iNew;
     CopyObject(g_script_mesh_indices[(size_t)script_mesh_index], &iNew);
-    g_script_selected_mesh_index = iNew;
     lua_pushnumber(lua_state, iNew);
     return 1;
 }
 
-static int new_char_mesh(lua_State* lua_state) {  // TODO: Verify scripts don't rely on g_script_selected_mesh_index
+static int new_char_mesh(lua_State* lua_state) {
     lua_Integer ascii_value_arg = luaL_checkinteger(lua_state, 1);
     long iNew;
 
@@ -535,7 +532,6 @@ static int new_char_mesh(lua_State* lua_state) {  // TODO: Verify scripts don't 
 
     if(g_letter_mesh_indices[ascii_value_arg] >= 0) {
         CopyObject(g_letter_mesh_indices[ascii_value_arg], &iNew);
-        g_script_selected_mesh_index = iNew;
     } else {
         iNew = -1;
     }
@@ -550,6 +546,20 @@ static int set_texture_and_is_visible_on_mesh(lua_State* lua_state) {
     double texture_index = luaL_checknumber(lua_state, 2);
     double is_visible = luaL_checknumber(lua_state, 3);
     SetObjectData((long)mesh_index_arg, (long)texture_index, (int)is_visible);
+    return 0;
+}
+
+static int set_texture_on_mesh(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    lua_Integer texture_index_arg = luaL_checkinteger(lua_state, 2);
+    SetObjectTextureIndex((long)mesh_index_arg, (long)texture_index_arg);
+    return 0;
+}
+
+static int set_mesh_is_visible(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    bool is_visible_arg = lua_checkbool(lua_state, 2);
+    SetObjectIsVisible((long)mesh_index_arg, is_visible_arg);
     return 0;
 }
 
@@ -852,39 +862,34 @@ static int script_set_perspective(lua_State* lua_state) {
     return 0;
 }
 
-// TODO: Remove these once g_script_selected_level_object and g_script_selected_mesh_index are gone
+// TODO: Remove these once g_script_selected_level_object is  gone
 
 static int script_abs_platform(lua_State* lua_state) {
     double platform_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_platform_objects[(size_t)platform_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
 static int script_abs_ladder(lua_State* lua_state) {
     double ladder_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_ladder_objects[(size_t)ladder_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
 static int script_abs_donut(lua_State* lua_state) {
     double donut_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_donut_objects[(size_t)donut_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
 static int script_abs_vine(lua_State* lua_state) {
     double vine_index = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object = &g_vine_objects[(size_t)vine_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
 static int script_select_object_mesh(lua_State* lua_state) {
     double mesh_index = luaL_checknumber(lua_state, 1);
-    g_script_selected_mesh_index = (long)mesh_index;
     return 0;
 }
 
@@ -904,7 +909,6 @@ static int script_select_platform(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_platform_objects, g_platform_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_platform_objects[object_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -912,7 +916,6 @@ static int script_select_ladder(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_ladder_objects[object_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -920,7 +923,6 @@ static int script_select_donut(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_donut_objects, g_donut_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_donut_objects[object_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -928,7 +930,6 @@ static int script_select_vine(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_vine_objects, g_vine_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_vine_objects[object_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -936,7 +937,6 @@ static int script_select_picture(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_backdrop_objects[object_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -944,7 +944,6 @@ static int script_select_wall(lua_State* lua_state) {
     double new_object_index = luaL_checknumber(lua_state, 1);
     int object_index = FindObject(g_wall_objects, g_wall_object_count, (int)new_object_index);
     g_script_selected_level_object = &g_wall_objects[object_index];
-    g_script_selected_mesh_index = g_script_selected_level_object->MeshNumber;
     return 0;
 }
 
@@ -960,11 +959,6 @@ static int get_script_selected_level_object_number(lua_State* lua_state) {
 
 static int get_script_selected_level_object_this(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_script_selected_level_object->ObjectNumber);
-    return 1;
-}
-
-static int get_script_selected_level_object_visible(lua_State* lua_state) {
-    lua_pushboolean(lua_state, g_script_selected_level_object->Visible);
     return 1;
 }
 
@@ -1001,20 +995,6 @@ static int get_script_selected_level_object_z2(lua_State* lua_state) {
 static int set_script_selected_level_object_number(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     g_script_selected_level_object->Num = (int)arg1;
-    return 0;
-}
-
-static int set_texture_on_mesh(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    lua_Integer texture_index_arg = luaL_checkinteger(lua_state, 2);
-    SetObjectTextureIndex((long)mesh_index_arg, (long)texture_index_arg);
-    return 0;
-}
-
-static int set_script_selected_level_object_visible(lua_State* lua_state) {  // TODO: Make take mesh index param
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_script_selected_level_object->Visible = (int)arg1;
-    SetObjectData(g_script_selected_mesh_index, g_script_selected_level_object->Texture, g_script_selected_level_object->Visible);
     return 0;
 }
 
@@ -1131,6 +1111,13 @@ static int find_donut_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
+static int find_donut_index(lua_State* lua_state) {
+    lua_Integer donut_num = luaL_checkinteger(lua_state, 1);
+    int donut_index = FindObject(g_donut_objects, g_donut_object_count, (int)donut_num);
+    lua_pushinteger(lua_state, donut_index);
+    return 1;
+}
+
 static int find_vine_mesh_index(lua_State* lua_state) {
     lua_Integer vine_num = luaL_checkinteger(lua_state, 1);
     int vine_index = FindObject(g_vine_objects, g_vine_object_count, (int)vine_num);
@@ -1169,8 +1156,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_donut_number");
     lua_pushcfunction(lua_state, get_donut_texture_index);
     lua_setglobal(lua_state, "get_donut_texture_index");
-    lua_pushcfunction(lua_state, get_donut_is_visible);
-    lua_setglobal(lua_state, "get_donut_is_visible");
     lua_pushcfunction(lua_state, get_donut_x1);
     lua_setglobal(lua_state, "get_donut_x1");
     lua_pushcfunction(lua_state, get_donut_y1);
@@ -1262,8 +1247,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_script_selected_level_object_number");
     lua_pushcfunction(lua_state, get_script_selected_level_object_this);
     lua_setglobal(lua_state, "get_script_selected_level_object_this");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_visible);
-    lua_setglobal(lua_state, "get_script_selected_level_object_visible");
     lua_pushcfunction(lua_state, get_script_selected_level_object_x1);
     lua_setglobal(lua_state, "get_script_selected_level_object_x1");
     lua_pushcfunction(lua_state, get_script_selected_level_object_x2);
@@ -1280,8 +1263,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_script_selected_level_object_number");
     lua_pushcfunction(lua_state, set_texture_on_mesh);
     lua_setglobal(lua_state, "set_texture_on_mesh");
-    lua_pushcfunction(lua_state, set_script_selected_level_object_visible);
-    lua_setglobal(lua_state, "set_script_selected_level_object_visible");
+    lua_pushcfunction(lua_state, set_mesh_is_visible);
+    lua_setglobal(lua_state, "set_mesh_is_visible");
     lua_pushcfunction(lua_state, set_script_selected_level_object_x1);
     lua_setglobal(lua_state, "set_script_selected_level_object_x1");
     lua_pushcfunction(lua_state, set_script_selected_level_object_x2);
@@ -1386,6 +1369,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_ladder_mesh_index");
     lua_pushcfunction(lua_state, find_donut_mesh_index);
     lua_setglobal(lua_state, "find_donut_mesh_index");
+    lua_pushcfunction(lua_state, find_donut_index);
+    lua_setglobal(lua_state, "find_donut_index");
     lua_pushcfunction(lua_state, find_vine_mesh_index);
     lua_setglobal(lua_state, "find_vine_mesh_index");
     lua_pushcfunction(lua_state, find_backdrop_mesh_index);
@@ -1638,7 +1623,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_backdrop_objects[g_backdrop_object_count].X1 = StringToInt(&cData[iPlace + 2]);
             g_backdrop_objects[g_backdrop_object_count].Y1 = StringToInt(&cData[iPlace + 4]);
             g_backdrop_objects[g_backdrop_object_count].Num = StringToInt(&cData[iPlace + 6]);
-            g_backdrop_objects[g_backdrop_object_count].Visible = 1;
             iPlace += 20;
 
             iData = StringToInt(&cData[iPlace]) / 4;
@@ -1660,7 +1644,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iMPlace = 0;
             ComposeObject(&g_backdrop_objects[g_backdrop_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_backdrop_objects[g_backdrop_object_count].Texture, g_backdrop_objects[g_backdrop_object_count].Visible);
+            SetObjectData(iNum, g_backdrop_objects[g_backdrop_object_count].Texture, 1);
 
             g_backdrop_objects[g_backdrop_object_count].MeshNumber = iNum;
             free(oData);
@@ -1675,7 +1659,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             iPlace += 10;
 
-            g_ladder_objects[g_ladder_object_count].Visible = 1;
             g_ladder_objects[g_ladder_object_count].X1 = StringToInt(&cData[iPlace + 0]);
             g_ladder_objects[g_ladder_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
             g_ladder_objects[g_ladder_object_count].Y2 = StringToInt(&cData[iPlace + 4]);
@@ -1704,7 +1687,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iMPlace = 0;
             ComposeObject(&g_ladder_objects[g_ladder_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_ladder_objects[g_ladder_object_count].Texture, g_ladder_objects[g_ladder_object_count].Visible);
+            SetObjectData(iNum, g_ladder_objects[g_ladder_object_count].Texture, 1);
             g_ladder_objects[g_ladder_object_count].MeshNumber = iNum;
             free(oData);
 
@@ -1718,7 +1701,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             iPlace += 10;
 
-            g_wall_objects[g_wall_object_count].Visible = 1;
             g_wall_objects[g_wall_object_count].X1 = StringToInt(&cData[iPlace + 0]);
             g_wall_objects[g_wall_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
             g_wall_objects[g_wall_object_count].X2 = StringToInt(&cData[iPlace + 4]);
@@ -1752,7 +1734,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iMPlace = 0;
             ComposeObject(&g_wall_objects[g_wall_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_wall_objects[g_wall_object_count].Texture, g_wall_objects[g_wall_object_count].Visible);
+            SetObjectData(iNum, g_wall_objects[g_wall_object_count].Texture, 1);
             g_wall_objects[g_wall_object_count].MeshNumber = iNum;
             free(oData);
 
@@ -1766,7 +1748,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             iPlace += 10;
 
-            g_vine_objects[g_vine_object_count].Visible = 1;
             g_vine_objects[g_vine_object_count].X1 = StringToInt(&cData[iPlace + 0]);
             g_vine_objects[g_vine_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
             g_vine_objects[g_vine_object_count].Y2 = StringToInt(&cData[iPlace + 4]);
@@ -1795,7 +1776,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iMPlace = 0;
             ComposeObject(&g_vine_objects[g_vine_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_vine_objects[g_vine_object_count].Texture, g_vine_objects[g_vine_object_count].Visible);
+            SetObjectData(iNum, g_vine_objects[g_vine_object_count].Texture, 1);
             g_vine_objects[g_vine_object_count].MeshNumber = iNum;
             free(oData);
 
@@ -1809,7 +1790,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             iPlace += 10;
 
-            g_donut_objects[g_donut_object_count].Visible = 1;
             g_donut_objects[g_donut_object_count].X1 = StringToInt(&cData[iPlace + 0]);
             g_donut_objects[g_donut_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
             g_donut_objects[g_donut_object_count].Z1 = StringToInt(&cData[iPlace + 4]);
@@ -1836,7 +1816,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iMPlace = 0;
             ComposeObject(&g_donut_objects[g_donut_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_donut_objects[g_donut_object_count].Texture, g_donut_objects[g_donut_object_count].Visible);
+            SetObjectData(iNum, g_donut_objects[g_donut_object_count].Texture, 1);
             g_donut_objects[g_donut_object_count].MeshNumber = iNum;
             free(oData);
 
@@ -1850,7 +1830,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             iPlace += 10;
 
-            g_platform_objects[g_platform_object_count].Visible = 1;
             g_platform_objects[g_platform_object_count].X1 = StringToInt(&cData[iPlace + 0]);
             g_platform_objects[g_platform_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
             g_platform_objects[g_platform_object_count].X2 = StringToInt(&cData[iPlace + 4]);
@@ -1880,7 +1859,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iMPlace = 0;
             ComposeObject(&g_platform_objects[g_platform_object_count], oData, &iMPlace);
             CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_platform_objects[g_platform_object_count].Texture, g_platform_objects[g_platform_object_count].Visible);
+            SetObjectData(iNum, g_platform_objects[g_platform_object_count].Texture, 1);
             g_platform_objects[g_platform_object_count].MeshNumber = iNum;
             free(oData);
 

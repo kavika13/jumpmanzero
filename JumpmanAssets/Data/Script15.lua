@@ -92,6 +92,8 @@ function initialize(game_input)
     g_game_logic.ResetPlayerCallback = reset;
     g_hud_overlay = hud_overlay_module();
     g_game_logic.set_level_extent_x(180);
+    g_game_logic.initialize();
+
     InitPlatforms_();
 
     reset();

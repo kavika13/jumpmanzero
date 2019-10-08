@@ -4,8 +4,6 @@ Module.MeshResourceIndex = 0;
 Module.TextureResourceIndex = 0;
 Module.PercentComplete = 0;
 
-local g_is_initialized = false;
-
 local g_particle_mesh_indices = {};
 local g_particle_current_pos_x = {};
 local g_particle_current_pos_y = {};
@@ -13,7 +11,7 @@ local g_particle_target_pos_x = {};
 local g_particle_target_pos_y = {};
 local g_particle_count = 0;
 
-local function DrawParticles()
+local function DrawParticles_()
     for iBit = 1, g_particle_count do
         local particle_mesh_index = g_particle_mesh_indices[iBit];
 
@@ -36,7 +34,7 @@ local function DrawParticles()
     end
 end
 
-local function CreateParticle(iSX, iSY)
+local function CreateParticle_(iSX, iSY)
     g_particle_count = g_particle_count + 1;
     g_particle_mesh_indices[g_particle_count] = new_mesh(Module.MeshResourceIndex);
     g_particle_target_pos_x[g_particle_count] = iSX;
@@ -45,25 +43,21 @@ local function CreateParticle(iSX, iSY)
     g_particle_current_pos_y[g_particle_count] = g_particle_target_pos_y[g_particle_count] + math.random(1, 200) - 100;
 end
 
-local function InitParticles()
+function Module.initialize()
     local iDonuts = get_donut_object_count();
 
-    for iObj = 0, iDonuts - 1 do
-        abs_donut(iObj);
+    for donut_index = 0, iDonuts - 1 do
+        abs_donut(donut_index);
         local iDX = get_script_selected_level_object_x1();
         local iDY = get_script_selected_level_object_y1() - 2;
-        set_script_selected_level_object_visible(0);
-        CreateParticle(iDX, iDY);
+        local donut_mesh_index = get_donut_mesh_index(donut_index);
+        set_mesh_is_visible(donut_mesh_index, false);
+        CreateParticle_(iDX, iDY);
     end
 end
 
 function Module.update()
-    if not g_is_initialized then
-        g_is_initialized = true;
-        InitParticles();
-    end
-
-    DrawParticles();
+    DrawParticles_();
 end
 
 return Module;

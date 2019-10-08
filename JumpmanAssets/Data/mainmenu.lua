@@ -308,6 +308,7 @@ function update(game_input)
         g_z_bits = z_bits_module();
         g_z_bits.MeshResourceIndex = resources.MeshGoo;
         g_z_bits.TextureResourceIndex = resources.TextureBoringGreen;
+        g_z_bits.initialize();
     end
 
     GetInput(game_input);

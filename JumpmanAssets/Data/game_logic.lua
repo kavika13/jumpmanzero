@@ -155,6 +155,8 @@ local g_player_current_exact_vine_index = -1;
 
 local g_level_extent_x = 160;
 
+local g_donut_is_collected = {};
+
 local g_current_camera_mode = camera_mode.PerspectiveNormal;
 local g_camera_current_pos_x = 0;
 local g_camera_current_pos_y = 0;
@@ -1467,14 +1469,14 @@ local function GrabDonuts_(game_input)
     local iGot = false;
 
     for donut_index = 0, get_donut_object_count() - 1 do
-        if get_donut_is_visible(donut_index) and
+        if not g_donut_is_collected[donut_index] and
                 PlayerCollide_(
                     get_donut_x1(donut_index) - 3, get_donut_y1(donut_index) - 4,
                     get_donut_x1(donut_index) + 3, get_donut_y1(donut_index) + 2) then
             abs_donut(donut_index);
+            g_donut_is_collected[donut_index] = true;
             local donut_mesh_index = get_donut_mesh_index(donut_index);
-            set_script_selected_level_object_visible(0);
-            set_texture_and_is_visible_on_mesh(donut_index, get_donut_texture_index(donut_index), 0);
+            set_texture_and_is_visible_on_mesh(donut_mesh_index, get_donut_texture_index(donut_index), 0);
             iGot = true;
 
             if Module.OnCollectDonutCallback then
@@ -1487,7 +1489,7 @@ local function GrabDonuts_(game_input)
         local iWon = true;
 
         for iCheck = 0, get_donut_object_count() - 1 do
-            if get_donut_is_visible(iCheck) then
+            if not g_donut_is_collected[iCheck] then
                 iWon = false;
             end
         end
@@ -1659,7 +1661,10 @@ local function AnimateDying_(game_input)
 end
 
 function Module.initialize()
-    -- Nothing here for now!
+    -- TODO: This might get moved to level loading code?
+    for donut_index = 0, get_donut_object_count() - 1 do
+        g_donut_is_collected[donut_index] = false;
+    end
 end
 
 -- Required if you want to use get_navigation_dir function. Otherwise don't call it, to speed up level load
@@ -1937,6 +1942,14 @@ end
 
 function Module.set_level_extent_x(new_level_extent_x)
     g_level_extent_x = new_level_extent_x;
+end
+
+function Module.get_donut_is_collected(donut_index)
+    return g_donut_is_collected[donut_index];
+end
+
+function Module.set_donut_is_collected(donut_index, is_visible)
+    g_donut_is_collected[donut_index] = is_visible;
 end
 
 function Module.find_vine(iX, iY)

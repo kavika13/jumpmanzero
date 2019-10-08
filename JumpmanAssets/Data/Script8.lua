@@ -157,8 +157,12 @@ end
 function initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.initialize();
+
     g_hud_overlay = hud_overlay_module();
+
     g_frames_until_next_goo_spawn = 5;
+
     SetStartPos_();
     MovePyramid_();
 

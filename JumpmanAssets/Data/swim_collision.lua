@@ -33,23 +33,26 @@ local function DoCollide_(iX1, iY1, iX2, iY2)
     local donut_count = get_donut_object_count();
     local is_win_detected = true;
 
-    for donut_object_index = 0, donut_count - 1 do
-        abs_donut(donut_object_index);
+    for donut_index = 0, donut_count - 1 do
+        abs_donut(donut_index);
 
         local donut_pos_x = get_script_selected_level_object_x1();
         local donut_pos_y = get_script_selected_level_object_y1();
 
         if iX1 < donut_pos_x + 2 and iX2 > donut_pos_x - 2 then
             if iY1 < donut_pos_y + 2 and iY2 > donut_pos_y - 2 then
-                if get_script_selected_level_object_visible() then
+                if not Module.GameLogic.get_donut_is_collected(donut_index) then
                     play_sound_effect(Module.ChompSoundIndex);
                 end
 
-                set_script_selected_level_object_visible(0);
+                Module.GameLogic.set_donut_is_collected(donut_index, true);
+
+                local donut_mesh_index = get_donut_mesh_index(donut_index);
+                set_mesh_is_visible(donut_mesh_index, false);
             end
         end
 
-        if get_script_selected_level_object_visible() then
+        if not Module.GameLogic.get_donut_is_collected(donut_index) then
             is_win_detected = false;
         end
     end

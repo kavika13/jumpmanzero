@@ -83,6 +83,7 @@ end
 function initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
 

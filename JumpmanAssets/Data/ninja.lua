@@ -92,9 +92,9 @@ local function CheckForDonut_()
         abs_donut(donut_index);
         local donut_pos_x = get_script_selected_level_object_x1();
         local donut_pos_y = get_script_selected_level_object_y1();
-        local donut_is_visible = get_script_selected_level_object_visible();
+        local donut_is_collected = Module.GameLogic.get_donut_is_collected(donut_index);
 
-        if donut_pos_x < g_current_pos_x + 1 and donut_pos_x > g_current_pos_x - 1 and not donut_is_visible and
+        if donut_pos_x < g_current_pos_x + 1 and donut_pos_x > g_current_pos_x - 1 and donut_is_collected and
                 donut_pos_y > g_current_pos_y and donut_pos_y < g_current_pos_y + 15 then
             g_current_status = status_type.FIX_DONUT;
             g_current_status_counter = 0;
@@ -324,7 +324,9 @@ local function MoveNinja_()
         if g_current_status_counter == 100 then
             g_current_status = status_type.NORMAL;
             abs_donut(g_current_donut_to_fix_index);
-            set_script_selected_level_object_visible(1);
+            Module.GameLogic.set_donut_is_collected(g_current_donut_to_fix_index, false);
+            local donut_mesh_index = get_donut_mesh_index(g_current_donut_to_fix_index);
+            set_mesh_is_visible(donut_mesh_index, true);
         end
     end
 end
