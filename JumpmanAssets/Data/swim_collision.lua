@@ -34,10 +34,8 @@ local function DoCollide_(iX1, iY1, iX2, iY2)
     local is_win_detected = true;
 
     for donut_index = 0, donut_count - 1 do
-        abs_donut(donut_index);
-
-        local donut_pos_x = get_script_selected_level_object_x1();
-        local donut_pos_y = get_script_selected_level_object_y1();
+        local donut_pos_x = get_donut_x1(donut_index);
+        local donut_pos_y = get_donut_y1(donut_index);
 
         if iX1 < donut_pos_x + 2 and iX2 > donut_pos_x - 2 then
             if iY1 < donut_pos_y + 2 and iY2 > donut_pos_y - 2 then

@@ -46,9 +46,8 @@ function Module.initialize()
     local iDonuts = get_donut_object_count();
 
     for donut_index = 0, iDonuts - 1 do
-        abs_donut(donut_index);
-        local iDX = get_script_selected_level_object_x1();
-        local iDY = get_script_selected_level_object_y1() - 2;
+        local iDX = get_donut_x1(donut_index);
+        local iDY = get_donut_y1(donut_index) - 2;
         local donut_mesh_index = get_donut_mesh_index(donut_index);
         set_mesh_is_visible(donut_mesh_index, false);
         CreateParticle_(iDX, iDY);

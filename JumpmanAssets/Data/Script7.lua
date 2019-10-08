@@ -57,7 +57,6 @@ local g_clock_timers = {};
 local kNumClockTimers = 20;
 
 local function SetClockPosition_(iPos)
-    select_picture(1);  -- TODO: Use constant for num
     local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, 0 - 64, 0 - 48, 120);
@@ -81,10 +80,8 @@ local function SpinLittleClocks_()
     end
 end
 
-local function SpinClock_(iPic)
-    select_picture(iPic);
-    local iObjX = get_script_selected_level_object_x1();
-    local backdrop_mesh_index = find_backdrop_mesh_index(iPic);
+local function SpinClock_(backdrop_index, backdrop_mesh_index)
+    local iObjX = get_backdrop_x1(backdrop_index);
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, 0 - iObjX, 0, 0);
     rotate_y_mesh_matrix(backdrop_mesh_index, g_current_clock_hand_rotation);
@@ -93,32 +90,31 @@ local function SpinClock_(iPic)
 end
 
 local function CollideLittleClocks_()
-    local iLoop = 10;
+    for clock_backdrop_num = 10, kNumClockTimers - 1 do
+        if g_clock_timers[clock_backdrop_num] and
+                g_clock_timers[clock_backdrop_num] > 0 and
+                g_clock_timers[clock_backdrop_num] < 10 then
+            local backdrop_index = find_backdrop_index(clock_backdrop_num);
+            local backdrop_mesh_index = find_backdrop_mesh_index(clock_backdrop_num);
 
-    while iLoop < kNumClockTimers do
-        if g_clock_timers[iLoop] and g_clock_timers[iLoop] > 0 and g_clock_timers[iLoop] < 10 then
-            SpinClock_(iLoop);
-            select_picture(iLoop);
-            local iClockX = get_script_selected_level_object_x1();
-            local iClockY = get_script_selected_level_object_y1();
+            SpinClock_(backdrop_index, backdrop_mesh_index);
+
+            local iClockX = get_backdrop_x1(backdrop_index);
+            local iClockY = get_backdrop_y1(backdrop_index);
             local did_collide = g_game_logic.is_player_colliding_with_rect(
                 iClockX - 3, iClockY - 4,
                 iClockX + 4, iClockY - 1);
 
-            if did_collide and g_clock_timers[iLoop] == 1 then
+            if did_collide and g_clock_timers[clock_backdrop_num] == 1 then
                 g_clock_num_frames_left = g_clock_num_frames_left + 140;
-                g_clock_timers[iLoop] = 500;
-                select_picture(iLoop);
-                local backdrop_mesh_index = find_backdrop_mesh_index(iLoop);
+                g_clock_timers[clock_backdrop_num] = 500;
                 set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureStopWatch, 0);
             end
         end
 
-        if g_clock_timers[iLoop] and g_clock_timers[iLoop] > 1 then
-            g_clock_timers[iLoop] = g_clock_timers[iLoop] - 1;
+        if g_clock_timers[clock_backdrop_num] and g_clock_timers[clock_backdrop_num] > 1 then
+            g_clock_timers[clock_backdrop_num] = g_clock_timers[clock_backdrop_num] - 1;
         end
-
-        iLoop = iLoop + 1;
     end
 end
 

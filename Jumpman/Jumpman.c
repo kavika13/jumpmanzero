@@ -1066,16 +1066,6 @@ static int script_select_wall(lua_State* lua_state) {
     return 0;
 }
 
-static int get_script_selected_level_object_x1(lua_State* lua_state) {  // TODO: Replace this
-    lua_pushnumber(lua_state, g_script_selected_level_object->X1);
-    return 1;
-}
-
-static int get_script_selected_level_object_y1(lua_State* lua_state) {  // TODO: Replace this
-    lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
-    return 1;
-}
-
 // TODO: Remove these once level loader is in Lua, and mesh indices are kept there
 
 static int get_platform_mesh_index(lua_State* lua_state) {
@@ -1354,12 +1344,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "rotate_z_mesh_matrix");
     lua_pushcfunction(lua_state, scroll_texture_on_mesh);
     lua_setglobal(lua_state, "scroll_texture_on_mesh");
-
-    // TODO: Remove the word "script" when exposing these functions?
-    lua_pushcfunction(lua_state, get_script_selected_level_object_x1);
-    lua_setglobal(lua_state, "get_script_selected_level_object_x1");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_y1);
-    lua_setglobal(lua_state, "get_script_selected_level_object_y1");
     lua_pushcfunction(lua_state, set_texture_on_mesh);
     lua_setglobal(lua_state, "set_texture_on_mesh");
     lua_pushcfunction(lua_state, set_mesh_is_visible);
