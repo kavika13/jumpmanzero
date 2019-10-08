@@ -1071,11 +1071,6 @@ static int get_script_selected_level_object_x1(lua_State* lua_state) {  // TODO:
     return 1;
 }
 
-static int get_script_selected_level_object_x2(lua_State* lua_state) {  // TODO: Replace this
-    lua_pushnumber(lua_state, g_script_selected_level_object->X2);
-    return 1;
-}
-
 static int get_script_selected_level_object_y1(lua_State* lua_state) {  // TODO: Replace this
     lua_pushnumber(lua_state, g_script_selected_level_object->Y1);
     return 1;
@@ -1363,8 +1358,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     // TODO: Remove the word "script" when exposing these functions?
     lua_pushcfunction(lua_state, get_script_selected_level_object_x1);
     lua_setglobal(lua_state, "get_script_selected_level_object_x1");
-    lua_pushcfunction(lua_state, get_script_selected_level_object_x2);
-    lua_setglobal(lua_state, "get_script_selected_level_object_x2");
     lua_pushcfunction(lua_state, get_script_selected_level_object_y1);
     lua_setglobal(lua_state, "get_script_selected_level_object_y1");
     lua_pushcfunction(lua_state, set_texture_on_mesh);

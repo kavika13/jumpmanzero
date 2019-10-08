@@ -123,20 +123,18 @@ local function RingPlatforms_()
         g_game_logic.reset_perspective();
     end
 
-    select_picture(100);  -- TODO: Use constant
     local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX - 80, 0, 0);
 
-    local iPlats = get_platform_object_count();
+    local platform_count = get_platform_object_count();
 
-    for iPlat = 0, iPlats - 1 do
-        abs_platform(iPlat);
-        local x1 = get_script_selected_level_object_x1();
-        local x2 = get_script_selected_level_object_x2();
+    for platform_index = 0, platform_count - 1 do
+        local x1 = get_platform_x1(platform_index);
+        local x2 = get_platform_x2(platform_index);
         local iAve = (x1 + x2) / 2;
 
-        local platform_mesh_index = get_platform_mesh_index(iPlat);
+        local platform_mesh_index = get_platform_mesh_index(platform_index);
         set_identity_mesh_matrix(platform_mesh_index);
         translate_mesh_matrix(platform_mesh_index, 0 - iAve, 0, -75);
         scale_mesh_matrix(platform_mesh_index, 1.64, 1, 1);
@@ -144,39 +142,33 @@ local function RingPlatforms_()
         translate_mesh_matrix(platform_mesh_index, iPX, 0, 75);
     end
 
-    local iVines = get_vine_object_count();
+    local vine_count = get_vine_object_count();
 
-    for iVine = 0, iVines - 1 do
-        abs_vine(iVine);
-        local iAve = get_script_selected_level_object_x1();
-
-        local vine_mesh_index = get_vine_mesh_index(iVine);
+    for vine_index = 0, vine_count - 1 do
+        local iAve = get_vine_x1(vine_index);
+        local vine_mesh_index = get_vine_mesh_index(vine_index);
         set_identity_mesh_matrix(vine_mesh_index);
         translate_mesh_matrix(vine_mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(vine_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(vine_mesh_index, iPX, 0, 75);
     end
 
-    local iLadders = get_ladder_object_count();
+    local ladder_count = get_ladder_object_count();
 
-    for iLadder = 0, iLadders - 1 do
-        abs_ladder(iLadder);
-        local iAve = get_script_selected_level_object_x1();
-
-        local ladder_mesh_index = get_ladder_mesh_index(iLadder);
+    for ladder_index = 0, ladder_count - 1 do
+        local iAve = get_ladder_x1(ladder_index);
+        local ladder_mesh_index = get_ladder_mesh_index(ladder_index);
         set_identity_mesh_matrix(ladder_mesh_index);
         translate_mesh_matrix(ladder_mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(ladder_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(ladder_mesh_index, iPX, 0, 75);
     end
 
-    local iDonuts = get_donut_object_count();
+    local donut_count = get_donut_object_count();
 
-    for iDonut = 0, iDonuts - 1 do
-        abs_donut(iDonut);
-        local iAve = get_script_selected_level_object_x1();
-
-        local donut_mesh_index = get_donut_mesh_index(iDonut);
+    for donut_index = 0, donut_count - 1 do
+        local iAve = get_donut_x1(donut_index);
+        local donut_mesh_index = get_donut_mesh_index(donut_index);
         set_identity_mesh_matrix(donut_mesh_index);
         translate_mesh_matrix(donut_mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(donut_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
@@ -461,7 +453,6 @@ function update(game_input)
 end
 
 local function RefreshDonut_(donut_num)
-    select_donut(donut_num);
     local donut_index = find_donut_index(donut_num);
     g_game_logic.set_donut_is_collected(donut_index, false);
     local mesh_index = find_donut_mesh_index(donut_num);

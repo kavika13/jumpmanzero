@@ -72,14 +72,13 @@ function Module.update()
         return;
     end
 
-    select_donut(Module.DonutNum);
+    local donut_index = find_donut_index(Module.DonutNum);
     local donut_mesh_index = find_donut_mesh_index(Module.DonutNum);
 
     if g_animation_frames_since_launched < 65 then
         set_mesh_is_visible(donut_mesh_index, true);
         g_animation_frames_since_launched = g_animation_frames_since_launched + 1;
     else
-        local donut_index = find_donut_index(Module.DonutNum);
         Module.GameLogic.set_donut_is_collected(donut_index, true);
         set_mesh_is_visible(donut_mesh_index, false);
 
@@ -105,14 +104,14 @@ function Module.update()
 
     Module.ShipPosY = Module.ShipPosY + 8;
 
-    local iY = (65 - g_animation_frames_since_launched) * get_script_selected_level_object_y1();
+    local iY = (65 - g_animation_frames_since_launched) * get_donut_y1(donut_index);
     iY = iY + (g_animation_frames_since_launched * Module.ShipPosY);
     iY = iY / 65;
 
     local iDist = 75 - g_animation_frames_since_launched;
     local iPX = Module.GameLogic.get_player_current_position_x();
 
-    local iX = get_script_selected_level_object_x1();
+    local iX = get_donut_x1(donut_index);
 
     -- TODO: Any reason to keep this code if the donut becomes invisible?
     --       Check through the motion code, and make sure it doesn't affect the blasting particles.
@@ -121,7 +120,7 @@ function Module.update()
     scale_mesh_matrix(donut_mesh_index, 1, 1, 5);
     translate_mesh_matrix(donut_mesh_index, 0 - iX, 0, 0 - iDist);
     rotate_y_mesh_matrix(donut_mesh_index, (iPX - iX) * 360 / Module.PlayAreaCircumference);
-    translate_mesh_matrix(donut_mesh_index, iPX, iY - get_script_selected_level_object_y1(), iZ);
+    translate_mesh_matrix(donut_mesh_index, iPX, iY - get_donut_y1(donut_index), iZ);
 end
 
 return Module;
