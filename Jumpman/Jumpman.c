@@ -134,9 +134,6 @@ static long g_player_mesh_indices[MAX_PLAYER_MESHES];
 static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
 static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
-#define MAX_OBJECTSCRIPTS 5
-#define MAX_SCRIPTOBJECTS 60
-
 static int g_donut_object_count;
 static LevelObject g_donut_objects[100];
 static int g_ladder_object_count;
