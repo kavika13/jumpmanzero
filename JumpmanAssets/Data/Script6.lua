@@ -104,9 +104,9 @@ local function ProgressLevel_(game_input)
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     if g_spotlight_animation_frame > 2 then
-        set_texture_on_mesh(backdrop_mesh_index, resources.TextureRing2);
+        set_mesh_texture(backdrop_mesh_index, resources.TextureRing2);
     else
-        set_texture_on_mesh(backdrop_mesh_index, resources.TextureRing);
+        set_mesh_texture(backdrop_mesh_index, resources.TextureRing);
     end
 
     backdrop_mesh_index = find_backdrop_mesh_index(2);  -- TODO: Use constant for num

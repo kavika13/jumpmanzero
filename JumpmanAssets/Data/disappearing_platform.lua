@@ -108,9 +108,9 @@ local function DrawStatus_()
     translate_mesh_matrix(platform_mesh_index, 0, 0, g_current_pos_offset_z);
 
     if g_current_move_direction == 0 then
-        set_texture_on_mesh(platform_mesh_index, Module.GoodColorTextureResourceIndex);
+        set_mesh_texture(platform_mesh_index, Module.GoodColorTextureResourceIndex);
     else
-        set_texture_on_mesh(platform_mesh_index, Module.BadColorTextureResourceIndex);
+        set_mesh_texture(platform_mesh_index, Module.BadColorTextureResourceIndex);
     end
 end
 
