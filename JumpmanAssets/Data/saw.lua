@@ -138,6 +138,7 @@ end
 
 function Module.initialize()
     g_saw_mesh_index = new_mesh(Module.MeshResourceIndex);
+    set_mesh_texture(g_saw_mesh_index, Module.TextureResourceIndex);
 
     g_current_pos_x = Module.InitialPosX;
     g_current_pos_y = Module.InitialPosY;
@@ -175,7 +176,7 @@ function Module.update()
     rotate_z_mesh_matrix(g_saw_mesh_index, g_current_rotation_z_degrees);
     scale_mesh_matrix(g_saw_mesh_index, 0.75, 0.75, 0.75);
     translate_mesh_matrix(g_saw_mesh_index, g_current_pos_x, g_current_pos_y + 4, g_current_pos_z - 0.1);
-    set_texture_and_is_visible_on_mesh(g_saw_mesh_index, Module.TextureResourceIndex, 1);
+    set_mesh_is_visible(g_saw_mesh_index, true);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y + 1,

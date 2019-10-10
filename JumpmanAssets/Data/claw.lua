@@ -138,7 +138,7 @@ local function MoveChain_(all_jumpers)
             g_claw_current_pos_x - get_donut_x1(g_rescued_donut_index),
             g_claw_current_pos_y - get_donut_y1(g_rescued_donut_index),
             0 - get_donut_z1(g_rescued_donut_index));
-        set_texture_and_is_visible_on_mesh(donut_mesh_index, Module.DonutTextureResourceIndex, 1);
+        set_mesh_is_visible(donut_mesh_index, true);
 
         if iOldX == g_claw_current_pos_x and iOldY == g_claw_current_pos_y then
             Module.GameLogic.set_donut_is_collected(g_rescued_donut_index, false);
@@ -207,7 +207,7 @@ local function DrawClaw_(current_animation_frame, iAngle, iSpread)
     rotate_z_mesh_matrix(anim_mesh_index, iSpread);
     rotate_y_mesh_matrix(anim_mesh_index, iAngle);
     translate_mesh_matrix(anim_mesh_index, g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.ClawTextureResourceIndex, 1);
+    set_mesh_is_visible(anim_mesh_index, true);
 end
 
 local function DrawChain_()
@@ -215,7 +215,7 @@ local function DrawChain_()
     translate_mesh_matrix(g_chain_mesh_index, 0, -0.5, 0);
     scale_mesh_matrix(g_chain_mesh_index, 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
     translate_mesh_matrix(g_chain_mesh_index, g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);
-    set_texture_and_is_visible_on_mesh(g_chain_mesh_index, Module.ChainTextureResourceIndex, 1);
+    set_mesh_is_visible(g_chain_mesh_index, true);
 end
 
 function Module.initialize()
@@ -231,7 +231,12 @@ function Module.initialize()
     g_claw_mesh_indices[2] = new_mesh(Module.ClawMeshResourceIndex);
     g_claw_mesh_indices[3] = new_mesh(Module.ClawMeshResourceIndex);
 
+    for i = 0, 3 do
+        set_mesh_texture(g_claw_mesh_indices[i], Module.ClawTextureResourceIndex);
+    end
+
     g_chain_mesh_index = new_mesh(Module.ChainMeshResourceIndex);
+    set_mesh_texture(g_chain_mesh_index, Module.ChainTextureResourceIndex);
 
     g_time_until_next_grab = 120;
 end

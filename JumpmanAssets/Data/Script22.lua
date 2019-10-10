@@ -202,13 +202,13 @@ local function ProgressLevel_(game_input)
     rotate_z_mesh_matrix(g_small_gears_background_mesh_index, 0 - g_animation_frame);
     scale_mesh_matrix(g_small_gears_background_mesh_index, 25, 25, 2);
     translate_mesh_matrix(g_small_gears_background_mesh_index, 80, 80, 7);
-    set_texture_and_is_visible_on_mesh(g_small_gears_background_mesh_index, resources.TextureBoringGray, 1);
+    set_mesh_is_visible(g_small_gears_background_mesh_index, true);
 
     set_identity_mesh_matrix(g_large_gears_background_mesh_index);
     rotate_z_mesh_matrix(g_large_gears_background_mesh_index, g_animation_frame * 2 / 3);
     scale_mesh_matrix(g_large_gears_background_mesh_index, 50, 50, 2);
     translate_mesh_matrix(g_large_gears_background_mesh_index, 80, 80, 9);
-    set_texture_and_is_visible_on_mesh(g_large_gears_background_mesh_index, resources.TextureBoringGray, 1);
+    set_mesh_is_visible(g_large_gears_background_mesh_index, true);
 
     g_game_logic.update_player_graphics();
 end
@@ -245,7 +245,10 @@ function initialize(game_input)
     end
 
     g_small_gears_background_mesh_index = new_mesh(resources.MeshSphere);
+    set_mesh_texture(g_small_gears_background_mesh_index, resources.TextureBoringGray);
+
     g_large_gears_background_mesh_index = new_mesh(resources.MeshSphere);
+    set_mesh_texture(g_large_gears_background_mesh_index, resources.TextureBoringGray);
 
     reset();
 

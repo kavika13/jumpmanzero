@@ -97,6 +97,7 @@ function Module.initialize()
     g_current_state = kMOVING_LEFT;
     g_frames_since_state_change = 0;
 
+    -- TODO: Don't hard-code animation frame indices
     g_animation_mesh_indices[0] = new_mesh(Module.RightWalkMeshResourceIndices[1]);
     g_animation_mesh_indices[1] = new_mesh(Module.RightStandMeshResourceIndex);
     g_animation_mesh_indices[2] = new_mesh(Module.RightWalkMeshResourceIndices[2]);
@@ -106,11 +107,19 @@ function Module.initialize()
     g_animation_mesh_indices[11] = new_mesh(Module.LeftStandMeshResourceIndex);
     g_animation_mesh_indices[12] = new_mesh(Module.LeftWalkMeshResourceIndices[2]);
     g_animation_mesh_indices[13] = g_animation_mesh_indices[11];
+
+    for i = 0, 3 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+    end
+
+    for i = 10, 13 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+    end
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     Animate_();
     SetFrame_();
@@ -122,7 +131,7 @@ function Module.update()
     rotate_z_mesh_matrix(anim_mesh_index, g_current_rotation_z);
     scale_mesh_matrix(anim_mesh_index, 1.5, 1.5, 1.5);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 13, 9);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 2);
+    set_mesh_is_visible(anim_mesh_index, true);
 
     if g_current_state == kMOVING_LEFT then
         if Module.GameLogic.is_player_colliding_with_rect(

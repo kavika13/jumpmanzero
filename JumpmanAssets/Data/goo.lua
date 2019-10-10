@@ -335,7 +335,8 @@ function Module.initialize()
     g_children[1] = Module.InitialChildren[1];
     g_children[2] = Module.InitialChildren[2];
     g_mesh_index = new_mesh(Module.MeshResourceIndex);
-    set_texture_and_is_visible_on_mesh(g_mesh_index, Module.TextureResourceIndex, 1);
+    set_mesh_texture(g_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_mesh_index, true);
 end
 
 function Module.update()

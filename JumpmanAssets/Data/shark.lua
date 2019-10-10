@@ -85,11 +85,11 @@ local function MoveShark_(game_input)
 
         if Module.CurrentVelocityX < 0 then
             if g_turn_animation_frame_counter < 5 then
-                g_current_animation_frame_index = 15;
+                g_current_animation_frame_index = 15;  -- TODO: Don't hard-code animation frame indices
             elseif g_turn_animation_frame_counter < 10 then
-                g_current_animation_frame_index = 16;
+                g_current_animation_frame_index = 16;  -- TODO: Don't hard-code animation frame indices
             elseif g_turn_animation_frame_counter < 15 then
-                g_current_animation_frame_index = 17;
+                g_current_animation_frame_index = 17;  -- TODO: Don't hard-code animation frame indices
             else
                 g_turn_animation_frame_counter = 0;
                 g_turn_animation_is_active = false;
@@ -97,11 +97,11 @@ local function MoveShark_(game_input)
             end
         else
             if g_turn_animation_frame_counter < 5 then
-                g_current_animation_frame_index = 5;
+                g_current_animation_frame_index = 5;  -- TODO: Don't hard-code animation frame indices
             elseif g_turn_animation_frame_counter < 10 then
-                g_current_animation_frame_index = 6;
+                g_current_animation_frame_index = 6;  -- TODO: Don't hard-code animation frame indices
             elseif g_turn_animation_frame_counter < 15 then
-                g_current_animation_frame_index = 7;
+                g_current_animation_frame_index = 7;  -- TODO: Don't hard-code animation frame indices
             else
                 g_turn_animation_frame_counter = 0;
                 g_turn_animation_is_active = false;
@@ -141,13 +141,14 @@ local function MoveShark_(game_input)
     end
 
     if Module.CurrentVelocityX > 0 then
-        g_current_animation_frame_index = 1 + g_move_animation_frame_index;
+        g_current_animation_frame_index = 1 + g_move_animation_frame_index;  -- TODO: Don't hard-code animation frame indices
     else
-        g_current_animation_frame_index = 11 + g_move_animation_frame_index;
+        g_current_animation_frame_index = 11 + g_move_animation_frame_index;  -- TODO: Don't hard-code animation frame indices
     end
 end
 
 function Module.initialize()
+    -- TODO: Don't hard-code animation frame indices
     g_animation_mesh_indices[1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
     move_mesh_to_front(g_animation_mesh_indices[1]);
     g_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
@@ -184,12 +185,20 @@ function Module.initialize()
     Module.CurrentPosY = Module.StartPosY;
     Module.CurrentPosZ = 0.05;
     Module.CurrentVelocityX = 1;
-    g_current_animation_frame_index = 1;
+    g_current_animation_frame_index = 1;  -- TODO: Don't hard-code animation frame indices
+
+    for i = 1, 7 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+    end
+
+    for i = 11, 17 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+    end
 end
 
 function Module.update(game_input)
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_current_animation_frame_index], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_current_animation_frame_index], false);
 
     g_move_animation_frame_counter = g_move_animation_frame_counter + 1;
 
@@ -208,7 +217,7 @@ function Module.update(game_input)
     local anim_mesh_index = g_animation_mesh_indices[g_current_animation_frame_index];
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
+    set_mesh_is_visible(anim_mesh_index, true);
 end
 
 return Module;

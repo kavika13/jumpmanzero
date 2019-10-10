@@ -455,6 +455,10 @@ function Module.initialize()
 
     g_animation_mesh_indices[animation_frame.FIX_DONUT_1] = new_mesh(Module.FixDonutMeshResourceIndices[1]);
     g_animation_mesh_indices[animation_frame.FIX_DONUT_2] = new_mesh(Module.FixDonutMeshResourceIndices[2]);
+
+    for _, index in pairs(animation_frame) do
+        set_mesh_texture(g_animation_mesh_indices[index], Module.TextureResourceIndex);
+    end
 end
 
 function Module.update()
@@ -464,8 +468,8 @@ function Module.update()
         g_current_status_counter = 0;
     end
 
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     AdvanceFrame_();
     MoveNinja_();
@@ -474,7 +478,7 @@ function Module.update()
     local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z - 0.5);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
+    set_mesh_is_visible(anim_mesh_index, true);
 end
 
 

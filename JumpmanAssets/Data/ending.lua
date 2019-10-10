@@ -130,7 +130,7 @@ local function ClearAll_()
     g_game_logic.set_player_is_visible(false);
 
     for iTemp = 0, 19 do
-        set_texture_and_is_visible_on_mesh(g_object_mesh_indices[iTemp], 0, 0);
+        set_mesh_is_visible(g_object_mesh_indices[iTemp], false);
     end
 end
 
@@ -182,7 +182,8 @@ local function ShowPlayerGrooving_(iAT)
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     translate_mesh_matrix(g_object_mesh_indices[1], 80 + iWiggle, 85, 1.5);
-    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[1], resources.TextureJumpman, 1);
+    set_mesh_texture(g_object_mesh_indices[1], resources.TextureJumpman);
+    set_mesh_is_visible(g_object_mesh_indices[1], true);
 end
 
 local function ShowPlayerLeaving_(iAT)
@@ -198,7 +199,8 @@ local function ShowPlayerLeaving_(iAT)
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     translate_mesh_matrix(g_object_mesh_indices[1], 80 - iAT, 85, 1.5);
-    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[1], resources.TextureJumpman, 1);
+    set_mesh_texture(g_object_mesh_indices[1], resources.TextureJumpman);
+    set_mesh_is_visible(g_object_mesh_indices[1], true);
 end
 
 local function ShowBear_(iAT)
@@ -238,7 +240,8 @@ local function ShowBear_(iAT)
     set_identity_mesh_matrix(g_object_mesh_indices[1]);
     scale_mesh_matrix(g_object_mesh_indices[1], 1, 1, 1.3);
     translate_mesh_matrix(g_object_mesh_indices[1], g_current_pos_x, g_current_pos_y + 7, 1.5);
-    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[1], resources.TextureFur, 1);
+    set_mesh_texture(g_object_mesh_indices[1], resources.TextureFur);
+    set_mesh_is_visible(g_object_mesh_indices[1], true);
 end
 
 local function ShowSheep_(iAT)
@@ -274,7 +277,8 @@ local function ShowSheep_(iAT)
         set_mesh_to_mesh(g_object_mesh_indices[iSheep], iFrame);
         set_identity_mesh_matrix(g_object_mesh_indices[iSheep]);
         translate_mesh_matrix(g_object_mesh_indices[iSheep], iSheepX, iSheepY, 2);
-        set_texture_and_is_visible_on_mesh(g_object_mesh_indices[iSheep], resources.TextureSheep, 1);
+        set_mesh_texture(g_object_mesh_indices[iSheep], resources.TextureSheep);
+        set_mesh_is_visible(g_object_mesh_indices[iSheep], true);
     end
 end
 
@@ -308,7 +312,8 @@ local function ShowTurtles_(iAT)
 
         set_mesh_to_mesh(mesh_index, iFrame);
         translate_mesh_matrix(mesh_index, iTurtX, iTurtY, 2);
-        set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureTurtleTexture, 1);
+        set_mesh_texture(mesh_index, resources.TextureTurtleTexture);
+        set_mesh_is_visible(mesh_index, true);
     end
 end
 
@@ -354,7 +359,8 @@ local function ShowDonuts_(iAT)
 
         set_mesh_to_mesh(g_object_mesh_indices[iDon], iFrame);
         translate_mesh_matrix(g_object_mesh_indices[iDon], iDonX, iDonY, iZ);
-        set_texture_and_is_visible_on_mesh(g_object_mesh_indices[iDon], resources.TextureRunDonut, 1);
+        set_mesh_texture(g_object_mesh_indices[iDon], resources.TextureRunDonut);
+        set_mesh_is_visible(g_object_mesh_indices[iDon], true);
     end
 end
 
@@ -392,7 +398,8 @@ local function ShowDino_(iAT)
 
     set_mesh_to_mesh(mesh_index, iFrame);
     translate_mesh_matrix(mesh_index, g_current_pos_x, g_current_pos_y, 0);
-    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureDinosaur, 1);
+    set_mesh_texture(mesh_index, resources.TextureDinosaur);
+    set_mesh_is_visible(mesh_index, true);
 end
 
 local function JumpmanChase_(iAT)
@@ -425,7 +432,8 @@ local function JumpmanChase_(iAT)
     scale_mesh_matrix(g_object_mesh_indices[0], 1, 1, 1);
     set_mesh_to_mesh(g_object_mesh_indices[0], iFrame);
     translate_mesh_matrix(g_object_mesh_indices[0], g_current_pos_x, g_current_pos_y, 3);
-    set_texture_and_is_visible_on_mesh(g_object_mesh_indices[0], resources.TextureJumpman, 1);
+    set_mesh_texture(g_object_mesh_indices[0], resources.TextureJumpman);
+    set_mesh_is_visible(g_object_mesh_indices[0], true);
 end
 
 local function ShowRocket_(iAT)
@@ -439,7 +447,8 @@ local function ShowRocket_(iAT)
     rotate_z_mesh_matrix(mesh_index, iRZ);
     scale_mesh_matrix(mesh_index, 2, 2, 2);
     translate_mesh_matrix(mesh_index, 130, g_current_pos_y, 10);
-    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureDABotO, 1);
+    set_mesh_texture(mesh_index, resources.TextureDABotO);
+    set_mesh_is_visible(mesh_index, true);
 
     for iBlip = 1, 14 do
         local blip_mesh_index = g_object_mesh_indices[iBlip];
@@ -459,7 +468,8 @@ local function ShowRocket_(iAT)
         rotate_z_mesh_matrix(blip_mesh_index, iRZ);
 
         translate_mesh_matrix(blip_mesh_index, 132.5, g_current_pos_y, 12);
-        set_texture_and_is_visible_on_mesh(blip_mesh_index, resources.TextureBlast1, 1);
+        set_mesh_texture(blip_mesh_index, resources.TextureBlast1);
+        set_mesh_is_visible(blip_mesh_index, true);
     end
 end
 
@@ -559,11 +569,12 @@ local function ProgressLevel_(game_input)
         g_credits = new_credits;
 
         local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
-        set_texture_and_is_visible_on_mesh(platform_mesh_index, 0, 0);
+        set_mesh_is_visible(platform_mesh_index, false);
 
         local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
         translate_mesh_matrix(backdrop_mesh_index, 40, 0, 20);
-        set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureBlack, 1);
+        set_mesh_texture(backdrop_mesh_index, resources.TextureBlack);
+        set_mesh_is_visible(backdrop_mesh_index, true);
     end
 
     if g_end_alien then

@@ -57,13 +57,14 @@ local function DoBlasting()
         end
 
         translate_mesh_matrix(mesh_index, iBX, iBY, iBZ);
-        set_texture_and_is_visible_on_mesh(mesh_index, Module.LightningTextureResourceIndex, 1);
+        set_mesh_is_visible(mesh_index, true);
     end
 end
 
 function Module.initialize()
     for iTemp = 0, kBlastParticleCount - 1 do
         g_blast_particle_mesh_indices[iTemp] = new_mesh(Module.BlastParticleMeshResourceIndex);
+        set_mesh_texture(g_blast_particle_mesh_indices[iTemp], Module.LightningTextureResourceIndex);
     end
 end
 

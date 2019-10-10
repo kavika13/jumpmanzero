@@ -103,6 +103,7 @@ local function ShowLetters()
 
         if current_letter_mesh_id > 0 then
             set_identity_mesh_matrix(current_letter_mesh_id);
+            set_mesh_is_visible(current_letter_mesh_id, true);
 
             if g_is_game_selected then
                 if g_title_selected_index == current_letter_title_index then
@@ -116,14 +117,14 @@ local function ShowLetters()
                     end
 
                     translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureBoringBlue, 1);
+                    set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
                 else
                     local iDZ = 0 + g_time_since_current_selection / 15;
                     local iDX = iX + ((g_time_since_current_selection / 100) * math.sin(iX * 27 * math.pi / 180.0) * 50);
                     local iDY = iY + ((g_time_since_current_selection / 100) * math.sin(iX * 59 * math.pi / 180.0) * 50);
                     rotate_z_mesh_matrix(current_letter_mesh_id, g_time_since_current_selection + iX);
                     translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
+                    set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
                 end
             elseif g_title_selected_index == current_letter_title_index then
                 local iMoveScale;
@@ -139,7 +140,7 @@ local function ShowLetters()
                 local iDY = iY;
 
                 translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureBoringBlue, 1);
+                set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
             elseif g_title_previous_selected_index == current_letter_title_index then
                 local iTempTime = (50 - g_time_since_current_selection);
 
@@ -160,10 +161,10 @@ local function ShowLetters()
                 local iDY = iY;
 
                 translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
+                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
             else
                 translate_mesh_matrix(current_letter_mesh_id, iX, iY, 0);
-                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
+                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
             end
         end
 

@@ -311,7 +311,12 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_2] = new_mesh(Module.SheepFlyRightMeshResourceIndices[2]);
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_3] = new_mesh(Module.SheepFlyRightMeshResourceIndices[3]);
 
+    for _, index in pairs(animation_frame) do
+        set_mesh_texture(g_animation_mesh_indices[index], Module.SheepTextureResourceIndex);
+    end
+
     g_copter_mesh_index = new_mesh(Module.CopterMeshResourceIndex);
+    set_mesh_texture(g_copter_mesh_index, Module.CopterTextureResourceIndex);
 end
 
 function Module.update()
@@ -323,16 +328,16 @@ function Module.update()
         if (g_spawn_cooldown_timer & 2) and (g_spawn_cooldown_timer < 50) then
             set_identity_mesh_matrix(mesh_index);
             translate_mesh_matrix(mesh_index, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
-            set_texture_and_is_visible_on_mesh(mesh_index, Module.SheepTextureResourceIndex, 1);
+            set_mesh_is_visible(mesh_index, true);
         else
-            set_texture_and_is_visible_on_mesh(mesh_index, 0, 0);
+            set_mesh_is_visible(mesh_index, false);
         end
 
         return;
     end
 
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     g_copter_current_scale = 0;
     AdvanceFrame_();
@@ -341,7 +346,7 @@ function Module.update()
     local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.SheepTextureResourceIndex, 1);
+    set_mesh_is_visible(anim_mesh_index, true);
 
     if g_copter_current_scale > 0 then
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
@@ -351,9 +356,9 @@ function Module.update()
         translate_mesh_matrix(g_copter_mesh_index, 0, 4, 0);
         scale_mesh_matrix(g_copter_mesh_index, g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
         translate_mesh_matrix(g_copter_mesh_index, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
-        set_texture_and_is_visible_on_mesh(g_copter_mesh_index, Module.CopterTextureResourceIndex, 1);
+        set_mesh_is_visible(g_copter_mesh_index, true);
     else
-        set_texture_and_is_visible_on_mesh(g_copter_mesh_index, 0, 0);
+        set_mesh_is_visible(g_copter_mesh_index, false);
     end
 
     if Module.GameLogic.is_player_colliding_with_rect(

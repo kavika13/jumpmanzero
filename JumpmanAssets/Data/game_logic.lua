@@ -1475,7 +1475,7 @@ local function GrabDonuts_(game_input)
                     get_donut_x1(donut_index) + 3, get_donut_y1(donut_index) + 2) then
             g_donut_is_collected[donut_index] = true;
             local donut_mesh_index = get_donut_mesh_index(donut_index);
-            set_texture_and_is_visible_on_mesh(donut_mesh_index, get_donut_texture_index(donut_index), 0);
+            set_mesh_is_visible(donut_mesh_index, false);
             iGot = true;
 
             if Module.OnCollectDonutCallback then
@@ -1632,14 +1632,14 @@ local function AnimateDying_(game_input)
         translate_mesh_matrix(
             stars_mesh_index,
             g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z + 1);
-        set_texture_and_is_visible_on_mesh(stars_mesh_index, 0, 1);
+        set_mesh_is_visible(stars_mesh_index, true);
 
         g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
         g_player_current_rotation_x_radians = 0.1;
         g_player_current_mesh = player_mesh.DEAD;
 
         if g_player_absolute_frame_count == 85 then
-            set_texture_and_is_visible_on_mesh(stars_mesh_index, 0, 0);
+            set_mesh_is_visible(stars_mesh_index, false);
             set_remaining_life_count(get_remaining_life_count() - 1);
 
             if get_remaining_life_count() == 0 then
@@ -1741,11 +1741,11 @@ function Module.update_player_graphics()
         g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
 
     if g_player_is_visible then
-        set_texture_and_is_visible_on_mesh(current_player_mesh_index, 0, 1);  -- TODO: Don't hard-code texture index?
+        set_mesh_is_visible(current_player_mesh_index, true);
     end
 
     if g_player_current_mesh ~= g_player_previous_mesh then
-        set_texture_and_is_visible_on_mesh(get_player_mesh_index(g_player_previous_mesh), 0, 0);
+        set_mesh_is_visible(get_player_mesh_index(g_player_previous_mesh), false);
         g_player_previous_mesh = g_player_current_mesh;
     end
 end

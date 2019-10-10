@@ -69,8 +69,8 @@ local function RestartBullet()
     local iSupp = 0;
     local iVel = 0;
 
-    set_texture_and_is_visible_on_mesh(g_mesh_index_1, 0, 0);
-    set_texture_and_is_visible_on_mesh(g_mesh_index_2, 0, 0);
+    set_mesh_is_visible(g_mesh_index_1, false);
+    set_mesh_is_visible(g_mesh_index_2, false);
 
     local iType = math.random(1, 100);
 
@@ -142,8 +142,13 @@ end
 
 function Module.initialize()
     g_mesh_index_1 = new_mesh(Module.Mesh1Index);
+    set_mesh_texture(g_mesh_index_1, Module.TextureIndex);
+
     g_mesh_index_2 = new_mesh(Module.Mesh2Index);
+    set_mesh_texture(g_mesh_index_2, Module.TextureIndex);
+
     g_maximum_pos_x = Module.GameLogic.get_level_extent_x() + 40;
+
     RestartBullet();
 end
 
@@ -207,14 +212,14 @@ function Module.update()
     rotate_x_mesh_matrix(g_mesh_index_1, g_current_rotation_x);
     rotate_z_mesh_matrix(g_mesh_index_1, g_current_rotation_z);
     translate_mesh_matrix(g_mesh_index_1, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
-    set_texture_and_is_visible_on_mesh(g_mesh_index_1, Module.TextureIndex, 1);
+    set_mesh_is_visible(g_mesh_index_1, true);
 
     set_identity_mesh_matrix(g_mesh_index_2);
     rotate_y_mesh_matrix(g_mesh_index_2, 90);
     rotate_x_mesh_matrix(g_mesh_index_2, g_current_rotation_x);
     rotate_z_mesh_matrix(g_mesh_index_2, g_current_rotation_z);
     translate_mesh_matrix(g_mesh_index_2, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
-    set_texture_and_is_visible_on_mesh(g_mesh_index_2, Module.TextureIndex, 1);
+    set_mesh_is_visible(g_mesh_index_2, true);
 end
 
 function Module.reset_pos()

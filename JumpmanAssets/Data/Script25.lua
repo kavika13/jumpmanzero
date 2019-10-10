@@ -149,7 +149,7 @@ local function MoveSplashParticles_()
         local mesh_index = g_splash_particle_mesh_indices[iLoop];
 
         if iDY < -1 then
-            set_texture_and_is_visible_on_mesh(mesh_index, 0, 0);
+            set_mesh_is_visible(mesh_index, false);
         else
             is_any_particle_visible = true;
             set_identity_mesh_matrix(mesh_index);
@@ -161,7 +161,7 @@ local function MoveSplashParticles_()
             end
 
             translate_mesh_matrix(mesh_index, g_splash_particle_start_x + iDX / 200, g_splash_particle_start_y + iDY / 200, -1);
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureSBit, 1);
+            set_mesh_is_visible(mesh_index, true);
         end
     end
 
@@ -377,7 +377,7 @@ local function ProgressLevel_(game_input)
 
     -- TODO: Looks like jumpman's last animation frame isn't disappearing anymore when the player jumps in water.
     --       The bug might be in game_logic.lua.update_player_graphics, or it might be here
-    set_texture_and_is_visible_on_mesh(g_swim_animation_mesh_indices[g_swim_animation_frame], 0, 0);
+    set_mesh_is_visible(g_swim_animation_mesh_indices[g_swim_animation_frame], false);
 
     if g_splash_particle_time > 0 then
         MoveSplashParticles_();
@@ -430,7 +430,7 @@ local function ProgressLevel_(game_input)
         set_identity_mesh_matrix(swim_anim_mesh_index);
         rotate_z_mesh_matrix(swim_anim_mesh_index, g_swim_rotation_angle);
         translate_mesh_matrix(swim_anim_mesh_index, iDrawX, iDrawY + 5, 2);
-        set_texture_and_is_visible_on_mesh(swim_anim_mesh_index, resources.TextureJumpman, 1);
+        set_mesh_is_visible(swim_anim_mesh_index, true);
 
         if g_game_logic.get_player_current_state() == player_state.JSDYING then
             g_game_logic.set_player_freeze_cooldown_frame_count(0);
@@ -453,6 +453,7 @@ end
 local function InitSplashParticles_()
     for iLoop = 1, 20 do
         g_splash_particle_mesh_indices[iLoop] = new_mesh(resources.MeshSquare);
+        set_mesh_texture(g_splash_particle_mesh_indices[iLoop], resources.TextureSBit);
     end
 
     g_splash_particle_time = 0;
@@ -484,6 +485,7 @@ function initialize(game_input)
     g_swim_collision.FacingDirection = 0;
     g_swim_collision.initialize();
 
+    -- TODO: Don't hard-code animation frame indices
     g_swim_animation_mesh_indices[1] = new_mesh(resources.MeshGroove1);
     move_mesh_to_front(g_swim_animation_mesh_indices[1]);
 
@@ -516,6 +518,18 @@ function initialize(game_input)
 
     g_swim_animation_mesh_indices[24] = new_mesh(resources.MeshSwimR4);
     move_mesh_to_front(g_swim_animation_mesh_indices[24]);
+
+    for i = 1, 3 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(g_swim_animation_mesh_indices[i], resources.TextureJumpman);
+    end
+
+    for i = 11, 14 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(g_swim_animation_mesh_indices[i], resources.TextureJumpman);
+    end
+
+    for i = 21, 24 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(g_swim_animation_mesh_indices[i], resources.TextureJumpman);
+    end
 
     InitSplashParticles_();
 

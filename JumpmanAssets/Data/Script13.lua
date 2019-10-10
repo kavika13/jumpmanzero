@@ -106,9 +106,9 @@ local function ResetVisible_(visibility_bitmask)
         local mesh_index = get_platform_mesh_index(platform_index);
 
         if (platform_num & visibility_bitmask) ~= 0 then
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureClassicPlatform, 1);
+            set_mesh_is_visible(mesh_index, true);
         else
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
+            set_mesh_is_visible(mesh_index, false);
         end
     end
 
@@ -117,9 +117,9 @@ local function ResetVisible_(visibility_bitmask)
         local mesh_index = get_ladder_mesh_index(ladder_index);
 
         if (ladder_number & visibility_bitmask) ~= 0 then
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
+            set_mesh_is_visible(mesh_index, true);
         else
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
+            set_mesh_is_visible(mesh_index, false);
         end
     end
 
@@ -128,20 +128,19 @@ local function ResetVisible_(visibility_bitmask)
         local mesh_index = get_vine_mesh_index(vine_index);
 
         if (vine_number & visibility_bitmask) ~= 0 then
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureBlueMarble, 1);
+            set_mesh_is_visible(mesh_index, true);
         else
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, 1);
+            set_mesh_is_visible(mesh_index, false);
         end
     end
 
     for donut_index = 0, get_donut_object_count() - 1 do
         local mesh_index = get_donut_mesh_index(donut_index);
 
-        -- TODO: Does this just want to set the texture? Should it do just that instead?
-        if visibility_bitmask == 1 then
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureInvisible, g_game_logic.get_donut_is_collected(donut_index) and 0 or 1);
+        if visibility_bitmask == 1 or g_game_logic.get_donut_is_collected(donut_index) then
+            set_mesh_is_visible(mesh_index, false);
         else
-            set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureRedMetal, g_game_logic.get_donut_is_collected(donut_index) and 0 or 1);
+            set_mesh_is_visible(mesh_index, true);
         end
     end
 end

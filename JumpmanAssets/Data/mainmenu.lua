@@ -114,7 +114,7 @@ local function ShowJMLetters()
         end
 
         translate_mesh_matrix(g_title_letter_mesh_ids[iChar], iDX, iDY, iDZ);
-        set_texture_and_is_visible_on_mesh(g_title_letter_mesh_ids[iChar], resources.TextureBoringOrange, 1);
+        set_mesh_is_visible(g_title_letter_mesh_ids[iChar], true);
     end
 end
 
@@ -205,6 +205,7 @@ local function ShowLetters()
         if current_letter_mesh_id > 0 then
             set_identity_mesh_matrix(current_letter_mesh_id);
             scale_mesh_matrix(current_letter_mesh_id, 0.7, 0.7, 1);
+            set_mesh_is_visible(current_letter_mesh_id, true);
 
             if g_is_game_selected then
                 if g_option_selected_index == current_letter_title_index then
@@ -219,7 +220,7 @@ local function ShowLetters()
                     end
 
                     translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureBoringBlue, 1);
+                    set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
                 else
                     local iDZ = 0 + g_time_since_current_selection / 15;
                     local iDX = iX + ((g_time_since_current_selection / 100) * math.sin(iX * 27 * math.pi / 180.0) * 50);
@@ -227,7 +228,7 @@ local function ShowLetters()
 
                     rotate_z_mesh_matrix(current_letter_mesh_id, g_time_since_current_selection + iX);
                     translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
+                    set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
                 end
             elseif g_option_selected_index == current_letter_title_index then
                 local iMoveScale;
@@ -243,7 +244,7 @@ local function ShowLetters()
                 local iDY = iY;
 
                 translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureBoringBlue, 1);
+                set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
             elseif g_option_previous_selected_index == current_letter_title_index then
                 local iTempTime = (50 - g_time_since_current_selection);
 
@@ -264,10 +265,10 @@ local function ShowLetters()
                 local iDY = iY;
 
                 translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
+                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
             else
                 translate_mesh_matrix(current_letter_mesh_id, iX, iY, 0);
-                set_texture_and_is_visible_on_mesh(current_letter_mesh_id, resources.TextureRachBlue, 1);
+                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
             end
         end
 
@@ -279,7 +280,9 @@ local function InitializeLetters()
     local title = "Jumpman";
 
     for iChar = 1, #title do
-        table.insert(g_title_letter_mesh_ids, new_char_mesh(title:sub(iChar, iChar):byte(1, -1)));
+        local char_mesh = new_char_mesh(title:sub(iChar, iChar):byte(1, -1));
+        set_mesh_texture(char_mesh, resources.TextureBoringOrange);
+        table.insert(g_title_letter_mesh_ids, char_mesh);
     end
 
     local menu_options = { "Start Game", "Options" };

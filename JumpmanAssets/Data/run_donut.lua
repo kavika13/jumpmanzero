@@ -295,7 +295,7 @@ end
 function Module.initialize()
     g_time_since_spawn = 0;
 
-    -- TODO: Don't hard-code frame indices
+    -- TODO: Use constants instead of these hard-coded frame numbers
     g_animation_mesh_indices[0] = new_mesh(Module.MoveMeshResourceIndices[1]);
     g_animation_mesh_indices[1] = new_mesh(Module.MoveMeshResourceIndices[2]);
     g_animation_mesh_indices[2] = new_mesh(Module.MoveMeshResourceIndices[3]);
@@ -306,6 +306,10 @@ function Module.initialize()
     g_animation_mesh_indices[6] = new_mesh(Module.HatchMeshResourceIndices[3]);
     g_animation_mesh_indices[7] = new_mesh(Module.HatchMeshResourceIndices[4]);
     g_animation_mesh_indices[8] = new_mesh(Module.HatchMeshResourceIndices[5]);
+
+    for i = 0, 8 do  -- TODO: Use constants instead of these hard-coded frame numbers
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+    end
 
     g_current_status = status_type.HATCHING;
     g_current_status_counter = 0;
@@ -328,8 +332,8 @@ end
 function Module.update(all_run_donuts)
     g_time_since_spawn = g_time_since_spawn + 1;
 
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     if g_current_status == status_type.NORMAL or g_current_status == status_type.JUMP or
             g_current_status == status_type.HATCHING or g_current_status == status_type.LAYING_EGG then
@@ -364,7 +368,7 @@ function Module.update(all_run_donuts)
         scale_mesh_matrix(new_frame_mesh_index, 0.6, 0.6, 1);
         rotate_z_mesh_matrix(new_frame_mesh_index, g_current_rotation_z);
         translate_mesh_matrix(new_frame_mesh_index, g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
-        set_texture_and_is_visible_on_mesh(new_frame_mesh_index, Module.TextureResourceIndex, 1);
+        set_mesh_is_visible(new_frame_mesh_index, true);
     end
 end
 

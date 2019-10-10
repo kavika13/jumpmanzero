@@ -68,11 +68,13 @@ function Module.update()
 
         set_identity_mesh_matrix(g_drop_1_mesh_index);
         translate_mesh_matrix(g_drop_1_mesh_index, g_current_pos_x, g_current_pos_y, 8);
-        set_texture_and_is_visible_on_mesh(g_drop_1_mesh_index, Module.DropTextureResourceIndices[1], 1);
+        set_mesh_texture(g_drop_1_mesh_index, Module.DropTextureResourceIndices[1]);
+        set_mesh_is_visible(g_drop_1_mesh_index, true);
 
         set_identity_mesh_matrix(g_drop_2_mesh_index);
         translate_mesh_matrix(g_drop_2_mesh_index, g_current_pos_x, g_current_pos_y, 9);
-        set_texture_and_is_visible_on_mesh(g_drop_2_mesh_index, Module.DropTextureResourceIndices[1], 1);
+        set_mesh_texture(g_drop_2_mesh_index, Module.DropTextureResourceIndices[1]);
+        set_mesh_is_visible(g_drop_2_mesh_index, true);
     end
 
     if g_animation_frame > 0 then
@@ -89,11 +91,13 @@ function Module.update()
 
         set_identity_mesh_matrix(g_drop_1_mesh_index);
         translate_mesh_matrix(g_drop_1_mesh_index, g_current_pos_x, g_current_pos_y, 8);
-        set_texture_and_is_visible_on_mesh(g_drop_1_mesh_index, Module.DropTextureResourceIndices[1 + g_animation_frame], 1);
+        set_mesh_texture(g_drop_1_mesh_index, Module.DropTextureResourceIndices[1 + g_animation_frame]);
+        set_mesh_is_visible(g_drop_1_mesh_index, true);
 
         set_identity_mesh_matrix(g_drop_2_mesh_index);
         translate_mesh_matrix(g_drop_2_mesh_index, g_current_pos_x, g_current_pos_y, 9);
-        set_texture_and_is_visible_on_mesh(g_drop_2_mesh_index, Module.DropTextureResourceIndices[1 + g_animation_frame], 1);
+        set_mesh_texture(g_drop_2_mesh_index, Module.DropTextureResourceIndices[1 + g_animation_frame]);
+        set_mesh_is_visible(g_drop_2_mesh_index, true);
     end
 
     if g_animation_frame < 1 then

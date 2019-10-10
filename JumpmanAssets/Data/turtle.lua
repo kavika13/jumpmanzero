@@ -184,11 +184,15 @@ function Module.initialize()
 
     g_move_animation_frames[animation_frame.HIDE_LEFT] = new_mesh(Module.HideMeshResourceIndices[1]);
     g_move_animation_frames[animation_frame.HIDE_RIGHT] = new_mesh(Module.HideMeshResourceIndices[2]);
+
+    for _, index in pairs(animation_frame) do
+        set_mesh_texture(g_move_animation_frames[index], Module.TextureResourceIndex);
+    end
 end
 
 function Module.update(game_input, all_turtles)
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_move_animation_frames[g_move_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_move_animation_frames[g_move_animation_current_frame], false);
 
     Animate_();
     SetFrame_();
@@ -199,7 +203,7 @@ function Module.update(game_input, all_turtles)
     set_identity_mesh_matrix(anim_mesh_index);
     rotate_z_mesh_matrix(anim_mesh_index, g_current_rotation_z);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 4.4, 2);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 2);
+    set_mesh_is_visible(anim_mesh_index, true);
 
     local is_colliding = true;
 

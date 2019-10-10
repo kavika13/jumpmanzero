@@ -92,15 +92,15 @@ local function ShowWorking_(game_input)
 
     set_identity_mesh_matrix(mesh_index);
     translate_mesh_matrix(mesh_index, iPX, iPY + 6, iPZ + 1);
-    set_texture_and_is_visible_on_mesh(mesh_index, resources.TextureJumpman, 1);
+    set_mesh_is_visible(mesh_index, true);
 end
 
 local function CollideDonuts_(game_input)
     g_game_logic.set_player_is_visible(true);
     g_is_disarm_hud_visible = false;
 
-    set_texture_and_is_visible_on_mesh(g_jumpman_work_1_mesh_index, 0, 0);
-    set_texture_and_is_visible_on_mesh(g_jumpman_work_2_mesh_index, 0, 0);
+    set_mesh_is_visible(g_jumpman_work_1_mesh_index, false);
+    set_mesh_is_visible(g_jumpman_work_2_mesh_index, false);
 
     -- Skip any progress checks if player is moving or not otherwise standing still
     local iPStat = g_game_logic.get_player_current_state();
@@ -198,17 +198,17 @@ function ProgressLevel_(game_input)
         scale_mesh_matrix(g_message_mesh_index, 20, 20, 1);
         translate_mesh_matrix(g_message_mesh_index, 0 - 54, 0 - 39, 120);
         undo_camera_perspective_on_mesh_matrix(g_message_mesh_index);
-        set_texture_and_is_visible_on_mesh(g_message_mesh_index, resources.TextureDisarming, 1);
+        set_mesh_is_visible(g_message_mesh_index, true);
 
         set_identity_mesh_matrix(g_progress_bar_mesh_index);
         local iProg = (100 - g_disarm_progress) * 16.5 / 100;
         scale_mesh_matrix(g_progress_bar_mesh_index, iProg, 3.8, 1);
         translate_mesh_matrix(g_progress_bar_mesh_index, (0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
         undo_camera_perspective_on_mesh_matrix(g_progress_bar_mesh_index);
-        set_texture_and_is_visible_on_mesh(g_progress_bar_mesh_index, resources.TextureBoringGreen, 1);
+        set_mesh_is_visible(g_progress_bar_mesh_index, true);
     else
-        set_texture_and_is_visible_on_mesh(g_message_mesh_index, 0, 0);
-        set_texture_and_is_visible_on_mesh(g_progress_bar_mesh_index, 0, 0);
+        set_mesh_is_visible(g_message_mesh_index, false);
+        set_mesh_is_visible(g_progress_bar_mesh_index, false);
     end
 
     for _, zap_bot in ipairs(g_zap_bots) do
@@ -236,13 +236,18 @@ function initialize(game_input)
     g_hud_overlay = hud_overlay_module();
 
     g_jumpman_work_1_mesh_index = new_mesh(resources.MeshJMWork1);
-    set_texture_and_is_visible_on_mesh(g_jumpman_work_1_mesh_index, 0, 0);
+    set_mesh_texture(g_jumpman_work_1_mesh_index, resources.TextureJumpman);
+    set_mesh_is_visible(g_jumpman_work_1_mesh_index, false);
 
     g_jumpman_work_2_mesh_index = new_mesh(resources.MeshJMWork2);
-    set_texture_and_is_visible_on_mesh(g_jumpman_work_2_mesh_index, 0, 0);
+    set_mesh_texture(g_jumpman_work_2_mesh_index, resources.TextureJumpman);
+    set_mesh_is_visible(g_jumpman_work_2_mesh_index, false);
 
     g_message_mesh_index = new_mesh(0);  -- TODO: Use constant for mesh index
+    set_mesh_texture(g_message_mesh_index, resources.TextureDisarming);
+
     g_progress_bar_mesh_index = new_mesh(0);  -- TODO: Use constant for mesh index
+    set_mesh_texture(g_progress_bar_mesh_index, resources.TextureBoringGreen);
     move_mesh_to_front(g_progress_bar_mesh_index);
 
     MoveDonuts_();

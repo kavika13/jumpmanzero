@@ -128,7 +128,7 @@ local function PutBlockInStartingPos_(all_blocks)
     end
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
-        set_texture_and_is_visible_on_mesh(g_block_piece_mesh_indices[iLoop], Module.BlockPieceTextureResourceIndex, 1);
+        set_mesh_is_visible(g_block_piece_mesh_indices[iLoop], true);
     end
 end
 
@@ -170,6 +170,7 @@ end
 function Module.initialize(all_blocks)
     for i = 1, kNUM_BLOCK_PIECES do
         g_block_piece_mesh_indices[i] = new_mesh(Module.BlockPieceMeshResourceIndex);
+        set_mesh_texture(g_block_piece_mesh_indices[i], Module.BlockPieceTextureResourceIndex);
     end
 
     InitializeBlock_();

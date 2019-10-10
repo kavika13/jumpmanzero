@@ -226,7 +226,8 @@ end
 function Module.initialize()
     for iLoop = 0, kCHAIN_LINK_COUNT -1 do
         g_link_mesh_indices[iLoop] = new_mesh(Module.LinkMeshResourceIndex);
-        set_texture_and_is_visible_on_mesh(g_link_mesh_indices[iLoop], Module.LinkTextureResourceIndex, 1);
+        set_mesh_texture(g_link_mesh_indices[iLoop], Module.LinkTextureResourceIndex);
+        set_mesh_is_visible(g_link_mesh_indices[iLoop], true);
     end
 end
 

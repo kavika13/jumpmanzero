@@ -54,7 +54,7 @@ local g_clock_num_frames_left = 0;
 
 local g_current_clock_hand_rotation = 0;
 local g_clock_timers = {};
-local kNumClockTimers = 20;
+local kNumClockTimers = 5;
 
 local function SetClockPosition_(iPos)
     local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
@@ -86,11 +86,11 @@ local function SpinClock_(backdrop_index, backdrop_mesh_index)
     translate_mesh_matrix(backdrop_mesh_index, 0 - iObjX, 0, 0);
     rotate_y_mesh_matrix(backdrop_mesh_index, g_current_clock_hand_rotation);
     translate_mesh_matrix(backdrop_mesh_index, iObjX, 0, 7);
-    set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureStopWatch, 1);
+    set_mesh_is_visible(backdrop_mesh_index, true);
 end
 
 local function CollideLittleClocks_()
-    for clock_backdrop_num = 10, kNumClockTimers - 1 do
+    for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do
         if g_clock_timers[clock_backdrop_num] and
                 g_clock_timers[clock_backdrop_num] > 0 and
                 g_clock_timers[clock_backdrop_num] < 10 then
@@ -108,7 +108,7 @@ local function CollideLittleClocks_()
             if did_collide and g_clock_timers[clock_backdrop_num] == 1 then
                 g_clock_num_frames_left = g_clock_num_frames_left + 140;
                 g_clock_timers[clock_backdrop_num] = 500;
-                set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureStopWatch, 0);
+                set_mesh_is_visible(backdrop_mesh_index, false);
             end
         end
 
@@ -150,7 +150,8 @@ function initialize(game_input)
     g_hud_overlay = hud_overlay_module();
 
     g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
-    set_texture_and_is_visible_on_mesh(g_clock_hand_mesh_index, resources.TextureBlack, 1);
+    set_mesh_texture(g_clock_hand_mesh_index, resources.TextureBlack);
+    set_mesh_is_visible(g_clock_hand_mesh_index, true);
 
     g_wave = pause_wave_module();
     g_wave.GameLogic = g_game_logic;
@@ -167,6 +168,11 @@ function initialize(game_input)
     g_clock_timers[12] = 1;
     g_clock_timers[13] = 1;
     g_clock_timers[14] = 1;
+
+    for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do
+        local backdrop_mesh_index = find_backdrop_mesh_index(clock_backdrop_num);
+        set_mesh_texture(backdrop_mesh_index, resources.TextureStopWatch);
+    end
 
     reset();
 

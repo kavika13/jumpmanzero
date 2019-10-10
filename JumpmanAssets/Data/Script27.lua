@@ -271,14 +271,16 @@ local function ShowAlien_()
     translate_mesh_matrix(g_eye_1_mesh_index, g_eye_waggle_x2 - 1, 0, 0);
     rotate_z_mesh_matrix(g_eye_1_mesh_index, iRotateZ);
     translate_mesh_matrix(g_eye_1_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
-    set_texture_and_is_visible_on_mesh(g_eye_1_mesh_index, resources.TextureBrightRed, 1);;
+    set_mesh_texture(g_eye_1_mesh_index, resources.TextureBrightRed);
+    set_mesh_is_visible(g_eye_1_mesh_index, true);
 
     set_identity_mesh_matrix(g_eye_2_mesh_index);
     scale_mesh_matrix(g_eye_2_mesh_index, 0.6, 0.6, 0.7);
     translate_mesh_matrix(g_eye_2_mesh_index, 1 + g_eye_waggle_x2, 0, 0);
     rotate_z_mesh_matrix(g_eye_2_mesh_index, iRotateZ);
     translate_mesh_matrix(g_eye_2_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
-    set_texture_and_is_visible_on_mesh(g_eye_2_mesh_index, resources.TextureBrightRed, 1);
+    set_mesh_texture(g_eye_2_mesh_index, resources.TextureBrightRed);
+    set_mesh_is_visible(g_eye_2_mesh_index, true);
 
     set_identity_mesh_matrix(g_alien_mesh_index);
 
@@ -291,7 +293,8 @@ local function ShowAlien_()
     scale_mesh_matrix(g_alien_mesh_index, 0.55, 0.6, 0.7);
     rotate_z_mesh_matrix(g_alien_mesh_index, iRotateZ);
     translate_mesh_matrix(g_alien_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
-    set_texture_and_is_visible_on_mesh(g_alien_mesh_index, resources.TextureAlien, 1);
+    set_mesh_texture(g_alien_mesh_index, resources.TextureAlien);
+    set_mesh_is_visible(g_alien_mesh_index, true);
 
     iWiggleX = iWiggleX + g_ship_sink_amount / 2;
 
@@ -300,7 +303,8 @@ local function ShowAlien_()
     rotate_y_mesh_matrix(g_ship_base_mesh_index, g_ship_y_rotation);
     rotate_z_mesh_matrix(g_ship_base_mesh_index, iRotateZ);
     translate_mesh_matrix(g_ship_base_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
-    set_texture_and_is_visible_on_mesh(g_ship_base_mesh_index, resources.TextureShipMetal, 1);
+    set_mesh_texture(g_ship_base_mesh_index, resources.TextureShipMetal);
+    set_mesh_is_visible(g_ship_base_mesh_index, true);
 
     g_ship_draw_position_x = g_game_logic.get_player_current_position_x() + iWiggleX;
     g_ship_draw_position_y = g_ship_y_position;
@@ -312,7 +316,8 @@ local function ShowAlien_()
     rotate_y_mesh_matrix(g_ship_top_mesh_index, g_ship_y_rotation);
     rotate_z_mesh_matrix(g_ship_top_mesh_index, iRotateZ);
     translate_mesh_matrix(g_ship_top_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
-    set_texture_and_is_visible_on_mesh(g_ship_top_mesh_index, resources.TextureShipGlass, 1);
+    set_mesh_texture(g_ship_top_mesh_index, resources.TextureShipGlass);
+    set_mesh_is_visible(g_ship_top_mesh_index, true);
 end
 
 local function CreateBeam_(beam_type, beam_color_texture_resource_index, parm_dir)

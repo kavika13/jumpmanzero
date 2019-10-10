@@ -660,14 +660,6 @@ static int new_char_mesh(lua_State* lua_state) {
     return 1;
 }
 
-static int set_texture_and_is_visible_on_mesh(lua_State* lua_state) {  // TODO: Replace with set_mesh_texture, set_mesh_is_visible
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    double texture_index = luaL_checknumber(lua_state, 2);
-    double is_visible = luaL_checknumber(lua_state, 3);
-    SetObjectData((long)mesh_index_arg, (long)texture_index, (int)is_visible);
-    return 0;
-}
-
 static int set_mesh_texture(lua_State* lua_state) {
     lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
     lua_Integer texture_index_arg = luaL_checkinteger(lua_state, 2);
@@ -1305,8 +1297,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "new_mesh");
     lua_pushcfunction(lua_state, new_char_mesh);
     lua_setglobal(lua_state, "new_char_mesh");
-    lua_pushcfunction(lua_state, set_texture_and_is_visible_on_mesh);
-    lua_setglobal(lua_state, "set_texture_and_is_visible_on_mesh");
     lua_pushcfunction(lua_state, move_mesh_to_front);
     lua_setglobal(lua_state, "move_mesh_to_front");
     lua_pushcfunction(lua_state, script_set_fog);

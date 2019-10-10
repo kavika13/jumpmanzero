@@ -29,7 +29,7 @@ local function DrawParticles_()
         rotate_y_mesh_matrix(particle_mesh_index, (100 - Module.PercentComplete) * math.sin(iBit * math.pi / 180.0) * 10);
         scale_mesh_matrix(particle_mesh_index, 4, 4, 4);
         translate_mesh_matrix(particle_mesh_index, iDX, iDY, iZ);
-        set_texture_and_is_visible_on_mesh(particle_mesh_index, Module.TextureResourceIndex, 1);
+        set_mesh_is_visible(particle_mesh_index, true);
     end
 end
 
@@ -40,6 +40,7 @@ local function CreateParticle_(iSX, iSY)
     g_particle_target_pos_y[g_particle_count] = iSY;
     g_particle_current_pos_x[g_particle_count] = g_particle_target_pos_x[g_particle_count] + math.random(1, 200) - 100;
     g_particle_current_pos_y[g_particle_count] = g_particle_target_pos_y[g_particle_count] + math.random(1, 200) - 100;
+    set_mesh_texture(g_particle_mesh_indices[g_particle_count], Module.TextureResourceIndex);
 end
 
 function Module.initialize()

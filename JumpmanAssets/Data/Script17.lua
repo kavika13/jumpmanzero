@@ -66,7 +66,7 @@ local function AnimateArrow_(backdrop_num)
     local SX = get_backdrop_x1(backdrop_index);
 
     local backdrop_mesh_index = find_backdrop_mesh_index(backdrop_num);
-    set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureUpDown, 1);
+    set_mesh_is_visible(backdrop_mesh_index, true);
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, 0 - SX, 0 - SY, 0);
 
@@ -307,7 +307,7 @@ local function ProgressLevel_(game_input)
         if g_arrow_cooldown_frames[arrow_num] > 0 then
             g_arrow_cooldown_frames[arrow_num] = g_arrow_cooldown_frames[arrow_num] - 1;
             local backdrop_mesh_index = find_backdrop_mesh_index(arrow_num);
-            set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureUpDown, 0);
+            set_mesh_is_visible(backdrop_mesh_index, false);
         else
             AnimateArrow_(arrow_num);
         end

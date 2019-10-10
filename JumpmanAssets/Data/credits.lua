@@ -21,6 +21,7 @@ local function StartLine_(iLine)
 
     for iChar = 1, #credit_line do
         local iMesh = new_char_mesh(credit_line:sub(iChar, iChar):byte(1, -1));
+        set_mesh_texture(iMesh, Module.TextureResourceIndex);
 
         if iMesh > 0 then
             table.insert(g_letter_mesh_indices, iMesh);
@@ -38,7 +39,7 @@ local function ShowChars_()
         set_identity_mesh_matrix(current_char_mesh_index);
         scale_mesh_matrix(current_char_mesh_index, 1.8, 2, 2);
         translate_mesh_matrix(current_char_mesh_index, g_letter_pos_x[current_char_i], g_letter_pos_y[current_char_i], 70);
-        set_texture_and_is_visible_on_mesh(current_char_mesh_index, Module.TextureResourceIndex, 1);
+        set_mesh_is_visible(current_char_mesh_index, true);
         g_letter_pos_y[current_char_i] = g_letter_pos_y[current_char_i] + 0.4;
 
         if g_letter_pos_y[current_char_i] > 140 then

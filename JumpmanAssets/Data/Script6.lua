@@ -128,10 +128,10 @@ local function ProgressLevel_(game_input)
     g_painting_with_eyes_animation_frame = g_painting_with_eyes_animation_frame + 1;
 
     backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
-    set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TexturePainting, 1);
+    set_mesh_texture(backdrop_mesh_index, resources.TexturePainting);
 
     if g_painting_with_eyes_animation_frame > 10 then
-        set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TexturePainting2, 1);
+        set_mesh_texture(backdrop_mesh_index, resources.TexturePainting2);
     end
 
     if g_painting_with_eyes_animation_frame > 20 then

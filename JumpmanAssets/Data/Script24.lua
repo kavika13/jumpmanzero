@@ -64,7 +64,7 @@ local iHangMesh = {};
 local function CheckHanging_(game_input)
     for iDraw = 0, 19 do
         if iHangMesh[iDraw] and iHangMesh[iDraw] > 0 then
-            set_texture_and_is_visible_on_mesh(iHangMesh[iDraw], 0, 0);
+            set_mesh_is_visible(iHangMesh[iDraw], false);
         end
     end
 
@@ -120,7 +120,7 @@ local function CheckHanging_(game_input)
             g_game_logic.get_player_current_position_x() + 0,
             g_game_logic.get_player_current_position_y() + 2,
             g_game_logic.get_player_current_position_z() + 1.5);
-        set_texture_and_is_visible_on_mesh(iHangMesh[iDraw], resources.TextureJumpman, 1);
+        set_mesh_is_visible(iHangMesh[iDraw], true);
     else
         g_game_logic.set_player_is_visible(true);
     end
@@ -181,6 +181,14 @@ local function FixHangPlatforms_()
 
     iHangMesh[14] = new_mesh(resources.MeshHangL4);
     move_mesh_to_front(iHangMesh[14]);
+
+    for i = 0, 4 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(iHangMesh[i], resources.TextureJumpman);
+    end
+
+    for i = 11, 14 do  -- TODO: Don't hard-code animation frame indices
+        set_mesh_texture(iHangMesh[i], resources.TextureJumpman);
+    end
 end
 
 local function StartBaboon_(initial_pos_x, initial_pos_y);

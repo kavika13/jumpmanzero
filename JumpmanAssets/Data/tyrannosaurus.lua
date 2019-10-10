@@ -105,23 +105,23 @@ local function SetFrame_()
     g_frames_since_state_change = g_frames_since_state_change + 1;
 
     if g_current_state == kYELLING_LEFT or g_current_state == kYELLING_RIGHT then
-        g_animation_current_frame = 6 + g_current_state_animation_frame;
+        g_animation_current_frame = 6 + g_current_state_animation_frame;  -- TODO: Use constants instead of these hard-coded frame numbers
 
         if g_frames_since_state_change < 15 or g_frames_since_state_change > 85 then
-            g_animation_current_frame = 5;
+            g_animation_current_frame = 5;  -- TODO: Use constants instead of these hard-coded frame numbers
         end
 
         if g_frames_since_state_change < 10 or g_frames_since_state_change > 90 then
-            g_animation_current_frame = 0;
+            g_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
         end
 
         if g_current_state == kYELLING_RIGHT then
-            g_animation_current_frame = g_animation_current_frame + 10;
+            g_animation_current_frame = g_animation_current_frame + 10;  -- TODO: Use constants instead of these hard-coded frame numbers
         end
     elseif g_current_state == kMOVING_LEFT then
-        g_animation_current_frame = 1 + g_current_state_animation_frame;
+        g_animation_current_frame = 1 + g_current_state_animation_frame;  -- TODO: Use constants instead of these hard-coded frame numbers
     elseif g_current_state == kMOVING_RIGHT then
-        g_animation_current_frame = 11 + g_current_state_animation_frame;
+        g_animation_current_frame = 11 + g_current_state_animation_frame;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 end
 
@@ -144,6 +144,7 @@ function Module.initialize()
     g_current_state = kMOVING_LEFT;
     g_frames_since_state_change = 0;
 
+    -- TODO: Use constants instead of these hard-coded frame numbers
     g_animation_mesh_indices[0] = new_mesh(Module.LeftStandMeshResourceIndex);
 
     g_animation_mesh_indices[1] = new_mesh(Module.LeftWalkMeshResourceIndices[1]);
@@ -169,11 +170,15 @@ function Module.initialize()
     g_animation_mesh_indices[17] = new_mesh(Module.RightYellMeshResourceIndices[3]);
     g_animation_mesh_indices[18] = new_mesh(Module.RightYellMeshResourceIndices[4]);
     g_animation_mesh_indices[19] = g_animation_mesh_indices[17];
+
+    for i = 0, 19 do  -- TODO: Use constants instead of these hard-coded frame numbers
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+    end
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     Animate_();
     SetFrame_();
@@ -183,7 +188,7 @@ function Module.update()
     set_identity_mesh_matrix(anim_mesh_index);
     scale_mesh_matrix(anim_mesh_index, 2, 2, 1.5);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 19, 3);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 2);
+    set_mesh_is_visible(anim_mesh_index, true);
 
     if g_current_state == kMOVING_LEFT or g_current_state == kYELLING_LEFT then
         if Module.GameLogic.is_player_colliding_with_rect(

@@ -75,7 +75,7 @@ local function SetStartPos_()
     end
 
     local backdrop_mesh_index = find_backdrop_mesh_index(iRnd);
-    set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureLitFountain, 1);
+    set_mesh_texture(backdrop_mesh_index, resources.TextureLitFountain);
     g_goo_spawn_point_object_num = iRnd;
 
     local backdrop_index = find_backdrop_index(iRnd);
@@ -138,7 +138,7 @@ local function ProgressLevel_(game_input)
 
         if g_frames_until_ongoing_goo_spawn_finishes == 1 then
             local backdrop_mesh_index = find_backdrop_mesh_index(g_goo_spawn_point_object_num);
-            set_texture_and_is_visible_on_mesh(backdrop_mesh_index, resources.TextureFountain, 1);
+            set_mesh_texture(backdrop_mesh_index, resources.TextureFountain);
             g_currently_spawning_goo.stop_growing();
             g_currently_spawning_goo = nil;
             g_frames_until_next_goo_spawn = 50;

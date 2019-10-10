@@ -234,13 +234,19 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.FIRE_RIGHT_1] = new_mesh(Module.BotFireRightMeshResourceIndices[1]);
     g_animation_mesh_indices[animation_frame.FIRE_RIGHT_2] = new_mesh(Module.BotFireRightMeshResourceIndices[2]);
 
+    for _, index in pairs(animation_frame) do
+        set_mesh_texture(g_animation_mesh_indices[index], Module.BotTextureResourceIndex);
+    end
+
     g_wait_time_remaining = Module.WaitDuration;
     g_laser_mesh_index = new_mesh(Module.LaserMeshResourceIndex);
+    set_mesh_texture(g_laser_mesh_index, Module.LaserTextureResourceIndex);
 end
 
 function Module.update()
-    set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 0);
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_laser_mesh_index, false);
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     SetFrame_();
     Move_();
@@ -249,13 +255,13 @@ function Module.update()
     set_identity_mesh_matrix(new_mesh_index);
     scale_mesh_matrix(new_mesh_index, 0.7, 0.55, 1);
     translate_mesh_matrix(new_mesh_index, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
-    set_texture_and_is_visible_on_mesh(new_mesh_index, Module.BotTextureResourceIndex, 1);
+    set_mesh_is_visible(new_mesh_index, true);
 
     local is_colliding = false;
 
     if g_move_direction == move_direction.LEFT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
-        set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 1);
+        set_mesh_is_visible(g_laser_mesh_index, true);
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * 0.1;
         iTemp = iTemp / 2;
@@ -269,7 +275,7 @@ function Module.update()
 
     if g_move_direction == move_direction.RIGHT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
-        set_texture_and_is_visible_on_mesh(g_laser_mesh_index, Module.LaserTextureResourceIndex, 1);
+        set_mesh_is_visible(g_laser_mesh_index, true);
         set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * -0.1;
         iTemp = iTemp / 2;

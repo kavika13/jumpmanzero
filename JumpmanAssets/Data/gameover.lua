@@ -97,6 +97,7 @@ local function ProgressLevel_(game_input)
 
         for iLet = 1, #game_over_message do
             g_game_over_letter_mesh_indices[iLet] = new_char_mesh(game_over_message:sub(iLet, iLet):byte(1, -1));
+            set_mesh_texture(g_game_over_letter_mesh_indices[iLet], resources.TextureNewMetal);
         end
 
         g_game_over_message_visible = true;
@@ -127,7 +128,7 @@ local function ProgressLevel_(game_input)
             end
 
             translate_mesh_matrix(current_mesh_index, iX, iTemp, 0);
-            set_texture_and_is_visible_on_mesh(current_mesh_index, resources.TextureNewMetal, 1);
+            set_mesh_is_visible(current_mesh_index, true);
         end
     end
 
@@ -139,7 +140,7 @@ local function ProgressLevel_(game_input)
     set_identity_mesh_matrix(g_jumpman_mesh_index);
     scale_mesh_matrix(g_jumpman_mesh_index, 3, 3, 3);
     translate_mesh_matrix(g_jumpman_mesh_index, 80, 80, 0);
-    set_texture_and_is_visible_on_mesh(g_jumpman_mesh_index, resources.TextureJumpman, 1);
+    set_mesh_is_visible(g_jumpman_mesh_index, true);
 
     local is_select_action_pressed = game_input.select_action.just_pressed;
 
@@ -161,6 +162,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_jumpman_mesh_index = new_mesh(resources.MeshDead);
+    set_mesh_texture(g_jumpman_mesh_index, resources.TextureJumpman);
 
     local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
     scale_mesh_matrix(platform_mesh_index, 30, 3, 3);

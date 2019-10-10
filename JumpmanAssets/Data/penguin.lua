@@ -12,7 +12,7 @@ Module.TextureResourceIndex = 0;
 Module.CountOfTimesToPreAdvanceMovement = 0;
 
 local g_animation_mesh_indices = {};
-local g_animation_current_frame = 0;
+local g_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 6 frames increments alt)
 local g_animation_alt_frame_counter = 0;  -- On 1 or 3 switches to an alt frame in the current animation
 local g_animation_movement_direction = 4;  -- Used to find the base animation frame. 1, 2 == "LC". 3 = left. 4 = right
@@ -73,22 +73,22 @@ end
 local function ProgressPenguin_()
     if g_animation_movement_direction == 1 then
         g_current_pos_y = g_current_pos_y + 0.5;
-        g_animation_current_frame = 6;
+        g_animation_current_frame = 6;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 
     if g_animation_movement_direction == 2 then
         g_current_pos_y = g_current_pos_y - 0.5;
-        g_animation_current_frame = 6;
+        g_animation_current_frame = 6;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 
     if g_animation_movement_direction == 3 then
         g_current_pos_x = g_current_pos_x - 0.5;
-        g_animation_current_frame = 2;
+        g_animation_current_frame = 2;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 
     if g_animation_movement_direction == 4 then
         g_current_pos_x = g_current_pos_x + 0.5;
-        g_animation_current_frame = 4;
+        g_animation_current_frame = 4;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 
     if g_animation_alt_frame_counter == 1 or g_animation_alt_frame_counter == 3 then
@@ -157,6 +157,7 @@ function Module.initialize()
         counter = counter - 1;
     end
 
+    -- TODO: Use constants instead of these hard-coded frame numbers
     g_animation_mesh_indices[0] = new_mesh(Module.StandMeshResourceIndex);
     g_animation_mesh_indices[1] = new_mesh(Module.BackMeshResourceIndex);
 
@@ -168,11 +169,15 @@ function Module.initialize()
 
     g_animation_mesh_indices[6] = new_mesh(Module.LadderClimbMeshResourceIndices[1]);
     g_animation_mesh_indices[7] = new_mesh(Module.LadderClimbMeshResourceIndices[2]);
+
+    for i = 0, 7 do  -- TODO: Use constants instead of these hard-coded frame numbers
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+    end
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_current_frame], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     AdvanceFrame_();
     MovePenguin_();
@@ -181,7 +186,7 @@ function Module.update()
     local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
+    set_mesh_is_visible(anim_mesh_index, true);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y + 2,

@@ -110,7 +110,7 @@ local function DrawFire_()
         end
 
         translate_mesh_matrix(g_blast_mesh_index, iBX - 0.5, iBY, g_target_pos_z - 2);
-        set_texture_and_is_visible_on_mesh(g_blast_mesh_index, Module.BlastTextureResourceIndex, 1);
+        set_mesh_is_visible(g_blast_mesh_index, true);
     end
 
     set_identity_mesh_matrix(g_beam_1_mesh_index);
@@ -119,7 +119,7 @@ local function DrawFire_()
     rotate_z_mesh_matrix(g_beam_1_mesh_index, g_gun_tilt_rotation);
     rotate_y_mesh_matrix(g_beam_1_mesh_index, g_gun_pan_rotation);
     translate_mesh_matrix(g_beam_1_mesh_index, g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
-    set_texture_and_is_visible_on_mesh(g_beam_1_mesh_index, Module.BeamColorTextureResourceIndex, 1);
+    set_mesh_is_visible(g_beam_1_mesh_index, true);
 
     set_identity_mesh_matrix(g_beam_2_mesh_index);
     rotate_x_mesh_matrix(g_beam_2_mesh_index, g_frames_since_beam_started * 34);
@@ -128,15 +128,21 @@ local function DrawFire_()
     rotate_z_mesh_matrix(g_beam_2_mesh_index, g_gun_tilt_rotation);
     rotate_y_mesh_matrix(g_beam_2_mesh_index, g_gun_pan_rotation);
     translate_mesh_matrix(g_beam_2_mesh_index, g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
-    set_texture_and_is_visible_on_mesh(g_beam_2_mesh_index, Module.BeamTextureResourceIndex, 1);
+    set_mesh_is_visible(g_beam_2_mesh_index, true);
 end
 
 function Module.initialize()
-    -- TODO: For some reason these were initialized one frame apart before. Is that important/interesting for the animation? Or does it change nothing visually?
+    -- TODO: For some reason these were previously initialized one frame apart from each other.
+    --       Is that important/interesting for the animation? Or does it change nothing visually?
     g_beam_1_mesh_index = new_mesh(Module.BeamMeshResourceIndex);
+    set_mesh_texture(g_beam_1_mesh_index, Module.BeamColorTextureResourceIndex);
+
     g_beam_2_mesh_index = new_mesh(Module.BeamMeshResourceIndex);
+    set_mesh_texture(g_beam_2_mesh_index, Module.BeamTextureResourceIndex);
 
     g_blast_mesh_index = new_mesh(Module.BlastMeshResourceIndex);
+    set_mesh_texture(g_blast_mesh_index, Module.BlastTextureResourceIndex);
+
     g_ship_pos_z = 60;
 end
 
@@ -161,9 +167,9 @@ function Module.update()
     g_previous_player_pos_x = iPX;
 
     if Module.ShipSinkAmount > 0 then
-        set_texture_and_is_visible_on_mesh(g_blast_mesh_index, 0, 0);
-        set_texture_and_is_visible_on_mesh(g_beam_1_mesh_index, 0, 0);
-        set_texture_and_is_visible_on_mesh(g_beam_2_mesh_index, 0, 0);
+        set_mesh_is_visible(g_blast_mesh_index, false);
+        set_mesh_is_visible(g_beam_1_mesh_index, false);
+        set_mesh_is_visible(g_beam_2_mesh_index, false);
         return;
     end
 

@@ -38,6 +38,7 @@ local g_current_rotation = 0;
 
 function Module.initialize()
     g_propeller_mesh_index = new_mesh(resources.MeshProp);
+    set_mesh_texture(g_propeller_mesh_index, resources.TextureBoringGray);
 end
 
 function Module.update()
@@ -52,7 +53,7 @@ function Module.update()
     rotate_x_mesh_matrix(g_propeller_mesh_index, 90);
     rotate_y_mesh_matrix(g_propeller_mesh_index, g_current_rotation + Module.iR);
     translate_mesh_matrix(g_propeller_mesh_index, Module.iX, Module.iY, Module.iZ);
-    set_texture_and_is_visible_on_mesh(g_propeller_mesh_index, resources.TextureBoringGray, 1);
+    set_mesh_is_visible(g_propeller_mesh_index, true);
 
     local iPX = Module.GameLogic.get_player_current_position_x();
     local current_rotation = Module.iR + g_current_rotation;

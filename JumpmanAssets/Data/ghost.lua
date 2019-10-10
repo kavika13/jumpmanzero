@@ -14,7 +14,7 @@ local g_current_velocity_x = 0;
 local g_current_velocity_y = 0;
 
 local g_animation_mesh_indices = {};
-local g_animation_frame_index = 0;
+local g_animation_frame_index = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
 local g_animation_counter = 0;
 
 local function MoveGhost()
@@ -64,22 +64,21 @@ local function ResetPos()
 end
 
 function Module.initialize()
+    -- TODO: Use constants instead of these hard-coded frame numbers
     g_animation_mesh_indices[0] = new_mesh(Module.MoveRight1MeshResourceIndex);
-    move_mesh_to_front(g_animation_mesh_indices[0]);
-
     g_animation_mesh_indices[1] = new_mesh(Module.MoveRight2MeshResourceIndex);
-    move_mesh_to_front(g_animation_mesh_indices[1]);
-
     g_animation_mesh_indices[2] = new_mesh(Module.MoveLeft1MeshResourceIndex);
-    move_mesh_to_front(g_animation_mesh_indices[2]);
-
     g_animation_mesh_indices[3] = new_mesh(Module.MoveLeft2MeshResourceIndex);
-    move_mesh_to_front(g_animation_mesh_indices[3]);
+
+    for i = 0, 3 do  -- TODO: Use constants instead of these hard-coded frame numbers
+        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
+        move_mesh_to_front(g_animation_mesh_indices[i]);
+    end
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_texture_and_is_visible_on_mesh?
-    set_texture_and_is_visible_on_mesh(g_animation_mesh_indices[g_animation_frame_index], 0, 0);
+    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
+    set_mesh_is_visible(g_animation_mesh_indices[g_animation_frame_index], false);
 
     MoveGhost();
 
@@ -90,22 +89,22 @@ function Module.update()
     end
 
     if g_animation_counter > 5 then
-        g_animation_frame_index = 1;
+        g_animation_frame_index = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
     else
-        g_animation_frame_index = 0;
+        g_animation_frame_index = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 
     local iAdapt = 0 - 4.5;
 
     if g_current_velocity_x <= 0 then
         iAdapt = 4.5;
-        g_animation_frame_index = g_animation_frame_index + 2;
+        g_animation_frame_index = g_animation_frame_index + 2;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 
     local anim_mesh_index = g_animation_mesh_indices[g_animation_frame_index];
     set_identity_mesh_matrix(anim_mesh_index);
     translate_mesh_matrix(anim_mesh_index, g_current_pos_x + iAdapt, g_current_pos_y + 5, 0 - 0.25);
-    set_texture_and_is_visible_on_mesh(anim_mesh_index, Module.TextureResourceIndex, 1);
+    set_mesh_is_visible(anim_mesh_index, true);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x + iAdapt - 5, g_current_pos_y + 4,
