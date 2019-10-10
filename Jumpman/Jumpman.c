@@ -1309,6 +1309,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_texture_and_is_visible_on_mesh");
     lua_pushcfunction(lua_state, move_mesh_to_front);
     lua_setglobal(lua_state, "move_mesh_to_front");
+    lua_pushcfunction(lua_state, script_set_fog);
+    lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, script_get_current_level_title);
     lua_setglobal(lua_state, "get_current_level_title");
     lua_pushcfunction(lua_state, get_config_option_string);
