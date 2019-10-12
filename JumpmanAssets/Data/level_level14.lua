@@ -36,7 +36,7 @@ return {
         {
             number = 1,
             texture_index = 3,
-            pos = { 168, 20, 0 }
+            pos = { 168, 20, 0 },
             mesh = {
                 { pos = { 167, 23, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 169, 23, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -163,7 +163,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 250, 234, 0 }
+            pos = { 250, 234, 0 },
             mesh = {
                 { pos = { 249, 237, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 251, 237, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -290,7 +290,7 @@ return {
         {
             number = 2,
             texture_index = 3,
-            pos = { 30, 20, 0 }
+            pos = { 30, 20, 0 },
             mesh = {
                 { pos = { 29, 23, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 31, 23, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },

@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <assert.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,7 +149,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             if(iTemp == 2) {
                 snprintf(mesh_names[g_loaded_mesh_count], sizeof(mesh_names[g_loaded_mesh_count]), "%s", sTemp);
-                snprintf(mesh_filenames[g_loaded_mesh_count], sizeof(mesh_filenames[g_loaded_mesh_count]), "%s.msh", sTemp);
+                snprintf(mesh_filenames[g_loaded_mesh_count], sizeof(mesh_filenames[g_loaded_mesh_count]), "data/%s.msh", sTemp);
                 ++g_loaded_mesh_count;
             }
 
@@ -455,6 +456,24 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
     printf("return {");
 
+    char* music_filename_chars = &g_music_background_track_filename[0];
+
+    while(*music_filename_chars != '\0') {
+        *music_filename_chars++ = tolower((unsigned char)*music_filename_chars);
+    }
+
+    music_filename_chars = &g_music_death_track_filename[0];
+
+    while(*music_filename_chars != '\0') {
+        *music_filename_chars++ = tolower((unsigned char)*music_filename_chars);
+    }
+
+    music_filename_chars = &g_music_win_track_filename[0];
+
+    while(*music_filename_chars != '\0') {
+        *music_filename_chars++ = tolower((unsigned char)*music_filename_chars);
+    }
+
     printf(
         "\n    music_background_track_filename = \"%s\","
         "\n    music_death_track_filename = \"%s\","
@@ -471,6 +490,18 @@ static void LoadLevel(const char* base_path, const char* filename) {
     );
 
     for(size_t i = 0; i < g_loaded_mesh_count; ++i) {
+        char* name_chars = &mesh_names[i][0];
+
+        while(*name_chars != '\0') {
+            *name_chars++ = toupper((unsigned char)*name_chars);
+        }
+
+        char* filename_chars = &mesh_filenames[i][0];
+
+        while(*filename_chars != '\0') {
+            *filename_chars++ = tolower((unsigned char)*filename_chars);
+        }
+
         printf("\n        { name = \"%s\", filename = \"%s\" },", mesh_names[i], mesh_filenames[i]);
     }
 
@@ -483,6 +514,18 @@ static void LoadLevel(const char* base_path, const char* filename) {
     );
 
     for(size_t i = 0; i < g_loaded_texture_count; ++i) {
+        char* name_chars = &texture_names[i][0];
+
+        while(*name_chars != '\0') {
+            *name_chars++ = toupper((unsigned char)*name_chars);
+        }
+
+        char* filename_chars = &texture_filenames[i][0];
+
+        while(*filename_chars != '\0') {
+            *filename_chars++ = tolower((unsigned char)*filename_chars);
+        }
+
         printf("\n        { name = \"%s\", filename = \"%s\" },", texture_names[i], texture_filenames[i]);
     }
 
@@ -495,6 +538,18 @@ static void LoadLevel(const char* base_path, const char* filename) {
     );
 
     for(size_t i = 0; i < g_loaded_sound_count; ++i) {
+        char* name_chars = &sound_names[i][0];
+
+        while(*name_chars != '\0') {
+            *name_chars++ = toupper((unsigned char)*name_chars);
+        }
+
+        char* filename_chars = &sound_filenames[i][0];
+
+        while(*filename_chars != '\0') {
+            *filename_chars++ = tolower((unsigned char)*filename_chars);
+        }
+
         printf("\n        { name = \"%s\", filename = \"%s\" },", sound_names[i], sound_filenames[i]);
     }
 
@@ -513,7 +568,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
             "\n        {"
             "\n            number = %d,"
             "\n            texture_index = %d,"
-            "\n            pos = { %d, %d, %d }"
+            "\n            pos = { %d, %d, %d },"
             "\n            mesh = {"
             , donut.Num
             , donut.Texture

@@ -30,7 +30,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 86, 208, 9 }
+            pos = { 86, 208, 9 },
             mesh = {
                 { pos = { 85, 211, 9 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 87, 211, 9 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -157,7 +157,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 147, 198, 9 }
+            pos = { 147, 198, 9 },
             mesh = {
                 { pos = { 146, 201, 9 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 148, 201, 9 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -284,7 +284,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 31, 194, 9 }
+            pos = { 31, 194, 9 },
             mesh = {
                 { pos = { 30, 197, 9 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 32, 197, 9 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -411,7 +411,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 122, 167, 6 }
+            pos = { 122, 167, 6 },
             mesh = {
                 { pos = { 121, 170, 6 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 123, 170, 6 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -538,7 +538,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 71, 167, 6 }
+            pos = { 71, 167, 6 },
             mesh = {
                 { pos = { 70, 170, 6 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 72, 170, 6 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -665,7 +665,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 93, 160, 6 }
+            pos = { 93, 160, 6 },
             mesh = {
                 { pos = { 92, 163, 6 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 94, 163, 6 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -792,7 +792,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 94, 136, 2 }
+            pos = { 94, 136, 2 },
             mesh = {
                 { pos = { 93, 139, 2 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 95, 139, 2 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -919,7 +919,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 6, 104, 2 }
+            pos = { 6, 104, 2 },
             mesh = {
                 { pos = { 5, 107, 2 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 7, 107, 2 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1046,7 +1046,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 10, 30, 2 }
+            pos = { 10, 30, 2 },
             mesh = {
                 { pos = { 9, 33, 2 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 11, 33, 2 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1173,7 +1173,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 170, 142, 0 }
+            pos = { 170, 142, 0 },
             mesh = {
                 { pos = { 169, 145, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 171, 145, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1300,7 +1300,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 82, 88, 0 }
+            pos = { 82, 88, 0 },
             mesh = {
                 { pos = { 81, 91, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 83, 91, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1427,7 +1427,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 50, 71, 0 }
+            pos = { 50, 71, 0 },
             mesh = {
                 { pos = { 49, 74, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 51, 74, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1554,7 +1554,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 70, 67, 0 }
+            pos = { 70, 67, 0 },
             mesh = {
                 { pos = { 69, 70, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 71, 70, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1681,7 +1681,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 121, 84, 0 }
+            pos = { 121, 84, 0 },
             mesh = {
                 { pos = { 120, 87, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 122, 87, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1808,7 +1808,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 106, 62, 0 }
+            pos = { 106, 62, 0 },
             mesh = {
                 { pos = { 105, 65, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 107, 65, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -1935,7 +1935,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 98, 47, 0 }
+            pos = { 98, 47, 0 },
             mesh = {
                 { pos = { 97, 50, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 99, 50, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -2062,7 +2062,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 60, 42, 0 }
+            pos = { 60, 42, 0 },
             mesh = {
                 { pos = { 59, 45, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 61, 45, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -2189,7 +2189,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 92, 83, 0 }
+            pos = { 92, 83, 0 },
             mesh = {
                 { pos = { 91, 86, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 93, 86, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -2316,7 +2316,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 52, 104, 0 }
+            pos = { 52, 104, 0 },
             mesh = {
                 { pos = { 51, 107, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 53, 107, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -2443,7 +2443,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 74, 106, 0 }
+            pos = { 74, 106, 0 },
             mesh = {
                 { pos = { 73, 109, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 75, 109, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
@@ -2570,7 +2570,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 98, 98, 0 }
+            pos = { 98, 98, 0 },
             mesh = {
                 { pos = { 97, 101, 0 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 99, 101, 0 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },

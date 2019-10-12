@@ -34,7 +34,7 @@ return {
         {
             number = 0,
             texture_index = 3,
-            pos = { 95, 200, 19 }
+            pos = { 95, 200, 19 },
             mesh = {
                 { pos = { 94, 203, 19 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
                 { pos = { 96, 203, 19 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
