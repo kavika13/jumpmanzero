@@ -199,13 +199,13 @@ local function CheckForOptions_()
         end
 
         if g_current_ladder ~= nil then
-            if g_current_ladder.pos_y[2] > g_current_pos_y + 7 and
+            if g_current_ladder.pos_y_top > g_current_pos_y + 7 and
                     g_current_pos_y + 5 < Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.UP;
                 g_current_velocity_x = 0;
             end
 
-            if g_current_ladder.pos_y[1] < g_current_pos_y - 7 and
+            if g_current_ladder.pos_y_bottom < g_current_pos_y - 7 and
                     g_current_pos_y - 5 > Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.DOWN;
                 g_current_velocity_x = 0;
@@ -233,12 +233,12 @@ local function CheckForOptions_()
         local chosen_ladder = Module.GameLogic.get_ladder(iChoice - 1000);
 
         if chosen_ladder.index == g_current_ladder.index then
-            if chosen_ladder.pos_y[2] > g_current_pos_y + 7 then
+            if chosen_ladder.pos_y_top > g_current_pos_y + 7 then
                 g_current_move_direction = move_direction.UP;
                 g_current_velocity_x = 0;
             end
 
-            if chosen_ladder.pos_y[1] < g_current_pos_y - 7 then
+            if chosen_ladder.pos_y_bottom < g_current_pos_y - 7 then
                 g_current_move_direction = move_direction.DOWN;
                 g_current_velocity_x = 0;
             end

@@ -30,7 +30,7 @@ local function MoveSaw_()
             local current_ladder = Module.GameLogic.get_ladder(ladder_index);
 
             if current_ladder.pos_x > g_current_pos_x - 1 and current_ladder.pos_x < g_current_pos_x + 1 then
-                if math.random(1, 100) > 74 and current_ladder.pos_y[1] < g_current_pos_y - 5 then
+                if math.random(1, 100) > 74 and current_ladder.pos_y_bottom < g_current_pos_y - 5 then
                     g_current_pos_x = current_ladder.pos_x;
                     g_is_on_ladder = true;
                     g_current_pos_z = current_ladder.pos_z[1];

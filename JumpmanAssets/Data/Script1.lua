@@ -70,7 +70,7 @@ local g_object_4_animation_frame = 0;
 local function MoveLadder_(ladder_num, iPos)
     local current_ladder = g_game_logic.find_ladder_by_number(ladder_num);
     local iX = current_ladder.pos_x + 508;
-    local iY = (current_ladder.pos_y[1] + current_ladder.pos_y[2]) / 2;
+    local iY = (current_ladder.pos_y_bottom + current_ladder.pos_y_top) / 2;
     local iZ = current_ladder.pos_z[1];
 
     set_identity_mesh_matrix(current_ladder.mesh_index);

@@ -225,10 +225,10 @@ local function ReverseLadder_(ladder_index)
         translate_mesh_matrix(current_ladder.mesh_index, 0, 80, 2);
     end
 
-    local old_y_bottom = current_ladder.pos_y[1];
-    local old_y_top = current_ladder.pos_y[2];
-    current_ladder.set_y_bottom(160 - old_y_top);
-    current_ladder.set_y_top(160 - old_y_bottom);
+    local old_y_bottom = current_ladder.pos_y_bottom;
+    local old_y_top = current_ladder.pos_y_top;
+    current_ladder.set_pos_y_bottom(160 - old_y_top);
+    current_ladder.set_pos_y_top(160 - old_y_bottom);
 end
 
 local function ReverseVine_(vine_index)

@@ -821,7 +821,7 @@ MoveJumpmanLadder_ = function(game_input)
     g_player_current_mesh = player_mesh.JUMP_UP;
     AdjustPlayerZ_(close_ladder.pos_z[1] - 3, 0);
 
-    if game_input.move_up_action.is_pressed and close_ladder.pos_y[2] - 5 > g_player_current_position_y then
+    if game_input.move_up_action.is_pressed and close_ladder.pos_y_top - 5 > g_player_current_position_y then
         g_player_current_position_y = g_player_current_position_y + 1;
         g_player_current_mesh = (g_player_absolute_frame_count & 2) ~= 0
             and player_mesh.LADDER_CLIMB_2
@@ -833,14 +833,14 @@ MoveJumpmanLadder_ = function(game_input)
     end
 
     if game_input.move_down_action.is_pressed and
-            (close_ladder.pos_y[1] < g_player_current_platform_y - 3 or
+            (close_ladder.pos_y_bottom < g_player_current_platform_y - 3 or
                 g_player_current_position_y > g_player_current_platform_y) then
         g_player_current_position_y = g_player_current_position_y - 1;
         g_player_current_mesh = (g_player_absolute_frame_count & 2) ~= 0
             and player_mesh.LADDER_CLIMB_2
             or player_mesh.LADDER_CLIMB_1;
 
-        if close_ladder.pos_y[1] >= g_player_current_platform_y - 3 and
+        if close_ladder.pos_y_bottom >= g_player_current_platform_y - 3 and
                 g_player_current_position_y < g_player_current_platform_y then
             g_player_current_position_y = g_player_current_platform_y;
         end
@@ -2008,7 +2008,7 @@ function Module.find_donut_by_number(donut_number)
     for donut_index = 0, #Module.LevelData.donuts - 1 do
         local current_donut = Module.LevelData.donuts[donut_index + 1];
 
-        if(current_donut.number == donut_number) then
+        if current_donut.number == donut_number then
             return Module.get_donut(donut_index);
         end
     end
@@ -2027,7 +2027,8 @@ function Module.get_ladder(ladder_index)
         number = ladder_info.number,
         texture_index = ladder_info.texture_index,
         pos_x = ladder_info.x_pos,
-        pos_y = { ladder_info.y_bottom, ladder_info.y_top },
+        pos_y_bottom = ladder_info.y_bottom,
+        pos_y_top = ladder_info.y_top,
         pos_z = { ladder_info.z_front, ladder_info.z_back },
         mesh_index = ladder_info.mesh_index,
     };
@@ -2045,16 +2046,16 @@ function Module.get_ladder(ladder_index)
         result.pos_x = new_pos_x;
     end;
 
-    result.set_y_bottom = function(new_y_bottom)
+    result.set_pos_y_bottom = function(new_y_bottom)
         assert(type(new_y_bottom) == "number", "new_y_bottom must be a number");
         ladder_info.y_bottom = new_y_bottom;
-        result.pos_y[1] = new_y_bottom;
+        result.pos_y_bottom = new_y_bottom;
     end;
 
-    result.set_y_top = function(new_y_top)
+    result.set_pos_y_top = function(new_y_top)
         assert(type(new_y_top) == "number", "new_y_top must be a number");
         ladder_info.y_top = new_y_top;
-        result.pos_y[2] = new_y_top;
+        result.pos_y_top = new_y_top;
     end;
 
     return result;
@@ -2064,7 +2065,7 @@ function Module.find_ladder_by_number(ladder_number)
     for ladder_index = 0, #Module.LevelData.ladders - 1 do
         local current_ladder = Module.LevelData.ladders[ladder_index + 1];
 
-        if(current_ladder.number == ladder_number) then
+        if current_ladder.number == ladder_number then
             return Module.get_ladder(ladder_index);
         end
     end

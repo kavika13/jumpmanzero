@@ -48,7 +48,7 @@ local function CheckForChange_()
                 if iSign == 141 then  -- TODO: Use constant for num?
                     g_animation_movement_direction = 4;
 
-                    if current_ladder.pos_y[1] > g_current_pos_y - 5 then
+                    if current_ladder.pos_y_bottom > g_current_pos_y - 5 then
                         g_animation_movement_direction = 1;
                     end
 

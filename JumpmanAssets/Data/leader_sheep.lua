@@ -97,11 +97,11 @@ local function CheckForChange_()
 
         g_will_queue_direction_change_for_followers = true;
 
-        if current_ladder.pos_y[2] > g_current_pos_y + 12 and g_jump_animation_time == 0 then
+        if current_ladder.pos_y_top > g_current_pos_y + 12 and g_jump_animation_time == 0 then
             bUp = true;
         end
 
-        if current_ladder.pos_y[1] < g_current_pos_y - 12 and g_jump_animation_time == 0 then
+        if current_ladder.pos_y_bottom < g_current_pos_y - 12 and g_jump_animation_time == 0 then
             bDown = true;
         end
 
@@ -122,11 +122,11 @@ local function CheckForChange_()
         local _, ladder_index = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
         local current_ladder = Module.GameLogic.get_ladder(ladder_index);
 
-        if current_ladder.pos_y[2] > g_current_pos_y + 10 and g_current_move_direction ~= move_direction.DOWN then
+        if current_ladder.pos_y_top > g_current_pos_y + 10 and g_current_move_direction ~= move_direction.DOWN then
             bUp = true;
         end
 
-        if current_ladder.pos_y[1] < g_current_pos_y - 10 and g_current_move_direction ~= move_direction.UP then
+        if current_ladder.pos_y_bottom < g_current_pos_y - 10 and g_current_move_direction ~= move_direction.UP then
             bDown = true;
         end
 
