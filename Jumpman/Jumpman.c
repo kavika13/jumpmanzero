@@ -134,8 +134,6 @@ static long g_player_mesh_indices[MAX_PLAYER_MESHES];
 static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
 static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
-static int g_donut_object_count;
-static LevelObject g_donut_objects[100];
 static int g_ladder_object_count;
 static LevelObject g_ladder_objects[50];
 static int g_platform_object_count;
@@ -152,44 +150,6 @@ static LevelObject g_backdrop_objects[30];
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
-
-static int get_donut_number(lua_State* lua_state) {
-    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_donut_objects[donut_index].Num);
-    return 1;
-}
-
-static int set_donut_number(lua_State* lua_state) {
-    lua_Integer donut_index_arg = luaL_checkinteger(lua_state, 1);
-    lua_Integer value_arg = luaL_checkinteger(lua_state, 2);
-    g_donut_objects[donut_index_arg].Num = (long)value_arg;
-    return 0;
-}
-
-static int get_donut_texture_index(lua_State* lua_state) {
-    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_donut_objects[donut_index].Texture);
-    return 1;
-}
-
-static int get_donut_x1(lua_State* lua_state) {
-    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_donut_objects[donut_index].X1);
-    return 1;
-}
-
-static int get_donut_y1(lua_State* lua_state) {
-    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_donut_objects[donut_index].Y1);
-    return 1;
-}
-
-static int set_donut_y1(lua_State* lua_state) {
-    lua_Integer donut_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_donut_objects[donut_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
 
 static int get_ladder_number(lua_State* lua_state) {
     lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
@@ -568,11 +528,6 @@ static int scroll_texture_on_mesh(lua_State* lua_state) {
 
 // script global variable accessors (getters)
 
-static int get_donut_object_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_donut_object_count);
-    return 1;
-}
-
 static int get_ladder_object_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_ladder_object_count);
     return 1;
@@ -632,6 +587,92 @@ static int set_remaining_life_count(lua_State* lua_state) {
 }
 
 // script utility functions
+
+static int create_mesh(lua_State* lua_state) {
+    // Handle data in the format:
+    // {
+    //     { pos = { 137, 140, 15 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
+    //     { pos = { 139, 140, 15 }, normal = { 0, 0, -1 }, uv = { 1, 0 } },
+    //     ... more vertices here
+    // }
+    luaL_checktype(lua_state, 1, LUA_TTABLE);
+
+    long texture_index_arg = (long)luaL_checkinteger(lua_state, 2);
+    bool is_visible_arg = true;
+
+    if(lua_isboolean(lua_state, 3)) {
+        is_visible_arg = lua_toboolean(lua_state, 3) != 0;
+    }
+
+    size_t vertex_count = lua_rawlen(lua_state, 1);
+    size_t triangle_count = vertex_count / 3;
+    assert(triangle_count * 3 == vertex_count && "Vertex data passed in isn't divisible by 3 (triangles)");
+
+    MeshVertex* new_mesh_vertices = (MeshVertex*)malloc(vertex_count * sizeof(MeshVertex));
+
+    for(size_t vertex_index = 0; vertex_index < vertex_count; ++vertex_index) {
+        lua_rawgeti(lua_state, 1, vertex_index + 1);  // Current vertex table. Lua indices are 1-based
+        luaL_checktype(lua_state, -1, LUA_TTABLE);
+
+        lua_getfield(lua_state, -1, "pos");
+        size_t pos_size = lua_rawlen(lua_state, -1);
+        assert(pos_size == 3 && "Expected pos field to have 3 entries, one each for x, y, and z");
+
+        lua_rawgeti(lua_state, -1, 1);  // Lua indices are 1-based
+        new_mesh_vertices[vertex_index].x = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_rawgeti(lua_state, -1, 2);
+        new_mesh_vertices[vertex_index].y = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_rawgeti(lua_state, -1, 3);
+        new_mesh_vertices[vertex_index].z = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_pop(lua_state, 1);  // pos table
+
+        lua_getfield(lua_state, -1, "normal");
+        size_t normal_size = lua_rawlen(lua_state, -1);
+        assert(normal_size == 3 && "Expected normal field to have 3 entries, one each for nx, ny, and nz");
+
+        lua_rawgeti(lua_state, -1, 1);  // Lua indices are 1-based
+        new_mesh_vertices[vertex_index].nx = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_rawgeti(lua_state, -1, 2);
+        new_mesh_vertices[vertex_index].ny = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_rawgeti(lua_state, -1, 3);
+        new_mesh_vertices[vertex_index].nz = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_pop(lua_state, 1);  // normal table
+
+        lua_getfield(lua_state, -1, "uv");
+        size_t uv_size = lua_rawlen(lua_state, -1);
+        assert(uv_size == 2 && "Expected uv field to have 2 entries, one each for tu, tv");
+
+        lua_rawgeti(lua_state, -1, 1);  // Lua indices are 1-based
+        new_mesh_vertices[vertex_index].tu = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_rawgeti(lua_state, -1, 2);
+        new_mesh_vertices[vertex_index].tv = (float)luaL_checknumber(lua_state, -1);
+        lua_pop(lua_state, 1);
+
+        lua_pop(lua_state, 1);  // uv table
+
+        lua_pop(lua_state, 1);  // Current vertex table
+    }
+
+    size_t new_mesh_index = CreateMesh(new_mesh_vertices, vertex_count, texture_index_arg, is_visible_arg);
+
+    lua_pushnumber(lua_state, new_mesh_index);
+
+    return 1;
+}
 
 static int new_mesh(lua_State* lua_state) {
     double script_mesh_index = luaL_checknumber(lua_state, 1);
@@ -990,14 +1031,6 @@ static int get_ladder_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
-static int get_donut_mesh_index(lua_State* lua_state) {
-    lua_Integer donut_index = luaL_checkinteger(lua_state, 1);
-    // TODO: Better runtime error handling than assert
-    assert(donut_index > -1 && donut_index < g_donut_object_count && "get_donut_mesh_index was outside the range of current active donut objects");
-    lua_pushinteger(lua_state, g_donut_objects[donut_index].MeshNumber);
-    return 1;
-}
-
 static int get_vine_mesh_index(lua_State* lua_state) {
     lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
     // TODO: Better runtime error handling than assert
@@ -1066,22 +1099,6 @@ static int find_ladder_index(lua_State* lua_state) {
     return 1;
 }
 
-static int find_donut_mesh_index(lua_State* lua_state) {
-    lua_Integer donut_num = luaL_checkinteger(lua_state, 1);
-    int donut_index = FindObject(g_donut_objects, g_donut_object_count, (int)donut_num);
-    // TODO: Better runtime error handling than assert
-    assert(donut_index != -1 && "find_donut_mesh_index could not find donut with given num id (specified in level data)");
-    lua_pushinteger(lua_state, g_donut_objects[donut_index].MeshNumber);
-    return 1;
-}
-
-static int find_donut_index(lua_State* lua_state) {
-    lua_Integer donut_num = luaL_checkinteger(lua_state, 1);
-    int donut_index = FindObject(g_donut_objects, g_donut_object_count, (int)donut_num);
-    lua_pushinteger(lua_state, donut_index);
-    return 1;
-}
-
 static int find_vine_mesh_index(lua_State* lua_state) {
     lua_Integer vine_num = luaL_checkinteger(lua_state, 1);
     int vine_index = FindObject(g_vine_objects, g_vine_object_count, (int)vine_num);
@@ -1135,18 +1152,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
     // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
-    lua_pushcfunction(lua_state, get_donut_number);
-    lua_setglobal(lua_state, "get_donut_number");
-    lua_pushcfunction(lua_state, set_donut_number);
-    lua_setglobal(lua_state, "set_donut_number");
-    lua_pushcfunction(lua_state, get_donut_texture_index);
-    lua_setglobal(lua_state, "get_donut_texture_index");
-    lua_pushcfunction(lua_state, get_donut_x1);
-    lua_setglobal(lua_state, "get_donut_x1");
-    lua_pushcfunction(lua_state, get_donut_y1);
-    lua_setglobal(lua_state, "get_donut_y1");
-    lua_pushcfunction(lua_state, set_donut_y1);
-    lua_setglobal(lua_state, "set_donut_y1");
     lua_pushcfunction(lua_state, get_ladder_number);
     lua_setglobal(lua_state, "get_ladder_number");
     lua_pushcfunction(lua_state, set_ladder_number);
@@ -1268,8 +1273,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, set_mesh_is_visible);
     lua_setglobal(lua_state, "set_mesh_is_visible");
 
-    lua_pushcfunction(lua_state, get_donut_object_count);
-    lua_setglobal(lua_state, "get_donut_object_count");
     lua_pushcfunction(lua_state, get_ladder_object_count);
     lua_setglobal(lua_state, "get_ladder_object_count");
     lua_pushcfunction(lua_state, get_loaded_texture_count);
@@ -1293,6 +1296,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, set_remaining_life_count);
     lua_setglobal(lua_state, "set_remaining_life_count");
 
+    lua_pushcfunction(lua_state, create_mesh);
+    lua_setglobal(lua_state, "create_mesh");
     lua_pushcfunction(lua_state, new_mesh);
     lua_setglobal(lua_state, "new_mesh");
     lua_pushcfunction(lua_state, new_char_mesh);
@@ -1329,8 +1334,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_platform_mesh_index");
     lua_pushcfunction(lua_state, get_ladder_mesh_index);
     lua_setglobal(lua_state, "get_ladder_mesh_index");
-    lua_pushcfunction(lua_state, get_donut_mesh_index);
-    lua_setglobal(lua_state, "get_donut_mesh_index");
     lua_pushcfunction(lua_state, get_vine_mesh_index);
     lua_setglobal(lua_state, "get_vine_mesh_index");
     lua_pushcfunction(lua_state, get_backdrop_mesh_index);
@@ -1346,10 +1349,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_ladder_mesh_index");
     lua_pushcfunction(lua_state, find_ladder_index);
     lua_setglobal(lua_state, "find_ladder_index");
-    lua_pushcfunction(lua_state, find_donut_mesh_index);
-    lua_setglobal(lua_state, "find_donut_mesh_index");
-    lua_pushcfunction(lua_state, find_donut_index);
-    lua_setglobal(lua_state, "find_donut_index");
     lua_pushcfunction(lua_state, find_vine_mesh_index);
     lua_setglobal(lua_state, "find_vine_mesh_index");
     lua_pushcfunction(lua_state, find_vine_index);
@@ -1496,7 +1495,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
     g_platform_object_count = 0;
     g_ladder_object_count = 0;
-    g_donut_object_count = 0;
     g_vine_object_count = 0;
     g_wall_object_count = 0;
     g_backdrop_object_count = 0;
@@ -1755,45 +1753,12 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_vine_object_count;
         } else if(cData[iPlace] == 'D' && cData[iPlace + 1] == 0) {
-            int iLoop = -1;
-
-            while(++iLoop < 8) {
-                g_donut_objects[g_donut_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
-            }
-
+            // Skip loading donuts. This will be done in Lua instead
             iPlace += 10;
-
-            g_donut_objects[g_donut_object_count].X1 = StringToInt(&cData[iPlace + 0]);
-            g_donut_objects[g_donut_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
-            g_donut_objects[g_donut_object_count].Z1 = StringToInt(&cData[iPlace + 4]);
-            g_donut_objects[g_donut_object_count].Num = StringToInt(&cData[iPlace + 6]);
-            g_donut_objects[g_donut_object_count].Texture = StringToInt(&cData[iPlace + 8]);
             iPlace += 20;
-
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
-
-            g_donut_objects[g_donut_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
-            g_donut_objects[g_donut_object_count].MeshSize = iData;
-            g_donut_objects[g_donut_object_count].ObjectNumber = g_donut_object_count;
-
-            long iNum = -1;
-
-            while(++iNum < iData) {
-                g_donut_objects[g_donut_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
-            }
-
-            iPlace += iNum << 2;
-
-            oData = (long*)(malloc(g_donut_objects[g_donut_object_count].MeshSize * sizeof(long)));
-            iMPlace = 0;
-            ComposeObject(&g_donut_objects[g_donut_object_count], oData, &iMPlace);
-            CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_donut_objects[g_donut_object_count].Texture, 1);
-            g_donut_objects[g_donut_object_count].MeshNumber = iNum;
-            free(oData);
-
-            ++g_donut_object_count;
+            iPlace += iData << 2;
         } else if(cData[iPlace] == 'P' && cData[iPlace + 1] == 0) {
             int iLoop = -1;
 
@@ -1911,10 +1876,9 @@ static void PrepLevel(const char* base_path, const char* level_filename) {
 
     LoadPlayerMeshes(base_path);
     LoadLevel(base_path, level_filename);
+    InitializeLevelScript();
 
     EndAndCommit3dLoad();
-
-    InitializeLevelScript();
 
     if(g_music_loop_start_music_time != 5550) {
         NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
@@ -1969,6 +1933,7 @@ static void LoadJumpmanMenu(const char* base_path) {
 
     if(g_target_game_menu_state == kGameMenuStateMain) {
         LoadLevel(base_path, "Data/MainMenu.DAT");
+        InitializeLevelScript();
 
         if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 3000, -1);
@@ -1981,6 +1946,7 @@ static void LoadJumpmanMenu(const char* base_path) {
 
     if(g_target_game_menu_state == kGameMenuStateOptions) {
         LoadLevel(base_path, "Data/Options.DAT");
+        InitializeLevelScript();
 
         if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
@@ -1989,6 +1955,7 @@ static void LoadJumpmanMenu(const char* base_path) {
 
     if(g_target_game_menu_state == kGameMenuStateSelectGame) {
         LoadLevel(base_path, "Data/SelectGame.DAT");
+        InitializeLevelScript();
 
         if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
             NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);

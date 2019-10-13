@@ -30,23 +30,20 @@ Module.FacingDirection = 0;  -- TODO: This doesn't get set to anything but 0 by 
 
 local function DoCollide_(iX1, iY1, iX2, iY2)
     -- TODO: Find out what iX1, iY1, iX2, iY2 are, more specifically, and rename them
-    local donut_count = get_donut_object_count();
+    local donut_count = Module.GameLogic.get_donut_object_count();
     local is_win_detected = true;
 
     for donut_index = 0, donut_count - 1 do
-        local donut_pos_x = get_donut_x1(donut_index);
-        local donut_pos_y = get_donut_y1(donut_index);
+        local current_donut = Module.GameLogic.get_donut(donut_index);
 
-        if iX1 < donut_pos_x + 2 and iX2 > donut_pos_x - 2 then
-            if iY1 < donut_pos_y + 2 and iY2 > donut_pos_y - 2 then
+        if iX1 < current_donut.pos[1] + 2 and iX2 > current_donut.pos[1] - 2 then
+            if iY1 < current_donut.pos[2] + 2 and iY2 > current_donut.pos[2] - 2 then
                 if not Module.GameLogic.get_donut_is_collected(donut_index) then
                     play_sound_effect(Module.ChompSoundIndex);
                 end
 
                 Module.GameLogic.set_donut_is_collected(donut_index, true);
-
-                local donut_mesh_index = get_donut_mesh_index(donut_index);
-                set_mesh_is_visible(donut_mesh_index, false);
+                set_mesh_is_visible(current_donut.mesh_index, false);
             end
         end
 

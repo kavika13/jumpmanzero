@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local level_level18_module = assert(loadfile("Data/level_level18.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local zap_bot_module = assert(loadfile("Data/zap_bot.lua"));
@@ -113,12 +114,13 @@ local function CollideDonuts_(game_input)
         return;
     end
 
-    local iCount = get_donut_object_count();
+    local donut_count = g_game_logic.get_donut_object_count();
 
-    for donut_index = 0, iCount - 1 do
+    for donut_index = 0, donut_count - 1 do
         -- TODO: Add manual collect flag to game logic, so this doesn't have to resort to repositioning tricks
-        local iDX = get_donut_x1(donut_index);
-        local iDY = get_donut_y1(donut_index);
+        local current_donut = g_game_logic.get_donut(donut_index);
+        local iDX = current_donut.pos[1];
+        local iDY = current_donut.pos[2];
 
         if iDY < 0 then
             -- Get actual Y value to test against the player's pos rather than the temporary (-Y) value
@@ -127,7 +129,7 @@ local function CollideDonuts_(game_input)
 
         if not g_game_logic.get_donut_is_collected(donut_index) then
             if g_game_logic.is_player_colliding_with_rect(iDX - 3, iDY - 5, iDX + 3, iDY + 5) then
-                local iDN = get_donut_number(donut_index);
+                local iDN = current_donut.number;
                 g_disarm_progress = iDN;
                 g_is_disarm_hud_visible = true;
 
@@ -138,11 +140,11 @@ local function CollideDonuts_(game_input)
                 end
 
                 if iDN > 1 then
-                    set_donut_number(donut_index, iDN - 1);
+                    current_donut.set_number(iDN - 1);
                 else
                     iDN = 0;
                     -- Move object to actual positive Y value so it gets collected
-                    set_donut_y1(donut_index, iDY);
+                    current_donut.set_pos_y(iDY);
                     g_is_disarm_hud_visible = false;
                 end
 
@@ -221,15 +223,17 @@ end
 local function MoveDonuts_()
     -- Move all the donuts to their -Y value, logically speaking (not visually),
     -- so they aren't immediately collected on contact
-    local donut_count = get_donut_object_count();
+    local donut_count = g_game_logic.get_donut_object_count();
 
     for donut_index = 0, donut_count - 1 do
-        set_donut_y1(donut_index, 0 - get_donut_y1(donut_index));
+        local current_donut = g_game_logic.get_donut(donut_index);
+        current_donut.set_pos_y(-current_donut.pos[2]);
     end
 end
 
 function initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.LevelData = level_level18_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.initialize();
 

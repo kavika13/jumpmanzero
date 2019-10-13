@@ -83,21 +83,20 @@ local g_current_velocity_x = 0;
 local g_current_status = status_type.NORMAL;
 local g_current_status_counter = 0;
 
-local g_current_donut_to_fix_index = -1;
+local g_current_donut_to_fix = nil;
 
 local function CheckForDonut_()
-    local num_donuts = get_donut_object_count();
+    local num_donuts = Module.GameLogic.get_donut_object_count();
 
     for donut_index = 0, num_donuts - 1 do
-        local donut_pos_x = get_donut_x1(donut_index);
-        local donut_pos_y = get_donut_y1(donut_index);
-        local donut_is_collected = Module.GameLogic.get_donut_is_collected(donut_index);
+        local current_donut = Module.GameLogic.get_donut(donut_index);
 
-        if donut_pos_x < g_current_pos_x + 1 and donut_pos_x > g_current_pos_x - 1 and donut_is_collected and
-                donut_pos_y > g_current_pos_y and donut_pos_y < g_current_pos_y + 15 then
+        if Module.GameLogic.get_donut_is_collected(donut_index) and
+                current_donut.pos[1] < g_current_pos_x + 1 and current_donut.pos[1] > g_current_pos_x - 1 and
+                current_donut.pos[2] > g_current_pos_y + 0 and current_donut.pos[2] < g_current_pos_y + 15 then
             g_current_status = status_type.FIX_DONUT;
             g_current_status_counter = 0;
-            g_current_donut_to_fix_index = donut_index;
+            g_current_donut_to_fix = current_donut;
         end
     end
 end
@@ -322,9 +321,8 @@ local function MoveNinja_()
 
         if g_current_status_counter == 100 then
             g_current_status = status_type.NORMAL;
-            Module.GameLogic.set_donut_is_collected(g_current_donut_to_fix_index, false);
-            local donut_mesh_index = get_donut_mesh_index(g_current_donut_to_fix_index);
-            set_mesh_is_visible(donut_mesh_index, true);
+            Module.GameLogic.set_donut_is_collected(g_current_donut_to_fix.index, false);
+            set_mesh_is_visible(g_current_donut_to_fix.mesh_index, true);
         end
     end
 end

@@ -11,7 +11,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
 local g_is_game_selected = false;
 
 local g_letter_mesh_ids = {};
@@ -24,7 +23,7 @@ local g_title_previous_selected_index = 1;
 local g_time_since_current_selection = 0;
 local g_time_of_previous_selection = 0;
 
-local function GetInput(game_input)
+local function GetInput_(game_input)
     if g_is_game_selected then
         return;
     end
@@ -62,7 +61,7 @@ local function GetInput(game_input)
     end
 end
 
-local function GetTitleWidth(target_title_index)
+local function GetTitleWidth_(target_title_index)
     local iLen = 0;
 
     for _, current_letter_title_index in ipairs(g_letter_title_indices) do
@@ -74,7 +73,7 @@ local function GetTitleWidth(target_title_index)
     return iLen;
 end
 
-local function ShowLetters()
+local function ShowLetters_()
     local iX = 0;
     local iFirstX = 0;
     local iY = 0;
@@ -83,7 +82,7 @@ local function ShowLetters()
 
     for current_letter_index, current_letter_title_index in ipairs(g_letter_title_indices) do
         if current_letter_title_index ~= previous_letter_title_index then
-            local iWidth = GetTitleWidth(current_letter_title_index);
+            local iWidth = GetTitleWidth_(current_letter_title_index);
             iCharWidth = 110 / iWidth;
 
             if iCharWidth > 6.1 then
@@ -172,7 +171,7 @@ local function ShowLetters()
     end
 end
 
-local function InitializeLetters()
+local function InitializeLetters_()
     local game_list = get_game_list();
     g_title_count = #game_list;
 
@@ -184,20 +183,19 @@ local function InitializeLetters()
     end
 end
 
-function update(game_input)
-    if not g_is_initialized then
-        InitializeLetters();
-        g_is_initialized = true;
-        g_title_selected_index = 1;
-        g_title_previous_selected_index = 1;
-        g_time_since_current_selection = 0;
-        g_is_game_selected = false;
-    end
+function initialize(game_input)
+    InitializeLetters_();
+    g_title_selected_index = 1;
+    g_title_previous_selected_index = 1;
+    g_time_since_current_selection = 0;
+    g_is_game_selected = false;
+end
 
-    GetInput(game_input);
+function update(game_input)
+    GetInput_(game_input);
 
     g_time_since_current_selection = g_time_since_current_selection + 5;
-    ShowLetters();
+    ShowLetters_();
 
     local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);

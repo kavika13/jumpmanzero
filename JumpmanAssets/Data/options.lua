@@ -69,9 +69,7 @@ local function ClearLetters_()
 end
 
 local function InitializeLetters_()
-    if g_is_initialized then
-        ClearLetters_();
-    end
+    ClearLetters_();
 
     local menu_options = {
         "Up    :" .. get_config_option_string(0),
@@ -269,13 +267,12 @@ local function ShowLetters_()
     end
 end
 
-function update(game_input)
-    if not g_is_initialized then
-        InitializeLetters_();
-        g_is_initialized = true;
-        g_flash_animation_current_menu_option_index = -1;
-    end
+function initialize(game_input)
+    InitializeLetters_();
+    g_flash_animation_current_menu_option_index = -1;
+end
 
+function update(game_input)
     if g_flash_animation_current_menu_option_index == -1 then
         GetInput_(game_input);
     else

@@ -17,12 +17,6 @@
 #define MAX_VERTICES 110000
 
 typedef struct {
-    float x, y, z;
-    float nx, ny, nz;
-    float tu, tv;
-} ObjectVertex;
-
-typedef struct {
     hmm_vec3 ambient_color;
     hmm_vec3 diffuse_color;
     hmm_vec3 position;
@@ -82,7 +76,7 @@ static hmm_mat4 g_world_to_view_matrix;
 static hmm_mat4 g_view_to_projection_matrix;
 
 static long g_vertices_to_load_count;
-static ObjectVertex* g_vertices_to_load = NULL;
+static MeshVertex* g_vertices_to_load = NULL;
 
 static long g_object_count;
 
@@ -467,6 +461,26 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
     g_object_count = g_object_count + 1;
 }
 
+size_t CreateMesh(MeshVertex* vertices, size_t vertex_count, long texture_index, bool is_visible) {
+    size_t result = g_object_count;
+
+    g_object_redirects[g_object_count] = g_object_count;
+    g_object_vertex_start_index[g_object_count] = g_vertices_to_load_count;
+    g_object_vertex_count[g_object_count] = vertex_count;
+
+    SetObjectData(g_object_count, texture_index, is_visible ? 1 : 0);
+    IdentityMatrix(g_object_count);
+
+    for(size_t index = 0; index < vertex_count; ++index) {
+        g_vertices_to_load[g_vertices_to_load_count] = vertices[index];
+        ++g_vertices_to_load_count;
+    }
+
+    ++g_object_count;
+
+    return result;
+}
+
 void SetObjectData(long iNum, long iTexture, int iVisible) {
     long iRNum = g_object_redirects[iNum];
     g_object_texture_index[iRNum] = iTexture;
@@ -509,7 +523,7 @@ void Begin3dLoad() {
         g_vertices_to_load = NULL;
     }
 
-    g_vertices_to_load = (ObjectVertex*)malloc(MAX_VERTICES * sizeof(ObjectVertex));
+    g_vertices_to_load = (MeshVertex*)malloc(MAX_VERTICES * sizeof(MeshVertex));
 
     if(!g_vertices_to_load) {
         FatalError("Failed to allocate enough memory in order to load model's vertex data");
@@ -517,7 +531,7 @@ void Begin3dLoad() {
 }
 
 void EndAndCommit3dLoad() {
-    sg_update_buffer(g_draw_state.vertex_buffers[0], g_vertices_to_load, MAX_VERTICES * sizeof(ObjectVertex));
+    sg_update_buffer(g_draw_state.vertex_buffers[0], g_vertices_to_load, MAX_VERTICES * sizeof(MeshVertex));
 
     if(g_vertices_to_load) {
         free(g_vertices_to_load);
@@ -596,7 +610,7 @@ static void init_scene() {
 
     sg_buffer_desc vbuf_desc = { 0 };
     vbuf_desc.usage = SG_USAGE_STREAM;
-    vbuf_desc.size = MAX_VERTICES * sizeof(ObjectVertex);
+    vbuf_desc.size = MAX_VERTICES * sizeof(MeshVertex);
 
     g_draw_state = (const sg_draw_state){ 0 };
     g_draw_state.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
@@ -726,7 +740,7 @@ static void init_scene() {
 
     sg_pipeline_desc pip_desc = { 0 };
 
-    pip_desc.layout.buffers[0].stride = sizeof(ObjectVertex);
+    pip_desc.layout.buffers[0].stride = sizeof(MeshVertex);
     sg_vertex_attr_desc* attrs = pip_desc.layout.attrs;
     attrs[0].name = "position";
     attrs[0].format = SG_VERTEXFORMAT_FLOAT3;

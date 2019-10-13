@@ -41,7 +41,7 @@ local g_claw_current_pos_z = 0;
 local g_current_status = 0;
 local g_time_until_next_grab = 0;
 
-local g_rescued_donut_index = -1;
+local g_rescued_donut = nil;
 local g_rescued_jumper = nil;
 
 local function FindStranded_(all_jumpers)
@@ -55,15 +55,15 @@ local function FindStranded_(all_jumpers)
 end
 
 local function FindDonut_()
-    local iPX = Module.GameLogic.get_player_current_position_x();
-    local iDonuts = get_donut_object_count();
+    local player_x = Module.GameLogic.get_player_current_position_x();
+    local donut_count = Module.GameLogic.get_donut_object_count();
 
-    for donut_index = 0, iDonuts - 1 do
-        local iDX = get_donut_x1(donut_index);
+    for donut_index = 0, donut_count - 1 do
+        local current_donut = Module.GameLogic.get_donut(donut_index);
 
         if Module.GameLogic.get_donut_is_collected(donut_index) then
-            if iDX > iPX - 60 and iDX < iPX + 60 then
-                g_rescued_donut_index = donut_index;
+            if current_donut.pos[1] > player_x - 60 and current_donut.pos[1] < player_x + 60 then
+                g_rescued_donut = current_donut;
                 g_current_status = status_type.RESCUING_GRABBED_DONUT;
                 return;
             end
@@ -119,30 +119,29 @@ local function MoveChain_(all_jumpers)
         local iOldY = g_claw_current_pos_y;
         g_claw_degrees_open = 5;
 
-        if g_claw_current_pos_x < get_donut_x1(g_rescued_donut_index) - 1 then
+        if g_claw_current_pos_x < g_rescued_donut.pos[1] - 1 then
             g_claw_current_pos_x = g_claw_current_pos_x + 1;
-        elseif g_claw_current_pos_x > get_donut_x1(g_rescued_donut_index) + 1 then
+        elseif g_claw_current_pos_x > g_rescued_donut.pos[1] + 1 then
             g_claw_current_pos_x = g_claw_current_pos_x - 1;
         end
 
-        if g_claw_current_pos_y < get_donut_y1(g_rescued_donut_index) - 1 then
+        if g_claw_current_pos_y < g_rescued_donut.pos[2] - 1 then
             g_claw_current_pos_y = g_claw_current_pos_y + 1;
-        elseif g_claw_current_pos_y > get_donut_y1(g_rescued_donut_index) + 1 then
+        elseif g_claw_current_pos_y > g_rescued_donut.pos[2] + 1 then
             g_claw_current_pos_y = g_claw_current_pos_y - 1;
         end
 
-        local donut_mesh_index = get_donut_mesh_index(g_rescued_donut_index);
-        set_identity_mesh_matrix(donut_mesh_index);
+        set_identity_mesh_matrix(g_rescued_donut.mesh_index);
         translate_mesh_matrix(
-            donut_mesh_index,
-            g_claw_current_pos_x - get_donut_x1(g_rescued_donut_index),
-            g_claw_current_pos_y - get_donut_y1(g_rescued_donut_index),
-            0 - get_donut_z1(g_rescued_donut_index));
-        set_mesh_is_visible(donut_mesh_index, true);
+            g_rescued_donut.mesh_index,
+            g_claw_current_pos_x - g_rescued_donut.pos[1],
+            g_claw_current_pos_y - g_rescued_donut.pos[2],
+            0 - g_rescued_donut.pos[3]);
+        set_mesh_is_visible(g_rescued_donut.mesh_index, true);
 
         if iOldX == g_claw_current_pos_x and iOldY == g_claw_current_pos_y then
-            Module.GameLogic.set_donut_is_collected(g_rescued_donut_index, false);
-            set_identity_mesh_matrix(donut_mesh_index);
+            Module.GameLogic.set_donut_is_collected(g_rescued_donut.index, false);
+            set_identity_mesh_matrix(g_rescued_donut.mesh_index);
             g_current_status = status_type.GHOSTING_PLAYER;
             g_time_until_next_grab = 50;
         end

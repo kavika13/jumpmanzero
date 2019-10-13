@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local level_level15_module = assert(loadfile("Data/level_level15.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local disappearing_platform_module = assert(loadfile("Data/disappearing_platform.lua"));
@@ -84,6 +85,7 @@ end
 
 function initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.LevelData = level_level15_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_hud_overlay = hud_overlay_module();
     g_game_logic.set_level_extent_x(180);

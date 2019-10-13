@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;  -- TODO: Shouldn't need this module just to get level/donut data
+
 Module.MeshResourceIndex = 0;
 Module.TextureResourceIndex = 0;
 Module.PercentComplete = 0;
@@ -44,14 +46,12 @@ local function CreateParticle_(iSX, iSY)
 end
 
 function Module.initialize()
-    local iDonuts = get_donut_object_count();
+    local donut_count = Module.GameLogic.get_donut_object_count();
 
-    for donut_index = 0, iDonuts - 1 do
-        local iDX = get_donut_x1(donut_index);
-        local iDY = get_donut_y1(donut_index) - 2;
-        local donut_mesh_index = get_donut_mesh_index(donut_index);
-        set_mesh_is_visible(donut_mesh_index, false);
-        CreateParticle_(iDX, iDY);
+    for donut_index = 0, donut_count - 1 do
+        local current_donut = Module.GameLogic.get_donut(donut_index);
+        set_mesh_is_visible(current_donut.mesh_index, false);
+        CreateParticle_(current_donut.pos[1], current_donut.pos[2] - 2);
     end
 end
 

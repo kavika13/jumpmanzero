@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local level_level17_module = assert(loadfile("Data/level_level17.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
@@ -161,9 +162,9 @@ local function SpinLevel_()
         SpinLadderDonutOrVine_(ladder_mesh_index, iPY);
     end
 
-    for donut_index = 0, get_donut_object_count() - 1 do
-        local donut_mesh_index = get_donut_mesh_index(donut_index);
-        SpinLadderDonutOrVine_(donut_mesh_index, iPY);
+    for donut_index = 0, g_game_logic.get_donut_object_count() - 1 do
+        local current_donut = g_game_logic.get_donut(donut_index);
+        SpinLadderDonutOrVine_(current_donut.mesh_index, iPY);
     end
 
     for vine_index = 0, get_vine_object_count() - 1 do
@@ -204,17 +205,16 @@ local function ReversePlatform_(platform_index)
 end
 
 local function ReverseDonut_(donut_index)
-    local donut_mesh_index = get_donut_mesh_index(donut_index);
-    set_identity_mesh_matrix(donut_mesh_index);
+    local current_donut = g_game_logic.get_donut(donut_index);
+    set_identity_mesh_matrix(current_donut.mesh_index);
 
     if g_level_flipping_state == 2 then
-        translate_mesh_matrix(donut_mesh_index, 0, 0 - 80, 0);
-        rotate_x_mesh_matrix(donut_mesh_index, 180);
-        translate_mesh_matrix(donut_mesh_index, 0, 80, 2);
+        translate_mesh_matrix(current_donut.mesh_index, 0, 0 - 80, 0);
+        rotate_x_mesh_matrix(current_donut.mesh_index, 180);
+        translate_mesh_matrix(current_donut.mesh_index, 0, 80, 2);
     end
 
-    local SY = get_donut_y1(donut_index);
-    set_donut_y1(donut_index, 160 - SY);
+    current_donut.set_pos_y(160 - current_donut.pos[2]);
 end
 
 local function ReverseLadder_(ladder_index)
@@ -261,7 +261,7 @@ local function ReverseLevel_()
         ReverseLadder_(ladder_index);
     end
 
-    for donut_index = 0, get_donut_object_count() - 1 do
+    for donut_index = 0, g_game_logic.get_donut_object_count() - 1 do
         ReverseDonut_(donut_index);
     end
 
@@ -347,6 +347,7 @@ end
 
 function initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.LevelData = level_level17_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.initialize();
 

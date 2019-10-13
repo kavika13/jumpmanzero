@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local level_level14_module = assert(loadfile("Data/level_level14.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
@@ -70,6 +71,8 @@ local g_hud_overlay;
 local g_puzzle_solution;
 local g_puzzle_blocks = {};
 local g_bullet;
+local g_donut_1 = nil;
+local g_donut_2 = nil;
 
 local g_block_object_indices = {};
 local kNUM_BLOCKS = 9;
@@ -150,6 +153,7 @@ end
 
 function initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.LevelData = level_level14_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.OnCollectDonutCallback = on_collect_donut;
     g_game_logic.initialize();
@@ -158,11 +162,10 @@ function initialize(game_input)
 
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFar);
 
-    local donut_index = find_donut_index(2);  -- TODO: Use constant for num
-    g_game_logic.set_donut_is_collected(donut_index, true);
-
-    local donut_mesh_index = find_donut_mesh_index(2);  -- TODO: Use constant for num
-    set_mesh_is_visible(donut_mesh_index, false);
+    g_donut_1 = g_game_logic.find_donut_by_number(1);  -- TODO: Use constant for num
+    g_donut_2 = g_game_logic.find_donut_by_number(2);  -- TODO: Use constant for num
+    g_game_logic.set_donut_is_collected(g_donut_2.index, true);
+    set_mesh_is_visible(g_donut_2.mesh_index, false);
 
     g_puzzle_solution = puzzle_solution_module();  -- Doesn't have separate initialization function
     g_puzzle_solution.find_new_layout();
@@ -214,19 +217,13 @@ function on_collect_donut(game_input, donut_num)
     end
 
     if donut_num == 1 then
-        local donut_index = find_donut_index(2);  -- TODO: Use constant for num
-        g_game_logic.set_donut_is_collected(donut_index, false);  -- TODO: Set mesh to visible?
-
-        local donut_mesh_index = find_donut_mesh_index(2);  -- TODO: Use constant for num
-        set_mesh_is_visible(donut_mesh_index, true);
+        g_game_logic.set_donut_is_collected(g_donut_2.index, false);
+        set_mesh_is_visible(g_donut_2.mesh_index, true);
     end
 
     if donut_num == 2 then
-        local donut_index = find_donut_index(1);  -- TODO: Use constant for num
-        g_game_logic.set_donut_is_collected(donut_index, false);  -- TODO: Set mesh to visible?
-
-        local donut_mesh_index = find_donut_mesh_index(1);  -- TODO: Use constant for num
-        set_mesh_is_visible(donut_mesh_index, true);
+        g_game_logic.set_donut_is_collected(g_donut_1.index, false);
+        set_mesh_is_visible(g_donut_1.mesh_index, true);
     end
 
     g_puzzle_solution.find_new_layout();

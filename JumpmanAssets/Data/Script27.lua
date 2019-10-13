@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local level_level27_module = assert(loadfile("Data/level_level27.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local beam_module = assert(loadfile("Data/beam.lua"));
@@ -164,15 +165,15 @@ local function RingPlatforms_()
         translate_mesh_matrix(ladder_mesh_index, iPX, 0, 75);
     end
 
-    local donut_count = get_donut_object_count();
+    local donut_count = g_game_logic.get_donut_object_count();
 
     for donut_index = 0, donut_count - 1 do
-        local iAve = get_donut_x1(donut_index);
-        local donut_mesh_index = get_donut_mesh_index(donut_index);
-        set_identity_mesh_matrix(donut_mesh_index);
-        translate_mesh_matrix(donut_mesh_index, 0 - iAve, 0, -75);
-        rotate_y_mesh_matrix(donut_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        translate_mesh_matrix(donut_mesh_index, iPX, 0, 75);
+        local current_donut = g_game_logic.get_donut(donut_index);
+        local iAve = current_donut.pos[1];
+        set_identity_mesh_matrix(current_donut.mesh_index);
+        translate_mesh_matrix(current_donut.mesh_index, 0 - iAve, 0, -75);
+        rotate_y_mesh_matrix(current_donut.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
+        translate_mesh_matrix(current_donut.mesh_index, iPX, 0, 75);
     end
 end
 
@@ -406,6 +407,7 @@ end
 
 function initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.LevelData = level_level27_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.OnCollectDonutCallback = on_collect_donut;
     g_game_logic.initialize();
@@ -458,10 +460,9 @@ function update(game_input)
 end
 
 local function RefreshDonut_(donut_num)
-    local donut_index = find_donut_index(donut_num);
-    g_game_logic.set_donut_is_collected(donut_index, false);
-    local mesh_index = find_donut_mesh_index(donut_num);
-    set_mesh_is_visible(mesh_index, true);
+    local current_donut = g_game_logic.find_donut_by_number(donut_num);
+    g_game_logic.set_donut_is_collected(current_donut.index, false);
+    set_mesh_is_visible(current_donut.mesh_index, true);
 end
 
 function on_collect_donut(game_input, donut_num)

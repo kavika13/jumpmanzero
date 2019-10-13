@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local level_gameover_module = assert(loadfile("Data/level_gameover.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -158,6 +159,7 @@ end
 
 function initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.LevelData = level_gameover_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.initialize();
 

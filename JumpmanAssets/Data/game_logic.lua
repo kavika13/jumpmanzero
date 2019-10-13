@@ -2,6 +2,7 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.LevelData = nil;
 Module.ResetPlayerCallback = nil;  -- TODO: Do we have to inject this function?
 Module.OnCollectDonutCallback = nil;  -- TODO: Do we have to inject this function?
 
@@ -1467,19 +1468,21 @@ end
 
 local function GrabDonuts_(game_input)
     local iGot = false;
+    local donut_count = Module.get_donut_object_count();
 
-    for donut_index = 0, get_donut_object_count() - 1 do
+    for donut_index = 0, donut_count - 1 do
+        local current_donut = Module.get_donut(donut_index);
+
         if not g_donut_is_collected[donut_index] and
                 PlayerCollide_(
-                    get_donut_x1(donut_index) - 3, get_donut_y1(donut_index) - 4,
-                    get_donut_x1(donut_index) + 3, get_donut_y1(donut_index) + 2) then
+                    current_donut.pos[1] - 3, current_donut.pos[2] - 4,
+                    current_donut.pos[1] + 3, current_donut.pos[2] + 2) then
             g_donut_is_collected[donut_index] = true;
-            local donut_mesh_index = get_donut_mesh_index(donut_index);
-            set_mesh_is_visible(donut_mesh_index, false);
+            set_mesh_is_visible(current_donut.mesh_index, false);
             iGot = true;
 
             if Module.OnCollectDonutCallback then
-                Module.OnCollectDonutCallback(game_input, get_donut_number(donut_index));
+                Module.OnCollectDonutCallback(game_input, current_donut.number);
             end
         end
     end
@@ -1487,7 +1490,7 @@ local function GrabDonuts_(game_input)
     if iGot then
         local iWon = true;
 
-        for iCheck = 0, get_donut_object_count() - 1 do
+        for iCheck = 0, donut_count - 1 do
             if not g_donut_is_collected[iCheck] then
                 iWon = false;
             end
@@ -1660,8 +1663,13 @@ end
 
 function Module.initialize()
     -- TODO: This might get moved to level loading code?
-    for donut_index = 0, get_donut_object_count() - 1 do
+    for donut_index = 0, Module.get_donut_object_count() - 1 do
         g_donut_is_collected[donut_index] = false;
+
+        local current_donut = Module.LevelData.donuts[donut_index + 1];
+        local new_mesh_index = create_mesh(current_donut.mesh, current_donut.texture_index);
+        current_donut.mesh_index = new_mesh_index;
+        move_mesh_to_front(new_mesh_index);
     end
 end
 
@@ -1943,8 +1951,52 @@ function Module.get_donut_is_collected(donut_index)
     return g_donut_is_collected[donut_index];
 end
 
-function Module.set_donut_is_collected(donut_index, is_visible)
-    g_donut_is_collected[donut_index] = is_visible;
+function Module.set_donut_is_collected(donut_index, is_collected)
+    g_donut_is_collected[donut_index] = is_collected;
+end
+
+function Module.get_donut_object_count()
+    return #Module.LevelData.donuts;
+end
+
+function Module.get_donut(donut_index)
+    local donut_info = Module.LevelData.donuts[donut_index + 1];
+    return {
+        index = donut_index,
+        number = donut_info.number,
+        texture_index = donut_info.texture_index,
+        pos = { donut_info.pos[1], donut_info.pos[2], donut_info.pos[3] },
+        mesh_index = donut_info.mesh_index,
+        set_number = function(new_number)
+            assert(type(new_number) == "number", "new_number must be a number");
+            assert(new_number == math.floor(new_number), "new_number must be an integer");
+            donut_info.number = new_number;
+        end,
+        set_pos_x = function(new_pos_x)
+            assert(type(new_pos_x) == "number", "new_pos_x must be a number");
+            donut_info.pos[1] = new_pos_x;
+        end,
+        set_pos_y = function(new_pos_y)
+            assert(type(new_pos_y) == "number", "new_pos_y must be a number");
+            donut_info.pos[2] = new_pos_y;
+        end,
+        set_pos_z = function(new_pos_z)
+            assert(type(new_pos_z) == "number", "new_pos_z must be a number");
+            donut_info.pos[3] = new_pos_z;
+        end,
+    };
+end
+
+function Module.find_donut_by_number(donut_number)
+    for donut_index = 0, #Module.LevelData.donuts - 1 do
+        local current_donut = Module.LevelData.donuts[donut_index + 1];
+
+        if(current_donut.number == donut_number) then
+            return Module.get_donut(donut_index);
+        end
+    end
+
+    return nil;
 end
 
 function Module.find_vine(iX, iY)

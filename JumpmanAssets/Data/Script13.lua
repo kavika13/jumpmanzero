@@ -1,4 +1,5 @@
 local read_only = require "Data/read_only";
+local level_level23_module = assert(loadfile("Data/level_level23.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
@@ -134,13 +135,13 @@ local function ResetVisible_(visibility_bitmask)
         end
     end
 
-    for donut_index = 0, get_donut_object_count() - 1 do
-        local mesh_index = get_donut_mesh_index(donut_index);
+    for donut_index = 0, g_game_logic.get_donut_object_count() - 1 do
+        local current_donut = g_game_logic.get_donut(donut_index);
 
         if visibility_bitmask == 1 or g_game_logic.get_donut_is_collected(donut_index) then
-            set_mesh_is_visible(mesh_index, false);
+            set_mesh_is_visible(current_donut.mesh_index, false);
         else
-            set_mesh_is_visible(mesh_index, true);
+            set_mesh_is_visible(current_donut.mesh_index, true);
         end
     end
 end
@@ -199,6 +200,7 @@ end
 
 function initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.LevelData = level_level23_module();
     g_game_logic.ResetPlayerCallback = reset;
     g_game_logic.OnCollectDonutCallback = on_collect_donut;
     g_game_logic.initialize();
@@ -218,6 +220,10 @@ function initialize(game_input)
     SetConfig_();
     g_visibility_bitmask = 1;  -- Guarantee on first start that donuts are invisible
     ResetVisible_(g_visibility_bitmask);
+
+    for platform_index = 0, get_platform_object_count() - 1 do
+        set_mesh_texture(get_platform_mesh_index(platform_index), resources.TextureClassicPlatform);
+    end
 
     reset();
 

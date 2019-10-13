@@ -14,6 +14,8 @@ Module.ShipPosX = 0;
 Module.ShipPosY = 0;
 Module.IsLongFinalBlast = false;
 
+local g_donut = nil;
+
 local g_animation_frames_since_launched = 0;
 
 local g_blast_particle_mesh_indices = {};
@@ -66,6 +68,8 @@ function Module.initialize()
         g_blast_particle_mesh_indices[iTemp] = new_mesh(Module.BlastParticleMeshResourceIndex);
         set_mesh_texture(g_blast_particle_mesh_indices[iTemp], Module.LightningTextureResourceIndex);
     end
+
+    g_donut = Module.GameLogic.find_donut_by_number(Module.DonutNum);
 end
 
 function Module.update()
@@ -73,15 +77,12 @@ function Module.update()
         return;
     end
 
-    local donut_index = find_donut_index(Module.DonutNum);
-    local donut_mesh_index = find_donut_mesh_index(Module.DonutNum);
-
     if g_animation_frames_since_launched < 65 then
-        set_mesh_is_visible(donut_mesh_index, true);
+        set_mesh_is_visible(g_donut.mesh_index, true);
         g_animation_frames_since_launched = g_animation_frames_since_launched + 1;
     else
-        Module.GameLogic.set_donut_is_collected(donut_index, true);
-        set_mesh_is_visible(donut_mesh_index, false);
+        Module.GameLogic.set_donut_is_collected(g_donut.index, true);
+        set_mesh_is_visible(g_donut.mesh_index, false);
 
         DoBlasting();
         g_animation_frames_since_blast_started = g_animation_frames_since_blast_started + 1;
@@ -105,23 +106,23 @@ function Module.update()
 
     Module.ShipPosY = Module.ShipPosY + 8;
 
-    local iY = (65 - g_animation_frames_since_launched) * get_donut_y1(donut_index);
+    local iY = (65 - g_animation_frames_since_launched) * g_donut.pos[2];
     iY = iY + (g_animation_frames_since_launched * Module.ShipPosY);
     iY = iY / 65;
 
     local iDist = 75 - g_animation_frames_since_launched;
     local iPX = Module.GameLogic.get_player_current_position_x();
 
-    local iX = get_donut_x1(donut_index);
+    local iX = g_donut.pos[1];
 
     -- TODO: Any reason to keep this code if the donut becomes invisible?
     --       Check through the motion code, and make sure it doesn't affect the blasting particles.
     --       If not, move up into the top of the `if` above
-    set_identity_mesh_matrix(donut_mesh_index);
-    scale_mesh_matrix(donut_mesh_index, 1, 1, 5);
-    translate_mesh_matrix(donut_mesh_index, 0 - iX, 0, 0 - iDist);
-    rotate_y_mesh_matrix(donut_mesh_index, (iPX - iX) * 360 / Module.PlayAreaCircumference);
-    translate_mesh_matrix(donut_mesh_index, iPX, iY - get_donut_y1(donut_index), iZ);
+    set_identity_mesh_matrix(g_donut.mesh_index);
+    scale_mesh_matrix(g_donut.mesh_index, 1, 1, 5);
+    translate_mesh_matrix(g_donut.mesh_index, 0 - iX, 0, 0 - iDist);
+    rotate_y_mesh_matrix(g_donut.mesh_index, (iPX - iX) * 360 / Module.PlayAreaCircumference);
+    translate_mesh_matrix(g_donut.mesh_index, iPX, iY - g_donut.pos[2], iZ);
 end
 
 return Module;

@@ -1,4 +1,6 @@
 local read_only = require "Data/read_only";
+local level_mainmenu_module = assert(loadfile("Data/level_mainmenu.lua"));
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local z_bits_module = assert(loadfile("Data/z_bits.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
@@ -30,8 +32,7 @@ resources = read_only.make_table_read_only(resources);
 local kNUM_MENU_OPTIONS = 2;
 local kANIMATION_END_TIME = 4400;
 
-local g_is_initialized = false;
-
+local g_game_logic;
 local g_z_bits;
 
 local g_is_game_selected = false;
@@ -295,23 +296,27 @@ local function InitializeLetters()
     end
 end
 
-function update(game_input)
-    if not g_is_initialized then
-        g_is_initialized = true;
-        InitializeLetters();
+function initialize(game_input)
+    InitializeLetters();
 
-        if get_just_launched_game() then
-            g_title_animation_counter = 0;
-        else
-            g_title_animation_counter = kANIMATION_END_TIME;
-        end
-
-        g_z_bits = z_bits_module();
-        g_z_bits.MeshResourceIndex = resources.MeshGoo;
-        g_z_bits.TextureResourceIndex = resources.TextureBoringGreen;
-        g_z_bits.initialize();
+    if get_just_launched_game() then
+        g_title_animation_counter = 0;
+    else
+        g_title_animation_counter = kANIMATION_END_TIME;
     end
 
+    g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
+    g_game_logic.LevelData = level_mainmenu_module();
+    g_game_logic.initialize();
+
+    g_z_bits = z_bits_module();
+    g_z_bits.GameLogic = g_game_logic;
+    g_z_bits.MeshResourceIndex = resources.MeshGoo;
+    g_z_bits.TextureResourceIndex = resources.TextureBoringGreen;
+    g_z_bits.initialize();
+end
+
+function update(game_input)
     GetInput(game_input);
 
     g_title_animation_counter = g_title_animation_counter + 20;
