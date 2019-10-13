@@ -27,26 +27,28 @@ local function CheckForChange_()
         local _, ladder_index = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
 
         if ladder_index >= 0 then
-            if g_current_pos_x == get_ladder_x1(ladder_index) then
-                g_closeby_ladder_pos_z = get_ladder_z1(ladder_index);
-                local iSign = get_ladder_number(ladder_index);
+            local current_ladder = Module.GameLogic.get_ladder(ladder_index);
+
+            if g_current_pos_x == current_ladder.pos_x then
+                g_closeby_ladder_pos_z = current_ladder.pos_z[1];
+                local iSign = current_ladder.number;
 
                 if iSign == 41 then  -- TODO: Use constant for num?
                     g_animation_movement_direction = 4;
-                    set_ladder_number(ladder_index, 14);  -- TODO: Use constant for num?
+                    current_ladder.set_number(14);  -- TODO: Use constant for num?
                     return;
                 end
 
                 if iSign == 14 then  -- TODO: Use constant for num?
                     g_animation_movement_direction = 1;
-                    set_ladder_number(ladder_index, 41);  -- TODO: Use constant for num?
+                    current_ladder.set_number(41);  -- TODO: Use constant for num?
                     return;
                 end
 
                 if iSign == 141 then  -- TODO: Use constant for num?
                     g_animation_movement_direction = 4;
 
-                    if get_ladder_y2(ladder_index) > g_current_pos_y - 5 then
+                    if current_ladder.pos_y[1] > g_current_pos_y - 5 then
                         g_animation_movement_direction = 1;
                     end
 
@@ -54,7 +56,6 @@ local function CheckForChange_()
                 end
 
                 g_animation_movement_direction = iSign;
-
                 return;
             end
         end

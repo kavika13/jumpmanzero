@@ -28,8 +28,8 @@ local function PrioritizeLevelObjects()
         move_mesh_to_front(platform_mesh_index);
     end
 
-    for ladder_index = 0, get_ladder_object_count() - 1 do
-        local ladder_mesh_index = get_ladder_mesh_index(ladder_index);
+    for ladder_index = 0, Module.GameLogic.get_ladder_object_count() - 1 do
+        local ladder_mesh_index = Module.GameLogic.get_ladder(ladder_index).mesh_index;
         move_mesh_to_front(ladder_mesh_index);
     end
 end

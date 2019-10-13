@@ -89,8 +89,7 @@ local g_current_status_counter = 0;
 local g_current_move_direction = move_direction.NONE;
 local g_previous_move_direction = move_direction.NONE;
 
-local g_current_ladder_object_index = -1;
-local g_current_ladder_pos_z = 0;
+local g_current_ladder = nil;
 
 local function AdvanceFrame_()
     g_current_status_counter = g_current_status_counter + 1;
@@ -119,12 +118,11 @@ end
 
 local function CheckForHalt_()
     if g_current_move_direction == move_direction.RIGHT or g_current_move_direction == move_direction.LEFT then
-        g_current_ladder_object_index = -1;
+        g_current_ladder = nil;
         local _, ladder_index = Module.GameLogic.find_ladder(g_current_pos_x + 1, g_current_pos_y);
 
         if ladder_index >= 0 then
-            g_current_ladder_object_index = ladder_index;
-            g_current_ladder_pos_z = get_ladder_z1(ladder_index);
+            g_current_ladder = Module.GameLogic.get_ladder(ladder_index);
             g_current_move_direction = move_direction.NONE;
             return;
         end
@@ -200,14 +198,14 @@ local function CheckForOptions_()
             return;
         end
 
-        if g_current_ladder_object_index >= 0 then
-            if get_ladder_y1(g_current_ladder_object_index) > g_current_pos_y + 7 and
+        if g_current_ladder ~= nil then
+            if g_current_ladder.pos_y[2] > g_current_pos_y + 7 and
                     g_current_pos_y + 5 < Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.UP;
                 g_current_velocity_x = 0;
             end
 
-            if get_ladder_y2(g_current_ladder_object_index) < g_current_pos_y - 7 and
+            if g_current_ladder.pos_y[1] < g_current_pos_y - 7 and
                     g_current_pos_y - 5 > Module.GameLogic.get_player_current_position_y() then
                 g_current_move_direction = move_direction.DOWN;
                 g_current_velocity_x = 0;
@@ -232,21 +230,21 @@ local function CheckForOptions_()
     end
 
     if iChoice > 999 and iChoice < 2000 then
-        local chosen_ladder_index = iChoice - 1000;
+        local chosen_ladder = Module.GameLogic.get_ladder(iChoice - 1000);
 
-        if chosen_ladder_index == g_current_ladder_object_index then
-            if get_ladder_y1(chosen_ladder_index) > g_current_pos_y + 7 then
+        if chosen_ladder.index == g_current_ladder.index then
+            if chosen_ladder.pos_y[2] > g_current_pos_y + 7 then
                 g_current_move_direction = move_direction.UP;
                 g_current_velocity_x = 0;
             end
 
-            if get_ladder_y2(chosen_ladder_index) < g_current_pos_y - 7 then
+            if chosen_ladder.pos_y[1] < g_current_pos_y - 7 then
                 g_current_move_direction = move_direction.DOWN;
                 g_current_velocity_x = 0;
             end
-        elseif g_current_pos_x < get_ladder_x1(chosen_ladder_index) + 7 then
+        elseif g_current_pos_x < chosen_ladder.pos_x + 7 then
             g_current_move_direction = move_direction.RIGHT;
-        elseif g_current_pos_x > get_ladder_x1(chosen_ladder_index) + 7 then
+        elseif g_current_pos_x > chosen_ladder.pos_x + 7 then
             g_current_move_direction = move_direction.LEFT;
         end
     end
@@ -346,7 +344,7 @@ local function MoveBear_()
 
     if g_current_status == status_type.NORMAL and
             (g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN) then
-        g_current_pos_z = g_current_ladder_pos_z;
+        g_current_pos_z = g_current_ladder.pos_z[1];
     else
         AdjustZ_(platform_index);
     end
@@ -504,7 +502,7 @@ function Module.reset_pos()
     g_current_pos_z = 2;
     g_current_move_direction = move_direction.NONE;
     g_current_status = status_type.NORMAL;
-    g_current_ladder_object_index = -1;
+    g_current_ladder = nil;
 end
 
 return Module;

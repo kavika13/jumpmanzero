@@ -68,17 +68,16 @@ local g_is_object_4_moving = false;
 local g_object_4_animation_frame = 0;
 
 local function MoveLadder_(ladder_num, iPos)
-    local ladder_index = find_ladder_index(ladder_num);
-    local iX = get_ladder_x1(ladder_index) + 508;
-    local iY = (get_ladder_y1(ladder_index) + get_ladder_y2(ladder_index)) / 2;
-    local iZ = get_ladder_z1(ladder_index);
+    local current_ladder = g_game_logic.find_ladder_by_number(ladder_num);
+    local iX = current_ladder.pos_x + 508;
+    local iY = (current_ladder.pos_y[1] + current_ladder.pos_y[2]) / 2;
+    local iZ = current_ladder.pos_z[1];
 
-    local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
-    set_identity_mesh_matrix(ladder_mesh_index);
-    translate_mesh_matrix(ladder_mesh_index, 0 - iX, 0 - iY, 0 - iZ);
-    rotate_z_mesh_matrix(ladder_mesh_index, iPos * 2);
-    rotate_x_mesh_matrix(ladder_mesh_index, iPos);
-    translate_mesh_matrix(ladder_mesh_index, iX, iY, iZ - iPos);
+    set_identity_mesh_matrix(current_ladder.mesh_index);
+    translate_mesh_matrix(current_ladder.mesh_index, 0 - iX, 0 - iY, 0 - iZ);
+    rotate_z_mesh_matrix(current_ladder.mesh_index, iPos * 2);
+    rotate_x_mesh_matrix(current_ladder.mesh_index, iPos);
+    translate_mesh_matrix(current_ladder.mesh_index, iX, iY, iZ - iPos);
 end
 
 local function MovePlatform_(platform_num, iRotate, iTran, get_platform_x_value, get_platform_y_value)
@@ -155,7 +154,7 @@ local function ProgressLevel_(game_input)
 
         if g_object_3_animation_frame == 80 then
             g_is_object_3_moving = false;
-            local mesh_index = find_ladder_mesh_index(1);  -- TODO: Use constant for num
+            local mesh_index = g_game_logic.find_ladder_by_number(1).mesh_index;  -- TODO: Use constant for num
             translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
     end
@@ -169,7 +168,7 @@ local function ProgressLevel_(game_input)
 
         if g_object_4_animation_frame == 80 then
             g_is_object_4_moving = false;
-            local mesh_index = find_ladder_mesh_index(2);  -- TODO: Use constant for num
+            local mesh_index = g_game_logic.find_ladder_by_number(2).mesh_index;  -- TODO: Use constant for num
             translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
     end
@@ -243,17 +242,15 @@ function on_collect_donut(game_input, donut_num)
     if donut_num == 3 then  -- TODO: Use constant for num
         g_is_object_3_moving = true;
         iPosition3 = 0;
-        local ladder_index = find_ladder_index(1);  -- TODO: Use constant for num
-        local iX = get_ladder_x1(ladder_index);
-        set_ladder_x1(ladder_index, iX - 500);
+        local current_ladder = g_game_logic.find_ladder_by_number(1);  -- TODO: Use constant for num
+        current_ladder.set_pos_x(current_ladder.pos_x - 500);
     end
 
     if donut_num == 4 then  -- TODO: Use constant for num
         g_is_object_4_moving = true;
         iPosition4 = 0;
-        local ladder_index = find_ladder_index(2);  -- TODO: Use constant for num
-        local iX = get_ladder_x1(ladder_index);
-        set_ladder_x1(ladder_index, iX - 500);
+        local current_ladder = g_game_logic.find_ladder_by_number(2);  -- TODO: Use constant for num
+        current_ladder.set_pos_x(current_ladder.pos_x - 500);
     end
 end
 

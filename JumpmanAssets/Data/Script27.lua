@@ -154,15 +154,15 @@ local function RingPlatforms_()
         translate_mesh_matrix(vine_mesh_index, iPX, 0, 75);
     end
 
-    local ladder_count = get_ladder_object_count();
+    local ladder_count = g_game_logic.get_ladder_object_count();
 
     for ladder_index = 0, ladder_count - 1 do
-        local iAve = get_ladder_x1(ladder_index);
-        local ladder_mesh_index = get_ladder_mesh_index(ladder_index);
-        set_identity_mesh_matrix(ladder_mesh_index);
-        translate_mesh_matrix(ladder_mesh_index, 0 - iAve, 0, -75);
-        rotate_y_mesh_matrix(ladder_mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        translate_mesh_matrix(ladder_mesh_index, iPX, 0, 75);
+        local current_ladder = g_game_logic.get_ladder(ladder_index);
+        local iAve = current_ladder.pos_x;
+        set_identity_mesh_matrix(current_ladder.mesh_index);
+        translate_mesh_matrix(current_ladder.mesh_index, 0 - iAve, 0, -75);
+        rotate_y_mesh_matrix(current_ladder.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
+        translate_mesh_matrix(current_ladder.mesh_index, iPX, 0, 75);
     end
 
     local donut_count = g_game_logic.get_donut_object_count();

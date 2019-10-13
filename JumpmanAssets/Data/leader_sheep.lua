@@ -86,10 +86,10 @@ local function CheckForChange_()
             return;
         end
 
-        iLadderX = get_ladder_x1(ladder_index);
-        g_current_ladder_pos_z = get_ladder_z1(ladder_index);
-        local iY1 = get_ladder_y1(ladder_index);
-        local iY2 = get_ladder_y2(ladder_index);
+        local current_ladder = Module.GameLogic.get_ladder(ladder_index);
+
+        iLadderX = current_ladder.pos_x;
+        g_current_ladder_pos_z = current_ladder.pos_z[1];
 
         if g_current_pos_x < (iLadderX - 0.5) or g_current_pos_x > (iLadderX + 0.5) then
             return;
@@ -97,11 +97,11 @@ local function CheckForChange_()
 
         g_will_queue_direction_change_for_followers = true;
 
-        if iY1 > g_current_pos_y + 12 and g_jump_animation_time == 0 then
+        if current_ladder.pos_y[2] > g_current_pos_y + 12 and g_jump_animation_time == 0 then
             bUp = true;
         end
 
-        if iY2 < g_current_pos_y - 12 and g_jump_animation_time == 0 then
+        if current_ladder.pos_y[1] < g_current_pos_y - 12 and g_jump_animation_time == 0 then
             bDown = true;
         end
 
@@ -120,14 +120,13 @@ local function CheckForChange_()
 
     if g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN then
         local _, ladder_index = Module.GameLogic.find_ladder(g_current_pos_x, g_current_pos_y);
-        local iY1 = get_ladder_y1(ladder_index);
-        local iY2 = get_ladder_y2(ladder_index);
+        local current_ladder = Module.GameLogic.get_ladder(ladder_index);
 
-        if iY1 > g_current_pos_y + 10 and g_current_move_direction ~= move_direction.DOWN then
+        if current_ladder.pos_y[2] > g_current_pos_y + 10 and g_current_move_direction ~= move_direction.DOWN then
             bUp = true;
         end
 
-        if iY2 < g_current_pos_y - 10 and g_current_move_direction ~= move_direction.UP then
+        if current_ladder.pos_y[1] < g_current_pos_y - 10 and g_current_move_direction ~= move_direction.UP then
             bDown = true;
         end
 

@@ -134,8 +134,6 @@ static long g_player_mesh_indices[MAX_PLAYER_MESHES];
 static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
 static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
-static int g_ladder_object_count;
-static LevelObject g_ladder_objects[50];
 static int g_platform_object_count;
 static LevelObject g_platform_objects[100];
 static int g_vine_object_count;
@@ -150,64 +148,6 @@ static LevelObject g_backdrop_objects[30];
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
-
-static int get_ladder_number(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Num);
-    return 1;
-}
-
-static int set_ladder_number(lua_State* lua_state) {
-    lua_Integer ladder_index_arg = luaL_checkinteger(lua_state, 1);
-    lua_Integer value_arg = luaL_checkinteger(lua_state, 2);
-    g_ladder_objects[ladder_index_arg].Num = (long)value_arg;
-    return 0;
-}
-
-static int get_ladder_x1(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].X1);
-    return 1;
-}
-
-static int set_ladder_x1(lua_State* lua_state) {
-    lua_Integer ladder_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_ladder_objects[ladder_index_arg].X1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_ladder_y1(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Y1);
-    return 1;
-}
-
-static int set_ladder_y1(lua_State* lua_state) {
-    lua_Integer ladder_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_ladder_objects[ladder_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_ladder_y2(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Y2);
-    return 1;
-}
-
-static int set_ladder_y2(lua_State* lua_state) {
-    lua_Integer ladder_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_ladder_objects[ladder_index_arg].Y2 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_ladder_z1(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].Z1);
-    return 1;
-}
 
 static int get_vine_number(lua_State* lua_state) {
     lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
@@ -527,11 +467,6 @@ static int scroll_texture_on_mesh(lua_State* lua_state) {
 }
 
 // script global variable accessors (getters)
-
-static int get_ladder_object_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_ladder_object_count);
-    return 1;
-}
 
 static int get_loaded_texture_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_loaded_texture_count);
@@ -1023,14 +958,6 @@ static int get_platform_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
-static int get_ladder_mesh_index(lua_State* lua_state) {
-    lua_Integer ladder_index = luaL_checkinteger(lua_state, 1);
-    // TODO: Better runtime error handling than assert
-    assert(ladder_index > -1 && ladder_index < g_ladder_object_count && "get_ladder_mesh_index was outside the range of current active ladder objects");
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].MeshNumber);
-    return 1;
-}
-
 static int get_vine_mesh_index(lua_State* lua_state) {
     lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
     // TODO: Better runtime error handling than assert
@@ -1080,22 +1007,6 @@ static int find_platform_index(lua_State* lua_state) {
     lua_Integer platform_num = luaL_checkinteger(lua_state, 1);
     int platform_index = FindObject(g_platform_objects, g_platform_object_count, (int)platform_num);
     lua_pushinteger(lua_state, platform_index);
-    return 1;
-}
-
-static int find_ladder_mesh_index(lua_State* lua_state) {
-    lua_Integer ladder_num = luaL_checkinteger(lua_state, 1);
-    int ladder_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)ladder_num);
-    // TODO: Better runtime error handling than assert
-    assert(ladder_index != -1 && "find_ladder_mesh_index could not find ladder with given num id (specified in level data)");
-    lua_pushinteger(lua_state, g_ladder_objects[ladder_index].MeshNumber);
-    return 1;
-}
-
-static int find_ladder_index(lua_State* lua_state) {
-    lua_Integer ladder_num = luaL_checkinteger(lua_state, 1);
-    int ladder_index = FindObject(g_ladder_objects, g_ladder_object_count, (int)ladder_num);
-    lua_pushinteger(lua_state, ladder_index);
     return 1;
 }
 
@@ -1152,24 +1063,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
     // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
-    lua_pushcfunction(lua_state, get_ladder_number);
-    lua_setglobal(lua_state, "get_ladder_number");
-    lua_pushcfunction(lua_state, set_ladder_number);
-    lua_setglobal(lua_state, "set_ladder_number");
-    lua_pushcfunction(lua_state, get_ladder_x1);
-    lua_setglobal(lua_state, "get_ladder_x1");
-    lua_pushcfunction(lua_state, set_ladder_x1);
-    lua_setglobal(lua_state, "set_ladder_x1");
-    lua_pushcfunction(lua_state, get_ladder_y1);
-    lua_setglobal(lua_state, "get_ladder_y1");
-    lua_pushcfunction(lua_state, set_ladder_y1);
-    lua_setglobal(lua_state, "set_ladder_y1");
-    lua_pushcfunction(lua_state, get_ladder_y2);
-    lua_setglobal(lua_state, "get_ladder_y2");
-    lua_pushcfunction(lua_state, set_ladder_y2);
-    lua_setglobal(lua_state, "set_ladder_y2");
-    lua_pushcfunction(lua_state, get_ladder_z1);
-    lua_setglobal(lua_state, "get_ladder_z1");
     lua_pushcfunction(lua_state, get_vine_number);
     lua_setglobal(lua_state, "get_vine_number");
     lua_pushcfunction(lua_state, get_vine_x1);
@@ -1273,8 +1166,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_pushcfunction(lua_state, set_mesh_is_visible);
     lua_setglobal(lua_state, "set_mesh_is_visible");
 
-    lua_pushcfunction(lua_state, get_ladder_object_count);
-    lua_setglobal(lua_state, "get_ladder_object_count");
     lua_pushcfunction(lua_state, get_loaded_texture_count);
     lua_setglobal(lua_state, "get_loaded_texture_count");
     lua_pushcfunction(lua_state, get_platform_object_count);
@@ -1332,8 +1223,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, get_platform_mesh_index);
     lua_setglobal(lua_state, "get_platform_mesh_index");
-    lua_pushcfunction(lua_state, get_ladder_mesh_index);
-    lua_setglobal(lua_state, "get_ladder_mesh_index");
     lua_pushcfunction(lua_state, get_vine_mesh_index);
     lua_setglobal(lua_state, "get_vine_mesh_index");
     lua_pushcfunction(lua_state, get_backdrop_mesh_index);
@@ -1345,10 +1234,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_platform_mesh_index");
     lua_pushcfunction(lua_state, find_platform_index);
     lua_setglobal(lua_state, "find_platform_index");
-    lua_pushcfunction(lua_state, find_ladder_mesh_index);
-    lua_setglobal(lua_state, "find_ladder_mesh_index");
-    lua_pushcfunction(lua_state, find_ladder_index);
-    lua_setglobal(lua_state, "find_ladder_index");
     lua_pushcfunction(lua_state, find_vine_mesh_index);
     lua_setglobal(lua_state, "find_vine_mesh_index");
     lua_pushcfunction(lua_state, find_vine_index);
@@ -1494,7 +1379,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     }
 
     g_platform_object_count = 0;
-    g_ladder_object_count = 0;
     g_vine_object_count = 0;
     g_wall_object_count = 0;
     g_backdrop_object_count = 0;
@@ -1622,47 +1506,12 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_backdrop_object_count;
         } else if(cData[iPlace] == 'L' && cData[iPlace + 1] == 0) {
-            int iLoop = -1;
-
-            while(++iLoop < 8) {
-                g_ladder_objects[g_ladder_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
-            }
-
+            // Skip loading ladders. This will be done in Lua instead
             iPlace += 10;
-
-            g_ladder_objects[g_ladder_object_count].X1 = StringToInt(&cData[iPlace + 0]);
-            g_ladder_objects[g_ladder_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
-            g_ladder_objects[g_ladder_object_count].Y2 = StringToInt(&cData[iPlace + 4]);
-            g_ladder_objects[g_ladder_object_count].Z1 = StringToInt(&cData[iPlace + 6]);
-            g_ladder_objects[g_ladder_object_count].Z2 = StringToInt(&cData[iPlace + 8]);
-            g_ladder_objects[g_ladder_object_count].Num = StringToInt(&cData[iPlace + 10]);
-            g_ladder_objects[g_ladder_object_count].Texture = StringToInt(&cData[iPlace + 12]);
             iPlace += 20;
-
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
-
-            g_ladder_objects[g_ladder_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
-            g_ladder_objects[g_ladder_object_count].MeshSize = iData;
-            g_ladder_objects[g_ladder_object_count].ObjectNumber = g_ladder_object_count;
-
-            long iNum = -1;
-
-            while(++iNum < iData) {
-                g_ladder_objects[g_ladder_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
-            }
-
-            iPlace += iNum << 2;
-
-            oData = (long*)(malloc(g_ladder_objects[g_ladder_object_count].MeshSize * sizeof(long)));
-            iMPlace = 0;
-            ComposeObject(&g_ladder_objects[g_ladder_object_count], oData, &iMPlace);
-            CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_ladder_objects[g_ladder_object_count].Texture, 1);
-            g_ladder_objects[g_ladder_object_count].MeshNumber = iNum;
-            free(oData);
-
-            ++g_ladder_object_count;
+            iPlace += iData << 2;
         } else if(cData[iPlace] == 'W' && cData[iPlace + 1] == 0) {
             int iLoop = -1;
 

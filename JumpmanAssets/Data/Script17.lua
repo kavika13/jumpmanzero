@@ -157,8 +157,8 @@ local function SpinLevel_()
         SpinPlatform_(platform_index, iPY);
     end
 
-    for ladder_index = 0, get_ladder_object_count() - 1 do
-        local ladder_mesh_index = get_ladder_mesh_index(ladder_index);
+    for ladder_index = 0, g_game_logic.get_ladder_object_count() - 1 do
+        local ladder_mesh_index = g_game_logic.get_ladder(ladder_index).mesh_index;
         SpinLadderDonutOrVine_(ladder_mesh_index, iPY);
     end
 
@@ -174,11 +174,9 @@ local function SpinLevel_()
 end
 
 local function EnableLadder_(ladder_num)
-    local ladder_index = find_ladder_index(ladder_num);
-    set_ladder_x1(ladder_index, 0 - get_ladder_x1(ladder_index));
-
-    local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
-    set_identity_mesh_matrix(ladder_mesh_index);
+    local current_ladder = g_game_logic.find_ladder_by_number(ladder_num);
+    current_ladder.set_pos_x(-current_ladder.pos_x);
+    set_identity_mesh_matrix(current_ladder.mesh_index);
 end
 
 local function ReversePlatform_(platform_index)
@@ -218,19 +216,19 @@ local function ReverseDonut_(donut_index)
 end
 
 local function ReverseLadder_(ladder_index)
-    local mesh_index = get_ladder_mesh_index(ladder_index);
-    set_identity_mesh_matrix(mesh_index);
+    local current_ladder = g_game_logic.get_ladder(ladder_index);
+    set_identity_mesh_matrix(current_ladder.mesh_index);
 
     if g_level_flipping_state == 2 then
-        translate_mesh_matrix(mesh_index, 0, 0 - 80, 0);
-        rotate_x_mesh_matrix(mesh_index, 180);
-        translate_mesh_matrix(mesh_index, 0, 80, 2);
+        translate_mesh_matrix(current_ladder.mesh_index, 0, 0 - 80, 0);
+        rotate_x_mesh_matrix(current_ladder.mesh_index, 180);
+        translate_mesh_matrix(current_ladder.mesh_index, 0, 80, 2);
     end
 
-    local SY1 = get_ladder_y1(ladder_index);
-    local SY2 = get_ladder_y2(ladder_index);
-    set_ladder_y1(ladder_index, 160 - SY2);
-    set_ladder_y2(ladder_index, 160 - SY1);
+    local old_y_bottom = current_ladder.pos_y[1];
+    local old_y_top = current_ladder.pos_y[2];
+    current_ladder.set_y_bottom(160 - old_y_top);
+    current_ladder.set_y_top(160 - old_y_bottom);
 end
 
 local function ReverseVine_(vine_index)
@@ -257,7 +255,7 @@ local function ReverseLevel_()
         ReversePlatform_(platform_index);
     end
 
-    for ladder_index = 0, get_ladder_object_count() - 1 do
+    for ladder_index = 0, g_game_logic.get_ladder_object_count() - 1 do
         ReverseLadder_(ladder_index);
     end
 
@@ -271,10 +269,9 @@ local function ReverseLevel_()
 end
 
 local function DisableLadder_(ladder_num)
-    local ladder_index = find_ladder_index(ladder_num);
-    local ladder_mesh_index = find_ladder_mesh_index(ladder_num);
-    set_ladder_x1(ladder_index, 0 - get_ladder_x1(ladder_index));
-    translate_mesh_matrix(ladder_mesh_index, 0, 0 - 500, 0);
+    local current_ladder = g_game_logic.find_ladder_by_number(ladder_num);
+    current_ladder.set_pos_x(-current_ladder.pos_x);
+    translate_mesh_matrix(current_ladder.mesh_index, 0, 0 - 500, 0);
 end
 
 local function StartBullet_(frame_to_wait)

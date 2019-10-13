@@ -113,14 +113,13 @@ local function ResetVisible_(visibility_bitmask)
         end
     end
 
-    for ladder_index = 0, get_ladder_object_count() - 1 do
-        local ladder_number = get_ladder_number(ladder_index);
-        local mesh_index = get_ladder_mesh_index(ladder_index);
+    for ladder_index = 0, g_game_logic.get_ladder_object_count() - 1 do
+        local current_ladder = g_game_logic.get_ladder(ladder_index);
 
-        if (ladder_number & visibility_bitmask) ~= 0 then
-            set_mesh_is_visible(mesh_index, true);
+        if (current_ladder.number & visibility_bitmask) ~= 0 then
+            set_mesh_is_visible(current_ladder.mesh_index, true);
         else
-            set_mesh_is_visible(mesh_index, false);
+            set_mesh_is_visible(current_ladder.mesh_index, false);
         end
     end
 

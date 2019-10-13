@@ -95,8 +95,9 @@ local function CheckForChange_()
             return;
         end
 
-        iLadderX = get_ladder_x1(ladder_index);
-        g_current_ladder_pos_z = get_ladder_z1(ladder_index);
+        local current_ladder = Module.GameLogic.get_ladder(ladder_index);
+        iLadderX = current_ladder.pos_x;
+        g_current_ladder_pos_z = current_ladder.pos_z[1];
 
         if g_current_pos_x < (iLadderX - 0.5) or g_current_pos_x > (iLadderX + 0.5) then
             return;
