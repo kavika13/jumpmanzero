@@ -79,13 +79,12 @@ local function ProgressLevel_(game_input)
 
     if g_is_wall_moving then
         g_wall_animation_frame = g_wall_animation_frame + 1;
-        local wall_mesh_index = find_wall_mesh_index(33);  -- TODO: Use constant for num
-        set_identity_mesh_matrix(wall_mesh_index);
-        translate_mesh_matrix(wall_mesh_index, 0, 0, g_wall_animation_frame / 10);
+        local current_wall = g_game_logic.find_wall_by_number(33);  -- TODO: Use constant for num
+        set_identity_mesh_matrix(current_wall.mesh_index);
+        translate_mesh_matrix(current_wall.mesh_index, 0, 0, g_wall_animation_frame / 10);
 
         if g_wall_animation_frame == 45 then
-            local wall_index = find_wall_index(33);  -- TODO: Use constant for num
-            set_wall_y1(wall_index, 0 - 26);
+            current_wall.set_pos_y1(-26);
             g_wall_animation_frame = 0;
             g_is_wall_moving = false;
         end
@@ -207,11 +206,10 @@ function on_collect_donut(game_input, iDonut)
     end
 
     if iDonut == 3 then
-        local wall_index = find_wall_index(2);  -- TODO: Use constant for num
-        set_wall_y1(wall_index, get_wall_y1(wall_index) - 26);
-        local wall_mesh_index = find_wall_mesh_index(2);  -- TODO: Use constant for num
-        set_identity_mesh_matrix(wall_mesh_index);
-        translate_mesh_matrix(wall_mesh_index, 0, 0 - 70, 0);
+        local current_wall = g_game_logic.find_wall_by_number(2);  -- TODO: Use constant for num
+        current_wall.set_pos_y1(current_wall.pos[1][2] - 26);
+        set_identity_mesh_matrix(current_wall.mesh_index);
+        translate_mesh_matrix(current_wall.mesh_index, 0, 0 - 70, 0);
 
         local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(12).mesh_index;  -- TODO: Use constant for num
         set_identity_mesh_matrix(backdrop_mesh_index);

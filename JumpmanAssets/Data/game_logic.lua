@@ -601,15 +601,16 @@ local function CollideWall_(x1, y1, x2, y2)
     x2 = math.floor(x2);
     y2 = math.floor(y2);
 
-    for iW = 0, get_wall_object_count() - 1 do
-        local wall_x1 = get_wall_x1(iW);
-        local wall_x2 = get_wall_x2(iW);
-        local wall_x3 = get_wall_x3(iW);
-        local wall_x4 = get_wall_x4(iW);
-        local wall_y1 = get_wall_y1(iW);
-        local wall_y2 = get_wall_y2(iW);
-        local wall_y3 = get_wall_y3(iW);
-        local wall_y4 = get_wall_y4(iW);
+    for wall_index = 0, #Module.LevelData.walls - 1 do
+        local current_wall = Module.LevelData.walls[wall_index + 1];
+        local wall_x1 = current_wall.pos[1][1];
+        local wall_x2 = current_wall.pos[2][1];
+        local wall_x3 = current_wall.pos[3][1];
+        local wall_x4 = current_wall.pos[4][1];
+        local wall_y1 = current_wall.pos[1][2];
+        local wall_y2 = current_wall.pos[2][2];
+        local wall_y3 = current_wall.pos[3][2];
+        local wall_y4 = current_wall.pos[4][2];
 
         if PointInQuad_(x1, y1, wall_x1, wall_y1, wall_x2, wall_y2, wall_x3, wall_y3, wall_x4, wall_y4) then
             iLeft = iLeft + 1;
@@ -1692,6 +1693,12 @@ function Module.initialize()
         move_mesh_to_front(new_mesh_index);
     end
 
+    for wall_index = 0, #Module.LevelData.walls - 1 do
+        local current_wall = Module.LevelData.walls[wall_index + 1];
+        local new_mesh_index = create_mesh(current_wall.mesh, current_wall.texture_index);
+        current_wall.mesh_index = new_mesh_index;
+    end
+
     for backdrop_index = 0, #Module.LevelData.backdrops - 1 do
         local current_backdrop = Module.LevelData.backdrops[backdrop_index + 1];
         local new_mesh_index = create_mesh(current_backdrop.mesh, current_backdrop.texture_index);
@@ -2146,6 +2153,57 @@ function Module.find_vine_by_number(vine_number)
 
         if current_vine.number == vine_number then
             return Module.get_vine(vine_index);
+        end
+    end
+
+    return nil;
+end
+
+function Module.get_wall_object_count()
+    return #Module.LevelData.walls;
+end
+
+function Module.get_wall(wall_index)
+    local wall_info = Module.LevelData.walls[wall_index + 1];
+    local result = {
+        index = wall_index,
+        number = wall_info.number,
+        texture_index = wall_info.texture_index,
+        -- TODO: Rename these pos properties, if possible?
+        -- TODO: There is a pos-z, but it's embedded in the mesh. Level extractor should extract it
+        pos = {
+            { wall_info.pos[1][1], wall_info.pos[1][2] },
+            { wall_info.pos[2][1], wall_info.pos[2][2] },
+            { wall_info.pos[3][1], wall_info.pos[3][2] },
+            { wall_info.pos[4][1], wall_info.pos[4][2] },
+        },
+        mesh_index = wall_info.mesh_index,
+    };
+
+    -- TODO: Take self as first param in these setter functions
+    result.set_number = function(new_number)
+        assert(type(new_number) == "number", "new_number must be a number");
+        assert(new_number == math.floor(new_number), "new_number must be an integer");
+        wall_info.number = new_number;
+        result.number = new_number;
+    end;
+
+    -- TODO: Rename this setter, if possible?
+    result.set_pos_y1 = function(new_pos_y1)
+        assert(type(new_pos_y1) == "number", "new_pos_y1 must be a number");
+        wall_info.pos[1][2] = new_pos_y1;
+        result.pos[1][2] = new_pos_y1;
+    end;
+
+    return result;
+end
+
+function Module.find_wall_by_number(wall_number)
+    for wall_index = 0, #Module.LevelData.walls - 1 do
+        local current_wall = Module.LevelData.walls[wall_index + 1];
+
+        if current_wall.number == wall_number then
+            return Module.get_wall(wall_index);
         end
     end
 

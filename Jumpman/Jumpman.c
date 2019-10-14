@@ -136,8 +136,6 @@ static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
 static int g_platform_object_count;
 static LevelObject g_platform_objects[100];
-static int g_wall_object_count;
-static LevelObject g_wall_objects[50];
 
 // ------------------- LUA SCRIPT -------------------------------
 
@@ -227,61 +225,6 @@ static int set_platform_z1(lua_State* lua_state) {
     double value_arg = luaL_checknumber(lua_state, 2);
     g_platform_objects[platform_index_arg].Z1 = (long)value_arg;  // Intentionally truncating double to integer
     return 0;
-}
-
-static int get_wall_x1(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].X1);
-    return 1;
-}
-
-static int get_wall_x2(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].X2);
-    return 1;
-}
-
-static int get_wall_x3(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].X3);
-    return 1;
-}
-
-static int get_wall_x4(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].X4);
-    return 1;
-}
-
-static int get_wall_y1(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y1);
-    return 1;
-}
-
-static int set_wall_y1(lua_State* lua_state) {
-    lua_Integer wall_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_wall_objects[wall_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_wall_y2(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y2);
-    return 1;
-}
-
-static int get_wall_y3(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y3);
-    return 1;
-}
-
-static int get_wall_y4(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].Y4);
-    return 1;
 }
 
 static bool lua_checkbool(lua_State* L, int arg) {
@@ -420,11 +363,6 @@ static int get_platform_object_count(lua_State* lua_state) {
 
 static int get_remaining_life_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_remaining_life_count);
-    return 1;
-}
-
-static int get_wall_object_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_wall_object_count);
     return 1;
 }
 
@@ -893,14 +831,6 @@ static int get_platform_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
-static int get_wall_mesh_index(lua_State* lua_state) {
-    lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
-    // TODO: Better runtime error handling than assert
-    assert(wall_index > -1 && wall_index < g_wall_object_count && "get_wall_mesh_index was outside the range of current active wall objects");
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].MeshNumber);
-    return 1;
-}
-
 static int FindObject(LevelObject* lObj, int iCount, int iFind) {
     int iLoop = -1;
 
@@ -926,22 +856,6 @@ static int find_platform_index(lua_State* lua_state) {
     lua_Integer platform_num = luaL_checkinteger(lua_state, 1);
     int platform_index = FindObject(g_platform_objects, g_platform_object_count, (int)platform_num);
     lua_pushinteger(lua_state, platform_index);
-    return 1;
-}
-
-static int find_wall_mesh_index(lua_State* lua_state) {
-    lua_Integer wall_num = luaL_checkinteger(lua_state, 1);
-    int wall_index = FindObject(g_wall_objects, g_wall_object_count, (int)wall_num);
-    // TODO: Better runtime error handling than assert
-    assert(wall_index != -1 && "find_wall_mesh_index could not find wall with given num id (specified in level data)");
-    lua_pushinteger(lua_state, g_wall_objects[wall_index].MeshNumber);
-    return 1;
-}
-
-static int find_wall_index(lua_State* lua_state) {
-    lua_Integer wall_num = luaL_checkinteger(lua_state, 1);
-    int wall_index = FindObject(g_wall_objects, g_wall_object_count, (int)wall_num);
-    lua_pushinteger(lua_state, wall_index);
     return 1;
 }
 
@@ -976,24 +890,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_platform_z1");
     lua_pushcfunction(lua_state, set_platform_z1);
     lua_setglobal(lua_state, "set_platform_z1");
-    lua_pushcfunction(lua_state, get_wall_x1);
-    lua_setglobal(lua_state, "get_wall_x1");
-    lua_pushcfunction(lua_state, get_wall_x2);
-    lua_setglobal(lua_state, "get_wall_x2");
-    lua_pushcfunction(lua_state, get_wall_x3);
-    lua_setglobal(lua_state, "get_wall_x3");
-    lua_pushcfunction(lua_state, get_wall_x4);
-    lua_setglobal(lua_state, "get_wall_x4");
-    lua_pushcfunction(lua_state, get_wall_y1);
-    lua_setglobal(lua_state, "get_wall_y1");
-    lua_pushcfunction(lua_state, set_wall_y1);
-    lua_setglobal(lua_state, "set_wall_y1");
-    lua_pushcfunction(lua_state, get_wall_y2);
-    lua_setglobal(lua_state, "get_wall_y2");
-    lua_pushcfunction(lua_state, get_wall_y3);
-    lua_setglobal(lua_state, "get_wall_y3");
-    lua_pushcfunction(lua_state, get_wall_y4);
-    lua_setglobal(lua_state, "get_wall_y4");
 
     lua_pushcfunction(lua_state, load_next_level);
     lua_setglobal(lua_state, "load_next_level");
@@ -1041,8 +937,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_platform_object_count");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
-    lua_pushcfunction(lua_state, get_wall_object_count);
-    lua_setglobal(lua_state, "get_wall_object_count");
     lua_pushcfunction(lua_state, get_is_sound_enabled);
     lua_setglobal(lua_state, "get_is_sound_enabled");
     lua_pushcfunction(lua_state, get_is_music_enabled);
@@ -1090,17 +984,11 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, get_platform_mesh_index);
     lua_setglobal(lua_state, "get_platform_mesh_index");
-    lua_pushcfunction(lua_state, get_wall_mesh_index);
-    lua_setglobal(lua_state, "get_wall_mesh_index");
 
     lua_pushcfunction(lua_state, find_platform_mesh_index);
     lua_setglobal(lua_state, "find_platform_mesh_index");
     lua_pushcfunction(lua_state, find_platform_index);
     lua_setglobal(lua_state, "find_platform_index");
-    lua_pushcfunction(lua_state, find_wall_mesh_index);
-    lua_setglobal(lua_state, "find_wall_mesh_index");
-    lua_pushcfunction(lua_state, find_wall_index);
-    lua_setglobal(lua_state, "find_wall_index");
 }
 
 static void LoadLuaScript(const char* base_path, const char* filename, lua_State** new_lua_state) {
@@ -1234,7 +1122,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     }
 
     g_platform_object_count = 0;
-    g_wall_object_count = 0;
 
     cData = NULL;
     iLen = FileToString(full_path, &cData);
@@ -1339,52 +1226,12 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iPlace += 2;
             iPlace += iData << 2;
         } else if(cData[iPlace] == 'W' && cData[iPlace + 1] == 0) {
-            int iLoop = -1;
-
-            while(++iLoop < 8) {
-                g_wall_objects[g_wall_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
-            }
-
+            // Skip loading walls. This will be done in Lua instead
             iPlace += 10;
-
-            g_wall_objects[g_wall_object_count].X1 = StringToInt(&cData[iPlace + 0]);
-            g_wall_objects[g_wall_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
-            g_wall_objects[g_wall_object_count].X2 = StringToInt(&cData[iPlace + 4]);
-            g_wall_objects[g_wall_object_count].Y2 = StringToInt(&cData[iPlace + 6]);
-            g_wall_objects[g_wall_object_count].X3 = StringToInt(&cData[iPlace + 8]);
-            g_wall_objects[g_wall_object_count].Y3 = StringToInt(&cData[iPlace + 10]);
-            g_wall_objects[g_wall_object_count].X4 = StringToInt(&cData[iPlace + 12]);
-            g_wall_objects[g_wall_object_count].Y4 = StringToInt(&cData[iPlace + 14]);
-
-            g_wall_objects[g_wall_object_count].Num = StringToInt(&cData[iPlace + 16]);
-            g_wall_objects[g_wall_object_count].Texture = StringToInt(&cData[iPlace + 18]);
-
             iPlace += 20;
-
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
-
-            g_wall_objects[g_wall_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
-            g_wall_objects[g_wall_object_count].MeshSize = iData;
-            g_wall_objects[g_wall_object_count].ObjectNumber = g_wall_object_count;
-
-            long iNum = -1;
-
-            while(++iNum < iData) {
-                g_wall_objects[g_wall_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
-            }
-
-            iPlace += iNum << 2;
-
-            oData = (long*)(malloc(g_wall_objects[g_wall_object_count].MeshSize * sizeof(long)));
-            iMPlace = 0;
-            ComposeObject(&g_wall_objects[g_wall_object_count], oData, &iMPlace);
-            CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_wall_objects[g_wall_object_count].Texture, 1);
-            g_wall_objects[g_wall_object_count].MeshNumber = iNum;
-            free(oData);
-
-            ++g_wall_object_count;
+            iPlace += iData << 2;
         } else if(cData[iPlace] == 'V' && cData[iPlace + 1] == 0) {
             // Skip loading vines. This will be done in Lua instead
             iPlace += 10;
