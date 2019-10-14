@@ -572,10 +572,10 @@ local function ProgressLevel_(game_input)
         local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
         set_mesh_is_visible(platform_mesh_index, false);
 
-        local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
-        translate_mesh_matrix(backdrop_mesh_index, 40, 0, 20);
-        set_mesh_texture(backdrop_mesh_index, resources.TextureBlack);
-        set_mesh_is_visible(backdrop_mesh_index, true);
+        local current_backdrop = g_game_logic.find_backdrop_by_number(100);  -- TODO: Use constant for num
+        translate_mesh_matrix(current_backdrop.mesh_index, 40, 0, 20);
+        set_mesh_texture(current_backdrop.mesh_index, resources.TextureBlack);
+        set_mesh_is_visible(current_backdrop.mesh_index, true);
     end
 
     if g_end_alien then

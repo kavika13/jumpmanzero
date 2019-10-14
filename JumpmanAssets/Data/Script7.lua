@@ -58,10 +58,10 @@ local g_clock_timers = {};
 local kNumClockTimers = 5;
 
 local function SetClockPosition_(iPos)
-    local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, 0 - 64, 0 - 48, 120);
-    undo_camera_perspective_on_mesh_matrix(backdrop_mesh_index);
+    local current_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
+    set_identity_mesh_matrix(current_backdrop.mesh_index);
+    translate_mesh_matrix(current_backdrop.mesh_index, 0 - 64, 0 - 48, 120);
+    undo_camera_perspective_on_mesh_matrix(current_backdrop.mesh_index);
 
     set_identity_mesh_matrix(g_clock_hand_mesh_index);
     rotate_z_mesh_matrix(g_clock_hand_mesh_index, iPos);
@@ -81,13 +81,13 @@ local function SpinLittleClocks_()
     end
 end
 
-local function SpinClock_(backdrop_index, backdrop_mesh_index)
-    local iObjX = get_backdrop_x1(backdrop_index);
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, 0 - iObjX, 0, 0);
-    rotate_y_mesh_matrix(backdrop_mesh_index, g_current_clock_hand_rotation);
-    translate_mesh_matrix(backdrop_mesh_index, iObjX, 0, 7);
-    set_mesh_is_visible(backdrop_mesh_index, true);
+local function SpinClock_(clock_backdrop)
+    local iObjX = clock_backdrop.pos[1];
+    set_identity_mesh_matrix(clock_backdrop.mesh_index);
+    translate_mesh_matrix(clock_backdrop.mesh_index, 0 - iObjX, 0, 0);
+    rotate_y_mesh_matrix(clock_backdrop.mesh_index, g_current_clock_hand_rotation);
+    translate_mesh_matrix(clock_backdrop.mesh_index, iObjX, 0, 7);
+    set_mesh_is_visible(clock_backdrop.mesh_index, true);
 end
 
 local function CollideLittleClocks_()
@@ -95,13 +95,12 @@ local function CollideLittleClocks_()
         if g_clock_timers[clock_backdrop_num] and
                 g_clock_timers[clock_backdrop_num] > 0 and
                 g_clock_timers[clock_backdrop_num] < 10 then
-            local backdrop_index = find_backdrop_index(clock_backdrop_num);
-            local backdrop_mesh_index = find_backdrop_mesh_index(clock_backdrop_num);
+            local current_backdrop = g_game_logic.find_backdrop_by_number(clock_backdrop_num);
 
-            SpinClock_(backdrop_index, backdrop_mesh_index);
+            SpinClock_(current_backdrop);
 
-            local iClockX = get_backdrop_x1(backdrop_index);
-            local iClockY = get_backdrop_y1(backdrop_index);
+            local iClockX = current_backdrop.pos[1];
+            local iClockY = current_backdrop.pos[2];
             local did_collide = g_game_logic.is_player_colliding_with_rect(
                 iClockX - 3, iClockY - 4,
                 iClockX + 4, iClockY - 1);
@@ -109,7 +108,7 @@ local function CollideLittleClocks_()
             if did_collide and g_clock_timers[clock_backdrop_num] == 1 then
                 g_clock_num_frames_left = g_clock_num_frames_left + 140;
                 g_clock_timers[clock_backdrop_num] = 500;
-                set_mesh_is_visible(backdrop_mesh_index, false);
+                set_mesh_is_visible(current_backdrop.mesh_index, false);
             end
         end
 
@@ -172,7 +171,7 @@ function initialize(game_input)
     g_clock_timers[14] = 1;
 
     for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do
-        local backdrop_mesh_index = find_backdrop_mesh_index(clock_backdrop_num);
+        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(clock_backdrop_num).mesh_index;
         set_mesh_texture(backdrop_mesh_index, resources.TextureStopWatch);
     end
 

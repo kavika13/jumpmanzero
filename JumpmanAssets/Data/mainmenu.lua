@@ -331,7 +331,7 @@ function update(game_input)
     g_time_since_current_selection = g_time_since_current_selection + 5;
     ShowLetters();
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
 
     if g_is_game_selected and g_time_since_current_selection > 250 then

@@ -100,7 +100,7 @@ local function ProgressLevel_(game_input)
         g_spotlight_animation_frame = 0;
     end
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
+    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(1).mesh_index;  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
@@ -110,25 +110,25 @@ local function ProgressLevel_(game_input)
         set_mesh_texture(backdrop_mesh_index, resources.TextureRing);
     end
 
-    backdrop_mesh_index = find_backdrop_mesh_index(2);  -- TODO: Use constant for num
+    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(2).mesh_index;  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
-    backdrop_mesh_index = find_backdrop_mesh_index(3);  -- TODO: Use constant for num
+    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(3).mesh_index;  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
-    backdrop_mesh_index = find_backdrop_mesh_index(4);  -- TODO: Use constant for num
+    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(4).mesh_index;  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
-    backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant for num
+    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(5).mesh_index;  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
 
     g_painting_with_eyes_animation_frame = g_painting_with_eyes_animation_frame + 1;
 
-    backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
     set_mesh_texture(backdrop_mesh_index, resources.TexturePainting);
 
     if g_painting_with_eyes_animation_frame > 10 then
@@ -213,7 +213,7 @@ function on_collect_donut(game_input, iDonut)
         set_identity_mesh_matrix(wall_mesh_index);
         translate_mesh_matrix(wall_mesh_index, 0, 0 - 70, 0);
 
-        local backdrop_mesh_index = find_backdrop_mesh_index(12);  -- TODO: Use constant for num
+        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(12).mesh_index;  -- TODO: Use constant for num
         set_identity_mesh_matrix(backdrop_mesh_index);
         translate_mesh_matrix(backdrop_mesh_index, 0, 0 - 70, 0);
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?

@@ -138,8 +138,6 @@ static int g_platform_object_count;
 static LevelObject g_platform_objects[100];
 static int g_wall_object_count;
 static LevelObject g_wall_objects[50];
-static int g_backdrop_object_count;
-static LevelObject g_backdrop_objects[30];
 
 // ------------------- LUA SCRIPT -------------------------------
 
@@ -283,18 +281,6 @@ static int get_wall_y3(lua_State* lua_state) {
 static int get_wall_y4(lua_State* lua_state) {
     lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
     lua_pushinteger(lua_state, g_wall_objects[wall_index].Y4);
-    return 1;
-}
-
-static int get_backdrop_x1(lua_State* lua_state) {
-    lua_Integer backdrop_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].X1);
-    return 1;
-}
-
-static int get_backdrop_y1(lua_State* lua_state) {
-    lua_Integer backdrop_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].Y1);
     return 1;
 }
 
@@ -907,14 +893,6 @@ static int get_platform_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
-static int get_backdrop_mesh_index(lua_State* lua_state) {
-    lua_Integer backdrop_index = luaL_checkinteger(lua_state, 1);
-    // TODO: Better runtime error handling than assert
-    assert(backdrop_index > -1 && backdrop_index < g_backdrop_object_count && "get_backdrop_mesh_index was outside the range of current active backdrop objects");
-    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].MeshNumber);
-    return 1;
-}
-
 static int get_wall_mesh_index(lua_State* lua_state) {
     lua_Integer wall_index = luaL_checkinteger(lua_state, 1);
     // TODO: Better runtime error handling than assert
@@ -948,22 +926,6 @@ static int find_platform_index(lua_State* lua_state) {
     lua_Integer platform_num = luaL_checkinteger(lua_state, 1);
     int platform_index = FindObject(g_platform_objects, g_platform_object_count, (int)platform_num);
     lua_pushinteger(lua_state, platform_index);
-    return 1;
-}
-
-static int find_backdrop_mesh_index(lua_State* lua_state) {
-    lua_Integer backdrop_num = luaL_checkinteger(lua_state, 1);
-    int backdrop_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)backdrop_num);
-    // TODO: Better runtime error handling than assert
-    assert(backdrop_index != -1 && "find_backdrop_mesh_index could not find backdrop with given num id (specified in level data)");
-    lua_pushinteger(lua_state, g_backdrop_objects[backdrop_index].MeshNumber);
-    return 1;
-}
-
-static int find_backdrop_index(lua_State* lua_state) {
-    lua_Integer backdrop_num = luaL_checkinteger(lua_state, 1);
-    int backdrop_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)backdrop_num);
-    lua_pushinteger(lua_state, backdrop_index);
     return 1;
 }
 
@@ -1032,10 +994,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_wall_y3");
     lua_pushcfunction(lua_state, get_wall_y4);
     lua_setglobal(lua_state, "get_wall_y4");
-    lua_pushcfunction(lua_state, get_backdrop_x1);
-    lua_setglobal(lua_state, "get_backdrop_x1");
-    lua_pushcfunction(lua_state, get_backdrop_y1);
-    lua_setglobal(lua_state, "get_backdrop_y1");
 
     lua_pushcfunction(lua_state, load_next_level);
     lua_setglobal(lua_state, "load_next_level");
@@ -1132,8 +1090,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, get_platform_mesh_index);
     lua_setglobal(lua_state, "get_platform_mesh_index");
-    lua_pushcfunction(lua_state, get_backdrop_mesh_index);
-    lua_setglobal(lua_state, "get_backdrop_mesh_index");
     lua_pushcfunction(lua_state, get_wall_mesh_index);
     lua_setglobal(lua_state, "get_wall_mesh_index");
 
@@ -1141,10 +1097,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_platform_mesh_index");
     lua_pushcfunction(lua_state, find_platform_index);
     lua_setglobal(lua_state, "find_platform_index");
-    lua_pushcfunction(lua_state, find_backdrop_mesh_index);
-    lua_setglobal(lua_state, "find_backdrop_mesh_index");
-    lua_pushcfunction(lua_state, find_backdrop_index);
-    lua_setglobal(lua_state, "find_backdrop_index");
     lua_pushcfunction(lua_state, find_wall_mesh_index);
     lua_setglobal(lua_state, "find_wall_mesh_index");
     lua_pushcfunction(lua_state, find_wall_index);
@@ -1283,7 +1235,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
     g_platform_object_count = 0;
     g_wall_object_count = 0;
-    g_backdrop_object_count = 0;
 
     cData = NULL;
     iLen = FileToString(full_path, &cData);
@@ -1374,39 +1325,12 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             iPlace += 8;
         } else if(cData[iPlace] == 'A' && cData[iPlace + 1] == 0) {
+            // Skip loading backdrops. This will be done in Lua instead
             iPlace += 10;
-
-            g_backdrop_objects[g_backdrop_object_count].Texture = StringToInt(&cData[iPlace + 0]);
-            g_backdrop_objects[g_backdrop_object_count].X1 = StringToInt(&cData[iPlace + 2]);
-            g_backdrop_objects[g_backdrop_object_count].Y1 = StringToInt(&cData[iPlace + 4]);
-            g_backdrop_objects[g_backdrop_object_count].Num = StringToInt(&cData[iPlace + 6]);
             iPlace += 20;
-
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
-
-            g_backdrop_objects[g_backdrop_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
-            g_backdrop_objects[g_backdrop_object_count].MeshSize = iData;
-            g_backdrop_objects[g_backdrop_object_count].ObjectNumber = g_backdrop_object_count;
-
-            long iNum = -1;
-
-            while(++iNum < iData) {
-                g_backdrop_objects[g_backdrop_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
-            }
-
-            iPlace += iNum << 2;
-
-            oData = (long*)(malloc(g_backdrop_objects[g_backdrop_object_count].MeshSize * sizeof(long)));
-            iMPlace = 0;
-            ComposeObject(&g_backdrop_objects[g_backdrop_object_count], oData, &iMPlace);
-            CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_backdrop_objects[g_backdrop_object_count].Texture, 1);
-
-            g_backdrop_objects[g_backdrop_object_count].MeshNumber = iNum;
-            free(oData);
-
-            ++g_backdrop_object_count;
+            iPlace += iData << 2;
         } else if(cData[iPlace] == 'L' && cData[iPlace + 1] == 0) {
             // Skip loading ladders. This will be done in Lua instead
             iPlace += 10;

@@ -1691,6 +1691,12 @@ function Module.initialize()
         current_vine.mesh_index = new_mesh_index;
         move_mesh_to_front(new_mesh_index);
     end
+
+    for backdrop_index = 0, #Module.LevelData.backdrops - 1 do
+        local current_backdrop = Module.LevelData.backdrops[backdrop_index + 1];
+        local new_mesh_index = create_mesh(current_backdrop.mesh, current_backdrop.texture_index);
+        current_backdrop.mesh_index = new_mesh_index;
+    end
 end
 
 -- Required if you want to use get_navigation_dir function. Otherwise don't call it, to speed up level load
@@ -2140,6 +2146,63 @@ function Module.find_vine_by_number(vine_number)
 
         if current_vine.number == vine_number then
             return Module.get_vine(vine_index);
+        end
+    end
+
+    return nil;
+end
+
+function Module.get_backdrop_object_count()
+    return #Module.LevelData.backdrops;
+end
+
+function Module.get_backdrop(backdrop_index)
+    local backdrop_info = Module.LevelData.backdrops[backdrop_index + 1];
+    local result = {
+        index = backdrop_index,
+        number = backdrop_info.number,
+        texture_index = backdrop_info.texture_index,
+        -- TODO: There is a pos-z, but it's embedded in the mesh. Level extractor should extract it
+        pos = { backdrop_info.pos[1], backdrop_info.pos[2] },
+        mesh_index = backdrop_info.mesh_index,
+    };
+
+    -- TODO: Take self as first param in these setter functions
+    result.set_number = function(new_number)
+        assert(type(new_number) == "number", "new_number must be a number");
+        assert(new_number == math.floor(new_number), "new_number must be an integer");
+        backdrop_info.number = new_number;
+        result.number = new_number;
+    end;
+
+    result.set_pos_x = function(new_pos_x)
+        assert(type(new_pos_x) == "number", "new_pos_x must be a number");
+        backdrop_info.pos[1] = new_pos_x;
+        result.pos[1] = new_pos_x;
+    end;
+
+    result.set_pos_y = function(new_pos_y)
+        assert(type(new_pos_y) == "number", "new_pos_y must be a number");
+        backdrop_info.pos[2] = new_pos_y;
+        result.pos[2] = new_pos_y;
+    end;
+
+    -- TODO: There is a pos-z, but it's embedded in the mesh. Level extractor should extract it
+    -- result.set_pos_z = function(new_pos_z)
+    --     assert(type(new_pos_z) == "number", "new_pos_z must be a number");
+    --     backdrop_info.pos[3] = new_pos_z;
+    --     result.pos[3] = new_pos_z;
+    -- end;
+
+    return result;
+end
+
+function Module.find_backdrop_by_number(backdrop_number)
+    for backdrop_index = 0, #Module.LevelData.backdrops - 1 do
+        local current_backdrop = Module.LevelData.backdrops[backdrop_index + 1];
+
+        if current_backdrop.number == backdrop_number then
+            return Module.get_backdrop(backdrop_index);
         end
     end
 

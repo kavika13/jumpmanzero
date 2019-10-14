@@ -124,7 +124,7 @@ local function RingPlatforms_()
         g_game_logic.reset_perspective();
     end
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant
+    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX - 80, 0, 0);
 

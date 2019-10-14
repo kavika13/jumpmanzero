@@ -51,7 +51,7 @@ function Module.initialize()
 
     PrioritizeLevelObjects();
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+    local backdrop_mesh_index = Module.GameLogic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
     move_mesh_to_front(backdrop_mesh_index);
 
     Pause = 1;  -- TODO: This variable doesn't exist? What was it in pausewave.jms?

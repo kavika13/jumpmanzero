@@ -370,10 +370,10 @@ local function ProgressLevel_(game_input)
 
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(1);  -- TODO: Use constant for num
+    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(1).mesh_index;  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.025, 0.025);
 
-    backdrop_mesh_index = find_backdrop_mesh_index(6);  -- TODO: Use constant for num
+    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(6).mesh_index;  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.04, 0.04);
 
     -- TODO: Looks like jumpman's last animation frame isn't disappearing anymore when the player jumps in water.

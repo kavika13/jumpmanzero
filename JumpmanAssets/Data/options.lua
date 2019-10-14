@@ -1,4 +1,6 @@
 local read_only = require "Data/read_only";
+local level_options_module = assert(loadfile("Data/level_options.lua"));
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local menu_type = {
@@ -27,7 +29,7 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
+local g_game_logic = nil;
 
 local g_option_letter_title_indices = {};
 local g_option_letter_mesh_ids = {};
@@ -270,6 +272,10 @@ end
 function initialize(game_input)
     InitializeLetters_();
     g_flash_animation_current_menu_option_index = -1;
+
+    g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
+    g_game_logic.LevelData = level_options_module();
+    g_game_logic.initialize();
 end
 
 function update(game_input)
@@ -295,7 +301,7 @@ function update(game_input)
     g_time_since_current_selection = g_time_since_current_selection + 5;
     ShowLetters_();
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
+    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
 
     if g_is_game_selected and g_time_since_current_selection > 250 and g_option_selected_index == 9 then

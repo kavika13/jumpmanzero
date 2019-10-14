@@ -57,7 +57,7 @@ local function MovePyramid_()
     local iPic = 0;
 
     while iPic < 6 do
-        local backdrop_mesh_index = find_backdrop_mesh_index(iPic + 200);  -- TODO: Use constant for num
+        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(iPic + 200).mesh_index;  -- TODO: Use constant for num
         set_identity_mesh_matrix(backdrop_mesh_index);
         translate_mesh_matrix(backdrop_mesh_index, 0, -65, -35);
         iPic = iPic + 1;
@@ -75,13 +75,11 @@ local function SetStartPos_()
         iRnd = 6;
     end
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(iRnd);
-    set_mesh_texture(backdrop_mesh_index, resources.TextureLitFountain);
+    local current_backdrop = g_game_logic.find_backdrop_by_number(iRnd);
+    set_mesh_texture(current_backdrop.mesh_index, resources.TextureLitFountain);
     g_goo_spawn_point_object_num = iRnd;
-
-    local backdrop_index = find_backdrop_index(iRnd);
-    g_goo_spawn_pos_x = get_backdrop_x1(backdrop_index);
-    g_goo_spawn_pos_y = get_backdrop_y1(backdrop_index);
+    g_goo_spawn_pos_x = current_backdrop.pos[1];
+    g_goo_spawn_pos_y = current_backdrop.pos[2];
 end
 
 local function OnKillGoo_(goo)
@@ -138,7 +136,7 @@ local function ProgressLevel_(game_input)
         g_frames_until_ongoing_goo_spawn_finishes = g_frames_until_ongoing_goo_spawn_finishes - 1;
 
         if g_frames_until_ongoing_goo_spawn_finishes == 1 then
-            local backdrop_mesh_index = find_backdrop_mesh_index(g_goo_spawn_point_object_num);
+            local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(g_goo_spawn_point_object_num).mesh_index;
             set_mesh_texture(backdrop_mesh_index, resources.TextureFountain);
             g_currently_spawning_goo.stop_growing();
             g_currently_spawning_goo = nil;

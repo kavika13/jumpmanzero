@@ -71,7 +71,7 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(5);  -- TODO: Use constant for num
+    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(5).mesh_index;  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, 0, 0, 10);
     scroll_texture_on_mesh(backdrop_mesh_index, 0, -0.15);

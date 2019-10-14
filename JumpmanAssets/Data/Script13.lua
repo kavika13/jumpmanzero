@@ -66,7 +66,7 @@ local function RotateBack_()
     g_background_rotation = g_background_rotation - 0.5;
 
     for backdrop_num = 200, 203 do  -- TODO: Use constant for num
-        local backdrop_mesh_index = find_backdrop_mesh_index(backdrop_num);
+        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(backdrop_num).mesh_index;
         set_identity_mesh_matrix(backdrop_mesh_index);
         translate_mesh_matrix(backdrop_mesh_index, -80, -40, 0);
         scale_mesh_matrix(backdrop_mesh_index, 1.1, 1.1, 1);

@@ -62,22 +62,21 @@ local function AnimateArrow_(backdrop_num)
         is_reversed = true;
     end
 
-    local backdrop_index = find_backdrop_index(backdrop_num);
-    local SY = get_backdrop_y1(backdrop_index);
-    local SX = get_backdrop_x1(backdrop_index);
+    local current_backdrop = g_game_logic.find_backdrop_by_number(backdrop_num);
+    local SY = current_backdrop.pos[2];
+    local SX = current_backdrop.pos[1];
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(backdrop_num);
-    set_mesh_is_visible(backdrop_mesh_index, true);
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, 0 - SX, 0 - SY, 0);
+    set_mesh_is_visible(current_backdrop.mesh_index, true);
+    set_identity_mesh_matrix(current_backdrop.mesh_index);
+    translate_mesh_matrix(current_backdrop.mesh_index, 0 - SX, 0 - SY, 0);
 
     if is_reversed then
-        rotate_z_mesh_matrix(backdrop_mesh_index, 180);
-        rotate_y_mesh_matrix(backdrop_mesh_index, 180);
+        rotate_z_mesh_matrix(current_backdrop.mesh_index, 180);
+        rotate_y_mesh_matrix(current_backdrop.mesh_index, 180);
     end
 
-    rotate_x_mesh_matrix(backdrop_mesh_index, g_arrow_rotation);
-    translate_mesh_matrix(backdrop_mesh_index, SX, SY, 0);
+    rotate_x_mesh_matrix(current_backdrop.mesh_index, g_arrow_rotation);
+    translate_mesh_matrix(current_backdrop.mesh_index, SX, SY, 0);
 
     if g_game_logic.is_player_colliding_with_rect(SX - 3, SY - 4, SX + 3, SY + 4) and
             (g_level_flipping_state == 0 or g_level_flipping_state == 2) then
@@ -300,10 +299,10 @@ local function ProgressLevel_(game_input)
         g_arrow_rotation = 0;
     end
 
-    for arrow_num = 1, 2 do
+    for arrow_num = 1, 2 do  -- TODO: Use constant for num
         if g_arrow_cooldown_frames[arrow_num] > 0 then
             g_arrow_cooldown_frames[arrow_num] = g_arrow_cooldown_frames[arrow_num] - 1;
-            local backdrop_mesh_index = find_backdrop_mesh_index(arrow_num);
+            local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(arrow_num).mesh_index;
             set_mesh_is_visible(backdrop_mesh_index, false);
         else
             AnimateArrow_(arrow_num);
@@ -358,7 +357,7 @@ function initialize(game_input)
     StartBullet_(100);
     StartBullet_(30);
 
-    for iArrow = 1, 2 do
+    for iArrow = 1, 2 do  -- TODO: Use constant for num
         g_arrow_cooldown_frames[iArrow] = 0;
     end
 

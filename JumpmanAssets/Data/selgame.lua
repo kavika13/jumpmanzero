@@ -1,4 +1,6 @@
 local read_only = require "Data/read_only";
+local level_selectgame_module = assert(loadfile("Data/level_selectgame.lua"));
+local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -10,6 +12,8 @@ local resources = {
     SoundFire = 1,
 };
 resources = read_only.make_table_read_only(resources);
+
+local g_game_logic = nil;
 
 local g_is_game_selected = false;
 
@@ -189,6 +193,10 @@ function initialize(game_input)
     g_title_previous_selected_index = 1;
     g_time_since_current_selection = 0;
     g_is_game_selected = false;
+
+    g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
+    g_game_logic.LevelData = level_selectgame_module();
+    g_game_logic.initialize();
 end
 
 function update(game_input)
@@ -197,8 +205,8 @@ function update(game_input)
     g_time_since_current_selection = g_time_since_current_selection + 5;
     ShowLetters_();
 
-    local backdrop_mesh_index = find_backdrop_mesh_index(100);  -- TODO: Use constant for num
-    scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
+    local scrolling_background = g_game_logic.find_backdrop_by_number(100);  -- TODO: Use constant for num
+    scroll_texture_on_mesh(scrolling_background.mesh_index, 0.01, 0.01);
 
     if g_is_game_selected and g_time_since_current_selection > 450 then
         set_remaining_life_count(7);  -- TODO: This doesn't seem like the best place for this?
