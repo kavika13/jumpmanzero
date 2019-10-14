@@ -123,14 +123,13 @@ local function ResetVisible_(visibility_bitmask)
         end
     end
 
-    for vine_index = 0, get_vine_object_count() - 1 do
-        local vine_number = get_vine_number(vine_index);
-        local mesh_index = get_vine_mesh_index(vine_index);
+    for vine_index = 0, g_game_logic.get_vine_object_count() - 1 do
+        local current_vine = g_game_logic.get_vine(vine_index);
 
-        if (vine_number & visibility_bitmask) ~= 0 then
-            set_mesh_is_visible(mesh_index, true);
+        if (current_vine.number & visibility_bitmask) ~= 0 then
+            set_mesh_is_visible(current_vine.mesh_index, true);
         else
-            set_mesh_is_visible(mesh_index, false);
+            set_mesh_is_visible(current_vine.mesh_index, false);
         end
     end
 

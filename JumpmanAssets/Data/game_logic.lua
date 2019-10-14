@@ -227,14 +227,16 @@ local function FindVine_(iX, iY)
     iX = math.floor(iX);
     iY = math.floor(iY);
 
-    for iV = 0, get_vine_object_count() - 1 do
-        if iAbout == -1 or get_vine_y1(iAbout) < get_vine_y1(iV) then
-            if get_vine_y1(iV) - 3 > iY and get_vine_y2(iV) - 9 < iY then
-                if get_vine_x1(iV) - 3 < iX and get_vine_x1(iV) + 3 > iX then
-                    iAbout = iV;
+    for vine_index = 0, #Module.LevelData.vines - 1 do
+        local current_vine = Module.LevelData.vines[vine_index + 1];
 
-                    if get_vine_x1(iV) == iX then
-                        iExact = iV;
+        if iAbout == -1 or Module.LevelData.vines[vine_index + 1].y_top < current_vine.y_top then
+            if current_vine.y_top - 3 > iY and current_vine.y_bottom - 9 < iY then
+                if current_vine.x_pos - 3 < iX and current_vine.x_pos + 3 > iX then
+                    iAbout = vine_index;
+
+                    if current_vine.x_pos == iX then
+                        iExact = vine_index;
                     end
                 end
             end
@@ -764,16 +766,18 @@ MoveJumpmanVine_ = function(game_input)
         return;
     end
 
-    if CheckWalkOff_(get_vine_x1(g_player_current_close_vine_index), game_input) then
+    local close_vine = Module.get_vine(g_player_current_close_vine_index);
+
+    if CheckWalkOff_(close_vine.pos_x, game_input) then
         return;
     end
 
     g_player_current_mesh = (g_player_absolute_frame_count & 2) ~= 0
         and player_mesh.VINE_CLIMB_1
         or player_mesh.VINE_CLIMB_2;
-    AdjustPlayerZ_(get_vine_z1(g_player_current_close_vine_index) - 3, 0);
+    AdjustPlayerZ_(close_vine.pos_z[1] - 3, 0);
 
-    if get_vine_y2(g_player_current_close_vine_index) < g_player_current_platform_y - 2 or
+    if close_vine.pos_y_bottom < g_player_current_platform_y - 2 or
             g_player_current_position_y > g_player_current_platform_y - 1 then
         g_player_current_position_y = g_player_current_position_y - 1;
     else
@@ -781,7 +785,7 @@ MoveJumpmanVine_ = function(game_input)
         return;
     end
 
-    local iVinX = get_vine_x1(g_player_current_close_vine_index);
+    local iVinX = close_vine.pos_x;
 
     if (g_player_absolute_frame_count & 1) ~= 0 then
         if g_player_current_position_x + 1 > iVinX and g_player_current_position_x - 1 < iVinX then
@@ -866,12 +870,14 @@ MoveJumpmanNormal_ = function(game_input)
         g_player_current_position_y - g_player_current_platform_y);
 
     if g_player_current_close_vine_index ~= -1 and
-            not game_input.move_left_action.is_pressed and
-            not game_input.move_right_action.is_pressed and
-            (get_vine_y2(g_player_current_close_vine_index) < g_player_current_platform_y - 2 or
+            not game_input.move_left_action.is_pressed and not game_input.move_right_action.is_pressed then
+        local close_vine = Module.LevelData.vines[g_player_current_close_vine_index + 1];
+
+        if (close_vine.y_bottom < g_player_current_platform_y - 2 or
                 g_player_current_position_y > g_player_current_platform_y) then
-        MoveJumpmanVine_(game_input);
-        return;
+            MoveJumpmanVine_(game_input);
+            return;
+        end
     end
 
     if g_player_current_platform_y > g_player_current_position_y - 2 and
@@ -1678,6 +1684,13 @@ function Module.initialize()
         current_ladder.mesh_index = new_mesh_index;
         move_mesh_to_front(new_mesh_index);
     end
+
+    for vine_index = 0, #Module.LevelData.vines - 1 do
+        local current_vine = Module.LevelData.vines[vine_index + 1];
+        local new_mesh_index = create_mesh(current_vine.mesh, current_vine.texture_index);
+        current_vine.mesh_index = new_mesh_index;
+        move_mesh_to_front(new_mesh_index);
+    end
 end
 
 -- Required if you want to use get_navigation_dir function. Otherwise don't call it, to speed up level load
@@ -1976,6 +1989,7 @@ function Module.get_donut(donut_index)
         mesh_index = donut_info.mesh_index,
     };
 
+    -- TODO: Take self as first param in these setter functions
     result.set_number = function(new_number)
         assert(type(new_number) == "number", "new_number must be a number");
         assert(new_number == math.floor(new_number), "new_number must be an integer");
@@ -2033,6 +2047,7 @@ function Module.get_ladder(ladder_index)
         mesh_index = ladder_info.mesh_index,
     };
 
+    -- TODO: Take self as first param in these setter functions
     result.set_number = function(new_number)
         assert(type(new_number) == "number", "new_number must be a number");
         assert(new_number == math.floor(new_number), "new_number must be an integer");
@@ -2067,6 +2082,64 @@ function Module.find_ladder_by_number(ladder_number)
 
         if current_ladder.number == ladder_number then
             return Module.get_ladder(ladder_index);
+        end
+    end
+
+    return nil;
+end
+
+function Module.get_vine_object_count()
+    return #Module.LevelData.vines;
+end
+
+function Module.get_vine(vine_index)
+    local vine_info = Module.LevelData.vines[vine_index + 1];
+    local result = {
+        index = vine_index,
+        number = vine_info.number,
+        texture_index = vine_info.texture_index,
+        pos_x = vine_info.x_pos,
+        pos_y_bottom = vine_info.y_bottom,
+        pos_y_top = vine_info.y_top,
+        pos_z = { vine_info.z_front, vine_info.z_back },
+        mesh_index = vine_info.mesh_index,
+    };
+
+    -- TODO: Take self as first param in these setter functions
+    result.set_number = function(new_number)
+        assert(type(new_number) == "number", "new_number must be a number");
+        assert(new_number == math.floor(new_number), "new_number must be an integer");
+        vine_info.number = new_number;
+        result.number = new_number;
+    end;
+
+    result.set_pos_x = function(new_pos_x)
+        assert(type(new_pos_x) == "number", "new_pos_x must be a number");
+        vine_info.x_pos = new_pos_x;
+        result.pos_x = new_pos_x;
+    end;
+
+    result.set_pos_y_bottom = function(new_y_bottom)
+        assert(type(new_y_bottom) == "number", "new_y_bottom must be a number");
+        vine_info.y_bottom = new_y_bottom;
+        result.pos_y_bottom = new_y_bottom;
+    end;
+
+    result.set_pos_y_top = function(new_y_top)
+        assert(type(new_y_top) == "number", "new_y_top must be a number");
+        vine_info.y_top = new_y_top;
+        result.pos_y_top = new_y_top;
+    end;
+
+    return result;
+end
+
+function Module.find_vine_by_number(vine_number)
+    for vine_index = 0, #Module.LevelData.vines - 1 do
+        local current_vine = Module.LevelData.vines[vine_index + 1];
+
+        if current_vine.number == vine_number then
+            return Module.get_vine(vine_index);
         end
     end
 

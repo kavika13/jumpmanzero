@@ -167,8 +167,8 @@ local function SpinLevel_()
         SpinLadderDonutOrVine_(current_donut.mesh_index, iPY);
     end
 
-    for vine_index = 0, get_vine_object_count() - 1 do
-        local vine_mesh_index = get_vine_mesh_index(vine_index);
+    for vine_index = 0, g_game_logic.get_vine_object_count() - 1 do
+        local vine_mesh_index = g_game_logic.get_vine(vine_index).mesh_index;
         SpinLadderDonutOrVine_(vine_mesh_index, iPY);
     end
 end
@@ -232,19 +232,19 @@ local function ReverseLadder_(ladder_index)
 end
 
 local function ReverseVine_(vine_index)
-    local vine_mesh_index = get_vine_mesh_index(vine_index);
-    set_identity_mesh_matrix(vine_mesh_index);
+    local current_vine = g_game_logic.get_vine(vine_index);
+    set_identity_mesh_matrix(current_vine.mesh_index);
 
     if g_level_flipping_state == 2 then
-        translate_mesh_matrix(vine_mesh_index, 0, 0 - 80, 0);
-        rotate_x_mesh_matrix(vine_mesh_index, 180);
-        translate_mesh_matrix(vine_mesh_index, 0, 80, 2);
+        translate_mesh_matrix(current_vine.mesh_index, 0, 0 - 80, 0);
+        rotate_x_mesh_matrix(current_vine.mesh_index, 180);
+        translate_mesh_matrix(current_vine.mesh_index, 0, 80, 2);
     end
 
-    local SY1 = get_vine_y1(vine_index);
-    local SY2 = get_vine_y2(vine_index);
-    set_vine_y1(vine_index, 160 - SY2);
-    set_vine_y2(vine_index, 160 - SY1);
+    local old_y_bottom = current_vine.pos_y_bottom;
+    local old_y_top = current_vine.pos_y_top;
+    current_vine.set_pos_y_bottom(160 - old_y_top);
+    current_vine.set_pos_y_top(160 - old_y_bottom);
 end
 
 local function ReverseLevel_()
@@ -263,7 +263,7 @@ local function ReverseLevel_()
         ReverseDonut_(donut_index);
     end
 
-    for vine_index = 0, get_vine_object_count() - 1 do
+    for vine_index = 0, g_game_logic.get_vine_object_count() - 1 do
         ReverseVine_(vine_index);
     end
 end

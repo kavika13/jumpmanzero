@@ -79,12 +79,14 @@ local function MoveBaboon_()
         g_current_pos_y = iOldY;
         g_current_velocity_y = g_current_velocity_y * -1;
     else
-        if g_current_pos_y < get_vine_y2(vine_index) + 3 then
+        local close_vine = Module.GameLogic.get_vine(vine_index);
+
+        if g_current_pos_y < close_vine.pos_y_bottom + 3 then
             g_current_pos_y = iOldY;
             g_current_velocity_y = g_current_velocity_y * -1;
         end
 
-        if g_current_pos_y > get_vine_y1(vine_index) - 7 then
+        if g_current_pos_y > close_vine.pos_y_top - 7 then
             g_current_pos_y = iOldY;
             g_current_velocity_y = g_current_velocity_y * -1;
         end

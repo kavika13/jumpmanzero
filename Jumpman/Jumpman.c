@@ -136,8 +136,6 @@ static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
 static int g_platform_object_count;
 static LevelObject g_platform_objects[100];
-static int g_vine_object_count;
-static LevelObject g_vine_objects[50];
 static int g_wall_object_count;
 static LevelObject g_wall_objects[50];
 static int g_backdrop_object_count;
@@ -148,50 +146,6 @@ static LevelObject g_backdrop_objects[30];
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
-
-static int get_vine_number(lua_State* lua_state) {
-    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_vine_objects[vine_index].Num);
-    return 1;
-}
-
-static int get_vine_x1(lua_State* lua_state) {
-    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_vine_objects[vine_index].X1);
-    return 1;
-}
-
-static int get_vine_y1(lua_State* lua_state) {
-    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_vine_objects[vine_index].Y1);
-    return 1;
-}
-
-static int set_vine_y1(lua_State* lua_state) {
-    lua_Integer vine_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_vine_objects[vine_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_vine_y2(lua_State* lua_state) {
-    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_vine_objects[vine_index].Y2);
-    return 1;
-}
-
-static int set_vine_y2(lua_State* lua_state) {
-    lua_Integer vine_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_vine_objects[vine_index_arg].Y2 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_vine_z1(lua_State* lua_state) {
-    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_vine_objects[vine_index].Z1);
-    return 1;
-}
 
 static int get_platform_number(lua_State* lua_state) {
     lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
@@ -480,11 +434,6 @@ static int get_platform_object_count(lua_State* lua_state) {
 
 static int get_remaining_life_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_remaining_life_count);
-    return 1;
-}
-
-static int get_vine_object_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_vine_object_count);
     return 1;
 }
 
@@ -958,14 +907,6 @@ static int get_platform_mesh_index(lua_State* lua_state) {
     return 1;
 }
 
-static int get_vine_mesh_index(lua_State* lua_state) {
-    lua_Integer vine_index = luaL_checkinteger(lua_state, 1);
-    // TODO: Better runtime error handling than assert
-    assert(vine_index > -1 && vine_index < g_vine_object_count && "get_vine_mesh_index was outside the range of current active vine objects");
-    lua_pushinteger(lua_state, g_vine_objects[vine_index].MeshNumber);
-    return 1;
-}
-
 static int get_backdrop_mesh_index(lua_State* lua_state) {
     lua_Integer backdrop_index = luaL_checkinteger(lua_state, 1);
     // TODO: Better runtime error handling than assert
@@ -1010,22 +951,6 @@ static int find_platform_index(lua_State* lua_state) {
     return 1;
 }
 
-static int find_vine_mesh_index(lua_State* lua_state) {
-    lua_Integer vine_num = luaL_checkinteger(lua_state, 1);
-    int vine_index = FindObject(g_vine_objects, g_vine_object_count, (int)vine_num);
-    // TODO: Better runtime error handling than assert
-    assert(vine_index != -1 && "find_vine_mesh_index could not find vine with given num id (specified in level data)");
-    lua_pushinteger(lua_state, g_vine_objects[vine_index].MeshNumber);
-    return 1;
-}
-
-static int find_vine_index(lua_State* lua_state) {
-    lua_Integer vine_num = luaL_checkinteger(lua_state, 1);
-    int vine_index = FindObject(g_vine_objects, g_vine_object_count, (int)vine_num);
-    lua_pushinteger(lua_state, vine_index);
-    return 1;
-}
-
 static int find_backdrop_mesh_index(lua_State* lua_state) {
     lua_Integer backdrop_num = luaL_checkinteger(lua_state, 1);
     int backdrop_index = FindObject(g_backdrop_objects, g_backdrop_object_count, (int)backdrop_num);
@@ -1063,20 +988,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
     // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
-    lua_pushcfunction(lua_state, get_vine_number);
-    lua_setglobal(lua_state, "get_vine_number");
-    lua_pushcfunction(lua_state, get_vine_x1);
-    lua_setglobal(lua_state, "get_vine_x1");
-    lua_pushcfunction(lua_state, get_vine_y1);
-    lua_setglobal(lua_state, "get_vine_y1");
-    lua_pushcfunction(lua_state, set_vine_y1);
-    lua_setglobal(lua_state, "set_vine_y1");
-    lua_pushcfunction(lua_state, get_vine_y2);
-    lua_setglobal(lua_state, "get_vine_y2");
-    lua_pushcfunction(lua_state, set_vine_y2);
-    lua_setglobal(lua_state, "set_vine_y2");
-    lua_pushcfunction(lua_state, get_vine_z1);
-    lua_setglobal(lua_state, "get_vine_z1");
     lua_pushcfunction(lua_state, get_platform_number);
     lua_setglobal(lua_state, "get_platform_number");
     lua_pushcfunction(lua_state, set_platform_number);
@@ -1172,8 +1083,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_platform_object_count");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
-    lua_pushcfunction(lua_state, get_vine_object_count);
-    lua_setglobal(lua_state, "get_vine_object_count");
     lua_pushcfunction(lua_state, get_wall_object_count);
     lua_setglobal(lua_state, "get_wall_object_count");
     lua_pushcfunction(lua_state, get_is_sound_enabled);
@@ -1223,8 +1132,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, get_platform_mesh_index);
     lua_setglobal(lua_state, "get_platform_mesh_index");
-    lua_pushcfunction(lua_state, get_vine_mesh_index);
-    lua_setglobal(lua_state, "get_vine_mesh_index");
     lua_pushcfunction(lua_state, get_backdrop_mesh_index);
     lua_setglobal(lua_state, "get_backdrop_mesh_index");
     lua_pushcfunction(lua_state, get_wall_mesh_index);
@@ -1234,10 +1141,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "find_platform_mesh_index");
     lua_pushcfunction(lua_state, find_platform_index);
     lua_setglobal(lua_state, "find_platform_index");
-    lua_pushcfunction(lua_state, find_vine_mesh_index);
-    lua_setglobal(lua_state, "find_vine_mesh_index");
-    lua_pushcfunction(lua_state, find_vine_index);
-    lua_setglobal(lua_state, "find_vine_index");
     lua_pushcfunction(lua_state, find_backdrop_mesh_index);
     lua_setglobal(lua_state, "find_backdrop_mesh_index");
     lua_pushcfunction(lua_state, find_backdrop_index);
@@ -1379,7 +1282,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     }
 
     g_platform_object_count = 0;
-    g_vine_object_count = 0;
     g_wall_object_count = 0;
     g_backdrop_object_count = 0;
 
@@ -1560,47 +1462,12 @@ static void LoadLevel(const char* base_path, const char* filename) {
 
             ++g_wall_object_count;
         } else if(cData[iPlace] == 'V' && cData[iPlace + 1] == 0) {
-            int iLoop = -1;
-
-            while(++iLoop < 8) {
-                g_vine_objects[g_vine_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
-            }
-
+            // Skip loading vines. This will be done in Lua instead
             iPlace += 10;
-
-            g_vine_objects[g_vine_object_count].X1 = StringToInt(&cData[iPlace + 0]);
-            g_vine_objects[g_vine_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
-            g_vine_objects[g_vine_object_count].Y2 = StringToInt(&cData[iPlace + 4]);
-            g_vine_objects[g_vine_object_count].Z1 = StringToInt(&cData[iPlace + 6]);
-            g_vine_objects[g_vine_object_count].Z2 = StringToInt(&cData[iPlace + 8]);
-            g_vine_objects[g_vine_object_count].Num = StringToInt(&cData[iPlace + 10]);
-            g_vine_objects[g_vine_object_count].Texture = StringToInt(&cData[iPlace + 12]);
             iPlace += 20;
-
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
-
-            g_vine_objects[g_vine_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
-            g_vine_objects[g_vine_object_count].MeshSize = iData;
-            g_vine_objects[g_vine_object_count].ObjectNumber = g_vine_object_count;
-
-            long iNum = -1;
-
-            while(++iNum < iData) {
-                g_vine_objects[g_vine_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
-            }
-
-            iPlace += iNum << 2;
-
-            oData = (long*)(malloc(g_vine_objects[g_vine_object_count].MeshSize * sizeof(long)));
-            iMPlace = 0;
-            ComposeObject(&g_vine_objects[g_vine_object_count], oData, &iMPlace);
-            CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_vine_objects[g_vine_object_count].Texture, 1);
-            g_vine_objects[g_vine_object_count].MeshNumber = iNum;
-            free(oData);
-
-            ++g_vine_object_count;
+            iPlace += iData << 2;
         } else if(cData[iPlace] == 'D' && cData[iPlace + 1] == 0) {
             // Skip loading donuts. This will be done in Lua instead
             iPlace += 10;

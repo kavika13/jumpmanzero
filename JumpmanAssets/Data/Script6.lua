@@ -187,23 +187,21 @@ function on_collect_donut(game_input, iDonut)
     if iDonut == 1 then
         g_is_wall_moving = true;
         g_wall_animation_frame = 1;  -- TODO: Is this necessary to do here?
-        local vine_index = find_vine_index(1);  -- TODO: Use constant for num
-        set_vine_y2(vine_index, get_vine_y2(vine_index) + 6);
-        set_vine_y1(vine_index, get_vine_y1(vine_index) + 6);
-        local vine_mesh_index = find_vine_mesh_index(1);  -- TODO: Use constant for num
-        set_identity_mesh_matrix(vine_mesh_index);
-        translate_mesh_matrix(vine_mesh_index, 0, 6, 0);
+        local current_vine = g_game_logic.find_vine_by_number(1);  -- TODO: Use constant for num
+        current_vine.set_pos_y_bottom(current_vine.pos_y_bottom + 6);
+        current_vine.set_pos_y_top(current_vine.pos_y_top + 6);
+        set_identity_mesh_matrix(current_vine.mesh_index);
+        translate_mesh_matrix(current_vine.mesh_index, 0, 6, 0);
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
     end
 
     if iDonut == 2 then
-        local vine_index = find_vine_index(2);  -- TODO: Use constant for num
-        set_vine_y2(vine_index, get_vine_y2(vine_index) + 8);
-        set_vine_y1(vine_index, get_vine_y1(vine_index) + 8);
-        local vine_mesh_index = find_vine_mesh_index(2);  -- TODO: Use constant for num
-        set_identity_mesh_matrix(vine_mesh_index);
-        translate_mesh_matrix(vine_mesh_index, 0, 8, 0);
+        local current_vine = g_game_logic.find_vine_by_number(2);  -- TODO: Use constant for num
+        current_vine.set_pos_y_bottom(current_vine.pos_y_bottom + 8);
+        current_vine.set_pos_y_top(current_vine.pos_y_top + 8);
+        set_identity_mesh_matrix(current_vine.mesh_index);
+        translate_mesh_matrix(current_vine.mesh_index, 0, 8, 0);
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
     end
