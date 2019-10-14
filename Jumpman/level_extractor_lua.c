@@ -612,9 +612,9 @@ static void LoadLevel(const char* base_path, const char* filename) {
             "\n            number = %d,"
             "\n            extra = %d,"
             "\n            texture_index = %d,"
-            "\n            lower_left = { %d, %d },"
-            "\n            upper_right = { %d, %d },"
-            "\n            z = %d,"
+            "\n            pos_upper_left = { %d, %d },"
+            "\n            pos_lower_right = { %d, %d },"
+            "\n            pos_z = %d,"
             "\n            mesh = {"
             , platform.Num
             , platform.Extra
