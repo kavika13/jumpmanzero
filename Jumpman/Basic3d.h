@@ -35,7 +35,8 @@ void SetObjectTextureIndex(long iNum, long texture_index);
 void SetObjectIsVisible(long iNum, bool is_visible);
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
 void CopyObject(long iObject, long* iNum);
-void PrioritizeObject(long o1);
+void MoveMeshToFront(long o1);
+void MoveMeshToBack(long o1);
 
 void ScaleMatrix(long iObj, float fX, float fY, float fZ);
 void PerspectiveMatrix(long iObj);

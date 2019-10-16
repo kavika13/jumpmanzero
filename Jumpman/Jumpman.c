@@ -525,7 +525,13 @@ static int set_mesh_is_visible(lua_State* lua_state) {
 
 static int move_mesh_to_front(lua_State* lua_state) {
     lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    PrioritizeObject((long)mesh_index_arg);
+    MoveMeshToFront((long)mesh_index_arg);
+    return 0;
+}
+
+static int move_mesh_to_back(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    MoveMeshToBack((long)mesh_index_arg);
     return 0;
 }
 
@@ -956,6 +962,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "new_char_mesh");
     lua_pushcfunction(lua_state, move_mesh_to_front);
     lua_setglobal(lua_state, "move_mesh_to_front");
+    lua_pushcfunction(lua_state, move_mesh_to_back);
+    lua_setglobal(lua_state, "move_mesh_to_back");
     lua_pushcfunction(lua_state, script_set_fog);
     lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, script_get_current_level_title);

@@ -306,11 +306,19 @@ void RotateMatrixZ(long iObj, float fDegrees) {
         g_object_local_to_world_matrix[iReal]);
 }
 
-void PrioritizeObject(long o1) {
+void MoveMeshToFront(long o1) {
     long iSwap = g_object_redirects[o1];
 
     while(--iSwap >= 0) {
         SwapObjects(iSwap, iSwap + 1);
+    }
+}
+
+void MoveMeshToBack(long o1) {
+    long iSwap = g_object_redirects[o1];
+
+    while(++iSwap < g_object_count) {
+        SwapObjects(iSwap, iSwap - 1);
     }
 }
 
