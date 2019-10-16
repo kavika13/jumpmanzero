@@ -827,6 +827,26 @@ static int script_set_perspective(lua_State* lua_state) {
     return 0;
 }
 
+static int lua_error_handler(lua_State* lua_state) {
+    const char* error_message = lua_tostring(lua_state, 1);
+
+    if (error_message == NULL) {
+        if (luaL_callmeta(lua_state, 1, "__tostring") && lua_type(lua_state, -1) == LUA_TSTRING) {
+            // TODO: Is this part right?
+            //       lua.c did something slightly different here, and I think didn't append a traceback?
+            error_message = lua_tostring(lua_state, -1);
+            lua_pop(lua_state, 1);
+        } else {
+            error_message = lua_pushfstring(lua_state, "(error object is a %s value)", luaL_typename(lua_state, 1));
+        }
+    }
+
+    luaL_traceback(lua_state, lua_state, error_message, 1);
+    // const char* full_error_message = lua_tostring(lua_state, -1);
+
+    return 1;
+}
+
 // TODO: Remove these once level loader is in Lua, and mesh indices are kept there
 
 static int get_platform_mesh_index(lua_State* lua_state) {
@@ -1014,6 +1034,7 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
     assert(new_state != NULL);  // TODO: Error handling
 
     luaL_openlibs(new_state);
+
     int load_file_result = luaL_loadfile(new_state, full_filename);
     if(load_file_result != 0) {
         const char* error_message = lua_tostring(new_state, -1);
@@ -1022,10 +1043,17 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
 
     RegisterLuaScriptFunctions(new_state);
 
-    if (lua_pcall(new_state, 0, 0, 0) != 0) {
+    int arg_count = 0;
+    int error_handler_stack_pos = lua_gettop(new_state) - arg_count;
+    lua_pushcfunction(new_state, lua_error_handler);
+    lua_insert(new_state, error_handler_stack_pos);
+
+    if (lua_pcall(new_state, 0, 0, error_handler_stack_pos) != 0) {
         const char* error_message = lua_tostring(new_state, -1);
         assert(false);  // TODO: Error handling
     }
+
+    lua_remove(new_state, error_handler_stack_pos);
 
     *new_lua_state = new_state;
 }
@@ -1064,10 +1092,17 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
     if(lua_isfunction(lua_state, -1) != 0) {
         PushGameInputAsTable(lua_state, game_input);
 
-        if(lua_pcall(lua_state, 1, 0, 0) != 0) {
+        int arg_count = 1;
+        int error_handler_stack_pos = lua_gettop(lua_state) - arg_count;
+        lua_pushcfunction(lua_state, lua_error_handler);
+        lua_insert(lua_state, error_handler_stack_pos);
+
+        if(lua_pcall(lua_state, arg_count, 0, error_handler_stack_pos) != 0) {
             const char* error_message = lua_tostring(lua_state, -1);
             assert(false);  // TODO: Error handling
         }
+
+        lua_remove(lua_state, error_handler_stack_pos);
     } else {
         if(is_required) {
             assert(false);  // TODO: Error handling
