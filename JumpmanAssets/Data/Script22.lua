@@ -110,18 +110,16 @@ function SetPosition_(iNum, iNX, iNY)
 end
 
 local function DisplayPlatform_(iNum)
-    local platform_index = g_platform_indices[iNum];
-    set_platform_x1(platform_index, g_platforms_x1[iNum]);
-    set_platform_x2(platform_index, g_platforms_x2[iNum]);
-    set_platform_y1(platform_index, g_platforms_y1[iNum]);
-    set_platform_y2(platform_index, g_platforms_y2[iNum]);
+    local current_platform = g_game_logic.get_platform(g_platform_indices[iNum]);
+    current_platform.set_pos(
+        g_platforms_x1[iNum], g_platforms_y1[iNum],
+        g_platforms_x2[iNum], g_platforms_y2[iNum]);
 
     local iDX = g_platforms_x1[iNum] - g_platforms_original_x1[iNum];
     local iDY = g_platforms_y1[iNum] - g_platforms_original_y1[iNum];
 
-    local platform_mesh_index = get_platform_mesh_index(platform_index);
-    set_identity_mesh_matrix(platform_mesh_index);
-    translate_mesh_matrix(platform_mesh_index, iDX, iDY, 0);
+    set_identity_mesh_matrix(current_platform.mesh_index);
+    translate_mesh_matrix(current_platform.mesh_index, iDX, iDY, 0);
 
     iDX = g_platforms_x1[iNum] - g_platforms_previous_x1[iNum];
     iDY = g_platforms_y1[iNum] - g_platforms_previous_y1[iNum];
@@ -129,7 +127,7 @@ local function DisplayPlatform_(iNum)
     g_platforms_previous_x1[iNum] = g_platforms_x1[iNum];
     g_platforms_previous_y1[iNum] = g_platforms_y1[iNum];
 
-    if g_game_logic.get_player_current_active_platform_index() == platform_index then
+    if g_game_logic.get_player_current_active_platform_index() == current_platform.index then
         local iPX = g_game_logic.get_player_current_position_x();
         local iPY = g_game_logic.get_player_current_position_y();
         g_game_logic.set_player_current_position_x(iPX + iDX);
@@ -215,21 +213,21 @@ local function ProgressLevel_(game_input)
 end
 
 function SetPlatformData_(platform_num)
-    local platform_index = find_platform_index(platform_num);
+    local current_platform = g_game_logic.find_platform_by_number(platform_num);
 
-    g_platform_indices[platform_num] = platform_index;
-    g_platforms_x1[platform_num] = get_platform_x1(platform_index);
-    g_platforms_x2[platform_num] = get_platform_x2(platform_index);
-    g_platforms_y1[platform_num] = get_platform_y1(platform_index);
-    g_platforms_y2[platform_num] = get_platform_y2(platform_index);
+    g_platform_indices[platform_num] = current_platform.index;
+    g_platforms_x1[platform_num] = current_platform.pos_upper_left[1];
+    g_platforms_x2[platform_num] = current_platform.pos_lower_right[1];
+    g_platforms_y1[platform_num] = current_platform.pos_upper_left[2];
+    g_platforms_y2[platform_num] = current_platform.pos_lower_right[2];
 
-    g_platforms_original_x1[platform_num] = get_platform_x1(platform_index);
-    g_platforms_original_y1[platform_num] = get_platform_y1(platform_index);
-    g_platforms_original_x2[platform_num] = get_platform_x2(platform_index);
-    g_platforms_original_y2[platform_num] = get_platform_y2(platform_index);
+    g_platforms_original_x1[platform_num] = current_platform.pos_upper_left[1];
+    g_platforms_original_x2[platform_num] = current_platform.pos_lower_right[1];
+    g_platforms_original_y1[platform_num] = current_platform.pos_upper_left[2];
+    g_platforms_original_y2[platform_num] = current_platform.pos_lower_right[2];
 
-    g_platforms_previous_x1[platform_num] = get_platform_x1(platform_index);
-    g_platforms_previous_y1[platform_num] = get_platform_y1(platform_index);
+    g_platforms_previous_x1[platform_num] = current_platform.pos_upper_left[1];
+    g_platforms_previous_y1[platform_num] = current_platform.pos_upper_left[2];
 end
 
 function initialize(game_input)

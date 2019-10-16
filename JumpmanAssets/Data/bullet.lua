@@ -181,9 +181,12 @@ function Module.update()
     local _, future_platform_index = Module.GameLogic.find_platform(
         g_current_pos_x + g_current_velocity_x * 6, g_current_pos_y + g_current_velocity_y * 6,
         8, 4);
-    local interp_platform_z = (get_platform_z1(current_platform_index) + get_platform_z1(future_platform_index)) / 2;
 
-    if g_pos_z_correction_current_frame_index == 2 then
+    if current_platform_index ~= -1 and future_platform_index ~= -1 and g_pos_z_correction_current_frame_index == 2 then
+        local interp_platform_z =
+            (Module.GameLogic.get_platform(current_platform_index).pos_z +
+                Module.GameLogic.get_platform(future_platform_index).pos_z) / 2;
+
         if interp_platform_z > g_current_pos_z then
             g_current_pos_z = g_current_pos_z + 1;
         end

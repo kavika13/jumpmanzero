@@ -96,11 +96,12 @@ end
 local function SpawnHorizontal_(goo_type, iNFrom, pos_x1, pos_y1, pos_x2, pos_y2)
     -- TODO: Remove iNFrom parameter? Or is it useful for debuggin?
     local _, platform_index = Module.GameLogic.find_platform(pos_x1, pos_y1 + 1, 3, 0);
+    local current_platform = Module.GameLogic.get_platform(platform_index);
 
-    local iPX1 = get_platform_x1(platform_index);
-    local iPX2 = get_platform_x2(platform_index);
-    local iPY1 = get_platform_y1(platform_index);
-    local iPY2 = get_platform_y2(platform_index);
+    local iPX1 = current_platform.pos_upper_left[1];
+    local iPY1 = current_platform.pos_upper_left[2];
+    local iPX2 = current_platform.pos_lower_right[1];
+    local iPY2 = current_platform.pos_lower_right[2];
     local iAngle = math.atan(iPY2 - iPY1, iPX2 - iPX1) * 180.0 / math.pi;
 
     local new_goo = Module.SpawnCallback();

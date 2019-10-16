@@ -98,7 +98,7 @@ local function AnimateArrow_(backdrop_num)
 end
 
 local function SpinPlatform_(platform_index, iPY)
-    local platform_mesh_index = get_platform_mesh_index(platform_index);
+    local platform_mesh_index = g_game_logic.get_platform(platform_index).mesh_index;
     set_identity_mesh_matrix(platform_mesh_index);
 
     if g_level_flipping_state == 1 then
@@ -152,7 +152,7 @@ local function SpinLevel_()
     iPY = iPY + g_player_y_when_starting_flip * (50 - g_level_flipping_rotation) + iNewY * g_level_flipping_rotation;
     iPY = math.floor(iPY / 50) & 255;
 
-    for platform_index = 0, get_platform_object_count() - 1 do
+    for platform_index = 0, g_game_logic.get_platform_object_count() - 1 do
         SpinPlatform_(platform_index, iPY);
     end
 
@@ -179,25 +179,21 @@ local function EnableLadder_(ladder_num)
 end
 
 local function ReversePlatform_(platform_index)
-    local platform_mesh_index = get_platform_mesh_index(platform_index);
-    set_identity_mesh_matrix(platform_mesh_index);
+    local current_platform = g_game_logic.get_platform(platform_index);
+    set_identity_mesh_matrix(current_platform.mesh_index);
 
     if g_level_flipping_state == 2 then
-        translate_mesh_matrix(platform_mesh_index, 0, 0 - 80, 0);
-        rotate_x_mesh_matrix(platform_mesh_index, 180);
-        translate_mesh_matrix(platform_mesh_index, 0, 80, 6);
+        translate_mesh_matrix(current_platform.mesh_index, 0, 0 - 80, 0);
+        rotate_x_mesh_matrix(current_platform.mesh_index, 180);
+        translate_mesh_matrix(current_platform.mesh_index, 0, 80, 6);
     end
 
+    -- TODO: Aren't these the exact same logic for both cases?
+    -- TODO: Why are these 163, but for donuts, ladders, vines it is 160? Shouldn't they be consistent?
     if g_level_flipping_state == 2 then
-        local SY = get_platform_y1(platform_index);
-        set_platform_y1(platform_index, 163 - SY);
-        SY = get_platform_y2(platform_index);
-        set_platform_y2(platform_index, 163 - SY);
+        current_platform.set_pos_y(163 - current_platform.pos_lower_right[2], 163 - current_platform.pos_upper_left[2]);
     else
-        local SY = get_platform_y1(platform_index);
-        set_platform_y1(platform_index, 163 - SY);
-        SY = get_platform_y2(platform_index);
-        set_platform_y2(platform_index, 163 - SY);
+        current_platform.set_pos_y(163 - current_platform.pos_lower_right[2], 163 - current_platform.pos_upper_left[2]);
     end
 end
 
@@ -250,7 +246,7 @@ local function ReverseLevel_()
     local iPY = (160 - g_player_y_when_starting_flip) - kPLAYER_DROP_AFTER_FLIP;
     g_game_logic.set_player_current_position_y(iPY);
 
-    for platform_index = 0, get_platform_object_count() - 1 do
+    for platform_index = 0, g_game_logic.get_platform_object_count() - 1 do
         ReversePlatform_(platform_index);
     end
 

@@ -52,7 +52,10 @@ local function CheckForChange_()
     end
 
     local iHit1, iPlat1 = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 7, 2);
-    g_current_pos_z = get_platform_z1(iPlat1) + 1;
+
+    if iPlat1 ~= -1 then
+        g_current_pos_z = Module.GameLogic.get_platform(iPlat1).pos_z + 1;
+    end
 
     if g_current_pos_y > iHit1 + 4 then
         g_current_status = status_type.JUMP;

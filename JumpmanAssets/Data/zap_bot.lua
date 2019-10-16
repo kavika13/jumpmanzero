@@ -135,7 +135,7 @@ local function Move_()
 
     if g_move_direction == move_direction.LEFT or g_move_direction == move_direction.RIGHT then
         local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 5, 2);
-        g_current_pos_z = get_platform_z1(platform_index);
+        g_current_pos_z = Module.GameLogic.get_platform(platform_index).pos_z;
 
         if iHit < g_current_pos_y - 1 then
             g_current_pos_y = g_current_pos_y - 1;

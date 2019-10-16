@@ -106,15 +106,19 @@ local function CheckForChange_()
         end
 
         local _, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
-        local iX1 = get_platform_x1(platform_index);
-        local iX2 = get_platform_x2(platform_index);
 
-        if g_current_move_direction == move_direction.LEFT and iX1 < g_current_pos_x - 10 then
-            bLeft = true;
-        end
+        if platform_index ~= -1 then
+            local current_platform = Module.GameLogic.get_platform(platform_index);
+            local iX1 = current_platform.pos_upper_left[1];
+            local iX2 = current_platform.pos_lower_right[1];
 
-        if g_current_move_direction == move_direction.RIGHT and iX2 > g_current_pos_x + 10 then
-            bRight = true;
+            if g_current_move_direction == move_direction.LEFT and iX1 < g_current_pos_x - 10 then
+                bLeft = true;
+            end
+
+            if g_current_move_direction == move_direction.RIGHT and iX2 > g_current_pos_x + 10 then
+                bRight = true;
+            end
         end
     end
 
@@ -132,10 +136,12 @@ local function CheckForChange_()
 
         local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
 
-        if iHit == g_current_pos_y then
+        if platform_index ~= -1 and iHit == g_current_pos_y then
+            local current_platform = Module.GameLogic.get_platform(platform_index);
+
             g_will_queue_direction_change_for_followers = true;
-            local iX1 = get_platform_x1(platform_index);
-            local iX2 = get_platform_x2(platform_index);
+            local iX1 = current_platform.pos_upper_left[1];
+            local iX2 = current_platform.pos_lower_right[1];
 
             if iX1 < g_current_pos_x - 10 then
                 bLeft = true;
@@ -278,14 +284,16 @@ local function AdvanceFrame_()
 end
 
 local function AdjustZ_(platform_index)
-    local iPlatZ = get_platform_z1(platform_index);
+    if platform_index ~= -1 then
+        local iPlatZ = Module.GameLogic.get_platform(platform_index).pos_z;
 
-    if g_current_pos_z < iPlatZ then
-        g_current_pos_z = g_current_pos_z + 1;
-    end
+        if g_current_pos_z < iPlatZ then
+            g_current_pos_z = g_current_pos_z + 1;
+        end
 
-    if g_current_pos_z > iPlatZ + 2 then
-        g_current_pos_z = g_current_pos_z - 1;
+        if g_current_pos_z > iPlatZ + 2 then
+            g_current_pos_z = g_current_pos_z - 1;
+        end
     end
 end
 

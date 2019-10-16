@@ -28,7 +28,7 @@ local propellers = {};
 local whompers = {};
 
 local function ConveyPlatform_(platform_num, iDist)
-    local platform_mesh_index = find_platform_mesh_index(platform_num);
+    local platform_mesh_index = g_game_logic.find_platform_by_number(platform_num).mesh_index;
     scroll_texture_on_mesh(platform_mesh_index, iDist * 16, 0);
 
     if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
@@ -40,7 +40,7 @@ local function ConveyPlatform_(platform_num, iDist)
 
     local _, platform_index = g_game_logic.find_platform(iPX, iPY, 14, 2);
 
-    if platform_num ~= get_platform_number(platform_index) then
+    if platform_index ~= -1 and platform_num ~= g_game_logic.get_platform(platform_index).number then
         return;
     end
 

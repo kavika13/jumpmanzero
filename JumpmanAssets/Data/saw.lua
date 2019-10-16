@@ -65,7 +65,11 @@ local function MoveSaw_()
     end
 
     local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y, 6, 4);
-    local iTargetZ = get_platform_z1(platform_index);
+    local iTargetZ = g_current_pos_z;
+
+    if platform_index ~= -1 then
+        iTargetZ = Module.GameLogic.get_platform(platform_index).pos_z;
+    end
 
     if iHit < 1 then
         iHit = -100;

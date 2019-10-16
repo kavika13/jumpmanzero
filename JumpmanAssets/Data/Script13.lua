@@ -78,38 +78,29 @@ end
 local function SetConfig_()
     for platform_base_num = 256, 264, 2 do  -- TODO: Use constant for num
         local iRnd = math.random(0, 1000) < 500;
-        local platform_index;
-        local mesh_index;
+        local platform_to_hide;
 
         if iRnd then
-            local other_platform_index = find_platform_index(platform_base_num + 1);
-            set_platform_number(other_platform_index, platform_base_num - 251);
-
-            mesh_index = find_platform_mesh_index(platform_base_num);
-            platform_index = find_platform_index(platform_base_num);
+            g_game_logic.find_platform_by_number(platform_base_num + 1).set_number(platform_base_num - 251);
+            platform_to_hide = g_game_logic.find_platform_by_number(platform_base_num);
         else
-            local other_platform_index = find_platform_index(platform_base_num);
-            set_platform_number(other_platform_index, platform_base_num - 247);
-
-            mesh_index = find_platform_mesh_index(platform_base_num + 1);
-            platform_index = find_platform_index(platform_base_num + 1);
+            g_game_logic.find_platform_by_number(platform_base_num).set_number(platform_base_num - 247);
+            platform_to_hide = g_game_logic.find_platform_by_number(platform_base_num + 1);
         end
 
-        set_platform_y1(platform_index, 500);
-        set_platform_y2(platform_index, 500);
-        translate_mesh_matrix(mesh_index, 0, 0, 2000);
+        platform_to_hide.set_pos_y(500, 500);
+        translate_mesh_matrix(platform_to_hide.mesh_index, 0, 0, 2000);  -- TODO: Just do set_mesh_is_visible false?
     end
 end
 
 local function ResetVisible_(visibility_bitmask)
-    for platform_index = 0, get_platform_object_count() - 1 do
-        local platform_num = get_platform_number(platform_index);
-        local mesh_index = get_platform_mesh_index(platform_index);
+    for platform_index = 0, g_game_logic.get_platform_object_count() - 1 do
+        local current_platform = g_game_logic.get_platform(platform_index);
 
-        if (platform_num & visibility_bitmask) ~= 0 then
-            set_mesh_is_visible(mesh_index, true);
+        if (current_platform.number & visibility_bitmask) ~= 0 then
+            set_mesh_is_visible(current_platform.mesh_index, true);
         else
-            set_mesh_is_visible(mesh_index, false);
+            set_mesh_is_visible(current_platform.mesh_index, false);
         end
     end
 
@@ -219,8 +210,8 @@ function initialize(game_input)
     g_visibility_bitmask = 1;  -- Guarantee on first start that donuts are invisible
     ResetVisible_(g_visibility_bitmask);
 
-    for platform_index = 0, get_platform_object_count() - 1 do
-        set_mesh_texture(get_platform_mesh_index(platform_index), resources.TextureClassicPlatform);
+    for platform_index = 0, g_game_logic.get_platform_object_count() - 1 do
+        set_mesh_texture(g_game_logic.get_platform(platform_index).mesh_index, resources.TextureClassicPlatform);
     end
 
     reset();

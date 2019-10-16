@@ -209,14 +209,16 @@ local function ProgressSheep_()
 end
 
 local function AdjustZ_(platform_index)
-    local iPlatZ = get_platform_z1(platform_index);
+    if platform_index ~= -1 then
+        local iPlatZ = Module.GameLogic.get_platform(platform_index).pos_z;
 
-    if g_current_pos_z < iPlatZ then
-        g_current_pos_z = g_current_pos_z + 1;
-    end
+        if g_current_pos_z < iPlatZ then
+            g_current_pos_z = g_current_pos_z + 1;
+        end
 
-    if g_current_pos_z > iPlatZ + 2 then
-        g_current_pos_z = g_current_pos_z - 1;
+        if g_current_pos_z > iPlatZ + 2 then
+            g_current_pos_z = g_current_pos_z - 1;
+        end
     end
 end
 

@@ -4,7 +4,7 @@ local Module = {};
 
 Module.GameLogic = nil;
 
-Module.ObjectIndex = 0;
+Module.PlatformIndex = 0;
 Module.GoodColorTextureResourceIndex = 0;
 Module.BadColorTextureResourceIndex = 0;
 
@@ -24,6 +24,8 @@ local player_state = {
 };
 player_state = read_only.make_table_read_only(player_state);
 
+local g_platform = nil;
+
 local g_original_pos_z = 0;
 local g_current_pos_offset_z = 0;
 
@@ -34,9 +36,9 @@ local g_animation_frame_count = 0;
 local function CheckForPlayer_()
     g_current_state = 1;
 
-    local iPlat = Module.GameLogic.get_player_current_active_platform_index();
+    local player_platform_index = Module.GameLogic.get_player_current_active_platform_index();
 
-    if iPlat == Module.ObjectIndex then
+    if player_platform_index == g_platform.index then
         if Module.GameLogic.get_player_current_state() == player_state.JSLADDER then
             return;
         end
@@ -91,31 +93,29 @@ local function Progress_()
 end
 
 local function DrawStatus_()
-    set_platform_z1(Module.ObjectIndex, g_original_pos_z + g_current_pos_offset_z);
+    g_platform.set_pos_z(g_original_pos_z + g_current_pos_offset_z);
 
-    if g_original_pos_z + g_current_pos_offset_z > 10 and get_platform_y1(Module.ObjectIndex) > 0 then
-        set_platform_y1(Module.ObjectIndex, 0 - get_platform_y1(Module.ObjectIndex));
-        set_platform_y2(Module.ObjectIndex, 0 - get_platform_y2(Module.ObjectIndex));
+    if g_original_pos_z + g_current_pos_offset_z > 10 and g_platform.pos_upper_left[2] > 0 then
+        g_platform.set_pos_y(-g_platform.pos_lower_right[2], -g_platform.pos_upper_left[2]);
     end
 
-    if g_original_pos_z + g_current_pos_offset_z < 10 and get_platform_y1(Module.ObjectIndex) < 0 then
-        set_platform_y1(Module.ObjectIndex, 0 - get_platform_y1(Module.ObjectIndex));
-        set_platform_y2(Module.ObjectIndex, 0 - get_platform_y2(Module.ObjectIndex));
+    if g_original_pos_z + g_current_pos_offset_z < 10 and g_platform.pos_upper_left[2] < 0 then
+        g_platform.set_pos_y(-g_platform.pos_lower_right[2], -g_platform.pos_upper_left[2]);
     end
 
-    local platform_mesh_index = get_platform_mesh_index(Module.ObjectIndex);
-    set_identity_mesh_matrix(platform_mesh_index);
-    translate_mesh_matrix(platform_mesh_index, 0, 0, g_current_pos_offset_z);
+    set_identity_mesh_matrix(g_platform.mesh_index);
+    translate_mesh_matrix(g_platform.mesh_index, 0, 0, g_current_pos_offset_z);
 
     if g_current_move_direction == 0 then
-        set_mesh_texture(platform_mesh_index, Module.GoodColorTextureResourceIndex);
+        set_mesh_texture(g_platform.mesh_index, Module.GoodColorTextureResourceIndex);
     else
-        set_mesh_texture(platform_mesh_index, Module.BadColorTextureResourceIndex);
+        set_mesh_texture(g_platform.mesh_index, Module.BadColorTextureResourceIndex);
     end
 end
 
 function Module.initialize()
-    g_original_pos_z = get_platform_z1(Module.ObjectIndex);
+    g_platform = Module.GameLogic.get_platform(Module.PlatformIndex);
+    g_original_pos_z = g_platform.pos_z;
 end
 
 function Module.update()

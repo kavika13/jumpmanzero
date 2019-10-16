@@ -23,8 +23,8 @@ local g_current_pos_y = 125;
 local g_wave_animation_cycle_degrees = 0;
 
 local function PrioritizeLevelObjects()
-    for platform_index = 0, get_platform_object_count() - 1 do
-        local platform_mesh_index = get_platform_mesh_index(platform_index);
+    for platform_index = 0, Module.GameLogic.get_platform_object_count() - 1 do
+        local platform_mesh_index = Module.GameLogic.get_platform(platform_index).mesh_index;
         move_mesh_to_front(platform_mesh_index);
     end
 

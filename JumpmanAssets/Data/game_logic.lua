@@ -290,26 +290,28 @@ local function FindPlatform_(iX, iY, iHeight, iWide)
     iX = math.floor(iX);
     iY = math.floor(iY);
 
-    for iP = 0, get_platform_object_count() - 1 do
-        if get_platform_x1(iP) <= iX + iWide and get_platform_x2(iP) >= iX - iWide then
+    for platform_index = 0, #Module.LevelData.platforms - 1 do
+        local current_platform = Module.LevelData.platforms[platform_index + 1];
+
+        if current_platform.pos_upper_left[1] <= iX + iWide and current_platform.pos_lower_right[1] >= iX - iWide then
             local iEX = iX;
 
-            if iEX < get_platform_x1(iP) then
-                iEX = get_platform_x1(iP);
+            if iEX < current_platform.pos_upper_left[1] then
+                iEX = current_platform.pos_upper_left[1];
             end
 
-            if iEX > get_platform_x2(iP) then
-                iEX = get_platform_x2(iP);
+            if iEX > current_platform.pos_lower_right[1] then
+                iEX = current_platform.pos_lower_right[1];
             end
 
-            local iLen = get_platform_x2(iP) - get_platform_x1(iP);
-            local iH = get_platform_y1(iP) * math.abs(math.floor(get_platform_x2(iP) - iEX)) +  -- TODO: Floor necessary?
-                get_platform_y2(iP) * math.abs(math.floor(get_platform_x1(iP) - iEX));  -- TODO: Floor necessary?
+            local iLen = current_platform.pos_lower_right[1] - current_platform.pos_upper_left[1];
+            local iH = current_platform.pos_upper_left[2] * math.abs(math.floor(current_platform.pos_lower_right[1] - iEX)) +  -- TODO: Floor necessary?
+                current_platform.pos_lower_right[2] * math.abs(math.floor(current_platform.pos_upper_left[1] - iEX));  -- TODO: Floor necessary?
             iH = iH / iLen;
 
             local bGood = false;
 
-            if get_platform_extra(iP) == 3 then
+            if current_platform.extra == 3 then
                 if iH < iY + 1.5 and iH >= iY then
                     bGood = true;
                 end
@@ -325,8 +327,8 @@ local function FindPlatform_(iX, iY, iHeight, iWide)
 
             if bGood and (iH > iSupport or (iH == iSupport and (iExtra == 1 or iExtra == 2))) then
                 iSupport = iH;
-                iPlatform = iP;
-                iExtra = get_platform_extra(iP);
+                iPlatform = platform_index;
+                iExtra = current_platform.extra;
             end
         end
     end
@@ -339,11 +341,12 @@ local function BuildNavigation_()
         g_ladder_nav_to_entries[ladder_index] = {};
     end
 
-    for platform_index = 0, get_platform_object_count() - 1 do
+    for platform_index = 0, #Module.LevelData.platforms - 1 do
         g_platform_nav_to_entries[platform_index] = {};
+        local current_platform = Module.LevelData.platforms[platform_index + 1];
 
-        local platform_x1 = get_platform_x1(platform_index);
-        local platform_y1 = get_platform_y1(platform_index);
+        local platform_x1 = current_platform.pos_upper_left[1];
+        local platform_y1 = current_platform.pos_upper_left[2];
         local next_platform_y, next_platform_index = FindPlatform_(platform_x1 - 4, platform_y1, 4, 2);
 
         if next_platform_index >= 0 then
@@ -359,8 +362,8 @@ local function BuildNavigation_()
             });
         end
 
-        local platform_x2 = get_platform_x2(platform_index);
-        local platform_y2 = get_platform_y2(platform_index);
+        local platform_x2 = current_platform.pos_lower_right[1];
+        local platform_y2 = current_platform.pos_lower_right[2];
         next_platform_y, next_platform_index = FindPlatform_(platform_x2 + 4, platform_y2, 4, 2);
 
         if next_platform_index >= 0 then
@@ -422,7 +425,7 @@ local function GetNavDir_(from_object_index, to_object_index, nav_from_type, nav
     -- TODO: Refactor to return separate { object_index, object_type, navigation_method } fields,
     --       instead of encoding the result in integer ranges
 
-    for platform_index = 0, get_platform_object_count() - 1 do
+    for platform_index = 0, #Module.LevelData.platforms - 1 do
         g_platform_nav_select[platform_index] = { distance = 5000, encoded_object_index = -1 };  -- TODO: Is -1 valid here?
     end
 
@@ -467,7 +470,7 @@ local function GetNavDir_(from_object_index, to_object_index, nav_from_type, nav
                 end
             end
 
-            for platform_index = 0, get_platform_object_count() - 1 do
+            for platform_index = 0, #Module.LevelData.platforms - 1 do
                 if g_platform_nav_select[platform_index].distance < 5000 then
                     for nav_index = 1, #g_platform_nav_to_entries[platform_index] do
                         local platform_nav_to_type = g_platform_nav_to_entries[platform_index][nav_index].type;
@@ -866,9 +869,11 @@ MoveJumpmanNormal_ = function(game_input)
     g_player_current_state = player_state.JSNORMAL;
     g_player_current_special_action = player_special_action.NONE;
 
-    AdjustPlayerZ_(
-        get_platform_z1(g_player_current_platform_index) - 2,
-        g_player_current_position_y - g_player_current_platform_y);
+    local player_platform = Module.LevelData.platforms[g_player_current_platform_index + 1];
+
+    if player_platform then
+        AdjustPlayerZ_(player_platform.pos_z - 2, g_player_current_position_y - g_player_current_platform_y);
+    end
 
     if g_player_current_close_vine_index ~= -1 and
             not game_input.move_left_action.is_pressed and not game_input.move_right_action.is_pressed then
@@ -882,8 +887,7 @@ MoveJumpmanNormal_ = function(game_input)
     end
 
     if g_player_current_platform_y > g_player_current_position_y - 2 and
-            (get_platform_extra(g_player_current_platform_index) == 1 or
-                get_platform_extra(g_player_current_platform_index) == 2) then
+            player_platform and (player_platform.extra == 1 or player_platform.extra == 2) then
         MoveJumpmanSlide_(game_input);
         return;
     end
@@ -959,7 +963,7 @@ MoveJumpmanNormal_ = function(game_input)
         g_player_current_position_x = g_player_old_position_x;
     end
 
-    if get_platform_extra(g_player_current_platform_index) == 2 then
+    if player_platform and player_platform.extra == 2 then
         if g_player_current_position_x > g_player_old_position_x then
             g_player_current_position_x = g_player_old_position_x;
         end
@@ -969,7 +973,7 @@ MoveJumpmanNormal_ = function(game_input)
         end
     end
 
-    if get_platform_extra(g_player_current_platform_index) == 1 then
+    if player_platform and player_platform.extra == 1 then
         if g_player_current_position_x < g_player_old_position_x then
             g_player_current_position_x = g_player_old_position_x;
         end
@@ -1017,8 +1021,10 @@ MoveJumpmanFalling_ = function(game_input)
         g_player_current_position_y = g_player_current_position_y - 0.5;
     end
 
+    local player_platform = Module.LevelData.platforms[g_player_current_platform_index + 1];
+
     if g_player_current_position_y <= g_player_current_platform_y and
-            get_platform_extra(g_player_current_platform_index) ~= 3 then
+            player_platform and player_platform.extra ~= 3 then
         if g_player_current_state_frame_count < 10 then
             MoveJumpmanNormal_(game_input);
             return;
@@ -1137,7 +1143,12 @@ MoveJumpmanSlide_ = function(game_input)
     g_player_current_state = player_state.JSSLIDE;
     g_player_current_special_action = player_special_action.NONE;
 
-    local iExtra = get_platform_extra(g_player_current_platform_index);
+    local player_platform = Module.LevelData.platforms[g_player_current_platform_index + 1];
+    local iExtra = -1;
+
+    if player_platform then
+        iExtra = player_platform.extra;
+    end
 
     if iExtra == 0 and g_player_current_position_y <= g_player_current_platform_y then
         MoveJumpmanNormal_(game_input);
@@ -1255,9 +1266,10 @@ MoveJumpmanRoll_ = function(game_input)
         g_player_current_state_frame_count = 7;
     end
 
-    if g_player_current_position_y <= g_player_current_platform_y and (
-            get_platform_extra(g_player_current_platform_index) == 1 or
-            get_platform_extra(g_player_current_platform_index) == 2) then
+    local player_platform = Module.LevelData.platforms[g_player_current_platform_index + 1];
+
+    if g_player_current_position_y <= g_player_current_platform_y and
+            player_platform and (player_platform.extra == 1 or player_platform.extra == 2) then
         MoveJumpmanSlide_(game_input);
         return;
     end
@@ -1304,9 +1316,9 @@ MoveJumpmanRoll_ = function(game_input)
         return;
     end
 
-    AdjustPlayerZ_(
-        get_platform_z1(g_player_current_platform_index) - 2,
-        g_player_current_position_y - g_player_current_platform_y);
+    if player_platform then
+        AdjustPlayerZ_(player_platform.pos_z - 2, g_player_current_position_y - g_player_current_platform_y);
+    end
 
     local iVel = 1.3;
 
@@ -1561,12 +1573,14 @@ local function AnimateDying_(game_input)
         g_player_current_position_y = g_player_current_position_y - 2;
         g_player_current_rotation_x_radians = g_player_absolute_frame_count / -10.0;
 
-        local iSupport, iPlatform = FindPlatform_(
-            g_player_current_position_x, g_player_current_position_y, 8, 2);
+        local iSupport, iPlatform = FindPlatform_(g_player_current_position_x, g_player_current_position_y, 8, 2);
         iSupport = iSupport - PlayerFloor_();
 
+        if iPlatform ~= -1 then
+            AdjustPlayerZ_(Module.LevelData.platforms[iPlatform + 1].pos_z - 2, g_player_current_position_y - iSupport);
+        end
+
         local bGrounded = g_player_current_position_y + 4 <= iSupport;
-        AdjustPlayerZ_(get_platform_z1(iPlatform) - 2, g_player_current_position_y - iSupport);
 
         if bGrounded and g_player_current_position_y > -5 and iSupport < g_player_current_state_frame_count then
             g_player_current_velocity_x = 0;
@@ -1676,21 +1690,24 @@ function Module.initialize()
         local current_donut = Module.LevelData.donuts[donut_index + 1];
         local new_mesh_index = create_mesh(current_donut.mesh, current_donut.texture_index);
         current_donut.mesh_index = new_mesh_index;
-        move_mesh_to_front(new_mesh_index);
-    end
-
-    for ladder_index = 0, #Module.LevelData.ladders - 1 do
-        local current_ladder = Module.LevelData.ladders[ladder_index + 1];
-        local new_mesh_index = create_mesh(current_ladder.mesh, current_ladder.texture_index);
-        current_ladder.mesh_index = new_mesh_index;
-        move_mesh_to_front(new_mesh_index);
     end
 
     for vine_index = 0, #Module.LevelData.vines - 1 do
         local current_vine = Module.LevelData.vines[vine_index + 1];
         local new_mesh_index = create_mesh(current_vine.mesh, current_vine.texture_index);
         current_vine.mesh_index = new_mesh_index;
-        move_mesh_to_front(new_mesh_index);
+    end
+
+    for ladder_index = 0, #Module.LevelData.ladders - 1 do
+        local current_ladder = Module.LevelData.ladders[ladder_index + 1];
+        local new_mesh_index = create_mesh(current_ladder.mesh, current_ladder.texture_index);
+        current_ladder.mesh_index = new_mesh_index;
+    end
+
+    for platform_index = 0, #Module.LevelData.platforms - 1 do
+        local current_platform = Module.LevelData.platforms[platform_index + 1];
+        local new_mesh_index = create_mesh(current_platform.mesh, current_platform.texture_index);
+        current_platform.mesh_index = new_mesh_index;
     end
 
     for wall_index = 0, #Module.LevelData.walls - 1 do
@@ -1993,6 +2010,10 @@ function Module.get_donut_object_count()
 end
 
 function Module.get_donut(donut_index)
+    assert(type(donut_index) == "number", "donut_index must be a number");
+    assert(
+        donut_index >= 0 and donut_index < #Module.LevelData.donuts,
+        "donut_index not within valid range: " .. donut_index);
     local donut_info = Module.LevelData.donuts[donut_index + 1];
     local result = {
         index = donut_index,
@@ -2048,6 +2069,10 @@ function Module.get_ladder_object_count()
 end
 
 function Module.get_ladder(ladder_index)
+    assert(type(ladder_index) == "number", "ladder_index must be a number");
+    assert(
+        ladder_index >= 0 and ladder_index < #Module.LevelData.ladders,
+        "ladder_index not within valid range: " .. ladder_index);
     local ladder_info = Module.LevelData.ladders[ladder_index + 1];
     local result = {
         index = ladder_index,
@@ -2106,6 +2131,10 @@ function Module.get_vine_object_count()
 end
 
 function Module.get_vine(vine_index)
+    assert(type(vine_index) == "number", "vine_index must be a number");
+    assert(
+        vine_index >= 0 and vine_index < #Module.LevelData.vines,
+        "vine_index not within valid range: " .. vine_index);
     local vine_info = Module.LevelData.vines[vine_index + 1];
     local result = {
         index = vine_index,
@@ -2159,11 +2188,92 @@ function Module.find_vine_by_number(vine_number)
     return nil;
 end
 
+function Module.get_platform_object_count()
+    return #Module.LevelData.platforms;
+end
+
+function Module.get_platform(platform_index)
+    assert(type(platform_index) == "number", "platform_index must be a number");
+    assert(
+        platform_index >= 0 and platform_index < #Module.LevelData.platforms,
+        "platform_index not within valid range: " .. platform_index);
+    local platform_info = Module.LevelData.platforms[platform_index + 1];
+    local result = {
+        index = platform_index,
+        number = platform_info.number,
+        extra = platform_info.extra,
+        texture_index = platform_info.texture_index,
+        -- TODO: Rename "upper" -> "top" and "lower" -> "bottom"
+        pos_upper_left = { platform_info.pos_upper_left[1], platform_info.pos_upper_left[2] },
+        pos_lower_right = { platform_info.pos_lower_right[1], platform_info.pos_lower_right[2] },
+        pos_z = platform_info.pos_z,
+        mesh_index = platform_info.mesh_index,
+    };
+
+    -- TODO: Take self as first param in these setter functions
+    result.set_number = function(new_number)
+        assert(type(new_number) == "number", "new_number must be a number");
+        assert(new_number == math.floor(new_number), "new_number must be an integer");
+        platform_info.number = new_number;
+        result.number = new_number;
+    end;
+
+    result.set_pos = function(new_pos_x_left, new_pos_y_top, new_pos_x_right, new_pos_y_bottom)
+        assert(type(new_pos_x_left) == "number", "new_pos_x_left must be a number");
+        assert(type(new_pos_y_top) == "number", "new_pos_y_top must be a number");
+        assert(type(new_pos_x_right) == "number", "new_pos_x_right must be a number");
+        assert(type(new_pos_y_bottom) == "number", "new_pos_y_bottom must be a number");
+        platform_info.pos_upper_left = { new_pos_x_left, new_pos_y_top };
+        platform_info.pos_lower_right = { new_pos_x_right, new_pos_y_bottom };
+        result.pos_upper_left = { new_pos_x_left, new_pos_y_top };
+        result.pos_lower_right = { new_pos_x_right, new_pos_y_bottom };
+    end;
+
+    result.set_pos_y = function(new_pos_y_bottom, new_pos_y_top)
+        assert(type(new_pos_y_bottom) == "number", "new_pos_y_bottom must be a number");
+        assert(type(new_pos_y_top) == "number", "new_pos_y_top must be a number");
+        platform_info.pos_lower_right[2] = new_pos_y_bottom;
+        platform_info.pos_upper_left[2] = new_pos_y_top;
+        result.pos_lower_right[2] = new_pos_y_bottom;
+        result.pos_upper_left[2] = new_pos_y_top;
+    end;
+
+    result.set_pos_y_top = function(new_pos_y_top)
+        assert(type(new_pos_y_top) == "number", "new_pos_y_top must be a number");
+        platform_info.pos_upper_left[2] = new_pos_y_top;
+        result.pos_upper_left[2] = new_pos_y_top;
+    end;
+
+    result.set_pos_z = function(new_pos_z)
+        assert(type(new_pos_z) == "number", "new_pos_z must be a number");
+        platform_info.pos_z = new_pos_z;
+        result.pos_z = new_pos_z;
+    end;
+
+    return result;
+end
+
+function Module.find_platform_by_number(platform_number)
+    for platform_index = 0, #Module.LevelData.platforms - 1 do
+        local current_platform = Module.LevelData.platforms[platform_index + 1];
+
+        if current_platform.number == platform_number then
+            return Module.get_platform(platform_index);
+        end
+    end
+
+    return nil;
+end
+
 function Module.get_wall_object_count()
     return #Module.LevelData.walls;
 end
 
 function Module.get_wall(wall_index)
+    assert(type(wall_index) == "number", "wall_index must be a number");
+    assert(
+        wall_index >= 0 and wall_index < #Module.LevelData.walls,
+        "wall_index not within valid range: " .. wall_index);
     local wall_info = Module.LevelData.walls[wall_index + 1];
     local result = {
         index = wall_index,
@@ -2215,6 +2325,10 @@ function Module.get_backdrop_object_count()
 end
 
 function Module.get_backdrop(backdrop_index)
+    assert(type(backdrop_index) == "number", "backdrop_index must be a number");
+    assert(
+        backdrop_index >= 0 and backdrop_index < #Module.LevelData.backdrops,
+        "backdrop_index not within valid range: " .. backdrop_index);
     local backdrop_info = Module.LevelData.backdrops[backdrop_index + 1];
     local result = {
         index = backdrop_index,

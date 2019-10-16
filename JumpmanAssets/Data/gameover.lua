@@ -166,7 +166,7 @@ function initialize(game_input)
     g_jumpman_mesh_index = new_mesh(resources.MeshDead);
     set_mesh_texture(g_jumpman_mesh_index, resources.TextureJumpman);
 
-    local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
+    local platform_mesh_index = g_game_logic.find_platform_by_number(1).mesh_index;  -- TODO: Use constant for num
     scale_mesh_matrix(platform_mesh_index, 30, 3, 3);
     g_game_over_message_visible = false;
     g_camera_pan_animation_timer = 100;

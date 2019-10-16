@@ -88,15 +88,14 @@ local g_ninjas = {};
 local g_is_trap_door_triggering = false;
 local g_trap_door_fall_progress = 0;
 
-local function MovePlatform_(platform_index, iRotate, iTran)
-    local iPlatX = get_platform_x2(platform_index);
-    local iPlatY = get_platform_y2(platform_index);
+local function MovePlatform_(current_platform, iRotate, iTran)
+    local iPlatX = current_platform.pos_lower_right[1];
+    local iPlatY = current_platform.pos_lower_right[2];
 
-    local platform_mesh_index = get_platform_mesh_index(platform_index);
-    set_identity_mesh_matrix(platform_mesh_index);
-    translate_mesh_matrix(platform_mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
-    rotate_z_mesh_matrix(platform_mesh_index, iRotate);
-    translate_mesh_matrix(platform_mesh_index, iPlatX + iTran, iPlatY, 0);
+    set_identity_mesh_matrix(current_platform.mesh_index);
+    translate_mesh_matrix(current_platform.mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
+    rotate_z_mesh_matrix(current_platform.mesh_index, iRotate);
+    translate_mesh_matrix(current_platform.mesh_index, iPlatX + iTran, iPlatY, 0);
 end
 
 local function ProgressLevel_(game_input)
@@ -110,17 +109,16 @@ local function ProgressLevel_(game_input)
     if g_is_trap_door_triggering then
         g_trap_door_fall_progress = g_trap_door_fall_progress + 3;
 
-        local platform_index = find_platform_index(1);  -- TODO: Use constant for num
-        MovePlatform_(platform_index, g_trap_door_fall_progress, 0);
+        local current_platform = g_game_logic.find_platform_by_number(1);  -- TODO: Use constant for num
+        MovePlatform_(current_platform, g_trap_door_fall_progress, 0);
 
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
-        set_platform_y1(platform_index, get_platform_y1(platform_index) - 3);
+        current_platform.set_pos_y_top(current_platform.pos_upper_left[2] - 3);  -- TODO: Why not setting bottom?
 
         if g_trap_door_fall_progress >= 90 then
-            set_platform_y1(platform_index, 500);
-            set_platform_y2(platform_index, 500);
+            current_platform.set_pos_y(500, 500);
             g_is_trap_door_triggering = false;
         end
     end

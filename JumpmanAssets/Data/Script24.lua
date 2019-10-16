@@ -77,54 +77,60 @@ local function CheckHanging_(game_input)
 
     local platform_index = g_game_logic.get_player_current_active_platform_index();
 
-    if get_platform_extra(platform_index) == 3 then
-        if g_game_logic.get_player_current_state() == player_state.JSROLL then
-            g_game_logic.set_player_current_state(player_state.JSNORMAL);
-        end
+    if platform_index ~= -1 then
+        local player_platform = g_game_logic.get_platform(platform_index);
 
-        if g_game_logic.get_player_current_state() == player_state.JSFALLING and
-                g_game_logic.get_player_current_state_frame_count() < 40 then
-            g_game_logic.set_player_current_state(player_state.JSNORMAL);
-        end
-
-        g_game_logic.set_player_is_visible(false);
-        g_hang_animation_next_frame_counter = g_hang_animation_next_frame_counter + 1;
-
-        if g_hang_animation_next_frame_counter > 4 then
-            g_hang_animation_next_frame_counter = 0;
-            g_hang_animation_current_frame = g_hang_animation_current_frame + 1;
-
-            if g_hang_animation_current_frame > 4 then
-                g_hang_animation_current_frame = 1;
+        if player_platform.extra == 3 then
+            if g_game_logic.get_player_current_state() == player_state.JSROLL then
+                g_game_logic.set_player_current_state(player_state.JSNORMAL);
             end
-        end
 
-        local iDraw = 0;
-
-        if game_input.move_right_action.is_pressed then
-            if g_game_logic.get_player_current_position_x() > get_platform_x2(platform_index) - 3 then
-                g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() - 1);
-            else
-                iDraw = g_hang_animation_current_frame;
+            if g_game_logic.get_player_current_state() == player_state.JSFALLING and
+                    g_game_logic.get_player_current_state_frame_count() < 40 then
+                g_game_logic.set_player_current_state(player_state.JSNORMAL);
             end
-        elseif game_input.move_left_action.is_pressed then
-            if g_game_logic.get_player_current_position_x() < get_platform_x1(platform_index) + 2 then
-                g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() + 1);
-            else
-                iDraw = g_hang_animation_current_frame + 10;
-            end
-        end
 
-        set_identity_mesh_matrix(iHangMesh[iDraw]);
-        translate_mesh_matrix(
-            iHangMesh[iDraw],
-            g_game_logic.get_player_current_position_x() + 0,
-            g_game_logic.get_player_current_position_y() + 2,
-            g_game_logic.get_player_current_position_z() + 1.5);
-        set_mesh_is_visible(iHangMesh[iDraw], true);
-    else
-        g_game_logic.set_player_is_visible(true);
+            g_game_logic.set_player_is_visible(false);
+            g_hang_animation_next_frame_counter = g_hang_animation_next_frame_counter + 1;
+
+            if g_hang_animation_next_frame_counter > 4 then
+                g_hang_animation_next_frame_counter = 0;
+                g_hang_animation_current_frame = g_hang_animation_current_frame + 1;
+
+                if g_hang_animation_current_frame > 4 then
+                    g_hang_animation_current_frame = 1;
+                end
+            end
+
+            local iDraw = 0;
+
+            if game_input.move_right_action.is_pressed then
+                if g_game_logic.get_player_current_position_x() > player_platform.pos_lower_right[1] - 3 then
+                    g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() - 1);
+                else
+                    iDraw = g_hang_animation_current_frame;
+                end
+            elseif game_input.move_left_action.is_pressed then
+                if g_game_logic.get_player_current_position_x() < player_platform.pos_upper_left[1] + 2 then
+                    g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() + 1);
+                else
+                    iDraw = g_hang_animation_current_frame + 10;
+                end
+            end
+
+            set_identity_mesh_matrix(iHangMesh[iDraw]);
+            translate_mesh_matrix(
+                iHangMesh[iDraw],
+                g_game_logic.get_player_current_position_x() + 0,
+                g_game_logic.get_player_current_position_y() + 2,
+                g_game_logic.get_player_current_position_z() + 1.5);
+            set_mesh_is_visible(iHangMesh[iDraw], true);
+
+            return;
+        end
     end
+
+    g_game_logic.set_player_is_visible(true);  -- Player is not hanging
 end
 
 local function ProgressLevel_(game_input)
@@ -145,14 +151,13 @@ local function ProgressLevel_(game_input)
 end
 
 local function FixHangPlatforms_()
-    local platform_count = get_platform_object_count();
+    local platform_count = g_game_logic.get_platform_object_count();
 
     for platform_index = 0, platform_count - 1 do
-        if get_platform_extra(platform_index) == 3 then
-            local iY = get_platform_y1(platform_index);
-            set_platform_y1(platform_index, iY - 11);
-            iY = get_platform_y2(platform_index);
-            set_platform_y2(platform_index, iY - 11);
+        local current_platform = g_game_logic.get_platform(platform_index);
+
+        if current_platform.extra == 3 then
+            current_platform.set_pos_y(current_platform.pos_lower_right[2] - 11, current_platform.pos_upper_left[2] - 11);
         end
     end
 
@@ -189,6 +194,16 @@ local function FixHangPlatforms_()
 
     for i = 11, 14 do  -- TODO: Don't hard-code animation frame indices
         set_mesh_texture(iHangMesh[i], resources.TextureJumpman);
+    end
+
+    for platform_index = 0, g_game_logic.get_platform_object_count() - 1 do
+        -- Fix hang platforms showing black border over them
+        -- TODO: Would it fix this if there was a separate transparent pass?
+        local current_platform = g_game_logic.get_platform(platform_index);
+
+        if current_platform.extra == 3 then
+            move_mesh_to_back(current_platform.mesh_index);
+        end
     end
 end
 

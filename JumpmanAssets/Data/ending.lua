@@ -569,7 +569,7 @@ local function ProgressLevel_(game_input)
         new_credits.initialize();
         g_credits = new_credits;
 
-        local platform_mesh_index = find_platform_mesh_index(1);  -- TODO: Use constant for num
+        local platform_mesh_index = g_game_logic.find_platform_by_number(1).mesh_index;  -- TODO: Use constant for num
         set_mesh_is_visible(platform_mesh_index, false);
 
         local current_backdrop = g_game_logic.find_backdrop_by_number(100);  -- TODO: Use constant for num

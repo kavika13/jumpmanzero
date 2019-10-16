@@ -65,7 +65,7 @@ local function CheckForChange_()
         local iHit, platform_index = Module.GameLogic.find_platform(g_current_pos_x, g_current_pos_y + 4, 4, 2);
 
         if iHit == g_current_pos_y then
-            g_animation_movement_direction = get_platform_number(platform_index);
+            g_animation_movement_direction = Module.GameLogic.get_platform(platform_index).number;
             return;
         end
     end
@@ -98,14 +98,16 @@ local function ProgressPenguin_()
 end
 
 local function AdjustZ_(target_platform_index)
-    local target_platform_pos_z = get_platform_z1(target_platform_index);
+    if target_platform_index ~= -1 then
+        local target_platform_pos_z = Module.GameLogic.get_platform(target_platform_index).pos_z;
 
-    if g_current_pos_z < target_platform_pos_z then
-        g_current_pos_z = g_current_pos_z + 1;
-    end
+        if g_current_pos_z < target_platform_pos_z then
+            g_current_pos_z = g_current_pos_z + 1;
+        end
 
-    if g_current_pos_z > target_platform_pos_z + 2 then
-        g_current_pos_z = g_current_pos_z - 1;
+        if g_current_pos_z > target_platform_pos_z + 2 then
+            g_current_pos_z = g_current_pos_z - 1;
+        end
     end
 end
 

@@ -134,98 +134,11 @@ static long g_player_mesh_indices[MAX_PLAYER_MESHES];
 static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
 static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
-static int g_platform_object_count;
-static LevelObject g_platform_objects[100];
-
 // ------------------- LUA SCRIPT -------------------------------
 
 static lua_State* g_script_level_script_lua_state = NULL;
 
 // Potentially temporary engine functions, during refactor of game logic from out of engine into script
-
-static int get_platform_number(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].Num);
-    return 1;
-}
-
-static int set_platform_number(lua_State* lua_state) {
-    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
-    lua_Integer value_arg = luaL_checkinteger(lua_state, 2);
-    g_platform_objects[platform_index_arg].Num = (long)value_arg;
-    return 0;
-}
-
-static int get_platform_extra(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].Extra);
-    return 1;
-}
-
-static int get_platform_x1(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].X1);
-    return 1;
-}
-
-static int set_platform_x1(lua_State* lua_state) {
-    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_platform_objects[platform_index_arg].X1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_platform_x2(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].X2);
-    return 1;
-}
-
-static int set_platform_x2(lua_State* lua_state) {
-    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_platform_objects[platform_index_arg].X2 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_platform_y1(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].Y1);
-    return 1;
-}
-
-static int set_platform_y1(lua_State* lua_state) {
-    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_platform_objects[platform_index_arg].Y1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_platform_y2(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].Y2);
-    return 1;
-}
-
-static int set_platform_y2(lua_State* lua_state) {
-    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_platform_objects[platform_index_arg].Y2 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
-
-static int get_platform_z1(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].Z1);
-    return 1;
-}
-
-static int set_platform_z1(lua_State* lua_state) {
-    lua_Integer platform_index_arg = luaL_checkinteger(lua_state, 1);
-    double value_arg = luaL_checknumber(lua_state, 2);
-    g_platform_objects[platform_index_arg].Z1 = (long)value_arg;  // Intentionally truncating double to integer
-    return 0;
-}
 
 static bool lua_checkbool(lua_State* L, int arg) {
     luaL_checktype(L, arg, LUA_TBOOLEAN);
@@ -353,11 +266,6 @@ static int scroll_texture_on_mesh(lua_State* lua_state) {
 
 static int get_loaded_texture_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_loaded_texture_count);
-    return 1;
-}
-
-static int get_platform_object_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_platform_object_count);
     return 1;
 }
 
@@ -830,7 +738,7 @@ static int script_set_perspective(lua_State* lua_state) {
 static int lua_error_handler(lua_State* lua_state) {
     const char* error_message = lua_tostring(lua_state, 1);
 
-    if (error_message == NULL) {
+    if(error_message == NULL) {
         if (luaL_callmeta(lua_state, 1, "__tostring") && lua_type(lua_state, -1) == LUA_TSTRING) {
             // TODO: Is this part right?
             //       lua.c did something slightly different here, and I think didn't append a traceback?
@@ -847,76 +755,11 @@ static int lua_error_handler(lua_State* lua_state) {
     return 1;
 }
 
-// TODO: Remove these once level loader is in Lua, and mesh indices are kept there
-
-static int get_platform_mesh_index(lua_State* lua_state) {
-    lua_Integer platform_index = luaL_checkinteger(lua_state, 1);
-    // TODO: Better runtime error handling than assert
-    assert(platform_index > -1 && platform_index < g_platform_object_count && "get_platform_mesh_index was outside the range of current active platform objects");
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].MeshNumber);
-    return 1;
-}
-
-static int FindObject(LevelObject* lObj, int iCount, int iFind) {
-    int iLoop = -1;
-
-    while(++iLoop < iCount) {
-        if(lObj[iLoop].Num == iFind) {
-            return iLoop;
-        }
-    }
-
-    return -1;
-}
-
-static int find_platform_mesh_index(lua_State* lua_state) {
-    lua_Integer platform_num = luaL_checkinteger(lua_state, 1);
-    int platform_index = FindObject(g_platform_objects, g_platform_object_count, (int)platform_num);
-    // TODO: Better runtime error handling than assert
-    assert(platform_index != -1 && "find_platform_mesh_index could not find platform with given num id (specified in level data)");
-    lua_pushinteger(lua_state, g_platform_objects[platform_index].MeshNumber);
-    return 1;
-}
-
-static int find_platform_index(lua_State* lua_state) {
-    lua_Integer platform_num = luaL_checkinteger(lua_state, 1);
-    int platform_index = FindObject(g_platform_objects, g_platform_object_count, (int)platform_num);
-    lua_pushinteger(lua_state, platform_index);
-    return 1;
-}
-
 static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     // TODO: Add all engine functions to a (read-only) global table instead of directly exposing in the global context.
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
     // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
-    lua_pushcfunction(lua_state, get_platform_number);
-    lua_setglobal(lua_state, "get_platform_number");
-    lua_pushcfunction(lua_state, set_platform_number);
-    lua_setglobal(lua_state, "set_platform_number");
-    lua_pushcfunction(lua_state, get_platform_extra);
-    lua_setglobal(lua_state, "get_platform_extra");
-    lua_pushcfunction(lua_state, get_platform_x1);
-    lua_setglobal(lua_state, "get_platform_x1");
-    lua_pushcfunction(lua_state, set_platform_x1);
-    lua_setglobal(lua_state, "set_platform_x1");
-    lua_pushcfunction(lua_state, get_platform_x2);
-    lua_setglobal(lua_state, "get_platform_x2");
-    lua_pushcfunction(lua_state, set_platform_x2);
-    lua_setglobal(lua_state, "set_platform_x2");
-    lua_pushcfunction(lua_state, get_platform_y1);
-    lua_setglobal(lua_state, "get_platform_y1");
-    lua_pushcfunction(lua_state, set_platform_y1);
-    lua_setglobal(lua_state, "set_platform_y1");
-    lua_pushcfunction(lua_state, get_platform_y2);
-    lua_setglobal(lua_state, "get_platform_y2");
-    lua_pushcfunction(lua_state, set_platform_y2);
-    lua_setglobal(lua_state, "set_platform_y2");
-    lua_pushcfunction(lua_state, get_platform_z1);
-    lua_setglobal(lua_state, "get_platform_z1");
-    lua_pushcfunction(lua_state, set_platform_z1);
-    lua_setglobal(lua_state, "set_platform_z1");
-
     lua_pushcfunction(lua_state, load_next_level);
     lua_setglobal(lua_state, "load_next_level");
     lua_pushcfunction(lua_state, queue_level_load);
@@ -959,8 +802,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, get_loaded_texture_count);
     lua_setglobal(lua_state, "get_loaded_texture_count");
-    lua_pushcfunction(lua_state, get_platform_object_count);
-    lua_setglobal(lua_state, "get_platform_object_count");
     lua_pushcfunction(lua_state, get_remaining_life_count);
     lua_setglobal(lua_state, "get_remaining_life_count");
     lua_pushcfunction(lua_state, get_is_sound_enabled);
@@ -1009,14 +850,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "delete_mesh");
     lua_pushcfunction(lua_state, script_set_perspective);
     lua_setglobal(lua_state, "set_perspective");
-
-    lua_pushcfunction(lua_state, get_platform_mesh_index);
-    lua_setglobal(lua_state, "get_platform_mesh_index");
-
-    lua_pushcfunction(lua_state, find_platform_mesh_index);
-    lua_setglobal(lua_state, "find_platform_mesh_index");
-    lua_pushcfunction(lua_state, find_platform_index);
-    lua_setglobal(lua_state, "find_platform_index");
 }
 
 static void LoadLuaScript(const char* base_path, const char* filename, lua_State** new_lua_state) {
@@ -1125,15 +958,6 @@ void DrawGame(void) {
 
 // ------------------- LEVEL LOADING AND GLOBAL GAME STATE  -------------------------------
 
-static void ComposeObject(LevelObject* lObj, long* oData, long* iPlace) {
-    int iCopy = -1;
-
-    while(++iCopy < lObj->MeshSize) {
-        oData[*iPlace] = lObj->Mesh[iCopy];
-        ++*iPlace;
-    }
-}
-
 static void LoadLevel(const char* base_path, const char* filename) {
     char full_path[300];
     stbsp_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, filename);
@@ -1150,8 +974,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     long iArg1;
     long iArg2;
 
-    long* oData;
-    long iMPlace;
     int iSounds;
 
     g_loaded_texture_count = 0;
@@ -1163,8 +985,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
         lua_close(g_script_level_script_lua_state);
         g_script_level_script_lua_state = NULL;
     }
-
-    g_platform_object_count = 0;
 
     cData = NULL;
     iLen = FileToString(full_path, &cData);
@@ -1290,48 +1110,12 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iPlace += 2;
             iPlace += iData << 2;
         } else if(cData[iPlace] == 'P' && cData[iPlace + 1] == 0) {
-            int iLoop = -1;
-
-            while(++iLoop < 8) {
-                g_platform_objects[g_platform_object_count].Func[iLoop] = cData[iPlace + 2 + iLoop];
-            }
-
+            // Skip loading platforms. This will be done in Lua instead
             iPlace += 10;
-
-            g_platform_objects[g_platform_object_count].X1 = StringToInt(&cData[iPlace + 0]);
-            g_platform_objects[g_platform_object_count].Y1 = StringToInt(&cData[iPlace + 2]);
-            g_platform_objects[g_platform_object_count].X2 = StringToInt(&cData[iPlace + 4]);
-            g_platform_objects[g_platform_object_count].Y2 = StringToInt(&cData[iPlace + 6]);
-            g_platform_objects[g_platform_object_count].Z1 = StringToInt(&cData[iPlace + 8]);
-            g_platform_objects[g_platform_object_count].Extra = StringToInt(&cData[iPlace + 10]);
-            g_platform_objects[g_platform_object_count].Num = StringToInt(&cData[iPlace + 12]);
-            g_platform_objects[g_platform_object_count].Texture = StringToInt(&cData[iPlace + 14]);
             iPlace += 20;
-
             iData = StringToInt(&cData[iPlace]) / 4;
             iPlace += 2;
-
-            g_platform_objects[g_platform_object_count].Mesh = (long*)(malloc(iData * sizeof(long)));
-            g_platform_objects[g_platform_object_count].MeshSize = iData;
-            g_platform_objects[g_platform_object_count].ObjectNumber = g_platform_object_count;
-
-            long iNum = -1;
-
-            while(++iNum < iData) {
-                g_platform_objects[g_platform_object_count].Mesh[iNum] = StringToLong2(&cData[iPlace + (iNum << 2)]);
-            }
-
-            iPlace += iNum << 2;
-
-            oData = (long*)(malloc(g_platform_objects[g_platform_object_count].MeshSize * sizeof(long)));
-            iMPlace = 0;
-            ComposeObject(&g_platform_objects[g_platform_object_count], oData, &iMPlace);
-            CreateObject(oData, iMPlace / 9, &iNum);
-            SetObjectData(iNum, g_platform_objects[g_platform_object_count].Texture, 1);
-            g_platform_objects[g_platform_object_count].MeshNumber = iNum;
-            free(oData);
-
-            ++g_platform_object_count;
+            iPlace += iData << 2;
         } else {
             return;
         }
@@ -1452,10 +1236,6 @@ void ExitGame(void) {
 }
 
 static void LoadJumpmanMenu(const char* base_path) {
-    if(g_current_game_menu_state == g_target_game_menu_state) {
-        return;
-    }
-
     Clear3dData();
     Begin3dLoad();
 
@@ -1497,15 +1277,14 @@ static void LoadJumpmanMenu(const char* base_path) {
     EndAndCommit3dLoad();
 }
 
-static void InteractMenu(GameInput* game_input) {
-    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);  // Not calling level update function
-    SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
-}
-
 void UpdateGame(const char* base_path, GameInput* game_input) {
     if(g_game_status == kGameStatusMenu) {
-        LoadJumpmanMenu(base_path);
-        InteractMenu(game_input);
+        if(g_current_game_menu_state != g_target_game_menu_state) {
+            LoadJumpmanMenu(base_path);
+        }
+
+        CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);  // Not calling level update function
+        SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
 
         if(g_game_status == kGameStatusInLevel) {
             g_level_set_current_level_index = 0;

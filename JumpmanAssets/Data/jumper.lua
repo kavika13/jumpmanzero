@@ -90,7 +90,7 @@ local function MoveJumper_(all_jumpers)
         iHit = -100;
         iNewZ = 0;
     else
-        iNewZ = get_platform_z1(platform_index) - 1;
+        iNewZ = Module.GameLogic.get_platform(platform_index).pos_z - 1;
     end
 
     if g_current_status == status_type.CROUCHED or iNewZ < g_current_pos_z then

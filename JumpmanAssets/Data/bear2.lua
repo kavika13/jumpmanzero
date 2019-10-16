@@ -254,7 +254,9 @@ local function CheckForOptions_()
     elseif iChoice > 1999 then
         g_current_move_direction = move_direction.LEFT;
     elseif iChoice < 1000 then
-        if get_platform_x1(iChoice) < g_current_pos_x then
+        local chosen_platform = Module.GameLogic.get_platform(iChoice);
+
+        if chosen_platform.pos_upper_left[1] < g_current_pos_x then
             g_current_move_direction = move_direction.LEFT;
         else
             g_current_move_direction = move_direction.RIGHT;
@@ -317,14 +319,16 @@ local function FallBear_()
 end
 
 local function AdjustZ_(platform_index)
-    local iPlatZ = get_platform_z1(platform_index);
+    if platform_index ~= -1 then
+        local iPlatZ = Module.GameLogic.get_platform(platform_index).pos_z;
 
-    if g_current_pos_z < iPlatZ then
-        g_current_pos_z = g_current_pos_z + 1;
-    end
+        if g_current_pos_z < iPlatZ then
+            g_current_pos_z = g_current_pos_z + 1;
+        end
 
-    if g_current_pos_z > iPlatZ + 2 then
-        g_current_pos_z = g_current_pos_z - 1;
+        if g_current_pos_z > iPlatZ + 2 then
+            g_current_pos_z = g_current_pos_z - 1;
+        end
     end
 end
 

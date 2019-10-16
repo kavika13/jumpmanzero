@@ -80,16 +80,15 @@ local function MoveLadder_(ladder_num, iPos)
     translate_mesh_matrix(current_ladder.mesh_index, iX, iY, iZ - iPos);
 end
 
-local function MovePlatform_(platform_num, iRotate, iTran, get_platform_x_value, get_platform_y_value)
-    local platform_index = find_platform_index(platform_num);
-    local iPlatX = get_platform_x_value(platform_index);
-    local iPlatY = get_platform_y_value(platform_index);
+local function MovePlatform_(platform_num, iRotate, iTran, pos_property_name)
+    local current_platform = g_game_logic.find_platform_by_number(platform_num);
+    local iPlatX = current_platform[pos_property_name][1];
+    local iPlatY = current_platform[pos_property_name][2];
 
-    local platform_mesh_index = find_platform_mesh_index(platform_num);
-    set_identity_mesh_matrix(platform_mesh_index);
-    translate_mesh_matrix(platform_mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
-    rotate_z_mesh_matrix(platform_mesh_index, iRotate);
-    translate_mesh_matrix(platform_mesh_index, iPlatX + iTran, iPlatY, 0);
+    set_identity_mesh_matrix(current_platform.mesh_index);
+    translate_mesh_matrix(current_platform.mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
+    rotate_z_mesh_matrix(current_platform.mesh_index, iRotate);
+    translate_mesh_matrix(current_platform.mesh_index, iPlatX + iTran, iPlatY, 0);
 end
 
 local function ProgressLevel_(game_input)
@@ -104,21 +103,19 @@ local function ProgressLevel_(game_input)
         g_object_1_animation_frame = g_object_1_animation_frame + 3;
 
         -- TODO: Use constant for num
-        MovePlatform_(1, 0 - g_object_1_animation_frame, 1, get_platform_x1, get_platform_y1);
-        MovePlatform_(2, g_object_1_animation_frame, 0 - 1, get_platform_x2, get_platform_y2);
+        MovePlatform_(1, 0 - g_object_1_animation_frame, 1, "pos_upper_left");
+        MovePlatform_(2, g_object_1_animation_frame, 0 - 1, "pos_lower_right");
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
         if g_object_1_animation_frame > 56 then
             g_is_object_1_moving = false;
 
-            local platform_index = find_platform_index(1);  -- TODO: Use constant for num
-            set_platform_y1(platform_index, 500);
-            set_platform_y2(platform_index, 500);
+            local current_platform = g_game_logic.find_platform_by_number(1);  -- TODO: Use constant for num
+            current_platform.set_pos_y(500, 500);
 
-            platform_index = find_platform_index(2);  -- TODO: Use constant for num
-            set_platform_y1(platform_index, 500);
-            set_platform_y2(platform_index, 500);
+            current_platform = g_game_logic.find_platform_by_number(2);  -- TODO: Use constant for num
+            current_platform.set_pos_y(500, 500);
         end
     end
 
@@ -126,8 +123,8 @@ local function ProgressLevel_(game_input)
         g_object_2_animation_frame = g_object_2_animation_frame + 3;
 
         -- TODO: Use constant for num
-        MovePlatform_(3, 0 - g_object_2_animation_frame, 1, get_platform_x1, get_platform_y1);
-        MovePlatform_(4, g_object_2_animation_frame, 0 - 1, get_platform_x2, get_platform_y2);
+        MovePlatform_(3, 0 - g_object_2_animation_frame, 1, "pos_upper_left");
+        MovePlatform_(4, g_object_2_animation_frame, 0 - 1, "pos_lower_right");
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
@@ -135,13 +132,11 @@ local function ProgressLevel_(game_input)
             g_object_2_animation_frame = 56;
             g_is_object_2_moving = false;
 
-            local platform_index = find_platform_index(3);  -- TODO: Use constant for num
-            set_platform_y1(platform_index, 500);
-            set_platform_y2(platform_index, 500);
+            local current_platform = g_game_logic.find_platform_by_number(3);  -- TODO: Use constant for num
+            current_platform.set_pos_y(500, 500);
 
-            platform_index = find_platform_index(4);  -- TODO: Use constant for num
-            set_platform_y1(platform_index, 500);
-            set_platform_y2(platform_index, 500);
+            current_platform = g_game_logic.find_platform_by_number(4);  -- TODO: Use constant for num
+            current_platform.set_pos_y(500, 500);
         end
     end
 
