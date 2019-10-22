@@ -101,7 +101,7 @@ typedef struct {
     int ObjectNumber;
 } LevelObject;
 
-static long LoadMesh(const char* base_path, char* sFileName);
+static long LoadMesh(const char* base_path, const char* sFileName);
 static void LoadPlayerMeshes(const char* base_path);
 
 static char g_level_set_current_set_filename[100];
@@ -196,6 +196,24 @@ static int load_sound(lua_State* lua_state) {
     LoadSound(full_filename, g_loaded_sound_count);
     lua_pushinteger(lua_state, g_loaded_sound_count);
     ++g_loaded_sound_count;
+
+    return 1;
+}
+
+static int load_mesh(lua_State* lua_state) {
+    // TODO: Error checking for filename?
+    const char* filename_arg = lua_tostring(lua_state, 1);
+
+    char game_base_path[300];
+
+    if(!GetWorkingDirectoryPath(game_base_path)) {
+        // TODO: Proper error handling
+        return 0;
+    }
+
+    g_script_mesh_indices[g_loaded_mesh_count] = LoadMesh(game_base_path, filename_arg);
+    lua_pushinteger(lua_state, g_loaded_mesh_count);
+    ++g_loaded_mesh_count;
 
     return 1;
 }
@@ -789,6 +807,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "play_music_track_2");
     lua_pushcfunction(lua_state, load_sound);
     lua_setglobal(lua_state, "load_sound");
+    lua_pushcfunction(lua_state, load_mesh);
+    lua_setglobal(lua_state, "load_mesh");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
     lua_pushcfunction(lua_state, get_just_launched_game);
@@ -1025,9 +1045,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iArg2 = StringToInt(&cData[iPlace + 4]);
 
             if(iTemp == 2) {
-                stbsp_snprintf(sBuild, sizeof(sBuild), "%s.MSH", sTemp);
-                g_script_mesh_indices[g_loaded_mesh_count] = LoadMesh(base_path, sBuild);
-                ++g_loaded_mesh_count;
             }
 
             if(iTemp == 7) {
@@ -1148,7 +1165,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
         }
 
         if(bGood) {
-            stbsp_snprintf(sFile, sizeof(sFile), "Char%s.MSH", sChar);
+            stbsp_snprintf(sFile, sizeof(sFile), "data/char%s.msh", sChar);
             g_letter_mesh_indices[iChar] = LoadMesh(base_path, sFile);
         } else {
             g_letter_mesh_indices[iChar] = -1;
@@ -1312,14 +1329,14 @@ long Init3D(void) {
     return 1;
 }
 
-static long LoadMesh(const char* base_path, char* sFileName) {
+static long LoadMesh(const char* base_path, const char* sFileName) {
     unsigned char* cData;
     long* oData;
     char sFullFile[300];
     long iObjectNum;
     long iNums;
 
-    stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/Data/%s", base_path, sFileName);
+    stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/%s", base_path, sFileName);
 
     cData = NULL;
     iNums = FileToString(sFullFile, &cData);
@@ -1344,54 +1361,54 @@ static long LoadMesh(const char* base_path, char* sFileName) {
 }
 
 static void LoadPlayerMeshes(const char* base_path) {
-    g_player_mesh_indices[kPlayerMeshStand] = LoadMesh(base_path, "Stand.MSH");
-    g_player_mesh_indices[kPlayerMeshLeft1] = LoadMesh(base_path, "Left1.MSH");
-    g_player_mesh_indices[kPlayerMeshLeft2] = LoadMesh(base_path, "Left2.MSH");
-    g_player_mesh_indices[kPlayerMeshRight1] = LoadMesh(base_path, "Right1.MSH");
-    g_player_mesh_indices[kPlayerMeshRight2] = LoadMesh(base_path, "Right2.MSH");
+    g_player_mesh_indices[kPlayerMeshStand] = LoadMesh(base_path, "data/stand.msh");
+    g_player_mesh_indices[kPlayerMeshLeft1] = LoadMesh(base_path, "data/left1.msh");
+    g_player_mesh_indices[kPlayerMeshLeft2] = LoadMesh(base_path, "data/left2.msh");
+    g_player_mesh_indices[kPlayerMeshRight1] = LoadMesh(base_path, "data/right1.msh");
+    g_player_mesh_indices[kPlayerMeshRight2] = LoadMesh(base_path, "data/right2.msh");
 
-    g_player_mesh_indices[kPlayerMeshJumpUp] = LoadMesh(base_path, "JumpUp.MSH");
-    g_player_mesh_indices[kPlayerMeshJumpLeft] = LoadMesh(base_path, "JumpLeft.MSH");
-    g_player_mesh_indices[kPlayerMeshJumpRight] = LoadMesh(base_path, "JumpRight.MSH");
+    g_player_mesh_indices[kPlayerMeshJumpUp] = LoadMesh(base_path, "data/jumpup.msh");
+    g_player_mesh_indices[kPlayerMeshJumpLeft] = LoadMesh(base_path, "data/jumpleft.msh");
+    g_player_mesh_indices[kPlayerMeshJumpRight] = LoadMesh(base_path, "data/jumpright.msh");
 
-    g_player_mesh_indices[kPlayerMeshVineClimb1] = LoadMesh(base_path, "RopeClimb1.MSH");
-    g_player_mesh_indices[kPlayerMeshVineClimb2] = LoadMesh(base_path, "RopeClimb2.MSH");
+    g_player_mesh_indices[kPlayerMeshVineClimb1] = LoadMesh(base_path, "data/ropeclimb1.msh");
+    g_player_mesh_indices[kPlayerMeshVineClimb2] = LoadMesh(base_path, "data/ropeclimb2.msh");
 
-    g_player_mesh_indices[kPlayerMeshLadderClimb1] = LoadMesh(base_path, "LadderClimb1.MSH");
-    g_player_mesh_indices[kPlayerMeshLadderClimb2] = LoadMesh(base_path, "LadderClimb2.MSH");
+    g_player_mesh_indices[kPlayerMeshLadderClimb1] = LoadMesh(base_path, "data/ladderclimb1.msh");
+    g_player_mesh_indices[kPlayerMeshLadderClimb2] = LoadMesh(base_path, "data/ladderclimb2.msh");
 
-    g_player_mesh_indices[kPlayerMeshKickLeft] = LoadMesh(base_path, "KickLeft.MSH");
-    g_player_mesh_indices[kPlayerMeshKickRight] = LoadMesh(base_path, "KickRight.MSH");
+    g_player_mesh_indices[kPlayerMeshKickLeft] = LoadMesh(base_path, "data/kickleft.msh");
+    g_player_mesh_indices[kPlayerMeshKickRight] = LoadMesh(base_path, "data/kickright.msh");
 
-    g_player_mesh_indices[kPlayerMeshDiveRight] = LoadMesh(base_path, "DiveRight.MSH");
-    g_player_mesh_indices[kPlayerMeshRollRight1] = LoadMesh(base_path, "RollRight1.MSH");
-    g_player_mesh_indices[kPlayerMeshRollRight2] = LoadMesh(base_path, "RollRight2.MSH");
-    g_player_mesh_indices[kPlayerMeshRollRight3] = LoadMesh(base_path, "RollRight3.MSH");
-    g_player_mesh_indices[kPlayerMeshRollRight4] = LoadMesh(base_path, "RollRight4.MSH");
+    g_player_mesh_indices[kPlayerMeshDiveRight] = LoadMesh(base_path, "data/diveright.msh");
+    g_player_mesh_indices[kPlayerMeshRollRight1] = LoadMesh(base_path, "data/rollright1.msh");
+    g_player_mesh_indices[kPlayerMeshRollRight2] = LoadMesh(base_path, "data/rollright2.msh");
+    g_player_mesh_indices[kPlayerMeshRollRight3] = LoadMesh(base_path, "data/rollright3.msh");
+    g_player_mesh_indices[kPlayerMeshRollRight4] = LoadMesh(base_path, "data/rollright4.msh");
 
-    g_player_mesh_indices[kPlayerMeshDiveLeft] = LoadMesh(base_path, "DiveLeft.MSH");
-    g_player_mesh_indices[kPlayerMeshRollLeft1] = LoadMesh(base_path, "RollLEFT1.MSH");
-    g_player_mesh_indices[kPlayerMeshRollLeft2] = LoadMesh(base_path, "RollLEFT2.MSH");
-    g_player_mesh_indices[kPlayerMeshRollLeft3] = LoadMesh(base_path, "RollLEFT3.MSH");
-    g_player_mesh_indices[kPlayerMeshRollLeft4] = LoadMesh(base_path, "RollLEFT4.MSH");
+    g_player_mesh_indices[kPlayerMeshDiveLeft] = LoadMesh(base_path, "data/diveleft.msh");
+    g_player_mesh_indices[kPlayerMeshRollLeft1] = LoadMesh(base_path, "data/rollleft1.msh");
+    g_player_mesh_indices[kPlayerMeshRollLeft2] = LoadMesh(base_path, "data/rollleft2.msh");
+    g_player_mesh_indices[kPlayerMeshRollLeft3] = LoadMesh(base_path, "data/rollleft3.msh");
+    g_player_mesh_indices[kPlayerMeshRollLeft4] = LoadMesh(base_path, "data/rollleft4.msh");
 
-    g_player_mesh_indices[kPlayerMeshPunchLeft] = LoadMesh(base_path, "PunchLeft.MSH");
-    g_player_mesh_indices[kPlayerMeshPunchRight] = LoadMesh(base_path, "PunchRight.MSH");
-    g_player_mesh_indices[kPlayerMeshPunchLeft2] = LoadMesh(base_path, "PunchLeft2.MSH");
-    g_player_mesh_indices[kPlayerMeshPunchRight2] = LoadMesh(base_path, "PunchRight2.MSH");
+    g_player_mesh_indices[kPlayerMeshPunchLeft] = LoadMesh(base_path, "data/punchleft.msh");
+    g_player_mesh_indices[kPlayerMeshPunchRight] = LoadMesh(base_path, "data/punchright.msh");
+    g_player_mesh_indices[kPlayerMeshPunchLeft2] = LoadMesh(base_path, "data/punchleft2.msh");
+    g_player_mesh_indices[kPlayerMeshPunchRight2] = LoadMesh(base_path, "data/punchright2.msh");
 
-    g_player_mesh_indices[kPlayerMeshDying] = LoadMesh(base_path, "Dying.MSH");
-    g_player_mesh_indices[kPlayerMeshDead] = LoadMesh(base_path, "Dead.MSH");
-    g_player_mesh_indices[kPlayerMeshStars] = LoadMesh(base_path, "Stars.MSH");
+    g_player_mesh_indices[kPlayerMeshDying] = LoadMesh(base_path, "data/dying.msh");
+    g_player_mesh_indices[kPlayerMeshDead] = LoadMesh(base_path, "data/dead.msh");
+    g_player_mesh_indices[kPlayerMeshStars] = LoadMesh(base_path, "data/stars.msh");
 
-    g_player_mesh_indices[kPlayerMeshSlideR] = LoadMesh(base_path, "SlideR.MSH");
-    g_player_mesh_indices[kPlayerMeshSlideRB] = LoadMesh(base_path, "SlideRB.MSH");
-    g_player_mesh_indices[kPlayerMeshSlideL] = LoadMesh(base_path, "SlideL.MSH");
-    g_player_mesh_indices[kPlayerMeshSlideLB] = LoadMesh(base_path, "SlideLB.MSH");
+    g_player_mesh_indices[kPlayerMeshSlideR] = LoadMesh(base_path, "data/slider.msh");
+    g_player_mesh_indices[kPlayerMeshSlideRB] = LoadMesh(base_path, "data/sliderb.msh");
+    g_player_mesh_indices[kPlayerMeshSlideL] = LoadMesh(base_path, "data/slidel.msh");
+    g_player_mesh_indices[kPlayerMeshSlideLB] = LoadMesh(base_path, "data/slidelb.msh");
 
-    g_player_mesh_indices[kPlayerMeshBored1] = LoadMesh(base_path, "BORED1.MSH");
-    g_player_mesh_indices[kPlayerMeshBored2] = LoadMesh(base_path, "BORED2.MSH");
-    g_player_mesh_indices[kPlayerMeshBored3] = LoadMesh(base_path, "BORED3.MSH");
-    g_player_mesh_indices[kPlayerMeshBored4] = LoadMesh(base_path, "BORED4.MSH");
-    g_player_mesh_indices[kPlayerMeshBored5] = LoadMesh(base_path, "BORED5.MSH");
+    g_player_mesh_indices[kPlayerMeshBored1] = LoadMesh(base_path, "data/bored1.msh");
+    g_player_mesh_indices[kPlayerMeshBored2] = LoadMesh(base_path, "data/bored2.msh");
+    g_player_mesh_indices[kPlayerMeshBored3] = LoadMesh(base_path, "data/bored3.msh");
+    g_player_mesh_indices[kPlayerMeshBored4] = LoadMesh(base_path, "data/bored4.msh");
+    g_player_mesh_indices[kPlayerMeshBored5] = LoadMesh(base_path, "data/bored5.msh");
 }

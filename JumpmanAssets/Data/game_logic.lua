@@ -1689,6 +1689,10 @@ end
 
 function Module.initialize(skip_play_level_music)
     -- TODO: This all might get moved to level loading code?
+    for _, mesh in ipairs(Module.LevelData.meshes) do
+        load_mesh(mesh.filename);
+    end
+
     for _, sound in ipairs(Module.LevelData.sounds) do
         load_sound(sound.filename);
     end
