@@ -1902,7 +1902,7 @@ end
 function Module.update_player_graphics()
     -- TODO: Is this breaking the swim level, or is the swim level itself broken? (script25)
     -- TODO: Also the baboon level looks a bit strange when jumping on horizontal climb vines/platforms (script24)
-    local current_player_mesh_index = g_player_mesh_indices[g_player_current_mesh];
+    local current_player_mesh_index = g_player_mesh_indices[g_player_current_mesh] or 0;
 
     set_identity_mesh_matrix(current_player_mesh_index);
     rotate_x_mesh_matrix(current_player_mesh_index, g_player_current_rotation_x_radians * 180.0 / 3.14);
