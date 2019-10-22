@@ -12,7 +12,7 @@ return {
     textures = {
         { name = "JUMPMAN", filename = "data/jumpman.bmp" },
         { name = "CONVEYOR", filename = "data/conveyor.bmp" },
-        { name = "WATERBACK", filename = "data/waterback.png" },
+        { name = "WATERBACK", filename = "data/waterback.png", alpha_blend = true },
         { name = "REDMETAL", filename = "data/redmetal.bmp" },
         { name = "DARKSKY", filename = "data/darksky.jpg" },
         { name = "BULLET", filename = "data/bullet.bmp" },

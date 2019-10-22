@@ -9,7 +9,7 @@ return {
     },
     textures = {
         { name = "JUMPMAN", filename = "data/jumpman.bmp" },
-        { name = "INVISIBLE", filename = "data/invisible.png" },
+        { name = "INVISIBLE", filename = "data/invisible.png", alpha_blend = true },
         { name = "BLUEMARBLE", filename = "data/bluemarble.bmp" },
         { name = "REDMETAL", filename = "data/redmetal.bmp" },
         { name = "CRAZYSKY", filename = "data/crazysky.jpg" },

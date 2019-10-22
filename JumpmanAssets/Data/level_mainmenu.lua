@@ -12,7 +12,7 @@ return {
         { name = "RACHBLUE", filename = "data/rachblue.bmp" },
         { name = "BORINGBLUSH", filename = "data/boringblush.bmp" },
         { name = "BLUEMARBLE", filename = "data/bluemarble.bmp" },
-        { name = "ZBIT", filename = "data/zbit.png" },
+        { name = "ZBIT", filename = "data/zbit.png", alpha_blend = true },
         { name = "BORINGGREEN", filename = "data/boringgreen.bmp" },
         { name = "BORINGORANGE", filename = "data/boringorange.bmp" },
     },

@@ -27,7 +27,7 @@ return {
         { name = "SKY", filename = "data/sky.jpg" },
         { name = "BABOON", filename = "data/baboon.bmp" },
         { name = "BARK", filename = "data/bark.bmp" },
-        { name = "HANGVINE", filename = "data/hangvine.bmp" },
+        { name = "HANGVINE", filename = "data/hangvine.bmp", alpha_blend = true },
     },
     sounds = {
         { name = "JUMP", filename = "sound/jump.wav" },

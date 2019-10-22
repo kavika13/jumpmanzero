@@ -86,6 +86,7 @@ static void LoadLevel(const char* base_path, const char* filename) {
     char sound_filenames[200][200];
     char texture_names[200][200];
     char texture_filenames[200][200];
+    bool texture_alpha_blend_enabled[200];
 
     size_t g_loaded_mesh_count = 0;
     size_t g_loaded_sound_count = 0;
@@ -176,6 +177,8 @@ static void LoadLevel(const char* base_path, const char* filename) {
                 if(iTemp == 6) {
                     snprintf(texture_filenames[g_loaded_texture_count], sizeof(texture_filenames[g_loaded_texture_count]), "%s%s", sBuild, ".png");
                 }
+
+                texture_alpha_blend_enabled[g_loaded_texture_count] = (iTemp == 6) || (iTemp == 3 && iArg1 == 1);
 
                 ++g_loaded_texture_count;
             }
@@ -526,7 +529,10 @@ static void LoadLevel(const char* base_path, const char* filename) {
             *filename_chars++ = tolower((unsigned char)*filename_chars);
         }
 
-        printf("\n        { name = \"%s\", filename = \"%s\" },", texture_names[i], texture_filenames[i]);
+        printf("\n        { name = \"%s\", filename = \"%s\"%s },",
+            texture_names[i],
+            texture_filenames[i],
+            texture_alpha_blend_enabled[i] ? ", alpha_blend = true" : "");
     }
 
     printf(

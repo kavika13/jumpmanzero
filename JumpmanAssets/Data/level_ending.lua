@@ -69,10 +69,10 @@ return {
         { name = "RUNDONUT", filename = "data/rundonut.bmp" },
         { name = "DINOSAUR", filename = "data/dinosaur.bmp" },
         { name = "SHIPMETAL", filename = "data/shipmetal.bmp" },
-        { name = "SHIPGLASS", filename = "data/shipglass.png" },
+        { name = "SHIPGLASS", filename = "data/shipglass.png", alpha_blend = true },
         { name = "ALIEN", filename = "data/alien.bmp" },
         { name = "DABOTO", filename = "data/daboto.bmp" },
-        { name = "BLAST1", filename = "data/blast1.bmp" },
+        { name = "BLAST1", filename = "data/blast1.bmp", alpha_blend = true },
         { name = "BLACK", filename = "data/black.bmp" },
     },
     sounds = {

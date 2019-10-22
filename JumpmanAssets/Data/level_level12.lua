@@ -15,8 +15,8 @@ return {
         { name = "BLUEMARBLE", filename = "data/bluemarble.bmp" },
         { name = "REDMETAL", filename = "data/redmetal.bmp" },
         { name = "SKY", filename = "data/sky.jpg" },
-        { name = "BEETEXTURE", filename = "data/beetexture.png" },
-        { name = "BIGHIVE", filename = "data/bighive.png" },
+        { name = "BEETEXTURE", filename = "data/beetexture.png", alpha_blend = true },
+        { name = "BIGHIVE", filename = "data/bighive.png", alpha_blend = true },
     },
     sounds = {
         { name = "JUMP", filename = "sound/jump.wav" },

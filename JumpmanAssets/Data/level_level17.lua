@@ -14,7 +14,7 @@ return {
         { name = "REDMETAL", filename = "data/redmetal.bmp" },
         { name = "SKY", filename = "data/sky.jpg" },
         { name = "BULLET", filename = "data/bullet.bmp" },
-        { name = "UPDOWN", filename = "data/updown.bmp" },
+        { name = "UPDOWN", filename = "data/updown.bmp", alpha_blend = true },
     },
     sounds = {
         { name = "JUMP", filename = "sound/jump.wav" },

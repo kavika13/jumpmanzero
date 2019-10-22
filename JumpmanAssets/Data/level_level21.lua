@@ -14,7 +14,7 @@ return {
     },
     textures = {
         { name = "JUMPMAN", filename = "data/jumpman.bmp" },
-        { name = "GIRDER", filename = "data/girder.bmp" },
+        { name = "GIRDER", filename = "data/girder.bmp", alpha_blend = true },
         { name = "BORINGBLUSH", filename = "data/boringblush.bmp" },
         { name = "REDMETAL", filename = "data/redmetal.bmp" },
         { name = "DARK", filename = "data/dark.jpg" },

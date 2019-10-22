@@ -26,7 +26,7 @@ return {
         { name = "NEWMETAL", filename = "data/newmetal.bmp" },
         { name = "BORINGGRAY", filename = "data/boringgray.bmp" },
         { name = "DABACK", filename = "data/daback.jpg" },
-        { name = "LASER", filename = "data/laser.png" },
+        { name = "LASER", filename = "data/laser.png", alpha_blend = true },
         { name = "DISARMING", filename = "data/disarming.bmp" },
         { name = "DABOT", filename = "data/dabot.bmp" },
         { name = "DABOTO", filename = "data/daboto.bmp" },

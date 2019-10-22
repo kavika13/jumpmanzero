@@ -15,7 +15,7 @@ return {
         { name = "SKY", filename = "data/sky.jpg" },
         { name = "BULLET", filename = "data/bullet.bmp" },
         { name = "REDPLATFORM", filename = "data/redplatform.bmp" },
-        { name = "FENCE", filename = "data/fence.png" },
+        { name = "FENCE", filename = "data/fence.png", alpha_blend = true },
         { name = "CLASSICPLATFORM", filename = "data/classicplatform.bmp" },
     },
     sounds = {
