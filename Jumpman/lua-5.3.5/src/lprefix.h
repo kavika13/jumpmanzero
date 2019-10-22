@@ -41,5 +41,25 @@
 
 #endif			/* } */
 
+
+/*
+** Redirecting print output to VS DebugOutput function
+*/
+#if defined(_MSC_VER) && defined(_WIN32) && defined(_DEBUG)    /* { */
+
+__declspec(dllimport) void __stdcall OutputDebugStringA(const char* lpOutputString);
+
+#if !defined(lua_writestring)
+#define lua_writestring(s,l)   (OutputDebugStringA((s)))
+#endif
+
+/* print a newline and flush the output */
+#if !defined(lua_writeline)
+#define lua_writeline()        (OutputDebugStringA("\n"))
+#endif
+
+#endif          /* } */
+
+
 #endif
 
