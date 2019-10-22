@@ -183,6 +183,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.GameLogic = g_game_logic;
 
     local iTemp = bullet_module();
     iTemp.GameLogic = g_game_logic;

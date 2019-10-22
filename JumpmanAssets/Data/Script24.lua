@@ -223,6 +223,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.GameLogic = g_game_logic;
 
     g_hang_animation_current_frame = 1;
 

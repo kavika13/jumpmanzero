@@ -97,7 +97,7 @@ local function ProgressLevel_(game_input)
         local game_over_message = "gameover";
 
         for iLet = 1, #game_over_message do
-            g_game_over_letter_mesh_indices[iLet] = new_char_mesh(game_over_message:sub(iLet, iLet):byte(1, -1));
+            g_game_over_letter_mesh_indices[iLet] = g_game_logic.new_char_mesh(game_over_message:sub(iLet, iLet):byte(1, -1));
             set_mesh_texture(g_game_over_letter_mesh_indices[iLet], resources.TextureNewMetal);
         end
 

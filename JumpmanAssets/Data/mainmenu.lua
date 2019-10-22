@@ -289,7 +289,7 @@ local function InitializeLetters()
     local title = "Jumpman";
 
     for iChar = 1, #title do
-        local char_mesh = new_char_mesh(title:sub(iChar, iChar):byte(1, -1));
+        local char_mesh = g_game_logic.new_char_mesh(title:sub(iChar, iChar):byte(1, -1));
         set_mesh_texture(char_mesh, resources.TextureBoringOrange);
         table.insert(g_title_letter_mesh_ids, char_mesh);
     end
@@ -298,13 +298,17 @@ local function InitializeLetters()
 
     for iTit, current_option in ipairs(menu_options) do
         for iChar = 1, #current_option do
-            table.insert(g_option_letter_mesh_ids, new_char_mesh(menu_options[iTit]:sub(iChar, iChar):byte(1, -1)));
+            table.insert(g_option_letter_mesh_ids, g_game_logic.new_char_mesh(menu_options[iTit]:sub(iChar, iChar):byte(1, -1)));
             table.insert(g_option_letter_title_indices, iTit);
         end
     end
 end
 
 function initialize(game_input)
+    g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
+    g_game_logic.LevelData = level_mainmenu_module();
+    g_game_logic.initialize(true);
+
     InitializeLetters();
 
     if get_just_launched_game() then
@@ -312,10 +316,6 @@ function initialize(game_input)
     else
         g_title_animation_counter = kANIMATION_END_TIME;
     end
-
-    g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
-    g_game_logic.LevelData = level_mainmenu_module();
-    g_game_logic.initialize(true);
 
     g_z_bits = z_bits_module();
     g_z_bits.GameLogic = g_game_logic;

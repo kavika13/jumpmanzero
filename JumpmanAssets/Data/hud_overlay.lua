@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 local g_is_initialized = false;
 
 local g_title_letter_mesh_indices = {};
@@ -18,7 +20,7 @@ local function InitializeLetters_()
     local current_level_title = get_current_level_title();
 
     for iChar = 1, #current_level_title do
-        local char_mesh = new_char_mesh(current_level_title:sub(iChar, iChar):byte(1, -1));
+        local char_mesh = Module.GameLogic.new_char_mesh(current_level_title:sub(iChar, iChar):byte(1, -1));
         set_mesh_texture(char_mesh, get_loaded_texture_count() - 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
         table.insert(g_title_letter_mesh_indices, char_mesh);
     end
@@ -148,29 +150,29 @@ function Module.update(game_input)
         local letter_texture_resource_index = get_loaded_texture_count() - 1;  -- FPS and lives letter tex always loaded last after level loaded - TODO: Don't hard code?
 
         for iNum = 0, 9 do
-            g_fps_first_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            g_fps_first_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_fps_first_number_mesh_indices[iNum + 1], letter_texture_resource_index);
             move_mesh_to_front(g_fps_first_number_mesh_indices[iNum + 1]);
 
-            g_fps_second_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            g_fps_second_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_fps_second_number_mesh_indices[iNum + 1], letter_texture_resource_index);
             move_mesh_to_front(g_fps_second_number_mesh_indices[iNum + 1]);
 
-            g_fps_third_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            g_fps_third_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_fps_third_number_mesh_indices[iNum + 1], letter_texture_resource_index);
             move_mesh_to_front(g_fps_third_number_mesh_indices[iNum + 1]);
 
-            g_life_count_number_mesh_indices[iNum + 1] = new_char_mesh(48 + iNum);
+            g_life_count_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_life_count_number_mesh_indices[iNum + 1], letter_texture_resource_index);
             move_mesh_to_front(g_life_count_number_mesh_indices[iNum + 1]);
         end
 
         InitializeLetters_();
 
-        g_jumpman_icon_mesh_index = new_char_mesh(94);
+        g_jumpman_icon_mesh_index = Module.GameLogic.new_char_mesh(94);
         set_mesh_texture(g_jumpman_icon_mesh_index, 0);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
 
-        -- g_jumpman_hud_background_icon = new_char_mesh(37);
+        -- g_jumpman_hud_background_icon = Module.GameLogic.new_char_mesh(37);
         -- local square_icon_texture_resource_index = get_loaded_texture_count() - 2;  -- Hud BG texture always loaded second to last after a level loaded - TODO: Don't hard code that?
         -- set_mesh_texture(g_jumpman_hud_background_icon, square_icon_texture_resource_index);
 

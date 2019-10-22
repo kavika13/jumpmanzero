@@ -189,22 +189,22 @@ local function InitializeLetters_()
 
     for iTit, current_title in ipairs(game_list) do
         for iChar = 1, #current_title do
-            table.insert(g_letter_mesh_ids, new_char_mesh(game_list[iTit]:sub(iChar, iChar):byte(1, -1)));
+            table.insert(g_letter_mesh_ids, g_game_logic.new_char_mesh(game_list[iTit]:sub(iChar, iChar):byte(1, -1)));
             table.insert(g_letter_title_indices, iTit);
         end
     end
 end
 
 function initialize(game_input)
+    g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
+    g_game_logic.LevelData = level_selectgame_module();
+    g_game_logic.initialize(true);
+
     InitializeLetters_();
     g_title_selected_index = 1;
     g_title_previous_selected_index = 1;
     g_time_since_current_selection = 0;
     g_is_game_selected = false;
-
-    g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
-    g_game_logic.LevelData = level_selectgame_module();
-    g_game_logic.initialize(true);
 
     if get_target_menu_selected_music() == menu_music_type.INTRO_TRACK then
         play_music_track_1(

@@ -124,7 +124,6 @@ static int g_loaded_sound_count;
 #define MAX_LETTER_MESHES 300
 
 static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
-static long g_letter_mesh_indices[MAX_LETTER_MESHES];
 
 // ------------------- LUA SCRIPT -------------------------------
 
@@ -447,25 +446,6 @@ static int new_mesh(lua_State* lua_state) {
     long iNew;
     CopyObject(g_script_mesh_indices[(size_t)script_mesh_index], &iNew);
     lua_pushnumber(lua_state, iNew);
-    return 1;
-}
-
-static int new_char_mesh(lua_State* lua_state) {
-    lua_Integer ascii_value_arg = luaL_checkinteger(lua_state, 1);
-    long iNew;
-
-    if(ascii_value_arg >= 97) {
-        ascii_value_arg += 65 - 97;
-    }
-
-    if(g_letter_mesh_indices[ascii_value_arg] >= 0) {
-        CopyObject(g_letter_mesh_indices[ascii_value_arg], &iNew);
-    } else {
-        iNew = -1;
-    }
-
-    lua_pushnumber(lua_state, iNew);
-
     return 1;
 }
 
@@ -872,8 +852,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "create_mesh");
     lua_pushcfunction(lua_state, new_mesh);
     lua_setglobal(lua_state, "new_mesh");
-    lua_pushcfunction(lua_state, new_char_mesh);
-    lua_setglobal(lua_state, "new_char_mesh");
     lua_pushcfunction(lua_state, move_mesh_to_front);
     lua_setglobal(lua_state, "move_mesh_to_front");
     lua_pushcfunction(lua_state, move_mesh_to_back);
@@ -1135,42 +1113,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
     }
 
     free(cData);
-
-    int iChar;
-    char sFile[100];
-    char sChar[10];
-    int bGood;
-
-    iChar = -1;
-
-    while(++iChar < MAX_LETTER_MESHES) {
-        bGood = 1;
-
-        if((iChar >= 'A' && iChar <= 'Z') || (iChar >= '0' && iChar <= '9')) {
-            stbsp_snprintf(sChar, sizeof(sChar), "%c", iChar);
-        } else if(iChar == '.') {
-            stbsp_snprintf(sChar, sizeof(sChar), "Period");
-        } else if(iChar == '\'') {
-            stbsp_snprintf(sChar, sizeof(sChar), "Apos");
-        } else if(iChar == '-') {
-            stbsp_snprintf(sChar, sizeof(sChar), "Dash");
-        } else if(iChar == ':') {
-            stbsp_snprintf(sChar, sizeof(sChar), "Colon");
-        } else if(iChar == '%') {
-            stbsp_snprintf(sChar, sizeof(sChar), "Square");
-        } else if(iChar == '^') {
-            stbsp_snprintf(sChar, sizeof(sChar), "Jump");
-        } else {
-            bGood = 0;
-        }
-
-        if(bGood) {
-            stbsp_snprintf(sFile, sizeof(sFile), "data/char%s.msh", sChar);
-            g_letter_mesh_indices[iChar] = LoadMesh(base_path, sFile);
-        } else {
-            g_letter_mesh_indices[iChar] = -1;
-        }
-    }
 }
 
 static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filename_size, char* level_title, size_t level_title_size, int level_set_index) {

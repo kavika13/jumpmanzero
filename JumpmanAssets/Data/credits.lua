@@ -1,5 +1,7 @@
 local Module = {};
 
+Module.GameLogic = nil;
+
 Module.TextureResourceIndex = 0;
 
 local g_letter_mesh_indices = {};
@@ -20,7 +22,7 @@ local function StartLine_(iLine)
     end
 
     for iChar = 1, #credit_line do
-        local iMesh = new_char_mesh(credit_line:sub(iChar, iChar):byte(1, -1));
+        local iMesh = Module.GameLogic.new_char_mesh(credit_line:sub(iChar, iChar):byte(1, -1));
         set_mesh_texture(iMesh, Module.TextureResourceIndex);
 
         if iMesh > 0 then

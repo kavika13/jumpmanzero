@@ -81,6 +81,7 @@ function initialize(game_input)
     g_game_logic.build_navigation();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.GameLogic = g_game_logic;
 
     g_bear = bear_module();
     g_bear.GameLogic = g_game_logic;

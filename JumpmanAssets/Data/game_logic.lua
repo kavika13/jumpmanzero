@@ -125,6 +125,7 @@ player_dying_animation_state = read_only.make_table_read_only(player_dying_anima
 local g_game_time_inactive = 0;
 
 local g_player_mesh_indices = {};
+local g_letter_mesh_indices = {};
 
 -- TODO: Do we have to initialize all these?
 local g_player_current_state = player_state.JSNORMAL;
@@ -1759,6 +1760,37 @@ function Module.initialize(skip_play_level_music)
     g_player_mesh_indices[player_mesh.BORED_4] = load_mesh("data/bored4.msh");
     g_player_mesh_indices[player_mesh.BORED_5] = load_mesh("data/bored5.msh");
 
+    -- Load character meshes
+    for iChar = 0, 299 do
+        local is_good = true;
+        local character;
+
+        if (iChar >= string.byte("A") and iChar <= string.byte("Z")) or
+                (iChar >= string.byte("0") and iChar <= string.byte("9")) then
+            character = string.char(iChar);
+        elseif iChar == string.byte(".") then
+            character = "period";
+        elseif iChar == string.byte("'") then
+            character = "apos";
+        elseif iChar == string.byte("-") then
+            character = "dash";
+        elseif iChar == string.byte(":") then
+            character = "colon";
+        elseif iChar == string.byte("%") then
+            character = "square";
+        elseif iChar == string.byte("^") then
+            character = "jump";
+        else
+            is_good = false;
+        end
+
+        if is_good then
+            g_letter_mesh_indices[iChar] = load_mesh("data/char" .. character .. ".msh");
+        else
+            g_letter_mesh_indices[iChar] = -1;
+        end
+    end
+
     if not skip_play_level_music and Module.LevelData.music_loop_start_music_time ~= 5550 then
         play_music_track_1(
             Module.LevelData.music_background_track_filename, 0, Module.LevelData.music_loop_start_music_time);
@@ -1983,6 +2015,20 @@ function Module.win()
     stop_music_track_1();
     g_player_current_state_frame_count = 0;
     g_player_current_state = player_state.JSDONE;
+end
+
+function Module.new_char_mesh(ascii_value)
+    local result = -1;
+
+    if ascii_value >= 97 then
+        ascii_value = ascii_value + 65 - 97;
+    end
+
+    if g_letter_mesh_indices[ascii_value] >= 0 then
+        result = new_mesh(g_letter_mesh_indices[ascii_value]);
+    end
+
+    return result;
 end
 
 function Module.get_player_current_state()

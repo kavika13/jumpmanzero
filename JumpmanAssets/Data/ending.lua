@@ -565,6 +565,7 @@ local function ProgressLevel_(game_input)
         ShowSomething_();
     elseif g_time_since_level_start == 3100 then
         local new_credits = credits_module();
+        new_credits.GameLogic = g_game_logic;
         new_credits.TextureResourceIndex = resources.TextureRedMetal;
         new_credits.initialize();
         g_credits = new_credits;
@@ -597,6 +598,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.GameLogic = g_game_logic;
 
     g_time_since_level_start = 0;
     set_remaining_life_count(0);

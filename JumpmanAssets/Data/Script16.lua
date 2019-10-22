@@ -88,6 +88,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.GameLogic = g_game_logic;
 
     table.insert(g_turtles, CreateTurtle_(128, 8));
     table.insert(g_turtles, CreateTurtle_(65, 12));

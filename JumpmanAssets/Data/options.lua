@@ -88,7 +88,7 @@ local function InitializeLetters_()
 
     for iTit, current_option in ipairs(menu_options) do
         for iChar = 1, #current_option do
-            table.insert(g_option_letter_mesh_ids, new_char_mesh(menu_options[iTit]:sub(iChar, iChar):byte(1, -1)));
+            table.insert(g_option_letter_mesh_ids, g_game_logic.new_char_mesh(menu_options[iTit]:sub(iChar, iChar):byte(1, -1)));
             table.insert(g_option_letter_title_indices, iTit);
         end
     end
@@ -272,12 +272,12 @@ local function ShowLetters_()
 end
 
 function initialize(game_input)
-    InitializeLetters_();
-    g_flash_animation_current_menu_option_index = -1;
-
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = level_options_module();
     g_game_logic.initialize(true);
+
+    InitializeLetters_();
+    g_flash_animation_current_menu_option_index = -1;
 
     if get_target_menu_selected_music() == menu_music_type.INTRO_TRACK then
         play_music_track_1(

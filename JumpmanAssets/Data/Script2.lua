@@ -105,6 +105,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.GameLogic = g_game_logic;
 
     table.insert(g_drop_objects, CreateDropObject_(700));
     table.insert(g_drop_objects, CreateDropObject_(600));

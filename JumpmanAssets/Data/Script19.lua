@@ -109,6 +109,7 @@ function initialize(game_input)
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.GameLogic = g_game_logic;
 
     CreateWhomper_(86, 28, 50, 3);
     CreateWhomper_(100, 28, 0, 3);
