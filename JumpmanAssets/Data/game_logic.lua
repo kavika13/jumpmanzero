@@ -124,6 +124,8 @@ player_dying_animation_state = read_only.make_table_read_only(player_dying_anima
 
 local g_game_time_inactive = 0;
 
+local g_player_mesh_indices = {};
+
 -- TODO: Do we have to initialize all these?
 local g_player_current_state = player_state.JSNORMAL;
 local g_player_current_state_frame_count = 0;
@@ -1650,7 +1652,7 @@ local function AnimateDying_(game_input)
     end
 
     if g_player_dying_animation_state == player_dying_animation_state.SPINNING_STARS then
-        local stars_mesh_index = get_player_mesh_index(player_mesh.STARS);
+        local stars_mesh_index = g_player_mesh_indices[player_mesh.STARS];
         set_identity_mesh_matrix(stars_mesh_index);
         rotate_y_mesh_matrix(stars_mesh_index, g_player_absolute_frame_count * 180.0 / 50.0);
         translate_mesh_matrix(
@@ -1704,6 +1706,58 @@ function Module.initialize(skip_play_level_music)
     for _, sound in ipairs(Module.LevelData.sounds) do
         load_sound(sound.filename);
     end
+
+    -- Loading these after script meshes, so script mesh index not messed up
+    g_player_mesh_indices[player_mesh.STAND] = load_mesh("data/stand.msh");
+    g_player_mesh_indices[player_mesh.LEFT_1] = load_mesh("data/left1.msh");
+    g_player_mesh_indices[player_mesh.LEFT_2] = load_mesh("data/left2.msh");
+    g_player_mesh_indices[player_mesh.RIGHT_1] = load_mesh("data/right1.msh");
+    g_player_mesh_indices[player_mesh.RIGHT_2] = load_mesh("data/right2.msh");
+
+    g_player_mesh_indices[player_mesh.JUMP_UP] = load_mesh("data/jumpup.msh");
+    g_player_mesh_indices[player_mesh.JUMP_LEFT] = load_mesh("data/jumpleft.msh");
+    g_player_mesh_indices[player_mesh.JUMP_RIGHT] = load_mesh("data/jumpright.msh");
+
+    g_player_mesh_indices[player_mesh.VINE_CLIMB_1] = load_mesh("data/ropeclimb1.msh");
+    g_player_mesh_indices[player_mesh.VINE_CLIMB_2] = load_mesh("data/ropeclimb2.msh");
+
+    g_player_mesh_indices[player_mesh.LADDER_CLIMB_1] = load_mesh("data/ladderclimb1.msh");
+    g_player_mesh_indices[player_mesh.LADDER_CLIMB_2] = load_mesh("data/ladderclimb2.msh");
+
+    g_player_mesh_indices[player_mesh.KICK_LEFT] = load_mesh("data/kickleft.msh");
+    g_player_mesh_indices[player_mesh.KICK_RIGHT] = load_mesh("data/kickright.msh");
+
+    g_player_mesh_indices[player_mesh.DIVE_RIGHT] = load_mesh("data/diveright.msh");
+    g_player_mesh_indices[player_mesh.ROLL_RIGHT_1] = load_mesh("data/rollright1.msh");
+    g_player_mesh_indices[player_mesh.ROLL_RIGHT_2] = load_mesh("data/rollright2.msh");
+    g_player_mesh_indices[player_mesh.ROLL_RIGHT_3] = load_mesh("data/rollright3.msh");
+    g_player_mesh_indices[player_mesh.ROLL_RIGHT_4] = load_mesh("data/rollright4.msh");
+
+    g_player_mesh_indices[player_mesh.DIVE_LEFT] = load_mesh("data/diveleft.msh");
+    g_player_mesh_indices[player_mesh.ROLL_LEFT_1] = load_mesh("data/rollleft1.msh");
+    g_player_mesh_indices[player_mesh.ROLL_LEFT_2] = load_mesh("data/rollleft2.msh");
+    g_player_mesh_indices[player_mesh.ROLL_LEFT_3] = load_mesh("data/rollleft3.msh");
+    g_player_mesh_indices[player_mesh.ROLL_LEFT_4] = load_mesh("data/rollleft4.msh");
+
+    g_player_mesh_indices[player_mesh.PUNCH_LEFT_1] = load_mesh("data/punchleft.msh");
+    g_player_mesh_indices[player_mesh.PUNCH_RIGHT_1] = load_mesh("data/punchright.msh");
+    g_player_mesh_indices[player_mesh.PUNCH_LEFT_2] = load_mesh("data/punchleft2.msh");
+    g_player_mesh_indices[player_mesh.PUNCH_RIGHT_2] = load_mesh("data/punchright2.msh");
+
+    g_player_mesh_indices[player_mesh.DYING] = load_mesh("data/dying.msh");
+    g_player_mesh_indices[player_mesh.DEAD] = load_mesh("data/dead.msh");
+    g_player_mesh_indices[player_mesh.STARS] = load_mesh("data/stars.msh");
+
+    g_player_mesh_indices[player_mesh.SLIDE_RIGHT] = load_mesh("data/slider.msh");
+    g_player_mesh_indices[player_mesh.SLIDE_RIGHT_B] = load_mesh("data/sliderb.msh");
+    g_player_mesh_indices[player_mesh.SLIDE_LEFT] = load_mesh("data/slidel.msh");
+    g_player_mesh_indices[player_mesh.SLIDE_LEFT_B] = load_mesh("data/slidelb.msh");
+
+    g_player_mesh_indices[player_mesh.BORED_1] = load_mesh("data/bored1.msh");
+    g_player_mesh_indices[player_mesh.BORED_2] = load_mesh("data/bored2.msh");
+    g_player_mesh_indices[player_mesh.BORED_3] = load_mesh("data/bored3.msh");
+    g_player_mesh_indices[player_mesh.BORED_4] = load_mesh("data/bored4.msh");
+    g_player_mesh_indices[player_mesh.BORED_5] = load_mesh("data/bored5.msh");
 
     if not skip_play_level_music and Module.LevelData.music_loop_start_music_time ~= 5550 then
         play_music_track_1(
@@ -1816,7 +1870,7 @@ end
 function Module.update_player_graphics()
     -- TODO: Is this breaking the swim level, or is the swim level itself broken? (script25)
     -- TODO: Also the baboon level looks a bit strange when jumping on horizontal climb vines/platforms (script24)
-    local current_player_mesh_index = get_player_mesh_index(g_player_current_mesh);
+    local current_player_mesh_index = g_player_mesh_indices[g_player_current_mesh];
 
     set_identity_mesh_matrix(current_player_mesh_index);
     rotate_x_mesh_matrix(current_player_mesh_index, g_player_current_rotation_x_radians * 180.0 / 3.14);
@@ -1829,7 +1883,7 @@ function Module.update_player_graphics()
     end
 
     if g_player_current_mesh ~= g_player_previous_mesh then
-        set_mesh_is_visible(get_player_mesh_index(g_player_previous_mesh), false);
+        set_mesh_is_visible(g_player_mesh_indices[g_player_previous_mesh] or 0, false);
         g_player_previous_mesh = g_player_current_mesh;
     end
 end
