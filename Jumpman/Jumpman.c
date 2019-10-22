@@ -98,7 +98,7 @@ static int load_next_level(lua_State* lua_state) {
 
 static int queue_level_load(lua_State* lua_state) {
     const char* level_name_arg = luaL_checkstring(lua_state, 1);
-    stbsp_snprintf(g_queued_level_load_filename, sizeof(g_queued_level_load_filename), "Data/%s.DAT", level_name_arg);
+    stbsp_snprintf(g_queued_level_load_filename, sizeof(g_queued_level_load_filename), "data/%s.lua", level_name_arg);
     g_game_status = kGameStatusLevelLoad;
     return 0;
 }
@@ -930,11 +930,6 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
     }
 }
 
-static void InitializeLevelScript(void) {
-    GameInput empty_game_input = { 0 };  // TODO: Don't even pass input to initialize
-    CallLuaFunction(g_script_level_script_lua_state, "initialize", &empty_game_input, true);
-}
-
 static void ProgressGame(GameInput* game_input) {
     CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
 }
@@ -945,22 +940,7 @@ void DrawGame(void) {
 
 // ------------------- LEVEL LOADING AND GLOBAL GAME STATE  -------------------------------
 
-static void LoadLevel(const char* base_path, const char* filename) {
-    char full_path[300];
-    stbsp_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, filename);
-
-    unsigned char* cData;
-
-    char sTemp[300];
-
-    long iLen;
-    int iPlace;
-    long iData;
-    char sBuild[200];
-    long iTemp;
-    long iArg1;
-    long iArg2;
-
+static void LoadAndInitializeLevelScript(const char* base_path, const char* filename) {
     g_loaded_texture_count = 0;
     g_loaded_mesh_count = 0;
     g_loaded_sound_count = 0;
@@ -970,103 +950,10 @@ static void LoadLevel(const char* base_path, const char* filename) {
         g_script_level_script_lua_state = NULL;
     }
 
-    cData = NULL;
-    iLen = FileToString(full_path, &cData);
+    LoadLuaScript(base_path, filename, &g_script_level_script_lua_state);
 
-    iPlace = 0;
-
-    while(iPlace < iLen) {
-        sTemp[8] = 0;
-
-        if(cData[iPlace] == 'R' && cData[iPlace + 1] == 0) {
-            iPlace += 2;
-            int iLoop = -1;
-
-            while(++iLoop < 30) {
-                sTemp[iLoop] = cData[iPlace + iLoop];
-            }
-
-            iPlace += 30;
-
-            iTemp = StringToInt(&cData[iPlace + 0]);
-            iArg1 = StringToInt(&cData[iPlace + 2]);
-            iArg2 = StringToInt(&cData[iPlace + 4]);
-
-            if(iTemp == 2) {
-            }
-
-            if(iTemp == 7) {
-            }
-
-            if(iTemp == 3 || iTemp == 4 || iTemp == 6) {
-            }
-
-            if(iTemp == 5) {
-                if(iArg1 == 1) {
-                    assert(false);  // "Trying to load a JMS level script. Should not be the case in any existing level."
-                } else if(iArg1 == 2) {
-                    // TODO: No-op for now
-                    // assert(false, "Trying to load a JMS level script. Should not be the case in any existing level.");
-                } else if(iArg1 == 3) {
-                    stbsp_snprintf(sBuild, sizeof(sBuild), "Data/%s.LUA", sTemp);
-                    // TODO: Should it auto-unload the old script?
-                    LoadLuaScript(base_path, sBuild, &g_script_level_script_lua_state);
-                } else if(iArg1 == 4) {
-                    // TODO: No-op for now. These are managed inside level scripts, so no need to load them separately
-                } else {
-                    // TODO: Log error, do something to signal to game that it can't load the level
-                }
-            }
-
-            iPlace += 8;
-        } else if(cData[iPlace] == 'A' && cData[iPlace + 1] == 0) {
-            // Skip loading backdrops. This will be done in Lua instead
-            iPlace += 10;
-            iPlace += 20;
-            iData = StringToInt(&cData[iPlace]) / 4;
-            iPlace += 2;
-            iPlace += iData << 2;
-        } else if(cData[iPlace] == 'L' && cData[iPlace + 1] == 0) {
-            // Skip loading ladders. This will be done in Lua instead
-            iPlace += 10;
-            iPlace += 20;
-            iData = StringToInt(&cData[iPlace]) / 4;
-            iPlace += 2;
-            iPlace += iData << 2;
-        } else if(cData[iPlace] == 'W' && cData[iPlace + 1] == 0) {
-            // Skip loading walls. This will be done in Lua instead
-            iPlace += 10;
-            iPlace += 20;
-            iData = StringToInt(&cData[iPlace]) / 4;
-            iPlace += 2;
-            iPlace += iData << 2;
-        } else if(cData[iPlace] == 'V' && cData[iPlace + 1] == 0) {
-            // Skip loading vines. This will be done in Lua instead
-            iPlace += 10;
-            iPlace += 20;
-            iData = StringToInt(&cData[iPlace]) / 4;
-            iPlace += 2;
-            iPlace += iData << 2;
-        } else if(cData[iPlace] == 'D' && cData[iPlace + 1] == 0) {
-            // Skip loading donuts. This will be done in Lua instead
-            iPlace += 10;
-            iPlace += 20;
-            iData = StringToInt(&cData[iPlace]) / 4;
-            iPlace += 2;
-            iPlace += iData << 2;
-        } else if(cData[iPlace] == 'P' && cData[iPlace + 1] == 0) {
-            // Skip loading platforms. This will be done in Lua instead
-            iPlace += 10;
-            iPlace += 20;
-            iData = StringToInt(&cData[iPlace]) / 4;
-            iPlace += 2;
-            iPlace += iData << 2;
-        } else {
-            return;
-        }
-    }
-
-    free(cData);
+    GameInput empty_game_input = { 0 };  // TODO: Don't even pass input to initialize
+    CallLuaFunction(g_script_level_script_lua_state, "initialize", &empty_game_input, true);
 }
 
 static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filename_size, char* level_title, size_t level_title_size, int level_set_index) {
@@ -1079,7 +966,7 @@ static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filenam
     //       Return error if we exceed buffer lengths (maybe same check)
     TextLine(sData, iLen, sTemp, 20, level_set_index * 2 - 1);
     TextLine(sData, iLen, level_title, level_title_size, level_set_index * 2);
-    stbsp_snprintf(level_filename, (int)level_filename_size, "Data/%s.DAT", sTemp);
+    stbsp_snprintf(level_filename, (int)level_filename_size, "data/%s.lua", sTemp);
     free(sData);
 }
 
@@ -1089,8 +976,7 @@ static void PrepLevel(const char* base_path, const char* level_filename) {
 
     SetFog(0, 0, 0, 0, 0);
 
-    LoadLevel(base_path, level_filename);
-    InitializeLevelScript();
+    LoadAndInitializeLevelScript(base_path, level_filename);
 
     EndAndCommit3dLoad();
 }
@@ -1112,7 +998,7 @@ static void LoadNextLevel(const char* base_path) {
 void InitGameDebugLevel(const char* base_path, const char* level_name) {
     g_just_launched_game = false;
     g_debug_level_is_specified = true;
-    stbsp_snprintf(g_debug_level_filename, sizeof(g_debug_level_filename), "Data/%s.DAT", level_name);
+    stbsp_snprintf(g_debug_level_filename, sizeof(g_debug_level_filename), "data/%s.lua", level_name);
     LoadNextLevel(base_path);
     g_level_set_current_level_index = 0;
     g_game_status = kGameStatusInLevel;
@@ -1138,18 +1024,15 @@ static void LoadJumpmanMenu(const char* base_path) {
     SetFog(0, 0, 0, 0, 0);
 
     if(g_target_game_menu_state == kGameMenuStateMain) {
-        LoadLevel(base_path, "Data/MainMenu.DAT");
-        InitializeLevelScript();
+        LoadAndInitializeLevelScript(base_path, "data/mainmenu.lua");
     }
 
     if(g_target_game_menu_state == kGameMenuStateOptions) {
-        LoadLevel(base_path, "Data/Options.DAT");
-        InitializeLevelScript();
+        LoadAndInitializeLevelScript(base_path, "data/options.lua");
     }
 
     if(g_target_game_menu_state == kGameMenuStateSelectGame) {
-        LoadLevel(base_path, "Data/SelectGame.DAT");
-        InitializeLevelScript();
+        LoadAndInitializeLevelScript(base_path, "data/selgame.lua");
     }
 
     g_current_game_menu_state = g_target_game_menu_state;
