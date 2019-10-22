@@ -1689,6 +1689,14 @@ end
 
 function Module.initialize(skip_play_level_music)
     -- TODO: This all might get moved to level loading code?
+    for _, texture in ipairs(Module.LevelData.textures) do
+        load_texture(texture.filename, texture.type, texture.alpha_blend or false);
+    end
+
+    -- TODO: These shouldn't be hard-coded to these positions in other scripts
+    load_texture("data/panel.bmp", 0, false);
+    load_texture("data/titles.png", 0, false);
+
     for _, mesh in ipairs(Module.LevelData.meshes) do
         load_mesh(mesh.filename);
     end

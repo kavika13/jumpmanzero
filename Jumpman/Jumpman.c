@@ -200,6 +200,29 @@ static int load_sound(lua_State* lua_state) {
     return 1;
 }
 
+static int load_texture(lua_State* lua_state) {
+    // TODO: Error checking for filename?
+    const char* filename_arg = lua_tostring(lua_state, 1);
+    lua_Integer image_type_arg = luaL_checkinteger(lua_state, 2);
+    bool alpha_blend_arg = lua_checkbool(lua_state, 3);
+
+    char game_base_path[300];
+
+    if(!GetWorkingDirectoryPath(game_base_path)) {
+        // TODO: Proper error handling
+        return 0;
+    }
+
+    char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
+    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", game_base_path, filename_arg);
+
+    LoadTexture(g_loaded_texture_count, full_filename, (long)image_type_arg, alpha_blend_arg ? 1 : 0);
+    lua_pushinteger(lua_state, g_loaded_texture_count);
+    ++g_loaded_texture_count;
+
+    return 1;
+}
+
 static int load_mesh(lua_State* lua_state) {
     // TODO: Error checking for filename?
     const char* filename_arg = lua_tostring(lua_state, 1);
@@ -807,6 +830,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "play_music_track_2");
     lua_pushcfunction(lua_state, load_sound);
     lua_setglobal(lua_state, "load_sound");
+    lua_pushcfunction(lua_state, load_texture);
+    lua_setglobal(lua_state, "load_texture");
     lua_pushcfunction(lua_state, load_mesh);
     lua_setglobal(lua_state, "load_mesh");
     lua_pushcfunction(lua_state, get_player_mesh_index);
@@ -1051,22 +1076,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
             }
 
             if(iTemp == 3 || iTemp == 4 || iTemp == 6) {
-                stbsp_snprintf(sBuild, sizeof(sBuild), "%s/Data/%s", base_path, sTemp);
-
-                if(iTemp == 3) {
-                    stbsp_snprintf(sBuild, sizeof(sBuild), "%s%s", sBuild, ".BMP");
-                }
-
-                if(iTemp == 4) {
-                    stbsp_snprintf(sBuild, sizeof(sBuild), "%s%s", sBuild, ".JPG");
-                }
-
-                if(iTemp == 6) {
-                    stbsp_snprintf(sBuild, sizeof(sBuild), "%s%s", sBuild, ".PNG");
-                }
-
-                LoadTexture(g_loaded_texture_count, sBuild, iArg1, (iTemp == 6) || (iTemp == 3 && iArg1 == 1));
-                ++g_loaded_texture_count;
             }
 
             if(iTemp == 5) {
@@ -1171,14 +1180,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
             g_letter_mesh_indices[iChar] = -1;
         }
     }
-
-    stbsp_snprintf(sTemp, sizeof(sTemp), "%s/Data/panel.bmp", base_path);
-    LoadTexture(g_loaded_texture_count, sTemp, 0, 0);
-    ++g_loaded_texture_count;
-
-    stbsp_snprintf(sTemp, sizeof(sTemp), "%s/Data/Titles.png", base_path);
-    LoadTexture(g_loaded_texture_count, sTemp, 0, 0);
-    ++g_loaded_texture_count;
 }
 
 static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filename_size, char* level_title, size_t level_title_size, int level_set_index) {
