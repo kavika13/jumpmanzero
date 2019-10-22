@@ -119,7 +119,7 @@ static int g_remaining_life_count;
 
 static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
-static int g_loaded_script_count;
+static int g_loaded_sound_count;
 
 #define MAX_SCRIPT_MESHES 300
 #define MAX_LETTER_MESHES 300
@@ -177,6 +177,27 @@ static int play_music_track_2(lua_State* lua_state) {
     const char* new_music_track_arg = lua_tostring(lua_state, 1);
     NewTrack2(new_music_track_arg);
     return 0;
+}
+
+static int load_sound(lua_State* lua_state) {
+    // TODO: Error checking for filename?
+    const char* filename_arg = lua_tostring(lua_state, 1);
+
+    char game_base_path[300];
+
+    if(!GetWorkingDirectoryPath(game_base_path)) {
+        // TODO: Proper error handling
+        return 0;
+    }
+
+    char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
+    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", game_base_path, filename_arg);
+
+    LoadSound(full_filename, g_loaded_sound_count);
+    lua_pushinteger(lua_state, g_loaded_sound_count);
+    ++g_loaded_sound_count;
+
+    return 1;
 }
 
 static int get_player_mesh_index(lua_State* lua_state) {
@@ -766,6 +787,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "stop_music_track_1");
     lua_pushcfunction(lua_state, play_music_track_2);
     lua_setglobal(lua_state, "play_music_track_2");
+    lua_pushcfunction(lua_state, load_sound);
+    lua_setglobal(lua_state, "load_sound");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
     lua_pushcfunction(lua_state, get_just_launched_game);
@@ -970,12 +993,9 @@ static void LoadLevel(const char* base_path, const char* filename) {
     long iArg1;
     long iArg2;
 
-    int iSounds;
-
     g_loaded_texture_count = 0;
     g_loaded_mesh_count = 0;
-    g_loaded_script_count = 0;
-    iSounds = 0;
+    g_loaded_sound_count = 0;
 
     if(g_script_level_script_lua_state != NULL) {
         lua_close(g_script_level_script_lua_state);
@@ -1011,9 +1031,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
             }
 
             if(iTemp == 7) {
-                stbsp_snprintf(sBuild, sizeof(sBuild), "%s/Sound/%s.WAV", base_path, sTemp);
-                LoadSound(sBuild, iSounds);
-                ++iSounds;
             }
 
             if(iTemp == 3 || iTemp == 4 || iTemp == 6) {

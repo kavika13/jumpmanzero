@@ -1688,7 +1688,11 @@ local function AnimateDying_(game_input)
 end
 
 function Module.initialize(skip_play_level_music)
-    -- TODO: This might get moved to level loading code?
+    -- TODO: This all might get moved to level loading code?
+    for _, sound in ipairs(Module.LevelData.sounds) do
+        load_sound(sound.filename);
+    end
+
     if not skip_play_level_music and Module.LevelData.music_loop_start_music_time ~= 5550 then
         play_music_track_1(
             Module.LevelData.music_background_track_filename, 0, Module.LevelData.music_loop_start_music_time);
