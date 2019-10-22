@@ -40,52 +40,6 @@ typedef enum {
 
 #define MAX_PLAYER_MESHES 100
 
-typedef enum {
-    kPlayerMeshStand = 1,
-    kPlayerMeshLeft1 = 2,
-    kPlayerMeshLeft2 = 3,
-    kPlayerMeshRight1 = 4,
-    kPlayerMeshRight2 = 5,
-    kPlayerMeshJumpLeft = 6,
-    kPlayerMeshJumpRight = 7,
-    kPlayerMeshJumpUp = 8,
-    kPlayerMeshVineClimb1 = 9,
-    kPlayerMeshVineClimb2 = 10,
-    kPlayerMeshLadderClimb1 = 11,
-    kPlayerMeshLadderClimb2 = 12,
-    kPlayerMeshKickLeft = 13,
-    kPlayerMeshKickRight = 14,
-
-    kPlayerMeshDiveRight = 15,
-    kPlayerMeshRollRight1 = 16,
-    kPlayerMeshRollRight2 = 17,
-    kPlayerMeshRollRight3 = 18,
-    kPlayerMeshRollRight4 = 19,
-
-    kPlayerMeshDiveLeft = 20,
-    kPlayerMeshRollLeft1 = 21,
-    kPlayerMeshRollLeft2 = 22,
-    kPlayerMeshRollLeft3 = 23,
-    kPlayerMeshRollLeft4 = 24,
-
-    kPlayerMeshPunchLeft = 25,
-    kPlayerMeshPunchRight = 26,
-    kPlayerMeshPunchLeft2 = 27,
-    kPlayerMeshPunchRight2 = 28,
-    kPlayerMeshDying = 29,
-    kPlayerMeshDead = 30,
-    kPlayerMeshStars = 31,
-    kPlayerMeshSlideR = 32,
-    kPlayerMeshSlideRB = 33,
-    kPlayerMeshSlideL = 34,
-    kPlayerMeshSlideLB = 35,
-    kPlayerMeshBored1 = 36,
-    kPlayerMeshBored2 = 37,
-    kPlayerMeshBored3 = 38,
-    kPlayerMeshBored4 = 39,
-    kPlayerMeshBored5 = 40,
-} PlayerMesh;
-
 typedef struct {
     long X1, X2, X3, X4;
     long Y1, Y2, Y3, Y4;
