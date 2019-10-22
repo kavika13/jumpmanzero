@@ -117,12 +117,6 @@ static char g_debug_level_filename[300];
 static char g_queued_level_load_filename[300];
 static int g_remaining_life_count;
 
-static int g_music_loop_start_music_time;  // TODO: I think it gets specified in milliseconds, but it should be in music time, due to the API that was used before
-
-static char g_music_background_track_filename[200];
-static char g_music_death_track_filename[200];
-static char g_music_win_track_filename[200];
-
 static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
 static int g_loaded_script_count;
@@ -158,27 +152,30 @@ static int queue_level_load(lua_State* lua_state) {
     return 0;
 }
 
-static int restart_music_track_1(lua_State* lua_state) {
-    if(g_music_loop_start_music_time != 5550) {
-        // TODO: Error checking?
-        NewTrack1(g_music_background_track_filename, g_music_loop_start_music_time, g_music_loop_start_music_time);
+static int play_music_track_1(lua_State* lua_state) {
+    // TODO: Error checking for filename?
+    const char* new_music_track_arg = lua_tostring(lua_state, 1);
+    lua_Integer song_start_music_time_arg = luaL_checkinteger(lua_state, 2);
+    lua_Integer loop_start_music_time_arg = luaL_checkinteger(lua_state, 3);
+
+    if(song_start_music_time_arg < 0) {
+        luaL_argerror(lua_state, 2, "song_start_music_time must be 0 or greater");
     }
 
-    return 0;
-}
+    NewTrack1(new_music_track_arg, (unsigned int)song_start_music_time_arg, (int)loop_start_music_time_arg);
 
-static int play_win_music_track(lua_State* lua_state) {
-    NewTrack2(g_music_win_track_filename);  // TODO: Error checking?
-    return 0;
-}
-
-static int play_death_music_track(lua_State* lua_state) {
-    NewTrack2(g_music_death_track_filename);  // TODO: Error checking?
     return 0;
 }
 
 static int stop_music_track_1(lua_State* lua_state) {
     StopMusic1();  // TODO: Error checking?
+    return 0;
+}
+
+static int play_music_track_2(lua_State* lua_state) {
+    // TODO: Error checking for filename?
+    const char* new_music_track_arg = lua_tostring(lua_state, 1);
+    NewTrack2(new_music_track_arg);
     return 0;
 }
 
@@ -562,13 +559,7 @@ static int set_config_option(lua_State* lua_state) {
         is_key_good = true;
     }
 
-    if(option_index_arg == 33 && (GetIsMusicEnabled() ? 1 : 0) != key_arg) {
-        if(key_arg == 0) {
-            StopMusic1();
-        } else {
-            NewTrack1(g_music_background_track_filename, 0, 0);
-        }
-
+    if(option_index_arg == 33) {
         SetIsMusicEnabled(key_arg ? true : false);
         is_key_good = true;
     }
@@ -595,6 +586,11 @@ static int script_load_menu(lua_State* lua_state) {
     }
 
     return 0;
+}
+
+static int get_target_menu_selected_music(lua_State* lua_state) {
+    lua_pushinteger(lua_state, g_target_menu_selected_music);
+    return 1;
 }
 
 static int script_game_start(lua_State* lua_state) {
@@ -764,14 +760,12 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "load_next_level");
     lua_pushcfunction(lua_state, queue_level_load);
     lua_setglobal(lua_state, "queue_level_load");
-    lua_pushcfunction(lua_state, restart_music_track_1);
-    lua_setglobal(lua_state, "restart_music_track_1");
-    lua_pushcfunction(lua_state, play_win_music_track);
-    lua_setglobal(lua_state, "play_win_music_track");
-    lua_pushcfunction(lua_state, play_death_music_track);
-    lua_setglobal(lua_state, "play_death_music_track");
+    lua_pushcfunction(lua_state, play_music_track_1);
+    lua_setglobal(lua_state, "play_music_track_1");
     lua_pushcfunction(lua_state, stop_music_track_1);
     lua_setglobal(lua_state, "stop_music_track_1");
+    lua_pushcfunction(lua_state, play_music_track_2);
+    lua_setglobal(lua_state, "play_music_track_2");
     lua_pushcfunction(lua_state, get_player_mesh_index);
     lua_setglobal(lua_state, "get_player_mesh_index");
     lua_pushcfunction(lua_state, get_just_launched_game);
@@ -837,6 +831,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "save_config_options");
     lua_pushcfunction(lua_state, script_load_menu);
     lua_setglobal(lua_state, "load_menu");
+    lua_pushcfunction(lua_state, get_target_menu_selected_music);
+    lua_setglobal(lua_state, "get_target_menu_selected_music");
     lua_pushcfunction(lua_state, script_game_start);
     lua_setglobal(lua_state, "game_start");
     lua_pushcfunction(lua_state, get_credit_line);
@@ -1008,23 +1004,6 @@ static void LoadLevel(const char* base_path, const char* filename) {
             iArg1 = StringToInt(&cData[iPlace + 2]);
             iArg2 = StringToInt(&cData[iPlace + 4]);
 
-            if(iTemp == 1) {
-                stbsp_snprintf(sBuild, sizeof(sBuild), "%s/Sound/%s.MID", base_path, sTemp);
-
-                if(iArg1 == 1) {
-                    stbsp_snprintf(g_music_background_track_filename, sizeof(g_music_background_track_filename), "%s", sBuild);
-                    g_music_loop_start_music_time = (int)iArg2 * 10;
-                }
-
-                if(iArg1 == 2) {
-                    stbsp_snprintf(g_music_death_track_filename, sizeof(g_music_death_track_filename), "%s", sBuild);
-                }
-
-                if(iArg1 == 3) {
-                    stbsp_snprintf(g_music_win_track_filename, sizeof(g_music_win_track_filename), "%s", sBuild);
-                }
-            }
-
             if(iTemp == 2) {
                 stbsp_snprintf(sBuild, sizeof(sBuild), "%s.MSH", sTemp);
                 g_script_mesh_indices[g_loaded_mesh_count] = LoadMesh(base_path, sBuild);
@@ -1193,10 +1172,6 @@ static void PrepLevel(const char* base_path, const char* level_filename) {
     InitializeLevelScript();
 
     EndAndCommit3dLoad();
-
-    if(g_music_loop_start_music_time != 5550) {
-        NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
-    }
 }
 
 static void LoadNextLevel(const char* base_path) {
@@ -1244,32 +1219,16 @@ static void LoadJumpmanMenu(const char* base_path) {
     if(g_target_game_menu_state == kGameMenuStateMain) {
         LoadLevel(base_path, "Data/MainMenu.DAT");
         InitializeLevelScript();
-
-        if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
-            NewTrack1(g_music_background_track_filename, 3000, -1);
-        }
-
-        if(g_target_menu_selected_music == kGameMenuMusicStateMainLoopTrack) {
-            NewTrack1(g_music_death_track_filename, 0, -1);
-        }
     }
 
     if(g_target_game_menu_state == kGameMenuStateOptions) {
         LoadLevel(base_path, "Data/Options.DAT");
         InitializeLevelScript();
-
-        if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
-            NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
-        }
     }
 
     if(g_target_game_menu_state == kGameMenuStateSelectGame) {
         LoadLevel(base_path, "Data/SelectGame.DAT");
         InitializeLevelScript();
-
-        if(g_target_menu_selected_music == kGameMenuMusicStateIntroTrack) {
-            NewTrack1(g_music_background_track_filename, 0, g_music_loop_start_music_time);
-        }
     }
 
     g_current_game_menu_state = g_target_game_menu_state;

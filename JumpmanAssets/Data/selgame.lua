@@ -2,6 +2,14 @@ local read_only = require "Data/read_only";
 local level_selectgame_module = assert(loadfile("Data/level_selectgame.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
+-- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
+local menu_music_type = {
+    CONTINUE_PLAYING_TRACK = 0,
+    INTRO_TRACK = 1,
+    MAIN_LOOP_TRACK = 2,
+};
+menu_music_type = read_only.make_table_read_only(menu_music_type);
+
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
     TextureMenuBack = 0,
@@ -196,7 +204,14 @@ function initialize(game_input)
 
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = level_selectgame_module();
-    g_game_logic.initialize();
+    g_game_logic.initialize(true);
+
+    if get_target_menu_selected_music() == menu_music_type.INTRO_TRACK then
+        play_music_track_1(
+            g_game_logic.LevelData.music_background_track_filename,
+            0,
+            g_game_logic.LevelData.music_loop_start_music_time);
+    end
 end
 
 function update(game_input)

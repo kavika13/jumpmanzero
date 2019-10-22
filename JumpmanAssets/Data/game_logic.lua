@@ -1636,7 +1636,7 @@ local function AnimateDying_(game_input)
         end
 
         if dying_anim_frame_count == 25 then
-            play_death_music_track();
+            play_music_track_2(Module.LevelData.music_death_track_filename);
         end
 
         g_player_absolute_frame_count = g_player_absolute_frame_count + 4;
@@ -1676,14 +1676,24 @@ local function AnimateDying_(game_input)
                     Module.ResetPlayerCallback(game_input);
                 end
 
-                restart_music_track_1();
+                if Module.LevelData.music_loop_start_music_time ~= 5550 then
+                    play_music_track_1(
+                        Module.LevelData.music_background_track_filename,
+                        Module.LevelData.music_loop_start_music_time,
+                        Module.LevelData.music_loop_start_music_time);
+                end
             end
         end
     end
 end
 
-function Module.initialize()
+function Module.initialize(skip_play_level_music)
     -- TODO: This might get moved to level loading code?
+    if not skip_play_level_music and Module.LevelData.music_loop_start_music_time ~= 5550 then
+        play_music_track_1(
+            Module.LevelData.music_background_track_filename, 0, Module.LevelData.music_loop_start_music_time);
+    end
+
     for donut_index = 0, #Module.LevelData.donuts - 1 do
         g_donut_is_collected[donut_index] = false;
 
@@ -1776,7 +1786,7 @@ function Module.progress_game(game_input)
         g_player_current_state_frame_count = g_player_current_state_frame_count + 1;
 
         if g_player_current_state_frame_count == 30 then
-            play_win_music_track();
+            play_music_track_2(Module.LevelData.music_win_track_filename);
         end
 
         if g_player_current_state_frame_count == 300 then

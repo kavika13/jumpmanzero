@@ -120,8 +120,10 @@ local function GetInput_(game_input)
 
             if get_is_music_enabled() then
                 iOn = 0;
+                stop_music_track_1();
             else
                 iOn = 1;
+                play_music_track_1(g_game_logic.LevelData.music_background_track_filename, 0, 0);
             end
 
             set_config_option(33, iOn);
@@ -275,7 +277,14 @@ function initialize(game_input)
 
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = level_options_module();
-    g_game_logic.initialize();
+    g_game_logic.initialize(true);
+
+    if get_target_menu_selected_music() == menu_music_type.INTRO_TRACK then
+        play_music_track_1(
+            g_game_logic.LevelData.music_background_track_filename,
+            0,
+            g_game_logic.LevelData.music_loop_start_music_time);
+    end
 end
 
 function update(game_input)
