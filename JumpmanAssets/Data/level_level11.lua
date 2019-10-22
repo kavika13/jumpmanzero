@@ -39,12 +39,12 @@ return {
         { name = "PSAURR4", filename = "data/psaurr4.msh" },
     },
     textures = {
-        { name = "JUMPMAN", filename = "data/jumpman.bmp" },
-        { name = "DAPLAT", filename = "data/daplat.bmp" },
-        { name = "WOODLADDER", filename = "data/woodladder.bmp" },
-        { name = "REDMETAL", filename = "data/redmetal.bmp" },
-        { name = "SKY", filename = "data/sky.jpg" },
-        { name = "DINOSAUR", filename = "data/dinosaur.bmp" },
+        { name = "JUMPMAN", filename = "data/jumpman.bmp", type = 0 },
+        { name = "DAPLAT", filename = "data/daplat.bmp", type = 0 },
+        { name = "WOODLADDER", filename = "data/woodladder.bmp", type = 0 },
+        { name = "REDMETAL", filename = "data/redmetal.bmp", type = 0 },
+        { name = "SKY", filename = "data/sky.jpg", type = 0 },
+        { name = "DINOSAUR", filename = "data/dinosaur.bmp", type = 0 },
     },
     sounds = {
         { name = "JUMP", filename = "sound/jump.wav" },

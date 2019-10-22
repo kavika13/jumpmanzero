@@ -14,12 +14,12 @@ return {
         { name = "PENGUINSTAND", filename = "data/penguinstand.msh" },
     },
     textures = {
-        { name = "HARLE", filename = "data/harle.bmp" },
-        { name = "ICYPLATFORM", filename = "data/icyplatform.bmp" },
-        { name = "BLUEMARBLE", filename = "data/bluemarble.bmp" },
-        { name = "REDMETAL", filename = "data/redmetal.bmp" },
-        { name = "SKY", filename = "data/sky.jpg" },
-        { name = "PENGUINTEXTURE", filename = "data/penguintexture.bmp" },
+        { name = "HARLE", filename = "data/harle.bmp", type = 0 },
+        { name = "ICYPLATFORM", filename = "data/icyplatform.bmp", type = 0 },
+        { name = "BLUEMARBLE", filename = "data/bluemarble.bmp", type = 0 },
+        { name = "REDMETAL", filename = "data/redmetal.bmp", type = 0 },
+        { name = "SKY", filename = "data/sky.jpg", type = 0 },
+        { name = "PENGUINTEXTURE", filename = "data/penguintexture.bmp", type = 0 },
     },
     sounds = {
         { name = "JUMP", filename = "sound/jump.wav" },

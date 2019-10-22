@@ -8,12 +8,12 @@ return {
         { name = "BULLET2", filename = "data/bullet2.msh" },
     },
     textures = {
-        { name = "JUMPMAN", filename = "data/jumpman.bmp" },
-        { name = "CLASSICPLATFORM", filename = "data/classicplatform.bmp" },
-        { name = "BLUEMARBLE", filename = "data/bluemarble.bmp" },
-        { name = "REDMETAL", filename = "data/redmetal.bmp" },
-        { name = "BULLET", filename = "data/bullet.bmp" },
-        { name = "SKY", filename = "data/sky.jpg" },
+        { name = "JUMPMAN", filename = "data/jumpman.bmp", type = 0 },
+        { name = "CLASSICPLATFORM", filename = "data/classicplatform.bmp", type = 0 },
+        { name = "BLUEMARBLE", filename = "data/bluemarble.bmp", type = 0 },
+        { name = "REDMETAL", filename = "data/redmetal.bmp", type = 0 },
+        { name = "BULLET", filename = "data/bullet.bmp", type = 0 },
+        { name = "SKY", filename = "data/sky.jpg", type = 0 },
     },
     sounds = {
         { name = "JUMP", filename = "sound/jump.wav" },

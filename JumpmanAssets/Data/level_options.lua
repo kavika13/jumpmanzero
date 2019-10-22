@@ -6,9 +6,9 @@ return {
     meshes = {
     },
     textures = {
-        { name = "MENUBACK", filename = "data/menuback.jpg" },
-        { name = "BORINGBLUE", filename = "data/boringblue.bmp" },
-        { name = "RACHBLUE", filename = "data/rachblue.bmp" },
+        { name = "MENUBACK", filename = "data/menuback.jpg", type = 0 },
+        { name = "BORINGBLUE", filename = "data/boringblue.bmp", type = 0 },
+        { name = "RACHBLUE", filename = "data/rachblue.bmp", type = 0 },
     },
     sounds = {
         { name = "SELECT", filename = "sound/select.wav" },
