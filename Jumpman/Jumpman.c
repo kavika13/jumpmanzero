@@ -46,25 +46,6 @@ typedef enum {
     kGameMenuMusicStateMainLoopTrack = 2,
 } GameMenuMusicState;
 
-#define MAX_PLAYER_MESHES 100
-
-typedef struct {
-    long X1, X2, X3, X4;
-    long Y1, Y2, Y3, Y4;
-    long Z1, Z2;
-    long Num;
-    char Func[10];
-    long Extra;
-
-    long MeshSize;
-    long* Mesh;
-    long MeshNumber;
-    long Texture;
-    int ObjectNumber;
-} LevelObject;
-
-static long LoadMesh(const char* base_path, const char* sFileName);
-
 static char g_level_set_current_set_filename[100];
 static int g_level_set_current_level_index;
 static char g_level_current_title[50];
@@ -83,7 +64,6 @@ static int g_loaded_mesh_count;
 static int g_loaded_sound_count;
 
 #define MAX_SCRIPT_MESHES 300
-#define MAX_LETTER_MESHES 300
 
 static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
 
@@ -180,6 +160,37 @@ static int load_texture(lua_State* lua_state) {
     ++g_loaded_texture_count;
 
     return 1;
+}
+
+static long LoadMesh(const char* base_path, const char* sFileName) {
+    unsigned char* cData;
+    long* oData;
+    char sFullFile[300];
+    long iObjectNum;
+    long iNums;
+
+    stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/%s", base_path, sFileName);
+
+    cData = NULL;
+    iNums = FileToString(sFullFile, &cData);
+    iNums = iNums / 4;
+
+    oData = (long*)(malloc(iNums * sizeof(long)));
+
+    long iNum;
+
+    iNum = -1;
+
+    while(++iNum < iNums) {
+        oData[iNum] = StringToLong(&cData[iNum << 2]);
+    }
+
+    CreateObject(oData, iNum / 9, &iObjectNum);
+
+    free(cData);
+    free(oData);
+
+    return iObjectNum;
 }
 
 static int load_mesh(lua_State* lua_state) {
@@ -959,10 +970,6 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
     }
 }
 
-static void ProgressGame(GameInput* game_input) {
-    CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
-}
-
 void DrawGame(void) {
     Render();
 }
@@ -1088,7 +1095,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
 
     if(g_game_status == kGameStatusInLevel) {
         if(!IsGameFrozen()) {
-            ProgressGame(game_input);
+            CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
         }
     }
 
@@ -1120,35 +1127,4 @@ long Init3D(void) {
     }
 
     return 1;
-}
-
-static long LoadMesh(const char* base_path, const char* sFileName) {
-    unsigned char* cData;
-    long* oData;
-    char sFullFile[300];
-    long iObjectNum;
-    long iNums;
-
-    stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/%s", base_path, sFileName);
-
-    cData = NULL;
-    iNums = FileToString(sFullFile, &cData);
-    iNums = iNums / 4;
-
-    oData = (long*)(malloc(iNums * sizeof(long)));
-
-    long iNum;
-
-    iNum = -1;
-
-    while(++iNum < iNums) {
-        oData[iNum] = StringToLong(&cData[iNum << 2]);
-    }
-
-    CreateObject(oData, iNum / 9, &iObjectNum);
-
-    free(cData);
-    free(oData);
-
-    return iObjectNum;
 }
