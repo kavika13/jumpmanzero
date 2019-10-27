@@ -86,7 +86,7 @@ local function ProgressLevel_(game_input)
     g_game_logic.update_player_graphics();
 end
 
-function SpawnJumper_(start_alive)
+local function SpawnJumper_(start_alive)
     local new_jumper = jumper_module();
     new_jumper.GameLogic = g_game_logic;
     new_jumper.AnimationMeshResourceIndices = { resources.MeshJumper1, resources.MeshJumper2, resources.MeshJumper3 };

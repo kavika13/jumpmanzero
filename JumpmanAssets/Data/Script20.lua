@@ -66,7 +66,7 @@ local g_follower_sheep = {};
 
 local g_delay = 0;
 
-function SetResourceProperties_(sheep, sheep_texture)
+local function SetResourceProperties_(sheep, sheep_texture)
     sheep.SheepMoveLeftMeshResourceIndices = { resources.MeshSheepL1, resources.MeshSheepL2 };
     sheep.SheepJumpLeftMeshResourceIndices = { resources.MeshSheepJL1, resources.MeshSheepJL2, resources.MeshSheepJL3 };
     sheep.SheepFlyLeftMeshResourceIndices = { resources.MeshSheepFL1, resources.MeshSheepFL2, resources.MeshSheepFL3 };

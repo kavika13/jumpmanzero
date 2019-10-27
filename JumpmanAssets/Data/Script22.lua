@@ -66,7 +66,7 @@ local g_animation_frame = 0;
 local g_small_gears_background_mesh_index;
 local g_large_gears_background_mesh_index;
 
-function Cycle_(iCCount, iSpeed, iMin, iMax)
+local function Cycle_(iCCount, iSpeed, iMin, iMax)
     local is_negative = false;
 
     if iCCount < 0 then
@@ -95,7 +95,7 @@ function Cycle_(iCCount, iSpeed, iMin, iMax)
     return iPlace;
 end
 
-function SetPosition_(iNum, iNX, iNY)
+local function SetPosition_(iNum, iNX, iNY)
     local iLX;
     local iLY;
 
@@ -212,7 +212,7 @@ local function ProgressLevel_(game_input)
     g_game_logic.update_player_graphics();
 end
 
-function SetPlatformData_(platform_num)
+local function SetPlatformData_(platform_num)
     local current_platform = g_game_logic.find_platform_by_number(platform_num);
 
     g_platform_indices[platform_num] = current_platform.index;

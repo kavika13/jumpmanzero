@@ -185,7 +185,7 @@ local function CreateDABot_(initial_pos_x, initial_pos_y, behavior_type, texture
     return new_bot;
 end
 
-function ProgressLevel_(game_input)
+local function ProgressLevel_(game_input)
     local player_won = g_game_logic.progress_game(game_input);
     g_hud_overlay.update(game_input);
 

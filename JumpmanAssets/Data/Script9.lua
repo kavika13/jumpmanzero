@@ -53,7 +53,7 @@ local g_chain;
 local g_chain_length;
 local g_target_length;
 
-function SetChainLength_()
+local function SetChainLength_()
     if g_chain_length < g_target_length then
         g_chain_length = g_chain_length + 1;
     end

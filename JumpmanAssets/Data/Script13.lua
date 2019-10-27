@@ -135,7 +135,7 @@ local function ResetVisible_(visibility_bitmask)
     end
 end
 
-function NextNum_(iMove)
+local function NextNum_(iMove)
     if iMove == 255 then
         -- Original code set g_visibility_bitmask = 1 here, like is currently being done
         -- This guarantees the donuts always flash after a death on first donut grab, but I *think* they will never disappear after that flash?
