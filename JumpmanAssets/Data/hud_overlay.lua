@@ -189,6 +189,10 @@ function Module.update(game_input)
 
     ShowPerformance_(game_input, lives_remaining);
 
+    -- if game_input.debug_action.just_pressed then
+    --     Module.GameLogic.win_with_no_delay_debug();
+    -- end
+
     if not g_is_title_animation_complete then
         if g_title_scroll_timer < 1000 then
             ShowLevelTitleAnimation_(g_title_scroll_timer);

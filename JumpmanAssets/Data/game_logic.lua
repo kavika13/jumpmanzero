@@ -157,6 +157,8 @@ local g_player_current_platform_y = 0;
 local g_player_current_close_vine_index = -1;
 local g_player_current_exact_vine_index = -1;
 
+local g_win_with_no_delay = false;  -- Used for debugging
+
 local g_level_extent_x = 160;
 
 local g_donut_is_collected = {};
@@ -1891,7 +1893,7 @@ function Module.progress_game(game_input)
             play_music_track_2(Module.LevelData.music_win_track_filename);
         end
 
-        if g_player_current_state_frame_count == 300 then
+        if g_win_with_no_delay or g_player_current_state_frame_count == 300 then
             load_next_level();
         end
 
@@ -2015,6 +2017,11 @@ function Module.win()
     stop_music_track_1();
     g_player_current_state_frame_count = 0;
     g_player_current_state = player_state.JSDONE;
+end
+
+function Module.win_with_no_delay_debug()
+    g_win_with_no_delay = true;
+    Module.win();
 end
 
 function Module.new_char_mesh(ascii_value)
