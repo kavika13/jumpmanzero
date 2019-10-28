@@ -63,9 +63,9 @@ static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
 static int g_loaded_sound_count;
 
-#define MAX_SCRIPT_MESHES 300
+#define kMAX_SCRIPT_MESHES 600
 
-static long g_script_mesh_indices[MAX_SCRIPT_MESHES];
+static long g_script_mesh_indices[kMAX_SCRIPT_MESHES];
 
 // ------------------- LUA SCRIPT -------------------------------
 
@@ -204,6 +204,7 @@ static int load_mesh(lua_State* lua_state) {
         return 0;
     }
 
+    assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     long result = LoadMesh(game_base_path, filename_arg);
     g_script_mesh_indices[g_loaded_mesh_count] = result;
     lua_pushinteger(lua_state, result);
@@ -407,7 +408,10 @@ static int create_mesh(lua_State* lua_state) {
         lua_pop(lua_state, 1);  // Current vertex table
     }
 
+    assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     size_t new_mesh_index = CreateMesh(new_mesh_vertices, vertex_count, texture_index_arg, is_visible_arg);
+    g_script_mesh_indices[g_loaded_mesh_count] = new_mesh_index;
+    ++g_loaded_mesh_count;
 
     lua_pushnumber(lua_state, new_mesh_index);
 
@@ -416,8 +420,11 @@ static int create_mesh(lua_State* lua_state) {
 
 static int new_mesh(lua_State* lua_state) {
     double script_mesh_index = luaL_checknumber(lua_state, 1);
+    assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     long iNew;
     CopyObject(g_script_mesh_indices[(size_t)script_mesh_index], &iNew);
+    g_script_mesh_indices[g_loaded_mesh_count] = iNew;
+    ++g_loaded_mesh_count;
     lua_pushnumber(lua_state, iNew);
     return 1;
 }
@@ -1118,7 +1125,7 @@ void UpdateGame(const char* base_path, GameInput* game_input) {
 long Init3D(void) {
     int iLoop = -1;
 
-    while(++iLoop < MAX_SCRIPT_MESHES) {
+    while(++iLoop < kMAX_SCRIPT_MESHES) {
         g_script_mesh_indices[iLoop] = 0;
     }
 
