@@ -108,9 +108,9 @@ local function get_new_sandbox_env()
 
         -- Lua API from engine
         -- TODO: Easier way to copy these over?
-        unload_all_resources = unload_all_resources,
-        begin_loading_3d_data = begin_loading_3d_data,
-        end_and_commit_loading_3d_data = end_and_commit_loading_3d_data,
+        -- unload_all_resources = unload_all_resources,
+        -- begin_loading_3d_data = begin_loading_3d_data,
+        -- end_and_commit_loading_3d_data = end_and_commit_loading_3d_data,
         play_music_track_1 = play_music_track_1,
         stop_music_track_1 = stop_music_track_1,
         play_music_track_2 = play_music_track_2,
