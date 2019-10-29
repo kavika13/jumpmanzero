@@ -1,6 +1,14 @@
 #include <assert.h>
 #define TSF_IMPLEMENTATION
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wcomma"
+    #pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#endif
 #include "tsf.h"
+#ifdef __APPLE__
+    #pragma clang diagnostic pop
+#endif
 #define TML_IMPLEMENTATION
 #include "tml.h"
 #include <stb_sprintf.h>

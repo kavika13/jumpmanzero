@@ -144,6 +144,12 @@
 		FA4CC969233DC419004174B5 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glad.c; path = glad/src/glad.c; sourceTree = "<group>"; };
 		FA4CC96E233DC5D0004174B5 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = "Jumpman/glfw-3.3.bin.MACOS/lib-macos/libglfw3.a"; sourceTree = "<group>"; };
 		FA4CC972233DD069004174B5 /* boxer_osx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = boxer_osx.m; path = "boxer-c/src/boxer_osx.m"; sourceTree = "<group>"; };
+		FAD945B12367E09C00B8BE4E /* HandmadeMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HandmadeMath.h; path = "handmademath-1.7.0/HandmadeMath.h"; sourceTree = "<group>"; };
+		FAD945B22367E0A900B8BE4E /* sokol_gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sokol_gfx.h; path = "sokol-gfx-master-f1efc6d/sokol_gfx.h"; sourceTree = "<group>"; };
+		FAD945B32367E0B600B8BE4E /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = "stb-image-2.19.0/stb_image.h"; sourceTree = "<group>"; };
+		FAD945B42367E3D200B8BE4E /* mini_al.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mini_al.h; path = "mini_al-0.8.9/mini_al.h"; sourceTree = "<group>"; };
+		FAD945B52367E7CD00B8BE4E /* tml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tml.h; path = "tiny_sound_font-master-5506592/tml.h"; sourceTree = "<group>"; };
+		FAD945B62367E7CD00B8BE4E /* tsf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tsf.h; path = "tiny_sound_font-master-5506592/tsf.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +184,12 @@
 		FA4CC8DE233DA35A004174B5 /* Jumpman */ = {
 			isa = PBXGroup;
 			children = (
+				FAD945B52367E7CD00B8BE4E /* tml.h */,
+				FAD945B62367E7CD00B8BE4E /* tsf.h */,
+				FAD945B42367E3D200B8BE4E /* mini_al.h */,
+				FAD945B32367E0B600B8BE4E /* stb_image.h */,
+				FAD945B22367E0A900B8BE4E /* sokol_gfx.h */,
+				FAD945B12367E09C00B8BE4E /* HandmadeMath.h */,
 				FA4CC967233DC39B004174B5 /* boxer-c */,
 				FA4CC968233DC401004174B5 /* glad */,
 				FA4CC906233DC372004174B5 /* lua-5.3.5 */,

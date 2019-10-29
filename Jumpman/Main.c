@@ -12,7 +12,14 @@
     #pragma clang diagnostic pop
 #endif
 #define STB_SPRINTF_IMPLEMENTATION
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#endif
 #include <stb_sprintf.h>
+#ifdef __APPLE__
+    #pragma clang diagnostic pop
+#endif
 #include "Basic3d.h"
 #include "Input.h"
 #include "Jumpman.h"

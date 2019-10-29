@@ -4,7 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 #define CUTE_FILES_IMPLEMENTATION
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wstrict-prototypes"
+    #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
 #include <cute_files.h>
+#ifdef __APPLE__
+    #pragma clang diagnostic pop
+#endif
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -857,7 +865,14 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
 
     int load_file_result = luaL_loadfile(new_state, full_filename);
     if(load_file_result != 0) {
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-variable"
+#endif
         const char* error_message = lua_tostring(new_state, -1);
+#ifdef __APPLE__
+    #pragma clang diagnostic pop
+#endif
         assert(false);  // TODO: Error handling
     }
 
@@ -869,7 +884,14 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
     lua_insert(new_state, error_handler_stack_pos);
 
     if (lua_pcall(new_state, 0, 0, error_handler_stack_pos) != 0) {
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-variable"
+#endif
         const char* error_message = lua_tostring(new_state, -1);
+#ifdef __APPLE__
+    #pragma clang diagnostic pop
+#endif
         assert(false);  // TODO: Error handling
     }
 
@@ -918,7 +940,14 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
         lua_insert(lua_state, error_handler_stack_pos);
 
         if(lua_pcall(lua_state, arg_count, 0, error_handler_stack_pos) != 0) {
+#ifdef __APPLE__
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-variable"
+#endif
             const char* error_message = lua_tostring(lua_state, -1);
+#ifdef __APPLE__
+    #pragma clang diagnostic pop
+#endif
             assert(false);  // TODO: Error handling
         }
 
