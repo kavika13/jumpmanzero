@@ -1,5 +1,5 @@
 local read_only = require "Data/read_only";
-local level_mainmenu_module = assert(loadfile("Data/level_mainmenu.lua"));
+local mainmenu_data_module = assert(loadfile("data/mainmenu_data.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local z_bits_module = assert(loadfile("Data/z_bits.lua"));
 
@@ -300,7 +300,7 @@ end
 
 function Module.initialize(game_input)
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
-    g_game_logic.LevelData = level_mainmenu_module();
+    g_game_logic.LevelData = mainmenu_data_module();
     g_game_logic.initialize(true);
 
     InitializeLetters();

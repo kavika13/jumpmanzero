@@ -1,5 +1,5 @@
 local read_only = require "Data/read_only";
-local level_level23_module = assert(loadfile("Data/level_level23.lua"));
+local level23_data_module = assert(loadfile("data/level23_data.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local claw_module = assert(loadfile("Data/claw.lua"));
@@ -104,7 +104,7 @@ end
 function Module.initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.MenuLogic = Module.MenuLogic;
-    g_game_logic.LevelData = level_level23_module();
+    g_game_logic.LevelData = level23_data_module();
     g_game_logic.ResetPlayerCallback = Module.reset;
     g_game_logic.initialize();
 

@@ -1,8 +1,8 @@
 local read_only = require "Data/read_only";
-local level_level5_module = assert(loadfile("Data/level_level5.lua"));
+local level3_data_module = assert(loadfile("data/level3_data.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
-local penguin_module = assert(loadfile("Data/penguin.lua"));
+local bear_module = assert(loadfile("Data/bear2.lua"));
 
 local Module = {};
 
@@ -26,24 +26,35 @@ player_state = read_only.make_table_read_only(player_state);
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
-    TextureHarle = 0,
-    TextureIcyPlatform = 1,
-    TextureBlueMarble = 2,
-    TextureRedMetal = 3,
+    TextureJumpman = 0,
+    TextureRedGirder = 1,
+    TextureRedStone = 2,
+    TextureNewMetal = 3,
     Texturesky = 4,
-    TexturePenguinTexture = 5,
-    MeshPenguinRight1 = 0,
-    MeshPenguinRight2 = 1,
-    MeshPenguinLeft1 = 2,
-    MeshPenguinLeft2 = 3,
-    MeshPenguinBack = 4,
-    MeshPenguinLC1 = 5,
-    MeshPenguinLC2 = 6,
-    MeshPenguinStand = 7,
-    ScriptPenguin = 0,
+    ScriptBear2 = 0,
+    TextureFur = 5,
+    MeshFyStand = 0,
+    MeshFyRight1 = 1,
+    MeshFyRight2 = 2,
+    MeshFyFR1 = 3,
+    MeshFyFR2 = 4,
+    MeshFyFlopR = 5,
+    MeshFySR1 = 6,
+    MeshFySR2 = 7,
+    MeshFyStandL = 8,
+    MeshFyLeft1 = 9,
+    MeshFyLeft2 = 10,
+    MeshFyFL1 = 11,
+    MeshFyFL2 = 12,
+    MeshFyFlopL = 13,
+    MeshFySL1 = 14,
+    MeshFySL2 = 15,
+    MeshFyLC1 = 16,
+    MeshFyLC2 = 17,
     SoundJump = 0,
     Soundchomp = 1,
     Soundbonk = 2,
+    TextureStone = 6,
 };
 resources = read_only.make_table_read_only(resources);
 
@@ -51,7 +62,7 @@ local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
-local g_penguins = {};
+local g_bear = nil;
 
 local function ProgressLevel_(game_input)
     local player_won = g_game_logic.progress_game(game_input);
@@ -61,9 +72,7 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    for _, penguin in ipairs(g_penguins) do
-        penguin.update();
-    end
+    g_bear.update();
 
     g_game_logic.update_player_graphics();
 end
@@ -71,27 +80,30 @@ end
 function Module.initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.MenuLogic = Module.MenuLogic;
-    g_game_logic.LevelData = level_level5_module();
+    g_game_logic.LevelData = level3_data_module();
     g_game_logic.ResetPlayerCallback = Module.reset;
     g_game_logic.initialize();
+    g_game_logic.build_navigation();
 
     g_hud_overlay = hud_overlay_module();
     g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
-    for iLoop = 0, 11 do
-        local new_penguin = penguin_module();
-        new_penguin.GameLogic = g_game_logic;
-        new_penguin.StandMeshResourceIndex = resources.MeshPenguinStand;
-        new_penguin.BackMeshResourceIndex = resources.MeshPenguinBack;
-        new_penguin.MoveLeftMeshResourceIndices = { resources.MeshPenguinLeft1, resources.MeshPenguinLeft2 };
-        new_penguin.MoveRightMeshResourceIndices = { resources.MeshPenguinRight1, resources.MeshPenguinRight2 };
-        new_penguin.LadderClimbMeshResourceIndices = { resources.MeshPenguinLC1, resources.MeshPenguinLC2};
-        new_penguin.TextureResourceIndex = resources.TexturePenguinTexture;
-        new_penguin.CountOfTimesToPreAdvanceMovement = iLoop * 66;
-        new_penguin.initialize();
-        table.insert(g_penguins, new_penguin);
-    end
+    g_bear = bear_module();
+    g_bear.GameLogic = g_game_logic;
+    g_bear.StandRightMeshResourceIndex = resources.MeshFyStand;
+    g_bear.MoveRightMeshResourceIndices = { resources.MeshFyRight1, resources.MeshFyRight2 };
+    g_bear.FallRightMeshResourceIndices = { resources.MeshFyFR1, resources.MeshFyFR2 };
+    g_bear.RestRightMeshResourceIndex = resources.MeshFyFlopR;
+    g_bear.ShakeRightMeshResourceIndices = { resources.MeshFySR1, resources.MeshFySR2 };
+    g_bear.StandLeftMeshResourceIndex = resources.MeshFyStandL;
+    g_bear.MoveLeftMeshResourceIndices = { resources.MeshFyLeft1, resources.MeshFyLeft2 };
+    g_bear.FallLeftMeshResourceIndices = { resources.MeshFyFL1, resources.MeshFyFL2 };
+    g_bear.RestLeftMeshResourceIndex = resources.MeshFyFlopL;
+    g_bear.ShakeLeftMeshResourceIndices = { resources.MeshFySL1, resources.MeshFySL2 };
+    g_bear.ClimbMeshResourceIndices = { resources.MeshFyLC1, resources.MeshFyLC2 };
+    g_bear.TextureResourceIndex = resources.TextureFur;
+    g_bear.initialize();
 
     Module.reset();
 
@@ -113,10 +125,14 @@ function Module.update(game_input)
 end
 
 function Module.reset()
-    g_game_logic.set_player_current_position_x(38);
-    g_game_logic.set_player_current_position_y(25);
-    g_game_logic.set_player_current_position_z(2);
+    g_game_logic.set_player_current_position_x(6);
+    g_game_logic.set_player_current_position_y(7);
+    g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
+
+    if g_bear then
+        g_bear.reset_pos();
+    end
 end
 
 return Module;

@@ -108,13 +108,14 @@ load_main_menu = function(is_from_game_launch, is_from_level)
 
             if is_from_level then
                 level_module.StartMainMusicTrack = true;
+                g_has_not_started_menu_music = false;
             end
         end);
 end
 
 load_select_game_menu = function()
     queue_load_level(
-        "data/selgame.lua",
+        "data/selectgame.lua",
         function(level_module)
             g_is_in_menu = true;
             -- TODO: Wrangle menu music in this main.lua script instead of in the menu level scripts themselves?
@@ -122,6 +123,7 @@ load_select_game_menu = function()
             level_module.MenuLogic = {
                 game_start = game_start,
             };
+            g_has_not_started_menu_music = false;
         end);
 end
 
@@ -136,47 +138,46 @@ load_options_menu = function()
             level_module.MenuLogic = {
                 load_main_menu = function() load_main_menu(false, false); end,
             };
+            g_has_not_started_menu_music = false;
         end);
-
-    g_has_not_started_menu_music = false;
 end
 
 game_start = function(level_set_index)
     local level_set = {  -- TODO: Load this from an external file?
         {
-            { title = "Easy Does It", script_filename = "data/script1.lua" },
-            { title = "Followers", script_filename = "data/script20.lua" },
-            { title = "Disorderly", script_filename = "data/script14.lua" },
-            { title = "Hot. Hot. Hot.", script_filename = "data/script8.lua" },
-            { title = "Flash Flood", script_filename = "data/script7.lua" },
-            { title = "The Hive", script_filename = "data/script12.lua" },
-            { title = "Downside Up", script_filename = "data/script17.lua" },
-            { title = "Tree Huggers", script_filename = "data/script24.lua" },
-            { title = "Final Battle", script_filename = "data/script27.lua" },
+            { title = "Easy Does It", script_filename = "data/level1.lua" },
+            { title = "Followers", script_filename = "data/level20.lua" },
+            { title = "Disorderly", script_filename = "data/level14.lua" },
+            { title = "Hot. Hot. Hot.", script_filename = "data/level8.lua" },
+            { title = "Flash Flood", script_filename = "data/level7.lua" },
+            { title = "The Hive", script_filename = "data/level12.lua" },
+            { title = "Downside Up", script_filename = "data/level17.lua" },
+            { title = "Tree Huggers", script_filename = "data/level24.lua" },
+            { title = "Final Battle", script_filename = "data/level27.lua" },
             { title = "Congratulations", script_filename = "data/ending.lua" },
         },
         {
-            { title = "Solid Ground", script_filename = "data/script15.lua" },
-            { title = "No Rush", script_filename = "data/script16.lua" },
-            { title = "Clockwork", script_filename = "data/script22.lua" },
-            { title = "...Now You Don't", script_filename = "data/script13.lua" },
-            { title = "Great White North", script_filename = "data/script5.lua" },
-            { title = "La Garra", script_filename = "data/script23.lua" },
-            { title = "Gauntlet", script_filename = "data/script19.lua" },
-            { title = "Big Game", script_filename = "data/script11.lua" },
-            { title = "Final Battle", script_filename = "data/script27.lua" },
+            { title = "Solid Ground", script_filename = "data/level15.lua" },
+            { title = "No Rush", script_filename = "data/level16.lua" },
+            { title = "Clockwork", script_filename = "data/level22.lua" },
+            { title = "...Now You Don't", script_filename = "data/level13.lua" },
+            { title = "Great White North", script_filename = "data/level5.lua" },
+            { title = "La Garra", script_filename = "data/level23.lua" },
+            { title = "Gauntlet", script_filename = "data/level19.lua" },
+            { title = "Big Game", script_filename = "data/level11.lua" },
+            { title = "Final Battle", script_filename = "data/level27.lua" },
             { title = "Congratulations", script_filename = "data/ending.lua" },
         },
         {
-            { title = "Flicker", script_filename = "data/script6.lua" },
-            { title = "When It Rains...", script_filename = "data/script2.lua" },
-            { title = "Fyodor", script_filename = "data/script3.lua" },
-            { title = "Infestation", script_filename = "data/script10.lua" },
-            { title = "High Strung", script_filename = "data/script9.lua" },
-            { title = "A Difficult Assignment", script_filename = "data/script18.lua" },
-            { title = "Wonky Frog", script_filename = "data/script21.lua" },
-            { title = "Jump the Shark", script_filename = "data/script25.lua" },
-            { title = "Final Battle", script_filename = "data/script27.lua" },
+            { title = "Flicker", script_filename = "data/level6.lua" },
+            { title = "When It Rains...", script_filename = "data/level2.lua" },
+            { title = "Fyodor", script_filename = "data/level3.lua" },
+            { title = "Infestation", script_filename = "data/level10.lua" },
+            { title = "High Strung", script_filename = "data/level9.lua" },
+            { title = "A Difficult Assignment", script_filename = "data/level18.lua" },
+            { title = "Wonky Frog", script_filename = "data/level21.lua" },
+            { title = "Jump the Shark", script_filename = "data/level25.lua" },
+            { title = "Final Battle", script_filename = "data/level27.lua" },
             { title = "Congratulations", script_filename = "data/ending.lua" },
         },
     };

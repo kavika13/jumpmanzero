@@ -1,8 +1,8 @@
 local read_only = require "Data/read_only";
-local level_level3_module = assert(loadfile("Data/level_level3.lua"));
+local level12_data_module = assert(loadfile("data/level12_data.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
-local bear_module = assert(loadfile("Data/bear2.lua"));
+local bee_module = assert(loadfile("Data/bee.lua"));
 
 local Module = {};
 
@@ -14,7 +14,7 @@ local player_state = {
     JSJUMPING = 1,
     JSRIGHT = 2,
     JSLEFT = 4,
-    JSFALLING = 8,
+    JSFALLING = 8 ,
     JSLADDER = 16,
     JSKICK = 32,
     JSROLL = 64,
@@ -27,42 +27,32 @@ player_state = read_only.make_table_read_only(player_state);
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
     TextureJumpman = 0,
-    TextureRedGirder = 1,
-    TextureRedStone = 2,
-    TextureNewMetal = 3,
-    Texturesky = 4,
-    ScriptBear2 = 0,
-    TextureFur = 5,
-    MeshFyStand = 0,
-    MeshFyRight1 = 1,
-    MeshFyRight2 = 2,
-    MeshFyFR1 = 3,
-    MeshFyFR2 = 4,
-    MeshFyFlopR = 5,
-    MeshFySR1 = 6,
-    MeshFySR2 = 7,
-    MeshFyStandL = 8,
-    MeshFyLeft1 = 9,
-    MeshFyLeft2 = 10,
-    MeshFyFL1 = 11,
-    MeshFyFL2 = 12,
-    MeshFyFlopL = 13,
-    MeshFySL1 = 14,
-    MeshFySL2 = 15,
-    MeshFyLC1 = 16,
-    MeshFyLC2 = 17,
+    TexturePurpleHex = 1,
+    TextureBlueMarble = 2,
+    TextureRedMetal = 3,
+    TextureSky = 4,
     SoundJump = 0,
-    Soundchomp = 1,
-    Soundbonk = 2,
-    TextureStone = 6,
+    SoundChomp = 1,
+    SoundBonk = 2,
+    SoundFire = 3,
+    MeshBeeLeft1 = 0,
+    MeshBeeLeft2 = 1,
+    MeshBeeRight1 = 2,
+    MeshBeeRight2 = 3,
+    TextureBeeTexture = 5,
+    ScriptBee = 0,
+    TextureBigHive = 6,
+    SoundBee = 4,
 };
 resources = read_only.make_table_read_only(resources);
 
+local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
-local g_bear = nil;
+local g_bees = {};
+local g_collected_donut_count = 0;
 
 local function ProgressLevel_(game_input)
     local player_won = g_game_logic.progress_game(game_input);
@@ -72,7 +62,9 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    g_bear.update();
+    for _, bee in ipairs(g_bees) do
+        bee.update();
+    end
 
     g_game_logic.update_player_graphics();
 end
@@ -80,30 +72,15 @@ end
 function Module.initialize(game_input)
     g_game_logic = game_logic_module();
     g_game_logic.MenuLogic = Module.MenuLogic;
-    g_game_logic.LevelData = level_level3_module();
+    g_game_logic.LevelData = level12_data_module();
     g_game_logic.ResetPlayerCallback = Module.reset;
+    g_game_logic.OnCollectDonutCallback = Module.on_collect_donut;
+    g_game_logic.set_level_extent_x(220);
     g_game_logic.initialize();
-    g_game_logic.build_navigation();
 
     g_hud_overlay = hud_overlay_module();
     g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
-
-    g_bear = bear_module();
-    g_bear.GameLogic = g_game_logic;
-    g_bear.StandRightMeshResourceIndex = resources.MeshFyStand;
-    g_bear.MoveRightMeshResourceIndices = { resources.MeshFyRight1, resources.MeshFyRight2 };
-    g_bear.FallRightMeshResourceIndices = { resources.MeshFyFR1, resources.MeshFyFR2 };
-    g_bear.RestRightMeshResourceIndex = resources.MeshFyFlopR;
-    g_bear.ShakeRightMeshResourceIndices = { resources.MeshFySR1, resources.MeshFySR2 };
-    g_bear.StandLeftMeshResourceIndex = resources.MeshFyStandL;
-    g_bear.MoveLeftMeshResourceIndices = { resources.MeshFyLeft1, resources.MeshFyLeft2 };
-    g_bear.FallLeftMeshResourceIndices = { resources.MeshFyFL1, resources.MeshFyFL2 };
-    g_bear.RestLeftMeshResourceIndex = resources.MeshFyFlopL;
-    g_bear.ShakeLeftMeshResourceIndices = { resources.MeshFySL1, resources.MeshFySL2 };
-    g_bear.ClimbMeshResourceIndices = { resources.MeshFyLC1, resources.MeshFyLC2 };
-    g_bear.TextureResourceIndex = resources.TextureFur;
-    g_bear.initialize();
 
     Module.reset();
 
@@ -124,14 +101,49 @@ function Module.update(game_input)
     ProgressLevel_(game_input);
 end
 
+local function SpawnBee_()
+    local bee = bee_module();
+    bee.GameLogic = g_game_logic;
+    bee.MoveLeftMeshResourceIndices = { resources.MeshBeeLeft1, resources.MeshBeeLeft2 };
+    bee.MoveRightMeshResourceIndices = { resources.MeshBeeRight1, resources.MeshBeeRight2 };
+    bee.TextureResourceIndex = resources.TextureBeeTexture;
+    bee.BuzzSoundResourceIndex = resources.SoundBee;
+    bee.initialize();
+    return bee;
+end
+
+function Module.on_collect_donut()
+    g_collected_donut_count = g_collected_donut_count + 1;
+
+    if g_collected_donut_count == 1 then
+        play_sound_effect(resources.SoundBee);
+        table.insert(g_bees, SpawnBee_());
+    end
+
+    if g_collected_donut_count == 4 then
+        play_sound_effect(resources.SoundBee);
+        table.insert(g_bees, SpawnBee_());
+    end
+
+    if g_collected_donut_count == 10 then
+        play_sound_effect(resources.SoundBee);
+        table.insert(g_bees, SpawnBee_());
+    end
+
+    if g_collected_donut_count == 15 then
+        play_sound_effect(resources.SoundBee);
+        table.insert(g_bees, SpawnBee_());
+    end
+end
+
 function Module.reset()
-    g_game_logic.set_player_current_position_x(6);
+    g_game_logic.set_player_current_position_x(80);
     g_game_logic.set_player_current_position_y(7);
-    g_game_logic.set_player_current_position_z(3);
+    g_game_logic.set_player_current_position_z(2);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 
-    if g_bear then
-        g_bear.reset_pos();
+    for _, bee in ipairs(g_bees) do
+        bee.reset_pos();
     end
 end
 

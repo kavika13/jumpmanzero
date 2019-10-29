@@ -1,5 +1,5 @@
 local read_only = require "Data/read_only";
-local level1_data_module = assert(loadfile("Data/level_level1.lua"));
+local level1_data_module = assert(loadfile("data/level1_data.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local bullet_module = assert(loadfile("Data/bullet.lua"));
