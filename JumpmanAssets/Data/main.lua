@@ -125,7 +125,6 @@ load_select_game_menu = function()
 end
 
 load_options_menu = function()
-    -- TODO: Wrangle menu music in this script instead of in the menu level scripts themselves?
     queue_load_level(
         "data/options.lua",
         function(level_module)
