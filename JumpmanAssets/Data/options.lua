@@ -310,7 +310,7 @@ function Module.update(game_input)
         Module.MenuLogic.load_main_menu();
     end
 
-    return true;
+    set_perspective(80.0, 80.0, -100.0, 80.0, 80.0, 0.0);
 end
 
 return Module;

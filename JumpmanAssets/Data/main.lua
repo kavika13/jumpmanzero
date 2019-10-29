@@ -2,7 +2,6 @@ local Module = {};
 
 local g_is_exit_requested = false;
 local g_is_debug_level_mode = false;
-local g_is_in_menu = false;
 local g_has_not_started_menu_music = true;
 
 local g_level_module = nil;
@@ -94,7 +93,6 @@ load_main_menu = function(is_from_game_launch, is_from_level)
     queue_load_level(
         "data/mainmenu.lua",
         function(level_module)
-            g_is_in_menu = true;
             level_module.MenuLogic = {
                 load_select_game_menu = load_select_game_menu,
                 load_options_menu = load_options_menu,
@@ -117,7 +115,6 @@ load_select_game_menu = function()
     queue_load_level(
         "data/selectgame.lua",
         function(level_module)
-            g_is_in_menu = true;
             -- TODO: Wrangle menu music in this main.lua script instead of in the menu level scripts themselves?
             level_module.StartMainMusicTrack = g_has_not_started_menu_music;
             level_module.MenuLogic = {
@@ -132,7 +129,6 @@ load_options_menu = function()
     queue_load_level(
         "data/options.lua",
         function(level_module)
-            g_is_in_menu = true;
             -- TODO: Wrangle menu music in this main.lua script instead of in the menu level scripts themselves?
             level_module.StartMainMusicTrack = g_has_not_started_menu_music;
             level_module.MenuLogic = {
@@ -186,7 +182,6 @@ game_start = function(level_set_index)
     g_level_set_current_levels = level_set[level_set_index];
     g_level_set_current_level_index = 0;
     load_next_level_from_set();
-    g_is_in_menu = false;
 end
 
 load_next_level_from_set = function()
@@ -245,10 +240,6 @@ function Module.update(game_input)
     end
 
     g_level_module.update(game_input);
-
-    if g_is_in_menu then
-        set_perspective(80.0, 80.0, -100.0, 80.0, 80.0, 0.0);
-    end
 end
 
 function Module.on_exit_requested()

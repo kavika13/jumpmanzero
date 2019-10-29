@@ -228,7 +228,7 @@ function Module.update(game_input)
         Module.MenuLogic.game_start(g_title_selected_index);
     end
 
-    return true;
+    set_perspective(80.0, 80.0, -100.0, 80.0, 80.0, 0.0);
 end
 
 return Module;
