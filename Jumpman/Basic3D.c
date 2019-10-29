@@ -807,6 +807,32 @@ static void kill_scene() {
     }
 }
 
+static void RenderObject(int object_index, long* previous_texture_index, VertexShaderParams* vs_params, bool* are_fs_params_applied, FragmentShaderParams* fs_params) {
+    long current_texture_index = g_object_texture_index[object_index];
+
+    if(*previous_texture_index != current_texture_index) {
+        *previous_texture_index = current_texture_index;
+        g_draw_state.fs_images[0] = g_textures[current_texture_index];
+        sg_apply_draw_state(&g_draw_state);
+    }
+
+    vs_params->local_to_world_matrix = g_object_local_to_world_matrix[object_index];
+    vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
+    vs_params->local_to_projection_matrix = HMM_MultiplyMat4(
+        HMM_MultiplyMat4(g_view_to_projection_matrix, g_world_to_view_matrix),
+        g_object_local_to_world_matrix[object_index]);
+    vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
+    vs_params->uv_offset = g_object_uv_offset[object_index];
+    sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, vs_params, sizeof(*vs_params));
+
+    if(!*are_fs_params_applied) {
+        sg_apply_uniform_block(SG_SHADERSTAGE_FS, 0, fs_params, sizeof(*fs_params));
+        *are_fs_params_applied = true;
+    }
+
+    sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
+}
+
 void Render() {
     sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
@@ -836,70 +862,24 @@ void Render() {
     // Draw opaque
     g_draw_state.pipeline = g_opaque_pipline;
 
-    long object_index = -1;
     long previous_texture_index = -1;
     bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
 
-    while(++object_index < g_object_count) {
-        long current_texture_index = g_object_texture_index[object_index];
-
-        if(g_object_is_visible[object_index] && !g_texture_is_alpha_blend_enabled[current_texture_index]) {
-            if(previous_texture_index != current_texture_index) {
-                previous_texture_index = current_texture_index;
-                g_draw_state.fs_images[0] = g_textures[current_texture_index];
-                sg_apply_draw_state(&g_draw_state);
-            }
-
-            vs_params.local_to_world_matrix = g_object_local_to_world_matrix[object_index];
-            vs_params.local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
-            vs_params.local_to_projection_matrix = HMM_MultiplyMat4(
-                HMM_MultiplyMat4(g_view_to_projection_matrix, g_world_to_view_matrix),
-                g_object_local_to_world_matrix[object_index]);
-            vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
-            vs_params.uv_offset = g_object_uv_offset[object_index];
-            sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, &vs_params, sizeof(vs_params));
-
-            if(!are_fs_params_applied) {
-                sg_apply_uniform_block(SG_SHADERSTAGE_FS, 0, &fs_params, sizeof(fs_params));
-                are_fs_params_applied = true;
-            }
-
-            sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
+    for(long object_index = 0; object_index < g_object_count; ++object_index) {
+        if(g_object_is_visible[object_index] && !g_texture_is_alpha_blend_enabled[g_object_texture_index[object_index]]) {
+            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params);
         }
     }
 
     // Draw transparent
     g_draw_state.pipeline = g_transparent_pipline;
 
-    object_index = -1;
     previous_texture_index = -1;
-    are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
+    are_fs_params_applied = false;
 
-    while(++object_index < g_object_count) {
-        long current_texture_index = g_object_texture_index[object_index];
-
-        if(g_object_is_visible[object_index] && g_texture_is_alpha_blend_enabled[current_texture_index]) {
-            if(previous_texture_index != current_texture_index) {
-                previous_texture_index = current_texture_index;
-                g_draw_state.fs_images[0] = g_textures[current_texture_index];
-                sg_apply_draw_state(&g_draw_state);
-            }
-
-            vs_params.local_to_world_matrix = g_object_local_to_world_matrix[object_index];
-            vs_params.local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
-            vs_params.local_to_projection_matrix = HMM_MultiplyMat4(
-                HMM_MultiplyMat4(g_view_to_projection_matrix, g_world_to_view_matrix),
-                g_object_local_to_world_matrix[object_index]);
-            vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
-            vs_params.uv_offset = g_object_uv_offset[object_index];
-            sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, &vs_params, sizeof(vs_params));
-
-            if(!are_fs_params_applied) {
-                sg_apply_uniform_block(SG_SHADERSTAGE_FS, 0, &fs_params, sizeof(fs_params));
-                are_fs_params_applied = true;
-            }
-
-            sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
+    for(long object_index = 0; object_index < g_object_count; ++object_index) {
+        if(g_object_is_visible[object_index] && g_texture_is_alpha_blend_enabled[g_object_texture_index[object_index]]) {
+            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params);
         }
     }
 
