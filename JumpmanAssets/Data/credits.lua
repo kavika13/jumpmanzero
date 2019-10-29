@@ -13,6 +13,57 @@ local g_time_remaining_before_freeze = 0;
 
 local g_current_line_count = 0;
 
+local g_credits = {
+    "original game   ",
+    "    randy glover",
+    "                ",
+    "programming     ",
+    "   Dave Campbell",
+    "        Merlyn  ",
+    "   Morgan-Graham",
+    "                ",
+    "music           ",
+    "     Andrew Doss",
+    "                ",
+    "sound           ",
+    "      Jon Hadidi",
+    "    Anvil Studio",
+    "  lots of people",
+    "                ",
+    "art             ",
+    "        THE GIMP",
+    "                ",
+    "modelling       ",
+    "  Aztec 3d tools",
+    "                ",
+    "patience        ",
+    " Rachel Campbell",
+    "                ",
+    "help and ideas  ",
+    "           Matty",
+    "  James Meszaros",
+    " Martin Meszaros",
+    "         sBartok",
+    "         A White",
+    "   davis sickmon",
+    "  Lots of others",
+    "                ",
+    "Special thanks  ",
+    "    randy glover",
+    " willow software",
+    "  Phillip Martin",
+    "  Dave Eccleston",
+    "                ",
+    "                ",
+    "   Thanks for   ",
+    "     playing    ",
+};
+
+local function get_credit_line(line_index)
+    local credit_line = g_credits[line_index + 1];
+    return credit_line ~= nil, credit_line;
+end
+
 local function StartLine_(iLine)
     local has_new_line, credit_line = get_credit_line(iLine);
 

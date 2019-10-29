@@ -515,24 +515,6 @@ static int save_config_options(lua_State* lua_state) {  // TODO: Might be able t
     return 0;
 }
 
-static int get_credit_line(lua_State* lua_state) {  // TODO: Can probably move to Lua
-    char sFileName[300];
-    char sName[100];
-
-    lua_Integer arg_line_index = luaL_checkinteger(lua_state, 1);
-
-    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/credits.txt", g_game_base_path);
-
-    if(GetFileLine(sName, sizeof(sName), sFileName, (int)arg_line_index)) {
-        lua_pushboolean(lua_state, true);
-        lua_pushstring(lua_state, sName);
-        return 2;
-    } else {
-        lua_pushboolean(lua_state, false);
-        return 1;
-    }
-}
-
 static int play_sound_effect(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     PlaySoundEffect((size_t)arg1);
@@ -654,8 +636,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_config_option");
     lua_pushcfunction(lua_state, save_config_options);
     lua_setglobal(lua_state, "save_config_options");
-    lua_pushcfunction(lua_state, get_credit_line);
-    lua_setglobal(lua_state, "get_credit_line");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
 
