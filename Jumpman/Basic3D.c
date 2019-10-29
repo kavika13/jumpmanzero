@@ -362,7 +362,7 @@ static void SwapObjects(long o1, long o2) {
     SwapLong(&g_object_redirects[SurfaceObject(o1)], &g_object_redirects[SurfaceObject(o2)]);
 }
 
-void Clear3dData() {
+void Clear3dData(void) {
     int iLoop;
 
     for(iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
@@ -525,11 +525,11 @@ void ResizeViewport(int width, int height) {
     g_backbuffer_height = height;
 }
 
-void Reset3d() {
+void Reset3d(void) {
     // TODO: Is there any case where we need to reset the context?
 }
 
-bool InitializeAll() {
+bool InitializeAll(void) {
     if(!init_3d()) {
         return false;
     }
@@ -539,7 +539,7 @@ bool InitializeAll() {
     return true;
 }
 
-void Begin3dLoad() {
+void Begin3dLoad(void) {
     if(g_vertices_to_load) {
         free(g_vertices_to_load);
         g_vertices_to_load = NULL;
@@ -552,7 +552,7 @@ void Begin3dLoad() {
     }
 }
 
-void EndAndCommit3dLoad() {
+void EndAndCommit3dLoad(void) {
     sg_update_buffer(g_draw_state.vertex_buffers[0], g_vertices_to_load, MAX_VERTICES * sizeof(MeshVertex));
 
     if(g_vertices_to_load) {
@@ -561,12 +561,12 @@ void EndAndCommit3dLoad() {
     }
 }
 
-void DoCleanUp() {
+void DoCleanUp(void) {
     kill_scene();
     kill_3d();
 }
 
-static long init_3d() {
+static long init_3d(void) {
     int iLoop = -1;
 
     while(++iLoop < MAX_TEXTURES) {
@@ -591,7 +591,7 @@ static long init_3d() {
     return 1;
 }
 
-static void kill_3d() {
+static void kill_3d(void) {
     sg_shutdown();
 }
 
@@ -613,7 +613,7 @@ void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iP
     g_camera_light.ambient_color = (const hmm_vec3) { 1.0f, 1.0f, 1.0f };
 }
 
-static void init_scene() {
+static void init_scene(void) {
     g_camera_light = (const Light){ 0 };
     g_camera_light.diffuse_color = (const hmm_vec3){ 1.0f, 1.0f, 1.0f };
     g_camera_light.ambient_color = (const hmm_vec3){ 1.0f, 1.0f, 1.0f };
@@ -796,7 +796,7 @@ static void init_scene() {
     g_pass_action.colors[0].val[3] = 1.0f;
 }
 
-static void kill_scene() {
+static void kill_scene(void) {
     int iLoop = -1;
 
     while(++iLoop < MAX_TEXTURES) {
@@ -833,7 +833,7 @@ static void RenderObject(int object_index, long* previous_texture_index, VertexS
     sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
 }
 
-void Render() {
+void Render(void) {
     sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
     float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
