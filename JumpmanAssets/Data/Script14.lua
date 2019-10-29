@@ -6,6 +6,10 @@ local bullet_module = assert(loadfile("Data/bullet.lua"));
 local puzzle_block_module = assert(loadfile("Data/puzzle_block.lua"));
 local puzzle_solution_module = assert(loadfile("Data/puzzle_solution.lua"));
 
+local Module = {};
+
+Module.MenuLogic = nil;
+
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
@@ -151,14 +155,16 @@ local function ProgressLevel_(game_input)
     g_game_logic.update_player_graphics();
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.MenuLogic = Module.MenuLogic;
     g_game_logic.LevelData = level_level14_module();
-    g_game_logic.ResetPlayerCallback = reset;
-    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    g_game_logic.ResetPlayerCallback = Module.reset;
+    g_game_logic.OnCollectDonutCallback = Module.on_collect_donut;
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFar);
@@ -182,7 +188,7 @@ function initialize(game_input)
     g_bullet.FireSoundIndex = resources.SoundFire;
     g_bullet.initialize();
 
-    reset();
+    Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
     ProgressLevel_(game_input);
@@ -192,7 +198,7 @@ function initialize(game_input)
     ProgressLevel_(game_input);
 end
 
-function update(game_input)
+function Module.update(game_input)
     if not g_title_is_done_scrolling then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return;
@@ -211,7 +217,7 @@ local function CheckForWin_()
     return true;
 end
 
-function on_collect_donut(game_input, donut_num)
+function Module.on_collect_donut(game_input, donut_num)
     if CheckForWin_() then
         g_game_logic.win();
         return;
@@ -231,10 +237,12 @@ function on_collect_donut(game_input, donut_num)
     ResetBlocks_();
 end
 
-function reset()
+function Module.reset()
     g_game_logic.set_player_current_position_x(8);
     g_game_logic.set_player_current_position_y(5);
     g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
     g_bullet.reset_pos();
 end
+
+return Module;

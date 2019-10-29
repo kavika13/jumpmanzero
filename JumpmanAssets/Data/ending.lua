@@ -5,6 +5,10 @@ local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local end_alien_module = assert(loadfile("Data/end_alien.lua"));
 local credits_module = assert(loadfile("Data/credits.lua"));
 
+local Module = {};
+
+Module.MenuLogic = nil;
+
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
@@ -111,7 +115,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local g_is_initialized = false;
 local g_is_first_update_complete = false;
 local g_title_is_done_scrolling = false;
 
@@ -584,31 +587,35 @@ local function ProgressLevel_(game_input)
     end
 
     if g_credits then
-        g_credits.update();
+        if g_credits.update() and (game_input.jump_action.just_pressed or game_input.select_action.just_pressed) then
+            Module.MenuLogic.load_next_level_from_set();  -- Triggers the main menu, or reload of the debug level
+        end
     end
 
     g_game_logic.update_player_graphics();
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.MenuLogic = Module.MenuLogic;
     g_game_logic.LevelData = level_ending_module();
-    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.ResetPlayerCallback = Module.reset;
     g_game_logic.OnCollectDonutCallback = on_collect_donut;
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
     g_time_since_level_start = 0;
-    set_remaining_life_count(0);
+    Module.MenuLogic.set_remaining_life_count(0);
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFixed);
 
     for iTemp = 0, 19 do
         g_object_mesh_indices[iTemp] = new_mesh(0);
     end
 
-    reset();
+    Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
     ProgressLevel_(game_input);
@@ -618,18 +625,26 @@ function initialize(game_input)
     ProgressLevel_(game_input);
 end
 
-function update(game_input)
+function Module.update(game_input)
     if not g_title_is_done_scrolling then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return;
     end
 
     ProgressLevel_(game_input);
+
+    if game_input.jump_action.is_pressed or game_input.select_action.is_pressed then
+        for _ = 1, 50 do
+            ProgressLevel_(game_input);
+        end
+    end
 end
 
-function reset()
+function Module.reset()
     g_game_logic.set_player_current_position_x(80);
     g_game_logic.set_player_current_position_y(79);
     g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end
+
+return Module;

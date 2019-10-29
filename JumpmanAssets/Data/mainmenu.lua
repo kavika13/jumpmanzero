@@ -3,22 +3,16 @@ local level_mainmenu_module = assert(loadfile("Data/level_mainmenu.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local z_bits_module = assert(loadfile("Data/z_bits.lua"));
 
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local menu_type = {
-    MENU_MAIN = 1,
-    MENU_OPTIONS = 2,
-    MENU_SELECTGAME = 3,
-    MENU_SELECTLEVEL = 4,
-};
-menu_type = read_only.make_table_read_only(menu_type);
+local Module = {};
 
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local menu_music_type = {
-    CONTINUE_PLAYING_TRACK = 0,
-    INTRO_TRACK = 1,
-    MAIN_LOOP_TRACK = 2,
-};
-menu_music_type = read_only.make_table_read_only(menu_music_type);
+Module.MenuLogic = nil;
+
+-- Default setup is for returning from other menus
+-- Game Launch and Game Over will alter these states before running the module
+Module.SkipAnimation = true;
+-- TODO: Wrangle menu music in main.lua script instead of in this script?
+Module.StartIntroStingMusicTrack = false;
+Module.StartMainMusicTrack = false;
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -304,14 +298,14 @@ local function InitializeLetters()
     end
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = level_mainmenu_module();
     g_game_logic.initialize(true);
 
     InitializeLetters();
 
-    if get_just_launched_game() then
+    if not Module.SkipAnimation then
         g_title_animation_counter = 0;
     else
         g_title_animation_counter = kANIMATION_END_TIME;
@@ -323,16 +317,16 @@ function initialize(game_input)
     g_z_bits.TextureResourceIndex = resources.TextureBoringGreen;
     g_z_bits.initialize();
 
-    if get_target_menu_selected_music() == menu_music_type.INTRO_TRACK then
+    if Module.StartIntroStingMusicTrack then
         play_music_track_1(g_game_logic.LevelData.music_background_track_filename, 3000, -1);
     end
 
-    if get_target_menu_selected_music() == menu_music_type.MAIN_LOOP_TRACK then
+    if Module.StartMainMusicTrack then
         play_music_track_1(g_game_logic.LevelData.music_death_track_filename, 0, -1);
     end
 end
 
-function update(game_input)
+function Module.update(game_input)
     GetInput(game_input);
 
     g_title_animation_counter = g_title_animation_counter + 20;
@@ -352,9 +346,9 @@ function update(game_input)
 
     if g_is_game_selected and g_time_since_current_selection > 250 then
         if g_option_selected_index == 1 then
-            load_menu(menu_type.MENU_SELECTGAME);
+            Module.MenuLogic.load_select_game_menu();
         else
-            load_menu(menu_type.MENU_OPTIONS);
+            Module.MenuLogic.load_options_menu();
         end
     end
 
@@ -362,3 +356,5 @@ function update(game_input)
 
     return true;
 end
+
+return Module;

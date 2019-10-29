@@ -2,6 +2,10 @@ local read_only = require "Data/read_only";
 local level_gameover_module = assert(loadfile("Data/level_gameover.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
+local Module = {};
+
+Module.MenuLogic = nil;
+
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
@@ -29,23 +33,6 @@ local camera_mode = {
 };
 camera_mode = read_only.make_table_read_only(camera_mode);
 
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local menu_type = {
-    MENU_MAIN = 1,
-    MENU_OPTIONS = 2,
-    MENU_SELECTGAME = 3,
-    MENU_SELECTLEVEL = 4,
-};
-menu_type = read_only.make_table_read_only(menu_type);
-
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local menu_music_type = {
-    CONTINUE_PLAYING_TRACK = 0,
-    INTRO_TRACK = 1,
-    MAIN_LOOP_TRACK = 2,
-};
-menu_music_type = read_only.make_table_read_only(menu_music_type);
-
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
     TextureJumpman = 0,
@@ -63,8 +50,6 @@ local resources = {
     TextureNewMetal = 6,
 };
 resources = read_only.make_table_read_only(resources);
-
-local g_is_initialized = false;
 
 local g_game_logic;
 
@@ -146,7 +131,7 @@ local function ProgressLevel_(game_input)
     local is_select_action_pressed = game_input.select_action.just_pressed;
 
     if is_select_action_pressed and g_letter_drop_animation_timer < 0 then
-        load_menu(menu_type.MENU_MAIN, menu_music_type.MAIN_LOOP_TRACK);
+        Module.MenuLogic.load_next_level_from_set();
     end
 
     if is_select_action_pressed and g_camera_pan_animation_timer > 0 then
@@ -157,10 +142,11 @@ local function ProgressLevel_(game_input)
     g_game_logic.update_player_graphics();
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.MenuLogic = Module.MenuLogic;
     g_game_logic.LevelData = level_gameover_module();
-    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.ResetPlayerCallback = Module.reset;
     g_game_logic.initialize();
 
     g_jumpman_mesh_index = new_mesh(resources.MeshDead);
@@ -171,7 +157,7 @@ function initialize(game_input)
     g_game_over_message_visible = false;
     g_camera_pan_animation_timer = 100;
 
-    reset();
+    Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
     ProgressLevel_(game_input);
@@ -181,13 +167,15 @@ function initialize(game_input)
     ProgressLevel_(game_input);
 end
 
-function update(game_input)
+function Module.update(game_input)
     ProgressLevel_(game_input);
 end
 
-function reset()
+function Module.reset()
     g_game_logic.set_player_current_position_x(0);
     g_game_logic.set_player_current_position_y(0);
     g_game_logic.set_player_current_position_z(0);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end
+
+return Module;

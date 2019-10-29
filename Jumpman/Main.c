@@ -582,7 +582,7 @@ int main(int arguments_count, char* arguments[]) {
     if(arguments_count > 1 && strlen(arguments[1])) {
         InitGameDebugLevel(g_game_base_path, arguments[1]);
     } else {
-        InitGameNormal();
+        InitGameNormal(g_game_base_path);
     }
 
     long frame_count_since_last_perf_update = 0;
@@ -598,7 +598,7 @@ int main(int arguments_count, char* arguments[]) {
             GameInput processed_input = game_state.current_input;
 
             double update_begin_time = glfwGetTime();
-            UpdateGame(g_game_base_path, &processed_input);
+            UpdateGame(&processed_input);
             double update_end_time = glfwGetTime();
 
             game_prev_input = game_state.current_input;

@@ -4,6 +4,10 @@ local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local ghost_module = assert(loadfile("Data/ghost.lua"));
 
+local Module = {};
+
+Module.MenuLogic = nil;
+
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
@@ -143,14 +147,16 @@ local function ProgressLevel_(game_input)
     g_game_logic.update_player_graphics();
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.MenuLogic = Module.MenuLogic;
     g_game_logic.LevelData = level_level6_module();
-    g_game_logic.ResetPlayerCallback = reset;
-    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    g_game_logic.ResetPlayerCallback = Module.reset;
+    g_game_logic.OnCollectDonutCallback = Module.on_collect_donut;
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveCloseUp);
@@ -164,7 +170,7 @@ function initialize(game_input)
     g_ghost.TextureResourceIndex = resources.TextureGhostTexture;
     g_ghost.initialize();
 
-    reset();
+    Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
     ProgressLevel_(game_input);
@@ -174,7 +180,7 @@ function initialize(game_input)
     ProgressLevel_(game_input);
 end
 
-function update(game_input)
+function Module.update(game_input)
     if not g_title_is_done_scrolling then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return;
@@ -183,7 +189,7 @@ function update(game_input)
     ProgressLevel_(game_input);
 end
 
-function on_collect_donut(game_input, iDonut)
+function Module.on_collect_donut(game_input, iDonut)
     if iDonut == 1 then
         g_is_wall_moving = true;
         g_wall_animation_frame = 1;  -- TODO: Is this necessary to do here?
@@ -220,9 +226,11 @@ function on_collect_donut(game_input, iDonut)
     end
 end
 
-function reset()
+function Module.reset()
     g_game_logic.set_player_current_position_x(96);
     g_game_logic.set_player_current_position_y(73);
     g_game_logic.set_player_current_position_z(9);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end
+
+return Module;

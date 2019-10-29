@@ -64,7 +64,7 @@ end
 
 function Module.update()
     if g_time_remaining_before_freeze == 1 then
-        return;
+        return true;
     end
 
     g_animation_counter = g_animation_counter + 1;
@@ -83,6 +83,8 @@ function Module.update()
     end
 
     ShowChars_();
+
+    return false;
 end
 
 return Module;

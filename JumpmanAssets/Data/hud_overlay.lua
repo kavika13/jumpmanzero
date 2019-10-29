@@ -1,5 +1,6 @@
 local Module = {};
 
+Module.MenuLogic = nil;
 Module.GameLogic = nil;
 
 local g_is_initialized = false;
@@ -17,7 +18,7 @@ local g_title_scroll_timer = 0;
 local g_is_title_animation_complete = false;
 
 local function InitializeLetters_()
-    local current_level_title = get_current_level_title();
+    local current_level_title = Module.MenuLogic.get_current_level_title();
 
     for iChar = 1, #current_level_title do
         local char_mesh = Module.GameLogic.new_char_mesh(current_level_title:sub(iChar, iChar):byte(1, -1));
@@ -181,7 +182,7 @@ function Module.update(game_input)
 
     g_title_scroll_timer = g_title_scroll_timer + 1;
 
-    local lives_remaining = get_remaining_life_count();
+    local lives_remaining = Module.MenuLogic.get_remaining_life_count();
 
     if lives_remaining > 0 then
         ShowRemaining_();

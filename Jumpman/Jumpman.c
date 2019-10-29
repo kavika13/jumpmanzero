@@ -24,40 +24,12 @@
 #include "Sound.h"
 #include "Utilities.h"
 
-typedef enum {
-    kGameStatusExiting = 0,
-    kGameStatusMenu = 1,
-    kGameStatusInLevel = 2,
-    kGameStatusLevelLoad = 3,
-    kGameStatusNextLevelLoad = 4,
-} GameStatus;
+typedef struct LuaModuleScriptContext {
+    lua_State* lua_state;
+    int module_table_registry_index;
+} LuaModuleScriptContext;
 
-typedef enum {
-    kGameMenuStateNone = 0,
-    kGameMenuStateMain = 1,
-    kGameMenuStateOptions = 2,
-    kGameMenuStateSelectGame = 3,
-    kGameMenuStateSelectLevel = 4,
-} GameMenuState;
-
-typedef enum {
-    kGameMenuMusicStateContinuePlayingTrack = 0,
-    kGameMenuMusicStateIntroTrack = 1,
-    kGameMenuMusicStateMainLoopTrack = 2,
-} GameMenuMusicState;
-
-static char g_level_set_current_set_filename[100];
-static int g_level_set_current_level_index;
-static char g_level_current_title[50];
-static GameStatus g_game_status;
-static GameMenuState g_current_game_menu_state;
-static GameMenuState g_target_game_menu_state;
-static GameMenuMusicState g_target_menu_selected_music;
-static bool g_just_launched_game;
-static bool g_debug_level_is_specified;
-static char g_debug_level_filename[300];
-static char g_queued_level_load_filename[300];
-static int g_remaining_life_count;
+static const char* g_game_base_path;
 
 static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
@@ -67,11 +39,9 @@ static int g_loaded_sound_count;
 
 static long g_script_mesh_indices[kMAX_SCRIPT_MESHES];
 
-// ------------------- LUA SCRIPT -------------------------------
+static LuaModuleScriptContext g_main_script_context = { 0, -1 };
 
-static lua_State* g_script_level_script_lua_state = NULL;
-
-// Potentially temporary engine functions, during refactor of game logic from out of engine into script
+// ------------------- LUA SCRIPT API -------------------------------
 
 static bool lua_checkbool(lua_State* L, int arg) {
     luaL_checktype(L, arg, LUA_TBOOLEAN);
@@ -79,15 +49,23 @@ static bool lua_checkbool(lua_State* L, int arg) {
     return d;
 }
 
-static int load_next_level(lua_State* lua_state) {
-    g_game_status = kGameStatusNextLevelLoad;
+static int unload_all_resources(lua_State* lua_state) {
+    Clear3dData();
+
+    g_loaded_texture_count = 0;
+    g_loaded_mesh_count = 0;
+    g_loaded_sound_count = 0;
+
     return 0;
 }
 
-static int queue_level_load(lua_State* lua_state) {
-    const char* level_name_arg = luaL_checkstring(lua_state, 1);
-    stbsp_snprintf(g_queued_level_load_filename, sizeof(g_queued_level_load_filename), "data/%s.lua", level_name_arg);
-    g_game_status = kGameStatusLevelLoad;
+static int begin_loading_3d_data(lua_State* lua_state) {
+    Begin3dLoad();
+    return 0;
+}
+
+static int end_and_commit_loading_3d_data(lua_State* lua_state) {
+    EndAndCommit3dLoad();
     return 0;
 }
 
@@ -121,16 +99,8 @@ static int play_music_track_2(lua_State* lua_state) {
 static int load_sound(lua_State* lua_state) {
     // TODO: Error checking for filename?
     const char* filename_arg = lua_tostring(lua_state, 1);
-
-    char game_base_path[300];
-
-    if(!GetWorkingDirectoryPath(game_base_path)) {
-        // TODO: Proper error handling
-        return 0;
-    }
-
     char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
-    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", game_base_path, filename_arg);
+    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", g_game_base_path, filename_arg);
 
     LoadSound(full_filename, g_loaded_sound_count);
     lua_pushinteger(lua_state, g_loaded_sound_count);
@@ -144,16 +114,8 @@ static int load_texture(lua_State* lua_state) {
     const char* filename_arg = lua_tostring(lua_state, 1);
     lua_Integer image_type_arg = luaL_checkinteger(lua_state, 2);
     bool alpha_blend_arg = lua_checkbool(lua_state, 3);
-
-    char game_base_path[300];
-
-    if(!GetWorkingDirectoryPath(game_base_path)) {
-        // TODO: Proper error handling
-        return 0;
-    }
-
     char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
-    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", game_base_path, filename_arg);
+    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", g_game_base_path, filename_arg);
 
     LoadTexture(g_loaded_texture_count, full_filename, (long)image_type_arg, alpha_blend_arg ? 1 : 0);
     lua_pushinteger(lua_state, g_loaded_texture_count);
@@ -197,28 +159,14 @@ static int load_mesh(lua_State* lua_state) {
     // TODO: Error checking for filename?
     const char* filename_arg = lua_tostring(lua_state, 1);
 
-    char game_base_path[300];
-
-    if(!GetWorkingDirectoryPath(game_base_path)) {
-        // TODO: Proper error handling
-        return 0;
-    }
-
     assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
-    long result = LoadMesh(game_base_path, filename_arg);
+    long result = LoadMesh(g_game_base_path, filename_arg);
     g_script_mesh_indices[g_loaded_mesh_count] = result;
     lua_pushinteger(lua_state, result);
     ++g_loaded_mesh_count;
 
     return 1;
 }
-
-static int get_just_launched_game(lua_State* lua_state) {
-    lua_pushboolean(lua_state, g_just_launched_game);
-    return 1;
-}
-
-// script 3d object utility functions
 
 static int set_mesh_to_mesh(lua_State* lua_state) {
     lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
@@ -287,15 +235,8 @@ static int scroll_texture_on_mesh(lua_State* lua_state) {
     return 0;
 }
 
-// script global variable accessors (getters)
-
 static int get_loaded_texture_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_loaded_texture_count);
-    return 1;
-}
-
-static int get_remaining_life_count(lua_State* lua_state) {
-    lua_pushnumber(lua_state, g_remaining_life_count);
     return 1;
 }
 
@@ -318,16 +259,6 @@ static int get_current_fps(lua_State* lua_state) {
     lua_pushnumber(lua_state, GetCurrentFps());
     return 1;
 }
-
-// script global variable accessors (setters)
-
-static int set_remaining_life_count(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
-    g_remaining_life_count = (int)arg1;
-    return 0;
-}
-
-// script utility functions
 
 static int create_mesh(lua_State* lua_state) {
     // Handle data in the format:
@@ -419,10 +350,10 @@ static int create_mesh(lua_State* lua_state) {
 }
 
 static int new_mesh(lua_State* lua_state) {
-    double script_mesh_index = luaL_checknumber(lua_state, 1);
+    double script_mesh_index_arg = luaL_checknumber(lua_state, 1);
     assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     long iNew;
-    CopyObject(g_script_mesh_indices[(size_t)script_mesh_index], &iNew);
+    CopyObject(g_script_mesh_indices[(size_t)script_mesh_index_arg], &iNew);
     g_script_mesh_indices[g_loaded_mesh_count] = iNew;
     ++g_loaded_mesh_count;
     lua_pushnumber(lua_state, iNew);
@@ -455,7 +386,7 @@ static int move_mesh_to_back(lua_State* lua_state) {
     return 0;
 }
 
-static int script_set_fog(lua_State* lua_state) {
+static int set_fog(lua_State* lua_state) {
     lua_Number fog_start_arg = luaL_checknumber(lua_state, 1);
     lua_Number fog_end_arg = luaL_checknumber(lua_state, 2);
     lua_Integer red_arg = luaL_checkinteger(lua_state, 3);
@@ -465,12 +396,7 @@ static int script_set_fog(lua_State* lua_state) {
     return 0;
 }
 
-static int script_get_current_level_title(lua_State* lua_state) {
-    lua_pushstring(lua_state, g_level_current_title);
-    return 1;
-}
-
-static int get_config_option_string(lua_State* lua_state) {
+static int get_config_option_string(lua_State* lua_state) {  // TODO: Might be able to move to Lua?
     char sName[100];
     lua_Integer option_index_arg = luaL_checkinteger(lua_state, 1);
 
@@ -519,7 +445,7 @@ static int get_config_option_string(lua_State* lua_state) {
     return 1;
 }
 
-static int set_config_option(lua_State* lua_state) {
+static int set_config_option(lua_State* lua_state) {  // TODO: Might be able to move to Lua?
     lua_Integer option_index_arg = luaL_checkinteger(lua_state, 1);
     lua_Integer key_arg = luaL_checkinteger(lua_state, 2);
 
@@ -584,94 +510,18 @@ static int set_config_option(lua_State* lua_state) {
     return 1;
 }
 
-static int save_config_options(lua_State* lua_state) {
+static int save_config_options(lua_State* lua_state) {  // TODO: Might be able to move to Lua?
     SaveSettings();
     return 0;
 }
 
-static int script_load_menu(lua_State* lua_state) {
-    lua_Integer menu_type_arg = luaL_checkinteger(lua_state, 1);
-
-    g_game_status = kGameStatusMenu;
-    g_target_game_menu_state = (GameMenuState)menu_type_arg;
-
-    if (menu_type_arg == kGameMenuStateMain) {
-        lua_Integer track_type_arg = luaL_checkinteger(lua_state, 2);
-        g_target_menu_selected_music = (GameMenuMusicState)track_type_arg;
-    }
-
-    return 0;
-}
-
-static int get_target_menu_selected_music(lua_State* lua_state) {
-    lua_pushinteger(lua_state, g_target_menu_selected_music);
-    return 1;
-}
-
-static int script_game_start(lua_State* lua_state) {
-    lua_Integer title_index_arg = luaL_checkinteger(lua_state, 1);
-    char game_base_path[300];
-
-    if(!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
-        // TODO: Proper error handling
-        return 0;
-    }
-
-    char sFileName[300];
-    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data", game_base_path);
-
-    cf_dir_t dir;
-    cf_dir_open(&dir, sFileName);
-
-    cf_file_t file;
-
-    // TODO: Error checking.
-    // Error shouldn't happen since .jmg files are queried before this is run,
-    // but could if file or dir was deleted/locked after campaign menu displayed, but before selected
-
-    while(dir.has_next) {  // Find first result
-        cf_file_t first_file;
-        cf_read_file(&dir, &first_file);
-        cf_dir_next(&dir);
-
-        if(cf_match_ext(&first_file, ".jmg")) {
-            file = first_file;
-            break;
-        }
-    }
-
-    int iTitle = 0;
-
-    while(dir.has_next && iTitle < title_index_arg) {
-        cf_read_file(&dir, &file);
-
-        if(cf_match_ext(&file, ".jmg")) {
-            iTitle = iTitle + 1;
-        }
-
-        cf_dir_next(&dir);
-    }
-
-    stbsp_snprintf(g_level_set_current_set_filename, sizeof(g_level_set_current_set_filename), "%s/Data/%s", game_base_path, file.name);
-    g_game_status = kGameStatusInLevel;
-
-    return 0;
-}
-
-static int get_credit_line(lua_State* lua_state) {
-    char game_base_path[300];
-
-    if (!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
-        // TODO: Proper error handling
-        return 0;
-    }
-
+static int get_credit_line(lua_State* lua_state) {  // TODO: Can probably move to Lua
     char sFileName[300];
     char sName[100];
 
     lua_Integer arg_line_index = luaL_checkinteger(lua_state, 1);
 
-    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/credits.txt", game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/credits.txt", g_game_base_path);
 
     if(GetFileLine(sName, sizeof(sName), sFileName, (int)arg_line_index)) {
         lua_pushboolean(lua_state, true);
@@ -683,57 +533,21 @@ static int get_credit_line(lua_State* lua_state) {
     }
 }
 
-static int script_get_game_list(lua_State* lua_state) {
-    char game_base_path[300];
-
-    if(!GetWorkingDirectoryPath(game_base_path)) {  // TODO: Should this be passed in from main.c somehow?
-        // TODO: Proper error handling
-        return 0;
-    }
-
-    char sFileName[300];
-    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data", game_base_path);
-
-    cf_dir_t dir;
-    cf_dir_open(&dir, sFileName);
-
-    lua_newtable(lua_state);
-    int iTitle = 0;
-
-    while(dir.has_next) {
-        cf_file_t file = { 0 };
-        cf_read_file(&dir, &file);
-
-        if(cf_match_ext(&file, ".jmg")) {
-            char sFile[300];
-            char sName[100];
-
-            stbsp_snprintf(sFile, sizeof(sFile), "%s/Data/%s", game_base_path, file.name);
-            GetFileLine(sName, sizeof(sName), sFile, 0);
-            lua_pushstring(lua_state, sName);
-            lua_rawseti(lua_state, -2, 1 + iTitle);
-            ++iTitle;
-        }
-
-        cf_dir_next(&dir);
-    }
-
-    return 1;
-}
-
 static int play_sound_effect(lua_State* lua_state) {
     double arg1 = luaL_checknumber(lua_state, 1);
     PlaySoundEffect((size_t)arg1);
     return 0;
 }
 
-static int script_delete_mesh(lua_State* lua_state) {
+static int delete_mesh(lua_State* lua_state) {
     double mesh_index = luaL_checknumber(lua_state, 1);
     DeleteMesh((long)mesh_index);
+    // TODO: Need to decrement the mesh counter here, but can't without messing with future mesh index allocations
+    //       Is there a way to just rely on Basic3D to handle the mesh tracking stuff somehow?
     return 0;
 }
 
-static int script_set_perspective(lua_State* lua_state) {
+static int set_perspective(lua_State* lua_state) {
     double camera_x_arg = luaL_checknumber(lua_state, 1);
     double camera_y_arg = luaL_checknumber(lua_state, 2);
     double camera_z_arg = luaL_checknumber(lua_state, 3);
@@ -770,11 +584,13 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     // TODO: Add all engine functions to a (read-only) global table instead of directly exposing in the global context.
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
-    // TODO: These are temporary, may be able to remove most of them soon, after level loading etc are in script
-    lua_pushcfunction(lua_state, load_next_level);
-    lua_setglobal(lua_state, "load_next_level");
-    lua_pushcfunction(lua_state, queue_level_load);
-    lua_setglobal(lua_state, "queue_level_load");
+    lua_pushcfunction(lua_state, unload_all_resources);
+    lua_setglobal(lua_state, "unload_all_resources");
+    lua_pushcfunction(lua_state, begin_loading_3d_data);
+    lua_setglobal(lua_state, "begin_loading_3d_data");
+    lua_pushcfunction(lua_state, end_and_commit_loading_3d_data);
+    lua_setglobal(lua_state, "end_and_commit_loading_3d_data");
+
     lua_pushcfunction(lua_state, play_music_track_1);
     lua_setglobal(lua_state, "play_music_track_1");
     lua_pushcfunction(lua_state, stop_music_track_1);
@@ -787,8 +603,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "load_texture");
     lua_pushcfunction(lua_state, load_mesh);
     lua_setglobal(lua_state, "load_mesh");
-    lua_pushcfunction(lua_state, get_just_launched_game);
-    lua_setglobal(lua_state, "get_just_launched_game");
 
     lua_pushcfunction(lua_state, set_mesh_to_mesh);
     lua_setglobal(lua_state, "set_mesh_to_mesh");
@@ -815,8 +629,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, get_loaded_texture_count);
     lua_setglobal(lua_state, "get_loaded_texture_count");
-    lua_pushcfunction(lua_state, get_remaining_life_count);
-    lua_setglobal(lua_state, "get_remaining_life_count");
     lua_pushcfunction(lua_state, get_is_sound_enabled);
     lua_setglobal(lua_state, "get_is_sound_enabled");
     lua_pushcfunction(lua_state, get_is_music_enabled);
@@ -825,8 +637,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "get_last_key_pressed");
     lua_pushcfunction(lua_state, get_current_fps);
     lua_setglobal(lua_state, "get_current_fps");
-    lua_pushcfunction(lua_state, set_remaining_life_count);
-    lua_setglobal(lua_state, "set_remaining_life_count");
 
     lua_pushcfunction(lua_state, create_mesh);
     lua_setglobal(lua_state, "create_mesh");
@@ -836,44 +646,34 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "move_mesh_to_front");
     lua_pushcfunction(lua_state, move_mesh_to_back);
     lua_setglobal(lua_state, "move_mesh_to_back");
-    lua_pushcfunction(lua_state, script_set_fog);
+    lua_pushcfunction(lua_state, set_fog);
     lua_setglobal(lua_state, "set_fog");
-    lua_pushcfunction(lua_state, script_get_current_level_title);
-    lua_setglobal(lua_state, "get_current_level_title");
     lua_pushcfunction(lua_state, get_config_option_string);
     lua_setglobal(lua_state, "get_config_option_string");
     lua_pushcfunction(lua_state, set_config_option);
     lua_setglobal(lua_state, "set_config_option");
     lua_pushcfunction(lua_state, save_config_options);
     lua_setglobal(lua_state, "save_config_options");
-    lua_pushcfunction(lua_state, script_load_menu);
-    lua_setglobal(lua_state, "load_menu");
-    lua_pushcfunction(lua_state, get_target_menu_selected_music);
-    lua_setglobal(lua_state, "get_target_menu_selected_music");
-    lua_pushcfunction(lua_state, script_game_start);
-    lua_setglobal(lua_state, "game_start");
     lua_pushcfunction(lua_state, get_credit_line);
     lua_setglobal(lua_state, "get_credit_line");
-    lua_pushcfunction(lua_state, script_get_game_list);
-    lua_setglobal(lua_state, "get_game_list");
     lua_pushcfunction(lua_state, play_sound_effect);
     lua_setglobal(lua_state, "play_sound_effect");
 
-    lua_pushcfunction(lua_state, script_delete_mesh);
+    lua_pushcfunction(lua_state, delete_mesh);
     lua_setglobal(lua_state, "delete_mesh");
-    lua_pushcfunction(lua_state, script_set_perspective);
+    lua_pushcfunction(lua_state, set_perspective);
     lua_setglobal(lua_state, "set_perspective");
 }
 
-static void LoadLuaScript(const char* base_path, const char* filename, lua_State** new_lua_state) {
-    assert(new_lua_state != NULL);  // TODO: Error handling
+static void LoadLuaScript(const char* filename, LuaModuleScriptContext* new_script_context) {
+    assert(new_script_context != NULL);  // TODO: Error handling
 
-    if(*new_lua_state != NULL) {
-        lua_close(*new_lua_state);
+    if(new_script_context->lua_state != NULL) {
+        lua_close(new_script_context->lua_state);
     }
 
     char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
-    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", base_path, filename);
+    stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", g_game_base_path, filename);
 
     lua_State* new_state;
     new_state = luaL_newstate();
@@ -898,10 +698,11 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
 
     int arg_count = 0;
     int error_handler_stack_pos = lua_gettop(new_state) - arg_count;
+
     lua_pushcfunction(new_state, lua_error_handler);
     lua_insert(new_state, error_handler_stack_pos);
 
-    if (lua_pcall(new_state, 0, 0, error_handler_stack_pos) != 0) {
+    if (lua_pcall(new_state, 0, 1, error_handler_stack_pos) != 0) {
 #ifdef __APPLE__
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wunused-variable"
@@ -913,12 +714,15 @@ static void LoadLuaScript(const char* base_path, const char* filename, lua_State
         assert(false);  // TODO: Error handling
     }
 
+    assert(lua_istable(new_state, -1) && "Expected loaded script file to return a module table");
+
     lua_remove(new_state, error_handler_stack_pos);
 
-    *new_lua_state = new_state;
+    new_script_context->module_table_registry_index = luaL_ref(new_state, LUA_REGISTRYINDEX);
+    new_script_context->lua_state = new_state;
 }
 
-static void PushGameActionAsTable(lua_State* lua_state, GameAction* game_action) {
+static void PushGameActionAsTable(lua_State* lua_state, const GameAction* game_action) {
     lua_newtable(lua_state);
     lua_pushboolean(lua_state, game_action->is_pressed);
     lua_setfield(lua_state, -2, "is_pressed");
@@ -926,7 +730,7 @@ static void PushGameActionAsTable(lua_State* lua_state, GameAction* game_action)
     lua_setfield(lua_state, -2, "just_pressed");
 }
 
-static void PushGameInputAsTable(lua_State* lua_state, GameInput* game_input) {
+static void PushGameInputAsTable(lua_State* lua_state, const GameInput* game_input) {
     lua_newtable(lua_state);
     PushGameActionAsTable(lua_state, &game_input->move_left_action);
     lua_setfield(lua_state, -2, "move_left_action");
@@ -946,14 +750,31 @@ static void PushGameInputAsTable(lua_State* lua_state, GameInput* game_input) {
     lua_setfield(lua_state, -2, "debug_action");
 }
 
-static void CallLuaFunction(lua_State* lua_state, const char* function_name, GameInput* game_input, bool is_required) {
-    lua_getglobal(lua_state, function_name);
+static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const char* function_name, const GameInput* game_input, int pushed_arg_count) {
+    assert(script_context != NULL);  // TODO: Error handling
+
+    lua_State* lua_state = script_context->lua_state;
+    int module_function_stack_pos = lua_gettop(lua_state) - pushed_arg_count + 1;  // 1-based indexing
+
+    lua_rawgeti(lua_state, LUA_REGISTRYINDEX, script_context->module_table_registry_index);
+    assert(lua_type(lua_state, -1) == LUA_TTABLE && "Unable to retrieve module table from registry");
+    lua_getfield(lua_state, -1, function_name);
 
     if(lua_isfunction(lua_state, -1) != 0) {
-        PushGameInputAsTable(lua_state, game_input);
+        int arg_count = pushed_arg_count;
 
-        int arg_count = 1;
-        int error_handler_stack_pos = lua_gettop(lua_state) - arg_count;
+        // Move the module function just under the previously pushed args
+        lua_insert(lua_state, module_function_stack_pos);
+        lua_pop(lua_state, 1);  // Remove module table from stack
+
+        // Push input arg, if passed in
+        if(game_input != NULL) {
+            PushGameInputAsTable(lua_state, game_input);
+            ++arg_count;
+        }
+
+        // Place error handler just under module function
+        int error_handler_stack_pos = module_function_stack_pos;
         lua_pushcfunction(lua_state, lua_error_handler);
         lua_insert(lua_state, error_handler_stack_pos);
 
@@ -969,11 +790,44 @@ static void CallLuaFunction(lua_State* lua_state, const char* function_name, Gam
             assert(false);  // TODO: Error handling
         }
 
-        lua_remove(lua_state, error_handler_stack_pos);
+        lua_pop(lua_state, 1);  // Remove error handler, which was below module function
     } else {
-        if(is_required) {
-            assert(false);  // TODO: Error handling
-        }
+        assert(false);  // TODO: Error handling. Cleanup stack?
+    }
+}
+
+// ------------------- API FOR PLATFORM LAYER -------------------------------
+
+bool Init3D(void) {
+    int iLoop = -1;
+
+    while (++iLoop < kMAX_SCRIPT_MESHES) {
+        g_script_mesh_indices[iLoop] = 0;
+    }
+
+    if (!InitializeAll()) {
+        return 0;
+    }
+
+    return 1;
+}
+
+void InitGameDebugLevel(const char* base_path, const char* level_name) {
+    g_game_base_path = base_path;
+    LoadLuaScript("data/main.lua", &g_main_script_context);
+    lua_pushstring(g_main_script_context.lua_state, level_name);
+    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 1);
+}
+
+void InitGameNormal(const char* base_path) {
+    g_game_base_path = base_path;
+    LoadLuaScript("data/main.lua", &g_main_script_context);
+    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0);
+}
+
+void UpdateGame(const GameInput* game_input) {
+    if(!IsGameFrozen()) {
+        CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0);
     }
 }
 
@@ -981,157 +835,6 @@ void DrawGame(void) {
     Render();
 }
 
-// ------------------- LEVEL LOADING AND GLOBAL GAME STATE  -------------------------------
-
-static void LoadAndInitializeLevelScript(const char* base_path, const char* filename) {
-    g_loaded_texture_count = 0;
-    g_loaded_mesh_count = 0;
-    g_loaded_sound_count = 0;
-
-    if(g_script_level_script_lua_state != NULL) {
-        lua_close(g_script_level_script_lua_state);
-        g_script_level_script_lua_state = NULL;
-    }
-
-    LoadLuaScript(base_path, filename, &g_script_level_script_lua_state);
-
-    GameInput empty_game_input = { 0 };  // TODO: Don't even pass input to initialize
-    CallLuaFunction(g_script_level_script_lua_state, "initialize", &empty_game_input, true);
-}
-
-static void GetLevelInCurrentLevelSet(char* level_filename, size_t level_filename_size, char* level_title, size_t level_title_size, int level_set_index) {
-    long iLen;
-    char sTemp[20] = { 0 };
-    char* sData;
-
-    iLen = FileToString(g_level_set_current_set_filename, (unsigned char**)(&sData));
-    // TODO: Verify the line was found and return false from here if so, true otherwise, and add error handling outside function.
-    //       Return error if we exceed buffer lengths (maybe same check)
-    TextLine(sData, iLen, sTemp, 20, level_set_index * 2 - 1);
-    TextLine(sData, iLen, level_title, level_title_size, level_set_index * 2);
-    stbsp_snprintf(level_filename, (int)level_filename_size, "data/%s.lua", sTemp);
-    free(sData);
-}
-
-static void PrepLevel(const char* base_path, const char* level_filename) {
-    Clear3dData();
-    Begin3dLoad();
-
-    SetFog(0, 0, 0, 0, 0);
-
-    LoadAndInitializeLevelScript(base_path, level_filename);
-
-    EndAndCommit3dLoad();
-}
-
-static void LoadNextLevel(const char* base_path) {
-    if(g_debug_level_is_specified) {
-        g_remaining_life_count = 5;
-        PrepLevel(base_path, g_debug_level_filename);
-    } else {
-        char level_filename[200];
-        char level_title[50];
-        ++g_level_set_current_level_index;
-        GetLevelInCurrentLevelSet(level_filename, sizeof(level_filename), level_title, sizeof(level_title), g_level_set_current_level_index);
-        stbsp_snprintf(g_level_current_title, sizeof(g_level_current_title), "%s", level_title);
-        PrepLevel(base_path, level_filename);
-    }
-}
-
-void InitGameDebugLevel(const char* base_path, const char* level_name) {
-    g_just_launched_game = false;
-    g_debug_level_is_specified = true;
-    stbsp_snprintf(g_debug_level_filename, sizeof(g_debug_level_filename), "data/%s.lua", level_name);
-    LoadNextLevel(base_path);
-    g_level_set_current_level_index = 0;
-    g_game_status = kGameStatusInLevel;
-}
-
-void InitGameNormal(void) {
-    g_just_launched_game = true;
-    g_debug_level_is_specified = false;
-    g_game_status = kGameStatusMenu;
-    g_current_game_menu_state = kGameMenuStateNone;
-    g_target_game_menu_state = kGameMenuStateMain;
-    g_target_menu_selected_music = kGameMenuMusicStateIntroTrack;
-}
-
 void ExitGame(void) {
-    g_game_status = kGameStatusExiting;
-}
-
-static void LoadJumpmanMenu(const char* base_path) {
-    Clear3dData();
-    Begin3dLoad();
-
-    SetFog(0, 0, 0, 0, 0);
-
-    if(g_target_game_menu_state == kGameMenuStateMain) {
-        LoadAndInitializeLevelScript(base_path, "data/mainmenu.lua");
-    }
-
-    if(g_target_game_menu_state == kGameMenuStateOptions) {
-        LoadAndInitializeLevelScript(base_path, "data/options.lua");
-    }
-
-    if(g_target_game_menu_state == kGameMenuStateSelectGame) {
-        LoadAndInitializeLevelScript(base_path, "data/selgame.lua");
-    }
-
-    g_current_game_menu_state = g_target_game_menu_state;
-
-    EndAndCommit3dLoad();
-}
-
-void UpdateGame(const char* base_path, GameInput* game_input) {
-    if(g_game_status == kGameStatusMenu) {
-        if(g_current_game_menu_state != g_target_game_menu_state) {
-            LoadJumpmanMenu(base_path);
-        }
-
-        CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);  // Not calling level update function
-        SetPerspective(80.0f, 80.0f, -100.0f, 80.0f, 80.0f, 0.0f);
-
-        if(g_game_status == kGameStatusInLevel) {
-            g_level_set_current_level_index = 0;
-            LoadNextLevel(base_path);
-        }
-
-        g_just_launched_game = false;
-    }
-
-    if(g_game_status == kGameStatusInLevel) {
-        if(!IsGameFrozen()) {
-            CallLuaFunction(g_script_level_script_lua_state, "update", game_input, true);
-        }
-    }
-
-    if(g_game_status == kGameStatusLevelLoad) {
-        // Loading levels frees the currently running script, so this can't be done in the API function itself
-        PrepLevel(base_path, g_queued_level_load_filename);
-        g_queued_level_load_filename[0] = '\0';
-        g_game_status = kGameStatusInLevel;
-    }
-
-    if(g_game_status == kGameStatusNextLevelLoad) {
-        // Loading levels frees the currently running script, so this can't be done in the API function itself
-        LoadNextLevel(base_path);
-        g_game_status = kGameStatusInLevel;
-    }
-}
-
-// ------------------- MESH SETUP -------------------------------
-
-long Init3D(void) {
-    int iLoop = -1;
-
-    while(++iLoop < kMAX_SCRIPT_MESHES) {
-        g_script_mesh_indices[iLoop] = 0;
-    }
-
-    if(!InitializeAll()) {
-        return 0;
-    }
-
-    return 1;
+    CallLuaModuleFunction(&g_main_script_context, "on_exit_requested", NULL, 0);
 }

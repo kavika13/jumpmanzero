@@ -6,6 +6,10 @@ local beam_module = assert(loadfile("Data/beam.lua"));
 local blob_module = assert(loadfile("Data/blob.lua"));
 local z_donut_module = assert(loadfile("Data/z_donut.lua"));  -- TODO: Rename?
 
+local Module = {};
+
+Module.MenuLogic = nil;
+
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
@@ -404,14 +408,16 @@ local function CreateBlob_(start_pos_x, start_pos_y)
     return new_blob;
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.MenuLogic = Module.MenuLogic;
     g_game_logic.LevelData = level_level27_module();
-    g_game_logic.ResetPlayerCallback = reset;
-    g_game_logic.OnCollectDonutCallback = on_collect_donut;
+    g_game_logic.ResetPlayerCallback = Module.reset;
+    g_game_logic.OnCollectDonutCallback = Module.on_collect_donut;
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
     g_donuts_to_collect_count = 20;
@@ -440,7 +446,7 @@ function initialize(game_input)
 
     g_ship_top_mesh_index = new_mesh(resources.MeshShipTop);
 
-    reset();
+    Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
     ProgressLevel_(game_input);
@@ -450,7 +456,7 @@ function initialize(game_input)
     ProgressLevel_(game_input);
 end
 
-function update(game_input)
+function Module.update(game_input)
     if not g_title_is_done_scrolling then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return;
@@ -465,7 +471,7 @@ local function RefreshDonut_(donut_num)
     set_mesh_is_visible(current_donut.mesh_index, true);
 end
 
-function on_collect_donut(game_input, donut_num)
+function Module.on_collect_donut(game_input, donut_num)
     if g_donuts_to_collect_count < 11 then
         local new_z_donut = z_donut_module();
         new_z_donut.GameLogic = g_game_logic;
@@ -495,9 +501,11 @@ function on_collect_donut(game_input, donut_num)
     end
 end
 
-function reset()
+function Module.reset()
     g_game_logic.set_player_current_position_x(145);
     g_game_logic.set_player_current_position_y(10);
     g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end
+
+return Module;

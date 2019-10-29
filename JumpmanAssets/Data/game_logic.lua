@@ -2,6 +2,7 @@ local read_only = require "Data/read_only";
 
 local Module = {};
 
+Module.MenuLogic = nil;
 Module.LevelData = nil;
 Module.ResetPlayerCallback = nil;  -- TODO: Do we have to inject this function?
 Module.OnCollectDonutCallback = nil;  -- TODO: Do we have to inject this function?
@@ -1669,10 +1670,10 @@ local function AnimateDying_(game_input)
 
         if g_player_absolute_frame_count == 85 then
             set_mesh_is_visible(stars_mesh_index, false);
-            set_remaining_life_count(get_remaining_life_count() - 1);
+            Module.MenuLogic.set_remaining_life_count(Module.MenuLogic.get_remaining_life_count() - 1);
 
-            if get_remaining_life_count() == 0 then
-                queue_level_load("GameOver");
+            if Module.MenuLogic.get_remaining_life_count() == 0 then
+                Module.MenuLogic.load_game_over();
             else
                 g_player_dying_animation_state = -1;
                 g_player_dying_animation_state_frame_count = -1;
@@ -1894,7 +1895,7 @@ function Module.progress_game(game_input)
         end
 
         if g_win_with_no_delay or g_player_current_state_frame_count == 300 then
-            load_next_level();
+            Module.MenuLogic.load_next_level_from_set();
         end
 
         return true;

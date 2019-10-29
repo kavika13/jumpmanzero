@@ -4,6 +4,10 @@ local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 local hud_overlay_module = assert(loadfile("Data/hud_overlay.lua"));
 local pause_wave_module = assert(loadfile("Data/pause_wave.lua"));
 
+local Module = {};
+
+Module.MenuLogic = nil;
+
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
     JSNORMAL = 0,
@@ -142,13 +146,15 @@ local function ProgressLevel_(game_input)
     g_game_logic.update_player_graphics();
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();
+    g_game_logic.MenuLogic = Module.MenuLogic;
     g_game_logic.LevelData = level_level7_module();
-    g_game_logic.ResetPlayerCallback = reset;
+    g_game_logic.ResetPlayerCallback = Module.reset;
     g_game_logic.initialize();
 
     g_hud_overlay = hud_overlay_module();
+    g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
     g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
@@ -176,7 +182,7 @@ function initialize(game_input)
         set_mesh_texture(backdrop_mesh_index, resources.TextureStopWatch);
     end
 
-    reset();
+    Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
     ProgressLevel_(game_input);
@@ -186,7 +192,7 @@ function initialize(game_input)
     ProgressLevel_(game_input);
 end
 
-function update(game_input)
+function Module.update(game_input)
     if not g_title_is_done_scrolling then
         g_title_is_done_scrolling = g_hud_overlay.update(game_input);
         return;
@@ -195,7 +201,7 @@ function update(game_input)
     ProgressLevel_(game_input);
 end
 
-function reset()
+function Module.reset()
     g_clock_num_frames_left = 0;
 
     local iLoop = 10;
@@ -213,3 +219,5 @@ function reset()
     g_game_logic.set_player_current_position_z(9);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
 end
+
+return Module;

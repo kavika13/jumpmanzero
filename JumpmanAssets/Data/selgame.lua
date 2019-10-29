@@ -2,13 +2,14 @@ local read_only = require "Data/read_only";
 local level_selectgame_module = assert(loadfile("Data/level_selectgame.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local menu_music_type = {
-    CONTINUE_PLAYING_TRACK = 0,
-    INTRO_TRACK = 1,
-    MAIN_LOOP_TRACK = 2,
-};
-menu_music_type = read_only.make_table_read_only(menu_music_type);
+local Module = {};
+
+Module.MenuLogic = nil;
+
+-- Default setup is for returning from other menus
+-- The first run of the main menu will alter these states before running the module
+-- TODO: Wrangle menu music in main.lua script instead of in this script?
+Module.StartMainMusicTrack = false;
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -184,7 +185,7 @@ local function ShowLetters_()
 end
 
 local function InitializeLetters_()
-    local game_list = get_game_list();
+    local game_list = { "Beginner", "Intermediate", "Advanced" };  -- TODO: Dynamically load this?
     g_title_count = #game_list;
 
     for iTit, current_title in ipairs(game_list) do
@@ -195,7 +196,7 @@ local function InitializeLetters_()
     end
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = level_selectgame_module();
     g_game_logic.initialize(true);
@@ -206,7 +207,7 @@ function initialize(game_input)
     g_time_since_current_selection = 0;
     g_is_game_selected = false;
 
-    if get_target_menu_selected_music() == menu_music_type.INTRO_TRACK then
+    if Module.StartMainMusicTrack then
         play_music_track_1(
             g_game_logic.LevelData.music_background_track_filename,
             0,
@@ -214,7 +215,7 @@ function initialize(game_input)
     end
 end
 
-function update(game_input)
+function Module.update(game_input)
     GetInput_(game_input);
 
     g_time_since_current_selection = g_time_since_current_selection + 5;
@@ -224,9 +225,10 @@ function update(game_input)
     scroll_texture_on_mesh(scrolling_background.mesh_index, 0.01, 0.01);
 
     if g_is_game_selected and g_time_since_current_selection > 450 then
-        set_remaining_life_count(7);  -- TODO: This doesn't seem like the best place for this?
-        game_start(g_title_selected_index - 1);  -- Expects 0-based title index
+        Module.MenuLogic.game_start(g_title_selected_index);
     end
 
     return true;
 end
+
+return Module;

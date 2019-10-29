@@ -2,22 +2,14 @@ local read_only = require "Data/read_only";
 local level_options_module = assert(loadfile("Data/level_options.lua"));
 local game_logic_module = assert(loadfile("Data/game_logic.lua"));
 
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local menu_type = {
-    MENU_MAIN = 1,
-    MENU_OPTIONS = 2,
-    MENU_SELECTGAME = 3,
-    MENU_SELECTLEVEL = 4,
-};
-menu_type = read_only.make_table_read_only(menu_type);
+local Module = {};
 
--- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
-local menu_music_type = {
-    CONTINUE_PLAYING_TRACK = 0,
-    INTRO_TRACK = 1,
-    MAIN_LOOP_TRACK = 2,
-};
-menu_music_type = read_only.make_table_read_only(menu_music_type);
+Module.MenuLogic = nil;
+
+-- Default setup is for returning from other menus
+-- The first run of the main menu will alter these states before running the module
+-- TODO: Wrangle menu music in main.lua script instead of in this script?
+Module.StartMainMusicTrack = false;
 
 -- TODO: Auto-generate this table as separate file, and import it here?
 local resources = {
@@ -271,7 +263,7 @@ local function ShowLetters_()
     end
 end
 
-function initialize(game_input)
+function Module.initialize(game_input)
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = level_options_module();
     g_game_logic.initialize(true);
@@ -279,7 +271,7 @@ function initialize(game_input)
     InitializeLetters_();
     g_flash_animation_current_menu_option_index = -1;
 
-    if get_target_menu_selected_music() == menu_music_type.INTRO_TRACK then
+    if Module.StartMainMusicTrack then
         play_music_track_1(
             g_game_logic.LevelData.music_background_track_filename,
             0,
@@ -287,7 +279,7 @@ function initialize(game_input)
     end
 end
 
-function update(game_input)
+function Module.update(game_input)
     if g_flash_animation_current_menu_option_index == -1 then
         GetInput_(game_input);
     else
@@ -315,8 +307,10 @@ function update(game_input)
 
     if g_is_game_selected and g_time_since_current_selection > 250 and g_option_selected_index == 9 then
         save_config_options();
-        load_menu(menu_type.MENU_MAIN, menu_music_type.CONTINUE_PLAYING_TRACK);
+        Module.MenuLogic.load_main_menu();
     end
 
     return true;
 end
+
+return Module;

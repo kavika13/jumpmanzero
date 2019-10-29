@@ -8,10 +8,10 @@
 extern "C" {
 #endif
 
-long Init3D(void);
+bool Init3D(void);
 void InitGameDebugLevel(const char* base_path, const char* level_name);
-void InitGameNormal(void);
-void UpdateGame(const char* base_path, GameInput* game_input);
+void InitGameNormal(const char* base_path);
+void UpdateGame(const GameInput* game_input);
 void DrawGame(void);
 void ExitGame(void);
 
