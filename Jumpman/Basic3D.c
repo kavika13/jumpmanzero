@@ -823,11 +823,6 @@ void Render() {
         sg_apply_viewport(0, (int)border_half_height, g_backbuffer_width, (int)(g_backbuffer_height - (border_half_height * 2.0f)), true);
     }
 
-    long iObject = -1;
-    long iLastTexture = -1;
-    long iAlphaEnabled = -1;
-    long iReq = -1;
-
     VertexShaderParams vs_params;
     FragmentShaderParams fs_params;
     fs_params.scene_ambient_color = g_scene_ambient_color;
@@ -837,37 +832,31 @@ void Render() {
     fs_params.fog_color = g_fog_color;
     fs_params.fog_start = g_fog_start;
     fs_params.fog_end = g_fog_end;
+
+    // Draw opaque
+    g_draw_state.pipeline = g_opaque_pipline;
+
+    long object_index = -1;
+    long previous_texture_index = -1;
     bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
 
-    while(++iObject < g_object_count) {
-        if(g_object_is_visible[iObject]) {
-            if(iLastTexture != g_object_texture_index[iObject]) {
-                g_draw_state.fs_images[0] = g_textures[g_object_texture_index[iObject]];
+    while(++object_index < g_object_count) {
+        long current_texture_index = g_object_texture_index[object_index];
 
-                iLastTexture = g_object_texture_index[iObject];
-
-                iReq = g_texture_is_alpha_blend_enabled[iLastTexture];
-
-                if(iAlphaEnabled != iReq) {
-                    if(iReq) {
-                        g_draw_state.pipeline = g_transparent_pipline;
-                    } else {
-                        g_draw_state.pipeline = g_opaque_pipline;
-                    }
-
-                    iAlphaEnabled = iReq;
-                }
-
+        if(g_object_is_visible[object_index] && !g_texture_is_alpha_blend_enabled[current_texture_index]) {
+            if(previous_texture_index != current_texture_index) {
+                previous_texture_index = current_texture_index;
+                g_draw_state.fs_images[0] = g_textures[current_texture_index];
                 sg_apply_draw_state(&g_draw_state);
             }
 
-            vs_params.local_to_world_matrix = g_object_local_to_world_matrix[iObject];
-            vs_params.local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[iObject]);
+            vs_params.local_to_world_matrix = g_object_local_to_world_matrix[object_index];
+            vs_params.local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
             vs_params.local_to_projection_matrix = HMM_MultiplyMat4(
                 HMM_MultiplyMat4(g_view_to_projection_matrix, g_world_to_view_matrix),
-                g_object_local_to_world_matrix[iObject]);
-            vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[iObject]));
-            vs_params.uv_offset = g_object_uv_offset[iObject];
+                g_object_local_to_world_matrix[object_index]);
+            vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
+            vs_params.uv_offset = g_object_uv_offset[object_index];
             sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, &vs_params, sizeof(vs_params));
 
             if(!are_fs_params_applied) {
@@ -875,7 +864,42 @@ void Render() {
                 are_fs_params_applied = true;
             }
 
-            sg_draw((int)g_object_vertex_start_index[iObject], (int)g_object_vertex_count[iObject], 1);
+            sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
+        }
+    }
+
+    // Draw transparent
+    g_draw_state.pipeline = g_transparent_pipline;
+
+    object_index = -1;
+    previous_texture_index = -1;
+    are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
+
+    while(++object_index < g_object_count) {
+        long current_texture_index = g_object_texture_index[object_index];
+
+        if(g_object_is_visible[object_index] && g_texture_is_alpha_blend_enabled[current_texture_index]) {
+            if(previous_texture_index != current_texture_index) {
+                previous_texture_index = current_texture_index;
+                g_draw_state.fs_images[0] = g_textures[current_texture_index];
+                sg_apply_draw_state(&g_draw_state);
+            }
+
+            vs_params.local_to_world_matrix = g_object_local_to_world_matrix[object_index];
+            vs_params.local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
+            vs_params.local_to_projection_matrix = HMM_MultiplyMat4(
+                HMM_MultiplyMat4(g_view_to_projection_matrix, g_world_to_view_matrix),
+                g_object_local_to_world_matrix[object_index]);
+            vs_params.transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
+            vs_params.uv_offset = g_object_uv_offset[object_index];
+            sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, &vs_params, sizeof(vs_params));
+
+            if(!are_fs_params_applied) {
+                sg_apply_uniform_block(SG_SHADERSTAGE_FS, 0, &fs_params, sizeof(fs_params));
+                are_fs_params_applied = true;
+            }
+
+            sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
         }
     }
 

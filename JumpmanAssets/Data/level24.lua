@@ -199,16 +199,6 @@ local function FixHangPlatforms_()
     for i = 11, 14 do  -- TODO: Don't hard-code animation frame indices
         set_mesh_texture(iHangMesh[i], resources.TextureJumpman);
     end
-
-    for platform_index = 0, g_game_logic.get_platform_object_count() - 1 do
-        -- Fix hang platforms showing black border over them
-        -- TODO: Would it fix this if there was a separate transparent pass?
-        local current_platform = g_game_logic.get_platform(platform_index);
-
-        if current_platform.extra == 3 then
-            move_mesh_to_back(current_platform.mesh_index);
-        end
-    end
 end
 
 local function StartBaboon_(initial_pos_x, initial_pos_y);
