@@ -12,6 +12,141 @@ local g_queued_level_load = nil;
 
 local g_remaining_life_count;  -- TODO: This variable probably shouldn't live here. Should be in game_logic.lua instead
 
+local function get_new_sandbox_env()
+    return {
+        -- TODO: Verify all these are safe to include in the sandbox. See http://lua-users.org/wiki/SandBoxes
+        --       ALso, this is a table for 5.1. See if there are more to include for 5.2
+        _VERSION = _VERSION,
+        assert = assert,
+        coroutine = {
+            create = coroutine.create,
+            resume = coroutine.resume,
+            running = coroutine.running,
+            status = coroutine.status,
+            wrap = coroutine.wrap,
+            yield = coroutine.yield,
+        },
+        error = error,
+        io = {
+            flush = io.flush,
+            read = io.read,
+            type = io.type,
+            write = io.write,
+        },
+        ipairs = ipairs,
+        loadfile = loadfile,  -- TODO: Probably unsafe. Need to figure out alternative
+        math = {
+            abs = math.abs,
+            acos = math.acos,
+            asin = math.asin,
+            atan = math.atan,
+            atan2 = math.atan2,
+            ceil = math.ceil,
+            cos = math.cos,
+            cosh = math.cosh,
+            deg = math.deg,
+            exp = math.exp,
+            floor = math.floor,
+            fmod = math.fmod,
+            frexp = math.frexp,
+            huge = math.huge,
+            ldexp = math.ldexp,
+            log = math.log,
+            log10 = math.log10,
+            max = math.max,
+            min = math.min,
+            modf = math.modf,
+            pi = math.pi,
+            pow = math.pow,
+            rad = math.rad,
+            random = math.random,
+            -- Unsafe so commenting out: randomseed = math.randomseed,
+            sin = math.sin,
+            sinh = math.sinh,
+            sqrt = math.sqrt,
+            tan = math.tan,
+            tanh = math.tanh,
+        },
+        next = next,
+        os = {
+            clock = os.clock,
+            difftime = os.difftime,
+            time = os.time,
+        },
+        pairs = pairs,
+        pcall = pcall,
+        print = print,
+        require = require,  -- TODO: Probably unsafe. Need to figure out alternative
+        select = select,
+        string = {
+            byte = string.byte,
+            char = string.char,
+            -- Unsafe so commenting out: dump = string.dump,
+            find = string.find,
+            format = string.format,
+            gmatch = string.gmatch,
+            gsub = string.gsub,
+            len = string.len,
+            lower = string.lower,
+            match = string.match,
+            rep = string.rep,
+            reverse = string.reverse,
+            sub = string.sub,
+            upper = string.upper,
+        },
+        table = {
+            insert = table.insert,
+            maxn = table.maxn,
+            remove = table.remove,
+            sort = table.sort,
+        },
+        tonumber = tonumber,
+        tostring = tostring,
+        type = type,
+        unpack = unpack,
+        xpcall = xpcall,
+
+        -- Lua API from engine
+        -- TODO: Easier way to copy these over?
+        unload_all_resources = unload_all_resources,
+        begin_loading_3d_data = begin_loading_3d_data,
+        end_and_commit_loading_3d_data = end_and_commit_loading_3d_data,
+        play_music_track_1 = play_music_track_1,
+        stop_music_track_1 = stop_music_track_1,
+        play_music_track_2 = play_music_track_2,
+        load_sound = load_sound,
+        load_texture = load_texture,
+        load_mesh = load_mesh,
+        set_mesh_to_mesh = set_mesh_to_mesh,
+        set_identity_mesh_matrix = set_identity_mesh_matrix,
+        undo_camera_perspective_on_mesh_matrix = undo_camera_perspective_on_mesh_matrix,
+        translate_mesh_matrix = translate_mesh_matrix,
+        scale_mesh_matrix = scale_mesh_matrix,
+        rotate_x_mesh_matrix = rotate_x_mesh_matrix,
+        rotate_y_mesh_matrix = rotate_y_mesh_matrix,
+        rotate_z_mesh_matrix = rotate_z_mesh_matrix,
+        scroll_texture_on_mesh = scroll_texture_on_mesh,
+        set_mesh_texture = set_mesh_texture,
+        set_mesh_is_visible = set_mesh_is_visible,
+        get_loaded_texture_count = get_loaded_texture_count,
+        get_is_sound_enabled = get_is_sound_enabled,
+        get_is_music_enabled = get_is_music_enabled,
+        get_last_key_pressed = get_last_key_pressed,
+        get_current_fps = get_current_fps,
+        create_mesh = create_mesh,
+        new_mesh = new_mesh,
+        move_mesh_to_front = move_mesh_to_front,
+        move_mesh_to_back = move_mesh_to_back,
+        set_fog = set_fog,
+        get_config_option_string = get_config_option_string,
+        set_config_option = set_config_option,
+        save_config_options = save_config_options,
+        play_sound_effect = play_sound_effect,
+        delete_mesh = delete_mesh,
+        set_perspective = set_perspective,
+    };
+end
+
 local function get_empty_input()
     return {
         move_left_action = { is_pressed = false, just_pressed = false },
@@ -26,9 +161,11 @@ local function get_empty_input()
 end
 
 local function load_level(level_filename, before_initialize_level_callback)
-    -- TODO: Sandbox load to protect global scope?
-    local new_level_module = assert(loadfile(level_filename));
-    g_level_module = new_level_module();
+    local new_level_module = assert(loadfile(level_filename, 't', get_new_sandbox_env()));
+    local new_level_module_call_ok, new_level_module_result = pcall(new_level_module);
+    assert(new_level_module_call_ok, new_level_module_result);
+
+    g_level_module = new_level_module_result;
 
     if before_initialize_level_callback then
         before_initialize_level_callback(g_level_module);
