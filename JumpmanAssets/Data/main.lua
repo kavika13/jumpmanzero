@@ -15,11 +15,13 @@ local g_remaining_life_count;  -- TODO: This variable probably shouldn't live he
 local function get_new_sandbox_env()
     return {
         -- TODO: Verify all these are safe to include in the sandbox. See http://lua-users.org/wiki/SandBoxes
-        --       ALso, this is a table for 5.1. See if there are more to include for 5.2
+        --       This now includes things for 5.2, but the safety of all the included functions have not been vetted.
+        -- TODO: Add back functions to support shimming of Lua 5.1 scripts without modification.
         _VERSION = _VERSION,
         assert = assert,
         coroutine = {
             create = coroutine.create,
+            isyieldable = coroutine.isyieldable,  -- TODO: Is this safe to include?
             resume = coroutine.resume,
             running = coroutine.running,
             status = coroutine.status,
@@ -30,6 +32,8 @@ local function get_new_sandbox_env()
         io = {
             flush = io.flush,
             read = io.read,
+            stderr = io.stderr,
+            stdout = io.stdout,
             type = io.type,
             write = io.write,
         },
@@ -40,32 +44,37 @@ local function get_new_sandbox_env()
             acos = math.acos,
             asin = math.asin,
             atan = math.atan,
-            atan2 = math.atan2,
+            atan2 = math.atan,  -- Here for 5.1 backwards compat
             ceil = math.ceil,
             cos = math.cos,
-            cosh = math.cosh,
+            -- cosh  -- TODO: Add Lua 5.1 shim for this
             deg = math.deg,
             exp = math.exp,
             floor = math.floor,
             fmod = math.fmod,
-            frexp = math.frexp,
+            -- frexp  -- TODO: Add Lua 5.1 shim for this
             huge = math.huge,
-            ldexp = math.ldexp,
+            -- ldexp  -- TODO: Add Lua 5.1 shim for this
             log = math.log,
-            log10 = math.log10,
+            -- log10  -- TODO: Add Lua 5.1 shim for this
             max = math.max,
+            maxinteger = math.maxinteger,
             min = math.min,
+            mininteger = math.mininteger,
             modf = math.modf,
             pi = math.pi,
-            pow = math.pow,
+            -- pow  -- TODO: Add Lua 5.1 shim for this
             rad = math.rad,
             random = math.random,
             -- Unsafe so commenting out: randomseed = math.randomseed,
             sin = math.sin,
-            sinh = math.sinh,
+            -- sinh  -- TODO: Add Lua 5.1 shim for this
             sqrt = math.sqrt,
             tan = math.tan,
-            tanh = math.tanh,
+            -- tanh  -- TODO: Add Lua 5.1 shim for this
+            tointeger = math.tointeger,  -- TODO: Is this safe to include?
+            type = math.type,  -- TODO: Is this safe to include?
+            ult = math.ult,  -- TODO: Is this safe to include?
         },
         next = next,
         os = {
@@ -89,21 +98,36 @@ local function get_new_sandbox_env()
             len = string.len,
             lower = string.lower,
             match = string.match,
+            pack = string.pack,  -- TODO: Is this safe to include?
+            packsize = string.packsize,  -- TODO: Is this safe to include?
             rep = string.rep,
             reverse = string.reverse,
             sub = string.sub,
+            unpack = string.unpack,  -- TODO: Is this safe to include?
             upper = string.upper,
         },
         table = {
+            concat = table.concat,  -- TODO: Is this safe to include?
             insert = table.insert,
             maxn = table.maxn,
+            move = table.move,  -- TODO: Is this safe to include?
+            pack = table.pack,  -- TODO: Is this safe to include?
             remove = table.remove,
             sort = table.sort,
+            unpack = table.unpack,
         },
         tonumber = tonumber,
         tostring = tostring,
         type = type,
-        unpack = unpack,
+        unpack = unpack or table.unpack,  -- Here for 5.1 backwards compat
+        utf8 = {
+            char = utf8.char,  -- TODO: Is this safe to include?
+            charpattern = utf8.charpattern,  -- TODO: Is this safe to include?
+            codepoint = utf8.codepoint,  -- TODO: Is this safe to include?
+            codes = utf8.codes,  -- TODO: Is this safe to include?
+            len = utf8.len,  -- TODO: Is this safe to include?
+            offset = utf8.offset,  -- TODO: Is this safe to include?
+        },
         xpcall = xpcall,
 
         -- Lua API from engine
