@@ -67,7 +67,7 @@ static bool LoadSettings(bool* sound_is_initially_enabled, bool* music_is_initia
     int iKey;
     char sFileName[300];
 
-    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/Settings.DAT", g_game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/data/settings.dat", g_game_base_path);
 
     char* sData;
     long iLen;
@@ -137,7 +137,7 @@ static bool SaveSettings_(void) {
         g_window_resolution_y);
 
     char sFileName[300];  // TODO: Is path long enough?
-    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/Data/Settings.dat", g_game_base_path);
+    stbsp_snprintf(sFileName, sizeof(sFileName), "%s/data/settings.dat", g_game_base_path);
 
     success = StringToFile(sFileName, sFile);
 

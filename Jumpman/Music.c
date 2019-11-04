@@ -237,7 +237,7 @@ bool InitMusic(void) {
     }
 
     g_track_1 = (const MusicTrack){ 0 };
-    g_track_1.sound_font = tsf_load_filename("Sound/Reality_GMGS_falcomod.sf2");
+    g_track_1.sound_font = tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
 
     if(!g_track_1.sound_font) {
         // TODO: fprintf(stderr, "Could not load SoundFont\n");
@@ -248,7 +248,7 @@ bool InitMusic(void) {
     tsf_set_output(g_track_1.sound_font, TSF_STEREO_INTERLEAVED, 44100, 0.0f);
 
     g_track_2 = (const MusicTrack){ 0 };
-    g_track_2.sound_font = tsf_load_filename("Sound/Reality_GMGS_falcomod.sf2");
+    g_track_2.sound_font = tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
 
     if(!g_track_2.sound_font) {
         // TODO: fprintf(stderr, "Could not load SoundFont\n");
