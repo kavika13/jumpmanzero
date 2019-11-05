@@ -182,10 +182,12 @@ static void SetFullscreen(bool enable_fullscreen) {
 }
 
 static void ErrorCallback(int error, const char* description) {
+    (void)error;  // Unused, but passed due to passing this function as a function pointer
     fprintf(stderr, "Error: %s\n", description);
 }
 
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    (void)scancode;  // Unused, but passed due to passing this function as a function pointer
     GameState* game_state = glfwGetWindowUserPointer(window);
     GameInput* game_current_input = &game_state->current_input;
 
@@ -353,6 +355,8 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 static void WindowFocusCallback(GLFWwindow* window, int is_focused) {
+    (void)window;  // Unused, but passed due to passing this function as a function pointer
+
     if(is_focused) {
         g_game_is_frozen = false;
         Reset3d();
@@ -362,6 +366,8 @@ static void WindowFocusCallback(GLFWwindow* window, int is_focused) {
 }
 
 static void WindowSizeCallback(GLFWwindow* window, int width, int height) {
+    (void)window;  // Unused, but passed due to passing this function as a function pointer
+
     if(!g_fullscreen_is_enabled) {
         g_window_resolution_x = width;
         g_window_resolution_y = height;
@@ -370,6 +376,7 @@ static void WindowSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
+    (void)window;  // Unused, but passed due to passing this function as a function pointer
     ResizeViewport(width, height);
 }
 

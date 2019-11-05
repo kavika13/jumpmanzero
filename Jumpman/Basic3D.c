@@ -105,12 +105,12 @@ static hmm_mat4 g_object_local_to_world_matrix[MAX_OBJECTS];
 // Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
 static hmm_mat4 HMM_Mat4FromVec4(hmm_vec4 column_0, hmm_vec4 column_1, hmm_vec4 column_2, hmm_vec4 column_3) {
-    hmm_mat4 result = {
-        column_0.Elements[0], column_0.Elements[1], column_0.Elements[2], column_0.Elements[3],
-        column_1.Elements[0], column_1.Elements[1], column_1.Elements[2], column_1.Elements[3],
-        column_2.Elements[0], column_2.Elements[1], column_2.Elements[2], column_2.Elements[3],
-        column_3.Elements[0], column_3.Elements[1], column_3.Elements[2], column_3.Elements[3],
-    };
+    hmm_mat4 result = { {
+        { column_0.Elements[0], column_0.Elements[1], column_0.Elements[2], column_0.Elements[3] },
+        { column_1.Elements[0], column_1.Elements[1], column_1.Elements[2], column_1.Elements[3] },
+        { column_2.Elements[0], column_2.Elements[1], column_2.Elements[2], column_2.Elements[3] },
+        { column_3.Elements[0], column_3.Elements[1], column_3.Elements[2], column_3.Elements[3] },
+    } };
     return result;
 }
 
@@ -262,12 +262,12 @@ void DeleteMesh(long iMesh) {
 
 void IdentityMatrix(long iObj) {
     long iReal = g_object_redirects[iObj];
-    hmm_mat4 result = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1,
-    };
+    hmm_mat4 result = { {
+        { 1, 0, 0, 0 },
+        { 0, 1, 0, 0 },
+        { 0, 0, 1, 0 },
+        { 0, 0, 0, 1 },
+    } };
     g_object_local_to_world_matrix[iReal] = result;
 }
 
@@ -600,7 +600,7 @@ void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t 
         g_is_fog_enabled = false;
     } else {
         g_is_fog_enabled = true;
-        g_fog_color = (const hmm_vec3){ red / 255.0f, green / 255.0f, blue / 255.0f };
+        g_fog_color = (const hmm_vec3){ { red / 255.0f, green / 255.0f, blue / 255.0f } };
         g_fog_start = iFogStart;
         g_fog_end = iFogEnd;
     }
@@ -608,27 +608,27 @@ void SetFog(float iFogStart, float iFogEnd, uint8_t red, uint8_t green, uint8_t 
 
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ) {
     g_world_to_view_matrix = HMM_LookAtLH(HMM_Vec3(iCamX, iCamY, iCamZ), HMM_Vec3(iPoiX, iPoiY, iPoiZ), HMM_Vec3(0.0f, 1.0f, 0.0f));
-    g_camera_light.position = (const hmm_vec3){ iCamX, iCamY + 10.0f, -200.0f };
-    g_camera_light.diffuse_color = (const hmm_vec3) { 1.0f, 1.0f, 1.0f };
-    g_camera_light.ambient_color = (const hmm_vec3) { 1.0f, 1.0f, 1.0f };
+    g_camera_light.position = (const hmm_vec3){ { iCamX, iCamY + 10.0f, -200.0f } };
+    g_camera_light.diffuse_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
+    g_camera_light.ambient_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
 }
 
 static void init_scene(void) {
     g_camera_light = (const Light){ 0 };
-    g_camera_light.diffuse_color = (const hmm_vec3){ 1.0f, 1.0f, 1.0f };
-    g_camera_light.ambient_color = (const hmm_vec3){ 1.0f, 1.0f, 1.0f };
-    g_camera_light.position = (const hmm_vec3){ 80.0f, 100.0f, -200.0f };
+    g_camera_light.diffuse_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
+    g_camera_light.ambient_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
+    g_camera_light.position = (const hmm_vec3){ { 80.0f, 100.0f, -200.0f } };
     g_camera_light.range = 1000.0f;
 
-    g_scene_ambient_color = (const hmm_vec3){ 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f };
+    g_scene_ambient_color = (const hmm_vec3){ { 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f } };
 
     SetPerspective(80.0f, 90.0f, -145.0f, 80.0f, 59.0f, 0.0f);
 
     g_view_to_projection_matrix = HMM_PerspectiveLH_NO(45.0f, 640.0f / 480.0f, 1.0f, 300.0f);  // Fixed aspect ratio. Will be letterboxed elsewhere
 
     g_global_material = (const Material){ 0 };
-    g_global_material.ambient_tint = (const hmm_vec3){ 0.5f, 0.5f, 0.5f };
-    g_global_material.diffuse_tint = (const hmm_vec3){ 0.5f, 0.5f, 0.5f };
+    g_global_material.ambient_tint = (const hmm_vec3){ { 0.5f, 0.5f, 0.5f } };
+    g_global_material.diffuse_tint = (const hmm_vec3){ { 0.5f, 0.5f, 0.5f } };
 
     sg_buffer_desc vbuf_desc = { 0 };
     vbuf_desc.usage = SG_USAGE_STREAM;

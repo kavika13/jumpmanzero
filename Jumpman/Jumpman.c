@@ -50,6 +50,7 @@ static bool lua_checkbool(lua_State* L, int arg) {
 }
 
 static int unload_all_resources(lua_State* lua_state) {
+    (void)(lua_state);  // Unused, but passed due to passing this function as a function pointer
     Clear3dData();
 
     g_loaded_texture_count = 0;
@@ -60,11 +61,13 @@ static int unload_all_resources(lua_State* lua_state) {
 }
 
 static int begin_loading_3d_data(lua_State* lua_state) {
+    (void)(lua_state);  // Unused, but passed due to passing this function as a function pointer
     Begin3dLoad();
     return 0;
 }
 
 static int end_and_commit_loading_3d_data(lua_State* lua_state) {
+    (void)(lua_state);  // Unused, but passed due to passing this function as a function pointer
     EndAndCommit3dLoad();
     return 0;
 }
@@ -85,6 +88,7 @@ static int play_music_track_1(lua_State* lua_state) {
 }
 
 static int stop_music_track_1(lua_State* lua_state) {
+    (void)(lua_state);  // Unused, but passed due to passing this function as a function pointer
     StopMusic1();  // TODO: Error checking?
     return 0;
 }
@@ -511,6 +515,7 @@ static int set_config_option(lua_State* lua_state) {  // TODO: Might be able to 
 }
 
 static int save_config_options(lua_State* lua_state) {  // TODO: Might be able to move to Lua?
+    (void)(lua_state);  // Unused, but passed due to passing this function as a function pointer
     SaveSettings();
     return 0;
 }
@@ -663,14 +668,8 @@ static void LoadLuaScript(const char* filename, LuaModuleScriptContext* new_scri
 
     int load_file_result = luaL_loadfile(new_state, full_filename);
     if(load_file_result != 0) {
-#ifdef __APPLE__
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wunused-variable"
-#endif
         const char* error_message = lua_tostring(new_state, -1);
-#ifdef __APPLE__
-    #pragma clang diagnostic pop
-#endif
+        fprintf(stderr, "Error while loading script: %s\n%s", full_filename, error_message);
         assert(false);  // TODO: Error handling
     }
 
@@ -683,14 +682,8 @@ static void LoadLuaScript(const char* filename, LuaModuleScriptContext* new_scri
     lua_insert(new_state, error_handler_stack_pos);
 
     if (lua_pcall(new_state, 0, 1, error_handler_stack_pos) != 0) {
-#ifdef __APPLE__
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wunused-variable"
-#endif
         const char* error_message = lua_tostring(new_state, -1);
-#ifdef __APPLE__
-    #pragma clang diagnostic pop
-#endif
+        fprintf(stderr, "Error while initially running script module: %s\n%s", full_filename, error_message);
         assert(false);  // TODO: Error handling
     }
 
@@ -759,14 +752,8 @@ static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const 
         lua_insert(lua_state, error_handler_stack_pos);
 
         if(lua_pcall(lua_state, arg_count, 0, error_handler_stack_pos) != 0) {
-#ifdef __APPLE__
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wunused-variable"
-#endif
             const char* error_message = lua_tostring(lua_state, -1);
-#ifdef __APPLE__
-    #pragma clang diagnostic pop
-#endif
+            fprintf(stderr, "Error while calling Lua function in main script: %s\n%s", function_name, error_message);
             assert(false);  // TODO: Error handling
         }
 

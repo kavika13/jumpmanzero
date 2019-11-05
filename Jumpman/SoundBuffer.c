@@ -15,6 +15,7 @@ static float* g_temporary_sample_buffer = NULL;
 static size_t g_temporary_sample_buffer_byte_count = 0;
 
 static mal_uint32 on_send_frames_to_device(mal_device* pDevice, mal_uint32 frame_count, void* pSamples) {
+    (void)pDevice;  // Unused, but passed due to passing this function as a function pointer
     float* output = (float*)pSamples;
 
     for(mal_uint32 i = 0; i < frame_count; ++i) {
