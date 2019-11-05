@@ -3,26 +3,35 @@
 #define SOKOL_IMPL
 #define SOKOL_GLCORE33
 #include "sokol_gfx.h"
-#define STB_IMAGE_IMPLEMENTATION
-#ifdef __APPLE__
+
+#if defined(__APPLE__)
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wcomma"
+#elif defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#ifdef __APPLE__
+#if defined(__APPLE__)
     #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+    #pragma GCC diagnostic pop
 #endif
+
 #include <stb_sprintf.h>
-#define HANDMADE_MATH_IMPLEMENTATION
-#define HANDMADE_MATH_NO_SSE
-#ifdef __APPLE__
+
+#if defined(__APPLE__)
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wconditional-uninitialized"
 #endif
+#define HANDMADE_MATH_IMPLEMENTATION
+#define HANDMADE_MATH_NO_SSE
 #include "HandmadeMath.h"
-#ifdef __APPLE__
+#if defined(__APPLE__)
     #pragma clang diagnostic pop
 #endif
+
 #include "boxer/boxer.h"
 #include "Basic3d.h"
 

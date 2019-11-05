@@ -3,23 +3,31 @@
 #include <stdio.h>
 #include <string.h>
 #include <glad/glad.h>
-#ifdef __APPLE__
+
+#if defined(__APPLE__)
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Weverything"
 #endif
 #include <GLFW/glfw3.h>
-#ifdef __APPLE__
+#if defined(__APPLE__)
     #pragma clang diagnostic pop
 #endif
-#define STB_SPRINTF_IMPLEMENTATION
-#ifdef __APPLE__
+
+#if defined(__APPLE__)
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#elif defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
+#define STB_SPRINTF_IMPLEMENTATION
 #include <stb_sprintf.h>
-#ifdef __APPLE__
+#if defined(__APPLE__)
     #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+    #pragma GCC diagnostic pop
 #endif
+
 #include "Basic3d.h"
 #include "Input.h"
 #include "Jumpman.h"

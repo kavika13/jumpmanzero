@@ -3,16 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define CUTE_FILES_IMPLEMENTATION
-#ifdef __APPLE__
+
+#if defined(__APPLE__)
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wstrict-prototypes"
     #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
+#define CUTE_FILES_IMPLEMENTATION
 #include <cute_files.h>
-#ifdef __APPLE__
+#if defined(__APPLE__)
     #pragma clang diagnostic pop
 #endif
+
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>

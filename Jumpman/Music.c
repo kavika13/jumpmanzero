@@ -1,14 +1,21 @@
 #include <assert.h>
-#define TSF_IMPLEMENTATION
-#ifdef __APPLE__
+
+#if defined(__APPLE__)
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wcomma"
     #pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#elif defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
 #endif
+#define TSF_IMPLEMENTATION
 #include "tsf.h"
-#ifdef __APPLE__
+#if defined(__APPLE__)
     #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+    #pragma GCC diagnostic pop
 #endif
+
 #define TML_IMPLEMENTATION
 #include "tml.h"
 #include <stb_sprintf.h>

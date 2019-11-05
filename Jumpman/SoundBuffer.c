@@ -1,11 +1,20 @@
 #include <math.h>
 #define DR_WAV_IMPLEMENTATION
 #include "extras/dr_wav.h"
+
+#if defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 // No AVX2 or greater for better backward compatibility
 #define MAL_NO_AVX2
 #define MAL_NO_AVX512
 #define MINI_AL_IMPLEMENTATION
 #include "mini_al.h"
+#if defined(__GNUC__)
+    #pragma GCC diagnostic pop
+#endif
+
 #include "SoundBuffer.h"
 
 static bool g_is_initialized = false;
