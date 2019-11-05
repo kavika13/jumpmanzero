@@ -72,4 +72,5 @@ pthread_dep = c_compiler.find_library('pthread')
 exe = executable('jumpmanzero', src,
     include_directories : incdir,
     dependencies : [glfw3_dep, gtk3_dep, dl_dep, m_dep, pthread_dep],
+    c_args : '-Wno-pedantic',
     install : true)
