@@ -302,3 +302,6 @@ DerivedData/
 
 ## Gcc Patch
 /*.gcno
+
+## Meson dev build
+/build-dev

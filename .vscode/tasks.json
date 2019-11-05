@@ -1,0 +1,64 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558 
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "meson-configure-dev",
+            "command": "meson",
+            "args": ["build-dev"],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "ninja-build-dev",
+            "command": "ninja",
+            "options": {
+                "cwd": "${workspaceRoot}/build-dev"
+            },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}/build-dev"
+                ]
+            },
+            "group": "build"
+        },
+        {
+            "label": "ninja-clean-dev",
+            "command": "ninja",
+            "options": {
+                "cwd": "${workspaceRoot}/build-dev"
+            },
+            "args": ["clean"],
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}/build-dev"
+                ]
+            },
+            "group": "build"
+        },
+        {
+            "label": "ninja-clean-rebuild-dev",
+            "command": "ninja clean && ninja all",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build-dev"
+            },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}/build-dev"
+                ]
+            },
+            "group": "build"
+        }
+    ]
+}
