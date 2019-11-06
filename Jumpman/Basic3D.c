@@ -95,6 +95,10 @@ static char g_texture_filename[MAX_TEXTURES][300];
 static long g_texture_is_alpha_blend_enabled[MAX_TEXTURES];
 static long g_texture_is_color_key_alpha_enabled[MAX_TEXTURES];
 
+#define kErrorImageWidth 32
+#define kErrorImageHeight 32
+static unsigned char g_error_image_data[kErrorImageHeight][kErrorImageWidth][4];
+
 static hmm_mat4 g_world_to_view_matrix;
 static hmm_mat4 g_view_to_projection_matrix;
 
@@ -372,9 +376,11 @@ static void SwapObjects(long o1, long o2) {
 }
 
 void Clear3dData(void) {
-    int iLoop;
+    for(uint32_t iLoop = 0; iLoop < kErrorImageWidth * kErrorImageHeight; ++iLoop) {
+        ((uint32_t*)&g_error_image_data[0][0][0])[iLoop] = 0x7FFF00FF;  // AABBGGRR
+    }
 
-    for(iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
+    for(int iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
         if(g_textures[iLoop].id != SG_INVALID_ID) {
             sg_destroy_image(g_textures[iLoop]);
         }
@@ -384,7 +390,7 @@ void Clear3dData(void) {
 
     g_object_count = 0;
 
-    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for(int iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
@@ -399,16 +405,27 @@ void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enab
 
     int width = 0, height = 0, channels_in_file;
     unsigned char* image_data = stbi_load(sFile, &width, &height, &channels_in_file, 4);
+    bool load_was_successful = image_data != NULL;
 
-    if(image_type == 1) {
-        // Color key alpha, on 0xFFFFFFFF
-        for(int y = 0; y < height; ++y) {
-           for(int x = 0; x < width; ++x) {
-               if(*((uint32_t*)&image_data[y * width * 4 + x * 4 + 0]) == 0xFFFFFFFF) {
-                    image_data[y * width * 4 + x * 4 + 3] = 0x0;
-               }
-           }
+    if(load_was_successful) {
+        if(image_type == 1) {
+            // Color key alpha, on 0xFFFFFFFF
+            for(int y = 0; y < height; ++y) {
+                for(int x = 0; x < width; ++x) {
+                    if(*((uint32_t*)&image_data[y * width * 4 + x * 4 + 0]) == 0xFFFFFFFF) {
+                        image_data[y * width * 4 + x * 4 + 3] = 0x0;
+                    }
+                }
+            }
         }
+    } else {
+        width = kErrorImageWidth;
+        height = kErrorImageHeight;
+        image_data = &g_error_image_data[0][0][0];
+
+        // TODO: Error handling
+        const char* error_message = stbi_failure_reason();
+        fprintf(stderr, "Failed to load image file \"%s\": %s\ndefault texture loaded instead", sFile, error_message);
     }
 
     sg_image_desc image_desc = { 0 };
@@ -427,7 +444,9 @@ void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enab
         FatalError("Error unlocking texture data");  // TODO: Read back error info
     }
 
-    stbi_image_free(image_data);
+    if(load_was_successful) {
+        stbi_image_free(image_data);
+    }
 }
 
 void ChangeMesh(long iMesh, long iNewMesh) {
