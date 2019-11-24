@@ -2,6 +2,7 @@
 #define INCLUDED_JUMPMAN_ZERO_BASIC3D_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #if defined(__cplusplus)

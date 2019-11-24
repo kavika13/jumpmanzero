@@ -1,7 +1,6 @@
 #ifndef INCLUDED_JUMPMAN_ZERO_JUMPMAN_H
 #define INCLUDED_JUMPMAN_ZERO_JUMPMAN_H
 
-#include <stdint.h>
 #include "Input.h"
 
 #if defined(__cplusplus)

@@ -2,6 +2,7 @@
 #define INCLUDED_JUMPMAN_ZERO_MAIN_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #if defined(__cplusplus)
 extern "C" {
