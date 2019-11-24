@@ -178,7 +178,7 @@ static void SetFullscreen(bool enable_fullscreen) {
         target_height = mode->height;
     }
 
-    glfwSetWindowMonitor(g_main_window, monitor, target_pos_x, target_pos_y, target_width, target_height, 0);
+    glfwSetWindowMonitor(g_main_window, monitor, target_pos_x, target_pos_y, target_width, target_height, GLFW_DONT_CARE);
 
     if(enable_fullscreen) {
         glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -521,13 +521,6 @@ int main(int arguments_count, char* arguments[]) {
     // Will revert back to selected window resolution instead of fullscreen res, even if started in fullscreen
     int target_width = g_window_resolution_x;
     int target_height = g_window_resolution_y;
-
-    if(g_fullscreen_is_enabled) {
-        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        target_width = mode->width;
-        target_height = mode->height;
-    }
 
     g_main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", NULL, NULL);
 
