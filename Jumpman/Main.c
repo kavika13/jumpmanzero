@@ -8,6 +8,7 @@
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Weverything"
 #endif
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #if defined(__APPLE__)
     #pragma clang diagnostic pop
