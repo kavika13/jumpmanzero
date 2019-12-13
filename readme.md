@@ -2,10 +2,8 @@
 
 Binaries are available here: https://github.com/kavika13/jumpmanzero/releases
 
-The game builds and runs on OSX and Linux now, but I haven't put up binaries yet.
-The Windows binaries I have posted are for the old version of the game that has lower res, uses midi directly (thus sounds crappier if you use the default Windows soundfont), and doesn't support Lua for scripting. If you want a newer version, you can compile from source, or pester me to put up an updated version.
-
-I will add the new/alternate OS binaries that when people ask me to! :)
+The game builds and runs on OSX and Linux now, but I haven't put up binaries yet
+I will add the alternate OS binaries that when people ask me to! :)
 
 # [Jumpman Zero](http://www.jumpmanzero.com)
 
