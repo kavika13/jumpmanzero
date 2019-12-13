@@ -1,3 +1,11 @@
+# Getting the game
+
+Binaries are available here: https://github.com/kavika13/jumpmanzero/releases
+
+The game builds and runs on OSX and Linux now, but I haven't put up binaries yet. The Windows binaries are also for the old version of the game that has lower res, uses midi directly (thus sounds crappier if you use the default Windows soundfont), and doesn't support Lua for scripting.
+
+I will add the new/alternate OS binaries that when people ask me to! :)
+
 # [Jumpman Zero](http://www.jumpmanzero.com)
 
 A platformer video game with a very old-school theme. Based on the [Jumpman](http://en.wikipedia.org/wiki/Jumpman) series by Randy Glover, released by Epyx in 1983.
@@ -20,44 +28,50 @@ It seems from [Dave Campbell's Jumpman Zero developer diary](http://web.archive.
 
 ## Building
 
+Most of these instructions are very out of date, and very excessive. For the most part I think you can just install VS community 2015 or above, making sure you installed C++ and the Windows SDK. Then just open the solution (see [the section below](https://github.com/kavika13/jumpmanzero#open-the-solution-in-visual-studio)), and build and run it.
+
+It's possible you might need a recent DirectX SDK, but you definitely don't need a fancy weird one like the old instructions say you do.
+
+I'll try this all out on a clean Windows install some time soon and update these instructions for real.
+
 ### Clone this repository
 
 Install Git and follow [the instructions off GitHub](https://help.github.com/articles/working-with-repositories) to clone [the Jumpman Zero repository](https://github.com/kavika13/jumpmanzero). No need to fork it first (unless you want to) - just clone.
 
-### Install Visual Studio
+~~### Install Visual Studio~~
 
-2012 is the version I am using
+~~2012 is the version I am using~~
 
-### Install a DirectX SDK
+~~### Install a DirectX SDK~~
 
-The simplest way to get a good SDK version is to clone and use [the Jumpman Zero third-party packages repository](https://github.com/kavika13/jumpmanzero-thirdparty). The rest of this section is how I got hold of those packages and a warning about them - use at your own risk!
+~~The simplest way to get a good SDK version is to clone and use [the Jumpman Zero third-party packages repository](https://github.com/kavika13/jumpmanzero-thirdparty). The rest of this section is how I got hold of those packages and a warning about them - use at your own risk!~~
 
-You need a version that supports [DirectMusic](http://en.wikipedia.org/wiki/DirectMusic) and includes the extended DirectX 8 SDK
+~~You need a version that supports [DirectMusic](http://en.wikipedia.org/wiki/DirectMusic) and includes the extended DirectX 8 SDK~~
 
-The last one that supported these is [the October 2004 release, which is no longer available](www.microsoft.com/download/en/details.aspx?id=19320)
+~~The last one that supported these is [the October 2004 release, which is no longer available](www.microsoft.com/download/en/details.aspx?id=19320)~~
 
-- See [The web archive of the MS download](http://web.archive.org/web/20111220021902/http://www.microsoft.com/download/en/details.aspx?id=19320)
+~~- See [The web archive of the MS download](http://web.archive.org/web/20111220021902/http://www.microsoft.com/download/en/details.aspx?id=19320)~~
 
-I got [a copy of the SDK download from google off "FindThatFile.com"](http://www.findthatfile.com/search-608303-fEXE/software-tools-download-dxsdk_oct2004.exe.htm) (totally legit :P - lots of sarcasm)
+~~I got [a copy of the SDK download from google off "FindThatFile.com"](http://www.findthatfile.com/search-608303-fEXE/software-tools-download-dxsdk_oct2004.exe.htm) (totally legit :P - lots of sarcasm)~~
 
-  - I scanned the file with a virus scanner (Windows Defender)
-  - I checked that the checksum matched [the only MD5 I could find on the web](http://www.isthisfilesafe.com/md5/7400ADDC1EF83CC8A813040E192168CA_details.aspx) (couldn't find a checksum on MS's site, and I don't have an MSDN subscription).  This might just mean it is the same tampered file.  **Try at your own risk**
+~~- I scanned the file with a virus scanner (Windows Defender)~~
+~~- I checked that the checksum matched [the only MD5 I could find on the web](http://www.isthisfilesafe.com/md5/7400ADDC1EF83CC8A813040E192168CA_details.aspx) (couldn't find a checksum on MS's site, and I don't have an MSDN subscription).  This might just mean it is the same tampered file.  **Try at your own risk**~~
 
-Apparently when installing you can [ignore the error message: "This Pre-release version of Xaudio2 has expired"](http://forum.thegamecreators.com/?m=forum_view&t=185890&b=22) - this might only apply to the August 2007 SDK though.  I tried that one first.
+~~Apparently when installing you can [ignore the error message: "This Pre-release version of Xaudio2 has expired"](http://forum.thegamecreators.com/?m=forum_view&t=185890&b=22) - this might only apply to the August 2007 SDK though.  I tried that one first.~~
 
 ### Open the Solution in Visual Studio
 
 The solution is `Jumpman/Jumpman.sln`
 
-### Setup your SDK sources
+~~### Setup your SDK sources~~
 
-Point at the DirectX SDK you installed (Include and Libraries folders)
+~~Point at the DirectX SDK you installed (Include and Libraries folders)~~
 
-- TODO: Set up these values via user Property Sheets for `DXInstallDir` macro now used by build (see value below).
-- See the "To specify a per-user directory list" section of [the archived Directories Property Page instructions](https://web.archive.org/web/20130106025556/http://msdn.microsoft.com/en-us/library/vstudio/ee855621.aspx)
-- Make sure you add the DirectX SDK Include/Lib paths, and add them **before all other paths** - otherwise the Windows SDK versions of the headers might be used instead, and you'll have build problems
-- Make sure you set up the directories for both the Debug and Release builds (if it doesn't automatically do both.  It did both at the same time for me)
-- The library I am using is installed at `C:\Program Files (x86)\Microsoft DirectX 9.0 SDK (October 2004)\`. Create a `DXInstallDir` macro with this value.
+~~- TODO: Set up these values via user Property Sheets for `DXInstallDir` macro now used by build (see value below).~~
+~~- See the "To specify a per-user directory list" section of [the archived Directories Property Page instructions](https://web.archive.org/web/20130106025556/http://msdn.microsoft.com/en-us/library/vstudio/ee855621.aspx)~~
+~~- Make sure you add the DirectX SDK Include/Lib paths, and add them **before all other paths** - otherwise the Windows SDK versions of the headers might be used instead, and you'll have build problems~~
+~~- Make sure you set up the directories for both the Debug and Release builds (if it doesn't automatically do both.  It did both at the same time for me)~~
+~~- The library I am using is installed at `C:\Program Files (x86)\Microsoft DirectX 9.0 SDK (October 2004)\`. Create a `DXInstallDir` macro with this value.~~
 
 ### Additional credits/software used
 
