@@ -6,7 +6,7 @@
     #pragma clang diagnostic ignored "-Wconditional-uninitialized"
 #elif defined(__GNUC__)
     #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+    #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #endif
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
