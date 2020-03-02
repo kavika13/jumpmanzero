@@ -37,7 +37,7 @@ static int g_loaded_texture_count;
 static int g_loaded_mesh_count;
 static int g_loaded_sound_count;
 
-#define kMAX_SCRIPT_MESHES 600
+#define kMAX_SCRIPT_MESHES ((size_t)600)
 
 static long g_script_mesh_indices[kMAX_SCRIPT_MESHES];
 

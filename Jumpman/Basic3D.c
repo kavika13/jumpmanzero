@@ -35,9 +35,9 @@
 #include "boxer/boxer.h"
 #include "Basic3d.h"
 
-#define MAX_TEXTURES 30
-#define MAX_OBJECTS 600
-#define MAX_VERTICES 110000
+#define kMAX_TEXTURES ((size_t)30)
+#define kMAX_OBJECTS ((size_t)600)
+#define kMAX_VERTICES ((size_t)110000)
 
 typedef struct {
     hmm_vec3 ambient_color;
@@ -90,14 +90,14 @@ static hmm_vec3 g_fog_color;
 static float g_fog_start;
 static float g_fog_end;
 
-static sg_image g_textures[MAX_TEXTURES];
-static char g_texture_filename[MAX_TEXTURES][300];
-static long g_texture_is_alpha_blend_enabled[MAX_TEXTURES];
-static long g_texture_is_color_key_alpha_enabled[MAX_TEXTURES];
+static sg_image g_textures[kMAX_TEXTURES];
+static char g_texture_filename[kMAX_TEXTURES][300];
+static long g_texture_is_alpha_blend_enabled[kMAX_TEXTURES];
+static long g_texture_is_color_key_alpha_enabled[kMAX_TEXTURES];
 
-#define kErrorImageWidth 32
-#define kErrorImageHeight 32
-static unsigned char g_error_image_data[kErrorImageHeight][kErrorImageWidth][4];
+#define kERROR_IMAGE_WIDTH ((size_t)32)
+#define kERROR_IMAGE_HEIGHT ((size_t)32)
+static unsigned char g_error_image_data[kERROR_IMAGE_HEIGHT][kERROR_IMAGE_WIDTH][4];
 
 static hmm_mat4 g_world_to_view_matrix;
 static hmm_mat4 g_view_to_projection_matrix;
@@ -107,13 +107,13 @@ static MeshVertex* g_vertices_to_load = NULL;
 
 static long g_object_count;
 
-static long g_object_redirects[MAX_OBJECTS];
-static long g_object_vertex_start_index[MAX_OBJECTS];
-static long g_object_vertex_count[MAX_OBJECTS];
-static long g_object_texture_index[MAX_OBJECTS];
-static long g_object_is_visible[MAX_OBJECTS];
-static hmm_vec2 g_object_uv_offset[MAX_OBJECTS];
-static hmm_mat4 g_object_local_to_world_matrix[MAX_OBJECTS];
+static long g_object_redirects[kMAX_OBJECTS];
+static long g_object_vertex_start_index[kMAX_OBJECTS];
+static long g_object_vertex_count[kMAX_OBJECTS];
+static long g_object_texture_index[kMAX_OBJECTS];
+static long g_object_is_visible[kMAX_OBJECTS];
+static hmm_vec2 g_object_uv_offset[kMAX_OBJECTS];
+static hmm_mat4 g_object_local_to_world_matrix[kMAX_OBJECTS];
 
 // Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
@@ -254,7 +254,7 @@ HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Nea
 static long SurfaceObject(long o1) {
     int iLoop = -1;
 
-    while(++iLoop < MAX_OBJECTS) {
+    while(++iLoop < kMAX_OBJECTS) {
         if(g_object_redirects[iLoop] == o1) {
             return iLoop;
         }
@@ -376,11 +376,11 @@ static void SwapObjects(long o1, long o2) {
 }
 
 void Clear3dData(void) {
-    for(uint32_t iLoop = 0; iLoop < kErrorImageWidth * kErrorImageHeight; ++iLoop) {
+    for(uint32_t iLoop = 0; iLoop < kERROR_IMAGE_WIDTH * kERROR_IMAGE_HEIGHT; ++iLoop) {
         ((uint32_t*)&g_error_image_data[0][0][0])[iLoop] = 0x7FFF00FF;  // AABBGGRR
     }
 
-    for(int iLoop = 0; iLoop < MAX_TEXTURES; ++iLoop) {
+    for(int iLoop = 0; iLoop < kMAX_TEXTURES; ++iLoop) {
         if(g_textures[iLoop].id != SG_INVALID_ID) {
             sg_destroy_image(g_textures[iLoop]);
         }
@@ -390,7 +390,7 @@ void Clear3dData(void) {
 
     g_object_count = 0;
 
-    for(int iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for(int iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
@@ -419,8 +419,8 @@ void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enab
             }
         }
     } else {
-        width = kErrorImageWidth;
-        height = kErrorImageHeight;
+        width = kERROR_IMAGE_WIDTH;
+        height = kERROR_IMAGE_HEIGHT;
         image_data = &g_error_image_data[0][0][0];
 
         // TODO: Error handling
@@ -461,7 +461,7 @@ void CopyObject(long iObject, long* iNum) {
     long iLoop = -1;
     long iPlace = -1;
 
-    while(++iLoop < MAX_OBJECTS && iPlace == -1) {
+    while(++iLoop < kMAX_OBJECTS && iPlace == -1) {
         if(g_object_redirects[iLoop] == -1) {
             iPlace = iLoop;
         }
@@ -573,7 +573,7 @@ void Begin3dLoad(void) {
         g_vertices_to_load = NULL;
     }
 
-    g_vertices_to_load = (MeshVertex*)malloc(MAX_VERTICES * sizeof(MeshVertex));
+    g_vertices_to_load = (MeshVertex*)malloc(kMAX_VERTICES * sizeof(MeshVertex));
 
     if(!g_vertices_to_load) {
         FatalError("Failed to allocate enough memory in order to load model's vertex data");
@@ -581,7 +581,7 @@ void Begin3dLoad(void) {
 }
 
 void EndAndCommit3dLoad(void) {
-    sg_update_buffer(g_draw_state.vertex_buffers[0], g_vertices_to_load, MAX_VERTICES * sizeof(MeshVertex));
+    sg_update_buffer(g_draw_state.vertex_buffers[0], g_vertices_to_load, kMAX_VERTICES * sizeof(MeshVertex));
 
     if(g_vertices_to_load) {
         free(g_vertices_to_load);
@@ -597,15 +597,15 @@ void DoCleanUp(void) {
 static long init_3d(void) {
     int iLoop = -1;
 
-    while(++iLoop < MAX_TEXTURES) {
+    while(++iLoop < kMAX_TEXTURES) {
         g_textures[iLoop].id = SG_INVALID_ID;
     }
 
-    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for(iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
     }
 
-    for(iLoop = 0; iLoop < MAX_OBJECTS; ++iLoop) {
+    for(iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
 
@@ -660,7 +660,7 @@ static void init_scene(void) {
 
     sg_buffer_desc vbuf_desc = { 0 };
     vbuf_desc.usage = SG_USAGE_STREAM;
-    vbuf_desc.size = MAX_VERTICES * sizeof(MeshVertex);
+    vbuf_desc.size = kMAX_VERTICES * sizeof(MeshVertex);
 
     g_draw_state = (const sg_draw_state){ 0 };
     g_draw_state.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
@@ -827,7 +827,7 @@ static void init_scene(void) {
 static void kill_scene(void) {
     int iLoop = -1;
 
-    while(++iLoop < MAX_TEXTURES) {
+    while(++iLoop < kMAX_TEXTURES) {
         if(g_textures[iLoop].id != SG_INVALID_ID) {
             sg_destroy_image(g_textures[iLoop]);
             g_textures[iLoop].id = SG_INVALID_ID;

@@ -19,7 +19,7 @@
 
 static bool g_is_initialized = false;
 static mal_device g_sound_device;
-static SoundChannel g_sound_channels[kSoundChannelCount] = { 0 };
+static SoundChannel g_sound_channels[kSOUND_CHANNEL_COUNT] = { 0 };
 static float* g_temporary_sample_buffer = NULL;
 static size_t g_temporary_sample_buffer_byte_count = 0;
 
@@ -42,7 +42,7 @@ static mal_uint32 on_send_frames_to_device(mal_device* pDevice, mal_uint32 frame
 
     const float hard_coded_channel_gain = 0.8f;  // TODO: Expose gain interface?
 
-    for(size_t i = 0; i < kSoundChannelCount; ++i) {
+    for(size_t i = 0; i < kSOUND_CHANNEL_COUNT; ++i) {
         memset(g_temporary_sample_buffer, 0, buffer_byte_count);
 
         if(g_sound_channels[i] != NULL) {
@@ -82,7 +82,7 @@ bool InitSoundBuffer(void) {
             return false;
         }
 
-        for(size_t i = 0; i < kSoundChannelCount; ++i) {
+        for(size_t i = 0; i < kSOUND_CHANNEL_COUNT; ++i) {
             g_sound_channels[i] = NULL;
         }
 
@@ -98,6 +98,6 @@ void CleanupSoundBuffer(void) {
 }
 
 void SetSoundChannel(size_t channel_index, SoundChannel new_channel_node) {
-    assert(channel_index < kSoundChannelCount);
+    assert(channel_index < kSOUND_CHANNEL_COUNT);
     g_sound_channels[channel_index] = new_channel_node;
 }

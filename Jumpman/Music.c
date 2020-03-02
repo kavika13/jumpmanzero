@@ -22,7 +22,7 @@
 #include "Music.h"
 #include "SoundBuffer.h"
 
-#define kMIDI_CHANNEL_COUNT 16
+#define kMIDI_CHANNEL_COUNT ((size_t)16)
 
 typedef struct {
     tsf* sound_font;

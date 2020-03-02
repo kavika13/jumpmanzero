@@ -42,32 +42,32 @@ typedef struct {
     GameInput current_input;
 } GameState;
 
-#define kFULLSCREEN_IS_ENABLED_DEFAULT false
-#define kWINDOW_RESOLUTION_DEFAULT_X 640
-#define kWINDOW_RESOLUTION_DEFAULT_Y 480
-#define kWINDOW_RESOLUTION_MIN_X 320
-#define kWINDOW_RESOLUTION_MIN_Y 240
-#define kSOUND_EFFECTS_ARE_ENABLED_DEFAULT false
-#define kMUSIC_IS_ENABLED_DEFAULT false
+#define kFULLSCREEN_IS_ENABLED_DEFAULT ((bool)false)
+#define kWINDOW_RESOLUTION_DEFAULT_X ((int32_t)640)
+#define kWINDOW_RESOLUTION_DEFAULT_Y ((int32_t)480)
+#define kWINDOW_RESOLUTION_MIN_X ((int32_t)320)
+#define kWINDOW_RESOLUTION_MIN_Y ((int32_t)240)
+#define kSOUND_EFFECTS_ARE_ENABLED_DEFAULT ((bool)false)
+#define kMUSIC_IS_ENABLED_DEFAULT ((bool)false)
 
-#define kFRAMES_PER_SECOND 40
+#define kFRAMES_PER_SECOND ((size_t)40)
 #define kSLOWMO_RATIO ((double)16.0)
-static const double kSECONDS_PER_FRAME = 1.0 / ((double)kFRAMES_PER_SECOND);
+static const double kSECONDS_PER_FRAME = 1.0 / (double)kFRAMES_PER_SECOND;
 static const double kSECONDS_PER_FRAME_SLOWMO = kSLOWMO_RATIO / (double)kFRAMES_PER_SECOND;
 static double g_update_frame_times[kFRAMES_PER_SECOND] = { 0 };
 static size_t g_update_frame_times_current_index = 0;
 
 static char g_game_base_path[300];
-static int g_key_bindings[6];
-static long g_last_key_pressed = 0;
+static int32_t g_key_bindings[6];
+static int32_t g_last_key_pressed = 0;
 static bool g_fullscreen_is_enabled = kFULLSCREEN_IS_ENABLED_DEFAULT;
-static int g_window_resolution_x = kWINDOW_RESOLUTION_DEFAULT_X;
-static int g_window_resolution_y = kWINDOW_RESOLUTION_DEFAULT_Y;
-static int g_window_pos_x_backup = 0;
-static int g_window_pos_y_backup = 0;
+static int32_t g_window_resolution_x = kWINDOW_RESOLUTION_DEFAULT_X;
+static int32_t g_window_resolution_y = kWINDOW_RESOLUTION_DEFAULT_Y;
+static int32_t g_window_pos_x_backup = 0;
+static int32_t g_window_pos_y_backup = 0;
 static bool g_save_settings_is_queued = false;
 static bool g_game_is_frozen = false;
-static long g_current_fps = 0;
+static int32_t g_current_fps = 0;
 static double g_current_max_update_frame_time = 0.0;
 static double g_current_max_draw_and_swap_frame_time = 0.0;
 
@@ -75,27 +75,23 @@ static GLFWwindow* g_main_window = NULL;
 
 static bool LoadSettings(bool* sound_is_initially_enabled, bool* music_is_initially_enabled) {
     char sTemp[30];
-    int iKey;
     char sFileName[300];
 
     stbsp_snprintf(sFileName, sizeof(sFileName), "%s/data/settings.dat", g_game_base_path);
 
     char* sData;
-    long iLen;
-    iLen = FileToString(sFileName, (unsigned char**)(&sData));
+    size_t iLen = FileToString(sFileName, (unsigned char**)(&sData));
 
     // TODO: Handle file missing case without an error message - should create it and set defaults instead
     if(!iLen) {
         return false;
     }
 
-    iKey = -1;
-
-    while(++iKey < 6) {
-        if(GetFileLine(sTemp, sizeof(sTemp), sFileName, iKey)) {
-            g_key_bindings[iKey] = atoi(sTemp);
+    for(int32_t key_index = 0; key_index < 6; ++key_index) {
+        if(GetFileLine(sTemp, sizeof(sTemp), sFileName, key_index)) {
+            g_key_bindings[key_index] = atoi(sTemp);
         } else {
-            g_key_bindings[iKey] = 0;
+            g_key_bindings[key_index] = 0;
         }
     }
 
@@ -159,10 +155,10 @@ static void SetFullscreen(bool enable_fullscreen) {
     g_fullscreen_is_enabled = enable_fullscreen;
 
     GLFWmonitor* monitor = NULL;
-    int target_pos_x = g_window_pos_x_backup;
-    int target_pos_y = g_window_pos_y_backup;
-    int target_width = g_window_resolution_x;
-    int target_height = g_window_resolution_y;
+    int32_t target_pos_x = g_window_pos_x_backup;
+    int32_t target_pos_y = g_window_pos_y_backup;
+    int32_t target_width = g_window_resolution_x;
+    int32_t target_height = g_window_resolution_y;
 
     if(enable_fullscreen) {
         monitor = glfwGetPrimaryMonitor();
@@ -401,7 +397,7 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
 
 static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) {
     // TODO: Move this over before this checkin
-    for(int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
+    for(int32_t i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
         if(glfwJoystickPresent(i) == GLFW_TRUE) {
             int axis_count;
             const float* axis_values = glfwGetJoystickAxes(i, &axis_count);
@@ -473,7 +469,7 @@ bool IsGameFrozen(void) {
     return g_game_is_frozen;
 }
 
-long GetCurrentFps(void) {
+int32_t GetCurrentFps(void) {
     return g_current_fps;
 }
 
@@ -485,15 +481,15 @@ double GetCurrentMaxDrawAndSwapFrameTime(void) {
     return g_current_max_draw_and_swap_frame_time;
 }
 
-long GetLastKeyPressed(void) {
+int32_t GetLastKeyPressed(void) {
     return g_last_key_pressed;
 }
 
-int GetKeyBinding(size_t binding_index) {
+int32_t GetKeyBinding(size_t binding_index) {
     return g_key_bindings[binding_index];
 }
 
-void SetKeyBinding(size_t binding_index, int value) {
+void SetKeyBinding(size_t binding_index, int32_t value) {
     g_key_bindings[binding_index] = value;
 }
 
@@ -531,8 +527,8 @@ int main(int arguments_count, char* arguments[]) {
 
     // Creating as window first to get OS default positioning, but setting correct dimensions for first time creation
     // Will revert back to selected window resolution instead of fullscreen res, even if started in fullscreen
-    int target_width = g_window_resolution_x;
-    int target_height = g_window_resolution_y;
+    int32_t target_width = g_window_resolution_x;
+    int32_t target_height = g_window_resolution_y;
 
     g_main_window = glfwCreateWindow(target_width, target_height, "Jumpman Zero", NULL, NULL);
 
@@ -605,7 +601,7 @@ int main(int arguments_count, char* arguments[]) {
         InitGameNormal(g_game_base_path);
     }
 
-    long frame_count_since_last_perf_update = 0;
+    int32_t frame_count_since_last_perf_update = 0;
     double last_perf_update_time = previous_frame_time;
     GameInput game_prev_input = game_state.current_input;
 

@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define kSoundChannelCount 64
+#define kSOUND_CHANNEL_COUNT ((size_t)64)
 
 typedef uint32_t (*SoundChannel)(uint32_t frameCount, float* interleaved_stereo_samples);
 

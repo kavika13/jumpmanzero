@@ -6,8 +6,8 @@
 #include "SoundBuffer.h"
 #include "Sound.h"
 
-#define kNUM_SOUND_DECODERS 5
-#define kSOUND_CHANNEL_START_INDEX 2
+#define kNUM_SOUND_DECODERS ((size_t)5)
+#define kSOUND_CHANNEL_START_INDEX ((size_t)2)
 
 static bool g_sound_is_initialized = false;
 static bool g_sound_is_enabled = false;
