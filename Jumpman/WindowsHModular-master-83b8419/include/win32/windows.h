@@ -43,6 +43,7 @@ extern "C" {
 /* Basic Defines: */
 #define NTAPI __stdcall
 #define WINAPI __stdcall
+#define APIENTRY WINAPI
 #define CALLBACK __stdcall
 #define TRUE (1)
 #define FALSE (0)
@@ -183,6 +184,7 @@ typedef unsigned int        UINT;
 typedef unsigned long       ULONG;
 typedef unsigned char       BYTE;
 typedef unsigned short      WORD;
+typedef float               FLOAT;
 typedef unsigned long       DWORD;
 #ifndef HAVE_WCHAR_T
 #define HAVE_WCHAR_T
@@ -196,6 +198,8 @@ typedef WORD                ATOM;
 typedef unsigned int        ULONG32;
 typedef uint64_t            DWORD64;
 typedef uint64_t            ULONG64;
+typedef signed int          INT32;
+typedef signed __int64      INT64;
 typedef uint64_t            DWORDLONG;
 
 typedef CHAR *              PCHAR;
@@ -211,6 +215,7 @@ typedef double              LONGLONG;
 typedef double              ULONGLONG;
 #endif
 
+typedef void                VOID;
 typedef void *              PVOID;
 typedef void *              LPVOID;
 typedef BOOL *              PBOOL;
@@ -224,9 +229,13 @@ typedef LPVOID              HANDLE;
 typedef HANDLE              HINSTANCE;
 typedef HANDLE              HWND;
 typedef HINSTANCE           HMODULE;
+typedef HANDLE              HDC;
+typedef HANDLE              HGLRC;
 typedef HANDLE              HMENU;
 typedef HANDLE *            PHANDLE;
 typedef HANDLE *            LPHANDLE;
+
+#define DECLARE_HANDLE(name) struct name##__{int unused;}; typedef struct name##__ *name
 
 typedef WCHAR *             PWSTR;
 typedef BYTE *              LPBYTE;
@@ -266,6 +275,16 @@ typedef unsigned char       TBYTE;
 typedef LPCSTR              LPCTSTR;
 typedef LPSTR               LPTSTR;
 #endif
+
+#define MINCHAR             0x80
+#define MAXCHAR             0x7f
+#define MINSHORT            0x8000
+#define MAXSHORT            0x7fff
+#define MINLONG             0x80000000
+#define MAXLONG             0x7fffffff
+#define MAXBYTE             0xff
+#define MAXWORD             0xffff
+#define MAXDWORD            0xffffffff
 
 #if defined(_WIN64)
 typedef INT_PTR (WINAPI *FARPROC)(void);
@@ -929,6 +948,10 @@ typedef struct DECLSPEC_ALIGN(16) _CONTEXT {
 typedef PCONTEXT LPCONTEXT;
 #elif _WIN32
 #define MAXIMUM_SUPPORTED_EXTENSION     512
+typedef struct _FLOATING_SAVE_AREA {
+    // TODO: This is not an empty struct, must properly define it!
+    int unused_;
+} FLOATING_SAVE_AREA;
 typedef struct _CONTEXT {
     DWORD ContextFlags;
     DWORD   Dr0;
@@ -2076,6 +2099,28 @@ DWORD WINAPI GetFileAttributesA(
         LPCSTR lpFileName);
 DWORD WINAPI GetFileAttributesW(
         LPCWSTR lpFileName);
+
+typedef enum _GET_FILEEX_INFO_LEVELS {
+    GetFileExInfoStandard,
+    GetFileExMaxInfoLevel
+} GET_FILEEX_INFO_LEVELS;
+typedef struct _WIN32_FILE_ATTRIBUTE_DATA {
+    DWORD dwFileAttributes;
+    FILETIME ftCreationTime;
+    FILETIME ftLastAccessTime;
+    FILETIME ftLastWriteTime;
+    DWORD nFileSizeHigh;
+    DWORD nFileSizeLow;
+} WIN32_FILE_ATTRIBUTE_DATA, *LPWIN32_FILE_ATTRIBUTE_DATA;
+BOOL WINAPI GetFileAttributesExA(
+        LPCSTR lpFileName,
+        GET_FILEEX_INFO_LEVELS fInfoLevelId,
+        LPVOID lpFileInformation);
+BOOL WINAPI GetFileAttributesExW(
+        LPCWSTR lpFileName,
+        GET_FILEEX_INFO_LEVELS fInfoLevelId,
+        LPVOID lpFileInformation);
+
 BOOL WINAPI GetFileTime(
         HANDLE  hFile,
         LPFILETIME lpCreationTime,
@@ -2746,6 +2791,9 @@ BOOL WINAPI SystemTimeToFileTime(
 BOOL WINAPI FileTimeToSystemTime(
   const FILETIME *      lpFileTime,
         LPSYSTEMTIME    lpSystemTime);
+LONG WINAPI CompareFileTime(
+  const FILETIME *      lpFileTime1,
+  const FILETIME *      lpFileTime2);
 void WINAPI GetSystemTimeAsFileTime(
         LPFILETIME lpSystemTimeAsFileTime);
 BOOL WINAPI SystemTimeToTzSpecificLocalTime(
@@ -2836,6 +2884,14 @@ HMODULE WINAPI LoadLibraryA(
         LPCSTR lpFileName);
 HMODULE WINAPI LoadLibraryW(
         LPCWSTR lpFileName);
+HMODULE WINAPI LoadLibraryExA(
+        LPCSTR lpLibFileName,
+        HANDLE hFile,
+        DWORD  dwFlags);
+HMODULE WINAPI LoadLibraryExW(
+        LPCWSTR lpLibFileName,
+        HANDLE  hFile,
+        DWORD   dwFlags);
 FARPROC WINAPI GetProcAddress(
         HMODULE hModule,
         LPCSTR lProcName);

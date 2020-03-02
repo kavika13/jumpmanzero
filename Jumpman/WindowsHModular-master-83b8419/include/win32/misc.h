@@ -169,6 +169,9 @@ BOOL WINAPI SystemTimeToFileTime(
 BOOL WINAPI FileTimeToSystemTime(
   const FILETIME *      lpFileTime,
         LPSYSTEMTIME    lpSystemTime);
+LONG WINAPI CompareFileTime(
+  const FILETIME *      lpFileTime1,
+  const FILETIME *      lpFileTime2);
 void WINAPI GetSystemTimeAsFileTime(
         LPFILETIME lpSystemTimeAsFileTime);
 BOOL WINAPI SystemTimeToTzSpecificLocalTime(
@@ -259,6 +262,14 @@ HMODULE WINAPI LoadLibraryA(
         LPCSTR lpFileName);
 HMODULE WINAPI LoadLibraryW(
         LPCWSTR lpFileName);
+HMODULE WINAPI LoadLibraryExA(
+        LPCSTR lpLibFileName,
+        HANDLE hFile,
+        DWORD  dwFlags);
+HMODULE WINAPI LoadLibraryExW(
+        LPCWSTR lpLibFileName,
+        HANDLE  hFile,
+        DWORD   dwFlags);
 FARPROC WINAPI GetProcAddress(
         HMODULE hModule,
         LPCSTR lProcName);
