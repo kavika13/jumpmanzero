@@ -20,6 +20,7 @@ typedef struct {
     GameAction jump_action;
     GameAction attack_action;
     GameAction select_action;
+    GameAction slowmo_action;
     GameAction debug_action;
 } GameInput;
 

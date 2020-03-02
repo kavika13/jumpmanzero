@@ -51,7 +51,9 @@ typedef struct {
 #define kMUSIC_IS_ENABLED_DEFAULT false
 
 #define kFRAMES_PER_SECOND 40
+#define kSLOWMO_RATIO ((double)16.0)
 static const double kSECONDS_PER_FRAME = 1.0 / ((double)kFRAMES_PER_SECOND);
+static const double kSECONDS_PER_FRAME_SLOWMO = kSLOWMO_RATIO / (double)kFRAMES_PER_SECOND;
 static double g_update_frame_times[kFRAMES_PER_SECOND] = { 0 };
 static size_t g_update_frame_times_current_index = 0;
 
@@ -236,6 +238,10 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                     }
                     break;
                 }
+                case GLFW_KEY_TAB: {
+                    game_current_input->slowmo_action.is_pressed = true;
+                    break;
+                }
                 case GLFW_KEY_F11:
                     SetFullscreen(!g_fullscreen_is_enabled);
                     break;
@@ -317,6 +323,10 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                 }
                 case GLFW_KEY_ENTER: {
                     game_current_input->select_action.is_pressed = false;
+                    break;
+                }
+                case GLFW_KEY_TAB: {
+                    game_current_input->slowmo_action.is_pressed = false;
                     break;
                 }
             }
@@ -455,6 +465,7 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
     game_current_input->jump_action.just_pressed = game_current_input->jump_action.is_pressed && !game_prev_input->jump_action.is_pressed;
     game_current_input->attack_action.just_pressed = game_current_input->attack_action.is_pressed && !game_prev_input->attack_action.is_pressed;
     game_current_input->select_action.just_pressed = game_current_input->select_action.is_pressed && !game_prev_input->select_action.is_pressed;
+    game_current_input->slowmo_action.just_pressed = game_current_input->slowmo_action.is_pressed && !game_prev_input->slowmo_action.is_pressed;
     game_current_input->debug_action.just_pressed = game_current_input->debug_action.is_pressed && !game_prev_input->debug_action.is_pressed;
 }
 
@@ -601,7 +612,7 @@ int main(int arguments_count, char* arguments[]) {
     while(!glfwWindowShouldClose(g_main_window)) {
         double current_time = glfwGetTime();
 
-        if(current_time - previous_frame_time > kSECONDS_PER_FRAME) {
+        if(current_time - previous_frame_time > (game_state.current_input.slowmo_action.is_pressed ? kSECONDS_PER_FRAME_SLOWMO : kSECONDS_PER_FRAME)) {
             previous_frame_time = current_time;
             GetInput(&game_state.current_input, &game_prev_input);
             GameInput processed_input = game_state.current_input;
