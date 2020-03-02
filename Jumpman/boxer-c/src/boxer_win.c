@@ -1,6 +1,6 @@
 #include <boxer/boxer.h>
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <win32/windows.h>
 
 static UINT getIcon(BoxerStyle style) {
    switch (style) {
@@ -52,5 +52,5 @@ BoxerSelection boxerShow(const char *message, const char *title, BoxerStyle styl
    flags |= getIcon(style);
    flags |= getButtons(buttons);
 
-   return getSelection(MessageBox(NULL, message, title, flags), buttons);
+   return getSelection(MessageBoxA(NULL, message, title, flags), buttons);
 }
