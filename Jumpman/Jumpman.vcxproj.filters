@@ -61,6 +61,12 @@
     <Filter Include="Header Files\boxer\boxer">
       <UniqueIdentifier>{4d9858ca-c18a-4325-af35-6e532a6775d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\WindowsHModular">
+      <UniqueIdentifier>{6331ea3b-7c17-4ec8-8c45-7084d30dc054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WindowsHModular\win32">
+      <UniqueIdentifier>{d59a52dd-9cf2-4d97-b56c-55f2e1a0b46e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad\src\glad_wgl.c">
@@ -163,6 +169,54 @@
     </ClInclude>
     <ClInclude Include="boxer-c\include\boxer\boxer.h">
       <Filter>Header Files\boxer\boxer</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\atomic.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dbghelp.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dds.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\fiber.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\file.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\gdi.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\intrin.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\io.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\misc.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\process.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\sysinfo.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\threads.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\window.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_base.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_modular.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
