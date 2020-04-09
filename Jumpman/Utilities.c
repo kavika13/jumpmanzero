@@ -125,11 +125,10 @@ bool StringToFile(const char* filename, const char* data) {
 
 bool GetFileLine(char* sOut, size_t sOutSize, char* sFile, int iLine) {
     bool is_found = false;
-    long iLen;
     char sTemp[20] = { 0 };
     char* sData = NULL;
 
-    iLen = FileToString(sFile, (unsigned char**)(&sData));
+    size_t iLen = FileToString(sFile, (unsigned char**)(&sData));
 
     if(TextLine(sData, iLen, sTemp, 20, iLine)) {
         is_found = true;

@@ -516,7 +516,7 @@ size_t CreateMesh(MeshVertex* vertices, size_t vertex_count, long texture_index,
 
     g_object_redirects[g_object_count] = g_object_count;
     g_object_vertex_start_index[g_object_count] = g_vertices_to_load_count;
-    g_object_vertex_count[g_object_count] = vertex_count;
+    g_object_vertex_count[g_object_count] = (long)vertex_count;
 
     SetObjectData(g_object_count, texture_index, is_visible ? 1 : 0);
     IdentityMatrix(g_object_count);

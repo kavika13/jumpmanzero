@@ -347,10 +347,10 @@ static int create_mesh(lua_State* lua_state) {
 
     assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     size_t new_mesh_index = CreateMesh(new_mesh_vertices, vertex_count, texture_index_arg, is_visible_arg);
-    g_script_mesh_indices[g_loaded_mesh_count] = new_mesh_index;
+    g_script_mesh_indices[g_loaded_mesh_count] = (long)new_mesh_index;
     ++g_loaded_mesh_count;
 
-    lua_pushnumber(lua_state, new_mesh_index);
+    lua_pushnumber(lua_state, (lua_Number)new_mesh_index);
 
     return 1;
 }
