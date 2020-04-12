@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{738b1a6a-da31-4289-9fd3-e525f6d997bf}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{1ca03c34-1065-45a3-8f1a-4a43d11b6fe0}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{43585c62-069d-4e87-86fe-6e161e2230f6}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="Source Files\glad">
+      <UniqueIdentifier>{22eb82a2-ae1b-4ca6-96e4-6899e3382f5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad">
+      <UniqueIdentifier>{bc7f2f15-f96c-4ca7-b551-ecb93bf49b66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad\glad">
+      <UniqueIdentifier>{79446c46-fa7d-4c3f-9417-7102d52557f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad\KHR">
+      <UniqueIdentifier>{96477dbb-076a-4863-9c2c-f3acd769fb83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glfw">
+      <UniqueIdentifier>{3734e4b9-f716-4c67-adaf-56a6d170de2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glfw\GLFW">
+      <UniqueIdentifier>{d84d531a-12a1-4369-ad27-7efe5b810c2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\handmademath">
+      <UniqueIdentifier>{c830c3ee-e754-4eef-ae0a-196d07f9eaea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\stb_image">
+      <UniqueIdentifier>{ceecb8cb-7d36-4a31-991f-0fbb2aa92bfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sokol_gfx">
+      <UniqueIdentifier>{de8d7cbf-a5b2-4e3b-8312-06f2a3033c05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\mini_al">
+      <UniqueIdentifier>{519e74a3-e131-4388-a33a-3ad111b670d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tiny_sound_font">
+      <UniqueIdentifier>{13cb2274-cf21-46ff-9312-ab85d69aee61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cute_files">
+      <UniqueIdentifier>{c324fe4d-7f3f-4765-af0f-d134cdbd223b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\stb_sprintf">
+      <UniqueIdentifier>{5c121f7b-0b47-4246-9260-ae397d4afaaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\boxer">
+      <UniqueIdentifier>{dc868c31-8c2e-48e6-a50f-befef281c2f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\boxer">
+      <UniqueIdentifier>{ec77e9cc-bede-48c7-a625-483312f72d3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\boxer\boxer">
+      <UniqueIdentifier>{4d9858ca-c18a-4325-af35-6e532a6775d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WindowsHModular">
+      <UniqueIdentifier>{6331ea3b-7c17-4ec8-8c45-7084d30dc054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WindowsHModular\win32">
+      <UniqueIdentifier>{d59a52dd-9cf2-4d97-b56c-55f2e1a0b46e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="glad\src\glad_wgl.c">
+      <Filter>Source Files\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="glad\src\glad.c">
+      <Filter>Source Files\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundBuffer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Music.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Basic3D.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Jumpman.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boxer-c\src\boxer_win.c">
+      <Filter>Source Files\boxer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Jumpman.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\glad\glad.h">
+      <Filter>Header Files\glad\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\glad\glad_wgl.h">
+      <Filter>Header Files\glad\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="glad\include\KHR\khrplatform.h">
+      <Filter>Header Files\glad\KHR</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw-3.3.2.bin.WIN64\include\GLFW\glfw3native.h">
+      <Filter>Header Files\glfw\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw-3.3.2.bin.WIN64\include\GLFW\glfw3.h">
+      <Filter>Header Files\glfw\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="handmademath-1.7.0\HandmadeMath.h">
+      <Filter>Header Files\handmademath</Filter>
+    </ClInclude>
+    <ClInclude Include="stb-image-2.19.0\stb_image.h">
+      <Filter>Header Files\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h">
+      <Filter>Header Files\sokol_gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="mini_al-0.8.9\mini_al.h">
+      <Filter>Header Files\mini_al</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_sound_font-master-7e646b6\tml.h">
+      <Filter>Header Files\tiny_sound_font</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_sound_font-master-7e646b6\tsf.h">
+      <Filter>Header Files\tiny_sound_font</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Music.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Basic3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cute_files-6760a7d\cute_files.h">
+      <Filter>Header Files\cute_files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb-sprintf-1.06.0\stb_sprintf.h">
+      <Filter>Header Files\stb_sprintf</Filter>
+    </ClInclude>
+    <ClInclude Include="boxer-c\include\boxer\boxer.h">
+      <Filter>Header Files\boxer\boxer</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\atomic.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dbghelp.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dds.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\fiber.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\file.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\gdi.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\intrin.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\io.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\misc.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\process.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\sysinfo.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\threads.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\window.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_base.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_modular.h">
+      <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Jumpman.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Jumpman.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

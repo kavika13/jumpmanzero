@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lapi.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lauxlib.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lcode.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lctype.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\ldebug.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\ldo.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lfunc.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lgc.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\llex.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\llimits.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lmem.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lobject.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lopcodes.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lparser.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lprefix.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lstate.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lstring.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\ltable.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\ltm.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lua.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lua.hpp" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\luaconf.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lualib.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lundump.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lvm.h" />
+    <ClInclude Include="..\Jumpman\lua-5.3.5\src\lzio.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lapi.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lauxlib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lbaselib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lbitlib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lcode.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lcorolib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lctype.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\ldblib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\ldebug.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\ldo.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\ldump.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lfunc.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lgc.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\linit.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\liolib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\llex.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lmathlib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lmem.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\loadlib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lobject.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lopcodes.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\loslib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lparser.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lstate.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lstring.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lstrlib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\ltable.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\ltablib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\ltm.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lundump.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lutf8lib.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lvm.c" />
+    <ClCompile Include="..\Jumpman\lua-5.3.5\src\lzio.c" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>lua535static</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Jumpman\WindowsHModular-master-83b8419\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Jumpman\WindowsHModular-master-83b8419\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
