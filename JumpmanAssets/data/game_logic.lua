@@ -125,6 +125,7 @@ player_dying_animation_state = read_only.make_table_read_only(player_dying_anima
 
 local g_game_time_inactive = 0;
 
+local g_player_mesh = nil;
 local g_player_mesh_indices = {};
 local g_letter_mesh_indices = {};
 
@@ -133,7 +134,6 @@ local g_player_current_state = player_state.JSNORMAL;
 local g_player_current_state_frame_count = 0;
 local g_player_absolute_frame_count = 0;
 local g_player_current_mesh = 0;
-local g_player_previous_mesh = 0;
 local g_player_is_visible = true;
 local g_player_current_position_x = 0;
 local g_player_current_position_y = 0;
@@ -1763,6 +1763,8 @@ function Module.initialize(skip_play_level_music)
     g_player_mesh_indices[player_mesh.BORED_4] = load_mesh("data/bored4.msh");
     g_player_mesh_indices[player_mesh.BORED_5] = load_mesh("data/bored5.msh");
 
+    g_player_mesh = load_mesh("data/stand.msh");
+
     -- Load character meshes
     for iChar = 0, 299 do
         local is_good = true;
@@ -1914,24 +1916,13 @@ function Module.progress_game(game_input)
 end
 
 function Module.update_player_graphics()
-    -- TODO: Is this breaking the swim level, or is the swim level itself broken? (script25)
-    -- TODO: Also the baboon level looks a bit strange when jumping on horizontal climb vines/platforms (script24)
-    local current_player_mesh_index = g_player_mesh_indices[g_player_current_mesh] or 0;
-
-    set_identity_mesh_matrix(current_player_mesh_index);
-    rotate_x_mesh_matrix(current_player_mesh_index, g_player_current_rotation_x_radians * 180.0 / 3.14);
+    set_mesh_to_mesh(g_player_mesh, g_player_mesh_indices[g_player_current_mesh] or 0);
+    set_identity_mesh_matrix(g_player_mesh);
+    rotate_x_mesh_matrix(g_player_mesh, g_player_current_rotation_x_radians * 180.0 / 3.14);
     translate_mesh_matrix(
-        current_player_mesh_index,
+        g_player_mesh,
         g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
-
-    if g_player_is_visible then
-        set_mesh_is_visible(current_player_mesh_index, true);
-    end
-
-    if g_player_current_mesh ~= g_player_previous_mesh then
-        set_mesh_is_visible(g_player_mesh_indices[g_player_previous_mesh] or 0, false);
-        g_player_previous_mesh = g_player_current_mesh;
-    end
+    set_mesh_is_visible(g_player_mesh, g_player_is_visible);
 end
 
 function Module.reset_perspective()
