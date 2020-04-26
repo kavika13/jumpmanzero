@@ -15,6 +15,7 @@ Module.CurrentPosZ = 0;
 Module.CurrentVelocityX = 0;
 Module.CurrentVelocityY = 0;
 
+local g_shark_mesh = nil;
 local g_animation_mesh_indices = {};
 local g_current_animation_frame_index;
 local g_move_animation_frame_index = 0;
@@ -149,57 +150,37 @@ end
 
 function Module.initialize()
     -- TODO: Don't hard-code animation frame indices
-    g_animation_mesh_indices[1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
-    move_mesh_to_front(g_animation_mesh_indices[1]);
-    g_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
-    move_mesh_to_front(g_animation_mesh_indices[2]);
-    g_animation_mesh_indices[3] = new_mesh(Module.MoveRightMeshResourceIndices[3]);
-    move_mesh_to_front(g_animation_mesh_indices[3]);
-    g_animation_mesh_indices[4] = new_mesh(Module.MoveRightMeshResourceIndices[4]);
-    move_mesh_to_front(g_animation_mesh_indices[4]);
+    g_animation_mesh_indices[1] = Module.MoveRightMeshResourceIndices[1];
+    g_animation_mesh_indices[2] = Module.MoveRightMeshResourceIndices[2];
+    g_animation_mesh_indices[3] = Module.MoveRightMeshResourceIndices[3];
+    g_animation_mesh_indices[4] = Module.MoveRightMeshResourceIndices[4];
 
-    g_animation_mesh_indices[5] = new_mesh(Module.TurnRightMeshResourceIndices[1]);
-    move_mesh_to_front(g_animation_mesh_indices[5]);
-    g_animation_mesh_indices[6] = new_mesh(Module.TurnRightMeshResourceIndices[2]);
-    move_mesh_to_front(g_animation_mesh_indices[6]);
-    g_animation_mesh_indices[7] = new_mesh(Module.TurnRightMeshResourceIndices[3]);
-    move_mesh_to_front(g_animation_mesh_indices[7]);
+    g_animation_mesh_indices[5] = Module.TurnRightMeshResourceIndices[1];
+    g_animation_mesh_indices[6] = Module.TurnRightMeshResourceIndices[2];
+    g_animation_mesh_indices[7] = Module.TurnRightMeshResourceIndices[3];
 
-    g_animation_mesh_indices[11] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
-    move_mesh_to_front(g_animation_mesh_indices[11]);
-    g_animation_mesh_indices[12] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
-    move_mesh_to_front(g_animation_mesh_indices[12]);
-    g_animation_mesh_indices[13] = new_mesh(Module.MoveLeftMeshResourceIndices[3]);
-    move_mesh_to_front(g_animation_mesh_indices[13]);
-    g_animation_mesh_indices[14] = new_mesh(Module.MoveLeftMeshResourceIndices[4]);
-    move_mesh_to_front(g_animation_mesh_indices[14]);
+    g_animation_mesh_indices[11] = Module.MoveLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[12] = Module.MoveLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[13] = Module.MoveLeftMeshResourceIndices[3];
+    g_animation_mesh_indices[14] = Module.MoveLeftMeshResourceIndices[4];
 
-    g_animation_mesh_indices[15] = new_mesh(Module.TurnLeftMeshResourceIndices[1]);
-    move_mesh_to_front(g_animation_mesh_indices[15]);
-    g_animation_mesh_indices[16] = new_mesh(Module.TurnLeftMeshResourceIndices[2]);
-    move_mesh_to_front(g_animation_mesh_indices[16]);
-    g_animation_mesh_indices[17] = new_mesh(Module.TurnLeftMeshResourceIndices[3]);
-    move_mesh_to_front(g_animation_mesh_indices[17]);
+    g_animation_mesh_indices[15] = Module.TurnLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[16] = Module.TurnLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[17] = Module.TurnLeftMeshResourceIndices[3];
+
+    g_shark_mesh = new_mesh(g_animation_mesh_indices[1]);  -- TODO: Don't hard-code animation frame indices
+    move_mesh_to_front(g_shark_mesh);
+    set_mesh_texture(g_shark_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_shark_mesh, true);
 
     Module.CurrentPosX = Module.StartPosX;
     Module.CurrentPosY = Module.StartPosY;
     Module.CurrentPosZ = 0.05;
     Module.CurrentVelocityX = 1;
     g_current_animation_frame_index = 1;  -- TODO: Don't hard-code animation frame indices
-
-    for i = 1, 7 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
-
-    for i = 11, 17 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
 end
 
 function Module.update(game_input)
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_current_animation_frame_index], false);
-
     g_move_animation_frame_counter = g_move_animation_frame_counter + 1;
 
     if g_move_animation_frame_counter == 4 then
@@ -214,10 +195,9 @@ function Module.update(game_input)
 
     MoveShark_(game_input);
 
-    local anim_mesh_index = g_animation_mesh_indices[g_current_animation_frame_index];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_shark_mesh, g_animation_mesh_indices[g_current_animation_frame_index]);
+    set_identity_mesh_matrix(g_shark_mesh);
+    translate_mesh_matrix(g_shark_mesh, Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
 end
 
 return Module;
