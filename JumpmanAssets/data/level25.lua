@@ -108,6 +108,21 @@ local swim_coll_properties = {
 };
 swim_coll_properties = read_only.make_table_read_only(swim_coll_properties);
 
+local swim_animation_frame = {
+    SWIM_TREAD_WATER_1 = 1,
+    SWIM_TREAD_WATER_2 = 2,
+    SWIM_TREAD_WATER_3 = 3,
+    SWIM_LEFT_1 = 11,
+    SWIM_LEFT_2 = 12,
+    SWIM_LEFT_3 = 13,
+    SWIM_LEFT_4 = 14,
+    SWIM_RIGHT_1 = 21,
+    SWIM_RIGHT_2 = 22,
+    SWIM_RIGHT_3 = 23,
+    SWIM_RIGHT_4 = 24,
+};
+swim_animation_frame = read_only.make_table_read_only(swim_animation_frame);
+
 local kTOP_OF_POOL_Y = 114;
 
 local g_title_is_done_scrolling = false;
@@ -118,8 +133,9 @@ local g_swim_collision;
 
 local g_frames_since_level_start = 0;
 
+local g_jumpman_swim_mesh = nil;
 local g_swim_animation_mesh_indices = {};
-local g_swim_animation_frame;
+local g_swim_animation_current_mesh_index;
 local g_swim_rotation_angle;
 local g_swim_death_spin_animation_frame;
 local g_swim_time_in_pool_frames;
@@ -287,35 +303,35 @@ local function Swim_(game_input)
     iSpeed = 30;
 
     if iUp and iLeft then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = -45;
     elseif iUp and iRight then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = 45;
     elseif iDown and iLeft then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = 45;
     elseif iDown and iRight then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = -45;
     elseif iUp then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = -90;
     elseif iDown then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = -90;
     elseif iLeft then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 11, 14);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = 0;
     elseif iRight then
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, iSpeed, 21, 24);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = 0;
     else
-        g_swim_animation_frame = Cycle_(g_frames_since_level_start, 22, 1, 3);
+        g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, 22, swim_animation_frame.SWIM_TREAD_WATER_1, swim_animation_frame.SWIM_TREAD_WATER_3);
         g_swim_rotation_angle = math.sin(g_frames_since_level_start * 5 * math.pi / 180.0) * 5;
     end
 
-    if g_swim_animation_frame > 9 then
+    if g_swim_animation_current_mesh_index >= swim_animation_frame.SWIM_LEFT_1 then
         g_swim_rotation_angle = g_swim_rotation_angle + math.sin(g_frames_since_level_start * 5 * math.pi / 180.0) * 2;
     end
 end
@@ -380,9 +396,7 @@ local function ProgressLevel_(game_input)
     backdrop_mesh_index = g_game_logic.find_backdrop_by_number(6).mesh_index;  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.04, 0.04);
 
-    -- TODO: Looks like jumpman's last animation frame isn't disappearing anymore when the player jumps in water.
-    --       The bug might be in game_logic.lua.update_player_graphics, or it might be here
-    set_mesh_is_visible(g_swim_animation_mesh_indices[g_swim_animation_frame], false);
+    set_mesh_is_visible(g_jumpman_swim_mesh, false);
 
     if g_splash_particle_time > 0 then
         MoveSplashParticles_();
@@ -393,7 +407,7 @@ local function ProgressLevel_(game_input)
 
         if g_game_logic.get_player_current_state() == player_state.JSDYING then
             g_swim_death_spin_animation_frame = g_swim_death_spin_animation_frame + 1;
-            g_swim_animation_frame = Cycle_(g_frames_since_level_start, 22, 1, 3);
+            g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, 22, swim_animation_frame.SWIM_TREAD_WATER_1, swim_animation_frame.SWIM_TREAD_WATER_3);
             g_swim_rotation_angle = g_swim_death_spin_animation_frame * 12;
             g_swim_time_in_pool_frames = 100;
         else
@@ -423,7 +437,7 @@ local function ProgressLevel_(game_input)
         local iDrawX;
 
         -- Simulate underwater currents, quantized to "pixel grid" boundaries
-        if g_swim_animation_frame < 10 then
+        if g_swim_animation_current_mesh_index < swim_animation_frame.SWIM_LEFT_1 then
             iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
             iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
         else
@@ -431,11 +445,11 @@ local function ProgressLevel_(game_input)
             iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
         end
 
-        local swim_anim_mesh_index = g_swim_animation_mesh_indices[g_swim_animation_frame];
-        set_identity_mesh_matrix(swim_anim_mesh_index);
-        rotate_z_mesh_matrix(swim_anim_mesh_index, g_swim_rotation_angle);
-        translate_mesh_matrix(swim_anim_mesh_index, iDrawX, iDrawY + 5, 2);
-        set_mesh_is_visible(swim_anim_mesh_index, true);
+        set_mesh_to_mesh(g_jumpman_swim_mesh, g_swim_animation_mesh_indices[g_swim_animation_current_mesh_index]);
+        set_identity_mesh_matrix(g_jumpman_swim_mesh);
+        rotate_z_mesh_matrix(g_jumpman_swim_mesh, g_swim_rotation_angle);
+        translate_mesh_matrix(g_jumpman_swim_mesh, iDrawX, iDrawY + 5, 2);
+        set_mesh_is_visible(g_jumpman_swim_mesh, true);
 
         if g_game_logic.get_player_current_state() == player_state.JSDYING then
             g_game_logic.set_player_freeze_cooldown_frame_count(0);
@@ -495,54 +509,25 @@ function Module.initialize(game_input)
     g_swim_collision.initialize();
 
     -- TODO: Don't hard-code animation frame indices
-    g_swim_animation_mesh_indices[1] = new_mesh(resources.MeshGroove1);
-    move_mesh_to_front(g_swim_animation_mesh_indices[1]);
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_1] = resources.MeshGroove1;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_2] = resources.MeshGroove2;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_3] = resources.MeshGroove3;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_LEFT_1] = resources.MeshSwimL1;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_LEFT_2] = resources.MeshSwimL2;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_LEFT_3] = resources.MeshSwimL3;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_LEFT_4] = resources.MeshSwimL4;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_RIGHT_1] = resources.MeshSwimR1;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_RIGHT_2] = resources.MeshSwimR2;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_RIGHT_3] = resources.MeshSwimR3;
+    g_swim_animation_mesh_indices[swim_animation_frame.SWIM_RIGHT_4] = resources.MeshSwimR4;
 
-    g_swim_animation_mesh_indices[2] = new_mesh(resources.MeshGroove2);
-    move_mesh_to_front(g_swim_animation_mesh_indices[2]);
-
-    g_swim_animation_mesh_indices[3] = new_mesh(resources.MeshGroove3);
-    move_mesh_to_front(g_swim_animation_mesh_indices[3]);
-
-    g_swim_animation_mesh_indices[11] = new_mesh(resources.MeshSwimL1);
-    move_mesh_to_front(g_swim_animation_mesh_indices[11]);
-
-    g_swim_animation_mesh_indices[12] = new_mesh(resources.MeshSwimL2);
-    move_mesh_to_front(g_swim_animation_mesh_indices[12]);
-
-    g_swim_animation_mesh_indices[13] = new_mesh(resources.MeshSwimL3);
-    move_mesh_to_front(g_swim_animation_mesh_indices[13]);
-
-    g_swim_animation_mesh_indices[14] = new_mesh(resources.MeshSwimL4);
-    move_mesh_to_front(g_swim_animation_mesh_indices[14]);
-
-    g_swim_animation_mesh_indices[21] = new_mesh(resources.MeshSwimR1);
-    move_mesh_to_front(g_swim_animation_mesh_indices[21]);
-
-    g_swim_animation_mesh_indices[22] = new_mesh(resources.MeshSwimR2);
-    move_mesh_to_front(g_swim_animation_mesh_indices[22]);
-
-    g_swim_animation_mesh_indices[23] = new_mesh(resources.MeshSwimR3);
-    move_mesh_to_front(g_swim_animation_mesh_indices[23]);
-
-    g_swim_animation_mesh_indices[24] = new_mesh(resources.MeshSwimR4);
-    move_mesh_to_front(g_swim_animation_mesh_indices[24]);
-
-    for i = 1, 3 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(g_swim_animation_mesh_indices[i], resources.TextureJumpman);
-    end
-
-    for i = 11, 14 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(g_swim_animation_mesh_indices[i], resources.TextureJumpman);
-    end
-
-    for i = 21, 24 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(g_swim_animation_mesh_indices[i], resources.TextureJumpman);
-    end
+    g_jumpman_swim_mesh = new_mesh(g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_1]);
+    set_mesh_texture(g_jumpman_swim_mesh, resources.TextureJumpman);
+    move_mesh_to_front(g_jumpman_swim_mesh);
 
     InitSplashParticles_();
 
-    g_swim_animation_frame = 1;
+    g_swim_animation_current_mesh_index = swim_animation_frame.SWIM_TREAD_WATER_1;
     g_swim_time_in_pool_frames = 0;
 
     Module.reset();
