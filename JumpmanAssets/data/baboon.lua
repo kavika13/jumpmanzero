@@ -39,6 +39,7 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local g_baboon_mesh = nil;
 local g_climb_animation_mesh_indices = {};
 local g_climb_animation_current_mesh_index;
 local g_climb_animation_frame_index = 0;
@@ -95,15 +96,15 @@ end
 
 function Module.initialize()
     -- TODO: Use constants instead of these hard-coded frame numbers
-    g_climb_animation_mesh_indices[1] = new_mesh(resources.MeshBaboon4);
-    g_climb_animation_mesh_indices[2] = new_mesh(resources.MeshBaboon);
-    g_climb_animation_mesh_indices[3] = new_mesh(resources.MeshBaboon2);
-    g_climb_animation_mesh_indices[4] = new_mesh(resources.MeshBaboon1);
-    g_climb_animation_mesh_indices[5] = new_mesh(resources.MeshBaboon3);
+    g_climb_animation_mesh_indices[1] = resources.MeshBaboon4;
+    g_climb_animation_mesh_indices[2] = resources.MeshBaboon;
+    g_climb_animation_mesh_indices[3] = resources.MeshBaboon2;
+    g_climb_animation_mesh_indices[4] = resources.MeshBaboon1;
+    g_climb_animation_mesh_indices[5] = resources.MeshBaboon3;
 
-    for i = 1, 5 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_climb_animation_mesh_indices[i], resources.TextureBaboon);
-    end
+    g_baboon_mesh = new_mesh(resources.MeshBaboon4);
+    set_mesh_texture(g_baboon_mesh, resources.TextureBaboon);
+    set_mesh_is_visible(g_baboon_mesh, true);
 
     g_current_pos_x = Module.StartX;
     g_current_pos_y = Module.StartY;
@@ -113,15 +114,11 @@ function Module.initialize()
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index], false);
-
     MoveBaboon_();
 
-    local anim_mesh_index = g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 6, g_current_pos_z);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_baboon_mesh, g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index]);
+    set_identity_mesh_matrix(g_baboon_mesh);
+    translate_mesh_matrix(g_baboon_mesh, g_current_pos_x, g_current_pos_y + 6, g_current_pos_z);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 2, g_current_pos_y + 2,
