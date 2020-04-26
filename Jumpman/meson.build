@@ -16,6 +16,7 @@ incdir = include_directories(inc)
 src = [
     'Basic3D.c',
     'Jumpman.c',
+    'logging.c',
     'Main.c',
     'Music.c',
     'Sound.c',

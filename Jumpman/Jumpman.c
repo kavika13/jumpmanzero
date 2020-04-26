@@ -1,8 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <malloc.h>
 
 #if defined(__APPLE__)
     #pragma clang diagnostic push
@@ -25,6 +23,7 @@
 #include "Music.h"
 #include "Sound.h"
 #include "Utilities.h"
+#include "logging.h"
 
 typedef struct LuaModuleScriptContext {
     lua_State* lua_state;
@@ -665,7 +664,7 @@ static void LoadLuaScript(const char* filename, LuaModuleScriptContext* new_scri
     int load_file_result = luaL_loadfile(new_state, full_filename);
     if(load_file_result != 0) {
         const char* error_message = lua_tostring(new_state, -1);
-        fprintf(stderr, "Error while loading script: %s\n%s", full_filename, error_message);
+        debug_log("Error while loading script: %s\n%s", full_filename, error_message);
         assert(false);  // TODO: Error handling
     }
 
@@ -679,7 +678,7 @@ static void LoadLuaScript(const char* filename, LuaModuleScriptContext* new_scri
 
     if (lua_pcall(new_state, 0, 1, error_handler_stack_pos) != 0) {
         const char* error_message = lua_tostring(new_state, -1);
-        fprintf(stderr, "Error while initially running script module: %s\n%s", full_filename, error_message);
+        debug_log("Error while initially running script module: %s\n%s", full_filename, error_message);
         assert(false);  // TODO: Error handling
     }
 
@@ -749,7 +748,7 @@ static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const 
 
         if(lua_pcall(lua_state, arg_count, 0, error_handler_stack_pos) != 0) {
             const char* error_message = lua_tostring(lua_state, -1);
-            fprintf(stderr, "Error while calling Lua function in main script: %s\n%s", function_name, error_message);
+            debug_log("Error while calling Lua function in main script: %s\n%s", function_name, error_message);
             assert(false);  // TODO: Error handling
         }
 

@@ -99,6 +99,9 @@
     <ClCompile Include="boxer-c\src\boxer_win.c">
       <Filter>Source Files\boxer</Filter>
     </ClCompile>
+    <ClCompile Include="logging.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jumpman.h">
@@ -217,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_modular.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="logging.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

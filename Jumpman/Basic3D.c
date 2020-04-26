@@ -34,6 +34,7 @@
 
 #include "boxer/boxer.h"
 #include "Basic3d.h"
+#include "logging.h"
 
 #define kMAX_TEXTURES ((size_t)30)
 #define kMAX_OBJECTS ((size_t)600)
@@ -419,7 +420,7 @@ void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enab
 
         // TODO: Error handling
         const char* error_message = stbi_failure_reason();
-        fprintf(stderr, "Failed to load image file \"%s\": %s\ndefault texture loaded instead", sFile, error_message);
+        debug_log("Failed to load image file \"%s\": %s\ndefault texture loaded instead", sFile, error_message);
     }
 
     sg_image_desc image_desc = { 0 };

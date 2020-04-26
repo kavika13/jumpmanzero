@@ -1,6 +1,4 @@
 #include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <glad/glad.h>
 
@@ -37,6 +35,7 @@
 #include "Sound.h"
 #include "SoundBuffer.h"
 #include "Utilities.h"
+#include "logging.h"
 
 typedef struct {
     GameInput current_input;
@@ -190,7 +189,7 @@ static void SetFullscreen(bool enable_fullscreen) {
 
 static void ErrorCallback(int error, const char* description) {
     (void)error;  // Unused, but passed due to passing this function as a function pointer
-    fprintf(stderr, "Error: %s\n", description);
+    debug_log("Error: %s\n", description);
 }
 
 static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -679,7 +678,7 @@ int main(int arguments_count, char* arguments[]) {
 
         if(g_save_settings_is_queued) {
             if(!SaveSettings_()) {
-                // TODO: fprintf(stderr, "Failed to save config file\n");
+                // TODO: debug_log("Failed to save config file\n");
             }
 
             g_save_settings_is_queued = false;

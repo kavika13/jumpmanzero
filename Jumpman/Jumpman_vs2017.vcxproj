@@ -123,6 +123,7 @@
     <ClCompile Include="glad\src\glad.c" />
     <ClCompile Include="glad\src\glad_wgl.c" />
     <ClCompile Include="Jumpman.c" />
+    <ClCompile Include="logging.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Music.c" />
     <ClCompile Include="Sound.c" />
@@ -141,6 +142,7 @@
     <ClInclude Include="handmademath-1.7.0\HandmadeMath.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Jumpman.h" />
+    <ClInclude Include="logging.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="mini_al-0.8.9\mini_al.h" />
     <ClInclude Include="Music.h" />
