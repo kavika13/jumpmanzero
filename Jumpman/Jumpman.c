@@ -145,15 +145,11 @@ static long LoadMesh(const char* base_path, const char* sFileName) {
 
     oData = (long*)(malloc(iNums * sizeof(long)));
 
-    long iNum;
-
-    iNum = -1;
-
-    while(++iNum < iNums) {
+    for(int iNum = 0; iNum < iNums; ++iNum) {
         oData[iNum] = StringToLong(&cData[iNum << 2]);
     }
 
-    CreateObject(oData, iNum / 9, &iObjectNum);
+    CreateObject(oData, iNums / 9, &iObjectNum);
 
     free(cData);
     free(oData);
@@ -488,9 +484,7 @@ static int set_config_option(lua_State* lua_state) {  // TODO: Might be able to 
             is_key_good = true;
         }
 
-        long iLoop = -1;
-
-        while(++iLoop < 6) {
+        for(int iLoop = 0; iLoop < 6; ++iLoop) {
             if(option_index_arg != iLoop && GetKeyBinding(iLoop) == iKey) {
                 is_key_good = false;
             }
@@ -768,9 +762,7 @@ static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const 
 // ------------------- API FOR PLATFORM LAYER -------------------------------
 
 bool Init3D(void) {
-    int iLoop = -1;
-
-    while (++iLoop < kMAX_SCRIPT_MESHES) {
+    for(int iLoop = 0; iLoop < kMAX_SCRIPT_MESHES; ++iLoop) {
         g_script_mesh_indices[iLoop] = 0;
     }
 

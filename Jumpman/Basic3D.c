@@ -252,9 +252,7 @@ HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Nea
 // End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
 static long SurfaceObject(long o1) {
-    int iLoop = -1;
-
-    while(++iLoop < kMAX_OBJECTS) {
+    for(int iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         if(g_object_redirects[iLoop] == o1) {
             return iLoop;
         }
@@ -334,17 +332,13 @@ void RotateMatrixZ(long iObj, float fDegrees) {
 }
 
 void MoveMeshToFront(long o1) {
-    long iSwap = g_object_redirects[o1];
-
-    while(--iSwap >= 0) {
+    for(long iSwap = g_object_redirects[o1] - 1; iSwap >= 0; --iSwap) {
         SwapObjects(iSwap, iSwap + 1);
     }
 }
 
 void MoveMeshToBack(long o1) {
-    long iSwap = g_object_redirects[o1];
-
-    while(++iSwap < g_object_count) {
+    for(long iSwap = g_object_redirects[o1] + 1; iSwap < g_object_count; ++iSwap) {
         SwapObjects(iSwap, iSwap - 1);
     }
 }
@@ -458,10 +452,9 @@ void ChangeMesh(long iMesh, long iNewMesh) {
 
 void CopyObject(long iObject, long* iNum) {
     long iObjectToCopy = g_object_redirects[iObject];
-    long iLoop = -1;
     long iPlace = -1;
 
-    while(++iLoop < kMAX_OBJECTS && iPlace == -1) {
+    for(int iLoop = 0; iLoop < kMAX_OBJECTS && iPlace == -1; ++iLoop) {
         if(g_object_redirects[iLoop] == -1) {
             iPlace = iLoop;
         }
@@ -493,9 +486,7 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
     SetObjectData(g_object_count, 0, 0);
     IdentityMatrix(g_object_count);
 
-    long iPlace = -1;
-
-    while(++iPlace < iCount) {
+    for(int iPlace = 0; iPlace < iCount; ++iPlace) {
         g_vertices_to_load[g_vertices_to_load_count].x = iParams[iPlace * 9 + 0] / 256.0f;
         g_vertices_to_load[g_vertices_to_load_count].y = iParams[iPlace * 9 + 1] / 256.0f;
         g_vertices_to_load[g_vertices_to_load_count].z = iParams[iPlace * 9 + 2] / 256.0f;
@@ -508,7 +499,7 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
         ++g_vertices_to_load_count;
     }
 
-    g_object_count = g_object_count + 1;
+    ++g_object_count;
 }
 
 size_t CreateMesh(MeshVertex* vertices, size_t vertex_count, long texture_index, bool is_visible) {
@@ -554,7 +545,7 @@ void ResizeViewport(int width, int height) {
 }
 
 void Reset3d(void) {
-    // TODO: Is there any case where we need to reset the context?
+    // TODO: Is there any case where we need to reset the context? I think this is a relic from D3D9. Do we might need to handle suspend/resume, ala UWP though?
 }
 
 bool InitializeAll(void) {
@@ -595,17 +586,12 @@ void DoCleanUp(void) {
 }
 
 static long init_3d(void) {
-    int iLoop = -1;
-
-    while(++iLoop < kMAX_TEXTURES) {
+    for(int iLoop = 0; iLoop < kMAX_TEXTURES; ++iLoop) {
         g_textures[iLoop].id = SG_INVALID_ID;
     }
 
-    for(iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
+    for(int iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
-    }
-
-    for(iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
     }
 
@@ -825,9 +811,7 @@ static void init_scene(void) {
 }
 
 static void kill_scene(void) {
-    int iLoop = -1;
-
-    while(++iLoop < kMAX_TEXTURES) {
+    for(int iLoop = 0; iLoop < kMAX_TEXTURES; ++iLoop) {
         if(g_textures[iLoop].id != SG_INVALID_ID) {
             sg_destroy_image(g_textures[iLoop]);
             g_textures[iLoop].id = SG_INVALID_ID;
