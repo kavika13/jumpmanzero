@@ -43,8 +43,9 @@ local move_direction = {
 };
 move_direction = read_only.make_table_read_only(move_direction);
 
+local g_animation_current_mesh = nil;
 local g_animation_mesh_indices = {};
-local g_animation_current_frame = 0;
+local g_animation_current_frame = animation_frame.MOVE_LEFT_1;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 3 frames increments alt)
 local g_animation_alt_frame_counter = 0;  -- On 1 or 3 switches to an alt frame in the current animation
 local g_jump_animation_time = 0;
@@ -349,47 +350,44 @@ function Module.initialize()
     g_current_pos_x = 250;
     g_current_pos_y = 115;
     g_current_pos_z = 2;
+    g_animation_current_frame = animation_frame.MOVE_LEFT_1;
     g_current_move_direction = move_direction.LEFT;
 
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = new_mesh(Module.SheepMoveLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = new_mesh(Module.SheepMoveLeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.JUMP_LEFT_1] = new_mesh(Module.SheepJumpLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.JUMP_LEFT_2] = new_mesh(Module.SheepJumpLeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.JUMP_LEFT_3] = new_mesh(Module.SheepJumpLeftMeshResourceIndices[3]);
-    g_animation_mesh_indices[animation_frame.FLY_LEFT_1] = new_mesh(Module.SheepFlyLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.FLY_LEFT_2] = new_mesh(Module.SheepFlyLeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.FLY_LEFT_3] = new_mesh(Module.SheepFlyLeftMeshResourceIndices[3]);
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = Module.SheepMoveLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = Module.SheepMoveLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.JUMP_LEFT_1] = Module.SheepJumpLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.JUMP_LEFT_2] = Module.SheepJumpLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.JUMP_LEFT_3] = Module.SheepJumpLeftMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.FLY_LEFT_1] = Module.SheepFlyLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FLY_LEFT_2] = Module.SheepFlyLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.FLY_LEFT_3] = Module.SheepFlyLeftMeshResourceIndices[3];
 
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = new_mesh(Module.SheepMoveRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = new_mesh(Module.SheepMoveRightMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_1] = new_mesh(Module.SheepJumpRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_2] = new_mesh(Module.SheepJumpRightMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_3] = new_mesh(Module.SheepJumpRightMeshResourceIndices[3]);
-    g_animation_mesh_indices[animation_frame.FLY_RIGHT_1] = new_mesh(Module.SheepFlyRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.FLY_RIGHT_2] = new_mesh(Module.SheepFlyRightMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.FLY_RIGHT_3] = new_mesh(Module.SheepFlyRightMeshResourceIndices[3]);
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.SheepMoveRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.SheepMoveRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_1] = Module.SheepJumpRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_2] = Module.SheepJumpRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_3] = Module.SheepJumpRightMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.FLY_RIGHT_1] = Module.SheepFlyRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FLY_RIGHT_2] = Module.SheepFlyRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.FLY_RIGHT_3] = Module.SheepFlyRightMeshResourceIndices[3];
 
-    for _, index in pairs(animation_frame) do
-        set_mesh_texture(g_animation_mesh_indices[index], Module.SheepTextureResourceIndex);
-    end
+    g_animation_current_mesh = new_mesh(g_animation_mesh_indices[g_animation_current_frame]);
+    set_mesh_texture(g_animation_current_mesh, Module.SheepTextureResourceIndex);
+    set_mesh_is_visible(g_animation_current_mesh, true);
 
     g_copter_mesh_index = new_mesh(Module.CopterMeshResourceIndex);
     set_mesh_texture(g_copter_mesh_index, Module.CopterTextureResourceIndex);
 end
 
 function Module.update(follower_sheep)
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
-
     g_copter_current_scale = 0;
 
     AdvanceFrame_();
     MoveSheep_(follower_sheep);
 
-    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_animation_current_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_animation_current_mesh);
+    translate_mesh_matrix(g_animation_current_mesh, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
 
     if g_copter_current_scale > 0 then
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
