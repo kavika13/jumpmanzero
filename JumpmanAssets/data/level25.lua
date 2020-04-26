@@ -81,33 +81,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local shark_properties = {
-    SharkIInit = 0,
-    SharkIMeshes = 1,
-    SharkIFrame = 32,
-    SharkIX = 33,
-    SharkIY = 34,
-    SharkIZ = 35,
-    SharkISlow = 36,
-    SharkStartX = 37,
-    SharkStartY = 38,
-    SharkIAnimate = 39,
-    SharkICycle = 40,
-    SharkITurn = 41,
-    SharkIXV = 42,
-    SharkIYV = 43,
-};
-shark_properties = read_only.make_table_read_only(shark_properties);
-
--- TODO: Separate file?
-local swim_coll_properties = {
-    SwimCollInTank = 0,
-    SwimCollSharkObj = 1,
-    SwimCollFacing = 2,
-};
-swim_coll_properties = read_only.make_table_read_only(swim_coll_properties);
-
 local swim_animation_frame = {
     SWIM_TREAD_WATER_1 = 1,
     SWIM_TREAD_WATER_2 = 2,

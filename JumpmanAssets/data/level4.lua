@@ -63,26 +63,6 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
--- TODO: Separate file?
-local ninja_properties = {
-    NinjaStartX = 0,
-    NinjaStartY = 1,
-    NinjaIInit = 2,
-    NinjaIX = 3,
-    NinjaIY = 4,
-    NinjaIZ = 5,
-    NinjaIFixDonut = 6,
-    NinjaISlow = 7,
-    NinjaIAnimate = 8,
-    NinjaIFrame = 9,
-    NinjaIDir = 10,
-    NinjaIATime = 11,
-    NinjaIMeshes = 12,
-    NinjaIStatus = 43,
-    NinjaICount = 44,
-};
-ninja_properties = read_only.make_table_read_only(ninja_properties);
-
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
