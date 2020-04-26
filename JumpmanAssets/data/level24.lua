@@ -56,6 +56,23 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local jumpman_hang_animation_frame = {
+    HANG_NEUTRAL = 0,
+
+    HANG_RIGHT_META_BASE = 0,  -- Not an actual frame
+    HANG_RIGHT_1 = 1,
+    HANG_RIGHT_2 = 2,
+    HANG_RIGHT_3 = 3,
+    HANG_RIGHT_4 = 4,
+
+    HANG_LEFT_META_BASE = 10,  -- Not an actual frame
+    HANG_LEFT_1 = 11,
+    HANG_LEFT_2 = 12,
+    HANG_LEFT_3 = 13,
+    HANG_LEFT_4 = 14,
+};
+jumpman_hang_animation_frame = read_only.make_table_read_only(jumpman_hang_animation_frame);
+
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -64,14 +81,11 @@ local baboons = {};
 
 local g_hang_animation_current_frame;
 local g_hang_animation_next_frame_counter = 0;
-local iHangMesh = {};
+local g_jumpman_hang_animation_mesh_indices = {};
+local g_jumpman_hang_mesh = nil;
 
 local function CheckHanging_(game_input)
-    for iDraw = 0, 19 do
-        if iHangMesh[iDraw] and iHangMesh[iDraw] > 0 then
-            set_mesh_is_visible(iHangMesh[iDraw], false);
-        end
-    end
+    set_mesh_is_visible(g_jumpman_hang_mesh, false);
 
     if g_game_logic.get_player_current_state() == player_state.JSVINE or
             g_game_logic.get_player_current_state() == player_state.JSLADDER then
@@ -102,33 +116,34 @@ local function CheckHanging_(game_input)
                 g_hang_animation_current_frame = g_hang_animation_current_frame + 1;
 
                 if g_hang_animation_current_frame > 4 then
-                    g_hang_animation_current_frame = 1;
+                    g_hang_animation_current_frame = jumpman_hang_animation_frame.HANG_RIGHT_META_BASE + 1;
                 end
             end
 
-            local iDraw = 0;
+            local actual_hang_animation_frame = jumpman_hang_animation_frame.HANG_NEUTRAL;
 
             if game_input.move_right_action.is_pressed then
                 if g_game_logic.get_player_current_position_x() > player_platform.pos_lower_right[1] - 3 then
                     g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() - 1);
                 else
-                    iDraw = g_hang_animation_current_frame;
+                    actual_hang_animation_frame = g_hang_animation_current_frame;
                 end
             elseif game_input.move_left_action.is_pressed then
                 if g_game_logic.get_player_current_position_x() < player_platform.pos_upper_left[1] + 2 then
                     g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() + 1);
                 else
-                    iDraw = g_hang_animation_current_frame + 10;
+                    actual_hang_animation_frame = jumpman_hang_animation_frame.HANG_LEFT_META_BASE + g_hang_animation_current_frame;
                 end
             end
 
-            set_identity_mesh_matrix(iHangMesh[iDraw]);
+            set_mesh_to_mesh(g_jumpman_hang_mesh, g_jumpman_hang_animation_mesh_indices[actual_hang_animation_frame]);
+            set_identity_mesh_matrix(g_jumpman_hang_mesh);
             translate_mesh_matrix(
-                iHangMesh[iDraw],
+                g_jumpman_hang_mesh,
                 g_game_logic.get_player_current_position_x() + 0,
                 g_game_logic.get_player_current_position_y() + 2,
                 g_game_logic.get_player_current_position_z() + 1.5);
-            set_mesh_is_visible(iHangMesh[iDraw], true);
+            set_mesh_is_visible(g_jumpman_hang_mesh, true);
 
             return;
         end
@@ -165,40 +180,19 @@ local function FixHangPlatforms_()
         end
     end
 
-    iHangMesh[0] = new_mesh(resources.MeshHang);
-    move_mesh_to_front(iHangMesh[0]);
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_NEUTRAL] = resources.MeshHang;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_RIGHT_1] = resources.MeshHang1;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_RIGHT_2] = resources.MeshHang2;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_RIGHT_3] = resources.MeshHang3;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_RIGHT_4] = resources.MeshHang4;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_LEFT_1] = resources.MeshHangL1;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_LEFT_2] = resources.MeshHangL2;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_LEFT_3] = resources.MeshHangL3;
+    g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_LEFT_4] = resources.MeshHangL4;
 
-    iHangMesh[1] = new_mesh(resources.MeshHang1);
-    move_mesh_to_front(iHangMesh[1]);
-
-    iHangMesh[2] = new_mesh(resources.MeshHang2);
-    move_mesh_to_front(iHangMesh[2]);
-
-    iHangMesh[3] = new_mesh(resources.MeshHang3);
-    move_mesh_to_front(iHangMesh[3]);
-
-    iHangMesh[4] = new_mesh(resources.MeshHang4);
-    move_mesh_to_front(iHangMesh[4]);
-
-    iHangMesh[11] = new_mesh(resources.MeshHangL1);
-    move_mesh_to_front(iHangMesh[11]);
-
-    iHangMesh[12] = new_mesh(resources.MeshHangL2);
-    move_mesh_to_front(iHangMesh[12]);
-
-    iHangMesh[13] = new_mesh(resources.MeshHangL3);
-    move_mesh_to_front(iHangMesh[13]);
-
-    iHangMesh[14] = new_mesh(resources.MeshHangL4);
-    move_mesh_to_front(iHangMesh[14]);
-
-    for i = 0, 4 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(iHangMesh[i], resources.TextureJumpman);
-    end
-
-    for i = 11, 14 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(iHangMesh[i], resources.TextureJumpman);
-    end
+    g_jumpman_hang_mesh = new_mesh(g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_NEUTRAL]);
+    set_mesh_texture(g_jumpman_hang_mesh, resources.TextureJumpman);
+    move_mesh_to_front(g_jumpman_hang_mesh);
 end
 
 local function StartBaboon_(initial_pos_x, initial_pos_y);
@@ -225,7 +219,7 @@ function Module.initialize(game_input)
     g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
-    g_hang_animation_current_frame = 1;
+    g_hang_animation_current_frame = jumpman_hang_animation_frame.HANG_RIGHT_1;
 
     FixHangPlatforms_();
 
