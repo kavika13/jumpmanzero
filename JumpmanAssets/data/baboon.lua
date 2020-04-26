@@ -4,40 +4,21 @@ local Module = {};
 
 Module.GameLogic = nil;
 
+Module.BaboonClimbMeshResourceIndices = {};
+Module.BaboonTextureResourceIndex = 0;
+
 Module.StartX = 0;
 Module.StartY = 0;
 
--- TODO: Inject resource constants from level
-local resources = {
-    TextureJumpman = 0,
-    TextureWoodPlatform = 1,
-    TextureYellowRope = 2,
-    TextureRedMetal = 3,
-    Texturesky = 4,
-    SoundJump = 0,
-    Soundchomp = 1,
-    Soundbonk = 2,
-    SoundFire = 3,
-    MeshBaboon = 0,
-    MeshBaboon1 = 1,
-    MeshBaboon2 = 2,
-    MeshBaboon3 = 3,
-    MeshBaboon4 = 4,
-    TextureBaboon = 5,
-    TextureBark = 6,
-    ScriptBaboon = 0,
-    MeshHang = 5,
-    MeshHang1 = 6,
-    MeshHang2 = 7,
-    MeshHang3 = 8,
-    MeshHang4 = 9,
-    MeshHangL1 = 10,
-    MeshHangL2 = 11,
-    MeshHangL3 = 12,
-    MeshHangL4 = 13,
-    TextureHangVine = 7,
+local animation_frame = {
+    CLIMB_1 = 1,
+    CLIMB_1 = 1,
+    CLIMB_2 = 2,
+    CLIMB_3 = 3,
+    CLIMB_4 = 4,
+    CLIMB_5 = 5,
 };
-resources = read_only.make_table_read_only(resources);
+animation_frame = read_only.make_table_read_only(animation_frame);
 
 local g_baboon_mesh = nil;
 local g_climb_animation_mesh_indices = {};
@@ -59,16 +40,17 @@ local function MoveBaboon_()
         g_climb_animation_frame_index = 0;
     end
 
+    -- TODO: Modulo instead of `& 28`?
     if (g_climb_animation_meta_frame_index & 28) == 0 then
-        g_climb_animation_current_mesh_index = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_climb_animation_current_mesh_index = animation_frame.CLIMB_1;
     elseif (g_climb_animation_meta_frame_index & 28) == 4 or (g_climb_animation_meta_frame_index & 28) == 28 then
-        g_climb_animation_current_mesh_index = 2;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_climb_animation_current_mesh_index = animation_frame.CLIMB_2;
     elseif (g_climb_animation_meta_frame_index & 28) == 8 or (g_climb_animation_meta_frame_index & 28) == 24 then
-        g_climb_animation_current_mesh_index = 3;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_climb_animation_current_mesh_index = animation_frame.CLIMB_3;
     elseif (g_climb_animation_meta_frame_index & 28) == 12 or (g_climb_animation_meta_frame_index & 28) == 20 then
-        g_climb_animation_current_mesh_index = 4;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_climb_animation_current_mesh_index = animation_frame.CLIMB_4;
     elseif (g_climb_animation_meta_frame_index & 28) == 16 then
-        g_climb_animation_current_mesh_index = 5;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_climb_animation_current_mesh_index = animation_frame.CLIMB_5;
     end
 
     local iOldY = g_current_pos_y;
@@ -95,22 +77,21 @@ local function MoveBaboon_()
 end
 
 function Module.initialize()
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_climb_animation_mesh_indices[1] = resources.MeshBaboon4;
-    g_climb_animation_mesh_indices[2] = resources.MeshBaboon;
-    g_climb_animation_mesh_indices[3] = resources.MeshBaboon2;
-    g_climb_animation_mesh_indices[4] = resources.MeshBaboon1;
-    g_climb_animation_mesh_indices[5] = resources.MeshBaboon3;
+    g_climb_animation_mesh_indices[animation_frame.CLIMB_1] = Module.BaboonClimbMeshResourceIndices[5];
+    g_climb_animation_mesh_indices[animation_frame.CLIMB_2] = Module.BaboonClimbMeshResourceIndices[1];
+    g_climb_animation_mesh_indices[animation_frame.CLIMB_3] = Module.BaboonClimbMeshResourceIndices[3];
+    g_climb_animation_mesh_indices[animation_frame.CLIMB_4] = Module.BaboonClimbMeshResourceIndices[2];
+    g_climb_animation_mesh_indices[animation_frame.CLIMB_5] = Module.BaboonClimbMeshResourceIndices[4];
 
-    g_baboon_mesh = new_mesh(resources.MeshBaboon4);
-    set_mesh_texture(g_baboon_mesh, resources.TextureBaboon);
+    g_baboon_mesh = new_mesh(g_climb_animation_mesh_indices[animation_frame.CLIMB_1]);
+    set_mesh_texture(g_baboon_mesh, Module.BaboonTextureResourceIndex);
     set_mesh_is_visible(g_baboon_mesh, true);
 
     g_current_pos_x = Module.StartX;
     g_current_pos_y = Module.StartY;
     g_current_pos_z = 0;
     g_current_velocity_y = -0.5;
-    g_climb_animation_current_mesh_index = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+    g_climb_animation_current_mesh_index = animation_frame.CLIMB_1;
 end
 
 function Module.update()

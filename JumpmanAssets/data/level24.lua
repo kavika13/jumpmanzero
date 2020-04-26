@@ -204,6 +204,10 @@ end
 local function StartBaboon_(initial_pos_x, initial_pos_y);
     local new_baboon = baboon_module();
     new_baboon.GameLogic = g_game_logic;
+    new_baboon.BaboonClimbMeshResourceIndices = {
+        resources.MeshBaboon, resources.MeshBaboon1, resources.MeshBaboon2, resources.MeshBaboon3, resources.MeshBaboon4,
+    };
+    new_baboon.BaboonTextureResourceIndex = resources.TextureBaboon;
     new_baboon.StartX = initial_pos_x - 2.5;
     new_baboon.StartY = initial_pos_y;
     new_baboon.initialize();
