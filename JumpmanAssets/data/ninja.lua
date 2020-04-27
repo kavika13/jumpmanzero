@@ -36,7 +36,6 @@ local player_special_action = {
 player_special_action = read_only.make_table_read_only(player_special_action);
 
 local status_type = {
-    -- TODO: Fill out rest
     NORMAL = 0,
     JUMP_KICK = 1,
     LOW_RAGDOLL = 2,
@@ -69,6 +68,7 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
+local g_ninja_mesh = nil;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_RIGHT_1;
 local g_animation_frame_counter = 0;  -- The current alt frame in the current animation. Counts 0 - 3
@@ -431,32 +431,32 @@ end
 function Module.initialize()
     SetPos_();
 
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_1] = new_mesh(Module.JumpRightMeshResourceIndex);
-    g_animation_mesh_indices[animation_frame.KICK_RIGHT_1] = new_mesh(Module.KickRightMeshResourceIndex);
-    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_1] = new_mesh(Module.RollRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_2] = new_mesh(Module.RollRightMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_3] = new_mesh(Module.RollRightMeshResourceIndices[3]);
-    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_4] = new_mesh(Module.RollRightMeshResourceIndices[4]);
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.MoveRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.MoveRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.JUMP_RIGHT_1] = Module.JumpRightMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.KICK_RIGHT_1] = Module.KickRightMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_1] = Module.RollRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_2] = Module.RollRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_3] = Module.RollRightMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.ROLL_RIGHT_4] = Module.RollRightMeshResourceIndices[4];
 
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.JUMP_LEFT_1] = new_mesh(Module.JumpLeftMeshResourceIndex);
-    g_animation_mesh_indices[animation_frame.KICK_LEFT_1] = new_mesh(Module.KickLeftMeshResourceIndex);
-    g_animation_mesh_indices[animation_frame.ROLL_LEFT_1] = new_mesh(Module.RollLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.ROLL_LEFT_2] = new_mesh(Module.RollLeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.ROLL_LEFT_3] = new_mesh(Module.RollLeftMeshResourceIndices[3]);
-    g_animation_mesh_indices[animation_frame.ROLL_LEFT_4] = new_mesh(Module.RollLeftMeshResourceIndices[4]);
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = Module.MoveLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = Module.MoveLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.JUMP_LEFT_1] = Module.JumpLeftMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.KICK_LEFT_1] = Module.KickLeftMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.ROLL_LEFT_1] = Module.RollLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.ROLL_LEFT_2] = Module.RollLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.ROLL_LEFT_3] = Module.RollLeftMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.ROLL_LEFT_4] = Module.RollLeftMeshResourceIndices[4];
 
-    g_animation_mesh_indices[animation_frame.DEAD_1] = new_mesh(Module.DeadMeshResourceIndex);
+    g_animation_mesh_indices[animation_frame.DEAD_1] = Module.DeadMeshResourceIndex;
 
-    g_animation_mesh_indices[animation_frame.FIX_DONUT_1] = new_mesh(Module.FixDonutMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.FIX_DONUT_2] = new_mesh(Module.FixDonutMeshResourceIndices[2]);
+    g_animation_mesh_indices[animation_frame.FIX_DONUT_1] = Module.FixDonutMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FIX_DONUT_2] = Module.FixDonutMeshResourceIndices[2];
 
-    for _, index in pairs(animation_frame) do
-        set_mesh_texture(g_animation_mesh_indices[index], Module.TextureResourceIndex);
-    end
+    g_ninja_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
+    set_mesh_texture(g_ninja_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_ninja_mesh, true);
 end
 
 function Module.update()
@@ -466,17 +466,13 @@ function Module.update()
         g_current_status_counter = 0;
     end
 
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
-
     AdvanceFrame_();
     MoveNinja_();
     CollidePlayer_();
 
-    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z - 0.5);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_ninja_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_ninja_mesh);
+    translate_mesh_matrix(g_ninja_mesh, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z - 0.5);
 end
 
 
