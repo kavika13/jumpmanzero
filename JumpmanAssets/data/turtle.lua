@@ -54,8 +54,9 @@ local player_movement_direction = {
 };
 player_movement_direction = read_only.make_table_read_only(player_movement_direction);
 
+local g_turtle_mesh = nil;
 local g_move_animation_frames = {};
-local g_move_animation_current_frame = 0;
+local g_move_animation_current_frame = animation_frame.MOVE_RIGHT_1;
 local g_move_animation_current_alt_frame = 0;  -- Alternates between 0 and 1. Offset applied to current frame
 local g_move_animation_counter = 0;  -- Counts up until the next alt frame
 
@@ -176,14 +177,18 @@ function Module.initialize()
     g_current_status = status_type.MOVE_LEFT;
     g_current_status_counter = 0;
 
-    g_move_animation_frames[animation_frame.MOVE_RIGHT_1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
-    g_move_animation_frames[animation_frame.MOVE_RIGHT_2] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
+    g_move_animation_frames[animation_frame.MOVE_RIGHT_1] = Module.MoveRightMeshResourceIndices[1];
+    g_move_animation_frames[animation_frame.MOVE_RIGHT_2] = Module.MoveRightMeshResourceIndices[2];
 
-    g_move_animation_frames[animation_frame.MOVE_LEFT_1] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
-    g_move_animation_frames[animation_frame.MOVE_LEFT_2] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
+    g_move_animation_frames[animation_frame.MOVE_LEFT_1] = Module.MoveLeftMeshResourceIndices[1];
+    g_move_animation_frames[animation_frame.MOVE_LEFT_2] = Module.MoveLeftMeshResourceIndices[2];
 
-    g_move_animation_frames[animation_frame.HIDE_LEFT] = new_mesh(Module.HideMeshResourceIndices[1]);
-    g_move_animation_frames[animation_frame.HIDE_RIGHT] = new_mesh(Module.HideMeshResourceIndices[2]);
+    g_move_animation_frames[animation_frame.HIDE_LEFT] = Module.HideMeshResourceIndices[1];
+    g_move_animation_frames[animation_frame.HIDE_RIGHT] = Module.HideMeshResourceIndices[2];
+
+    g_turtle_mesh = new_mesh(g_move_animation_frames[animation_frame.MOVE_RIGHT_1]);
+    set_mesh_texture(g_turtle_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_turtle_mesh, true);
 
     for _, index in pairs(animation_frame) do
         set_mesh_texture(g_move_animation_frames[index], Module.TextureResourceIndex);
@@ -191,19 +196,15 @@ function Module.initialize()
 end
 
 function Module.update(game_input, all_turtles)
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_move_animation_frames[g_move_animation_current_frame], false);
-
     Animate_();
     SetFrame_();
     Move_(all_turtles);
     SetAngle_();
 
-    local anim_mesh_index = g_move_animation_frames[g_move_animation_current_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    rotate_z_mesh_matrix(anim_mesh_index, g_current_rotation_z);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 4.4, 2);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_turtle_mesh, g_move_animation_frames[g_move_animation_current_frame]);
+    set_identity_mesh_matrix(g_turtle_mesh);
+    rotate_z_mesh_matrix(g_turtle_mesh, g_current_rotation_z);
+    translate_mesh_matrix(g_turtle_mesh, g_current_pos_x, g_current_pos_y + 4.4, 2);
 
     local is_colliding = true;
 
