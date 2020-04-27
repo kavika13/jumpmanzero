@@ -1,3 +1,5 @@
+local read_only = require "data/read_only";
+
 local Module = {};
 
 Module.GameLogic = nil;
@@ -7,6 +9,19 @@ Module.RightStandMeshResourceIndex = 0;
 Module.LeftWalkMeshResourceIndices = {};
 Module.RightWalkMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
+
+local animation_frame = {
+    WALK_LEFT_1 = 0,
+    WALK_LEFT_2 = 1,
+    WALK_LEFT_3 = 2,
+    WALK_LEFT_4 = 3,
+    WALK_RIGHT_1 = 10,
+    WALK_RIGHT_2 = 11,
+    WALK_RIGHT_3 = 12,
+    WALK_RIGHT_4 = 13,
+    META_WALK_ANIM_COUNT = 4,  -- Not an actual animation frame
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
 
 local kMOVING_LEFT = 3;
 local kMOVING_RIGHT = 4;
@@ -70,11 +85,11 @@ local function SetFrame_()
     g_frames_since_state_change = g_frames_since_state_change + 1;
 
     if g_current_state == kMOVING_LEFT then
-        g_animation_current_frame = 10 + g_current_state_animation_frame;
+        g_animation_current_frame = animation_frame.WALK_RIGHT_1 + g_current_state_animation_frame;
     end
 
     if g_current_state == kMOVING_RIGHT then
-        g_animation_current_frame = 0 + g_current_state_animation_frame;
+        g_animation_current_frame = animation_frame.WALK_LEFT_1 + g_current_state_animation_frame;
     end
 end
 
@@ -85,7 +100,7 @@ local function Animate_()
         g_current_state_animation_counter = 0;
         g_current_state_animation_frame = g_current_state_animation_frame + 1;
 
-        if g_current_state_animation_frame == 4 then
+        if g_current_state_animation_frame == animation_frame.META_WALK_ANIM_COUNT then
             g_current_state_animation_frame = 0;
         end
     end
@@ -98,22 +113,21 @@ function Module.initialize()
     g_current_state = kMOVING_LEFT;
     g_frames_since_state_change = 0;
 
-    -- TODO: Don't hard-code animation frame indices
-    g_animation_mesh_indices[0] = Module.RightWalkMeshResourceIndices[1];
-    g_animation_mesh_indices[1] = Module.RightStandMeshResourceIndex;
-    g_animation_mesh_indices[2] = Module.RightWalkMeshResourceIndices[2];
-    g_animation_mesh_indices[3] = Module.RightStandMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_1] = Module.RightWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_2] = Module.RightStandMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_3] = Module.RightWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_4] = Module.RightStandMeshResourceIndex;
 
-    g_animation_mesh_indices[10] = Module.LeftWalkMeshResourceIndices[1];
-    g_animation_mesh_indices[11] = Module.LeftStandMeshResourceIndex;
-    g_animation_mesh_indices[12] = Module.LeftWalkMeshResourceIndices[2];
-    g_animation_mesh_indices[13] = Module.LeftStandMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_1] = Module.LeftWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_2] = Module.LeftStandMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_3] = Module.LeftWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_4] = Module.LeftStandMeshResourceIndex;
 
-    g_dino_mesh = new_mesh(g_animation_mesh_indices[0]);
+    g_dino_mesh = new_mesh(g_animation_mesh_indices[animation_frame.WALK_LEFT_1]);
     set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
     set_mesh_is_visible(g_dino_mesh, true);
 
-    g_current_animation_frame = g_animation_mesh_indices[0];
+    g_animation_current_frame = animation_frame.WALK_LEFT_1;
 end
 
 function Module.update()

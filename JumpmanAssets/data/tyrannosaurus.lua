@@ -1,3 +1,5 @@
+local read_only = require "data/read_only";
+
 local Module = {};
 
 Module.GameLogic = nil;
@@ -10,6 +12,31 @@ Module.LeftYellMeshResourceIndices = {};
 Module.RightYellMeshResourceIndices = {};
 Module.RoarSoundResourceIndex = 0;
 Module.TextureResourceIndex = 0;
+
+local animation_frame = {
+    STAND_LEFT = 0,
+    WALK_LEFT_1 = 1,
+    WALK_LEFT_2 = 2,
+    WALK_LEFT_3 = 3,
+    WALK_LEFT_4 = 4,
+    YELL_LEFT_1 = 5,
+    YELL_LEFT_2 = 6,
+    YELL_LEFT_3 = 7,
+    YELL_LEFT_4 = 8,
+    YELL_LEFT_5 = 9,
+    META_FACE_RIGHT = 10,  -- Not an actual animation frame
+    STAND_RIGHT = 10,
+    WALK_RIGHT_1 = 11,
+    WALK_RIGHT_2 = 12,
+    WALK_RIGHT_3 = 13,
+    WALK_RIGHT_4 = 14,
+    YELL_RIGHT_1 = 15,
+    YELL_RIGHT_2 = 16,
+    YELL_RIGHT_3 = 17,
+    YELL_RIGHT_4 = 18,
+    YELL_RIGHT_5 = 19,
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
 
 local kYELLING_LEFT = 1;
 local kYELLING_RIGHT = 2;
@@ -106,23 +133,23 @@ local function SetFrame_()
     g_frames_since_state_change = g_frames_since_state_change + 1;
 
     if g_current_state == kYELLING_LEFT or g_current_state == kYELLING_RIGHT then
-        g_animation_current_frame = 6 + g_current_state_animation_frame;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.YELL_LEFT_2 + g_current_state_animation_frame;
 
         if g_frames_since_state_change < 15 or g_frames_since_state_change > 85 then
-            g_animation_current_frame = 5;  -- TODO: Use constants instead of these hard-coded frame numbers
+            g_animation_current_frame = animation_frame.YELL_LEFT_1;
         end
 
         if g_frames_since_state_change < 10 or g_frames_since_state_change > 90 then
-            g_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+            g_animation_current_frame = animation_frame.STAND_LEFT;
         end
 
         if g_current_state == kYELLING_RIGHT then
-            g_animation_current_frame = g_animation_current_frame + 10;  -- TODO: Use constants instead of these hard-coded frame numbers
+            g_animation_current_frame = animation_frame.META_FACE_RIGHT + g_animation_current_frame;
         end
     elseif g_current_state == kMOVING_LEFT then
-        g_animation_current_frame = 1 + g_current_state_animation_frame;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.WALK_LEFT_1 + g_current_state_animation_frame;
     elseif g_current_state == kMOVING_RIGHT then
-        g_animation_current_frame = 11 + g_current_state_animation_frame;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.WALK_RIGHT_1 + g_current_state_animation_frame;
     end
 end
 
@@ -145,38 +172,37 @@ function Module.initialize()
     g_current_state = kMOVING_LEFT;
     g_frames_since_state_change = 0;
 
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[0] = Module.LeftStandMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.STAND_LEFT] = Module.LeftStandMeshResourceIndex;
 
-    g_animation_mesh_indices[1] = Module.LeftWalkMeshResourceIndices[1];
-    g_animation_mesh_indices[2] = Module.LeftWalkMeshResourceIndices[2];
-    g_animation_mesh_indices[3] = Module.LeftWalkMeshResourceIndices[3];
-    g_animation_mesh_indices[4] = Module.LeftWalkMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_1] = Module.LeftWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_2] = Module.LeftWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_3] = Module.LeftWalkMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.WALK_LEFT_4] = Module.LeftWalkMeshResourceIndices[4];
 
-    g_animation_mesh_indices[5] = Module.LeftYellMeshResourceIndices[1];
-    g_animation_mesh_indices[6] = Module.LeftYellMeshResourceIndices[2];
-    g_animation_mesh_indices[7] = Module.LeftYellMeshResourceIndices[3];
-    g_animation_mesh_indices[8] = Module.LeftYellMeshResourceIndices[4];
-    g_animation_mesh_indices[9] = Module.LeftYellMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.YELL_LEFT_1] = Module.LeftYellMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.YELL_LEFT_2] = Module.LeftYellMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.YELL_LEFT_3] = Module.LeftYellMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.YELL_LEFT_4] = Module.LeftYellMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.YELL_LEFT_5] = Module.LeftYellMeshResourceIndices[3];
 
-    g_animation_mesh_indices[10] = Module.RightStandMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.STAND_RIGHT] = Module.RightStandMeshResourceIndex;
 
-    g_animation_mesh_indices[11] = Module.RightWalkMeshResourceIndices[1];
-    g_animation_mesh_indices[12] = Module.RightWalkMeshResourceIndices[2];
-    g_animation_mesh_indices[13] = Module.RightWalkMeshResourceIndices[3];
-    g_animation_mesh_indices[14] = Module.RightWalkMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_1] = Module.RightWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_2] = Module.RightWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_3] = Module.RightWalkMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.WALK_RIGHT_4] = Module.RightWalkMeshResourceIndices[4];
 
-    g_animation_mesh_indices[15] = Module.RightYellMeshResourceIndices[1];
-    g_animation_mesh_indices[16] = Module.RightYellMeshResourceIndices[2];
-    g_animation_mesh_indices[17] = Module.RightYellMeshResourceIndices[3];
-    g_animation_mesh_indices[18] = Module.RightYellMeshResourceIndices[4];
-    g_animation_mesh_indices[19] = Module.RightYellMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.YELL_RIGHT_1] = Module.RightYellMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.YELL_RIGHT_2] = Module.RightYellMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.YELL_RIGHT_3] = Module.RightYellMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.YELL_RIGHT_4] = Module.RightYellMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.YELL_RIGHT_5] = Module.RightYellMeshResourceIndices[3];
 
-    g_dino_mesh = new_mesh(g_animation_mesh_indices[0]);
+    g_dino_mesh = new_mesh(g_animation_mesh_indices[animation_frame.STAND_LEFT]);
     set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
     set_mesh_is_visible(g_dino_mesh, true);
 
-    g_animation_current_frame = g_animation_mesh_indices[0];
+    g_animation_current_frame = animation_frame.STAND_LEFT;
 end
 
 function Module.update()

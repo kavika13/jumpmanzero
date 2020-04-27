@@ -1,3 +1,5 @@
+local read_only = require "data/read_only";
+
 local Module = {};
 
 Module.GameLogic = nil;
@@ -5,6 +7,20 @@ Module.GameLogic = nil;
 Module.LeftMeshResourceIndices = {};
 Module.RightMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
+
+local animation_frame = {
+    FLY_LEFT_1 = 0,
+    FLY_LEFT_2 = 1,
+    FLY_LEFT_3 = 2,
+    FLY_LEFT_4 = 3,
+    FLY_RIGHT_1 = 10,
+    FLY_RIGHT_2 = 11,
+    FLY_RIGHT_3 = 12,
+    FLY_RIGHT_4 = 13,
+    META_FACE_RIGHT = 10,  -- Not an actual animation frame
+    META_FLY_ANIM_COUNT = 4,  -- Not an actual animation frame
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
 
 local g_dino_mesh = nil;
 local g_animation_mesh_indices = {};
@@ -45,13 +61,13 @@ end
 
 local function SetFrame_()
     if g_current_acceleration_direction_y >= 0 then
-        g_animation_current_frame = g_flapping_animation_current_frame;
+        g_animation_current_frame = animation_frame.FLY_LEFT_1 + g_flapping_animation_current_frame;
     else
-        g_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.FLY_LEFT_1;
     end
 
     if g_current_velocity_x < 0 then
-        g_animation_current_frame = g_animation_current_frame + 10;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.META_FACE_RIGHT + g_animation_current_frame;
     end
 end
 
@@ -62,8 +78,8 @@ local function Animate_()
         g_flapping_animation_counter = 0;
         g_flapping_animation_current_frame = g_flapping_animation_current_frame + 1;
 
-        if g_flapping_animation_current_frame == 4 then  -- TODO: Use constants instead of these hard-coded frame numbers
-            g_flapping_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+        if g_flapping_animation_current_frame == animation_frame.META_FLY_ANIM_COUNT then
+            g_flapping_animation_current_frame = 0;
         end
     end
 end
@@ -76,22 +92,21 @@ function Module.initialize()
     g_current_pos_x = -10;
     g_current_pos_y = 120;
 
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[0] = Module.LeftMeshResourceIndices[1];
-    g_animation_mesh_indices[1] = Module.LeftMeshResourceIndices[2];
-    g_animation_mesh_indices[2] = Module.LeftMeshResourceIndices[3];
-    g_animation_mesh_indices[3] = Module.LeftMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.FLY_LEFT_1] = Module.LeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FLY_LEFT_2] = Module.LeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.FLY_LEFT_3] = Module.LeftMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.FLY_LEFT_4] = Module.LeftMeshResourceIndices[4];
 
-    g_animation_mesh_indices[10] = Module.RightMeshResourceIndices[1];
-    g_animation_mesh_indices[11] = Module.RightMeshResourceIndices[2];
-    g_animation_mesh_indices[12] = Module.RightMeshResourceIndices[3];
-    g_animation_mesh_indices[13] = Module.RightMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.FLY_RIGHT_1] = Module.RightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FLY_RIGHT_2] = Module.RightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.FLY_RIGHT_3] = Module.RightMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.FLY_RIGHT_4] = Module.RightMeshResourceIndices[4];
 
-    g_dino_mesh = new_mesh(g_animation_mesh_indices[0]);
+    g_dino_mesh = new_mesh(g_animation_mesh_indices[animation_frame.FLY_LEFT_1]);
     set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
     set_mesh_is_visible(g_dino_mesh, true);
 
-    g_animation_current_frame = g_animation_mesh_indices[0];
+    g_animation_current_frame = animation_frame.FLY_LEFT_1;
 end
 
 function Module.update()
