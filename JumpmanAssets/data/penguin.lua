@@ -1,3 +1,5 @@
+local read_only = require "data/read_only";
+
 local Module = {};
 
 Module.GameLogic = nil;
@@ -11,9 +13,21 @@ Module.TextureResourceIndex = 0;
 
 Module.CountOfTimesToPreAdvanceMovement = 0;
 
+local animation_frame = {
+    STAND_FRONT = 0,
+    STAND_BACK = 1,
+    MOVE_LEFT_1 = 2,
+    MOVE_LEFT_2 = 3,
+    MOVE_RIGHT_1 = 4,
+    MOVE_RIGHT_2 = 5,
+    CLIMB_1 = 6,
+    CLIMB_2 = 7,
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
+
 local g_penguin_mesh = nil;
 local g_animation_mesh_indices = {};
-local g_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+local g_animation_current_frame = animation_frame.STAND_FRONT;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 6 frames increments alt)
 local g_animation_alt_frame_counter = 0;  -- On 1 or 3 switches to an alt frame in the current animation
 local g_animation_movement_direction = 4;  -- Used to find the base animation frame. 1, 2 == "LC". 3 = left. 4 = right
@@ -75,22 +89,22 @@ end
 local function ProgressPenguin_()
     if g_animation_movement_direction == 1 then
         g_current_pos_y = g_current_pos_y + 0.5;
-        g_animation_current_frame = 6;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.CLIMB_1;
     end
 
     if g_animation_movement_direction == 2 then
         g_current_pos_y = g_current_pos_y - 0.5;
-        g_animation_current_frame = 6;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.CLIMB_1;
     end
 
     if g_animation_movement_direction == 3 then
         g_current_pos_x = g_current_pos_x - 0.5;
-        g_animation_current_frame = 2;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.MOVE_LEFT_1;
     end
 
     if g_animation_movement_direction == 4 then
         g_current_pos_x = g_current_pos_x + 0.5;
-        g_animation_current_frame = 4;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.MOVE_RIGHT_1;
     end
 
     if g_animation_alt_frame_counter == 1 or g_animation_alt_frame_counter == 3 then
@@ -161,20 +175,16 @@ function Module.initialize()
         counter = counter - 1;
     end
 
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[0] = Module.StandMeshResourceIndex;
-    g_animation_mesh_indices[1] = Module.BackMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.STAND_FRONT] = Module.StandMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.STAND_BACK] = Module.BackMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = Module.MoveLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = Module.MoveLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.MoveRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.MoveRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.CLIMB_1] = Module.LadderClimbMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.CLIMB_2] = Module.LadderClimbMeshResourceIndices[2];
 
-    g_animation_mesh_indices[2] = Module.MoveLeftMeshResourceIndices[1];
-    g_animation_mesh_indices[3] = Module.MoveLeftMeshResourceIndices[2];
-
-    g_animation_mesh_indices[4] = Module.MoveRightMeshResourceIndices[1];
-    g_animation_mesh_indices[5] = Module.MoveRightMeshResourceIndices[2];
-
-    g_animation_mesh_indices[6] = Module.LadderClimbMeshResourceIndices[1];
-    g_animation_mesh_indices[7] = Module.LadderClimbMeshResourceIndices[2];
-
-    g_penguin_mesh = new_mesh(g_animation_mesh_indices[0]);
+    g_penguin_mesh = new_mesh(g_animation_mesh_indices[animation_frame.STAND_FRONT]);
     set_mesh_texture(g_penguin_mesh, Module.TextureResourceIndex);
     set_mesh_is_visible(g_penguin_mesh, true);
 end
