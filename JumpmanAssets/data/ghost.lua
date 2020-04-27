@@ -1,3 +1,5 @@
+local read_only = require "data/read_only";
+
 local Module = {};
 
 Module.GameLogic = nil;
@@ -8,13 +10,21 @@ Module.MoveLeft1MeshResourceIndex = 0;
 Module.MoveLeft2MeshResourceIndex = 0;
 Module.TextureResourceIndex = 0;
 
+local animation_frame = {
+    MOVE_RIGHT_1 = 0,
+    MOVE_RIGHT_2 = 1,
+    MOVE_LEFT_1 = 2,
+    MOVE_LEFT_2 = 3,
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
+
 local g_current_pos_x = 0;
 local g_current_pos_y = 0;
 local g_current_velocity_x = 0;
 local g_current_velocity_y = 0;
 
 local g_animation_mesh_indices = {};
-local g_animation_frame_index = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+local g_animation_frame_index = animation_frame.MOVE_RIGHT_1;
 local g_animation_counter = 0;
 
 local function MoveGhost()
@@ -64,22 +74,18 @@ local function ResetPos()
 end
 
 function Module.initialize()
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[0] = new_mesh(Module.MoveRight1MeshResourceIndex);
-    g_animation_mesh_indices[1] = new_mesh(Module.MoveRight2MeshResourceIndex);
-    g_animation_mesh_indices[2] = new_mesh(Module.MoveLeft1MeshResourceIndex);
-    g_animation_mesh_indices[3] = new_mesh(Module.MoveLeft2MeshResourceIndex);
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.MoveRight1MeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.MoveRight2MeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = Module.MoveLeft1MeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = Module.MoveLeft2MeshResourceIndex;
 
-    for i = 0, 3 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-        move_mesh_to_front(g_animation_mesh_indices[i]);
-    end
+    g_ghost_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
+    set_mesh_texture(g_ghost_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_ghost_mesh, true);
+    move_mesh_to_front(g_ghost_mesh);
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_frame_index], false);
-
     MoveGhost();
 
     g_animation_counter = g_animation_counter + 1;
@@ -89,22 +95,21 @@ function Module.update()
     end
 
     if g_animation_counter > 5 then
-        g_animation_frame_index = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_frame_index = animation_frame.MOVE_RIGHT_2;
     else
-        g_animation_frame_index = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_frame_index = animation_frame.MOVE_RIGHT_1;
     end
 
     local iAdapt = 0 - 4.5;
 
     if g_current_velocity_x <= 0 then
         iAdapt = 4.5;
-        g_animation_frame_index = g_animation_frame_index + 2;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_frame_index = animation_frame.MOVE_LEFT_1 + g_animation_frame_index;  -- This works cause the indices are 0-based
     end
 
-    local anim_mesh_index = g_animation_mesh_indices[g_animation_frame_index];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x + iAdapt, g_current_pos_y + 5, 0 - 0.25);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_ghost_mesh, g_animation_mesh_indices[g_animation_frame_index]);
+    set_identity_mesh_matrix(g_ghost_mesh);
+    translate_mesh_matrix(g_ghost_mesh, g_current_pos_x + iAdapt, g_current_pos_y + 5, 0 - 0.25);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x + iAdapt - 5, g_current_pos_y + 4,
