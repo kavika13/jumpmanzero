@@ -415,44 +415,42 @@ end
 function Module.initialize()
     Module.reset_pos();
 
-    local stand_right_mesh_index = new_mesh(Module.StandRightMeshResourceIndex);
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = stand_right_mesh_index;
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_3] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_4] = stand_right_mesh_index;
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.MoveRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.StandRightMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_3] = Module.MoveRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT_4] = Module.StandRightMeshResourceIndex;
 
-    g_animation_mesh_indices[animation_frame.FALL_RIGHT_1] = new_mesh(Module.FallRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.FALL_RIGHT_2] = new_mesh(Module.FallRightMeshResourceIndices[2]);
+    g_animation_mesh_indices[animation_frame.FALL_RIGHT_1] = Module.FallRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FALL_RIGHT_2] = Module.FallRightMeshResourceIndices[2];
 
-    g_animation_mesh_indices[animation_frame.REST_RIGHT_1] = new_mesh(Module.RestRightMeshResourceIndex);
+    g_animation_mesh_indices[animation_frame.REST_RIGHT_1] = Module.RestRightMeshResourceIndex;
 
-    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_1] = new_mesh(Module.ShakeRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_2] = stand_right_mesh_index;
-    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_3] = new_mesh(Module.ShakeRightMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_4] = stand_right_mesh_index;
+    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_1] = Module.ShakeRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_2] = Module.StandRightMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_3] = Module.ShakeRightMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.SHAKE_RIGHT_4] = Module.StandRightMeshResourceIndex;
 
-    local stand_left_mesh_index = new_mesh(Module.StandLeftMeshResourceIndex);
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = stand_left_mesh_index;
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_3] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT_4] = stand_left_mesh_index;
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = Module.MoveLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = Module.StandLeftMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_3] = Module.MoveLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT_4] = Module.StandLeftMeshResourceIndex;
 
-    g_animation_mesh_indices[animation_frame.FALL_LEFT_1] = new_mesh(Module.FallLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.FALL_LEFT_2] = new_mesh(Module.FallLeftMeshResourceIndices[2]);
+    g_animation_mesh_indices[animation_frame.FALL_LEFT_1] = Module.FallLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FALL_LEFT_2] = Module.FallLeftMeshResourceIndices[2];
 
-    g_animation_mesh_indices[animation_frame.REST_LEFT_1] = new_mesh(Module.RestLeftMeshResourceIndex);
+    g_animation_mesh_indices[animation_frame.REST_LEFT_1] = Module.RestLeftMeshResourceIndex;
 
-    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_1] = new_mesh(Module.ShakeLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_2] = stand_left_mesh_index;
-    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_3] = new_mesh(Module.ShakeLeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_4] = stand_left_mesh_index;
+    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_1] = Module.ShakeLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_2] = Module.StandLeftMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_3] = Module.ShakeLeftMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.SHAKE_LEFT_4] = Module.StandLeftMeshResourceIndex;
 
-    g_animation_mesh_indices[animation_frame.CLIMB_1] = new_mesh(Module.ClimbMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.CLIMB_2] = new_mesh(Module.ClimbMeshResourceIndices[2]);
+    g_animation_mesh_indices[animation_frame.CLIMB_1] = Module.ClimbMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.CLIMB_2] = Module.ClimbMeshResourceIndices[2];
 
-    for _, index in pairs(animation_frame) do
-        set_mesh_texture(g_animation_mesh_indices[index], Module.TextureResourceIndex);
-    end
+    g_bear_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
+    set_mesh_texture(g_bear_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_bear_mesh, true);
 
     g_current_status = status_type.NORMAL;
 end
@@ -462,16 +460,12 @@ function Module.update()
         Module.reset_pos();
     end
 
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
-
     AdvanceFrame_();
     MoveBear_();
 
-    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 11, g_current_pos_z - 0.5);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_bear_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_bear_mesh);
+    translate_mesh_matrix(g_bear_mesh, g_current_pos_x, g_current_pos_y + 11, g_current_pos_z - 0.5);
 
     local iCollide = false;
 
