@@ -11,8 +11,9 @@ Module.TextureResourceIndex = 0;
 local kMOVING_LEFT = 3;
 local kMOVING_RIGHT = 4;
 
+local g_dino_mesh = nil;
 local g_animation_mesh_indices = {};
-local g_animation_current_frame = 0;
+local g_animation_current_frame;
 
 local g_current_pos_x;
 local g_current_pos_y;
@@ -98,40 +99,34 @@ function Module.initialize()
     g_frames_since_state_change = 0;
 
     -- TODO: Don't hard-code animation frame indices
-    g_animation_mesh_indices[0] = new_mesh(Module.RightWalkMeshResourceIndices[1]);
-    g_animation_mesh_indices[1] = new_mesh(Module.RightStandMeshResourceIndex);
-    g_animation_mesh_indices[2] = new_mesh(Module.RightWalkMeshResourceIndices[2]);
-    g_animation_mesh_indices[3] = g_animation_mesh_indices[1];
+    g_animation_mesh_indices[0] = Module.RightWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[1] = Module.RightStandMeshResourceIndex;
+    g_animation_mesh_indices[2] = Module.RightWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[3] = Module.RightStandMeshResourceIndex;
 
-    g_animation_mesh_indices[10] = new_mesh(Module.LeftWalkMeshResourceIndices[1]);
-    g_animation_mesh_indices[11] = new_mesh(Module.LeftStandMeshResourceIndex);
-    g_animation_mesh_indices[12] = new_mesh(Module.LeftWalkMeshResourceIndices[2]);
-    g_animation_mesh_indices[13] = g_animation_mesh_indices[11];
+    g_animation_mesh_indices[10] = Module.LeftWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[11] = Module.LeftStandMeshResourceIndex;
+    g_animation_mesh_indices[12] = Module.LeftWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[13] = Module.LeftStandMeshResourceIndex;
 
-    for i = 0, 3 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_dino_mesh = new_mesh(g_animation_mesh_indices[0]);
+    set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_dino_mesh, true);
 
-    for i = 10, 13 do  -- TODO: Don't hard-code animation frame indices
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_current_animation_frame = g_animation_mesh_indices[0];
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
-
     Animate_();
     SetFrame_();
     Move_();
     SetAngle_();
 
-    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    rotate_z_mesh_matrix(anim_mesh_index, g_current_rotation_z);
-    scale_mesh_matrix(anim_mesh_index, 1.5, 1.5, 1.5);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 13, 9);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_dino_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_dino_mesh);
+    rotate_z_mesh_matrix(g_dino_mesh, g_current_rotation_z);
+    scale_mesh_matrix(g_dino_mesh, 1.5, 1.5, 1.5);
+    translate_mesh_matrix(g_dino_mesh, g_current_pos_x, g_current_pos_y + 13, 9);
 
     if g_current_state == kMOVING_LEFT then
         if Module.GameLogic.is_player_colliding_with_rect(

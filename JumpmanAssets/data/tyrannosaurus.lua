@@ -16,8 +16,9 @@ local kYELLING_RIGHT = 2;
 local kMOVING_LEFT = 3;
 local kMOVING_RIGHT = 4;
 
+local g_dino_mesh = nil;
 local g_animation_mesh_indices = {};
-local g_animation_current_frame = 0;
+local g_animation_current_frame;
 
 local g_has_yelled = false;
 
@@ -145,50 +146,48 @@ function Module.initialize()
     g_frames_since_state_change = 0;
 
     -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[0] = new_mesh(Module.LeftStandMeshResourceIndex);
+    g_animation_mesh_indices[0] = Module.LeftStandMeshResourceIndex;
 
-    g_animation_mesh_indices[1] = new_mesh(Module.LeftWalkMeshResourceIndices[1]);
-    g_animation_mesh_indices[2] = new_mesh(Module.LeftWalkMeshResourceIndices[2]);
-    g_animation_mesh_indices[3] = new_mesh(Module.LeftWalkMeshResourceIndices[3]);
-    g_animation_mesh_indices[4] = new_mesh(Module.LeftWalkMeshResourceIndices[4]);
+    g_animation_mesh_indices[1] = Module.LeftWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[2] = Module.LeftWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[3] = Module.LeftWalkMeshResourceIndices[3];
+    g_animation_mesh_indices[4] = Module.LeftWalkMeshResourceIndices[4];
 
-    g_animation_mesh_indices[5] = new_mesh(Module.LeftYellMeshResourceIndices[1]);
-    g_animation_mesh_indices[6] = new_mesh(Module.LeftYellMeshResourceIndices[2]);
-    g_animation_mesh_indices[7] = new_mesh(Module.LeftYellMeshResourceIndices[3]);
-    g_animation_mesh_indices[8] = new_mesh(Module.LeftYellMeshResourceIndices[4]);
-    g_animation_mesh_indices[9] = g_animation_mesh_indices[7];
+    g_animation_mesh_indices[5] = Module.LeftYellMeshResourceIndices[1];
+    g_animation_mesh_indices[6] = Module.LeftYellMeshResourceIndices[2];
+    g_animation_mesh_indices[7] = Module.LeftYellMeshResourceIndices[3];
+    g_animation_mesh_indices[8] = Module.LeftYellMeshResourceIndices[4];
+    g_animation_mesh_indices[9] = Module.LeftYellMeshResourceIndices[3];
 
-    g_animation_mesh_indices[10] = new_mesh(Module.RightStandMeshResourceIndex);
+    g_animation_mesh_indices[10] = Module.RightStandMeshResourceIndex;
 
-    g_animation_mesh_indices[11] = new_mesh(Module.RightWalkMeshResourceIndices[1]);
-    g_animation_mesh_indices[12] = new_mesh(Module.RightWalkMeshResourceIndices[2]);
-    g_animation_mesh_indices[13] = new_mesh(Module.RightWalkMeshResourceIndices[3]);
-    g_animation_mesh_indices[14] = new_mesh(Module.RightWalkMeshResourceIndices[4]);
+    g_animation_mesh_indices[11] = Module.RightWalkMeshResourceIndices[1];
+    g_animation_mesh_indices[12] = Module.RightWalkMeshResourceIndices[2];
+    g_animation_mesh_indices[13] = Module.RightWalkMeshResourceIndices[3];
+    g_animation_mesh_indices[14] = Module.RightWalkMeshResourceIndices[4];
 
-    g_animation_mesh_indices[15] = new_mesh(Module.RightYellMeshResourceIndices[1]);
-    g_animation_mesh_indices[16] = new_mesh(Module.RightYellMeshResourceIndices[2]);
-    g_animation_mesh_indices[17] = new_mesh(Module.RightYellMeshResourceIndices[3]);
-    g_animation_mesh_indices[18] = new_mesh(Module.RightYellMeshResourceIndices[4]);
-    g_animation_mesh_indices[19] = g_animation_mesh_indices[17];
+    g_animation_mesh_indices[15] = Module.RightYellMeshResourceIndices[1];
+    g_animation_mesh_indices[16] = Module.RightYellMeshResourceIndices[2];
+    g_animation_mesh_indices[17] = Module.RightYellMeshResourceIndices[3];
+    g_animation_mesh_indices[18] = Module.RightYellMeshResourceIndices[4];
+    g_animation_mesh_indices[19] = Module.RightYellMeshResourceIndices[3];
 
-    for i = 0, 19 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_dino_mesh = new_mesh(g_animation_mesh_indices[0]);
+    set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_dino_mesh, true);
+
+    g_animation_current_frame = g_animation_mesh_indices[0];
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
-
     Animate_();
     SetFrame_();
     Move_();
 
-    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    scale_mesh_matrix(anim_mesh_index, 2, 2, 1.5);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 19, 3);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_dino_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_dino_mesh);
+    scale_mesh_matrix(g_dino_mesh, 2, 2, 1.5);
+    translate_mesh_matrix(g_dino_mesh, g_current_pos_x, g_current_pos_y + 19, 3);
 
     if g_current_state == kMOVING_LEFT or g_current_state == kYELLING_LEFT then
         if Module.GameLogic.is_player_colliding_with_rect(

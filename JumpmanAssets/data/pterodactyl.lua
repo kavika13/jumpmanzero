@@ -6,8 +6,9 @@ Module.LeftMeshResourceIndices = {};
 Module.RightMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
 
+local g_dino_mesh = nil;
 local g_animation_mesh_indices = {};
-local g_current_animation_frame = 0;
+local g_animation_current_frame;
 local g_flapping_animation_current_frame = 0;
 local g_flapping_animation_counter = 0;
 
@@ -44,13 +45,13 @@ end
 
 local function SetFrame_()
     if g_current_acceleration_direction_y >= 0 then
-        g_current_animation_frame = g_flapping_animation_current_frame;
+        g_animation_current_frame = g_flapping_animation_current_frame;
     else
-        g_current_animation_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 
     if g_current_velocity_x < 0 then
-        g_current_animation_frame = g_current_animation_frame + 10;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = g_animation_current_frame + 10;  -- TODO: Use constants instead of these hard-coded frame numbers
     end
 end
 
@@ -76,37 +77,31 @@ function Module.initialize()
     g_current_pos_y = 120;
 
     -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[0] = new_mesh(Module.LeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[1] = new_mesh(Module.LeftMeshResourceIndices[2]);
-    g_animation_mesh_indices[2] = new_mesh(Module.LeftMeshResourceIndices[3]);
-    g_animation_mesh_indices[3] = new_mesh(Module.LeftMeshResourceIndices[4]);
+    g_animation_mesh_indices[0] = Module.LeftMeshResourceIndices[1];
+    g_animation_mesh_indices[1] = Module.LeftMeshResourceIndices[2];
+    g_animation_mesh_indices[2] = Module.LeftMeshResourceIndices[3];
+    g_animation_mesh_indices[3] = Module.LeftMeshResourceIndices[4];
 
-    g_animation_mesh_indices[10] = new_mesh(Module.RightMeshResourceIndices[1]);
-    g_animation_mesh_indices[11] = new_mesh(Module.RightMeshResourceIndices[2]);
-    g_animation_mesh_indices[12] = new_mesh(Module.RightMeshResourceIndices[3]);
-    g_animation_mesh_indices[13] = new_mesh(Module.RightMeshResourceIndices[4]);
+    g_animation_mesh_indices[10] = Module.RightMeshResourceIndices[1];
+    g_animation_mesh_indices[11] = Module.RightMeshResourceIndices[2];
+    g_animation_mesh_indices[12] = Module.RightMeshResourceIndices[3];
+    g_animation_mesh_indices[13] = Module.RightMeshResourceIndices[4];
 
-    for i = 0, 3 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_dino_mesh = new_mesh(g_animation_mesh_indices[0]);
+    set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_dino_mesh, true);
 
-    for i = 10, 13 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_animation_current_frame = g_animation_mesh_indices[0];
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_current_animation_frame], false);
-
     Animate_();
     SetFrame_();
     Move_();
 
-    local anim_mesh_index = g_animation_mesh_indices[g_current_animation_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y, 3);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_dino_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_dino_mesh);
+    translate_mesh_matrix(g_dino_mesh, g_current_pos_x, g_current_pos_y, 3);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 8, g_current_pos_y - 3,
