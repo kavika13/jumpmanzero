@@ -254,10 +254,10 @@ function Module.initialize(game_input)
     set_mesh_texture(g_jumpman_work_2_mesh_index, resources.TextureJumpman);
     set_mesh_is_visible(g_jumpman_work_2_mesh_index, false);
 
-    g_message_mesh_index = new_mesh(0);  -- TODO: Use constant for mesh index
+    g_message_mesh_index = new_mesh(resources.MeshSquare);
     set_mesh_texture(g_message_mesh_index, resources.TextureDisarming);
 
-    g_progress_bar_mesh_index = new_mesh(0);  -- TODO: Use constant for mesh index
+    g_progress_bar_mesh_index = new_mesh(resources.MeshSquare);
     set_mesh_texture(g_progress_bar_mesh_index, resources.TextureBoringGreen);
     move_mesh_to_front(g_progress_bar_mesh_index);
 

@@ -49,6 +49,7 @@ Module.BehaviorType = 0;
 
 local kTURN_DURATION = 50;  -- TODO: Could make configurable. Would have to calculate frame thresholds, not hard-code
 
+local g_zap_bot_mesh = nil;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
 
@@ -220,23 +221,23 @@ function Module.initialize()
     g_current_pos_y = Module.InitialPosY;
     g_move_direction = move_direction.LEFT;
 
-    g_animation_mesh_indices[animation_frame.MOVE_LEFT] = new_mesh(Module.BotMoveLeftMeshResourceIndex);
-    g_animation_mesh_indices[animation_frame.TURN_1] = new_mesh(Module.BotTurnMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.TURN_2] = new_mesh(Module.BotTurnMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.TURN_3] = new_mesh(Module.BotTurnMeshResourceIndices[3]);
-    g_animation_mesh_indices[animation_frame.TURN_4] = new_mesh(Module.BotTurnMeshResourceIndices[4]);
-    g_animation_mesh_indices[animation_frame.TURN_5] = new_mesh(Module.BotTurnMeshResourceIndices[5]);
-    g_animation_mesh_indices[animation_frame.MOVE_RIGHT] = new_mesh(Module.BotMoveRightMeshResourceIndex);
+    g_animation_mesh_indices[animation_frame.MOVE_LEFT] = Module.BotMoveLeftMeshResourceIndex;
+    g_animation_mesh_indices[animation_frame.TURN_1] = Module.BotTurnMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.TURN_2] = Module.BotTurnMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.TURN_3] = Module.BotTurnMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.TURN_4] = Module.BotTurnMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.TURN_5] = Module.BotTurnMeshResourceIndices[5];
+    g_animation_mesh_indices[animation_frame.MOVE_RIGHT] = Module.BotMoveRightMeshResourceIndex;
 
-    g_animation_mesh_indices[animation_frame.FIRE_LEFT_1] = new_mesh(Module.BotFireLeftMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.FIRE_LEFT_2] = new_mesh(Module.BotFireLeftMeshResourceIndices[2]);
+    g_animation_mesh_indices[animation_frame.FIRE_LEFT_1] = Module.BotFireLeftMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FIRE_LEFT_2] = Module.BotFireLeftMeshResourceIndices[2];
 
-    g_animation_mesh_indices[animation_frame.FIRE_RIGHT_1] = new_mesh(Module.BotFireRightMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.FIRE_RIGHT_2] = new_mesh(Module.BotFireRightMeshResourceIndices[2]);
+    g_animation_mesh_indices[animation_frame.FIRE_RIGHT_1] = Module.BotFireRightMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.FIRE_RIGHT_2] = Module.BotFireRightMeshResourceIndices[2];
 
-    for _, index in pairs(animation_frame) do
-        set_mesh_texture(g_animation_mesh_indices[index], Module.BotTextureResourceIndex);
-    end
+    g_zap_bot_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_LEFT]);
+    set_mesh_texture(g_zap_bot_mesh, Module.BotTextureResourceIndex);
+    set_mesh_is_visible(g_zap_bot_mesh, true);
 
     g_wait_time_remaining = Module.WaitDuration;
     g_laser_mesh_index = new_mesh(Module.LaserMeshResourceIndex);
@@ -244,18 +245,15 @@ function Module.initialize()
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
     set_mesh_is_visible(g_laser_mesh_index, false);
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
 
     SetFrame_();
     Move_();
 
-    local new_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    set_identity_mesh_matrix(new_mesh_index);
-    scale_mesh_matrix(new_mesh_index, 0.7, 0.55, 1);
-    translate_mesh_matrix(new_mesh_index, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
-    set_mesh_is_visible(new_mesh_index, true);
+    set_mesh_to_mesh(g_zap_bot_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_zap_bot_mesh);
+    scale_mesh_matrix(g_zap_bot_mesh, 0.7, 0.55, 1);
+    translate_mesh_matrix(g_zap_bot_mesh, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
 
     local is_colliding = false;
 
