@@ -1,3 +1,5 @@
+local read_only = require "data/read_only";
+
 local Module = {};
 
 Module.GameLogic = nil;
@@ -7,9 +9,17 @@ Module.MoveRightMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
 Module.BuzzSoundResourceIndex = 0;
 
--- TODO: Split left and right animations?
+local animation_frame = {
+    MOVE_LEFT_1 = 0,
+    MOVE_LEFT_2 = 1,
+    MOVE_RIGHT_1 = 2,
+    MOVE_RIGHT_2 = 3,
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
+
+local g_bee_mesh = nil;
 local g_move_animation_mesh_indices = {};
-local g_move_animation_current_frame_index = 0;
+local g_move_animation_current_frame_index = animation_frame.MOVE_LEFT_1;
 local g_move_animation_counter = 0;
 
 local g_current_pos_x = 0;
@@ -76,15 +86,14 @@ local function MoveBee_()
 end
 
 function Module.initialize()
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_move_animation_mesh_indices[0] = new_mesh(Module.MoveLeftMeshResourceIndices[1]);
-    g_move_animation_mesh_indices[1] = new_mesh(Module.MoveLeftMeshResourceIndices[2]);
-    g_move_animation_mesh_indices[2] = new_mesh(Module.MoveRightMeshResourceIndices[1]);
-    g_move_animation_mesh_indices[3] = new_mesh(Module.MoveRightMeshResourceIndices[2]);
+    g_move_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = Module.MoveLeftMeshResourceIndices[1];
+    g_move_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = Module.MoveLeftMeshResourceIndices[2];
+    g_move_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.MoveRightMeshResourceIndices[1];
+    g_move_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.MoveRightMeshResourceIndices[2];
 
-    for i = 0, 3 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_move_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_bee_mesh = new_mesh(g_move_animation_mesh_indices[animation_frame.MOVE_LEFT_1]);
+    set_mesh_texture(g_bee_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_bee_mesh, true);
 
     g_current_pos_x = Module.GameLogic.get_player_current_position_x() + 100;
     g_current_pos_y = Module.GameLogic.get_player_current_position_y();
@@ -94,9 +103,6 @@ function Module.initialize()
 end
 
 function Module.update()
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_move_animation_mesh_indices[g_move_animation_current_frame_index], false);
-
     MoveBee_();
 
     g_move_animation_counter = g_move_animation_counter + 1;
@@ -111,10 +117,9 @@ function Module.update()
         g_move_animation_current_frame_index = g_move_animation_counter < 2 and 1 or 0;
     end
 
-    local anim_mesh_index = g_move_animation_mesh_indices[g_move_animation_current_frame_index];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_current_pos_y + 6, 0);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_bee_mesh, g_move_animation_mesh_indices[g_move_animation_current_frame_index]);
+    set_identity_mesh_matrix(g_bee_mesh);
+    translate_mesh_matrix(g_bee_mesh, g_current_pos_x, g_current_pos_y + 6, 0);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y + 5,
