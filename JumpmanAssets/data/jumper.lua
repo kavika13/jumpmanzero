@@ -17,10 +17,18 @@ local status_type = {
 };
 status_type = read_only.make_table_read_only(status_type);
 
-local g_animation_mesh_indices = {};
-local g_animation_current_frame = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+local animation_frame = {
+    JUMP_1 = 1,
+    JUMP_2 = 2,
+    JUMP_3 = 3,
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_eye_mesh_index;
+local g_animation_mesh_indices = {};
+local g_animation_current_frame;
+
+local g_jumper_mesh = nil;
+local g_eye_mesh = nil;
 
 local g_current_status = status_type.CROUCHED;
 local g_time_crouching = 0;
@@ -59,7 +67,7 @@ local function MoveJumper_(all_jumpers)
     end
 
     if g_current_status == status_type.STRANDED then
-        g_animation_current_frame = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.JUMP_1;
         return 0;
     end
 
@@ -111,13 +119,13 @@ local function MoveJumper_(all_jumpers)
         g_curret_pos_y = iHit;
 
         if g_time_crouching < 5 then
-            g_animation_current_frame = 2;  -- TODO: Use constants instead of these hard-coded frame numbers
+            g_animation_current_frame = animation_frame.JUMP_2;
             g_eye_offset_y = -4;
         elseif g_time_crouching < 30 then
-            g_animation_current_frame = 3;  -- TODO: Use constants instead of these hard-coded frame numbers
+            g_animation_current_frame = animation_frame.JUMP_3;
             g_eye_offset_y = -6;
         elseif g_time_crouching < 35 then
-            g_animation_current_frame = 2;  -- TODO: Use constants instead of these hard-coded frame numbers
+            g_animation_current_frame = animation_frame.JUMP_2;
             g_eye_offset_y = -4;
         else
             g_current_status = status_type.JUMPING;
@@ -150,7 +158,7 @@ local function MoveJumper_(all_jumpers)
         return 0;
     end
 
-    g_animation_current_frame = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+    g_animation_current_frame = animation_frame.JUMP_1;
     g_eye_offset_y = 0;
 
     local iAir = g_curret_pos_y - iHit;
@@ -172,43 +180,39 @@ local function MoveJumper_(all_jumpers)
 end
 
 function Module.initialize()
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[1] = new_mesh(Module.AnimationMeshResourceIndices[1]);
-    g_animation_mesh_indices[2] = new_mesh(Module.AnimationMeshResourceIndices[2]);
-    g_animation_mesh_indices[3] = new_mesh(Module.AnimationMeshResourceIndices[3]);
+    g_animation_mesh_indices[animation_frame.JUMP_1] = new_mesh(Module.AnimationMeshResourceIndices[1]);
+    g_animation_mesh_indices[animation_frame.JUMP_2] = new_mesh(Module.AnimationMeshResourceIndices[2]);
+    g_animation_mesh_indices[animation_frame.JUMP_3] = new_mesh(Module.AnimationMeshResourceIndices[3]);
 
-    for i = 1, 3 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_jumper_mesh = new_mesh(g_animation_mesh_indices[animation_frame.JUMP_1]);
+    set_mesh_texture(g_jumper_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_jumper_mesh, true);
 
-    g_eye_mesh_index = new_mesh(Module.EyesMeshResourceIndex);
-    set_mesh_texture(g_eye_mesh_index, Module.TextureResourceIndex);
+    g_eye_mesh = new_mesh(Module.EyesMeshResourceIndex);
+    set_mesh_texture(g_eye_mesh, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_eye_mesh, true);
 
     if not Module.StartAlive then
         g_current_pos_x = -50;
         g_curret_pos_y = -50;
         g_current_velocity_y = -1;
-        g_animation_current_frame = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.JUMP_1;
         g_current_status = status_type.STRANDED;
     else
         g_current_pos_x = 200;
         g_curret_pos_y = math.random(20, 80);
         g_current_velocity_y = -1;
-        g_animation_current_frame = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_animation_current_frame = animation_frame.JUMP_1;
         g_current_status = status_type.JUMPING;
     end
 end
 
 function Module.update(all_jumpers)
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
-
     MoveJumper_(all_jumpers);
 
-    local anim_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_mesh_to_mesh(g_jumper_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_jumper_mesh);
+    translate_mesh_matrix(g_jumper_mesh, g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
 
     local iEyeX = (Module.GameLogic.get_player_current_position_x() - g_current_pos_x) / 85;
     local iEyeX = iEyeX - 0.5;
@@ -216,9 +220,8 @@ function Module.update(all_jumpers)
     iEyeY = (Module.GameLogic.get_player_current_position_y() - g_curret_pos_y) / 85;
     iEyeY = iEyeY + 9.2 + g_eye_offset_y;
 
-    set_identity_mesh_matrix(g_eye_mesh_index);
-    translate_mesh_matrix(g_eye_mesh_index, g_current_pos_x + iEyeX, g_curret_pos_y + iEyeY, g_current_pos_z);
-    set_mesh_is_visible(g_eye_mesh_index, true);
+    set_identity_mesh_matrix(g_eye_mesh);
+    translate_mesh_matrix(g_eye_mesh, g_current_pos_x + iEyeX, g_curret_pos_y + iEyeY, g_current_pos_z);
 
     if g_current_status == status_type.JUMPING then
         if Module.GameLogic.is_player_colliding_with_rect(
