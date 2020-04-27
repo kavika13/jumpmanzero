@@ -43,14 +43,14 @@ local move_direction = {
 };
 move_direction = read_only.make_table_read_only(move_direction);
 
-local g_animation_current_mesh = nil;
+local g_sheep_mesh = nil;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_LEFT_1;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 3 frames increments alt)
 local g_animation_alt_frame_counter = 0;  -- On 1 or 3 switches to an alt frame in the current animation
 local g_jump_animation_time = 0;
 
-local g_copter_mesh_index = 0;
+local g_copter_mesh = nil;
 
 local g_current_pos_x = 0;
 local g_current_pos_y = 0;
@@ -371,12 +371,12 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_2] = Module.SheepFlyRightMeshResourceIndices[2];
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_3] = Module.SheepFlyRightMeshResourceIndices[3];
 
-    g_animation_current_mesh = new_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_mesh_texture(g_animation_current_mesh, Module.SheepTextureResourceIndex);
-    set_mesh_is_visible(g_animation_current_mesh, true);
+    g_sheep_mesh = new_mesh(g_animation_mesh_indices[g_animation_current_frame]);
+    set_mesh_texture(g_sheep_mesh, Module.SheepTextureResourceIndex);
+    set_mesh_is_visible(g_sheep_mesh, true);
 
-    g_copter_mesh_index = new_mesh(Module.CopterMeshResourceIndex);
-    set_mesh_texture(g_copter_mesh_index, Module.CopterTextureResourceIndex);
+    g_copter_mesh = new_mesh(Module.CopterMeshResourceIndex);
+    set_mesh_texture(g_copter_mesh, Module.CopterTextureResourceIndex);
 end
 
 function Module.update(follower_sheep)
@@ -385,21 +385,21 @@ function Module.update(follower_sheep)
     AdvanceFrame_();
     MoveSheep_(follower_sheep);
 
-    set_mesh_to_mesh(g_animation_current_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_animation_current_mesh);
-    translate_mesh_matrix(g_animation_current_mesh, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
+    set_mesh_to_mesh(g_sheep_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_identity_mesh_matrix(g_sheep_mesh);
+    translate_mesh_matrix(g_sheep_mesh, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
 
     if g_copter_current_scale > 0 then
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
-        set_identity_mesh_matrix(g_copter_mesh_index);
-        rotate_x_mesh_matrix(g_copter_mesh_index, 270);
-        rotate_y_mesh_matrix(g_copter_mesh_index, g_copter_current_rotation_y);
-        translate_mesh_matrix(g_copter_mesh_index, 0, 4, 0);
-        scale_mesh_matrix(g_copter_mesh_index, g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
-        translate_mesh_matrix(g_copter_mesh_index, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
-        set_mesh_is_visible(g_copter_mesh_index, true);
+        set_identity_mesh_matrix(g_copter_mesh);
+        rotate_x_mesh_matrix(g_copter_mesh, 270);
+        rotate_y_mesh_matrix(g_copter_mesh, g_copter_current_rotation_y);
+        translate_mesh_matrix(g_copter_mesh, 0, 4, 0);
+        scale_mesh_matrix(g_copter_mesh, g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
+        translate_mesh_matrix(g_copter_mesh, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
+        set_mesh_is_visible(g_copter_mesh, true);
     else
-        set_mesh_is_visible(g_copter_mesh_index, false);
+        set_mesh_is_visible(g_copter_mesh, false);
     end
 
     if Module.GameLogic.is_player_colliding_with_rect(
