@@ -242,6 +242,11 @@ static int skip_next_mesh_interpolation(lua_State* lua_state) {
     return 0;
 }
 
+static int skip_next_camera_interpolation(lua_State* lua_state) {
+    SetCameraIsAnimationContinuous(false);
+    return 0;
+}
+
 static int get_loaded_texture_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_loaded_texture_count);
     return 1;
@@ -613,6 +618,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "scroll_texture_on_mesh");
     lua_pushcfunction(lua_state, skip_next_mesh_interpolation);
     lua_setglobal(lua_state, "skip_next_mesh_interpolation");
+    lua_pushcfunction(lua_state, skip_next_camera_interpolation);
+    lua_setglobal(lua_state, "skip_next_camera_interpolation");
     lua_pushcfunction(lua_state, set_mesh_texture);
     lua_setglobal(lua_state, "set_mesh_texture");
     lua_pushcfunction(lua_state, set_mesh_is_visible);

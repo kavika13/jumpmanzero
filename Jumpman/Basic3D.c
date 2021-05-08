@@ -103,6 +103,7 @@ static unsigned char g_error_image_data[kERROR_IMAGE_HEIGHT][kERROR_IMAGE_WIDTH]
 static hmm_mat4 g_world_to_view_matrix;
 static hmm_mat4 g_world_to_view_matrix_previous;
 static hmm_mat4 g_view_to_projection_matrix;
+static bool g_camera_animation_is_continuous = false;
 
 static long g_vertices_to_load_count;
 static MeshVertex* g_vertices_to_load = NULL;
@@ -574,6 +575,10 @@ void SetObjectIsAnimationContinuous(long iNum, bool is_continuous) {
     g_object_animation_is_continuous[iRNum] = is_continuous;
 }
 
+void SetCameraIsAnimationContinuous(bool is_continuous) {
+    g_camera_animation_is_continuous = is_continuous;
+}
+
 void ResizeViewport(int width, int height) {
     g_backbuffer_width = width;
     g_backbuffer_height = height;
@@ -863,6 +868,7 @@ void RendererPreUpdate(double seconds_since_previous_update) {
     g_extrapolation_scale = 0.0;
     g_seconds_since_previous_update = seconds_since_previous_update;
     g_world_to_view_matrix_previous = g_world_to_view_matrix;
+    g_camera_animation_is_continuous = true;
 
     for(long object_index = 0; object_index < g_object_count; ++object_index) {
         if(!g_object_animation_is_continuous[object_index]) {
@@ -969,7 +975,7 @@ void RendererDraw(double seconds_since_previous_draw, double time_scale) {
         camera_pos_previous,
         HMM_MultiplyVec3f(
             HMM_SubtractVec3(camera_pos_current, camera_pos_previous),
-            (float)g_extrapolation_scale));
+            g_camera_animation_is_continuous ? (float)g_extrapolation_scale : 0.0f));
 
     // Draw opaque
     g_draw_state.pipeline = g_opaque_pipline;

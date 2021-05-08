@@ -169,6 +169,7 @@ local function get_new_sandbox_env()
         play_sound_effect = play_sound_effect,
         delete_mesh = delete_mesh,
         set_perspective = set_perspective,
+        skip_next_camera_interpolation = skip_next_camera_interpolation,
     };
 end
 
