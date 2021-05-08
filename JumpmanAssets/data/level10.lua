@@ -37,8 +37,8 @@ local resources = {
     MeshBullet1 = 0,
     MeshBullet2 = 1,
     SoundJump = 0,
-    Soundchomp = 1,
-    Soundbonk = 2,
+    SoundChomp = 1,
+    SoundBonk = 2,
     SoundFire = 3,
     MeshRunDonut1 = 2,
     MeshRunDonut2 = 3,
@@ -84,6 +84,7 @@ local function CreateRunDonut_()
         resources.MeshRunDonutHatch4, resources.MeshRunDonutHatch5,
     };
     new_run_donut.TextureResourceIndex = resources.TextureRunDonut;
+    new_run_donut.ChompSoundResourceIndex = resources.SoundChomp;
     new_run_donut.SpawnCallback = OnSpawnRunDonut_;
     new_run_donut.KillCallback = OnKillRunDonut_;
     return new_run_donut;

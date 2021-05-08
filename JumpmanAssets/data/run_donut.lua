@@ -10,6 +10,7 @@ Module.KillCallback = nil;
 Module.MoveMeshResourceIndices = {};
 Module.HatchMeshResourceIndices = {};
 Module.TextureResourceIndex = 0;
+Module.ChompSoundResourceIndex = 0;
 
 Module.InitialPosX = 0;
 Module.InitialPosY = 0;
@@ -348,7 +349,7 @@ function Module.update(all_run_donuts)
             g_current_pos_x + 3, g_current_pos_y + 6);
 
         if iCollide then
-            -- TODO: Sound when you catch them?
+            play_sound_effect(Module.ChompSoundResourceIndex);
             g_current_status = status_type.CAUGHT;
             g_current_velocity_y = 2.1;
             g_current_velocity_x = (math.random(0, 20) - 10) / 10;
