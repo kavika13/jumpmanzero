@@ -122,10 +122,14 @@ local function RingPlatforms_()
         iPX = iPX + kPLAY_AREA_CIRCUMFERENCE;
         g_game_logic.set_player_current_position_x(iPX);
         g_game_logic.reset_perspective();
+        g_game_logic.skip_player_next_mesh_interpolation();
+        -- TODO: Make camera skip interpolation?
     elseif iPX >= kPLAY_AREA_CIRCUMFERENCE then
         iPX = iPX - kPLAY_AREA_CIRCUMFERENCE;
         g_game_logic.set_player_current_position_x(iPX);
         g_game_logic.reset_perspective();
+        g_game_logic.skip_player_next_mesh_interpolation();
+        -- TODO: Make camera skip interpolation?
     end
 
     local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant
@@ -144,6 +148,7 @@ local function RingPlatforms_()
         scale_mesh_matrix(current_platform.mesh_index, 1.64, 1, 1);
         rotate_y_mesh_matrix(current_platform.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_platform.mesh_index, iPX, 0, 75);
+        skip_next_mesh_interpolation(current_platform.mesh_index);  -- TODO: Why does interpolation look so wrong?
     end
 
     local vine_count = g_game_logic.get_vine_object_count();
@@ -155,6 +160,7 @@ local function RingPlatforms_()
         translate_mesh_matrix(current_vine.mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(current_vine.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_vine.mesh_index, iPX, 0, 75);
+        skip_next_mesh_interpolation(current_vine.mesh_index);  -- TODO: Why does interpolation look so wrong?
     end
 
     local ladder_count = g_game_logic.get_ladder_object_count();
@@ -166,6 +172,7 @@ local function RingPlatforms_()
         translate_mesh_matrix(current_ladder.mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(current_ladder.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_ladder.mesh_index, iPX, 0, 75);
+        skip_next_mesh_interpolation(current_ladder.mesh_index);  -- TODO: Why does interpolation look so wrong?
     end
 
     local donut_count = g_game_logic.get_donut_object_count();
@@ -177,6 +184,7 @@ local function RingPlatforms_()
         translate_mesh_matrix(current_donut.mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(current_donut.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_donut.mesh_index, iPX, 0, 75);
+        skip_next_mesh_interpolation(current_donut.mesh_index);  -- TODO: Why does interpolation look so wrong?
     end
 end
 

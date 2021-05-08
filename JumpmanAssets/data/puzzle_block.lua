@@ -129,6 +129,7 @@ local function PutBlockInStartingPos_(all_blocks)
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
         set_mesh_is_visible(g_block_piece_mesh_indices[iLoop], true);
+        skip_next_mesh_interpolation(g_block_piece_mesh_indices[iLoop]);
     end
 end
 

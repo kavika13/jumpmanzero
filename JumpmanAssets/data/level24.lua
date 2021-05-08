@@ -85,6 +85,7 @@ local g_jumpman_hang_animation_mesh_indices = {};
 local g_jumpman_hang_mesh = nil;
 
 local function CheckHanging_(game_input)
+    -- TODO: Animate jumpan via change mesh instead of making him invisible? Not imporant for anything but reducing mesh cloning and maybe reduced bugginess/statefulness
     set_mesh_is_visible(g_jumpman_hang_mesh, false);
 
     if g_game_logic.get_player_current_state() == player_state.JSVINE or

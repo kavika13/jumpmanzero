@@ -46,14 +46,18 @@ local function MoveBee_()
 
     if g_current_pos_x < iPX - 110 then
         g_current_pos_x = iPX + 110;
+        skip_next_mesh_interpolation(g_bee_mesh);
     elseif g_current_pos_x > iPX + 110 then
         g_current_pos_x = iPX - 110;
+        skip_next_mesh_interpolation(g_bee_mesh);
     end
 
     if g_current_pos_y < iPY - 110 then
         g_current_pos_y = iPY + 110;
+        skip_next_mesh_interpolation(g_bee_mesh);
     elseif g_current_pos_y > iPY + 110 then
         g_current_pos_y = iPY - 110;
+        skip_next_mesh_interpolation(g_bee_mesh);
     end
 
     if g_current_velocity_x == 0 then
@@ -132,6 +136,7 @@ end
 function Module.reset_pos()
     if g_current_pos_y < 120 then
         g_current_pos_y = 120;
+        skip_next_mesh_interpolation(g_bee_mesh);
     end
 end
 

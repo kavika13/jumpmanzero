@@ -42,9 +42,12 @@ local function ResetMyPos_()
     g_current_pos_y = 220;
     g_animation_frame = 0;
     g_animation_timer = 0;
+    skip_next_mesh_interpolation(g_drop_1_mesh_index);
+    skip_next_mesh_interpolation(g_drop_2_mesh_index);
 end
 
 function Module.initialize()
+    -- TODO: Use meshes instead of textures
     g_drop_2_mesh_index = new_mesh(Module.DropMeshResourceIndex);
     g_drop_1_mesh_index = new_mesh(Module.DropMeshResourceIndex);
     g_frames_to_wait_before_start = Module.FramesToWait;
@@ -66,6 +69,7 @@ function Module.update()
             g_animation_frame = 1;
         end
 
+        -- TODO: Use meshes instead of textures for animation. Only need to draw once in that case
         set_identity_mesh_matrix(g_drop_1_mesh_index);
         translate_mesh_matrix(g_drop_1_mesh_index, g_current_pos_x, g_current_pos_y, 8);
         set_mesh_texture(g_drop_1_mesh_index, Module.DropTextureResourceIndices[1]);

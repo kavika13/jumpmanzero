@@ -39,6 +39,7 @@ local function ShowRemaining_()
     scale_mesh_matrix(g_jumpman_icon_mesh_index, 0.5, 0.5, 0.5);
     translate_mesh_matrix(g_jumpman_icon_mesh_index, 40, -34, 90);
     undo_camera_perspective_on_mesh_matrix(g_jumpman_icon_mesh_index);
+    -- TODO: Skip interpolation on these frame after death because of camera jump
 end
 
 local function ShowPerformance_(game_input, lives_remaining)
@@ -63,6 +64,8 @@ local function ShowPerformance_(game_input, lives_remaining)
     for iNum = 0, 9 do
         local life_count_digit_mesh_index = g_life_count_number_mesh_indices[iNum + 1];
 
+        -- TODO: Skip interpolation on these frame after death because of camera jump? Or will set_mesh_to_mesh instead of set_mesh_is_visible fix it
+        -- TODO: Swap mesh instead of set visible?
         if iNum == lives_remaining and lives_remaining > 0 then
             set_mesh_is_visible(life_count_digit_mesh_index, true);
             set_identity_mesh_matrix(life_count_digit_mesh_index);

@@ -89,6 +89,7 @@ function Module.update()
     rotate_x_mesh_matrix(g_whomper_mesh_index, Module.iR);
     translate_mesh_matrix(g_whomper_mesh_index, Module.iX, Module.iY, 2);
     set_mesh_is_visible(g_whomper_mesh_index, true);
+    skip_next_mesh_interpolation(g_whomper_mesh_index);  -- TODO: Why does interpolation look so wrong?
 
     if Module.GameLogic.is_player_colliding_with_rect(
             Module.iX - 4.5, Module.iY - 25,

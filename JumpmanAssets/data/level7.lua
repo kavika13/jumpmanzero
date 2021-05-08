@@ -92,6 +92,7 @@ local function SpinClock_(clock_backdrop)
     rotate_y_mesh_matrix(clock_backdrop.mesh_index, g_current_clock_hand_rotation);
     translate_mesh_matrix(clock_backdrop.mesh_index, iObjX, 0, 7);
     set_mesh_is_visible(clock_backdrop.mesh_index, true);
+    skip_next_mesh_interpolation(clock_backdrop.mesh_index);  -- TODO: Why does interpolation look so wrong?
 end
 
 local function CollideLittleClocks_()

@@ -1679,7 +1679,13 @@ local function AnimateDying_(game_input)
                 g_player_dying_animation_state_frame_count = -1;
 
                 if Module.ResetPlayerCallback then
+                    local prev_x, prev_y = g_player_current_position_x, g_player_current_position_y;
+
                     Module.ResetPlayerCallback(game_input);
+
+                    if g_player_current_position_x ~= prev_x or g_player_current_position_y ~= prev_y then
+                        skip_next_mesh_interpolation(g_player_mesh);
+                    end
                 end
 
                 if Module.LevelData.music_loop_start_music_time ~= 5550 then
@@ -2079,6 +2085,10 @@ end
 
 function Module.set_player_current_position_z(new_pos_z)
     g_player_current_position_z = new_pos_z;
+end
+
+function Module.skip_player_next_mesh_interpolation()
+    skip_next_mesh_interpolation(g_player_mesh);
 end
 
 function Module.get_player_current_active_platform_index()

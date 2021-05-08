@@ -71,6 +71,8 @@ local function RestartBullet()
 
     set_mesh_is_visible(g_mesh_index_1, false);
     set_mesh_is_visible(g_mesh_index_2, false);
+    skip_next_mesh_interpolation(g_mesh_index_1);
+    skip_next_mesh_interpolation(g_mesh_index_2);
 
     local iType = math.random(1, 100);
 

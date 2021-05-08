@@ -409,13 +409,13 @@ local function ProgressLevel_(game_input)
         local iDrawY;
         local iDrawX;
 
-        -- Simulate underwater currents, quantized to "pixel grid" boundaries
+        -- Simulate underwater currents
         if g_swim_animation_current_mesh_index < swim_animation_frame.SWIM_LEFT_1 then
-            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
-            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
+            iDrawX = iPX + math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2;
+            iDrawY = iPY + math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2;
         else
-            iDrawX = iPX + math.floor(math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2);
-            iDrawY = iPY + math.floor(math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2);
+            iDrawX = iPX + math.sin(g_frames_since_level_start * 6 * math.pi / 180.0) * 2;
+            iDrawY = iPY + math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2;
         end
 
         set_mesh_to_mesh(g_jumpman_swim_mesh, g_swim_animation_mesh_indices[g_swim_animation_current_mesh_index]);

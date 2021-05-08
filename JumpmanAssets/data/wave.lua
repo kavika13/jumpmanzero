@@ -47,12 +47,14 @@ function Module.update()
 
     if g_current_pos_x2 > 26.5 then
         g_current_pos_x2 = 0;
+        skip_next_mesh_interpolation(g_wave_2_mesh_index);  -- TODO: Use texture movement instead?
     end
 
     g_current_pos_x1 = g_current_pos_x1 + 0.2;
 
     if g_current_pos_x1 > 26.5 then
         g_current_pos_x1 = 0;
+        skip_next_mesh_interpolation(g_wave_1_mesh_index);  -- TODO: Use texture movement instead?
     end
 
     g_wave_animation_cycle_degrees = g_wave_animation_cycle_degrees + 3;

@@ -150,6 +150,7 @@ local function get_new_sandbox_env()
         rotate_y_mesh_matrix = rotate_y_mesh_matrix,
         rotate_z_mesh_matrix = rotate_z_mesh_matrix,
         scroll_texture_on_mesh = scroll_texture_on_mesh,
+        skip_next_mesh_interpolation = skip_next_mesh_interpolation,
         set_mesh_texture = set_mesh_texture,
         set_mesh_is_visible = set_mesh_is_visible,
         get_loaded_texture_count = get_loaded_texture_count,

@@ -76,6 +76,7 @@ local g_is_disarm_hud_visible = false;
 local g_disarm_progress = 0;
 
 local function ShowWorking_(game_input)
+    -- TODO: Animate jumpan via change mesh instead of making him invisible? Not imporant for anything but reducing mesh cloning and maybe reduced bugginess/statefulness
     g_game_logic.set_player_is_visible(false);
     local iPX = g_game_logic.get_player_current_position_x();
     local iPY = g_game_logic.get_player_current_position_y();

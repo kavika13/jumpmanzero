@@ -137,12 +137,15 @@ local function ProgressLevel_(game_input)
     if is_select_action_pressed and g_camera_pan_animation_timer > 0 then
         g_camera_pan_animation_timer = 0;
         g_letter_drop_animation_timer = 1;
+        skip_next_mesh_interpolation(g_jumpman_mesh_index);  -- TODO: Do letters too
+        -- TODO: Make camera skip interpolation?
     end
 
     g_game_logic.update_player_graphics();
 end
 
 function Module.initialize(game_input)
+    -- TODO: Figure out how to get player not to blink in on first frame. Is it due to camera interpolation?
     g_game_logic = game_logic_module();
     g_game_logic.MenuLogic = Module.MenuLogic;
     g_game_logic.LevelData = gameover_data_module();

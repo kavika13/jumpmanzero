@@ -82,6 +82,7 @@ local function MoveLadder_(ladder_num, iPos)
     rotate_z_mesh_matrix(current_ladder.mesh_index, iPos * 2);
     rotate_x_mesh_matrix(current_ladder.mesh_index, iPos);
     translate_mesh_matrix(current_ladder.mesh_index, iX, iY, iZ - iPos);
+    skip_next_mesh_interpolation(current_ladder.mesh_index);  -- TODO: Why does interpolation look so wrong?
 end
 
 local function MovePlatform_(platform_num, iRotate, iTran, pos_property_name)
@@ -93,6 +94,7 @@ local function MovePlatform_(platform_num, iRotate, iTran, pos_property_name)
     translate_mesh_matrix(current_platform.mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
     rotate_z_mesh_matrix(current_platform.mesh_index, iRotate);
     translate_mesh_matrix(current_platform.mesh_index, iPlatX + iTran, iPlatY, 0);
+    skip_next_mesh_interpolation(current_platform.mesh_index);  -- TODO: Why does interpolation look so wrong?
 end
 
 local function ProgressLevel_(game_input)

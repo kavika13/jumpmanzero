@@ -81,6 +81,7 @@ local function AnimateArrow_(backdrop_num)
 
     rotate_x_mesh_matrix(current_backdrop.mesh_index, g_arrow_rotation);
     translate_mesh_matrix(current_backdrop.mesh_index, SX, SY, 0);
+    skip_next_mesh_interpolation(current_backdrop.mesh_index);  -- TODO: Why does interpolation look so wrong?
 
     if g_game_logic.is_player_colliding_with_rect(SX - 3, SY - 4, SX + 3, SY + 4) and
             (g_level_flipping_state == 0 or g_level_flipping_state == 2) then
@@ -120,6 +121,8 @@ local function SpinPlatform_(platform_index, iPY)
         rotate_x_mesh_matrix(platform_mesh_index, g_level_flipping_rotation * 180 / 50);
         translate_mesh_matrix(platform_mesh_index, 0, iPY, 0);
     end
+
+    skip_next_mesh_interpolation(platform_mesh_index);  -- TODO: Why does interpolation look so wrong?
 end
 
 local function SpinLadderDonutOrVine_(mesh_index, iPY)
@@ -140,6 +143,8 @@ local function SpinLadderDonutOrVine_(mesh_index, iPY)
         rotate_x_mesh_matrix(mesh_index, g_level_flipping_rotation * 180 / 50);
         translate_mesh_matrix(mesh_index, 0, iPY, 0);
     end
+
+    skip_next_mesh_interpolation(mesh_index);  -- TODO: Why does interpolation look so wrong?
 end
 
 local function SpinLevel_()

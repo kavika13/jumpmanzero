@@ -51,6 +51,7 @@ local function DoBlasting()
         set_identity_mesh_matrix(mesh_index);
         scale_mesh_matrix(mesh_index, iSize, iSize, 1);
         rotate_z_mesh_matrix(mesh_index, iBR);
+        skip_next_mesh_interpolation(mesh_index);
 
         if iTemp > 10 then
             translate_mesh_matrix(mesh_index, 0, 0, -10);

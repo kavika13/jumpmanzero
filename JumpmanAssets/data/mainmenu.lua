@@ -40,6 +40,7 @@ local g_z_bits;
 local g_is_game_selected = false;
 local g_title_animation_is_done = false;
 local g_title_animation_counter = 0;
+local g_trigger_skip_letter_mesh_interpolation = false;
 
 local g_title_letter_mesh_ids = {};
 local g_option_letter_mesh_ids = {};
@@ -118,6 +119,14 @@ local function ShowJMLetters()
 
         translate_mesh_matrix(g_title_letter_mesh_ids[iChar], iDX, iDY, iDZ);
         set_mesh_is_visible(g_title_letter_mesh_ids[iChar], true);
+
+        if g_trigger_skip_letter_mesh_interpolation then
+            skip_next_mesh_interpolation(g_title_letter_mesh_ids[iChar]);
+        end
+    end
+
+    if g_trigger_skip_letter_mesh_interpolation then
+        g_trigger_skip_letter_mesh_interpolation = false;
     end
 end
 
@@ -129,6 +138,7 @@ local function GetInput(game_input)
     if game_input.select_action.just_pressed then
         if g_title_animation_counter < kANIMATION_END_TIME then
             g_title_animation_counter = kANIMATION_END_TIME;
+            g_trigger_skip_letter_mesh_interpolation = true;
         else
             play_sound_effect(resources.SoundFire);
             g_is_game_selected = true;
