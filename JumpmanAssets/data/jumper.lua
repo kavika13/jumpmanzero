@@ -180,9 +180,9 @@ local function MoveJumper_(all_jumpers)
 end
 
 function Module.initialize()
-    g_animation_mesh_indices[animation_frame.JUMP_1] = new_mesh(Module.AnimationMeshResourceIndices[1]);
-    g_animation_mesh_indices[animation_frame.JUMP_2] = new_mesh(Module.AnimationMeshResourceIndices[2]);
-    g_animation_mesh_indices[animation_frame.JUMP_3] = new_mesh(Module.AnimationMeshResourceIndices[3]);
+    g_animation_mesh_indices[animation_frame.JUMP_1] = Module.AnimationMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.JUMP_2] = Module.AnimationMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.JUMP_3] = Module.AnimationMeshResourceIndices[3];
 
     g_jumper_mesh = new_mesh(g_animation_mesh_indices[animation_frame.JUMP_1]);
     set_mesh_texture(g_jumper_mesh, Module.TextureResourceIndex);
