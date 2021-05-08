@@ -24,8 +24,23 @@ local status_type = {
 };
 status_type = read_only.make_table_read_only(status_type);
 
+local animation_frame = {
+    MOVE_1 = 1,
+    MOVE_2 = 2,
+    MOVE_3 = 3,
+    MOVE_4 = 4,
+
+    HATCH_1 = 5,
+    HATCH_2 = 6,
+    HATCH_3 = 7,
+    HATCH_4 = 8,
+    HATCH_5 = 9,
+};
+animation_frame = read_only.make_table_read_only(animation_frame);
+
+local g_run_donut_mesh = nil;
 local g_animation_mesh_indices = {};
-local g_animation_current_frame = 0;
+local g_animation_current_frame = animation_frame.MOVE_1;
 local g_animation_frame_counter = 0;
 
 local g_initial_pos_y = 0;
@@ -171,27 +186,27 @@ local function ProgressHatch_()
     g_current_status_counter = g_current_status_counter + 1;
 
     if g_current_status_counter < 20 then
-        g_animation_current_frame = 4;  -- TODO: Don't hard-code frame indices, since they're enum values
+        g_animation_current_frame = animation_frame.HATCH_1;
         return 0;
     end
 
     if g_current_status_counter < 40 then
-        g_animation_current_frame = 5;  -- TODO: Don't hard-code frame indices
+        g_animation_current_frame = animation_frame.HATCH_2;
         return 0;
     end
 
     if g_current_status_counter < 60 then
-        g_animation_current_frame = 6;  -- TODO: Don't hard-code frame indices
+        g_animation_current_frame = animation_frame.HATCH_3;
         return 0;
     end
 
     if g_current_status_counter < 80 then
-        g_animation_current_frame = 7;  -- TODO: Don't hard-code frame indices
+        g_animation_current_frame = animation_frame.HATCH_4;
         return 0;
     end
 
     if g_current_status_counter < 100 then
-        g_animation_current_frame = 8;  -- TODO: Don't hard-code frame indices
+        g_animation_current_frame = animation_frame.HATCH_5;
         return 0;
     end
 
@@ -200,14 +215,7 @@ end
 
 local function DestroyMe_()
     g_current_status = status_type.DEAD;
-    delete_mesh(g_animation_mesh_indices[0]);
-    delete_mesh(g_animation_mesh_indices[1]);
-    delete_mesh(g_animation_mesh_indices[2]);
-    delete_mesh(g_animation_mesh_indices[4]);
-    delete_mesh(g_animation_mesh_indices[5]);
-    delete_mesh(g_animation_mesh_indices[6]);
-    delete_mesh(g_animation_mesh_indices[7]);
-    delete_mesh(g_animation_mesh_indices[8]);
+    delete_mesh(g_run_donut_mesh);
     Module.KillCallback(Module);
 end
 
@@ -219,7 +227,7 @@ local function Jump_()
     if g_current_status_counter < 20 then
         g_current_status_counter = g_current_status_counter + 1;
         g_animation_frame_counter = 0;
-        g_animation_current_frame = 0;  -- TODO: Don't hard-code frame indices
+        g_animation_current_frame = animation_frame.MOVE_1;
         return 0;
     end
 
@@ -254,7 +262,7 @@ local function MoveDonut_(all_run_donuts)
 
     if g_current_status == status_type.LAYING_EGG then
         g_current_status_counter = g_current_status_counter + 1;
-        g_animation_current_frame = 8;  -- TODO: Don't hard-code frame indices
+        g_animation_current_frame = animation_frame.HATCH_5;
 
         if g_current_status_counter == 60 then
             g_current_run_donut_count = #all_run_donuts;
@@ -298,21 +306,19 @@ end
 function Module.initialize()
     g_time_since_spawn = 0;
 
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_animation_mesh_indices[0] = new_mesh(Module.MoveMeshResourceIndices[1]);
-    g_animation_mesh_indices[1] = new_mesh(Module.MoveMeshResourceIndices[2]);
-    g_animation_mesh_indices[2] = new_mesh(Module.MoveMeshResourceIndices[3]);
-    g_animation_mesh_indices[3] = g_animation_mesh_indices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_1] = Module.MoveMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.MOVE_2] = Module.MoveMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.MOVE_3] = Module.MoveMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.MOVE_4] = Module.MoveMeshResourceIndices[2];
 
-    g_animation_mesh_indices[4] = new_mesh(Module.HatchMeshResourceIndices[1]);
-    g_animation_mesh_indices[5] = new_mesh(Module.HatchMeshResourceIndices[2]);
-    g_animation_mesh_indices[6] = new_mesh(Module.HatchMeshResourceIndices[3]);
-    g_animation_mesh_indices[7] = new_mesh(Module.HatchMeshResourceIndices[4]);
-    g_animation_mesh_indices[8] = new_mesh(Module.HatchMeshResourceIndices[5]);
+    g_animation_mesh_indices[animation_frame.HATCH_1] = Module.HatchMeshResourceIndices[1];
+    g_animation_mesh_indices[animation_frame.HATCH_2] = Module.HatchMeshResourceIndices[2];
+    g_animation_mesh_indices[animation_frame.HATCH_3] = Module.HatchMeshResourceIndices[3];
+    g_animation_mesh_indices[animation_frame.HATCH_4] = Module.HatchMeshResourceIndices[4];
+    g_animation_mesh_indices[animation_frame.HATCH_5] = Module.HatchMeshResourceIndices[5];
 
-    for i = 0, 8 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_animation_mesh_indices[i], Module.TextureResourceIndex);
-    end
+    g_run_donut_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_1]);
+    set_mesh_texture(g_run_donut_mesh, Module.TextureResourceIndex);
 
     g_current_status = status_type.HATCHING;
     g_current_status_counter = 0;
@@ -335,9 +341,6 @@ end
 function Module.update(all_run_donuts)
     g_time_since_spawn = g_time_since_spawn + 1;
 
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_animation_mesh_indices[g_animation_current_frame], false);
-
     if g_current_status == status_type.NORMAL or g_current_status == status_type.JUMP or
             g_current_status == status_type.HATCHING or g_current_status == status_type.LAYING_EGG then
         local iCollide = Module.GameLogic.is_player_colliding_with_rect(
@@ -358,20 +361,22 @@ function Module.update(all_run_donuts)
         g_animation_frame_counter = 0;
         g_animation_current_frame = g_animation_current_frame + 1;
 
-        if g_animation_current_frame > 3 then
-            g_animation_current_frame = 0;  -- TODO: Don't hard-code frame indices
+        if g_animation_current_frame > animation_frame.MOVE_4 then  -- TODO: Use count/last frame num instaed of hard-coding highest index
+            g_animation_current_frame = animation_frame.MOVE_1;
         end
     end
 
     MoveDonut_(all_run_donuts);
 
     if g_current_status > status_type.DEAD then
-        local new_frame_mesh_index = g_animation_mesh_indices[g_animation_current_frame];
-        set_identity_mesh_matrix(new_frame_mesh_index);
-        scale_mesh_matrix(new_frame_mesh_index, 0.6, 0.6, 1);
-        rotate_z_mesh_matrix(new_frame_mesh_index, g_current_rotation_z);
-        translate_mesh_matrix(new_frame_mesh_index, g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
-        set_mesh_is_visible(new_frame_mesh_index, true);
+        set_mesh_to_mesh(g_run_donut_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+        set_identity_mesh_matrix(g_run_donut_mesh);
+        scale_mesh_matrix(g_run_donut_mesh, 0.6, 0.6, 1);
+        rotate_z_mesh_matrix(g_run_donut_mesh, g_current_rotation_z);
+        translate_mesh_matrix(g_run_donut_mesh, g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
+        set_mesh_is_visible(g_run_donut_mesh, true);
+    else
+        set_mesh_is_visible(g_run_donut_mesh, false);
     end
 end
 
