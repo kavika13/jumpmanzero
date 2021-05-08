@@ -727,7 +727,7 @@ static void PushGameInputAsTable(lua_State* lua_state, const GameInput* game_inp
     lua_setfield(lua_state, -2, "debug_action");
 }
 
-static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const char* function_name, const GameInput* game_input, int pushed_arg_count) {
+static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const char* function_name, const GameInput* game_input, int pushed_arg_count, int expected_result_count) {
     assert(script_context != NULL);  // TODO: Error handling
 
     lua_State* lua_state = script_context->lua_state;
@@ -755,13 +755,13 @@ static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const 
         lua_pushcfunction(lua_state, lua_error_handler);
         lua_insert(lua_state, error_handler_stack_pos);
 
-        if(lua_pcall(lua_state, arg_count, 0, error_handler_stack_pos) != 0) {
+        if(lua_pcall(lua_state, arg_count, expected_result_count, error_handler_stack_pos) != 0) {
             const char* error_message = lua_tostring(lua_state, -1);
             debug_log("Error while calling Lua function in main script: %s\n%s", function_name, error_message);
             assert(false);  // TODO: Error handling
         }
 
-        lua_pop(lua_state, 1);  // Remove error handler, which was below module function
+        lua_remove(lua_state, error_handler_stack_pos);
     } else {
         assert(false);  // TODO: Error handling. Cleanup stack?
     }
@@ -785,19 +785,19 @@ void InitGameDebugLevel(const char* base_path, const char* level_name) {
     g_game_base_path = base_path;
     LoadLuaScript("data/main.lua", &g_main_script_context);
     lua_pushstring(g_main_script_context.lua_state, level_name);
-    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 1);
+    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 1, 0);
 }
 
 void InitGameNormal(const char* base_path) {
     g_game_base_path = base_path;
     LoadLuaScript("data/main.lua", &g_main_script_context);
-    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0);
+    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0, 0);
 }
 
 void UpdateGame(const GameInput* game_input, double seconds_since_previous_update) {
     if(!IsGameFrozen()) {
         RendererPreUpdate(seconds_since_previous_update);
-        CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0);
+        CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0, 0);
         RendererPostUpdate();
     }
 }
@@ -807,5 +807,5 @@ void DrawGame(double seconds_since_previous_draw, double time_scale) {
 }
 
 void ExitGame(void) {
-    CallLuaModuleFunction(&g_main_script_context, "on_exit_requested", NULL, 0);
+    CallLuaModuleFunction(&g_main_script_context, "on_exit_requested", NULL, 0, 0);
 }
