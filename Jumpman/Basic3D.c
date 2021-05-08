@@ -101,6 +101,7 @@ static long g_texture_is_color_key_alpha_enabled[kMAX_TEXTURES];
 static unsigned char g_error_image_data[kERROR_IMAGE_HEIGHT][kERROR_IMAGE_WIDTH][4];
 
 static hmm_mat4 g_world_to_view_matrix;
+static hmm_mat4 g_world_to_view_matrix_previous;
 static hmm_mat4 g_view_to_projection_matrix;
 
 static long g_vertices_to_load_count;
@@ -115,6 +116,10 @@ static long g_object_texture_index[kMAX_OBJECTS];
 static long g_object_is_visible[kMAX_OBJECTS];
 static hmm_vec2 g_object_uv_offset[kMAX_OBJECTS];
 static hmm_mat4 g_object_local_to_world_matrix[kMAX_OBJECTS];
+static long g_object_is_visible_previous[kMAX_OBJECTS];
+static hmm_vec2 g_object_uv_offset_previous[kMAX_OBJECTS];
+static hmm_mat4 g_object_local_to_world_matrix_previous[kMAX_OBJECTS];
+static bool g_object_animation_is_continuous[kMAX_OBJECTS];
 
 // Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
@@ -265,6 +270,7 @@ static long SurfaceObject(long o1) {
 }
 
 void DeleteMesh(long iMesh) {
+    // TODO: Assert we even are allowed to do this
     long iReal = g_object_redirects[iMesh];
     SwapObjects(iReal, g_object_count - 1);
 
@@ -358,14 +364,27 @@ static void SwapObjects(long o1, long o2) {
     g_object_local_to_world_matrix[iRealO1] = g_object_local_to_world_matrix[iRealO2];
     g_object_local_to_world_matrix[iRealO2] = mSwap;
 
+    mSwap = g_object_local_to_world_matrix_previous[iRealO1];
+    g_object_local_to_world_matrix_previous[iRealO1] = g_object_local_to_world_matrix_previous[iRealO2];
+    g_object_local_to_world_matrix_previous[iRealO2] = mSwap;
+
     hmm_vec2 temp_uv_offset = g_object_uv_offset[iRealO1];
     g_object_uv_offset[iRealO1] = g_object_uv_offset[iRealO2];
     g_object_uv_offset[iRealO2] = temp_uv_offset;
+
+    temp_uv_offset = g_object_uv_offset_previous[iRealO1];
+    g_object_uv_offset_previous[iRealO1] = g_object_uv_offset_previous[iRealO2];
+    g_object_uv_offset_previous[iRealO2] = temp_uv_offset;
+
+    bool temp_animation_is_continuous = g_object_animation_is_continuous[iRealO1];
+    g_object_animation_is_continuous[iRealO1] = g_object_animation_is_continuous[iRealO2];
+    g_object_animation_is_continuous[iRealO2] = temp_animation_is_continuous;
 
     SwapLong(&g_object_vertex_start_index[iRealO1], &g_object_vertex_start_index[iRealO2]);
     SwapLong(&g_object_vertex_count[iRealO1], &g_object_vertex_count[iRealO2]);
     SwapLong(&g_object_texture_index[iRealO1], &g_object_texture_index[iRealO2]);
     SwapLong(&g_object_is_visible[iRealO1], &g_object_is_visible[iRealO2]);
+    SwapLong(&g_object_is_visible_previous[iRealO1], &g_object_is_visible_previous[iRealO2]);
 
     SwapLong(&g_object_redirects[SurfaceObject(o1)], &g_object_redirects[SurfaceObject(o2)]);
 }
@@ -388,6 +407,8 @@ void Clear3dData(void) {
     for(int iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
+        g_object_animation_is_continuous[iLoop] = false;
+        // TODO: Set visibility?
     }
 
     g_vertices_to_load_count = 0;
@@ -447,6 +468,8 @@ void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enab
 void ChangeMesh(long iMesh, long iNewMesh) {
     long iObjectToCopy = g_object_redirects[iNewMesh];
     long iRealMesh = g_object_redirects[iMesh];
+    assert(iObjectToCopy >= 0);
+    assert(iRealMesh >= 0);
     g_object_vertex_start_index[iRealMesh] = g_object_vertex_start_index[iObjectToCopy];
     g_object_vertex_count[iRealMesh] = g_object_vertex_count[iObjectToCopy];
 }
@@ -474,6 +497,8 @@ void CopyObject(long iObject, long* iNum) {
 
     SetObjectData(*iNum, 0, 0);
     IdentityMatrix(*iNum);
+    SetObjectIsAnimationContinuous(*iNum, false);
+    // TODO: Set visibility?
 
     ++g_object_count;
 }
@@ -486,6 +511,8 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
 
     SetObjectData(g_object_count, 0, 0);
     IdentityMatrix(g_object_count);
+    SetObjectIsAnimationContinuous(g_object_count, false);
+    // TODO: Set visibility?
 
     for(int iPlace = 0; iPlace < iCount; ++iPlace) {
         g_vertices_to_load[g_vertices_to_load_count].x = iParams[iPlace * 9 + 0] / 256.0f;
@@ -512,6 +539,8 @@ size_t CreateMesh(MeshVertex* vertices, size_t vertex_count, long texture_index,
 
     SetObjectData(g_object_count, texture_index, is_visible ? 1 : 0);
     IdentityMatrix(g_object_count);
+    SetObjectIsAnimationContinuous(g_object_count, false);
+    // TODO: Set visibility?
 
     for(size_t index = 0; index < vertex_count; ++index) {
         g_vertices_to_load[g_vertices_to_load_count] = vertices[index];
@@ -538,6 +567,11 @@ void SetObjectTextureIndex(long iNum, long texture_index) {
 void SetObjectIsVisible(long iNum, bool is_visible) {
     long iRNum = g_object_redirects[iNum];
     g_object_is_visible[iRNum] = is_visible ? 1 : 0;
+}
+
+void SetObjectIsAnimationContinuous(long iNum, bool is_continuous) {
+    long iRNum = g_object_redirects[iNum];
+    g_object_animation_is_continuous[iRNum] = is_continuous;
 }
 
 void ResizeViewport(int width, int height) {
@@ -594,6 +628,8 @@ static long init_3d(void) {
     for(int iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
+        g_object_animation_is_continuous[iLoop] = false;
+        // TODO: Set visibility?
     }
 
     sg_desc desc = {0};
@@ -820,6 +856,36 @@ static void kill_scene(void) {
     }
 }
 
+static double g_extrapolation_scale;
+static double g_seconds_since_previous_update;
+
+void RendererPreUpdate(double seconds_since_previous_update) {
+    g_extrapolation_scale = 0.0;
+    g_seconds_since_previous_update = seconds_since_previous_update;
+    g_world_to_view_matrix_previous = g_world_to_view_matrix;
+
+    for(long object_index = 0; object_index < g_object_count; ++object_index) {
+        if(!g_object_animation_is_continuous[object_index]) {
+            // Has to have existed since previous update call for this to be triggered
+            g_object_animation_is_continuous[object_index] = true;
+        }
+
+        g_object_is_visible_previous[object_index] = g_object_is_visible[object_index];
+        g_object_uv_offset_previous[object_index] = g_object_uv_offset[object_index];
+        g_object_local_to_world_matrix_previous[object_index] = g_object_local_to_world_matrix[object_index];
+    }
+}
+
+void RendererPostUpdate(void) {
+    for(long object_index = 0; object_index < g_object_count; ++object_index) {
+        if(!g_object_is_visible_previous[object_index] && g_object_is_visible[object_index]) {
+            g_object_animation_is_continuous[object_index] = false;
+        }
+    }
+}
+
+static hmm_mat4 g_current_world_to_view_matrix;
+
 static void RenderObject(int object_index, long* previous_texture_index, VertexShaderParams* vs_params, bool* are_fs_params_applied, FragmentShaderParams* fs_params) {
     long current_texture_index = g_object_texture_index[object_index];
 
@@ -829,13 +895,37 @@ static void RenderObject(int object_index, long* previous_texture_index, VertexS
         sg_apply_draw_state(&g_draw_state);
     }
 
-    vs_params->local_to_world_matrix = g_object_local_to_world_matrix[object_index];
-    vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
-    vs_params->local_to_projection_matrix = HMM_MultiplyMat4(
-        HMM_MultiplyMat4(g_view_to_projection_matrix, g_world_to_view_matrix),
-        g_object_local_to_world_matrix[object_index]);
-    vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
-    vs_params->uv_offset = g_object_uv_offset[object_index];
+    if(g_object_animation_is_continuous[object_index]) {
+        hmm_vec3 pos_current = *(hmm_vec3*)&g_object_local_to_world_matrix[object_index].Elements[3];
+        hmm_vec3 pos_previous = *(hmm_vec3*)&g_object_local_to_world_matrix_previous[object_index].Elements[3];
+
+        hmm_mat4 current_local_to_world_matrix = g_object_local_to_world_matrix[object_index];
+        *(hmm_vec3*)&current_local_to_world_matrix.Elements[3] = HMM_AddVec3(
+            pos_previous,
+            HMM_MultiplyVec3f(
+                HMM_SubtractVec3(pos_current, pos_previous),
+                (float)g_extrapolation_scale));
+        // TODO: Handle extrapolation of rotation, scale
+        // actual_current_rotation = current_rotation + g_extrapolation_scale * (current_rotation - previous_rotation)
+        // actual_current_scale = current_scale + g_extrapolation_scale * (current_scale - previous_scale)
+
+        vs_params->local_to_world_matrix = current_local_to_world_matrix;
+        vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, current_local_to_world_matrix);
+        vs_params->local_to_projection_matrix = HMM_MultiplyMat4(
+            HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
+            current_local_to_world_matrix);
+        vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(current_local_to_world_matrix));
+        vs_params->uv_offset = g_object_uv_offset[object_index];
+    } else {
+        vs_params->local_to_world_matrix = g_object_local_to_world_matrix[object_index];
+        vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
+        vs_params->local_to_projection_matrix = HMM_MultiplyMat4(
+            HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
+            g_object_local_to_world_matrix[object_index]);
+        vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
+        vs_params->uv_offset = g_object_uv_offset[object_index];
+    }
+
     sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, vs_params, sizeof(*vs_params));
 
     if(!*are_fs_params_applied) {
@@ -846,7 +936,7 @@ static void RenderObject(int object_index, long* previous_texture_index, VertexS
     sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
 }
 
-void Render(void) {
+void RendererDraw(double seconds_since_previous_draw, double time_scale) {
     sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
     float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
@@ -871,6 +961,15 @@ void Render(void) {
     fs_params.fog_color = g_fog_color;
     fs_params.fog_start = g_fog_start;
     fs_params.fog_end = g_fog_end;
+
+    hmm_vec3 camera_pos_current = *(hmm_vec3*)&g_world_to_view_matrix.Elements[3];
+    hmm_vec3 camera_pos_previous = *(hmm_vec3*)&g_world_to_view_matrix_previous.Elements[3];
+    g_current_world_to_view_matrix = g_world_to_view_matrix;
+    *(hmm_vec3*)&g_current_world_to_view_matrix.Elements[3] = HMM_AddVec3(
+        camera_pos_previous,
+        HMM_MultiplyVec3f(
+            HMM_SubtractVec3(camera_pos_current, camera_pos_previous),
+            (float)g_extrapolation_scale));
 
     // Draw opaque
     g_draw_state.pipeline = g_opaque_pipline;
@@ -898,6 +997,8 @@ void Render(void) {
 
     sg_end_pass();
     sg_commit();
+
+    g_extrapolation_scale += time_scale * seconds_since_previous_draw / g_seconds_since_previous_update;
 }
 
 static void FatalError(const char* error_msg) {

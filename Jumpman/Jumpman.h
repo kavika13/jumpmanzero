@@ -10,8 +10,8 @@ extern "C" {
 bool Init3D(void);
 void InitGameDebugLevel(const char* base_path, const char* level_name);
 void InitGameNormal(const char* base_path);
-void UpdateGame(const GameInput* game_input);
-void DrawGame(void);
+void UpdateGame(const GameInput* game_input, double seconds_since_previous_update);
+void DrawGame(double seconds_since_previous_draw, double time_scale);
 void ExitGame(void);
 
 #if defined(__cplusplus)

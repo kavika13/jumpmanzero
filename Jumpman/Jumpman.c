@@ -236,6 +236,12 @@ static int scroll_texture_on_mesh(lua_State* lua_state) {
     return 0;
 }
 
+static int skip_next_mesh_interpolation(lua_State* lua_state) {
+    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    SetObjectIsAnimationContinuous((long)mesh_index_arg, false);
+    return 0;
+}
+
 static int get_loaded_texture_count(lua_State* lua_state) {
     lua_pushnumber(lua_state, g_loaded_texture_count);
     return 1;
@@ -351,7 +357,7 @@ static int create_mesh(lua_State* lua_state) {
 }
 
 static int new_mesh(lua_State* lua_state) {
-    double script_mesh_index_arg = luaL_checknumber(lua_state, 1);
+    double script_mesh_index_arg = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
     assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     long iNew;
     CopyObject(g_script_mesh_indices[(size_t)script_mesh_index_arg], &iNew);
@@ -516,13 +522,14 @@ static int save_config_options(lua_State* lua_state) {  // TODO: Might be able t
 }
 
 static int play_sound_effect(lua_State* lua_state) {
-    double arg1 = luaL_checknumber(lua_state, 1);
+    double arg1 = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
     PlaySoundEffect((size_t)arg1);
     return 0;
 }
 
 static int delete_mesh(lua_State* lua_state) {
-    double mesh_index = luaL_checknumber(lua_state, 1);
+    double mesh_index = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
+    // TODO: Does this assert make sense? assert(mesh_index < g_loaded_mesh_count);
     DeleteMesh((long)mesh_index);
     // TODO: Need to decrement the mesh counter here, but can't without messing with future mesh index allocations
     //       Is there a way to just rely on Basic3D to handle the mesh tracking stuff somehow?
@@ -604,6 +611,8 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "rotate_z_mesh_matrix");
     lua_pushcfunction(lua_state, scroll_texture_on_mesh);
     lua_setglobal(lua_state, "scroll_texture_on_mesh");
+    lua_pushcfunction(lua_state, skip_next_mesh_interpolation);
+    lua_setglobal(lua_state, "skip_next_mesh_interpolation");
     lua_pushcfunction(lua_state, set_mesh_texture);
     lua_setglobal(lua_state, "set_mesh_texture");
     lua_pushcfunction(lua_state, set_mesh_is_visible);
@@ -785,14 +794,16 @@ void InitGameNormal(const char* base_path) {
     CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0);
 }
 
-void UpdateGame(const GameInput* game_input) {
+void UpdateGame(const GameInput* game_input, double seconds_since_previous_update) {
     if(!IsGameFrozen()) {
+        RendererPreUpdate(seconds_since_previous_update);
         CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0);
+        RendererPostUpdate();
     }
 }
 
-void DrawGame(void) {
-    Render();
+void DrawGame(double seconds_since_previous_draw, double time_scale) {
+    RendererDraw(seconds_since_previous_draw, time_scale);
 }
 
 void ExitGame(void) {

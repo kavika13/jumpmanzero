@@ -593,6 +593,7 @@ int main(int arguments_count, char* arguments[]) {
 
     double previous_frame_time = glfwGetTime();
     srand((unsigned)previous_frame_time);  // TODO: Seed prng with something that will actually be unique
+    double previous_draw_time = previous_frame_time;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
         InitGameDebugLevel(g_game_base_path, arguments[1]);
@@ -606,14 +607,21 @@ int main(int arguments_count, char* arguments[]) {
 
     while(!glfwWindowShouldClose(g_main_window)) {
         double current_time = glfwGetTime();
+        double current_draw_time = current_time;
+        double current_update_duration = game_state.current_input.slowmo_action.is_pressed ? kSECONDS_PER_FRAME_SLOWMO : kSECONDS_PER_FRAME;
+        double time_scale = g_game_is_frozen
+            ? 0.0
+            : (game_state.current_input.slowmo_action.is_pressed
+                ? 1.0 / kSLOWMO_RATIO
+                : 1.0);
 
-        if(current_time - previous_frame_time > (game_state.current_input.slowmo_action.is_pressed ? kSECONDS_PER_FRAME_SLOWMO : kSECONDS_PER_FRAME)) {
+        if(current_time - previous_frame_time > current_update_duration) {
             previous_frame_time = current_time;
             GetInput(&game_state.current_input, &game_prev_input);
             GameInput processed_input = game_state.current_input;
 
             double update_begin_time = glfwGetTime();
-            UpdateGame(&processed_input);
+            UpdateGame(&processed_input, kSECONDS_PER_FRAME);
             double update_end_time = glfwGetTime();
 
             game_prev_input = game_state.current_input;
@@ -665,7 +673,8 @@ int main(int arguments_count, char* arguments[]) {
         }
 
         double draw_and_swap_begin_time = glfwGetTime();
-        DrawGame();
+        DrawGame(current_draw_time - previous_draw_time, time_scale);
+        previous_draw_time = current_draw_time;
         glfwSwapBuffers(g_main_window);
         double draw_and_swap_end_time = glfwGetTime();
         double current_draw_and_swap_frame_time = draw_and_swap_end_time - draw_and_swap_begin_time;
