@@ -51,13 +51,24 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local frog_animation_frame = {
+    IDLE = 1,
+    CROAK_1 = 2,
+    CROAK_2 = 3,
+    CROAK_3 = 4,
+    CROAK_4 = 5,
+    CROAK_5 = 6,
+};
+frog_animation_frame = read_only.make_table_read_only(frog_animation_frame);
+
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
 local g_saws = {};
-local g_frog_animation_meshes = {};
-local g_frog_animation_current_mesh_index = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+local g_frog_mesh = nil;
+local g_frog_animation_mesh_indices = {};
+local g_frog_animation_current_mesh_index = frog_animation_frame.IDLE;
 local g_frog_animation_frame = 100;
 
 local function RemoveSaw_(saw)
@@ -87,40 +98,40 @@ local function ControlFrog_()
     g_frog_animation_frame = g_frog_animation_frame - 1;
 
     if g_frog_animation_frame > 75 then
-        g_frog_animation_current_mesh_index = 0;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.IDLE;
     elseif g_frog_animation_frame > 65 then
-        g_frog_animation_current_mesh_index = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_1;
     elseif g_frog_animation_frame > 42 then
-        g_frog_animation_current_mesh_index = 2;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_2;
     elseif g_frog_animation_frame > 38 then
-        g_frog_animation_current_mesh_index = 3;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_3;
     elseif g_frog_animation_frame > 34 then
-        g_frog_animation_current_mesh_index = 4;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_4;
     elseif g_frog_animation_frame > 30 then
-        g_frog_animation_current_mesh_index = 5;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_5;
     elseif g_frog_animation_frame == 30 then
         table.insert(g_saws, SpawnSaw_(0, 0));
         play_sound_effect(resources.SoundFrog);
-        g_frog_animation_current_mesh_index = 5;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_5;
     elseif g_frog_animation_frame > 20 then
-        g_frog_animation_current_mesh_index = 5;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_5;
     elseif g_frog_animation_frame > 16 then
-        g_frog_animation_current_mesh_index = 4;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_4;
     elseif g_frog_animation_frame == 11 then
-        g_frog_animation_current_mesh_index = 3;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_3;
 
         if math.random(1, 100) > 50 then
             g_frog_animation_frame = 38;
         end
     elseif g_frog_animation_frame > 10 then
-        g_frog_animation_current_mesh_index = 3;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_3;
     elseif g_frog_animation_frame > 5 then
-        g_frog_animation_current_mesh_index = 2;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_2;
     elseif g_frog_animation_frame > 1 then
-        g_frog_animation_current_mesh_index = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_1;
     else
         g_frog_animation_frame = 95 + math.random(1, 40);
-        g_frog_animation_current_mesh_index = 1;  -- TODO: Use constants instead of these hard-coded frame numbers
+        g_frog_animation_current_mesh_index = frog_animation_frame.CROAK_1;
     end
 end
 
@@ -132,16 +143,13 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    -- TODO: Animate through changemesh, instead of set_mesh_is_visible?
-    set_mesh_is_visible(g_frog_animation_meshes[g_frog_animation_current_mesh_index], false);
+    set_mesh_to_mesh(g_frog_mesh, g_frog_animation_mesh_indices[g_frog_animation_current_mesh_index]);
 
     ControlFrog_();
 
-    local anim_mesh_index = g_frog_animation_meshes[g_frog_animation_current_mesh_index];
-    set_identity_mesh_matrix(anim_mesh_index);
-    scale_mesh_matrix(anim_mesh_index, 2, 2, 2);
-    translate_mesh_matrix(anim_mesh_index, 23, 175, 18);
-    set_mesh_is_visible(anim_mesh_index, true);
+    set_identity_mesh_matrix(g_frog_mesh);
+    scale_mesh_matrix(g_frog_mesh, 2, 2, 2);
+    translate_mesh_matrix(g_frog_mesh, 23, 175, 18);
 
     for _, saw in ipairs(g_saws) do
         saw.update();
@@ -151,17 +159,16 @@ local function ProgressLevel_(game_input)
 end
 
 local function LoadFrogMeshes_()
-    -- TODO: Use constants instead of these hard-coded frame numbers
-    g_frog_animation_meshes[0] = new_mesh(resources.MeshFrogL);
-    g_frog_animation_meshes[1] = new_mesh(resources.MeshFrogB1);
-    g_frog_animation_meshes[2] = new_mesh(resources.MeshFrogB2);
-    g_frog_animation_meshes[3] = new_mesh(resources.MeshFrogB3);
-    g_frog_animation_meshes[4] = new_mesh(resources.MeshFrogB4);
-    g_frog_animation_meshes[5] = new_mesh(resources.MeshFrogB5);
+    g_frog_animation_mesh_indices[frog_animation_frame.IDLE] = resources.MeshFrogL;
+    g_frog_animation_mesh_indices[frog_animation_frame.CROAK_1] = resources.MeshFrogB1;
+    g_frog_animation_mesh_indices[frog_animation_frame.CROAK_2] = resources.MeshFrogB2;
+    g_frog_animation_mesh_indices[frog_animation_frame.CROAK_3] = resources.MeshFrogB3;
+    g_frog_animation_mesh_indices[frog_animation_frame.CROAK_4] = resources.MeshFrogB4;
+    g_frog_animation_mesh_indices[frog_animation_frame.CROAK_5] = resources.MeshFrogB5;
 
-    for i = 0, 5 do  -- TODO: Use constants instead of these hard-coded frame numbers
-        set_mesh_texture(g_frog_animation_meshes[i], resources.TextureFrog);
-    end
+    g_frog_mesh = new_mesh(g_frog_animation_mesh_indices[frog_animation_frame.IDLE]);
+    set_mesh_texture(g_frog_mesh, resources.TextureFrog);
+    set_mesh_is_visible(g_frog_mesh, true);
 end
 
 function Module.initialize(game_input)
