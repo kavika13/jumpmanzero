@@ -44,51 +44,48 @@ local function PositionChain_()
     local player_y = Module.GameLogic.get_player_current_position_y() + kPLAYER_CHAIN_OFFSET_Y;
     local player_z = Module.GameLogic.get_player_current_position_z() + kPLAYER_CHAIN_OFFSET_Z;
 
-    local xDif = math.abs(g_chain_anchor_pos_x - player_x);
-    local yDif = math.abs(g_chain_anchor_pos_y - player_y);
+    local distance_x_chain_anchor_to_player = math.abs(g_chain_anchor_pos_x - player_x);
+    local distance_y_chain_anchor_to_player = math.abs(g_chain_anchor_pos_y - player_y);
 
-    local iDist = math.floor(math.sqrt(xDif * xDif + yDif * yDif));
-    local SagLength = Module.ChainLength - iDist;
+    local distance_chain_anchor_to_player = math.floor(math.sqrt(distance_x_chain_anchor_to_player * distance_x_chain_anchor_to_player + distance_y_chain_anchor_to_player * distance_y_chain_anchor_to_player));
+    local SagLength = Module.ChainLength - distance_chain_anchor_to_player;
     local SagDrop = SagLength / 2;
 
     if SagDrop < 0 then
         SagDrop = 0;
     end
 
-    local iOX = 0;
-    local iOY = 0;
+    local link_x_prev = g_chain_anchor_pos_x;
+    local link_y_prev = g_chain_anchor_pos_y;
 
-    for iLink = 0, kCHAIN_LINK_COUNT - 1 do
-        -- TODO: Align links better with anchor point. They seem to wiggle around. Might be because of skipping link 0?
-        -- TODO: Also, link 0 seems like it might be floating off at 0,0 in the level. Adjust math to fix that
-        local iSX = ((player_x * iLink) + (g_chain_anchor_pos_x * (30 - iLink))) / 30;
-        local iSY = ((player_y * iLink) + (g_chain_anchor_pos_y * (30 - iLink))) / 30;
-        local ToCenter = math.abs(15 - iLink) / 15;
+    for link_index = 1, kCHAIN_LINK_COUNT do
+        -- TODO: Align links better with anchor point. They seem to wiggle around, probably due to math starting at 1
+        local link_x_curr = ((player_x * link_index) + (g_chain_anchor_pos_x * (30 - link_index))) / 30;
+        local link_y_curr = ((player_y * link_index) + (g_chain_anchor_pos_y * (30 - link_index))) / 30;
+        local ToCenter = math.abs(15 - link_index) / 15;
         ToCenter = ToCenter * ToCenter * SagDrop;
-        iSY = iSY - SagDrop + ToCenter;
+        link_y_curr = link_y_curr - SagDrop + ToCenter;
 
-        if iLink > 0 then
-            local Angle = math.atan(iOY - iSY, xDif / 30) * 180.0 / math.pi;
+        local Angle = math.atan(link_y_prev - link_y_curr, distance_x_chain_anchor_to_player / 30) * 180.0 / math.pi;
 
-            if player_x > g_chain_anchor_pos_x then
-                Angle = 0 - Angle;
-            end
-
-            local LinkLength = math.floor(math.sqrt((iSY - iOY) * (iSY - iOY) + (iSX - iOX) * (iSX - iOX)));
-
-            if LinkLength < 0.5 then
-                LinkLength = 0.5;
-            end
-
-            local mesh_index = g_link_mesh_indices[iLink];
-            set_identity_mesh_matrix(mesh_index);
-            scale_mesh_matrix(mesh_index, LinkLength * 1.6, 1, 1);
-            rotate_z_mesh_matrix(mesh_index, Angle);
-            translate_mesh_matrix(mesh_index, iSX + 1, iSY, player_z);
+        if player_x > g_chain_anchor_pos_x then
+            Angle = 0 - Angle;
         end
 
-        iOX = iSX;
-        iOY = iSY;
+        local distance_link_prev_to_curr = math.floor(math.sqrt((link_y_curr - link_y_prev) * (link_y_curr - link_y_prev) + (link_x_curr - link_x_prev) * (link_x_curr - link_x_prev)));
+
+        if distance_link_prev_to_curr < 0.5 then
+            distance_link_prev_to_curr = 0.5;
+        end
+
+        local mesh_index = g_link_mesh_indices[link_index - 1];
+        set_identity_mesh_matrix(mesh_index);
+        scale_mesh_matrix(mesh_index, distance_link_prev_to_curr * 1.6, 1, 1);
+        rotate_z_mesh_matrix(mesh_index, Angle);
+        translate_mesh_matrix(mesh_index, link_x_curr, link_y_curr, player_z);
+
+        link_x_prev = link_x_curr;
+        link_y_prev = link_y_curr;
     end
 end
 
