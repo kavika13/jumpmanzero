@@ -58,6 +58,7 @@ local g_game_over_letter_mesh_indices = {};
 local g_game_over_message_visible = false;
 local g_camera_pan_animation_timer = 0;
 local g_letter_drop_animation_timer = 0;
+local g_animation_skipped = 0;
 
 local function ProgressLevel_(game_input)
     g_game_logic.set_player_freeze_cooldown_frame_count(100);
@@ -128,6 +129,12 @@ local function ProgressLevel_(game_input)
     translate_mesh_matrix(g_jumpman_mesh_index, 80, 80, 0);
     set_mesh_is_visible(g_jumpman_mesh_index, true);
 
+    if g_animation_skipped > 0 and g_animation_skipped < 3 then  -- TODO: why all these skips required for camera?
+        skip_next_mesh_interpolation(g_jumpman_mesh_index);
+        skip_next_camera_interpolation();
+        g_animation_skipped = g_animation_skipped + 1;
+    end
+
     local is_select_action_pressed = game_input.select_action.just_pressed;
 
     if is_select_action_pressed and g_letter_drop_animation_timer < 0 then
@@ -137,8 +144,7 @@ local function ProgressLevel_(game_input)
     if is_select_action_pressed and g_camera_pan_animation_timer > 0 then
         g_camera_pan_animation_timer = 0;
         g_letter_drop_animation_timer = 1;
-        skip_next_mesh_interpolation(g_jumpman_mesh_index);  -- TODO: Do letters too
-        -- TODO: Make camera skip interpolation?
+        g_animation_skipped = 1;
     end
 
     g_game_logic.update_player_graphics();
