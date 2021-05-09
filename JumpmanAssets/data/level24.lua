@@ -193,7 +193,6 @@ local function FixHangPlatforms_()
 
     g_jumpman_hang_mesh = new_mesh(g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_NEUTRAL]);
     set_mesh_texture(g_jumpman_hang_mesh, resources.TextureJumpman);
-    move_mesh_to_front(g_jumpman_hang_mesh);
 end
 
 local function StartBaboon_(initial_pos_x, initial_pos_y);
