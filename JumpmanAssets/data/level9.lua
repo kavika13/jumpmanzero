@@ -116,12 +116,6 @@ function Module.initialize(game_input)
         table.insert(g_bullets, new_bullet);
     end
 
-    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(1).mesh_index;  -- TODO: Use constant for num
-    move_mesh_to_front(backdrop_mesh_index);
-
-    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
-    move_mesh_to_front(backdrop_mesh_index);
-
     Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
