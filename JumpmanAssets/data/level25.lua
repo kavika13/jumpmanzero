@@ -379,6 +379,7 @@ local function ProgressLevel_(game_input)
         g_swim_collision.IsInTank = true;
 
         if g_game_logic.get_player_current_state() == player_state.JSDYING then
+            -- TODO: Handle case where jumpman jumps out but gets crunched. Currently can still live
             g_swim_death_spin_animation_frame = g_swim_death_spin_animation_frame + 1;
             g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, 22, swim_animation_frame.SWIM_TREAD_WATER_1, swim_animation_frame.SWIM_TREAD_WATER_3);
             g_swim_rotation_angle = g_swim_death_spin_animation_frame * 12;
@@ -496,7 +497,6 @@ function Module.initialize(game_input)
 
     g_jumpman_swim_mesh = new_mesh(g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_1]);
     set_mesh_texture(g_jumpman_swim_mesh, resources.TextureJumpman);
-    move_mesh_to_front(g_jumpman_swim_mesh);
 
     InitSplashParticles_();
 

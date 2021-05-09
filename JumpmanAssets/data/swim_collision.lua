@@ -67,6 +67,7 @@ local function DoCollide_(iX1, iY1, iX2, iY2)
     if Module.SharkObject.CurrentVelocityX > 0 then
         if iX1 < iDX + 7 and iX2 > iDX + 1 then
             if iY1 < iDY + 7 and iY2 > iDY + 1 then
+                -- TODO: Handle case where jumpman jumps out but gets crunched. Currently can still live
                 play_sound_effect(Module.CrunchSoundIndex);
                 Module.GameLogic.kill();
             end
@@ -74,6 +75,7 @@ local function DoCollide_(iX1, iY1, iX2, iY2)
     else
         if iX1 < iDX - 1 and iX2 > iDX - 7 then
             if iY1 < iDY + 7 and iY2 > iDY + 1 then
+                -- TODO: Handle case where jumpman jumps out but gets crunched. Currently can still live
                 play_sound_effect(Module.CrunchSoundIndex);
                 Module.GameLogic.kill();
             end
