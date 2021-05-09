@@ -191,7 +191,6 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.TURN_LEFT_3] = Module.TurnLeftMeshResourceIndices[3];
 
     g_shark_mesh = new_mesh(g_animation_mesh_indices[animation_frame.SWIM_RIGHT_1]);
-    move_mesh_to_front(g_shark_mesh);
     set_mesh_texture(g_shark_mesh, Module.TextureResourceIndex);
     set_mesh_is_visible(g_shark_mesh, true);
 

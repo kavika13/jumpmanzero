@@ -156,19 +156,15 @@ function Module.update(game_input)
         for iNum = 0, 9 do
             g_fps_first_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_fps_first_number_mesh_indices[iNum + 1], letter_texture_resource_index);
-            move_mesh_to_front(g_fps_first_number_mesh_indices[iNum + 1]);
 
             g_fps_second_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_fps_second_number_mesh_indices[iNum + 1], letter_texture_resource_index);
-            move_mesh_to_front(g_fps_second_number_mesh_indices[iNum + 1]);
 
             g_fps_third_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_fps_third_number_mesh_indices[iNum + 1], letter_texture_resource_index);
-            move_mesh_to_front(g_fps_third_number_mesh_indices[iNum + 1]);
 
             g_life_count_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             set_mesh_texture(g_life_count_number_mesh_indices[iNum + 1], letter_texture_resource_index);
-            move_mesh_to_front(g_life_count_number_mesh_indices[iNum + 1]);
         end
 
         InitializeLetters_();

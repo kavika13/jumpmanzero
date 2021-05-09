@@ -82,7 +82,6 @@ function Module.initialize()
     g_ghost_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
     set_mesh_texture(g_ghost_mesh, Module.TextureResourceIndex);
     set_mesh_is_visible(g_ghost_mesh, true);
-    move_mesh_to_front(g_ghost_mesh);
 end
 
 function Module.update()
