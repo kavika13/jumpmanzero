@@ -62,10 +62,10 @@ local g_clock_timers = {};
 local kNumClockTimers = 5;
 
 local function SetClockPosition_(iPos)
-    local current_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
-    set_identity_mesh_matrix(current_backdrop.mesh_index);
-    translate_mesh_matrix(current_backdrop.mesh_index, 0 - 64, 0 - 48, 120);
-    undo_camera_perspective_on_mesh_matrix(current_backdrop.mesh_index);
+    local clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
+    set_identity_mesh_matrix(clock_backdrop.mesh_index);
+    translate_mesh_matrix(clock_backdrop.mesh_index, 0 - 64, 0 - 48, 120);
+    undo_camera_perspective_on_mesh_matrix(clock_backdrop.mesh_index);
 
     set_identity_mesh_matrix(g_clock_hand_mesh_index);
     rotate_z_mesh_matrix(g_clock_hand_mesh_index, iPos);
@@ -96,7 +96,7 @@ local function SpinClock_(clock_backdrop)
 end
 
 local function CollideLittleClocks_()
-    for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do
+    for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do  -- TODO: Use constant for base num
         if g_clock_timers[clock_backdrop_num] and
                 g_clock_timers[clock_backdrop_num] > 0 and
                 g_clock_timers[clock_backdrop_num] < 10 then
@@ -178,10 +178,13 @@ function Module.initialize(game_input)
     g_clock_timers[13] = 1;
     g_clock_timers[14] = 1;
 
-    for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do
+    for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do  -- TODO: Use constant for base num
         local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(clock_backdrop_num).mesh_index;
         set_mesh_texture(backdrop_mesh_index, resources.TextureStopWatch);
     end
+
+    local clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
+    move_mesh_to_front(clock_backdrop.mesh_index);
 
     Module.reset();
 
@@ -205,7 +208,7 @@ end
 function Module.reset()
     g_clock_num_frames_left = 0;
 
-    local iLoop = 10;
+    local iLoop = 10;  -- TODO: Use constant for base num
 
     while iLoop < kNumClockTimers do
         if g_clock_timers[iLoop] and g_clock_timers[iLoop] > 1 then
