@@ -339,13 +339,13 @@ void RotateMatrixZ(long iObj, float fDegrees) {
         g_object_local_to_world_matrix[iReal]);
 }
 
-void MoveMeshToFront(long o1) {
+void MoveTransparentMeshToFront(long o1) {
     for(long iSwap = g_object_redirects[o1] + 1; iSwap < g_object_count; ++iSwap) {
         SwapObjects(iSwap, iSwap - 1);
     }
 }
 
-void MoveMeshToBack(long o1) {
+void MoveTransparentMeshToBack(long o1) {
     for(long iSwap = g_object_redirects[o1] - 1; iSwap >= 0; --iSwap) {
         SwapObjects(iSwap, iSwap + 1);
     }

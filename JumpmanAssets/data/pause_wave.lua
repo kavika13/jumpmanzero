@@ -27,15 +27,15 @@ function Module.initialize()
 
     g_wave_back_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
     set_mesh_texture(g_wave_back_mesh_index, Module.Wave2TextureResourceIndex);
-    move_mesh_to_back(g_wave_back_mesh_index);
+    move_transparent_mesh_to_back(g_wave_back_mesh_index);
 
     g_wave_front_mesh_index =  new_mesh(Module.WaveMeshResourceIndex);
     set_mesh_texture(g_wave_front_mesh_index, Module.Wave1TextureResourceIndex);
-    move_mesh_to_front(g_wave_front_mesh_index);
+    move_transparent_mesh_to_front(g_wave_front_mesh_index);
 
     g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
     set_mesh_texture(g_sea_mesh_index, Module.SeaTextureResourceIndex);
-    move_mesh_to_front(g_sea_mesh_index);
+    move_transparent_mesh_to_front(g_sea_mesh_index);
 
     Pause = 1;  -- TODO: This variable doesn't exist? What was it in pausewave.jms?
 end

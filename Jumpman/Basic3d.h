@@ -40,8 +40,8 @@ void SetObjectIsAnimationContinuous(long iNum, bool is_continuous);
 void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iPoiY, float iPoiZ);
 void SetCameraIsAnimationContinuous(bool is_continuous);
 void CopyObject(long iObject, long* iNum);
-void MoveMeshToFront(long o1);
-void MoveMeshToBack(long o1);
+void MoveTransparentMeshToFront(long o1);
+void MoveTransparentMeshToBack(long o1);
 
 void ScaleMatrix(long iObj, float fX, float fY, float fZ);
 void PerspectiveMatrix(long iObj);

@@ -386,15 +386,15 @@ static int set_mesh_is_visible(lua_State* lua_state) {
     return 0;
 }
 
-static int move_mesh_to_front(lua_State* lua_state) {
+static int move_transparent_mesh_to_front(lua_State* lua_state) {
     lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    MoveMeshToFront((long)mesh_index_arg);
+    MoveTransparentMeshToFront((long)mesh_index_arg);
     return 0;
 }
 
-static int move_mesh_to_back(lua_State* lua_state) {
+static int move_transparent_mesh_to_back(lua_State* lua_state) {
     lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    MoveMeshToBack((long)mesh_index_arg);
+    MoveTransparentMeshToBack((long)mesh_index_arg);
     return 0;
 }
 
@@ -640,10 +640,10 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "create_mesh");
     lua_pushcfunction(lua_state, new_mesh);
     lua_setglobal(lua_state, "new_mesh");
-    lua_pushcfunction(lua_state, move_mesh_to_front);
-    lua_setglobal(lua_state, "move_mesh_to_front");
-    lua_pushcfunction(lua_state, move_mesh_to_back);
-    lua_setglobal(lua_state, "move_mesh_to_back");
+    lua_pushcfunction(lua_state, move_transparent_mesh_to_front);
+    lua_setglobal(lua_state, "move_transparent_mesh_to_front");
+    lua_pushcfunction(lua_state, move_transparent_mesh_to_back);
+    lua_setglobal(lua_state, "move_transparent_mesh_to_back");
     lua_pushcfunction(lua_state, set_fog);
     lua_setglobal(lua_state, "set_fog");
     lua_pushcfunction(lua_state, get_config_option_string);

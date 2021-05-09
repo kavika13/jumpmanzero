@@ -184,7 +184,7 @@ function Module.initialize(game_input)
     end
 
     local clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
-    move_mesh_to_front(clock_backdrop.mesh_index);
+    move_transparent_mesh_to_front(clock_backdrop.mesh_index);
 
     Module.reset();
 
