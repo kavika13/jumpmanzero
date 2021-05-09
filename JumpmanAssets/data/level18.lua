@@ -203,7 +203,7 @@ local function ProgressLevel_(game_input)
     if g_is_disarm_hud_visible then
         set_identity_mesh_matrix(g_message_mesh_index);
         scale_mesh_matrix(g_message_mesh_index, 20, 20, 1);
-        translate_mesh_matrix(g_message_mesh_index, 0 - 54, 0 - 39, 120);
+        translate_mesh_matrix(g_message_mesh_index, 0 - 54, 0 - 39, 120.01);
         undo_camera_perspective_on_mesh_matrix(g_message_mesh_index);
         set_mesh_is_visible(g_message_mesh_index, true);
 
@@ -260,7 +260,6 @@ function Module.initialize(game_input)
 
     g_progress_bar_mesh_index = new_mesh(resources.MeshSquare);
     set_mesh_texture(g_progress_bar_mesh_index, resources.TextureBoringGreen);
-    move_mesh_to_front(g_progress_bar_mesh_index);
 
     MoveDonuts_();
 
