@@ -340,14 +340,14 @@ void RotateMatrixZ(long iObj, float fDegrees) {
 }
 
 void MoveMeshToFront(long o1) {
-    for(long iSwap = g_object_redirects[o1] - 1; iSwap >= 0; --iSwap) {
-        SwapObjects(iSwap, iSwap + 1);
+    for(long iSwap = g_object_redirects[o1] + 1; iSwap < g_object_count; ++iSwap) {
+        SwapObjects(iSwap, iSwap - 1);
     }
 }
 
 void MoveMeshToBack(long o1) {
-    for(long iSwap = g_object_redirects[o1] + 1; iSwap < g_object_count; ++iSwap) {
-        SwapObjects(iSwap, iSwap - 1);
+    for(long iSwap = g_object_redirects[o1] - 1; iSwap >= 0; --iSwap) {
+        SwapObjects(iSwap, iSwap + 1);
     }
 }
 
@@ -830,7 +830,7 @@ static void init_scene(void) {
     pip_desc.shader = shd;
 
     pip_desc.depth_stencil.depth_compare_func = SG_COMPAREFUNC_LESS;
-    pip_desc.depth_stencil.depth_write_enabled = true;
+    pip_desc.depth_stencil.depth_write_enabled = false;
     pip_desc.rasterizer.face_winding = SG_FACEWINDING_CW;
     pip_desc.rasterizer.cull_mode = SG_CULLMODE_BACK;
 
@@ -839,8 +839,9 @@ static void init_scene(void) {
     pip_desc.blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
     pip_desc.blend.color_write_mask = SG_COLORMASK_RGBA;
 
-    g_draw_state.pipeline = g_transparent_pipline = sg_make_pipeline(&pip_desc);
+    g_transparent_pipline = sg_make_pipeline(&pip_desc);
 
+    pip_desc.depth_stencil.depth_write_enabled = true;
     pip_desc.blend.enabled = false;
     g_opaque_pipline = sg_make_pipeline(&pip_desc);
 
