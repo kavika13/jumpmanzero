@@ -5,7 +5,7 @@ inc = [
     'handmademath-1.7.0',
     'lua-5.3.5/src',
     'mini_al-0.8.9',
-    'sokol-gfx-master-f1efc6d',
+    'sokol-gfx-master-0c5bc3a',
     'stb-image-2.19.0',
     'stb-sprintf-1.06.0',
     'tiny_sound_font-master-5506592',

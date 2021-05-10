@@ -64,7 +64,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>WindowsHModular-master-83b8419\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>WindowsHModular-master-83b8419\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-0c5bc3a;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -97,7 +97,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <AdditionalIncludeDirectories>WindowsHModular-master-83b8419\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-f1efc6d;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>WindowsHModular-master-83b8419\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-0c5bc3a;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -148,7 +148,7 @@
     <ClInclude Include="mini_al-0.8.9\mini_al.h" />
     <ClInclude Include="Music.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h" />
+    <ClInclude Include="sokol-gfx-master-0c5bc3a\sokol_gfx.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundBuffer.h" />
     <ClInclude Include="stb-image-2.19.0\stb_image.h" />

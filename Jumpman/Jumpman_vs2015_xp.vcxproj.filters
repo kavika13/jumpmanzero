@@ -131,7 +131,7 @@
     <ClInclude Include="stb-image-2.19.0\stb_image.h">
       <Filter>Header Files\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="sokol-gfx-master-f1efc6d\sokol_gfx.h">
+    <ClInclude Include="sokol-gfx-master-0c5bc3a\sokol_gfx.h">
       <Filter>Header Files\sokol_gfx</Filter>
     </ClInclude>
     <ClInclude Include="mini_al-0.8.9\mini_al.h">

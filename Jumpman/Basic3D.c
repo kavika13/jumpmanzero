@@ -2,6 +2,7 @@
 #include "glad/glad.h"
 #define SOKOL_IMPL
 #define SOKOL_GLCORE33
+#define SOKOL_EXTERNAL_GL_LOADER
 #include "sokol_gfx.h"
 
 #if defined(__APPLE__)
@@ -79,7 +80,7 @@ static void SwapObjects(long o1, long o2);
 
 static int g_backbuffer_width;
 static int g_backbuffer_height;
-static sg_draw_state g_draw_state = { 0 };
+static sg_bindings g_bindings = { 0 };
 static sg_pipeline g_opaque_pipline = { 0 };
 static sg_pipeline g_transparent_pipline = { 0 };
 static sg_pass_action g_pass_action = { 0 };
@@ -452,8 +453,8 @@ void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enab
     // TODO: Diff mipmap level based on iType. 0: full set, 1: only one. Probably have to manually do the resize for each mip level. Use stb_image_resize.h?
     image_desc.min_filter = SG_FILTER_LINEAR;
     image_desc.mag_filter = SG_FILTER_LINEAR;
-    image_desc.content.subimage[0][0].ptr = image_data;
-    image_desc.content.subimage[0][0].size = width * height * 4;
+    image_desc.data.subimage[0][0].ptr = image_data;
+    image_desc.data.subimage[0][0].size = width * height * 4;
 
     g_textures[iTex] = sg_make_image(&image_desc);
 
@@ -612,7 +613,7 @@ void Begin3dLoad(void) {
 }
 
 void EndAndCommit3dLoad(void) {
-    sg_update_buffer(g_draw_state.vertex_buffers[0], g_vertices_to_load, kMAX_VERTICES * sizeof(MeshVertex));
+    sg_update_buffer(g_bindings.vertex_buffers[0], &(sg_range){ g_vertices_to_load, kMAX_VERTICES * sizeof(MeshVertex) });
 
     if(g_vertices_to_load) {
         free(g_vertices_to_load);
@@ -690,8 +691,8 @@ static void init_scene(void) {
     vbuf_desc.usage = SG_USAGE_STREAM;
     vbuf_desc.size = kMAX_VERTICES * sizeof(MeshVertex);
 
-    g_draw_state = (const sg_draw_state){ 0 };
-    g_draw_state.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
+    g_bindings = (const sg_bindings){ 0 };
+    g_bindings.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
 
     sg_shader_desc shd_desc = { 0 };
 
@@ -736,7 +737,7 @@ static void init_scene(void) {
         "}\n";
 
     shd_desc.fs.images[0].name = "tex";
-    shd_desc.fs.images[0].type = SG_IMAGETYPE_2D;
+    shd_desc.fs.images[0].image_type = SG_IMAGETYPE_2D;
 
     sg_shader_uniform_block_desc* fs_ub0 = &shd_desc.fs.uniform_blocks[0];
     fs_ub0->size = sizeof(FragmentShaderParams);
@@ -820,37 +821,34 @@ static void init_scene(void) {
 
     pip_desc.layout.buffers[0].stride = sizeof(MeshVertex);
     sg_vertex_attr_desc* attrs = pip_desc.layout.attrs;
-    attrs[0].name = "position";
     attrs[0].format = SG_VERTEXFORMAT_FLOAT3;
-    attrs[1].name = "normal";
     attrs[1].format = SG_VERTEXFORMAT_FLOAT3;
-    attrs[2].name = "texcoord0";
     attrs[2].format = SG_VERTEXFORMAT_FLOAT2;
 
     pip_desc.shader = shd;
 
-    pip_desc.depth_stencil.depth_compare_func = SG_COMPAREFUNC_LESS;
-    pip_desc.depth_stencil.depth_write_enabled = false;
-    pip_desc.rasterizer.face_winding = SG_FACEWINDING_CW;
-    pip_desc.rasterizer.cull_mode = SG_CULLMODE_BACK;
+    pip_desc.depth.compare = SG_COMPAREFUNC_LESS;
+    pip_desc.depth.write_enabled = false;
+    pip_desc.face_winding = SG_FACEWINDING_CW;
+    pip_desc.cull_mode = SG_CULLMODE_BACK;    
 
-    pip_desc.blend.enabled = true;
-    pip_desc.blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
-    pip_desc.blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-    pip_desc.blend.color_write_mask = SG_COLORMASK_RGBA;
+    pip_desc.colors[0].blend.enabled = true;
+    pip_desc.colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
+    pip_desc.colors[0].blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    pip_desc.colors[0].write_mask = SG_COLORMASK_RGBA;
 
     g_transparent_pipline = sg_make_pipeline(&pip_desc);
 
-    pip_desc.depth_stencil.depth_write_enabled = true;
-    pip_desc.blend.enabled = false;
+    pip_desc.depth.write_enabled = true;
+    pip_desc.colors[0].blend.enabled = false;
     g_opaque_pipline = sg_make_pipeline(&pip_desc);
 
     g_pass_action = (const sg_pass_action){ 0 };
     g_pass_action.colors[0].action = SG_ACTION_CLEAR;
-    g_pass_action.colors[0].val[0] = 0.0f;
-    g_pass_action.colors[0].val[1] = 0.0f;
-    g_pass_action.colors[0].val[2] = 0.0f;
-    g_pass_action.colors[0].val[3] = 1.0f;
+    g_pass_action.colors[0].value.r = 0.0f;
+    g_pass_action.colors[0].value.g = 0.0f;
+    g_pass_action.colors[0].value.b = 0.0f;
+    g_pass_action.colors[0].value.a = 1.0f;
 }
 
 static void kill_scene(void) {
@@ -898,8 +896,8 @@ static void RenderObject(int object_index, long* previous_texture_index, VertexS
 
     if(*previous_texture_index != current_texture_index) {
         *previous_texture_index = current_texture_index;
-        g_draw_state.fs_images[0] = g_textures[current_texture_index];
-        sg_apply_draw_state(&g_draw_state);
+        g_bindings.fs_images[0] = g_textures[current_texture_index];
+        sg_apply_bindings(&g_bindings);
     }
 
     if(g_object_animation_is_continuous[object_index]) {
@@ -933,10 +931,10 @@ static void RenderObject(int object_index, long* previous_texture_index, VertexS
         vs_params->uv_offset = g_object_uv_offset[object_index];
     }
 
-    sg_apply_uniform_block(SG_SHADERSTAGE_VS, 0, vs_params, sizeof(*vs_params));
+    sg_apply_uniforms(SG_SHADERSTAGE_VS, 0, &(sg_range){ vs_params, sizeof(*vs_params) });
 
     if(!*are_fs_params_applied) {
-        sg_apply_uniform_block(SG_SHADERSTAGE_FS, 0, fs_params, sizeof(*fs_params));
+        sg_apply_uniforms(SG_SHADERSTAGE_FS, 0, &(sg_range){ fs_params, sizeof(*fs_params) });
         *are_fs_params_applied = true;
     }
 
@@ -979,7 +977,7 @@ void RendererDraw(double seconds_since_previous_draw, double time_scale) {
             g_camera_animation_is_continuous ? (float)g_extrapolation_scale : 0.0f));
 
     // Draw opaque
-    g_draw_state.pipeline = g_opaque_pipline;
+    sg_apply_pipeline(g_opaque_pipline);
 
     long previous_texture_index = -1;
     bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
@@ -991,7 +989,7 @@ void RendererDraw(double seconds_since_previous_draw, double time_scale) {
     }
 
     // Draw transparent
-    g_draw_state.pipeline = g_transparent_pipline;
+    sg_apply_pipeline(g_transparent_pipline);
 
     previous_texture_index = -1;
     are_fs_params_applied = false;
