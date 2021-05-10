@@ -33,6 +33,8 @@
     #pragma clang diagnostic pop
 #endif
 
+#include "shader.h"
+
 #include "boxer/boxer.h"
 #include "Basic3d.h"
 #include "logging.h"
@@ -52,24 +54,6 @@ typedef struct {
     hmm_vec3 ambient_tint;
     hmm_vec3 diffuse_tint;
 } Material;
-
-typedef struct {
-    hmm_mat4 local_to_world_matrix;
-    hmm_mat4 local_to_view_matrix;
-    hmm_mat4 local_to_projection_matrix;
-    hmm_mat4 transpose_world_to_local_matrix;
-    hmm_vec2 uv_offset;
-} VertexShaderParams;
-
-typedef struct {
-    hmm_vec3 scene_ambient_color;
-    Material material;
-    Light light;
-    float is_fog_enabled;
-    hmm_vec3 fog_color;
-    float fog_start;
-    float fog_end;
-} FragmentShaderParams;
 
 static void FatalError(const char* error_msg);
 static long init_3d(void);
@@ -694,128 +678,7 @@ static void init_scene(void) {
     g_bindings = (const sg_bindings){ 0 };
     g_bindings.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
 
-    sg_shader_desc shd_desc = { 0 };
-
-    sg_shader_uniform_block_desc* ub0 = &shd_desc.vs.uniform_blocks[0];
-    ub0->size = sizeof(VertexShaderParams);
-    ub0->uniforms[0].name = "local_to_world_matrix";
-    ub0->uniforms[0].type = SG_UNIFORMTYPE_MAT4;
-    ub0->uniforms[1].name = "local_to_view_matrix";
-    ub0->uniforms[1].type = SG_UNIFORMTYPE_MAT4;
-    ub0->uniforms[2].name = "local_to_projection_matrix";
-    ub0->uniforms[2].type = SG_UNIFORMTYPE_MAT4;
-    ub0->uniforms[3].name = "transpose_world_to_local_matrix";
-    ub0->uniforms[3].type = SG_UNIFORMTYPE_MAT4;
-    ub0->uniforms[4].name = "uv_offset";
-    ub0->uniforms[4].type = SG_UNIFORMTYPE_FLOAT2;
-
-    shd_desc.vs.source =
-        "#version 330\n"
-        "\n"
-        "in vec3 position;\n"
-        "in vec3 normal;\n"
-        "in vec2 texcoord0;\n"
-        "\n"
-        "out vec3 vs_world_position;\n"
-        "out vec3 vs_view_position;\n"
-        "out vec3 vs_unscaled_normal;\n"
-        "out vec2 vs_uv;\n"
-        "\n"
-        "uniform mat4 local_to_world_matrix;\n"
-        "uniform mat4 local_to_view_matrix;\n"
-        "uniform mat4 local_to_projection_matrix;\n"
-        "uniform mat4 transpose_world_to_local_matrix;\n"
-        "uniform vec2 uv_offset;\n"
-        "\n"
-        "void main() {\n"
-        "    vec4 pos = vec4(position, 1.0);\n"
-        "    vs_world_position = vec3(local_to_world_matrix * pos);\n"
-        "    vs_view_position = vec3(local_to_view_matrix * pos);\n"
-        "    vs_unscaled_normal = normalize(vec3(transpose_world_to_local_matrix * vec4(normal, 0.0)));\n"
-        "    vs_uv = texcoord0 + uv_offset;\n"
-        "    gl_Position = local_to_projection_matrix * pos;\n"
-        "}\n";
-
-    shd_desc.fs.images[0].name = "tex";
-    shd_desc.fs.images[0].image_type = SG_IMAGETYPE_2D;
-
-    sg_shader_uniform_block_desc* fs_ub0 = &shd_desc.fs.uniform_blocks[0];
-    fs_ub0->size = sizeof(FragmentShaderParams);
-    fs_ub0->uniforms[0].name = "scene_ambient_color";
-    fs_ub0->uniforms[0].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0->uniforms[1].name = "material_ambient_tint";
-    fs_ub0->uniforms[1].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0->uniforms[2].name = "material_diffuse_tint";
-    fs_ub0->uniforms[2].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0->uniforms[3].name = "light_ambient_color";
-    fs_ub0->uniforms[3].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0->uniforms[4].name = "light_diffuse_color";
-    fs_ub0->uniforms[4].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0->uniforms[5].name = "light_position";
-    fs_ub0->uniforms[5].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0->uniforms[6].name = "light_range";
-    fs_ub0->uniforms[6].type = SG_UNIFORMTYPE_FLOAT;
-    fs_ub0->uniforms[7].name = "is_fog_enabled";
-    fs_ub0->uniforms[7].type = SG_UNIFORMTYPE_FLOAT;
-    fs_ub0->uniforms[8].name = "fog_color";
-    fs_ub0->uniforms[8].type = SG_UNIFORMTYPE_FLOAT3;
-    fs_ub0->uniforms[9].name = "fog_start";
-    fs_ub0->uniforms[9].type = SG_UNIFORMTYPE_FLOAT;
-    fs_ub0->uniforms[10].name = "fog_end";
-    fs_ub0->uniforms[10].type = SG_UNIFORMTYPE_FLOAT;
-
-    shd_desc.fs.source =
-        "#version 330\n"
-        "\n"
-        "in vec3 vs_world_position;\n"
-        "in vec3 vs_view_position;\n"
-        "in vec3 vs_unscaled_normal;\n"
-        "in vec2 vs_uv;\n"
-        "\n"
-        "out vec4 frag_color;\n"
-        "\n"
-        "uniform sampler2D tex;\n"
-        "\n"
-        "uniform vec3 scene_ambient_color;\n"
-        "\n"
-        "uniform vec3 material_ambient_tint;\n"
-        "uniform vec3 material_diffuse_tint;\n"
-        "\n"
-        "uniform vec3 light_ambient_color;\n"
-        "uniform vec3 light_diffuse_color;\n"
-        "uniform vec3 light_position;\n"
-        "uniform float light_range;\n"
-        "\n"
-        "uniform bool is_fog_enabled;\n"
-        "uniform vec3 fog_color;\n"
-        "uniform float fog_start;\n"
-        "uniform float fog_end;\n"
-        "\n"
-        "void main() {\n"
-        "    vec4 albedo = texture(tex, vs_uv);\n"
-        "    float out_alpha = albedo.a;\n"
-        "\n"
-        "    vec3 ambient_color = material_ambient_tint * (scene_ambient_color + light_ambient_color);\n"
-        "\n"
-        "    vec3 diffuse_color = vec3(0.0);\n"
-        "\n"
-        "    if(length(light_position - vs_world_position) < light_range) {\n"
-        "        vec3 light_direction = normalize(light_position - vs_world_position);\n"
-        "        vec3 uninterpolated_normal = normalize(vs_unscaled_normal);\n"
-        "        diffuse_color = material_diffuse_tint *\n"
-        "            light_diffuse_color * max(dot(uninterpolated_normal, light_direction), 0.0);\n"
-        "    }\n"
-        "\n"
-        "    vec3 out_color = (ambient_color + diffuse_color) * albedo.rgb;\n"
-        "\n"
-        "    if(is_fog_enabled) {\n"
-        "        out_color = mix(fog_color, out_color, clamp((fog_end - vs_view_position.z) / (fog_end - fog_start), 0.0, 1.0));\n"
-        "    }\n"
-        "\n"
-        "    frag_color = vec4(out_color, out_alpha);\n"
-        "}\n";
-
-    sg_shader shd = sg_make_shader(&shd_desc);
+    sg_shader shd = sg_make_shader(main_shader_shader_desc(SG_BACKEND_GLCORE33));
 
     sg_pipeline_desc pip_desc = { 0 };
 
@@ -891,7 +754,7 @@ void RendererPostUpdate(void) {
 
 static hmm_mat4 g_current_world_to_view_matrix;
 
-static void RenderObject(int object_index, long* previous_texture_index, VertexShaderParams* vs_params, bool* are_fs_params_applied, FragmentShaderParams* fs_params) {
+static void RenderObject(int object_index, long* previous_texture_index, main_shader_vs_params_t* vs_params, bool* are_fs_params_applied, main_shader_fs_params_t* fs_params) {
     long current_texture_index = g_object_texture_index[object_index];
 
     if(*previous_texture_index != current_texture_index) {
@@ -957,11 +820,15 @@ void RendererDraw(double seconds_since_previous_draw, double time_scale) {
         sg_apply_viewport(0, (int)border_half_height, g_backbuffer_width, (int)(g_backbuffer_height - (border_half_height * 2.0f)), true);
     }
 
-    VertexShaderParams vs_params;
-    FragmentShaderParams fs_params;
+    main_shader_vs_params_t vs_params;
+    main_shader_fs_params_t fs_params;
     fs_params.scene_ambient_color = g_scene_ambient_color;
-    fs_params.material = g_global_material;
-    fs_params.light = g_camera_light;
+    fs_params.material_ambient_tint = g_global_material.ambient_tint;  // TODO: Use struct in shader?
+    fs_params.material_diffuse_tint = g_global_material.diffuse_tint;
+    fs_params.light_ambient_color = g_camera_light.ambient_color;  // TODO: Use struct in shader?
+    fs_params.light_diffuse_color = g_camera_light.diffuse_color;
+    fs_params.light_position = g_camera_light.position;
+    fs_params.light_range = g_camera_light.range;
     fs_params.is_fog_enabled = g_is_fog_enabled ? 1.0f : 0.0f;
     fs_params.fog_color = g_fog_color;
     fs_params.fog_start = g_fog_start;

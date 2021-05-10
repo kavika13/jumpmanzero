@@ -147,6 +147,7 @@
     <ClInclude Include="mini_al-0.8.9\mini_al.h" />
     <ClInclude Include="Music.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="sokol-gfx-master-0c5bc3a\sokol_gfx.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundBuffer.h" />

@@ -82,6 +82,7 @@
 		FA4CC8F2233DA4D7004174B5 /* Basic3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Basic3d.h; sourceTree = "<group>"; };
 		FA4CC8F3233DA4D7004174B5 /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
 		FA4CC8F4233DA4D7004174B5 /* Main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Main.h; sourceTree = "<group>"; };
+		FA4CC8F4233DA4D7004174B5 /* shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "shader.h"; sourceTree = "<group>"; };
 		FA4CC907233DC393004174B5 /* lundump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lundump.h; path = "lua-5.3.5/src/lundump.h"; sourceTree = "<group>"; };
 		FA4CC908233DC393004174B5 /* lcorolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lcorolib.c; path = "lua-5.3.5/src/lcorolib.c"; sourceTree = "<group>"; };
 		FA4CC909233DC393004174B5 /* linit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linit.c; path = "lua-5.3.5/src/linit.c"; sourceTree = "<group>"; };
@@ -209,6 +210,7 @@
 				FA4CC8EF233DA4D7004174B5 /* Utilities.c */,
 				FA4CC8EE233DA4D7004174B5 /* Utilities.h */,
 				FA4CC8DF233DA35A004174B5 /* main.c */,
+				FA4CC8EF233DA4D7004174B5 /* shader.h */,
 			);
 			path = Jumpman;
 			sourceTree = "<group>";
