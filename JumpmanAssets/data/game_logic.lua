@@ -1492,7 +1492,7 @@ local function MoveJumpman_(game_input)
 end
 
 local function GrabDonuts_(game_input)
-    local iGot = false;
+    local was_donut_collected = false;
     local donut_count = #Module.LevelData.donuts;
 
     for donut_index = 0, donut_count - 1 do
@@ -1504,7 +1504,7 @@ local function GrabDonuts_(game_input)
                     current_donut.pos[1] + 3, current_donut.pos[2] + 2) then
             g_donut_is_collected[donut_index] = true;
             set_mesh_is_visible(current_donut.mesh_index, false);
-            iGot = true;
+            was_donut_collected = true;
 
             if Module.OnCollectDonutCallback then
                 Module.OnCollectDonutCallback(game_input, current_donut.number);
@@ -1512,16 +1512,16 @@ local function GrabDonuts_(game_input)
         end
     end
 
-    if iGot then
-        local iWon = true;
+    if was_donut_collected then
+        local is_level_won = true;
 
         for iCheck = 0, donut_count - 1 do
             if not g_donut_is_collected[iCheck] then
-                iWon = false;
+                is_level_won = false;
             end
         end
 
-        if iWon then
+        if is_level_won then
             stop_music_track_1();
             g_player_current_state_frame_count = 0;
             g_player_current_state = player_state.JSDONE;

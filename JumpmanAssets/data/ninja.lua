@@ -361,27 +361,27 @@ local function CollidePlayer_()
         return;
     end
 
-    local iCollide = false;
+    local is_colliding = false;
 
     if iWin == 1 and g_current_status == status_type.JUMP_KICK and g_current_velocity_x < 0 then
-        iCollide = Module.GameLogic.is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 4, g_current_pos_y + 1,
             g_current_pos_x, g_current_pos_y + 9);
     elseif iWin == 1 and g_current_status == status_type.JUMP_KICK and g_current_velocity_x >= 0 then
-        iCollide = Module.GameLogic.is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x, g_current_pos_y + 1,
             g_current_pos_x + 4, g_current_pos_y + 9);
     elseif iWin == 1 then
-        iCollide = Module.GameLogic.is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 2, g_current_pos_y + 5,
             g_current_pos_x + 2, g_current_pos_y + 7);
     else
-        iCollide = Module.GameLogic.is_player_colliding_with_rect(
+        is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 5, g_current_pos_y + 5,
             g_current_pos_x + 5, g_current_pos_y + 10);
     end
 
-    if not iCollide then
+    if not is_colliding then
         return;
     end
 

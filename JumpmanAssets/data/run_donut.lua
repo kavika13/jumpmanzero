@@ -344,11 +344,11 @@ function Module.update(all_run_donuts)
 
     if g_current_status == status_type.NORMAL or g_current_status == status_type.JUMP or
             g_current_status == status_type.HATCHING or g_current_status == status_type.LAYING_EGG then
-        local iCollide = Module.GameLogic.is_player_colliding_with_rect(
+        local is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y,
             g_current_pos_x + 3, g_current_pos_y + 6);
 
-        if iCollide then
+        if is_colliding then
             play_sound_effect(Module.ChompSoundResourceIndex);
             g_current_status = status_type.CAUGHT;
             g_current_velocity_y = 2.1;

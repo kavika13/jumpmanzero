@@ -214,41 +214,41 @@ local function Cycle_(iCCount, iSpeed, iMin, iMax)
 end
 
 local function Swim_(game_input)
-    local iUp = false;
-    local iDown = false;
-    local iLeft = false;
-    local iRight = false;
+    local is_swimming_up = false;
+    local is_swimming_down = false;
+    local is_swimming_left = false;
+    local is_swimming_right = false;
     local iMX = 0;
     local iMY = 0;
 
     local iSpeed = 0.7;
 
     if game_input.move_left_action.is_pressed and not game_input.move_right_action.is_pressed then
-        iLeft = true;
+        is_swimming_left = true;
         iMX = iSpeed * -1;
     end
 
     if game_input.move_right_action.is_pressed and not game_input.move_left_action.is_pressed then
-        iRight = true;
+        is_swimming_right = true;
         iMX = iSpeed;
     end
 
     if game_input.move_up_action.is_pressed and not game_input.move_down_action.is_pressed then
-        iUp = true;
+        is_swimming_up = true;
         iMY = iSpeed;
     end
 
     if game_input.move_down_action.is_pressed and not game_input.move_up_action.is_pressed then
-        iDown = true;
+        is_swimming_down = true;
         iMY = iSpeed * -1;
     end
 
-    if game_input.jump_action.is_pressed and iUp == false and iDown == false and (iLeft ~= iRight) then
+    if game_input.jump_action.is_pressed and not is_swimming_up and not is_player_moving_down and (is_swimming_left ~= is_swimming_right) then
         if g_swim_time_in_pool_frames < 2 then
-            iDown = true;
+            is_player_moving_down = true;
             iMY = iSpeed * - 0.5;
         elseif g_swim_time_in_pool_frames > 9 then
-            iUp = true;
+            is_swimming_up = true;
             iMY = iSpeed * 0.5;
         end
     end
@@ -275,28 +275,28 @@ local function Swim_(game_input)
 
     iSpeed = 30;
 
-    if iUp and iLeft then
+    if is_swimming_up and is_swimming_left then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = -45;
-    elseif iUp and iRight then
+    elseif is_swimming_up and is_swimming_right then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = 45;
-    elseif iDown and iLeft then
+    elseif is_player_moving_down and is_swimming_left then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = 45;
-    elseif iDown and iRight then
+    elseif is_player_moving_down and is_swimming_right then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = -45;
-    elseif iUp then
+    elseif is_swimming_up then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = -90;
-    elseif iDown then
+    elseif is_player_moving_down then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = -90;
-    elseif iLeft then
+    elseif is_swimming_left then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_LEFT_1, swim_animation_frame.SWIM_LEFT_4);
         g_swim_rotation_angle = 0;
-    elseif iRight then
+    elseif is_swimming_right then
         g_swim_animation_current_mesh_index = Cycle_(g_frames_since_level_start, iSpeed, swim_animation_frame.SWIM_RIGHT_1, swim_animation_frame.SWIM_RIGHT_4);
         g_swim_rotation_angle = 0;
     else

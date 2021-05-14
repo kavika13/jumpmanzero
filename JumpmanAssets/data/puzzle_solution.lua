@@ -133,19 +133,19 @@ local function TestLayoutPos_(iTX, iTY, iTemp)
 
             while iY < 5 do
                 if Copy[iX + iY * kPUZZLE_WIDTH] == 0 then
-                    local iGood = false;
+                    local is_good = false;
 
                     if Copy[iX + iY * kPUZZLE_WIDTH + 1] == iTemp then
-                        iGood = true;
+                        is_good = true;
                     elseif Copy[iX + iY * kPUZZLE_WIDTH - 1] == iTemp then
-                        iGood = true;
+                        is_good = true;
                     elseif Copy[iX + iY * kPUZZLE_WIDTH + kPUZZLE_WIDTH] == iTemp then
-                        iGood = true;
+                        is_good = true;
                     elseif Copy[iX + iY * kPUZZLE_WIDTH - kPUZZLE_WIDTH] == iTemp then
-                        iGood = true;
+                        is_good = true;
                     end
 
-                    if iGood then
+                    if is_good then
                         Copy[iX + iY * kPUZZLE_WIDTH] = iTemp;
                         iCount = iCount + 1;
                         iChange = true;

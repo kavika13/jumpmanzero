@@ -81,10 +81,10 @@ end
 
 local function SetConfig_()
     for platform_base_num = 256, 264, 2 do  -- TODO: Use constant for num
-        local iRnd = math.random(0, 1000) < 500;
+        local is_coin_flip_heads = math.random(0, 1000) < 500;
         local platform_to_hide;
 
-        if iRnd then
+        if is_coin_flip_heads then
             g_game_logic.find_platform_by_number(platform_base_num + 1).set_number(platform_base_num - 251);
             platform_to_hide = g_game_logic.find_platform_by_number(platform_base_num);
         else

@@ -467,28 +467,28 @@ function Module.update()
     set_identity_mesh_matrix(g_bear_mesh);
     translate_mesh_matrix(g_bear_mesh, g_current_pos_x, g_current_pos_y + 11, g_current_pos_z - 0.5);
 
-    local iCollide = false;
+    local is_colliding = false;
 
     if g_current_status == status_type.NORMAL or g_current_status == status_type.FALLING then
         if g_current_move_direction == move_direction.LEFT then
-            iCollide = Module.GameLogic.is_player_colliding_with_rect(
+            is_colliding = Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 12, g_current_pos_y + 5,
                 g_current_pos_x + 7, g_current_pos_y + 12);
         end
 
         if g_current_move_direction == move_direction.RIGHT then
-            iCollide = Module.GameLogic.is_player_colliding_with_rect(
+            is_colliding = Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 7, g_current_pos_y + 5,
                 g_current_pos_x + 12, g_current_pos_y + 12);
         end
 
         if g_current_move_direction == move_direction.UP or g_current_move_direction == move_direction.DOWN then
-            iCollide = Module.GameLogic.is_player_colliding_with_rect(
+            is_colliding = Module.GameLogic.is_player_colliding_with_rect(
                 g_current_pos_x - 4, g_current_pos_y + 0,
                 g_current_pos_x + 4, g_current_pos_y + 20);
         end
 
-        if iCollide then
+        if is_colliding then
             Module.GameLogic.kill();
         end
     end
