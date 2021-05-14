@@ -34,6 +34,22 @@ resources = read_only.make_table_read_only(resources);
 local kNUM_MENU_OPTIONS = 2;
 local kANIMATION_END_TIME = 4400;
 
+local menu_positions = {
+    {
+        left = 0.25,
+        right = 0.73,
+        top = 0.66,
+        bottom = 0.75,
+    },
+    {
+        left = 0.33,
+        right = 0.66,
+        top = 0.75,
+        bottom = 0.83,
+    },
+};
+menu_positions = read_only.make_table_read_only(menu_positions);
+
 local g_game_logic;
 local g_z_bits;
 
@@ -135,14 +151,32 @@ local function GetInput(game_input)
         return;
     end
 
-    if game_input.select_action.just_pressed then
-        if g_title_animation_counter < kANIMATION_END_TIME then
+    local is_still_animating = g_title_animation_counter < kANIMATION_END_TIME;
+
+    local do_menu_select = function()
+        local is_done = false;
+
+        if is_still_animating then
             g_title_animation_counter = kANIMATION_END_TIME;
             g_trigger_skip_letter_mesh_interpolation = true;
         else
             play_sound_effect(resources.SoundFire);
             g_is_game_selected = true;
             g_time_since_current_selection = 0;
+            is_done = true;
+        end
+
+        return is_done;
+    end
+
+    if game_input.select_action.just_pressed then
+        if do_menu_select() then
+            return;
+        end
+    end
+
+    if is_still_animating and game_input.cursor_is_on_screen and game_input.cursor_select_action.just_pressed then
+        if do_menu_select() then
             return;
         end
     end
@@ -151,6 +185,24 @@ local function GetInput(game_input)
 
     if not g_title_animation_is_done then
         return;
+    end
+
+    if game_input.cursor_is_on_screen then
+        local is_option_hovered = false;
+
+        for menu_item_index, menu_item_dims in ipairs(menu_positions) do
+            if game_input.cursor_position.x >= menu_item_dims.left and game_input.cursor_position.x <= menu_item_dims.right and
+                    game_input.cursor_position.y >= menu_item_dims.top and game_input.cursor_position.y <= menu_item_dims.bottom then
+                g_option_selected_index = menu_item_index;
+                is_option_hovered = true;
+            end
+        end
+
+        if is_option_hovered and game_input.cursor_select_action.just_pressed then
+            if do_menu_select() then
+                return;
+            end
+        end
     end
 
     if game_input.move_up_action.just_pressed then
