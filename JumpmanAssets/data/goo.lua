@@ -310,12 +310,11 @@ local function DrawHorizontal_()
 end
 
 local function DrawVertical_()
-    -- TODO: Why does vertical not kill the player, but collision detection is in here?
-    local iCollide = Module.GameLogic.is_player_colliding_with_rect(
+    local is_colliding = Module.GameLogic.is_player_colliding_with_rect(
         g_current_pos_x[1] - 1, g_current_pos_y[2] + 1,
         g_current_pos_x[2] + 1, g_current_pos_y[1] - 1);
 
-    if iCollide == 1 then
+    if is_colliding then
         Module.GameLogic.kill();
     end
 
