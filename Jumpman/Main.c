@@ -368,6 +368,33 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
 }
 
+static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    (void)mods;  // Unused, but passed due to passing this function as a function pointer
+    GameState* game_state = glfwGetWindowUserPointer(window);
+    GameInput* game_current_input = &game_state->current_input;
+
+    switch(action) {
+        case GLFW_PRESS: {
+            if(button == GLFW_MOUSE_BUTTON_LEFT) {
+                game_current_input->cursor_select_action.is_pressed = true;
+            }
+            break;
+        }
+        case GLFW_RELEASE: {
+            if(button == GLFW_MOUSE_BUTTON_LEFT) {
+                game_current_input->cursor_select_action.is_pressed = false;
+            }
+            break;
+        }
+    }
+}
+
+static void CursorEnterCallback(GLFWwindow* window, int is_entering) {
+    GameState* game_state = glfwGetWindowUserPointer(window);
+    GameInput* game_current_input = &game_state->current_input;
+    game_current_input->cursor_is_on_screen = is_entering != 0;  // TODO: Does this get wiped out every frame?
+}
+
 static void WindowFocusCallback(GLFWwindow* window, int is_focused) {
     (void)window;  // Unused, but passed due to passing this function as a function pointer
 
@@ -396,6 +423,7 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
 
 static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) {
     // TODO: Move this over before this checkin
+    // TODO: Dead zone?
     for(int32_t i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
         if(glfwJoystickPresent(i) == GLFW_TRUE) {
             int axis_count;
@@ -453,6 +481,17 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
         }
     }
 
+    double cursor_pos_x;
+    double cursor_pos_y;
+    glfwGetCursorPos(g_main_window, &cursor_pos_x, &cursor_pos_y);
+
+    float cursor_pos_x_f = (float)cursor_pos_x;
+    float cursor_pos_y_f = (float)cursor_pos_y;
+    GetViewportMousePos(&cursor_pos_x_f, &cursor_pos_y_f);
+
+    game_current_input->cursor_position.x = cursor_pos_x_f;
+    game_current_input->cursor_position.y = cursor_pos_y_f;
+
     game_current_input->move_left_action.just_pressed = game_current_input->move_left_action.is_pressed && !game_prev_input->move_left_action.is_pressed;
     game_current_input->move_right_action.just_pressed = game_current_input->move_right_action.is_pressed && !game_prev_input->move_right_action.is_pressed;
     game_current_input->move_down_action.just_pressed = game_current_input->move_down_action.is_pressed && !game_prev_input->move_down_action.is_pressed;
@@ -462,6 +501,7 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
     game_current_input->select_action.just_pressed = game_current_input->select_action.is_pressed && !game_prev_input->select_action.is_pressed;
     game_current_input->slowmo_action.just_pressed = game_current_input->slowmo_action.is_pressed && !game_prev_input->slowmo_action.is_pressed;
     game_current_input->debug_action.just_pressed = game_current_input->debug_action.is_pressed && !game_prev_input->debug_action.is_pressed;
+    game_current_input->cursor_select_action.just_pressed = game_current_input->cursor_select_action.is_pressed && !game_prev_input->cursor_select_action.is_pressed;
 }
 
 bool IsGameFrozen(void) {
@@ -553,6 +593,8 @@ int main(int arguments_count, char* arguments[]) {
     glfwSetWindowSizeCallback(g_main_window, WindowSizeCallback);
     glfwSetFramebufferSizeCallback(g_main_window, FramebufferSizeCallback);
     glfwSetKeyCallback(g_main_window, KeyCallback);
+    glfwSetMouseButtonCallback(g_main_window, MouseButtonCallback);
+    glfwSetCursorEnterCallback(g_main_window, CursorEnterCallback);
     glfwMakeContextCurrent(g_main_window);
 
     if(glfwExtensionSupported("WGL_EXT_swap_control_tear") == GLFW_TRUE || glfwExtensionSupported("GLX_EXT_swap_control_tear") == GLFW_TRUE) {

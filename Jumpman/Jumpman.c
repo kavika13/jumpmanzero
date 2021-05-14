@@ -732,6 +732,18 @@ static void PushGameInputAsTable(lua_State* lua_state, const GameInput* game_inp
     lua_setfield(lua_state, -2, "select_action");
     PushGameActionAsTable(lua_state, &game_input->debug_action);
     lua_setfield(lua_state, -2, "debug_action");
+    PushGameActionAsTable(lua_state, &game_input->cursor_select_action);
+    lua_setfield(lua_state, -2, "cursor_select_action");
+
+    lua_newtable(lua_state);
+    lua_pushnumber(lua_state, game_input->cursor_position.x);
+    lua_setfield(lua_state, -2, "x");
+    lua_pushnumber(lua_state, game_input->cursor_position.y);
+    lua_setfield(lua_state, -2, "y");
+    lua_setfield(lua_state, -2, "cursor_position");
+
+    lua_pushboolean(lua_state, game_input->cursor_is_on_screen);
+    lua_setfield(lua_state, -2, "cursor_is_on_screen");
 }
 
 static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const char* function_name, const GameInput* game_input, int pushed_arg_count, int expected_result_count) {

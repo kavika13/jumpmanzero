@@ -569,6 +569,45 @@ void ResizeViewport(int width, int height) {
     g_backbuffer_height = height;
 }
 
+void GetViewportMousePos(float* pos_x, float* pos_y) {
+    float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
+    const float target_aspect_ratio = 640.0f / 480.0f;
+
+    float temp_x;
+    float temp_y;
+
+    if(backbuffer_aspect_ratio > target_aspect_ratio) {
+        float width_scale = target_aspect_ratio / backbuffer_aspect_ratio;
+        float border_half_width = (g_backbuffer_width - width_scale * g_backbuffer_width) / 2.0f;
+
+        temp_x = (*pos_x - border_half_width) / (g_backbuffer_width - (border_half_width * 2.0f));
+        temp_y = *pos_y / g_backbuffer_height;
+
+    } else {
+        float height_scale = backbuffer_aspect_ratio / target_aspect_ratio;
+        float border_half_height = (g_backbuffer_height - height_scale * g_backbuffer_height) / 2.0f;
+
+        temp_x = *pos_x / g_backbuffer_width;
+        temp_y = (*pos_y - border_half_height) / (g_backbuffer_height - (border_half_height * 2.0f));
+    }
+
+    if(temp_x < 0.0f) {
+        temp_x = 0.0f;
+    }
+    if(temp_x > 1.0f) {
+        temp_x = 1.0f;
+    }
+    if(temp_y < 0.0f) {
+        temp_y = 0.0f;
+    }
+    if(temp_y > 1.0f) {
+        temp_y = 1.0f;
+    }
+
+    *pos_x = temp_x;
+    *pos_y = temp_y;
+}
+
 void Reset3d(void) {
     // TODO: Is there any case where we need to reset the context? I think this is a relic from D3D9. Do we might need to handle suspend/resume, ala UWP though?
 }

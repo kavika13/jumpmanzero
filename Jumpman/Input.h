@@ -13,6 +13,11 @@ typedef struct {
 } GameAction;
 
 typedef struct {
+    float x;
+    float y;
+} GameCursorPosition;
+
+typedef struct {
     GameAction move_left_action;
     GameAction move_right_action;
     GameAction move_down_action;
@@ -22,6 +27,9 @@ typedef struct {
     GameAction select_action;
     GameAction slowmo_action;
     GameAction debug_action;
+    GameAction cursor_select_action;
+    GameCursorPosition cursor_position;
+    bool cursor_is_on_screen;
 } GameInput;
 
 #if defined(__cplusplus)

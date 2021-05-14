@@ -28,6 +28,7 @@ void RendererPreUpdate(double seconds_since_previous_update);
 void RendererPostUpdate(void);
 void RendererDraw(double seconds_since_previous_draw, double time_scale);
 void ResizeViewport(int width, int height);
+void GetViewportMousePos(float* pos_x, float* pos_y);  // In/out parameters. Tested against latest viewport size and corrected
 void Reset3d(void);  // TODO: Is this function necessary anymore? Used for resetting context after focus switch
 
 void DoCleanUp(void);
