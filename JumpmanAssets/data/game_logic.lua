@@ -703,16 +703,16 @@ local function UpdateSituation_()
     end
 end
 
-local function CheckJumpStart_(iLeft, iUp, iRight, game_input)
+local function CheckJumpStart_(is_left_movement_allowed, is_up_movement_allowed, is_right_movement_allowed, game_input)
     if not game_input.jump_action.is_pressed then
         return false;
     end
 
-    if iLeft and game_input.move_left_action.is_pressed and not game_input.move_right_action.is_pressed then
+    if is_left_movement_allowed and game_input.move_left_action.is_pressed and not game_input.move_right_action.is_pressed then
         g_player_current_direction = player_movement_direction.DIR_LEFT;
-    elseif iRight and game_input.move_right_action.is_pressed and not game_input.move_left_action.is_pressed then
+    elseif is_right_movement_allowed and game_input.move_right_action.is_pressed and not game_input.move_left_action.is_pressed then
         g_player_current_direction = player_movement_direction.DIR_RIGHT;
-    elseif iUp then
+    elseif is_up_movement_allowed then
         g_player_current_direction = player_movement_direction.DIR_UP;
     else
         return false;
@@ -772,7 +772,7 @@ MoveJumpmanVine_ = function(game_input)
         return;
     end
 
-    if CheckJumpStart_(1, 0, 1, game_input) then
+    if CheckJumpStart_(true, false, true, game_input) then
         return;
     end
 
@@ -823,7 +823,7 @@ MoveJumpmanLadder_ = function(game_input)
     if g_player_current_platform_y >= g_player_current_position_y or
             (close_ladder.pos_x < g_player_current_position_x + 2 and
                 close_ladder.pos_x > g_player_current_position_x - 2) then
-        if CheckJumpStart_(1, 0, 1, game_input) then
+        if CheckJumpStart_(true, false, true, game_input) then
             return;
         end
     end
@@ -920,7 +920,7 @@ MoveJumpmanNormal_ = function(game_input)
     end
 
     if g_player_current_position_y <= g_player_current_platform_y + 1 then
-        if CheckJumpStart_(1, 1, 1, game_input) then
+        if CheckJumpStart_(true, true, true, game_input) then
             return;
         end
     end
@@ -1174,7 +1174,7 @@ MoveJumpmanSlide_ = function(game_input)
 
     if g_player_current_position_y < g_player_current_platform_y + 1 then
         if iExtra == 1 then
-            if CheckJumpStart_(0, 0, 1, game_input) then
+            if CheckJumpStart_(false, false, true, game_input) then
                 return;
             end
 
@@ -1183,7 +1183,7 @@ MoveJumpmanSlide_ = function(game_input)
         end
 
         if iExtra == 2 then
-            if CheckJumpStart_(1, 0, 0, game_input) then
+            if CheckJumpStart_(true, false, false, game_input) then
                 return;
             end
 
@@ -1193,7 +1193,7 @@ MoveJumpmanSlide_ = function(game_input)
     else
         if g_player_current_direction == player_movement_direction.DIR_RIGHT then
             if g_player_current_state_frame_count < 6 then
-                if CheckJumpStart_(0, 0, 1, game_input) then
+                if CheckJumpStart_(false, false, true, game_input) then
                     return;
                 end
             end
@@ -1204,7 +1204,7 @@ MoveJumpmanSlide_ = function(game_input)
 
         if g_player_current_direction == player_movement_direction.DIR_LEFT then
             if g_player_current_state_frame_count < 6 then
-                if CheckJumpStart_(1, 0, 0, game_input) then
+                if CheckJumpStart_(true, false, false, game_input) then
                     return;
                 end
             end
@@ -1294,7 +1294,7 @@ MoveJumpmanRoll_ = function(game_input)
         end
 
         if not game_input.move_down_action.is_pressed then
-            if CheckJumpStart_(1, 1, 1, game_input) then
+            if CheckJumpStart_(true, true, true, game_input) then
                 return;
             end
         end
