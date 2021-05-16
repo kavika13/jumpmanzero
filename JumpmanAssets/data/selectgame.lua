@@ -22,6 +22,28 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local menu_positions = {
+    {
+        left = 0.23,
+        right = 0.76,
+        top = 0.16,
+        bottom = 0.34,
+    },
+    {
+        left = 0.17,
+        right = 0.83,
+        top = 0.34,
+        bottom = 0.54,
+    },
+    {
+        left = 0.27,
+        right = 0.72,
+        top = 0.54,
+        bottom = 0.68,
+    },
+};
+menu_positions = read_only.make_table_read_only(menu_positions);
+
 local g_game_logic = nil;
 
 local g_is_game_selected = false;
@@ -41,14 +63,35 @@ local function GetInput_(game_input)
         return;
     end
 
-    if game_input.select_action.just_pressed then
+    local do_menu_select = function()
         play_sound_effect(resources.SoundFire);
         g_is_game_selected = true;
         g_time_since_current_selection = 0;
+    end
+
+    if game_input.select_action.just_pressed then
+        do_menu_select();
         return;
     end
 
     local iOldSelected = g_title_selected_index;
+
+    if game_input.cursor_is_on_screen then
+        local is_option_hovered = false;
+
+        for menu_item_index, menu_item_dims in ipairs(menu_positions) do
+            if game_input.cursor_position.x >= menu_item_dims.left and game_input.cursor_position.x <= menu_item_dims.right and
+                    game_input.cursor_position.y >= menu_item_dims.top and game_input.cursor_position.y <= menu_item_dims.bottom then
+                g_title_selected_index = menu_item_index;
+                is_option_hovered = true;
+            end
+        end
+
+        if is_option_hovered and game_input.cursor_select_action.just_pressed then
+            do_menu_select();
+            return;
+        end
+    end
 
     if game_input.move_up_action.just_pressed then
         g_title_selected_index = g_title_selected_index - 1;
