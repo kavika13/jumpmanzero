@@ -341,6 +341,10 @@ local function ShowLetters_()
     end
 end
 
+local function PlaceCamera_()
+    set_perspective(80.0, 80.0, -100.0, 80.0, 80.0, 0.0);
+end
+
 function Module.initialize(game_input)
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = options_data_module();
@@ -355,6 +359,9 @@ function Module.initialize(game_input)
             0,
             g_game_logic.LevelData.music_loop_start_music_time);
     end
+
+    PlaceCamera_();
+    skip_next_camera_interpolation();
 end
 
 function Module.update(game_input)
@@ -388,7 +395,7 @@ function Module.update(game_input)
         Module.MenuLogic.load_main_menu();
     end
 
-    set_perspective(80.0, 80.0, -100.0, 80.0, 80.0, 0.0);
+    PlaceCamera_();
 end
 
 return Module;
