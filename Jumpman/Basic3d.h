@@ -26,7 +26,7 @@ void Begin3dLoad(void);
 void EndAndCommit3dLoad(void);
 void RendererPreUpdate(double seconds_per_update_timestep);
 void RendererPostUpdate(void);
-void RendererDraw(double seconds_per_update_timestep, double seconds_since_previous_update, double time_scale, bool skip_interpolation);
+void RendererDraw(bool do_interpolation, float interpolation_scale);
 void ResizeViewport(int width, int height);
 void GetViewportMousePos(float* pos_x, float* pos_y);  // In/out parameters. Tested against latest viewport size and corrected
 void Reset3d(void);  // TODO: Is this function necessary anymore? Used for resetting context after focus switch

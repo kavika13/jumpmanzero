@@ -834,19 +834,21 @@ void UpdateGame(const GameInput* game_input, double seconds_per_update_timestep)
 }
 
 void DrawGame(double seconds_per_update_timestep, double seconds_since_previous_update, double time_scale) {
+    // TODO: Just push interpolation_scale?
     lua_pushnumber(g_main_script_context.lua_state, seconds_per_update_timestep);
     lua_pushnumber(g_main_script_context.lua_state, seconds_since_previous_update);
     lua_pushnumber(g_main_script_context.lua_state, time_scale);
 
     bool pre_draw_function_existed = CallLuaModuleFunction(&g_main_script_context, "pre_draw", NULL, 3, 1, true);
 
-    bool skip_interpolation = false;
+    bool do_interpolation = true;
     if(pre_draw_function_existed) {
-        skip_interpolation = lua_checkbool(g_main_script_context.lua_state, -1);
+        do_interpolation = !lua_checkbool(g_main_script_context.lua_state, -1);
         lua_pop(g_main_script_context.lua_state, 1);
     }
 
-    RendererDraw(seconds_per_update_timestep, seconds_since_previous_update, time_scale, skip_interpolation);
+    float interpolation_scale = (float)(time_scale * seconds_since_previous_update / seconds_per_update_timestep);
+    RendererDraw(do_interpolation, interpolation_scale);
 }
 
 void ExitGame(void) {
