@@ -97,7 +97,7 @@ local function SetFire_()
     end
 end
 
-local function DrawFire_()
+local function DrawFire_(skip_next_interpolation)
     if g_is_blast_visible then
         local iBX = g_target_pos_x + math.random(1, 50) / 50;
         local iBY = g_target_pos_y + math.random(1, 50) / 50;
@@ -111,6 +111,10 @@ local function DrawFire_()
 
         translate_mesh_matrix(g_blast_mesh_index, iBX - 0.5, iBY, g_target_pos_z - 2);
         set_mesh_is_visible(g_blast_mesh_index, true);
+
+        if skip_next_interpolation then
+            skip_next_mesh_interpolation(g_blast_mesh_index);
+        end
     end
 
     set_identity_mesh_matrix(g_beam_1_mesh_index);
@@ -121,6 +125,10 @@ local function DrawFire_()
     translate_mesh_matrix(g_beam_1_mesh_index, g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
     set_mesh_is_visible(g_beam_1_mesh_index, true);
 
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_beam_1_mesh_index);
+    end
+
     set_identity_mesh_matrix(g_beam_2_mesh_index);
     rotate_x_mesh_matrix(g_beam_2_mesh_index, g_frames_since_beam_started * 34);
     translate_mesh_matrix(g_beam_2_mesh_index, 0.5, 0, 0);
@@ -129,6 +137,10 @@ local function DrawFire_()
     rotate_y_mesh_matrix(g_beam_2_mesh_index, g_gun_pan_rotation);
     translate_mesh_matrix(g_beam_2_mesh_index, g_gun_pos_x, g_gun_pos_y, g_gun_pos_z);
     set_mesh_is_visible(g_beam_2_mesh_index, true);
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_beam_2_mesh_index);
+    end
 end
 
 function Module.initialize()
@@ -146,7 +158,7 @@ function Module.initialize()
     g_ship_pos_z = 60;
 end
 
-function Module.update()
+function Module.update(skip_next_interpolation)
     g_frames_since_beam_started = g_frames_since_beam_started + 1;
 
     local iPX = Module.GameLogic.get_player_current_position_x();
@@ -176,7 +188,7 @@ function Module.update()
     SetTarget_();
     SetGun_();
     SetFire_();
-    DrawFire_();
+    DrawFire_(skip_next_interpolation);
 
     if g_is_blast_visible then
         if iCollideDir > 267 and iCollideDir < 273 then

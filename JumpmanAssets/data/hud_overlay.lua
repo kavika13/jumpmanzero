@@ -27,7 +27,7 @@ local function InitializeLetters_()
     end
 end
 
-local function ShowRemaining_()
+local function ShowRemaining_(skip_next_interpolation)
     -- set_mesh_is_visible(g_jumpman_hud_background_icon, true);
     -- set_identity_mesh_matrix(g_jumpman_hud_background_icon);
     -- scale_mesh_matrix(g_jumpman_hud_background_icon, 16, 8, 1);
@@ -40,9 +40,13 @@ local function ShowRemaining_()
     translate_mesh_matrix(g_jumpman_icon_mesh_index, 40, -34, 90);
     undo_camera_perspective_on_mesh_matrix(g_jumpman_icon_mesh_index);
     -- TODO: Skip interpolation on these frame after death because of camera jump
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_jumpman_icon_mesh_index);
+    end
 end
 
-local function ShowPerformance_(game_input, lives_remaining)
+local function ShowPerformance_(game_input, lives_remaining, skip_next_interpolation)
     local fps_count = get_current_fps();
 
     local fps_hundreds_digit = 0;
@@ -72,6 +76,10 @@ local function ShowPerformance_(game_input, lives_remaining)
             scale_mesh_matrix(life_count_digit_mesh_index, 0.5, 0.5, 0.2);
             translate_mesh_matrix(life_count_digit_mesh_index, 47, -33, 90);
             undo_camera_perspective_on_mesh_matrix(life_count_digit_mesh_index);
+
+            if skip_next_interpolation then
+                skip_next_mesh_interpolation(life_count_digit_mesh_index);
+            end
         else
             set_mesh_is_visible(life_count_digit_mesh_index, false);
         end
@@ -83,6 +91,10 @@ local function ShowPerformance_(game_input, lives_remaining)
             set_identity_mesh_matrix(fps_first_number_mesh_index);
             translate_mesh_matrix(fps_first_number_mesh_index, -40, 30, 90);
             undo_camera_perspective_on_mesh_matrix(fps_first_number_mesh_index);
+
+            if skip_next_interpolation then
+                skip_next_mesh_interpolation(fps_first_number_mesh_index);
+            end
         else
             set_mesh_is_visible(fps_first_number_mesh_index, false);
         end
@@ -94,6 +106,10 @@ local function ShowPerformance_(game_input, lives_remaining)
             set_identity_mesh_matrix(fps_second_number_mesh_index);
             translate_mesh_matrix(fps_second_number_mesh_index, -34, 30, 90);
             undo_camera_perspective_on_mesh_matrix(fps_second_number_mesh_index);
+
+            if skip_next_interpolation then
+                skip_next_mesh_interpolation(fps_second_number_mesh_index);
+            end
         else
             set_mesh_is_visible(fps_second_number_mesh_index, false);
         end
@@ -105,13 +121,17 @@ local function ShowPerformance_(game_input, lives_remaining)
             set_identity_mesh_matrix(fps_third_number_mesh_index);
             translate_mesh_matrix(fps_third_number_mesh_index, -28, 30, 90);
             undo_camera_perspective_on_mesh_matrix(fps_third_number_mesh_index);
+
+            if skip_next_interpolation then
+                skip_next_mesh_interpolation(fps_third_number_mesh_index);
+            end
         else
             set_mesh_is_visible(fps_third_number_mesh_index, false);
         end
     end
 end
 
-local function ShowLevelTitleAnimation_(animation_time)
+local function ShowLevelTitleAnimation_(animation_time, skip_next_interpolation)
     -- Note: If the title is "" then the animation will immediately end
     local is_animation_still_active = false;
 
@@ -133,6 +153,10 @@ local function ShowLevelTitleAnimation_(animation_time)
                 undo_camera_perspective_on_mesh_matrix(letter_mesh_index);
                 set_mesh_is_visible(letter_mesh_index, true);
                 is_animation_still_active = true;
+
+                if skip_next_interpolation then
+                    skip_next_mesh_interpolation(letter_mesh_index);
+                end
             else
                 set_mesh_is_visible(letter_mesh_index, false);
             end
@@ -146,7 +170,7 @@ local function ShowLevelTitleAnimation_(animation_time)
     end
 end
 
-function Module.update(game_input)
+function Module.update(game_input, skip_next_interpolation)
     if not g_is_initialized then
         -- TODO: Separate initialize function?
         g_is_initialized = true;
@@ -184,10 +208,10 @@ function Module.update(game_input)
     local lives_remaining = Module.MenuLogic.get_remaining_life_count();
 
     if lives_remaining > 0 then
-        ShowRemaining_();
+        ShowRemaining_(skip_next_interpolation);
     end
 
-    ShowPerformance_(game_input, lives_remaining);
+    ShowPerformance_(game_input, lives_remaining, skip_next_interpolation);
 
     -- if game_input.debug_action.just_pressed then
     --     Module.GameLogic.win_with_no_delay_debug();
@@ -195,7 +219,7 @@ function Module.update(game_input)
 
     if not g_is_title_animation_complete then
         if g_title_scroll_timer < 1000 then
-            ShowLevelTitleAnimation_(g_title_scroll_timer);
+            ShowLevelTitleAnimation_(g_title_scroll_timer, skip_next_interpolation);
         end
     end
 

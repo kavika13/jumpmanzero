@@ -86,10 +86,14 @@ function Module.initialize()
     g_current_pos_y = Module.StartPosY;
 end
 
-function Module.update()
+function Module.update(skip_next_interpolation)
     Animate_();
     MoveBlob_();
     ShowBlob_();
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_blob_mesh_index);
+    end
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 2, g_current_pos_y + 1,

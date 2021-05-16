@@ -51,7 +51,6 @@ local function DoBlasting()
         set_identity_mesh_matrix(mesh_index);
         scale_mesh_matrix(mesh_index, iSize, iSize, 1);
         rotate_z_mesh_matrix(mesh_index, iBR);
-        skip_next_mesh_interpolation(mesh_index);
 
         if iTemp > 10 then
             translate_mesh_matrix(mesh_index, 0, 0, -10);
@@ -61,6 +60,7 @@ local function DoBlasting()
 
         translate_mesh_matrix(mesh_index, iBX, iBY, iBZ);
         set_mesh_is_visible(mesh_index, true);
+        skip_next_mesh_interpolation(mesh_index);
     end
 end
 
@@ -73,7 +73,7 @@ function Module.initialize()
     g_donut = Module.GameLogic.find_donut_by_number(Module.DonutNum);
 end
 
-function Module.update()
+function Module.update(skip_next_interpolation)
     if g_animation_frames_since_launched == 100 then
         return;
     end
@@ -124,6 +124,10 @@ function Module.update()
     translate_mesh_matrix(g_donut.mesh_index, 0 - iX, 0, 0 - iDist);
     rotate_y_mesh_matrix(g_donut.mesh_index, (iPX - iX) * 360 / Module.PlayAreaCircumference);
     translate_mesh_matrix(g_donut.mesh_index, iPX, iY - g_donut.pos[2], iZ);
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_donut.mesh_index);
+    end
 end
 
 return Module;

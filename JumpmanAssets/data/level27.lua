@@ -116,6 +116,8 @@ local g_eye_waggle_y2 = 0;
 local g_are_beams_deployed = false;
 
 local function RingPlatforms_()
+    local skip_next_interpolation = false;
+
     local iPX = g_game_logic.get_player_current_position_x();
 
     if iPX < 0 then
@@ -123,18 +125,21 @@ local function RingPlatforms_()
         g_game_logic.set_player_current_position_x(iPX);
         g_game_logic.reset_perspective();
         g_game_logic.skip_player_next_mesh_interpolation();
-        -- TODO: Make camera skip interpolation?
+        skip_next_camera_interpolation();
+        skip_next_interpolation = true;
     elseif iPX >= kPLAY_AREA_CIRCUMFERENCE then
         iPX = iPX - kPLAY_AREA_CIRCUMFERENCE;
         g_game_logic.set_player_current_position_x(iPX);
         g_game_logic.reset_perspective();
         g_game_logic.skip_player_next_mesh_interpolation();
-        -- TODO: Make camera skip interpolation?
+        skip_next_camera_interpolation();
+        skip_next_interpolation = true;
     end
 
     local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, iPX - 80, 0, 0);
+    skip_next_mesh_interpolation(backdrop_mesh_index);
 
     local platform_count = g_game_logic.get_platform_object_count();
 
@@ -148,7 +153,7 @@ local function RingPlatforms_()
         scale_mesh_matrix(current_platform.mesh_index, 1.64, 1, 1);
         rotate_y_mesh_matrix(current_platform.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_platform.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_platform.mesh_index);  -- TODO: Why does interpolation look so wrong?
+        skip_next_mesh_interpolation(current_platform.mesh_index);
     end
 
     local vine_count = g_game_logic.get_vine_object_count();
@@ -160,7 +165,7 @@ local function RingPlatforms_()
         translate_mesh_matrix(current_vine.mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(current_vine.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_vine.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_vine.mesh_index);  -- TODO: Why does interpolation look so wrong?
+        skip_next_mesh_interpolation(current_vine.mesh_index);
     end
 
     local ladder_count = g_game_logic.get_ladder_object_count();
@@ -172,7 +177,7 @@ local function RingPlatforms_()
         translate_mesh_matrix(current_ladder.mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(current_ladder.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_ladder.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_ladder.mesh_index);  -- TODO: Why does interpolation look so wrong?
+        skip_next_mesh_interpolation(current_ladder.mesh_index);
     end
 
     local donut_count = g_game_logic.get_donut_object_count();
@@ -184,8 +189,10 @@ local function RingPlatforms_()
         translate_mesh_matrix(current_donut.mesh_index, 0 - iAve, 0, -75);
         rotate_y_mesh_matrix(current_donut.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
         translate_mesh_matrix(current_donut.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_donut.mesh_index);  -- TODO: Why does interpolation look so wrong?
+        skip_next_mesh_interpolation(current_donut.mesh_index);
     end
+
+    return skip_next_interpolation;
 end
 
 local function SetFacing_()
@@ -218,7 +225,7 @@ local function AdjustEyeWaggling_(iValue)
     return iFinal;
 end
 
-local function ShowAlien_()
+local function ShowAlien_(skip_next_interpolation)
     local iTargetY = g_game_logic.get_player_current_position_y() + 30;
 
     if iTargetY > 80 then
@@ -286,6 +293,10 @@ local function ShowAlien_()
     set_mesh_texture(g_eye_1_mesh_index, resources.TextureBrightRed);
     set_mesh_is_visible(g_eye_1_mesh_index, true);
 
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_eye_1_mesh_index);
+    end
+
     set_identity_mesh_matrix(g_eye_2_mesh_index);
     scale_mesh_matrix(g_eye_2_mesh_index, 0.6, 0.6, 0.7);
     translate_mesh_matrix(g_eye_2_mesh_index, 1 + g_eye_waggle_x2, 0, 0);
@@ -293,6 +304,10 @@ local function ShowAlien_()
     translate_mesh_matrix(g_eye_2_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
     set_mesh_texture(g_eye_2_mesh_index, resources.TextureBrightRed);
     set_mesh_is_visible(g_eye_2_mesh_index, true);
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_eye_2_mesh_index);
+    end
 
     set_identity_mesh_matrix(g_alien_mesh_index);
 
@@ -308,6 +323,10 @@ local function ShowAlien_()
     set_mesh_texture(g_alien_mesh_index, resources.TextureAlien);
     set_mesh_is_visible(g_alien_mesh_index, true);
 
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_alien_mesh_index);
+    end
+
     iWiggleX = iWiggleX + g_ship_sink_amount / 2;
 
     set_identity_mesh_matrix(g_ship_base_mesh_index);
@@ -317,6 +336,10 @@ local function ShowAlien_()
     translate_mesh_matrix(g_ship_base_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
     set_mesh_texture(g_ship_base_mesh_index, resources.TextureShipMetal);
     set_mesh_is_visible(g_ship_base_mesh_index, true);
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_ship_base_mesh_index);
+    end
 
     g_ship_draw_position_x = g_game_logic.get_player_current_position_x() + iWiggleX;
     g_ship_draw_position_y = g_ship_y_position;
@@ -330,6 +353,10 @@ local function ShowAlien_()
     translate_mesh_matrix(g_ship_top_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
     set_mesh_texture(g_ship_top_mesh_index, resources.TextureShipGlass);
     set_mesh_is_visible(g_ship_top_mesh_index, true);
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_ship_top_mesh_index);
+    end
 end
 
 local function CreateBeam_(beam_type, beam_color_texture_resource_index, parm_dir)
@@ -361,22 +388,23 @@ end
 
 local function ProgressLevel_(game_input)
     local player_won = g_game_logic.progress_game(game_input);
-    g_hud_overlay.update(game_input);
 
     if player_won then
+        g_hud_overlay.update(game_input, false);
         return;
     end
 
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
-    RingPlatforms_();
+    local skip_next_interpolation = RingPlatforms_();
+    g_hud_overlay.update(game_input, skip_next_interpolation);
 
     if g_donuts_to_collect_count > 10 then
         g_ship_y_position = 150;
     end
 
     SetFacing_();
-    ShowAlien_();
+    ShowAlien_(skip_next_interpolation);
 
     if g_donuts_to_collect_count <= 8 and not g_are_beams_deployed then
         g_are_beams_deployed = true;
@@ -384,20 +412,20 @@ local function ProgressLevel_(game_input)
     end
 
     for _, blob in ipairs(g_blobs) do
-        blob.update();
+        blob.update(skip_next_interpolation);
     end
 
     for _, z_donut in ipairs(g_z_donut_objects) do
         z_donut.ShipPosX = g_ship_draw_position_x;
         z_donut.ShipPosY = g_ship_draw_position_y;
-        z_donut.update();
+        z_donut.update(skip_next_interpolation);
     end
 
     for _, beam in ipairs(g_beams) do
         beam.ShipPosX = g_ship_draw_position_x;
         beam.ShipPosY = g_ship_draw_position_y;
         beam.ShipSinkAmount = g_ship_sink_amount + g_ship_sink_delay_timer;
-        beam.update();
+        beam.update(skip_next_interpolation);
     end
 
     g_game_logic.update_player_graphics();
@@ -466,7 +494,7 @@ end
 
 function Module.update(game_input)
     if not g_title_is_done_scrolling then
-        g_title_is_done_scrolling = g_hud_overlay.update(game_input);
+        g_title_is_done_scrolling = g_hud_overlay.update(game_input, false);
         return;
     end
 
