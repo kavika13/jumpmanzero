@@ -817,7 +817,12 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
             HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
             current_local_to_world_matrix);
         vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(current_local_to_world_matrix));
-        vs_params->uv_offset = g_object_uv_offset[object_index];
+
+        vs_params->uv_offset = HMM_AddVec2(
+            g_object_uv_offset_previous[object_index],
+            HMM_MultiplyVec2f(
+                HMM_SubtractVec2(g_object_uv_offset[object_index], g_object_uv_offset_previous[object_index]),
+                interpolation_scale));
     } else {
         vs_params->local_to_world_matrix = g_object_local_to_world_matrix[object_index];
         vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);

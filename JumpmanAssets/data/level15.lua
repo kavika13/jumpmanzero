@@ -46,6 +46,8 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local kWATERFALL_ANIMATION_FRAME_STEP = -0.15;
+
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -78,7 +80,7 @@ local function ProgressLevel_(game_input)
     local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(5).mesh_index;  -- TODO: Use constant for num
     set_identity_mesh_matrix(backdrop_mesh_index);
     translate_mesh_matrix(backdrop_mesh_index, 0, 0, 10);
-    scroll_texture_on_mesh(backdrop_mesh_index, 0, -0.15);
+    scroll_texture_on_mesh(backdrop_mesh_index, 0, kWATERFALL_ANIMATION_FRAME_STEP);
 
     for _, plat in ipairs(g_disappearing_platforms) do
         plat.update();
