@@ -56,6 +56,7 @@ resources = read_only.make_table_read_only(resources);
 local kLADDER_ANIMATION_FRAME_STEP = 1;
 local kTRAP_DOOR_ANIMATION_FRAME_STEP = 3;
 
+local g_player_won = false;
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -101,10 +102,10 @@ local function MovePlatform_(platform_num, iRotate, iTran, pos_property_name)
 end
 
 local function ProgressLevel_(game_input)
-    local player_won = g_game_logic.progress_game(game_input);
+    g_player_won = g_game_logic.progress_game(game_input);
     g_hud_overlay.update(game_input);
 
-    if player_won then
+    if g_player_won then
         return;
     end
 
@@ -236,11 +237,11 @@ function Module.update(game_input)
 end
 
 function Module.pre_draw(seconds_per_update_timestep, seconds_since_previous_update, time_scale)
-    if player_won then
+    if g_player_won then
         return false;
     end
 
-    local interpolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;
+    local interpolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;  -- TODO: Just pass in interpolation_scale instead?
 
     if g_is_left_trap_door_moving then
         -- TODO: Use constant for num
