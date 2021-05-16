@@ -59,17 +59,17 @@ local g_game_logic;
 local g_hud_overlay;
 local g_bullets = {};
 
-local g_is_object_1_moving = false;
-local g_object_1_animation_frame = 0;
+local g_is_left_trap_door_moving = false;
+local g_left_trap_door_animation_frame = 0;
 
-local g_is_object_2_moving = false;
-local g_object_2_animation_frame = 0;
+local g_is_right_trap_door_moving = false;
+local g_right_trap_door_animation_frame = 0;
 
-local g_is_object_3_moving = false;
-local g_object_3_animation_frame = 0;
+local g_is_left_ladder_moving = false;
+local g_left_ladder_animation_frame = 0;
 
-local g_is_object_4_moving = false;
-local g_object_4_animation_frame = 0;
+local g_is_right_ladder_moving = false;
+local g_right_ladder_animation_frame = 0;
 
 local function MoveLadder_(ladder_num, iPos)
     local current_ladder = g_game_logic.find_ladder_by_number(ladder_num);
@@ -105,17 +105,17 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    if g_is_object_1_moving then
-        g_object_1_animation_frame = g_object_1_animation_frame + 3;
+    if g_is_left_trap_door_moving then
+        g_left_trap_door_animation_frame = g_left_trap_door_animation_frame + 3;
 
         -- TODO: Use constant for num
-        MovePlatform_(1, 0 - g_object_1_animation_frame, 1, "pos_upper_left");
-        MovePlatform_(2, g_object_1_animation_frame, 0 - 1, "pos_lower_right");
+        MovePlatform_(1, 0 - g_left_trap_door_animation_frame, 1, "pos_upper_left");
+        MovePlatform_(2, g_left_trap_door_animation_frame, 0 - 1, "pos_lower_right");
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
-        if g_object_1_animation_frame > 56 then
-            g_is_object_1_moving = false;
+        if g_left_trap_door_animation_frame > 56 then
+            g_is_left_trap_door_moving = false;
 
             local current_platform = g_game_logic.find_platform_by_number(1);  -- TODO: Use constant for num
             current_platform.set_pos_y(500, 500);
@@ -125,18 +125,18 @@ local function ProgressLevel_(game_input)
         end
     end
 
-    if g_is_object_2_moving then
-        g_object_2_animation_frame = g_object_2_animation_frame + 3;
+    if g_is_right_trap_door_moving then
+        g_right_trap_door_animation_frame = g_right_trap_door_animation_frame + 3;
 
         -- TODO: Use constant for num
-        MovePlatform_(3, 0 - g_object_2_animation_frame, 1, "pos_upper_left");
-        MovePlatform_(4, g_object_2_animation_frame, 0 - 1, "pos_lower_right");
+        MovePlatform_(3, 0 - g_right_trap_door_animation_frame, 1, "pos_upper_left");
+        MovePlatform_(4, g_right_trap_door_animation_frame, 0 - 1, "pos_lower_right");
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
-        if g_object_2_animation_frame > 56 then
-            g_object_2_animation_frame = 56;
-            g_is_object_2_moving = false;
+        if g_right_trap_door_animation_frame > 56 then
+            g_right_trap_door_animation_frame = 56;
+            g_is_right_trap_door_moving = false;
 
             local current_platform = g_game_logic.find_platform_by_number(3);  -- TODO: Use constant for num
             current_platform.set_pos_y(500, 500);
@@ -146,29 +146,29 @@ local function ProgressLevel_(game_input)
         end
     end
 
-    if g_is_object_3_moving then
-        g_object_3_animation_frame = g_object_3_animation_frame + 1;
+    if g_is_left_ladder_moving then
+        g_left_ladder_animation_frame = g_left_ladder_animation_frame + 1;
 
-        MoveLadder_(1, g_object_3_animation_frame);  -- TODO: Use constant for num
+        MoveLadder_(1, g_left_ladder_animation_frame);  -- TODO: Use constant for num
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
-        if g_object_3_animation_frame == 80 then
-            g_is_object_3_moving = false;
+        if g_left_ladder_animation_frame == 80 then
+            g_is_left_ladder_moving = false;
             local mesh_index = g_game_logic.find_ladder_by_number(1).mesh_index;  -- TODO: Use constant for num
             translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
     end
 
-    if g_is_object_4_moving then
-        g_object_4_animation_frame = g_object_4_animation_frame + 1;
+    if g_is_right_ladder_moving then
+        g_right_ladder_animation_frame = g_right_ladder_animation_frame + 1;
 
-        MoveLadder_(2, g_object_4_animation_frame);  -- TODO: Use constant for num
+        MoveLadder_(2, g_right_ladder_animation_frame);  -- TODO: Use constant for num
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
         -- setext(#compose, 1);
 
-        if g_object_4_animation_frame == 80 then
-            g_is_object_4_moving = false;
+        if g_right_ladder_animation_frame == 80 then
+            g_is_right_ladder_moving = false;
             local mesh_index = g_game_logic.find_ladder_by_number(2).mesh_index;  -- TODO: Use constant for num
             translate_mesh_matrix(mesh_index, 1000, 0, 0);
         end
@@ -234,24 +234,24 @@ end
 
 function Module.on_collect_donut(game_input, donut_num)
     if donut_num == 1 then  -- TODO: Use constant for num
-        g_is_object_1_moving = true;
+        g_is_left_trap_door_moving = true;
         iPosition1 = 0;
     end
 
     if donut_num == 2 then  -- TODO: Use constant for num
-        g_is_object_2_moving = true;
+        g_is_right_trap_door_moving = true;
         iPosition2 = 0;
     end
 
     if donut_num == 3 then  -- TODO: Use constant for num
-        g_is_object_3_moving = true;
+        g_is_left_ladder_moving = true;
         iPosition3 = 0;
         local current_ladder = g_game_logic.find_ladder_by_number(1);  -- TODO: Use constant for num
         current_ladder.set_pos_x(current_ladder.pos_x - 500);
     end
 
     if donut_num == 4 then  -- TODO: Use constant for num
-        g_is_object_4_moving = true;
+        g_is_right_ladder_moving = true;
         iPosition4 = 0;
         local current_ladder = g_game_logic.find_ladder_by_number(2);  -- TODO: Use constant for num
         current_ladder.set_pos_x(current_ladder.pos_x - 500);
