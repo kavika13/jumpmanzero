@@ -56,7 +56,6 @@ local g_z_bits;
 local g_is_game_selected = false;
 local g_title_animation_is_done = false;
 local g_title_animation_counter = 0;
-local g_trigger_skip_letter_mesh_interpolation = false;
 
 local g_title_letter_mesh_ids = {};
 local g_option_letter_mesh_ids = {};
@@ -68,7 +67,7 @@ local g_option_previous_selected_index = 1;
 local g_time_since_current_selection = 0;
 local g_time_of_previous_selection = 0;
 
-local function ShowJMLetters()
+local function ShowJMLetters_(skip_next_interpolation)
     local iHeight = 0;
     local percent_complete = (g_title_animation_counter / kANIMATION_END_TIME) * 100;
 
@@ -136,19 +135,17 @@ local function ShowJMLetters()
         translate_mesh_matrix(g_title_letter_mesh_ids[iChar], iDX, iDY, iDZ);
         set_mesh_is_visible(g_title_letter_mesh_ids[iChar], true);
 
-        if g_trigger_skip_letter_mesh_interpolation then
+        if skip_next_interpolation then
             skip_next_mesh_interpolation(g_title_letter_mesh_ids[iChar]);
         end
     end
-
-    if g_trigger_skip_letter_mesh_interpolation then
-        g_trigger_skip_letter_mesh_interpolation = false;
-    end
 end
 
-local function GetInput(game_input)
+local function GetInput_(game_input)
+    local skip_next_interpolation = false;
+
     if g_is_game_selected then
-        return;
+        return skip_next_interpolation;
     end
 
     local is_still_animating = g_title_animation_counter < kANIMATION_END_TIME;
@@ -158,7 +155,7 @@ local function GetInput(game_input)
 
         if is_still_animating then
             g_title_animation_counter = kANIMATION_END_TIME;
-            g_trigger_skip_letter_mesh_interpolation = true;
+            skip_next_interpolation = true;
         else
             play_sound_effect(resources.SoundFire);
             g_is_game_selected = true;
@@ -171,20 +168,20 @@ local function GetInput(game_input)
 
     if game_input.select_action.just_pressed then
         if do_menu_select() then
-            return;
+            return skip_next_interpolation;
         end
     end
 
     if is_still_animating and game_input.cursor_is_on_screen and game_input.cursor_select_action.just_pressed then
         if do_menu_select() then
-            return;
+            return skip_next_interpolation;
         end
     end
 
     local iOldSelected = g_option_selected_index;
 
     if not g_title_animation_is_done then
-        return;
+        return skip_next_interpolation;
     end
 
     if game_input.cursor_is_on_screen then
@@ -200,7 +197,7 @@ local function GetInput(game_input)
 
         if is_option_hovered and game_input.cursor_select_action.just_pressed then
             if do_menu_select() then
-                return;
+                return skip_next_interpolation;
             end
         end
     end
@@ -227,9 +224,11 @@ local function GetInput(game_input)
         g_time_since_current_selection = 0;
         play_sound_effect(resources.SoundSelect);
     end
+
+    return skip_next_interpolation;
 end
 
-local function GetTitleWidth(target_title_index)
+local function GetTitleWidth_(target_title_index)
     local iLen = 0;
 
     for _, current_option_letter_title_index in ipairs(g_option_letter_title_indices) do
@@ -241,7 +240,7 @@ local function GetTitleWidth(target_title_index)
     return iLen;
 end
 
-local function ShowLetters()
+local function ShowLetters_(skip_next_interpolation)
     local iX = 0;
     local iFirstX = 0;
     local iY = 0;
@@ -254,7 +253,7 @@ local function ShowLetters()
 
     for current_letter_index, current_letter_title_index in ipairs(g_option_letter_title_indices) do
         if current_letter_title_index ~= previous_letter_title_index then
-            local iWidth = GetTitleWidth(current_letter_title_index);
+            local iWidth = GetTitleWidth_(current_letter_title_index);
             iCharWidth = 5;
             local iScreenWidth = iCharWidth * iWidth;
             iX = 80 - (iScreenWidth / 2);
@@ -335,13 +334,17 @@ local function ShowLetters()
                 translate_mesh_matrix(current_letter_mesh_id, iX, iY, 0);
                 set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
             end
+
+            if skip_next_interpolation then
+                skip_next_mesh_interpolation(current_letter_mesh_id);
+            end
         end
 
         iX = iX + iCharWidth;
     end
 end
 
-local function InitializeLetters()
+local function InitializeLetters_()
     local title = "Jumpman";
 
     for iChar = 1, #title do
@@ -360,12 +363,16 @@ local function InitializeLetters()
     end
 end
 
+local function PlaceCamera_()
+    set_perspective(80.0, 80.0, -100.0, 80.0, 80.0, 0.0);
+end
+
 function Module.initialize(game_input)
     g_game_logic = game_logic_module();  -- TODO: Shouldn't need to load this to get level data
     g_game_logic.LevelData = mainmenu_data_module();
     g_game_logic.initialize(true);
 
-    InitializeLetters();
+    InitializeLetters_();
 
     if not Module.SkipAnimation then
         g_title_animation_counter = 0;
@@ -386,10 +393,13 @@ function Module.initialize(game_input)
     if Module.StartMainMusicTrack then
         play_music_track_1(g_game_logic.LevelData.music_death_track_filename, 0, -1);
     end
+
+    PlaceCamera_();
+    skip_next_camera_interpolation();
 end
 
 function Module.update(game_input)
-    GetInput(game_input);
+    local skip_next_interpolation = GetInput_(game_input);
 
     g_title_animation_counter = g_title_animation_counter + 20;
 
@@ -398,10 +408,10 @@ function Module.update(game_input)
         g_title_animation_counter = kANIMATION_END_TIME;
     end
 
-    ShowJMLetters();
+    ShowJMLetters_(skip_next_interpolation);
 
     g_time_since_current_selection = g_time_since_current_selection + 5;
-    ShowLetters();
+    ShowLetters_();
 
     local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
@@ -414,9 +424,9 @@ function Module.update(game_input)
         end
     end
 
-    g_z_bits.update();
+    g_z_bits.update(skip_next_interpolation);
 
-    set_perspective(80.0, 80.0, -100.0, 80.0, 80.0, 0.0);
+    PlaceCamera_();
 end
 
 return Module;

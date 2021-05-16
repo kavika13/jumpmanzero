@@ -13,7 +13,7 @@ local g_particle_target_pos_x = {};
 local g_particle_target_pos_y = {};
 local g_particle_count = 0;
 
-local function DrawParticles_()
+local function DrawParticles_(skip_next_interpolation)
     for iBit = 1, g_particle_count do
         local particle_mesh_index = g_particle_mesh_indices[iBit];
 
@@ -32,6 +32,10 @@ local function DrawParticles_()
         scale_mesh_matrix(particle_mesh_index, 4, 4, 4);
         translate_mesh_matrix(particle_mesh_index, iDX, iDY, iZ);
         set_mesh_is_visible(particle_mesh_index, true);
+
+        if skip_next_interpolation then
+            skip_next_mesh_interpolation(particle_mesh_index);
+        end
     end
 end
 
@@ -55,8 +59,8 @@ function Module.initialize()
     end
 end
 
-function Module.update()
-    DrawParticles_();
+function Module.update(skip_next_interpolation)
+    DrawParticles_(skip_next_interpolation);
 end
 
 return Module;
