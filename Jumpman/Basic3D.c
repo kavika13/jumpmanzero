@@ -875,7 +875,7 @@ void RendererDraw(double seconds_per_update_timestep, double seconds_since_previ
 
     g_current_world_to_view_matrix = g_world_to_view_matrix;
 
-    if(!skip_interpolation) {
+    if(!skip_interpolation && g_camera_animation_is_continuous) {
         hmm_vec3 camera_pos_current = *(hmm_vec3*)&g_world_to_view_matrix.Elements[3];
         hmm_vec3 camera_pos_previous = *(hmm_vec3*)&g_world_to_view_matrix_previous.Elements[3];
         *(hmm_vec3*)&g_current_world_to_view_matrix.Elements[3] = HMM_AddVec3(
