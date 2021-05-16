@@ -746,7 +746,9 @@ static void PushGameInputAsTable(lua_State* lua_state, const GameInput* game_inp
     lua_setfield(lua_state, -2, "cursor_is_on_screen");
 }
 
-static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const char* function_name, const GameInput* game_input, int pushed_arg_count, int expected_result_count) {
+static bool CallLuaModuleFunction(LuaModuleScriptContext* script_context, const char* function_name, const GameInput* game_input, int pushed_arg_count, int expected_result_count, bool optional) {
+    bool result = false;
+
     assert(script_context != NULL);  // TODO: Error handling
 
     lua_State* lua_state = script_context->lua_state;
@@ -779,11 +781,21 @@ static void CallLuaModuleFunction(LuaModuleScriptContext* script_context, const 
             debug_log("Error while calling Lua function in main script: %s\n%s", function_name, error_message);
             assert(false);  // TODO: Error handling
         }
+        else
+        {
+            result = true;
+        }
 
         lua_remove(lua_state, error_handler_stack_pos);
     } else {
-        assert(false);  // TODO: Error handling. Cleanup stack?
+        assert(optional);  // TODO: Error handling
+
+        lua_pop(lua_state, 1);  // Remove nil function from stack
+        lua_pop(lua_state, 1);  // Remove module table from stack
+        lua_pop(lua_state, pushed_arg_count);  // Remove pushed args from stack
     }
+
+    return result;
 }
 
 // ------------------- API FOR PLATFORM LAYER -------------------------------
@@ -804,27 +816,39 @@ void InitGameDebugLevel(const char* base_path, const char* level_name) {
     g_game_base_path = base_path;
     LoadLuaScript("data/main.lua", &g_main_script_context);
     lua_pushstring(g_main_script_context.lua_state, level_name);
-    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 1, 0);
+    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 1, 0, false);
 }
 
 void InitGameNormal(const char* base_path) {
     g_game_base_path = base_path;
     LoadLuaScript("data/main.lua", &g_main_script_context);
-    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0, 0);
+    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0, 0, false);
 }
 
 void UpdateGame(const GameInput* game_input, double seconds_per_update_timestep) {
     if(!IsGameFrozen()) {
         RendererPreUpdate(seconds_per_update_timestep);
-        CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0, 0);
+        CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0, 0, false);
         RendererPostUpdate();
     }
 }
 
 void DrawGame(double seconds_per_update_timestep, double seconds_since_previous_update, double time_scale) {
-    RendererDraw(seconds_per_update_timestep, seconds_since_previous_update, time_scale);
+    lua_pushnumber(g_main_script_context.lua_state, seconds_per_update_timestep);
+    lua_pushnumber(g_main_script_context.lua_state, seconds_since_previous_update);
+    lua_pushnumber(g_main_script_context.lua_state, time_scale);
+
+    bool pre_draw_function_existed = CallLuaModuleFunction(&g_main_script_context, "pre_draw", NULL, 3, 1, true);
+
+    bool skip_interpolation = false;
+    if(pre_draw_function_existed) {
+        skip_interpolation = lua_checkbool(g_main_script_context.lua_state, -1);
+        lua_pop(g_main_script_context.lua_state, 1);
+    }
+
+    RendererDraw(seconds_per_update_timestep, seconds_since_previous_update, time_scale, skip_interpolation);
 }
 
 void ExitGame(void) {
-    CallLuaModuleFunction(&g_main_script_context, "on_exit_requested", NULL, 0, 0);
+    CallLuaModuleFunction(&g_main_script_context, "on_exit_requested", NULL, 0, 0, false);
 }

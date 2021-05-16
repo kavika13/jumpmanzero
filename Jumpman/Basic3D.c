@@ -762,11 +762,11 @@ static void kill_scene(void) {
     }
 }
 
-static double g_extrapolation_scale;
+static double g_interpolation_scale;
 static double g_seconds_per_update_timestep;
 
 void RendererPreUpdate(double seconds_per_update_timestep) {
-    g_extrapolation_scale = 0.0;
+    g_interpolation_scale = 0.0;
     g_seconds_per_update_timestep = seconds_per_update_timestep;
     g_world_to_view_matrix_previous = g_world_to_view_matrix;
     g_camera_animation_is_continuous = true;
@@ -793,7 +793,7 @@ void RendererPostUpdate(void) {
 
 static hmm_mat4 g_current_world_to_view_matrix;
 
-static void RenderObject(int object_index, long* previous_texture_index, main_shader_vs_params_t* vs_params, bool* are_fs_params_applied, main_shader_fs_params_t* fs_params) {
+static void RenderObject(int object_index, long* previous_texture_index, main_shader_vs_params_t* vs_params, bool* are_fs_params_applied, main_shader_fs_params_t* fs_params, bool skip_interpolation) {
     long current_texture_index = g_object_texture_index[object_index];
 
     if(*previous_texture_index != current_texture_index) {
@@ -802,7 +802,7 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
         sg_apply_bindings(&g_bindings);
     }
 
-    if(g_object_animation_is_continuous[object_index]) {
+    if(!skip_interpolation && g_object_animation_is_continuous[object_index]) {
         hmm_vec3 pos_current = *(hmm_vec3*)&g_object_local_to_world_matrix[object_index].Elements[3];
         hmm_vec3 pos_previous = *(hmm_vec3*)&g_object_local_to_world_matrix_previous[object_index].Elements[3];
 
@@ -811,10 +811,10 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
             pos_previous,
             HMM_MultiplyVec3f(
                 HMM_SubtractVec3(pos_current, pos_previous),
-                (float)g_extrapolation_scale));
-        // TODO: Handle extrapolation of rotation, scale
-        // actual_current_rotation = current_rotation + g_extrapolation_scale * (current_rotation - previous_rotation)
-        // actual_current_scale = current_scale + g_extrapolation_scale * (current_scale - previous_scale)
+                (float)g_interpolation_scale));
+        // TODO: Handle interpolation of rotation, scale
+        // actual_current_rotation = current_rotation + g_interpolation_scale * (current_rotation - previous_rotation)
+        // actual_current_scale = current_scale + g_interpolation_scale * (current_scale - previous_scale)
 
         vs_params->local_to_world_matrix = current_local_to_world_matrix;
         vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, current_local_to_world_matrix);
@@ -843,7 +843,7 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
     sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
 }
 
-void RendererDraw(double seconds_per_update_timestep, double seconds_since_previous_update, double time_scale) {
+void RendererDraw(double seconds_per_update_timestep, double seconds_since_previous_update, double time_scale, bool skip_interpolation) {
     sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
     float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
@@ -873,14 +873,17 @@ void RendererDraw(double seconds_per_update_timestep, double seconds_since_previ
     fs_params.fog_start = g_fog_start;
     fs_params.fog_end = g_fog_end;
 
-    hmm_vec3 camera_pos_current = *(hmm_vec3*)&g_world_to_view_matrix.Elements[3];
-    hmm_vec3 camera_pos_previous = *(hmm_vec3*)&g_world_to_view_matrix_previous.Elements[3];
     g_current_world_to_view_matrix = g_world_to_view_matrix;
-    *(hmm_vec3*)&g_current_world_to_view_matrix.Elements[3] = HMM_AddVec3(
-        camera_pos_previous,
-        HMM_MultiplyVec3f(
-            HMM_SubtractVec3(camera_pos_current, camera_pos_previous),
-            g_camera_animation_is_continuous ? (float)g_extrapolation_scale : 0.0f));
+
+    if(!skip_interpolation) {
+        hmm_vec3 camera_pos_current = *(hmm_vec3*)&g_world_to_view_matrix.Elements[3];
+        hmm_vec3 camera_pos_previous = *(hmm_vec3*)&g_world_to_view_matrix_previous.Elements[3];
+        *(hmm_vec3*)&g_current_world_to_view_matrix.Elements[3] = HMM_AddVec3(
+            camera_pos_previous,
+            HMM_MultiplyVec3f(
+                HMM_SubtractVec3(camera_pos_current, camera_pos_previous),
+                g_camera_animation_is_continuous ? (float)g_interpolation_scale : 0.0f));
+    }
 
     // Draw opaque
     sg_apply_pipeline(g_opaque_pipline);
@@ -890,7 +893,7 @@ void RendererDraw(double seconds_per_update_timestep, double seconds_since_previ
 
     for(long object_index = 0; object_index < g_object_count; ++object_index) {
         if(g_object_is_visible[object_index] && !g_texture_is_alpha_blend_enabled[g_object_texture_index[object_index]]) {
-            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params);
+            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, skip_interpolation);
         }
     }
 
@@ -902,14 +905,14 @@ void RendererDraw(double seconds_per_update_timestep, double seconds_since_previ
 
     for(long object_index = 0; object_index < g_object_count; ++object_index) {
         if(g_object_is_visible[object_index] && g_texture_is_alpha_blend_enabled[g_object_texture_index[object_index]]) {
-            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params);
+            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, skip_interpolation);
         }
     }
 
     sg_end_pass();
     sg_commit();
 
-    g_extrapolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;
+    g_interpolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;
 }
 
 static void FatalError(const char* error_msg) {
