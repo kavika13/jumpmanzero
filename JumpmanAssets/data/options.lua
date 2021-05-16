@@ -21,6 +21,64 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local menu_positions = {
+    {
+        left = 0.14,
+        right = 0.66,
+        top = 0.08,
+        bottom = 0.17,
+    },
+    {
+        left = 0.14,
+        right = 0.66,
+        top = 0.17,
+        bottom = 0.265,
+    },
+    {
+        left = 0.14,
+        right = 0.66,
+        top = 0.265,
+        bottom = 0.36,
+    },
+    {
+        left = 0.14,
+        right = 0.66,
+        top = 0.36,
+        bottom = 0.455,
+    },
+    {
+        left = 0.14,
+        right = 0.66,
+        top = 0.455,
+        bottom = 0.55,
+    },
+    {
+        left = 0.14,
+        right = 0.77,
+        top = 0.55,
+        bottom = 0.65,
+    },
+    {
+        left = 0.14,
+        right = 0.81,
+        top = 0.65,
+        bottom = 0.75,
+    },
+    {
+        left = 0.14,
+        right = 0.81,
+        top = 0.75,
+        bottom = 0.84,
+    },
+    {
+        left = 0.37,
+        right = 0.62,
+        top = 0.84,
+        bottom = 0.93,
+    },
+};
+menu_positions = read_only.make_table_read_only(menu_positions);
+
 local g_game_logic = nil;
 
 local g_option_letter_title_indices = {};
@@ -91,7 +149,7 @@ local function GetInput_(game_input)
         return;
     end
 
-    if game_input.select_action.just_pressed then
+    local do_menu_select = function()
         if g_option_selected_index == 9 then
             play_sound_effect(resources.SoundFire);
             g_is_game_selected = true;
@@ -123,11 +181,31 @@ local function GetInput_(game_input)
         else
             g_flash_animation_current_menu_option_index = g_option_selected_index;
         end
+    end
 
+    if game_input.select_action.just_pressed then
+        do_menu_select();
         return;
     end
 
     local iOldSelected = g_option_selected_index;
+
+    if game_input.cursor_is_on_screen then
+        local is_option_hovered = false;
+
+        for menu_item_index, menu_item_dims in ipairs(menu_positions) do
+            if game_input.cursor_position.x >= menu_item_dims.left and game_input.cursor_position.x <= menu_item_dims.right and
+                    game_input.cursor_position.y >= menu_item_dims.top and game_input.cursor_position.y <= menu_item_dims.bottom then
+                g_option_selected_index = menu_item_index;
+                is_option_hovered = true;
+            end
+        end
+
+        if is_option_hovered and game_input.cursor_select_action.just_pressed then
+            do_menu_select();
+            return;
+        end
+    end
 
     if game_input.move_up_action.just_pressed then
         g_option_selected_index = g_option_selected_index - 1;
