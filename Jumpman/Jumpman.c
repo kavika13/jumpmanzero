@@ -813,16 +813,16 @@ void InitGameNormal(const char* base_path) {
     CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0, 0);
 }
 
-void UpdateGame(const GameInput* game_input, double seconds_since_previous_update) {
+void UpdateGame(const GameInput* game_input, double seconds_per_update_timestep) {
     if(!IsGameFrozen()) {
-        RendererPreUpdate(seconds_since_previous_update);
+        RendererPreUpdate(seconds_per_update_timestep);
         CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0, 0);
         RendererPostUpdate();
     }
 }
 
-void DrawGame(double seconds_since_previous_draw, double time_scale) {
-    RendererDraw(seconds_since_previous_draw, time_scale);
+void DrawGame(double seconds_per_update_timestep, double seconds_since_previous_update, double time_scale) {
+    RendererDraw(seconds_per_update_timestep, seconds_since_previous_update, time_scale);
 }
 
 void ExitGame(void) {

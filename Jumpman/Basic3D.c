@@ -763,11 +763,11 @@ static void kill_scene(void) {
 }
 
 static double g_extrapolation_scale;
-static double g_seconds_since_previous_update;
+static double g_seconds_per_update_timestep;
 
-void RendererPreUpdate(double seconds_since_previous_update) {
+void RendererPreUpdate(double seconds_per_update_timestep) {
     g_extrapolation_scale = 0.0;
-    g_seconds_since_previous_update = seconds_since_previous_update;
+    g_seconds_per_update_timestep = seconds_per_update_timestep;
     g_world_to_view_matrix_previous = g_world_to_view_matrix;
     g_camera_animation_is_continuous = true;
 
@@ -843,7 +843,7 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
     sg_draw((int)g_object_vertex_start_index[object_index], (int)g_object_vertex_count[object_index], 1);
 }
 
-void RendererDraw(double seconds_since_previous_draw, double time_scale) {
+void RendererDraw(double seconds_per_update_timestep, double seconds_since_previous_update, double time_scale) {
     sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
     float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
@@ -909,7 +909,7 @@ void RendererDraw(double seconds_since_previous_draw, double time_scale) {
     sg_end_pass();
     sg_commit();
 
-    g_extrapolation_scale += time_scale * seconds_since_previous_draw / g_seconds_since_previous_update;
+    g_extrapolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;
 }
 
 static void FatalError(const char* error_msg) {

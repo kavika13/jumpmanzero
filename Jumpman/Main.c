@@ -635,7 +635,7 @@ int main(int arguments_count, char* arguments[]) {
 
     double previous_frame_time = glfwGetTime();
     srand((unsigned)previous_frame_time);  // TODO: Seed prng with something that will actually be unique
-    double previous_draw_time = previous_frame_time;
+    double previous_update_time = previous_frame_time;
 
     if(arguments_count > 1 && strlen(arguments[1])) {
         InitGameDebugLevel(g_game_base_path, arguments[1]);
@@ -665,6 +665,7 @@ int main(int arguments_count, char* arguments[]) {
             double update_begin_time = glfwGetTime();
             UpdateGame(&processed_input, kSECONDS_PER_FRAME);
             double update_end_time = glfwGetTime();
+            previous_update_time = update_end_time;
 
             game_prev_input = game_state.current_input;
 
@@ -715,8 +716,7 @@ int main(int arguments_count, char* arguments[]) {
         }
 
         double draw_and_swap_begin_time = glfwGetTime();
-        DrawGame(current_draw_time - previous_draw_time, time_scale);
-        previous_draw_time = current_draw_time;
+        DrawGame(kSECONDS_PER_FRAME, current_draw_time - previous_update_time, time_scale);
         glfwSwapBuffers(g_main_window);
         double draw_and_swap_end_time = glfwGetTime();
         double current_draw_and_swap_frame_time = draw_and_swap_end_time - draw_and_swap_begin_time;
