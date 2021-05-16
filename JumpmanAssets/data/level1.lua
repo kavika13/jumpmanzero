@@ -53,6 +53,9 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local kLADDER_ANIMATION_FRAME_STEP = 1;
+local kTRAP_DOOR_ANIMATION_FRAME_STEP = 3;
+
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -82,7 +85,7 @@ local function MoveLadder_(ladder_num, iPos)
     rotate_z_mesh_matrix(current_ladder.mesh_index, iPos * 2);
     rotate_x_mesh_matrix(current_ladder.mesh_index, iPos);
     translate_mesh_matrix(current_ladder.mesh_index, iX, iY, iZ - iPos);
-    skip_next_mesh_interpolation(current_ladder.mesh_index);  -- TODO: Why does interpolation look so wrong?
+    skip_next_mesh_interpolation(current_ladder.mesh_index);
 end
 
 local function MovePlatform_(platform_num, iRotate, iTran, pos_property_name)
@@ -94,7 +97,7 @@ local function MovePlatform_(platform_num, iRotate, iTran, pos_property_name)
     translate_mesh_matrix(current_platform.mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
     rotate_z_mesh_matrix(current_platform.mesh_index, iRotate);
     translate_mesh_matrix(current_platform.mesh_index, iPlatX + iTran, iPlatY, 0);
-    skip_next_mesh_interpolation(current_platform.mesh_index);  -- TODO: Why does interpolation look so wrong?
+    skip_next_mesh_interpolation(current_platform.mesh_index);
 end
 
 local function ProgressLevel_(game_input)
@@ -106,7 +109,7 @@ local function ProgressLevel_(game_input)
     end
 
     if g_is_left_trap_door_moving then
-        g_left_trap_door_animation_frame = g_left_trap_door_animation_frame + 3;
+        g_left_trap_door_animation_frame = g_left_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
         -- TODO: Use constant for num
         MovePlatform_(1, 0 - g_left_trap_door_animation_frame, 1, "pos_upper_left");
@@ -126,7 +129,7 @@ local function ProgressLevel_(game_input)
     end
 
     if g_is_right_trap_door_moving then
-        g_right_trap_door_animation_frame = g_right_trap_door_animation_frame + 3;
+        g_right_trap_door_animation_frame = g_right_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
         -- TODO: Use constant for num
         MovePlatform_(3, 0 - g_right_trap_door_animation_frame, 1, "pos_upper_left");
@@ -147,7 +150,7 @@ local function ProgressLevel_(game_input)
     end
 
     if g_is_left_ladder_moving then
-        g_left_ladder_animation_frame = g_left_ladder_animation_frame + 1;
+        g_left_ladder_animation_frame = g_left_ladder_animation_frame + kLADDER_ANIMATION_FRAME_STEP;
 
         MoveLadder_(1, g_left_ladder_animation_frame);  -- TODO: Use constant for num
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
@@ -161,7 +164,7 @@ local function ProgressLevel_(game_input)
     end
 
     if g_is_right_ladder_moving then
-        g_right_ladder_animation_frame = g_right_ladder_animation_frame + 1;
+        g_right_ladder_animation_frame = g_right_ladder_animation_frame + kLADDER_ANIMATION_FRAME_STEP;
 
         MoveLadder_(2, g_right_ladder_animation_frame);  -- TODO: Use constant for num
         -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
@@ -230,6 +233,36 @@ function Module.update(game_input)
     end
 
     ProgressLevel_(game_input);
+end
+
+function Module.pre_draw(seconds_per_update_timestep, seconds_since_previous_update, time_scale)
+    if player_won then
+        return false;
+    end
+
+    local interpolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;
+
+    if g_is_left_trap_door_moving then
+        -- TODO: Use constant for num
+        MovePlatform_(1, 0 - (g_left_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP), 1, "pos_upper_left");
+        MovePlatform_(2, g_left_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP, 0 - 1, "pos_lower_right");
+    end
+
+    if g_is_right_trap_door_moving then
+        -- TODO: Use constant for num
+        MovePlatform_(3, 0 - (g_right_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP), 1, "pos_upper_left");
+        MovePlatform_(4, g_right_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP, 0 - 1, "pos_lower_right");
+    end
+
+    if g_is_left_ladder_moving then
+        MoveLadder_(1, g_left_ladder_animation_frame + interpolation_scale * kLADDER_ANIMATION_FRAME_STEP);  -- TODO: Use constant for num
+    end
+
+    if g_is_right_ladder_moving then
+        MoveLadder_(2, g_right_ladder_animation_frame + interpolation_scale * kLADDER_ANIMATION_FRAME_STEP);  -- TODO: Use constant for num
+    end
+
+    return false;  -- TODO: Should this ever be returned true?
 end
 
 function Module.on_collect_donut(game_input, donut_num)
