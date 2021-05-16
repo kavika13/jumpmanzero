@@ -56,6 +56,8 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local kBACKGROUND_ANIMATION_FRAME_STEP = -0.5;
+
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
@@ -66,16 +68,15 @@ local g_visibility_bitmask;
 local g_visibility_change_frames_left = 0;
 local g_background_rotation = 0;
 
-local function RotateBack_()
-    g_background_rotation = g_background_rotation - 0.5;
-
+local function RotateBack_(background_rotation)
     for backdrop_num = 200, 203 do  -- TODO: Use constant for num
         local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(backdrop_num).mesh_index;
         set_identity_mesh_matrix(backdrop_mesh_index);
         translate_mesh_matrix(backdrop_mesh_index, -80, -40, 0);
         scale_mesh_matrix(backdrop_mesh_index, 1.1, 1.1, 1);
-        rotate_z_mesh_matrix(backdrop_mesh_index, g_background_rotation);
+        rotate_z_mesh_matrix(backdrop_mesh_index, background_rotation);
         translate_mesh_matrix(backdrop_mesh_index, 80, 40, 0);
+        skip_next_mesh_interpolation(backdrop_mesh_index);
     end
 end
 
@@ -94,6 +95,7 @@ local function SetConfig_()
 
         platform_to_hide.set_pos_y(500, 500);
         translate_mesh_matrix(platform_to_hide.mesh_index, 0, 0, 2000);  -- TODO: Just do set_mesh_is_visible false?
+        -- TODO: Need to skip interpolation?
     end
 end
 
@@ -182,7 +184,8 @@ local function ProgressLevel_(game_input)
         end
     end
 
-    RotateBack_();
+    g_background_rotation = g_background_rotation + kBACKGROUND_ANIMATION_FRAME_STEP;
+    RotateBack_(g_background_rotation);
 
     for _, bullet in ipairs(g_bullets) do
         bullet.update();
@@ -229,6 +232,8 @@ function Module.initialize(game_input)
     ProgressLevel_(game_input);
     ProgressLevel_(game_input);
     ProgressLevel_(game_input);
+
+    skip_next_camera_interpolation();  -- TODO: Should this always happen for every level?
 end
 
 function Module.update(game_input)
@@ -238,6 +243,18 @@ function Module.update(game_input)
     end
 
     ProgressLevel_(game_input);
+end
+
+function Module.pre_draw(seconds_per_update_timestep, seconds_since_previous_update, time_scale)
+    if g_player_won then
+        return false;
+    end
+
+    local interpolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;  -- TODO: Just pass in interpolation_scale instead?
+
+    RotateBack_(g_background_rotation + kBACKGROUND_ANIMATION_FRAME_STEP * interpolation_scale);
+
+    return false;  -- TODO: Should this ever be returned true?
 end
 
 function Module.on_collect_donut()
@@ -255,6 +272,8 @@ function Module.reset()
     for _, bullet in ipairs(g_bullets) do
         bullet.reset_pos();
     end
+
+    skip_next_camera_interpolation();  -- TODO: Should this always happen for every level?
 end
 
 return Module;
