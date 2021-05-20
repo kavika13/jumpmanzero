@@ -2434,6 +2434,27 @@ hmm_quaternion HMM_Slerp(hmm_quaternion Left, float Time, hmm_quaternion Right)
     hmm_quaternion QuaternionRight;
 
     float Cos_Theta = HMM_DotQuaternion(Left, Right);
+    // TODO: Jumpman modification --- start
+
+    // If cosTheta < 0, the interpolation will take the long way around the sphere.
+    // To fix this, one quat must be negated.
+    if(Cos_Theta < 0.0f)
+    {
+        Right = (hmm_quaternion){ .X = -Right.X, .Y = -Right.Y, .Z = -Right.Z, .W = -Right.W };
+        Cos_Theta = -Cos_Theta;
+    }
+
+    // Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+    if(Cos_Theta > 1.0f - 0.001f)
+    {
+        Result.X = HMM_Lerp(Left.X, Time, Right.X);
+        Result.Y = HMM_Lerp(Left.Y, Time, Right.Y);
+        Result.Z = HMM_Lerp(Left.Z, Time, Right.Z);
+        Result.W = HMM_Lerp(Left.W, Time, Right.W);
+        return Result;
+    }
+
+    // TODO: Jumpman modification --- end
     float Angle = HMM_ACosF(Cos_Theta);
 
     float S1 = HMM_SinF((1.0f - Time) * Angle);

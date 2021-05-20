@@ -99,11 +99,12 @@ static long g_transform_count = 0;
 static hmm_vec3 g_transform_translations[kMAX_TRANSFORMS];
 static hmm_quaternion g_transform_rotations[kMAX_TRANSFORMS];
 static hmm_vec3 g_transform_scales[kMAX_TRANSFORMS];
+static hmm_vec3 g_transform_translations_previous[kMAX_TRANSFORMS];
+static hmm_quaternion g_transform_rotations_previous[kMAX_TRANSFORMS];
+static hmm_vec3 g_transform_scales_previous[kMAX_TRANSFORMS];
 static int g_transform_parent_indices[kMAX_TRANSFORMS];
 // TODO: Add this? static bool g_transform_parent_to_camera[kMAX_TRANSFORMS];  -- Do we assume that it has no parent if we're parenting to camera? Do we set parent index to -1?
-// TODO: Add previous for all these, for interpolation
-
-// TODO: Figure out how to do redirection, while still getting children to be next to parents, for better cache performance
+// TODO: Figure out how to do transform redirection, while still getting children to be next to parents, for better cache performance
 
 static long g_object_count = 0;
 
@@ -254,6 +255,22 @@ HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Nea
     return (Result);
 }
 
+static hmm_vec3 HMM_LerpVec3(hmm_vec3 lhs, hmm_vec3 rhs, float time) {
+    return HMM_AddVec3(
+        lhs,
+        HMM_MultiplyVec3f(
+            HMM_SubtractVec3(rhs, lhs),
+            time));
+}
+
+static hmm_vec2 HMM_LerpVec2(hmm_vec2 lhs, hmm_vec2 rhs, float time) {
+    return HMM_AddVec2(
+        lhs,
+        HMM_MultiplyVec2f(
+            HMM_SubtractVec2(rhs, lhs),
+            time));
+}
+
 // End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
 static long SurfaceObject(long o1) {
@@ -348,6 +365,9 @@ int TransformCreate(void) {
         g_transform_translations[new_transform_index] = (hmm_vec3){ 0 };
         g_transform_rotations[new_transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
         g_transform_scales[new_transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+        g_transform_translations_previous[new_transform_index] = (hmm_vec3){ 0 };
+        g_transform_rotations_previous[new_transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+        g_transform_scales_previous[new_transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
         g_transform_parent_indices[new_transform_index] = -1;
         ++g_transform_count;
     } // TODO: Else log?
@@ -366,6 +386,9 @@ void TransformDelete(int deleting_transform_index) {
             g_transform_translations[deleting_transform_index] = g_transform_translations[last_transform_index];
             g_transform_rotations[deleting_transform_index] = g_transform_rotations[last_transform_index];
             g_transform_scales[deleting_transform_index] = g_transform_scales[last_transform_index];
+            g_transform_translations_previous[deleting_transform_index] = g_transform_translations_previous[last_transform_index];
+            g_transform_rotations_previous[deleting_transform_index] = g_transform_rotations_previous[last_transform_index];
+            g_transform_scales_previous[deleting_transform_index] = g_transform_scales_previous[last_transform_index];
             g_transform_parent_indices[deleting_transform_index] = g_transform_parent_indices[last_transform_index];
 
             // Redirect all objects that pointed at last transform to its new location
@@ -647,6 +670,9 @@ void Clear3dData(void) {
         g_transform_translations[index] = (hmm_vec3){ 0 };
         g_transform_rotations[index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
         g_transform_scales[index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+        g_transform_translations_previous[index] = (hmm_vec3){ 0 };
+        g_transform_rotations_previous[index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+        g_transform_scales_previous[index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
         g_transform_parent_indices[index] = -1;
     }
 
@@ -1039,6 +1065,12 @@ void RendererPreUpdate(double seconds_per_update_timestep) {
         g_object_uv_offset_previous[object_index] = g_object_uv_offset[object_index];
         g_object_local_to_world_matrix_previous[object_index] = g_object_local_to_world_matrix[object_index];
     }
+
+    for(int transform_index = 0; transform_index < g_transform_count; ++transform_index) {
+        g_transform_translations_previous[transform_index] = g_transform_translations[transform_index];
+        g_transform_rotations_previous[transform_index] = g_transform_rotations[transform_index];
+        g_transform_scales_previous[transform_index] = g_transform_scales[transform_index];
+    }
 }
 
 void RendererPostUpdate(void) {
@@ -1065,7 +1097,6 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
 
     if(current_transform_index != -1) {
         // TODO: Calculate matrices in more cache-friendly/packed manner
-        // TODO: Do interpolation at a per-transform level
         hmm_mat4 current_local_to_world_matrix = { {
             { 1, 0, 0, 0 },
             { 0, 1, 0, 0 },
@@ -1073,34 +1104,50 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
             { 0, 0, 0, 1 },
         } };
 
-        while(current_transform_index != -1) {
-            current_local_to_world_matrix = HMM_MultiplyMat4(
-                HMM_Scale(g_transform_scales[current_transform_index]),
-                HMM_MultiplyMat4(
-                    HMM_QuaternionToMat4(g_transform_rotations[current_transform_index]),
+        if(do_interpolation && g_object_animation_is_continuous[object_index]) {
+            while(current_transform_index != -1) {
+                hmm_vec3 current_translation = HMM_LerpVec3(g_transform_translations_previous[current_transform_index], g_transform_translations[current_transform_index], interpolation_scale);
+                hmm_quaternion current_rotation = HMM_Slerp(g_transform_rotations_previous[current_transform_index], interpolation_scale, g_transform_rotations[current_transform_index]);
+                hmm_vec3 current_scale = HMM_LerpVec3(g_transform_scales_previous[current_transform_index], g_transform_scales[current_transform_index], interpolation_scale);
+                current_local_to_world_matrix =
                     HMM_MultiplyMat4(
-                        HMM_Translate(g_transform_translations[current_transform_index]),
-                        current_local_to_world_matrix)));
-            current_transform_index = g_transform_parent_indices[current_transform_index];
+                        HMM_Scale(current_scale),
+                        HMM_MultiplyMat4(
+                            HMM_QuaternionToMat4(current_rotation),
+                            HMM_MultiplyMat4(
+                                HMM_Translate(current_translation),
+                                current_local_to_world_matrix)));
+                current_transform_index = g_transform_parent_indices[current_transform_index];
+            }
+        } else {
+            while(current_transform_index != -1) {
+                hmm_vec3 current_translation = g_transform_translations[current_transform_index];
+                hmm_quaternion current_rotation = g_transform_rotations[current_transform_index];
+                hmm_vec3 current_scale = g_transform_scales[current_transform_index];
+                current_local_to_world_matrix =
+                    HMM_MultiplyMat4(
+                        HMM_Scale(current_scale),
+                        HMM_MultiplyMat4(
+                            HMM_QuaternionToMat4(current_rotation),
+                            HMM_MultiplyMat4(
+                                HMM_Translate(current_translation),
+                                current_local_to_world_matrix)));
+                current_transform_index = g_transform_parent_indices[current_transform_index];
+            }
         }
 
         g_object_local_to_world_matrix[object_index] = current_local_to_world_matrix;
         used_transform = true;
     }
 
+    // TODO: De-duplicate code below
     if(do_interpolation && !used_transform && g_object_animation_is_continuous[object_index]) {
+        // TODO: Don't need to do interpolation here once every script uses transform instead of matrix
         hmm_vec3 pos_current = *(hmm_vec3*)&g_object_local_to_world_matrix[object_index].Elements[3];
         hmm_vec3 pos_previous = *(hmm_vec3*)&g_object_local_to_world_matrix_previous[object_index].Elements[3];
 
         hmm_mat4 current_local_to_world_matrix = g_object_local_to_world_matrix[object_index];
-        *(hmm_vec3*)&current_local_to_world_matrix.Elements[3] = HMM_AddVec3(
-            pos_previous,
-            HMM_MultiplyVec3f(
-                HMM_SubtractVec3(pos_current, pos_previous),
-                interpolation_scale));
-        // TODO: Handle interpolation of rotation, scale
-        // actual_current_rotation = current_rotation + g_interpolation_scale * (current_rotation - previous_rotation)
-        // actual_current_scale = current_scale + g_interpolation_scale * (current_scale - previous_scale)
+        *(hmm_vec3*)&current_local_to_world_matrix.Elements[3] = HMM_LerpVec3(pos_previous, pos_current, interpolation_scale);
 
         vs_params->local_to_world_matrix = current_local_to_world_matrix;
         vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, current_local_to_world_matrix);
@@ -1109,11 +1156,7 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
             current_local_to_world_matrix);
         vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(current_local_to_world_matrix));
 
-        vs_params->uv_offset = HMM_AddVec2(
-            g_object_uv_offset_previous[object_index],
-            HMM_MultiplyVec2f(
-                HMM_SubtractVec2(g_object_uv_offset[object_index], g_object_uv_offset_previous[object_index]),
-                interpolation_scale));
+        vs_params->uv_offset = HMM_LerpVec2(g_object_uv_offset_previous[object_index], g_object_uv_offset[object_index], interpolation_scale);
     } else {
         vs_params->local_to_world_matrix = g_object_local_to_world_matrix[object_index];
         vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
@@ -1121,7 +1164,12 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
             HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
             g_object_local_to_world_matrix[object_index]);
         vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
-        vs_params->uv_offset = g_object_uv_offset[object_index];
+
+        if(do_interpolation && used_transform && g_object_animation_is_continuous[object_index]) {  // Still do UV interpolation even if transform was used
+            vs_params->uv_offset = HMM_LerpVec2(g_object_uv_offset_previous[object_index], g_object_uv_offset[object_index], interpolation_scale);
+        } else {
+            vs_params->uv_offset = g_object_uv_offset[object_index];
+        }
     }
 
     sg_apply_uniforms(SG_SHADERSTAGE_VS, 0, &(sg_range){ vs_params, sizeof(*vs_params) });
