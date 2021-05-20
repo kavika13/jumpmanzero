@@ -227,6 +227,144 @@ static int rotate_z_mesh_matrix(lua_State* lua_state) {
     return 0;
 }
 
+
+static int transform_create(lua_State* lua_state) {
+    int new_transform_index = TransformCreate();
+    lua_pushinteger(lua_state, new_transform_index);
+    return 1;
+}
+
+static int transform_delete(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    TransformDelete((int)arg_transform_index);
+    return 0;
+}
+
+static int transform_get_parent(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    int parent_transform_index = TransformGetParent((long)arg_transform_index);
+    lua_pushinteger(lua_state, parent_transform_index);
+    return 1;
+}
+
+static int transform_set_parent(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer arg_new_parent_index = luaL_checkinteger(lua_state, 2);
+    TransformSetParent((int)arg_transform_index, (int)arg_new_parent_index);
+    return 0;
+}
+
+static int transform_clear_parent(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    TransformClearParent((int)arg_transform_index);
+    return 0;
+}
+
+static int object_get_transform(lua_State* lua_state) {
+    lua_Integer arg_object_index = luaL_checkinteger(lua_state, 1);
+    int transform_index = ObjectGetTransform((long)arg_object_index);
+    lua_pushinteger(lua_state, transform_index);
+    return 1;
+}
+
+static int object_set_transform(lua_State* lua_state) {
+    lua_Integer arg_object_index = luaL_checkinteger(lua_state, 1);
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 2);
+    ObjectSetTransform((long)arg_object_index, (int)arg_transform_index);
+    return 0;
+}
+
+static int object_clear_transform(lua_State* lua_state) {
+    lua_Integer arg_object_index = luaL_checkinteger(lua_state, 1);
+    ObjectClearTransform((long)arg_object_index);
+    return 0;
+}
+
+static int transform_set_to_identity(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    TransformSetToIdentity((int)arg_transform_index);
+    return 0;
+}
+
+static int transform_set_translation(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_x = luaL_checknumber(lua_state, 2);
+    double arg_y = luaL_checknumber(lua_state, 3);
+    double arg_z = luaL_checknumber(lua_state, 4);
+    TransformSetTranslation((int)arg_transform_index, (float)arg_x, (float)arg_y, (float)arg_z);
+    return 0;
+}
+
+static int transform_clear_translation(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    TransformClearTranslation((int)arg_transform_index);
+    return 0;
+}
+
+static int transform_set_rotation_x(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_angle_in_degrees = luaL_checknumber(lua_state, 2);
+    TransformSetRotationX((int)arg_transform_index, (float)arg_angle_in_degrees);
+    return 0;
+}
+
+static int transform_set_rotation_y(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_angle_in_degrees = luaL_checknumber(lua_state, 2);
+    TransformSetRotationY((int)arg_transform_index, (float)arg_angle_in_degrees);
+    return 0;
+}
+
+static int transform_set_rotation_z(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_angle_in_degrees = luaL_checknumber(lua_state, 2);
+    TransformSetRotationZ((int)arg_transform_index, (float)arg_angle_in_degrees);
+    return 0;
+}
+
+static int transform_concat_rotation_x(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_angle_in_degrees = luaL_checknumber(lua_state, 2);
+    TransformConcatRotationX((int)arg_transform_index, (float)arg_angle_in_degrees);
+    return 0;
+}
+
+static int transform_concat_rotation_y(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_angle_in_degrees = luaL_checknumber(lua_state, 2);
+    TransformConcatRotationY((int)arg_transform_index, (float)arg_angle_in_degrees);
+    return 0;
+}
+
+static int transform_concat_rotation_z(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_angle_in_degrees = luaL_checknumber(lua_state, 2);
+    TransformConcatRotationZ((int)arg_transform_index, (float)arg_angle_in_degrees);
+    return 0;
+}
+
+static int transform_clear_rotation(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    TransformClearRotation((int)arg_transform_index);
+    return 0;
+}
+
+static int transform_set_scale(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    double arg_x = luaL_checknumber(lua_state, 2);
+    double arg_y = luaL_checknumber(lua_state, 3);
+    double arg_z = luaL_checknumber(lua_state, 4);
+    TransformSetScale((int)arg_transform_index, (float)arg_x, (float)arg_y, (float)arg_z);
+    return 0;
+}
+
+static int transform_clear_scale(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    TransformClearScale((int)arg_transform_index);
+    return 0;
+}
+
+
 static int scroll_texture_on_mesh(lua_State* lua_state) {
     lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
     double arg_x = luaL_checknumber(lua_state, 2);
@@ -624,6 +762,47 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "set_mesh_texture");
     lua_pushcfunction(lua_state, set_mesh_is_visible);
     lua_setglobal(lua_state, "set_mesh_is_visible");
+
+    lua_pushcfunction(lua_state, transform_create);
+    lua_setglobal(lua_state, "transform_create");
+    lua_pushcfunction(lua_state, transform_delete);
+    lua_setglobal(lua_state, "transform_delete");
+    lua_pushcfunction(lua_state, transform_get_parent);
+    lua_setglobal(lua_state, "transform_get_parent");
+    lua_pushcfunction(lua_state, transform_set_parent);
+    lua_setglobal(lua_state, "transform_set_parent");
+    lua_pushcfunction(lua_state, transform_clear_parent);
+    lua_setglobal(lua_state, "transform_clear_parent");
+    lua_pushcfunction(lua_state, object_get_transform);
+    lua_setglobal(lua_state, "object_get_transform");
+    lua_pushcfunction(lua_state, object_set_transform);
+    lua_setglobal(lua_state, "object_set_transform");
+    lua_pushcfunction(lua_state, object_clear_transform);
+    lua_setglobal(lua_state, "object_clear_transform");
+    lua_pushcfunction(lua_state, transform_set_to_identity);
+    lua_setglobal(lua_state, "transform_set_to_identity");
+    lua_pushcfunction(lua_state, transform_set_translation);
+    lua_setglobal(lua_state, "transform_set_translation");
+    lua_pushcfunction(lua_state, transform_clear_translation);
+    lua_setglobal(lua_state, "transform_clear_translation");
+    lua_pushcfunction(lua_state, transform_set_rotation_x);
+    lua_setglobal(lua_state, "transform_set_rotation_x");
+    lua_pushcfunction(lua_state, transform_set_rotation_y);
+    lua_setglobal(lua_state, "transform_set_rotation_y");
+    lua_pushcfunction(lua_state, transform_set_rotation_z);
+    lua_setglobal(lua_state, "transform_set_rotation_z");
+    lua_pushcfunction(lua_state, transform_concat_rotation_x);
+    lua_setglobal(lua_state, "transform_concat_rotation_x");
+    lua_pushcfunction(lua_state, transform_concat_rotation_y);
+    lua_setglobal(lua_state, "transform_concat_rotation_y");
+    lua_pushcfunction(lua_state, transform_concat_rotation_z);
+    lua_setglobal(lua_state, "transform_concat_rotation_z");
+    lua_pushcfunction(lua_state, transform_clear_rotation);
+    lua_setglobal(lua_state, "transform_clear_rotation");
+    lua_pushcfunction(lua_state, transform_set_scale);
+    lua_setglobal(lua_state, "transform_set_scale");
+    lua_pushcfunction(lua_state, transform_clear_scale);
+    lua_setglobal(lua_state, "transform_clear_scale");
 
     lua_pushcfunction(lua_state, get_loaded_texture_count);
     lua_setglobal(lua_state, "get_loaded_texture_count");

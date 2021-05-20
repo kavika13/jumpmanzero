@@ -40,6 +40,7 @@
 #include "logging.h"
 
 #define kMAX_TEXTURES ((size_t)30)
+#define kMAX_TRANSFORMS ((size_t)1200)
 #define kMAX_OBJECTS ((size_t)600)
 #define kMAX_VERTICES ((size_t)110000)
 
@@ -93,7 +94,18 @@ static bool g_camera_animation_is_continuous = false;
 static long g_vertices_to_load_count;
 static MeshVertex* g_vertices_to_load = NULL;
 
-static long g_object_count;
+static long g_transform_count = 0;
+
+static hmm_vec3 g_transform_translations[kMAX_TRANSFORMS];
+static hmm_quaternion g_transform_rotations[kMAX_TRANSFORMS];
+static hmm_vec3 g_transform_scales[kMAX_TRANSFORMS];
+static int g_transform_parent_indices[kMAX_TRANSFORMS];
+// TODO: Add this? static bool g_transform_parent_to_camera[kMAX_TRANSFORMS];  -- Do we assume that it has no parent if we're parenting to camera? Do we set parent index to -1?
+// TODO: Add previous for all these, for interpolation
+
+// TODO: Figure out how to do redirection, while still getting children to be next to parents, for better cache performance
+
+static long g_object_count = 0;
 
 static long g_object_redirects[kMAX_OBJECTS];
 static long g_object_vertex_start_index[kMAX_OBJECTS];
@@ -106,6 +118,7 @@ static long g_object_is_visible_previous[kMAX_OBJECTS];
 static hmm_vec2 g_object_uv_offset_previous[kMAX_OBJECTS];
 static hmm_mat4 g_object_local_to_world_matrix_previous[kMAX_OBJECTS];
 static bool g_object_animation_is_continuous[kMAX_OBJECTS];
+static int g_object_transform_index[kMAX_OBJECTS];
 
 // Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
@@ -264,6 +277,7 @@ void DeleteMesh(long iMesh) {
     --g_object_count;
 }
 
+
 void IdentityMatrix(long iObj) {
     long iReal = g_object_redirects[iObj];
     hmm_mat4 result = { {
@@ -324,6 +338,237 @@ void RotateMatrixZ(long iObj, float fDegrees) {
         g_object_local_to_world_matrix[iReal]);
 }
 
+
+int TransformCreate(void) {
+    assert(g_transform_count < kMAX_TRANSFORMS);
+    int new_transform_index = -1;
+
+    if(g_transform_count < kMAX_TRANSFORMS) {
+        new_transform_index = g_transform_count;
+        g_transform_translations[new_transform_index] = (hmm_vec3){ 0 };
+        g_transform_rotations[new_transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+        g_transform_scales[new_transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+        g_transform_parent_indices[new_transform_index] = -1;
+        ++g_transform_count;
+    } // TODO: Else log?
+
+    return new_transform_index;
+}
+
+void TransformDelete(int deleting_transform_index) {
+    assert(deleting_transform_index >= 0);
+    assert(deleting_transform_index < g_transform_count);
+    int last_transform_index = g_transform_count - 1;
+
+    if(deleting_transform_index >= 0 && deleting_transform_index < g_transform_count) {
+        if(deleting_transform_index < last_transform_index) {
+            // Overwrite the transform being deleted with the last transform
+            g_transform_translations[deleting_transform_index] = g_transform_translations[last_transform_index];
+            g_transform_rotations[deleting_transform_index] = g_transform_rotations[last_transform_index];
+            g_transform_scales[deleting_transform_index] = g_transform_scales[last_transform_index];
+            g_transform_parent_indices[deleting_transform_index] = g_transform_parent_indices[last_transform_index];
+
+            // Redirect all objects that pointed at last transform to its new location
+            for(int object_index = 0; object_index < g_object_count; ++object_index) {
+                if(g_object_transform_index[object_index] == last_transform_index) {
+                    g_object_transform_index[object_index] = deleting_transform_index;
+                }
+            }
+
+            // Redirect all transforms that had the last transform as their parent to its new location
+            for(int child_transform_index = 0; child_transform_index < g_transform_count; ++child_transform_index) {
+                if(g_transform_parent_indices[child_transform_index] == last_transform_index) {
+                    g_transform_parent_indices[child_transform_index] = deleting_transform_index;
+                }
+            }
+
+            --g_transform_count;
+        }
+    } // TODO: Else log?
+}
+
+int TransformGetParent(int transform_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+    int result = -1;
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        result = g_transform_parent_indices[transform_index];
+    } // TODO: Else log?
+
+    return result;
+}
+
+void TransformSetParent(int transform_index, int new_parent_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+    assert(new_parent_index >= 0);
+    assert(new_parent_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count && new_parent_index >= 0 && new_parent_index < g_transform_count) {
+        // TODO: Detect cycle, assert, and break the cycle in non-debug build
+        g_transform_parent_indices[transform_index] = new_parent_index;
+    } // TODO: Else log?
+}
+
+void TransformClearParent(int transform_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_parent_indices[transform_index] = -1;
+    } // TODO: Else log?
+}
+
+int ObjectGetTransform(long object_index) {
+    assert(object_index >= 0);
+    assert(object_index < g_object_count);
+    int result = -1;
+
+    if(object_index >= 0 && object_index < g_object_count) {
+        result = g_object_transform_index[object_index];
+    } // TODO: Else log?
+
+    return result;
+}
+
+void ObjectSetTransform(long object_index, int transform_index) {
+    assert(object_index >= 0);
+    assert(object_index < g_object_count);
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(object_index >= 0 && object_index < g_object_count && transform_index >= 0 && transform_index < g_transform_count) {
+        g_object_transform_index[object_index] = transform_index;
+    } // TODO: Else log?
+}
+
+void ObjectClearTransform(long object_index) {
+    assert(object_index >= 0);
+    assert(object_index < g_object_count);
+
+    if(object_index >= 0 && object_index < g_object_count) {
+        g_object_transform_index[object_index] = -1;
+    } // TODO: Else log?
+}
+
+void TransformSetToIdentity(int transform_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_translations[transform_index] = (hmm_vec3){ 0 };
+        g_transform_rotations[transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+        g_transform_scales[transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+    } // TODO: Else log?
+}
+
+void TransformSetTranslation(int transform_index, float x, float y, float z) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_translations[transform_index] = (hmm_vec3){ .X = x, .Y = y, .Z = z };
+    } // TODO: Else log?
+}
+
+void TransformClearTranslation(int transform_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_translations[transform_index] = (hmm_vec3){ 0 };
+    } // TODO: Else log?
+}
+
+void TransformSetRotationX(int transform_index, float angle_in_degrees) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {        
+        g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 1.0f, .Y = 0.0f, .Z = 0.0f }, HMM_ToRadians(angle_in_degrees));
+    } // TODO: Else log?
+}
+
+void TransformSetRotationY(int transform_index, float angle_in_degrees) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 0.0f, .Y = 1.0f, .Z = 0.0f }, HMM_ToRadians(angle_in_degrees));
+    } // TODO: Else log?
+}
+
+void TransformSetRotationZ(int transform_index, float angle_in_degrees) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 0.0f, .Y = 0.0f, .Z = 1.0f }, HMM_ToRadians(angle_in_degrees));
+    } // TODO: Else log?
+}
+
+void TransformConcatRotationX(int transform_index, float angle_in_degrees) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {        
+        g_transform_rotations[transform_index] = HMM_MultiplyQuaternion(
+            HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 1.0f, .Y = 0.0f, .Z = 0.0f }, HMM_ToRadians(angle_in_degrees)),
+            g_transform_rotations[transform_index]);
+    } // TODO: Else log?
+}
+
+void TransformConcatRotationY(int transform_index, float angle_in_degrees) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_rotations[transform_index] = HMM_MultiplyQuaternion(
+            HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 0.0f, .Y = 1.0f, .Z = 0.0f }, HMM_ToRadians(angle_in_degrees)),
+            g_transform_rotations[transform_index]);
+    } // TODO: Else log?
+}
+
+void TransformConcatRotationZ(int transform_index, float angle_in_degrees) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_rotations[transform_index] = HMM_MultiplyQuaternion(
+            HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 0.0f, .Y = 0.0f, .Z = 1.0f }, HMM_ToRadians(angle_in_degrees)),
+            g_transform_rotations[transform_index]);
+    } // TODO: Else log?
+}
+
+void TransformClearRotation(int transform_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_rotations[transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+    } // TODO: Else log?
+}
+
+void TransformSetScale(int transform_index, float x, float y, float z) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_scales[transform_index] = (hmm_vec3){ .X = x, .Y = y, .Z = z };
+    } // TODO: Else log?
+}
+
+void TransformClearScale(int transform_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if(transform_index >= 0 && transform_index < g_transform_count) {
+        g_transform_scales[transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+    } // TODO: Else log?
+}
+
+
 void MoveTransparentMeshToFront(long o1) {
     for(long iSwap = g_object_redirects[o1] + 1; iSwap < g_object_count; ++iSwap) {
         SwapObjects(iSwap, iSwap - 1);
@@ -338,6 +583,12 @@ void MoveTransparentMeshToBack(long o1) {
 
 static void SwapLong(long* l1, long* l2) {
     long iSwap = *l1;
+    *l1 = *l2;
+    *l2 = iSwap;
+}
+
+static void SwapInt(int* l1, int* l2) {
+    int iSwap = *l1;
     *l1 = *l2;
     *l2 = iSwap;
 }
@@ -372,6 +623,8 @@ static void SwapObjects(long o1, long o2) {
     SwapLong(&g_object_is_visible[iRealO1], &g_object_is_visible[iRealO2]);
     SwapLong(&g_object_is_visible_previous[iRealO1], &g_object_is_visible_previous[iRealO2]);
 
+    SwapInt(&g_object_transform_index[iRealO1], &g_object_transform_index[iRealO2]);
+
     SwapLong(&g_object_redirects[SurfaceObject(o1)], &g_object_redirects[SurfaceObject(o2)]);
 }
 
@@ -388,12 +641,22 @@ void Clear3dData(void) {
         g_textures[iLoop].id = SG_INVALID_ID;
     }
 
+    g_transform_count = 0;
+
+    for(int index = 0; index < kMAX_TRANSFORMS; ++index) {
+        g_transform_translations[index] = (hmm_vec3){ 0 };
+        g_transform_rotations[index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+        g_transform_scales[index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+        g_transform_parent_indices[index] = -1;
+    }
+
     g_object_count = 0;
 
     for(int iLoop = 0; iLoop < kMAX_OBJECTS; ++iLoop) {
         g_object_redirects[iLoop] = -1;
         g_object_uv_offset[iLoop] = (const hmm_vec2){ 0 };
         g_object_animation_is_continuous[iLoop] = false;
+        g_object_transform_index[iLoop] = -1;
         // TODO: Set visibility?
     }
 
@@ -797,7 +1060,35 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
         sg_apply_bindings(&g_bindings);
     }
 
-    if(do_interpolation && g_object_animation_is_continuous[object_index]) {
+    int current_transform_index = g_object_transform_index[object_index];
+    bool used_transform = false;
+
+    if(current_transform_index != -1) {
+        // TODO: Calculate matrices in more cache-friendly/packed manner
+        // TODO: Do interpolation at a per-transform level
+        hmm_mat4 current_local_to_world_matrix = { {
+            { 1, 0, 0, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0, 1, 0 },
+            { 0, 0, 0, 1 },
+        } };
+
+        while(current_transform_index != -1) {
+            current_local_to_world_matrix = HMM_MultiplyMat4(
+                HMM_Scale(g_transform_scales[current_transform_index]),
+                HMM_MultiplyMat4(
+                    HMM_QuaternionToMat4(g_transform_rotations[current_transform_index]),
+                    HMM_MultiplyMat4(
+                        HMM_Translate(g_transform_translations[current_transform_index]),
+                        current_local_to_world_matrix)));
+            current_transform_index = g_transform_parent_indices[current_transform_index];
+        }
+
+        g_object_local_to_world_matrix[object_index] = current_local_to_world_matrix;
+        used_transform = true;
+    }
+
+    if(do_interpolation && !used_transform && g_object_animation_is_continuous[object_index]) {
         hmm_vec3 pos_current = *(hmm_vec3*)&g_object_local_to_world_matrix[object_index].Elements[3];
         hmm_vec3 pos_previous = *(hmm_vec3*)&g_object_local_to_world_matrix_previous[object_index].Elements[3];
 

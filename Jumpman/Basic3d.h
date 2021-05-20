@@ -52,6 +52,27 @@ void RotateMatrixX(long iObj, float fDegrees);
 void RotateMatrixY(long iObj, float fDegrees);
 void RotateMatrixZ(long iObj, float fDegrees);
 
+int TransformCreate(void);
+void TransformDelete(int deleting_transform_index);
+int TransformGetParent(int transform_index);
+void TransformSetParent(int transform_index, int new_parent_index);
+void TransformClearParent(int transform_index);
+int ObjectGetTransform(long object_index);
+void ObjectSetTransform(long object_index, int transform_index);
+void ObjectClearTransform(long object_index);
+void TransformSetToIdentity(int transform_index);
+void TransformSetTranslation(int transform_index, float x, float y, float z);
+void TransformClearTranslation(int transform_index);
+void TransformSetRotationX(int transform_index, float angle_in_degrees);
+void TransformSetRotationY(int transform_index, float angle_in_degrees);
+void TransformSetRotationZ(int transform_index, float angle_in_degrees);
+void TransformConcatRotationX(int transform_index, float angle_in_degrees);
+void TransformConcatRotationY(int transform_index, float angle_in_degrees);
+void TransformConcatRotationZ(int transform_index, float angle_in_degrees);
+void TransformClearRotation(int transform_index);
+void TransformSetScale(int transform_index, float x, float y, float z);
+void TransformClearScale(int transform_index);
+
 #if defined(__cplusplus)
 }  // extern "C"
 #endif
