@@ -64,41 +64,43 @@ local g_hud_overlay;
 local g_bullets = {};
 
 local g_is_left_trap_door_moving = false;
+local g_left_trap_door_platforms = nil;
+local g_left_trap_door_platform_transform_indices = nil;
 local g_left_trap_door_animation_frame = 0;
 
 local g_is_right_trap_door_moving = false;
+local g_right_trap_door_platforms = nil;
+local g_right_trap_door_platform_transform_indices = nil;
 local g_right_trap_door_animation_frame = 0;
 
 local g_is_left_ladder_moving = false;
+local g_left_ladder = nil;
+local g_left_ladder_transform_indices = {};
 local g_left_ladder_animation_frame = 0;
 
 local g_is_right_ladder_moving = false;
+local g_right_ladder = nil;
+local g_right_ladder_transform_indices = {};
 local g_right_ladder_animation_frame = 0;
 
-local function MoveLadder_(ladder_num, iPos)
-    local current_ladder = g_game_logic.find_ladder_by_number(ladder_num);
+local function MoveLadder_(current_ladder, iPos, ladder_transform_indices)
     local iX = current_ladder.pos_x + 508;
     local iY = (current_ladder.pos_y_bottom + current_ladder.pos_y_top) / 2;
     local iZ = current_ladder.pos_z[1];
 
-    set_identity_mesh_matrix(current_ladder.mesh_index);
-    translate_mesh_matrix(current_ladder.mesh_index, 0 - iX, 0 - iY, 0 - iZ);
-    rotate_z_mesh_matrix(current_ladder.mesh_index, iPos * 2);
-    rotate_x_mesh_matrix(current_ladder.mesh_index, iPos);
-    translate_mesh_matrix(current_ladder.mesh_index, iX, iY, iZ - iPos);
-    skip_next_mesh_interpolation(current_ladder.mesh_index);
+    transform_set_translation(ladder_transform_indices[1], 0 - iX, 0 - iY, 0 - iZ);
+    transform_set_rotation_z(ladder_transform_indices[1], iPos * 2);
+    transform_concat_rotation_x(ladder_transform_indices[1], iPos);
+    transform_set_translation(ladder_transform_indices[2], iX, iY, iZ - iPos);
 end
 
-local function MovePlatform_(platform_num, iRotate, iTran, pos_property_name)
-    local current_platform = g_game_logic.find_platform_by_number(platform_num);
+local function MovePlatform_(current_platform, iRotate, iTran, pos_property_name, platform_transform_indices)
     local iPlatX = current_platform[pos_property_name][1];
     local iPlatY = current_platform[pos_property_name][2];
 
-    set_identity_mesh_matrix(current_platform.mesh_index);
-    translate_mesh_matrix(current_platform.mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
-    rotate_z_mesh_matrix(current_platform.mesh_index, iRotate);
-    translate_mesh_matrix(current_platform.mesh_index, iPlatX + iTran, iPlatY, 0);
-    skip_next_mesh_interpolation(current_platform.mesh_index);
+    transform_set_translation(platform_transform_indices[1], 0 - iPlatX, 0 - iPlatY, 0);
+    transform_set_rotation_z(platform_transform_indices[1], iRotate);
+    transform_set_translation(platform_transform_indices[2], iPlatX + iTran, iPlatY, 0);
 end
 
 local function ProgressLevel_(game_input)
@@ -112,69 +114,49 @@ local function ProgressLevel_(game_input)
     if g_is_left_trap_door_moving then
         g_left_trap_door_animation_frame = g_left_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
-        -- TODO: Use constant for num
-        MovePlatform_(1, 0 - g_left_trap_door_animation_frame, 1, "pos_upper_left");
-        MovePlatform_(2, g_left_trap_door_animation_frame, 0 - 1, "pos_lower_right");
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
+        MovePlatform_(g_left_trap_door_platforms[1], 0 - g_left_trap_door_animation_frame, 1, "pos_upper_left", g_left_trap_door_platform_transform_indices[1]);
+        MovePlatform_(g_left_trap_door_platforms[2], g_left_trap_door_animation_frame, 0 - 1, "pos_lower_right", g_left_trap_door_platform_transform_indices[2]);
 
         if g_left_trap_door_animation_frame > 56 then
             g_is_left_trap_door_moving = false;
-
-            local current_platform = g_game_logic.find_platform_by_number(1);  -- TODO: Use constant for num
-            current_platform.set_pos_y(500, 500);
-
-            current_platform = g_game_logic.find_platform_by_number(2);  -- TODO: Use constant for num
-            current_platform.set_pos_y(500, 500);
+            g_left_trap_door_platforms[1].set_pos_y(500, 500);
+            g_left_trap_door_platforms[2].set_pos_y(500, 500);
         end
     end
 
     if g_is_right_trap_door_moving then
         g_right_trap_door_animation_frame = g_right_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
-        -- TODO: Use constant for num
-        MovePlatform_(3, 0 - g_right_trap_door_animation_frame, 1, "pos_upper_left");
-        MovePlatform_(4, g_right_trap_door_animation_frame, 0 - 1, "pos_lower_right");
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
+        MovePlatform_(g_right_trap_door_platforms[1], 0 - g_right_trap_door_animation_frame, 1, "pos_upper_left", g_right_trap_door_platform_transform_indices[1]);
+        MovePlatform_(g_right_trap_door_platforms[2], g_right_trap_door_animation_frame, 0 - 1, "pos_lower_right", g_right_trap_door_platform_transform_indices[2]);
 
         if g_right_trap_door_animation_frame > 56 then
             g_right_trap_door_animation_frame = 56;
             g_is_right_trap_door_moving = false;
-
-            local current_platform = g_game_logic.find_platform_by_number(3);  -- TODO: Use constant for num
-            current_platform.set_pos_y(500, 500);
-
-            current_platform = g_game_logic.find_platform_by_number(4);  -- TODO: Use constant for num
-            current_platform.set_pos_y(500, 500);
+            g_right_trap_door_platforms[1].set_pos_y(500, 500);
+            g_right_trap_door_platforms[2].set_pos_y(500, 500);
         end
     end
 
     if g_is_left_ladder_moving then
         g_left_ladder_animation_frame = g_left_ladder_animation_frame + kLADDER_ANIMATION_FRAME_STEP;
 
-        MoveLadder_(1, g_left_ladder_animation_frame);  -- TODO: Use constant for num
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
+        MoveLadder_(g_left_ladder, g_left_ladder_animation_frame, g_left_ladder_transform_indices);
 
         if g_left_ladder_animation_frame == 80 then
             g_is_left_ladder_moving = false;
-            local mesh_index = g_game_logic.find_ladder_by_number(1).mesh_index;  -- TODO: Use constant for num
-            translate_mesh_matrix(mesh_index, 1000, 0, 0);
+            set_mesh_is_visible(g_left_ladder.mesh_index, false);
         end
     end
 
     if g_is_right_ladder_moving then
         g_right_ladder_animation_frame = g_right_ladder_animation_frame + kLADDER_ANIMATION_FRAME_STEP;
 
-        MoveLadder_(2, g_right_ladder_animation_frame);  -- TODO: Use constant for num
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
+        MoveLadder_(g_right_ladder, g_right_ladder_animation_frame, g_right_ladder_transform_indices);
 
         if g_right_ladder_animation_frame == 80 then
             g_is_right_ladder_moving = false;
-            local mesh_index = g_game_logic.find_ladder_by_number(2).mesh_index;  -- TODO: Use constant for num
-            translate_mesh_matrix(mesh_index, 1000, 0, 0);
+            set_mesh_is_visible(g_right_ladder.mesh_index, false);
         end
     end
 
@@ -217,6 +199,35 @@ function Module.initialize(game_input)
     iTemp.initialize();
     table.insert(g_bullets, iTemp);
 
+    local setup_object_two_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        return result;
+    end
+
+    g_left_ladder = g_game_logic.find_ladder_by_number(1);  -- TODO: Use constant for num
+    g_right_ladder = g_game_logic.find_ladder_by_number(2);  -- TODO: Use constant for num
+    g_left_ladder_transform_indices = setup_object_two_transforms(g_left_ladder.mesh_index);
+    g_right_ladder_transform_indices = setup_object_two_transforms(g_right_ladder.mesh_index);
+
+    g_left_trap_door_platforms = {
+        g_game_logic.find_platform_by_number(1),  -- TODO: Use constant for num
+        g_game_logic.find_platform_by_number(2),  -- TODO: Use constant for num
+    };
+    g_right_trap_door_platforms = {
+        g_game_logic.find_platform_by_number(3),  -- TODO: Use constant for num
+        g_game_logic.find_platform_by_number(4),  -- TODO: Use constant for num
+    };
+    g_left_trap_door_platform_transform_indices = {
+        setup_object_two_transforms(g_left_trap_door_platforms[1].mesh_index),
+        setup_object_two_transforms(g_left_trap_door_platforms[2].mesh_index),
+    };
+    g_right_trap_door_platform_transform_indices = {
+        setup_object_two_transforms(g_right_trap_door_platforms[1].mesh_index),
+        setup_object_two_transforms(g_right_trap_door_platforms[2].mesh_index),
+    };
+
     Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
@@ -236,36 +247,6 @@ function Module.update(game_input)
     ProgressLevel_(game_input);
 end
 
-function Module.pre_draw(seconds_per_update_timestep, seconds_since_previous_update, time_scale)
-    if g_player_won then
-        return false;
-    end
-
-    local interpolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;  -- TODO: Just pass in interpolation_scale instead?
-
-    if g_is_left_trap_door_moving then
-        -- TODO: Use constant for num
-        MovePlatform_(1, 0 - (g_left_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP), 1, "pos_upper_left");
-        MovePlatform_(2, g_left_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP, 0 - 1, "pos_lower_right");
-    end
-
-    if g_is_right_trap_door_moving then
-        -- TODO: Use constant for num
-        MovePlatform_(3, 0 - (g_right_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP), 1, "pos_upper_left");
-        MovePlatform_(4, g_right_trap_door_animation_frame + interpolation_scale * kTRAP_DOOR_ANIMATION_FRAME_STEP, 0 - 1, "pos_lower_right");
-    end
-
-    if g_is_left_ladder_moving then
-        MoveLadder_(1, g_left_ladder_animation_frame + interpolation_scale * kLADDER_ANIMATION_FRAME_STEP);  -- TODO: Use constant for num
-    end
-
-    if g_is_right_ladder_moving then
-        MoveLadder_(2, g_right_ladder_animation_frame + interpolation_scale * kLADDER_ANIMATION_FRAME_STEP);  -- TODO: Use constant for num
-    end
-
-    return false;  -- TODO: Should this ever be returned true?
-end
-
 function Module.on_collect_donut(game_input, donut_num)
     if donut_num == 1 then  -- TODO: Use constant for num
         g_is_left_trap_door_moving = true;
@@ -280,15 +261,13 @@ function Module.on_collect_donut(game_input, donut_num)
     if donut_num == 3 then  -- TODO: Use constant for num
         g_is_left_ladder_moving = true;
         iPosition3 = 0;
-        local current_ladder = g_game_logic.find_ladder_by_number(1);  -- TODO: Use constant for num
-        current_ladder.set_pos_x(current_ladder.pos_x - 500);
+        g_left_ladder.set_pos_x(g_left_ladder.pos_x - 500);
     end
 
     if donut_num == 4 then  -- TODO: Use constant for num
         g_is_right_ladder_moving = true;
         iPosition4 = 0;
-        local current_ladder = g_game_logic.find_ladder_by_number(2);  -- TODO: Use constant for num
-        current_ladder.set_pos_x(current_ladder.pos_x - 500);
+        g_right_ladder.set_pos_x(g_right_ladder.pos_x - 500);
     end
 end
 
