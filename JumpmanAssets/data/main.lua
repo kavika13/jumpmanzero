@@ -158,6 +158,8 @@ local function get_new_sandbox_env()
         transform_get_parent = transform_get_parent,
         transform_set_parent = transform_set_parent,
         transform_clear_parent = transform_clear_parent,
+        transform_get_parent_is_camera = transform_get_parent_is_camera,
+        transform_set_parent_is_camera = transform_set_parent_is_camera,
         object_get_transform = object_get_transform,
         object_set_transform = object_set_transform,
         object_clear_transform = object_clear_transform,

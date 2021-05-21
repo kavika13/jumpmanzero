@@ -103,7 +103,7 @@ static hmm_vec3 g_transform_translations_previous[kMAX_TRANSFORMS];
 static hmm_quaternion g_transform_rotations_previous[kMAX_TRANSFORMS];
 static hmm_vec3 g_transform_scales_previous[kMAX_TRANSFORMS];
 static int g_transform_parent_indices[kMAX_TRANSFORMS];
-// TODO: Add this? static bool g_transform_parent_to_camera[kMAX_TRANSFORMS];  -- Do we assume that it has no parent if we're parenting to camera? Do we set parent index to -1?
+static bool g_transform_parent_is_camera[kMAX_TRANSFORMS];
 // TODO: Figure out how to do transform redirection, while still getting children to be next to parents, for better cache performance
 
 static long g_object_count = 0;
@@ -369,6 +369,7 @@ int TransformCreate(void) {
         g_transform_rotations_previous[new_transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
         g_transform_scales_previous[new_transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
         g_transform_parent_indices[new_transform_index] = -1;
+        g_transform_parent_is_camera[new_transform_index] = false;
         ++g_transform_count;
     } // TODO: Else log?
 
@@ -390,6 +391,7 @@ void TransformDelete(int deleting_transform_index) {
             g_transform_rotations_previous[deleting_transform_index] = g_transform_rotations_previous[last_transform_index];
             g_transform_scales_previous[deleting_transform_index] = g_transform_scales_previous[last_transform_index];
             g_transform_parent_indices[deleting_transform_index] = g_transform_parent_indices[last_transform_index];
+            g_transform_parent_is_camera[deleting_transform_index] = g_transform_parent_indices[last_transform_index];
 
             // Redirect all objects that pointed at last transform to its new location
             for(int object_index = 0; object_index < g_object_count; ++object_index) {
@@ -431,6 +433,7 @@ void TransformSetParent(int transform_index, int new_parent_index) {
     if(transform_index >= 0 && transform_index < g_transform_count && new_parent_index >= 0 && new_parent_index < g_transform_count) {
         // TODO: Detect cycle, assert, and break the cycle in non-debug build
         g_transform_parent_indices[transform_index] = new_parent_index;
+        g_transform_parent_is_camera[transform_index] = false;
     } // TODO: Else log?
 }
 
@@ -440,6 +443,32 @@ void TransformClearParent(int transform_index) {
 
     if(transform_index >= 0 && transform_index < g_transform_count) {
         g_transform_parent_indices[transform_index] = -1;
+        g_transform_parent_is_camera[transform_index] = false;
+    } // TODO: Else log?
+}
+
+bool TransformGetParentIsCamera(int transform_index) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+    bool result = false;
+
+    if (transform_index >= 0 && transform_index < g_transform_count) {
+        result = g_transform_parent_is_camera[transform_index];
+    } // TODO: Else log?
+
+    return result;
+}
+
+void TransformSetParentIsCamera(int transform_index, bool is_parent_camera) {
+    assert(transform_index >= 0);
+    assert(transform_index < g_transform_count);
+
+    if (transform_index >= 0 && transform_index < g_transform_count) {
+        if(is_parent_camera) {
+            g_transform_parent_indices[transform_index] = -1;
+        }
+
+        g_transform_parent_is_camera[transform_index] = is_parent_camera;
     } // TODO: Else log?
 }
 
@@ -677,6 +706,7 @@ void Clear3dData(void) {
         g_transform_rotations_previous[index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
         g_transform_scales_previous[index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
         g_transform_parent_indices[index] = -1;
+        g_transform_parent_is_camera[index] = false;
     }
 
     g_object_count = 0;
@@ -1097,6 +1127,7 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
 
     int current_transform_index = g_object_transform_index[object_index];
     bool used_transform = false;
+    bool transform_skip_world_to_view = false;
 
     if(current_transform_index != -1) {
         // TODO: Calculate matrices in more cache-friendly/packed manner
@@ -1120,6 +1151,11 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
                             HMM_MultiplyMat4(
                                 HMM_Translate(current_translation),
                                 current_local_to_world_matrix)));
+
+                if(g_transform_parent_is_camera[current_transform_index]) {
+                    transform_skip_world_to_view = true;
+                }
+
                 current_transform_index = g_transform_parent_indices[current_transform_index];
             }
         } else {
@@ -1135,6 +1171,11 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
                             HMM_MultiplyMat4(
                                 HMM_Translate(current_translation),
                                 current_local_to_world_matrix)));
+
+                if(g_transform_parent_is_camera[current_transform_index]) {
+                    transform_skip_world_to_view = true;
+                }
+
                 current_transform_index = g_transform_parent_indices[current_transform_index];
             }
         }
@@ -1153,19 +1194,23 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
         *(hmm_vec3*)&current_local_to_world_matrix.Elements[3] = HMM_LerpVec3(pos_previous, pos_current, interpolation_scale);
 
         vs_params->local_to_world_matrix = current_local_to_world_matrix;
-        vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, current_local_to_world_matrix);
-        vs_params->local_to_projection_matrix = HMM_MultiplyMat4(
-            HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
-            current_local_to_world_matrix);
+        vs_params->local_to_view_matrix = transform_skip_world_to_view ? current_local_to_world_matrix : HMM_MultiplyMat4(g_current_world_to_view_matrix, current_local_to_world_matrix);
+        vs_params->local_to_projection_matrix = transform_skip_world_to_view
+            ? HMM_MultiplyMat4(g_view_to_projection_matrix, current_local_to_world_matrix)
+            : HMM_MultiplyMat4(
+                HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
+                current_local_to_world_matrix);
         vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(current_local_to_world_matrix));
 
         vs_params->uv_offset = HMM_LerpVec2(g_object_uv_offset_previous[object_index], g_object_uv_offset[object_index], interpolation_scale);
     } else {
         vs_params->local_to_world_matrix = g_object_local_to_world_matrix[object_index];
-        vs_params->local_to_view_matrix = HMM_MultiplyMat4(g_current_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
-        vs_params->local_to_projection_matrix = HMM_MultiplyMat4(
-            HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
-            g_object_local_to_world_matrix[object_index]);
+        vs_params->local_to_view_matrix = transform_skip_world_to_view ? g_object_local_to_world_matrix[object_index] : HMM_MultiplyMat4(g_current_world_to_view_matrix, g_object_local_to_world_matrix[object_index]);
+        vs_params->local_to_projection_matrix = transform_skip_world_to_view
+            ? HMM_MultiplyMat4(g_view_to_projection_matrix, g_object_local_to_world_matrix[object_index])
+            : HMM_MultiplyMat4(
+                HMM_MultiplyMat4(g_view_to_projection_matrix, g_current_world_to_view_matrix),
+                g_object_local_to_world_matrix[object_index]);
         vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(g_object_local_to_world_matrix[object_index]));
 
         if(do_interpolation && used_transform && g_object_animation_is_continuous[object_index]) {  // Still do UV interpolation even if transform was used

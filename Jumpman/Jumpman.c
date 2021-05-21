@@ -242,7 +242,7 @@ static int transform_delete(lua_State* lua_state) {
 
 static int transform_get_parent(lua_State* lua_state) {
     lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
-    int parent_transform_index = TransformGetParent((long)arg_transform_index);
+    int parent_transform_index = TransformGetParent((int)arg_transform_index);
     lua_pushinteger(lua_state, parent_transform_index);
     return 1;
 }
@@ -257,6 +257,20 @@ static int transform_set_parent(lua_State* lua_state) {
 static int transform_clear_parent(lua_State* lua_state) {
     lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
     TransformClearParent((int)arg_transform_index);
+    return 0;
+}
+
+static int transform_get_parent_is_camera(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    bool is_parent_camera = TransformGetParentIsCamera((int)arg_transform_index);
+    lua_pushboolean(lua_state, is_parent_camera);
+    return 1;
+}
+
+static int transform_set_parent_is_camera(lua_State* lua_state) {
+    lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 1);
+    bool arg_is_parent_camera = lua_checkbool(lua_state, 2);
+    TransformSetParentIsCamera((int)arg_transform_index, arg_is_parent_camera);
     return 0;
 }
 
@@ -773,6 +787,10 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "transform_set_parent");
     lua_pushcfunction(lua_state, transform_clear_parent);
     lua_setglobal(lua_state, "transform_clear_parent");
+    lua_pushcfunction(lua_state, transform_set_parent_is_camera);
+    lua_setglobal(lua_state, "transform_set_parent_is_camera");
+    lua_pushcfunction(lua_state, object_get_transform);
+    lua_setglobal(lua_state, "object_get_transform");
     lua_pushcfunction(lua_state, object_get_transform);
     lua_setglobal(lua_state, "object_get_transform");
     lua_pushcfunction(lua_state, object_set_transform);

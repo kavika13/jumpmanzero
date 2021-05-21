@@ -57,6 +57,8 @@ void TransformDelete(int deleting_transform_index);
 int TransformGetParent(int transform_index);
 void TransformSetParent(int transform_index, int new_parent_index);
 void TransformClearParent(int transform_index);
+bool TransformGetParentIsCamera(int transform_index);
+void TransformSetParentIsCamera(int transform_index, bool is_parent_camera);
 int ObjectGetTransform(long object_index);
 void ObjectSetTransform(long object_index, int transform_index);
 void ObjectClearTransform(long object_index);
