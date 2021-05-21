@@ -68,6 +68,30 @@ local g_game_logic;
 local g_hud_overlay;
 local g_ghost;
 
+local g_vignette_backdrop = nil;
+local g_vignette_backdrop_transform_index = -1;
+local g_black_border_top_backdrop = nil;
+local g_black_border_top_backdrop_transform_index = -1;
+local g_black_border_left_backdrop = nil;
+local g_black_border_left_backdrop_transform_index = -1;
+local g_black_border_right_backdrop = nil;
+local g_black_border_right_backdrop_transform_index = -1;
+local g_black_border_bottom_backdrop = nil;
+local g_black_border_bottom_backdrop_transform_index = -1;
+local g_donut_tomb_backdrop = nil;
+local g_donut_tomb_backdrop_transform_index = -1;
+local g_painting_with_eyes_backdrop = nil;
+
+local g_donut_tomb_door_wall = nil;
+local g_donut_tomb_door_wall_transform_index = -1;
+local g_moving_wall_by_start = nil;
+local g_moving_wall_by_start_transform_index = -1;
+
+local g_moving_vine_top_left = nil;
+local g_moving_vine_top_left_transform_index = -1;
+local g_moving_vine_mid_right = nil;
+local g_moving_vine_mid_right_transform_index = -1;
+
 local g_is_wall_moving = false;
 local g_wall_animation_frame = 0;
 local g_spotlight_animation_frame = 0;
@@ -83,12 +107,10 @@ local function ProgressLevel_(game_input)
 
     if g_is_wall_moving then
         g_wall_animation_frame = g_wall_animation_frame + 1;
-        local current_wall = g_game_logic.find_wall_by_number(33);  -- TODO: Use constant for num
-        set_identity_mesh_matrix(current_wall.mesh_index);
-        translate_mesh_matrix(current_wall.mesh_index, 0, 0, g_wall_animation_frame / 10);
+        transform_set_translation(g_moving_wall_by_start_transform_index, 0, 0, g_wall_animation_frame / 10);
 
         if g_wall_animation_frame == 45 then
-            current_wall.set_pos_y1(-26);
+            g_moving_wall_by_start.set_pos_y1(-26);
             g_wall_animation_frame = 0;
             g_is_wall_moving = false;
         end
@@ -103,39 +125,25 @@ local function ProgressLevel_(game_input)
         g_spotlight_animation_frame = 0;
     end
 
-    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(1).mesh_index;  -- TODO: Use constant for num
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
+    transform_set_translation(g_vignette_backdrop_transform_index, iPX, iPY, 0);
 
     if g_spotlight_animation_frame > 2 then
-        set_mesh_texture(backdrop_mesh_index, resources.TextureRing2);
+        set_mesh_texture(g_vignette_backdrop.mesh_index, resources.TextureRing2);
     else
-        set_mesh_texture(backdrop_mesh_index, resources.TextureRing);
+        set_mesh_texture(g_vignette_backdrop.mesh_index, resources.TextureRing);
     end
 
-    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(2).mesh_index;  -- TODO: Use constant for num
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
-
-    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(3).mesh_index;  -- TODO: Use constant for num
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
-
-    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(4).mesh_index;  -- TODO: Use constant for num
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
-
-    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(5).mesh_index;  -- TODO: Use constant for num
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, iPX, iPY, 0);
+    transform_set_translation(g_black_border_top_backdrop_transform_index, iPX, iPY, 0);
+    transform_set_translation(g_black_border_left_backdrop_transform_index, iPX, iPY, 0);
+    transform_set_translation(g_black_border_right_backdrop_transform_index, iPX, iPY, 0);
+    transform_set_translation(g_black_border_bottom_backdrop_transform_index, iPX, iPY, 0);
 
     g_painting_with_eyes_animation_frame = g_painting_with_eyes_animation_frame + 1;
 
-    backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
-    set_mesh_texture(backdrop_mesh_index, resources.TexturePainting);
+    set_mesh_texture(g_painting_with_eyes_backdrop.mesh_index, resources.TexturePainting);
 
     if g_painting_with_eyes_animation_frame > 10 then
-        set_mesh_texture(backdrop_mesh_index, resources.TexturePainting2);
+        set_mesh_texture(g_painting_with_eyes_backdrop.mesh_index, resources.TexturePainting2);
     end
 
     if g_painting_with_eyes_animation_frame > 20 then
@@ -170,6 +178,45 @@ function Module.initialize(game_input)
     g_ghost.TextureResourceIndex = resources.TextureGhostTexture;
     g_ghost.initialize();
 
+    local setup_object_transform = function(mesh_index)
+        local result = transform_create();
+        object_set_transform(mesh_index, result);
+        return result;
+    end
+
+    g_vignette_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
+    g_vignette_backdrop_transform_index = setup_object_transform(g_vignette_backdrop.mesh_index);
+
+    g_black_border_top_backdrop = g_game_logic.find_backdrop_by_number(2);  -- TODO: Use constant for num
+    g_black_border_top_backdrop_transform_index = setup_object_transform(g_black_border_top_backdrop.mesh_index);
+
+    g_black_border_left_backdrop = g_game_logic.find_backdrop_by_number(3);  -- TODO: Use constant for num
+    g_black_border_left_backdrop_transform_index = setup_object_transform(g_black_border_left_backdrop.mesh_index);
+
+    g_black_border_right_backdrop = g_game_logic.find_backdrop_by_number(4);  -- TODO: Use constant for num
+    g_black_border_right_backdrop_transform_index = setup_object_transform(g_black_border_right_backdrop.mesh_index);
+
+    g_black_border_bottom_backdrop = g_game_logic.find_backdrop_by_number(5);  -- TODO: Use constant for num
+    g_black_border_bottom_backdrop_transform_index = setup_object_transform(g_black_border_bottom_backdrop.mesh_index);
+
+    g_painting_with_eyes_backdrop = g_game_logic.find_backdrop_by_number(100);  -- TODO: Use constant for num
+    -- Don't need transform for g_painting_with_eyes_backdrop
+
+    g_donut_tomb_backdrop = g_game_logic.find_backdrop_by_number(12);  -- TODO: Use constant for num
+    g_donut_tomb_backdrop_transform_index = setup_object_transform(g_donut_tomb_backdrop.mesh_index);
+
+    g_donut_tomb_door_wall = g_game_logic.find_wall_by_number(2);  -- TODO: Use constant for num
+    g_donut_tomb_door_wall_transform_index = setup_object_transform(g_donut_tomb_door_wall.mesh_index);
+
+    g_moving_vine_top_left = g_game_logic.find_vine_by_number(2);  -- TODO: Use constant for num
+    g_moving_vine_top_left_transform_index = setup_object_transform(g_moving_vine_top_left.mesh_index);
+
+    g_moving_vine_mid_right = g_game_logic.find_vine_by_number(1);  -- TODO: Use constant for num
+    g_moving_vine_mid_right_transform_index = setup_object_transform(g_moving_vine_mid_right.mesh_index);
+
+    g_moving_wall_by_start = g_game_logic.find_wall_by_number(33);  -- TODO: Use constant for num
+    g_moving_wall_by_start_transform_index = setup_object_transform(g_moving_wall_by_start.mesh_index);
+
     Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
@@ -193,36 +240,21 @@ function Module.on_collect_donut(game_input, iDonut)
     if iDonut == 1 then
         g_is_wall_moving = true;
         g_wall_animation_frame = 1;  -- TODO: Is this necessary to do here?
-        local current_vine = g_game_logic.find_vine_by_number(1);  -- TODO: Use constant for num
-        current_vine.set_pos_y_bottom(current_vine.pos_y_bottom + 6);
-        current_vine.set_pos_y_top(current_vine.pos_y_top + 6);
-        set_identity_mesh_matrix(current_vine.mesh_index);
-        translate_mesh_matrix(current_vine.mesh_index, 0, 6, 0);
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
+        g_moving_vine_mid_right.set_pos_y_bottom(g_moving_vine_mid_right.pos_y_bottom + 6);
+        g_moving_vine_mid_right.set_pos_y_top(g_moving_vine_mid_right.pos_y_top + 6);
+        transform_set_translation(g_moving_vine_mid_right_transform_index, 0, 6, 0);
     end
 
     if iDonut == 2 then
-        local current_vine = g_game_logic.find_vine_by_number(2);  -- TODO: Use constant for num
-        current_vine.set_pos_y_bottom(current_vine.pos_y_bottom + 8);
-        current_vine.set_pos_y_top(current_vine.pos_y_top + 8);
-        set_identity_mesh_matrix(current_vine.mesh_index);
-        translate_mesh_matrix(current_vine.mesh_index, 0, 8, 0);
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
+        g_moving_vine_top_left.set_pos_y_bottom(g_moving_vine_top_left.pos_y_bottom + 8);
+        g_moving_vine_top_left.set_pos_y_top(g_moving_vine_top_left.pos_y_top + 8);
+        transform_set_translation(g_moving_vine_top_left_transform_index, 0, 8, 0);
     end
 
     if iDonut == 3 then
-        local current_wall = g_game_logic.find_wall_by_number(2);  -- TODO: Use constant for num
-        current_wall.set_pos_y1(current_wall.pos[1][2] - 26);
-        set_identity_mesh_matrix(current_wall.mesh_index);
-        translate_mesh_matrix(current_wall.mesh_index, 0, 0 - 70, 0);
-
-        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(12).mesh_index;  -- TODO: Use constant for num
-        set_identity_mesh_matrix(backdrop_mesh_index);
-        translate_mesh_matrix(backdrop_mesh_index, 0, 0 - 70, 0);
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
+        g_donut_tomb_door_wall.set_pos_y1(g_donut_tomb_door_wall.pos[1][2] - 26);
+        transform_set_translation(g_donut_tomb_door_wall_transform_index, 0, 0 - 70, 0);
+        transform_set_translation(g_donut_tomb_backdrop_transform_index, 0, 0 - 70, 0);
     end
 end
 
