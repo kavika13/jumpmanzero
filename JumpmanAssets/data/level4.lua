@@ -70,16 +70,17 @@ local g_hud_overlay;
 local g_ninjas = {};
 
 local g_is_trap_door_triggering = false;
+local g_trap_door_platform = nil;
+local g_trap_door_platform_transform_indices = nil;
 local g_trap_door_fall_progress = 0;
 
-local function MovePlatform_(current_platform, iRotate, iTran)
+local function MovePlatform_(current_platform, iRotate, iTran, platform_transform_indices)
     local iPlatX = current_platform.pos_lower_right[1];
     local iPlatY = current_platform.pos_lower_right[2];
 
-    set_identity_mesh_matrix(current_platform.mesh_index);
-    translate_mesh_matrix(current_platform.mesh_index, 0 - iPlatX, 0 - iPlatY, 0);
-    rotate_z_mesh_matrix(current_platform.mesh_index, iRotate);
-    translate_mesh_matrix(current_platform.mesh_index, iPlatX + iTran, iPlatY, 0);
+    transform_set_translation(platform_transform_indices[1], 0 - iPlatX, 0 - iPlatY, 0);
+    transform_set_rotation_z(platform_transform_indices[1], iRotate);
+    transform_set_translation(platform_transform_indices[2], iPlatX + iTran, iPlatY, 0);
 end
 
 local function ProgressLevel_(game_input)
@@ -93,16 +94,11 @@ local function ProgressLevel_(game_input)
     if g_is_trap_door_triggering then
         g_trap_door_fall_progress = g_trap_door_fall_progress + 3;
 
-        local current_platform = g_game_logic.find_platform_by_number(1);  -- TODO: Use constant for num
-        MovePlatform_(current_platform, g_trap_door_fall_progress, 0);
-
-        -- TODO: There is an engine function for this, but it is not exposed. Seems to be automatically called?
-        -- setext(#compose, 1);
-
-        current_platform.set_pos_y_top(current_platform.pos_upper_left[2] - 3);  -- TODO: Why not setting bottom?
+        MovePlatform_(g_trap_door_platform, g_trap_door_fall_progress, 0, g_trap_door_platform_transform_indices);
+        g_trap_door_platform.set_pos_y_top(g_trap_door_platform.pos_upper_left[2] - 3);  -- TODO: Why not setting bottom?
 
         if g_trap_door_fall_progress >= 90 then
-            current_platform.set_pos_y(500, 500);
+            g_trap_door_platform.set_pos_y(500, 500);
             g_is_trap_door_triggering = false;
         end
     end
@@ -159,6 +155,16 @@ function Module.initialize(game_input)
     SpawnNinja_(70, 40);
     SpawnNinja_(30, 120);
     SpawnNinja_(110, 80);
+
+    local setup_object_two_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        return result;
+    end
+
+    g_trap_door_platform = g_game_logic.find_platform_by_number(1);  -- TODO: Use constant for num
+    g_trap_door_platform_transform_indices = setup_object_two_transforms(g_trap_door_platform.mesh_index);
 
     Module.reset();
 
