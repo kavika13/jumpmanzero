@@ -54,55 +54,67 @@ local g_title_is_done_scrolling = false;
 local g_game_logic;
 local g_hud_overlay;
 local g_wave;
-local g_clock_hand_mesh_index;
+
+local g_big_clock_backdrop = nil;
+local g_big_clock_backdrop_transform_index = -1;
+local g_big_clock_hand_mesh_index = -1;
+local g_big_clock_hand_transform_indices = {};
 local g_clock_num_frames_left = 0;
 
-local g_current_clock_hand_rotation = 0;
-local g_clock_timers = {};
+local g_small_clocks_backdrops = {};
+local g_small_clocks_backdrop_transform_indices = {};
+local g_small_clocks_current_rotation = 0;
+local g_small_clocks_current_rotation_discontinuity = false;
+local g_small_clocks_timers = {};
 local kNumClockTimers = 5;
 
-local function SetClockPosition_(iPos)
-    local clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
-    set_identity_mesh_matrix(clock_backdrop.mesh_index);
-    translate_mesh_matrix(clock_backdrop.mesh_index, 0 - 64, 0 - 48, 120);
-    undo_camera_perspective_on_mesh_matrix(clock_backdrop.mesh_index);
+local g_blah_blah = -1;
 
-    set_identity_mesh_matrix(g_clock_hand_mesh_index);
-    rotate_z_mesh_matrix(g_clock_hand_mesh_index, iPos);
-    translate_mesh_matrix(g_clock_hand_mesh_index, 0 - 54, 0 - 38, 120);
-    undo_camera_perspective_on_mesh_matrix(g_clock_hand_mesh_index);
+local function SetClockPosition_(iPos)
+    transform_set_translation(g_big_clock_backdrop_transform_index, 0 - 64, 0 - 48, 120);
+    transform_set_parent_is_camera(g_big_clock_backdrop_transform_index, true);
+
+    transform_set_rotation_z(g_big_clock_hand_transform_indices[1], iPos);
+    transform_set_translation(g_big_clock_hand_transform_indices[2], 0 - 54, 0 - 38, 120);
+    transform_set_parent_is_camera(g_big_clock_hand_transform_indices[2], true);
 end
 
 local function SpinLittleClocks_()
-    g_current_clock_hand_rotation = g_current_clock_hand_rotation + 5;
+    g_small_clocks_current_rotation = g_small_clocks_current_rotation + 5;
+    g_small_clocks_current_rotation_discontinuity = false;
 
-    if g_current_clock_hand_rotation == 90 then
-        g_current_clock_hand_rotation = 270;
+    if g_small_clocks_current_rotation == 90 then
+        g_small_clocks_current_rotation = 270;
+        g_small_clocks_current_rotation_discontinuity = true;
     end
 
-    if g_current_clock_hand_rotation == 360 then
-        g_current_clock_hand_rotation = 0;
+    if g_small_clocks_current_rotation == 360 then
+        g_small_clocks_current_rotation = 0;
+        g_small_clocks_current_rotation_discontinuity = true;
     end
 end
 
-local function SpinClock_(clock_backdrop)
+local function SpinClock_(clock_backdrop, transform_indices)
     local iObjX = clock_backdrop.pos[1];
-    set_identity_mesh_matrix(clock_backdrop.mesh_index);
-    translate_mesh_matrix(clock_backdrop.mesh_index, 0 - iObjX, 0, 0);
-    rotate_y_mesh_matrix(clock_backdrop.mesh_index, g_current_clock_hand_rotation);
-    translate_mesh_matrix(clock_backdrop.mesh_index, iObjX, 0, 7);
+
+    transform_set_translation(transform_indices[1], 0 - iObjX, 0, 0);
+    transform_set_rotation_y(transform_indices[1], g_small_clocks_current_rotation);
+    transform_set_translation(transform_indices[2], iObjX, 0, 7);
     set_mesh_is_visible(clock_backdrop.mesh_index, true);
-    skip_next_mesh_interpolation(clock_backdrop.mesh_index);  -- TODO: Why does interpolation look so wrong?
+
+    if g_small_clocks_current_rotation_discontinuity then
+        skip_next_mesh_interpolation(clock_backdrop.mesh_index);
+    end
 end
 
 local function CollideLittleClocks_()
-    for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do  -- TODO: Use constant for base num
-        if g_clock_timers[clock_backdrop_num] and
-                g_clock_timers[clock_backdrop_num] > 0 and
-                g_clock_timers[clock_backdrop_num] < 10 then
-            local current_backdrop = g_game_logic.find_backdrop_by_number(clock_backdrop_num);
+    for clock_index = 1, kNumClockTimers do
+        if g_small_clocks_timers[clock_index] and
+                g_small_clocks_timers[clock_index] > 0 and
+                g_small_clocks_timers[clock_index] < 10 then
+            local current_backdrop = g_small_clocks_backdrops[clock_index];
 
-            SpinClock_(current_backdrop);
+            SpinClock_(current_backdrop, g_small_clocks_backdrop_transform_indices[clock_index]);
 
             local iClockX = current_backdrop.pos[1];
             local iClockY = current_backdrop.pos[2];
@@ -110,15 +122,15 @@ local function CollideLittleClocks_()
                 iClockX - 3, iClockY - 4,
                 iClockX + 4, iClockY - 1);
 
-            if did_collide and g_clock_timers[clock_backdrop_num] == 1 then
+            if did_collide and g_small_clocks_timers[clock_index] == 1 then
                 g_clock_num_frames_left = g_clock_num_frames_left + 140;
-                g_clock_timers[clock_backdrop_num] = 500;
+                g_small_clocks_timers[clock_index] = 500;
                 set_mesh_is_visible(current_backdrop.mesh_index, false);
             end
         end
 
-        if g_clock_timers[clock_backdrop_num] and g_clock_timers[clock_backdrop_num] > 1 then
-            g_clock_timers[clock_backdrop_num] = g_clock_timers[clock_backdrop_num] - 1;
+        if g_small_clocks_timers[clock_index] and g_small_clocks_timers[clock_index] > 1 then
+            g_small_clocks_timers[clock_index] = g_small_clocks_timers[clock_index] - 1;
         end
     end
 end
@@ -158,9 +170,17 @@ function Module.initialize(game_input)
     g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
-    g_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
-    set_mesh_texture(g_clock_hand_mesh_index, resources.TextureBlack);
-    set_mesh_is_visible(g_clock_hand_mesh_index, true);
+    local setup_object_two_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        return result;
+    end
+
+    g_big_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
+    set_mesh_texture(g_big_clock_hand_mesh_index, resources.TextureBlack);
+    set_mesh_is_visible(g_big_clock_hand_mesh_index, true);
+    g_big_clock_hand_transform_indices = setup_object_two_transforms(g_big_clock_hand_mesh_index);
 
     g_wave = pause_wave_module();
     g_wave.GameLogic = g_game_logic;
@@ -172,19 +192,22 @@ function Module.initialize(game_input)
     g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
     g_wave.initialize();
 
-    g_clock_timers[10] = 1;
-    g_clock_timers[11] = 1;
-    g_clock_timers[12] = 1;
-    g_clock_timers[13] = 1;
-    g_clock_timers[14] = 1;
-
     for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do  -- TODO: Use constant for base num
-        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(clock_backdrop_num).mesh_index;
-        set_mesh_texture(backdrop_mesh_index, resources.TextureStopWatch);
+        local current_backdrop = g_game_logic.find_backdrop_by_number(clock_backdrop_num);
+        table.insert(g_small_clocks_backdrops, current_backdrop);
+        table.insert(g_small_clocks_backdrop_transform_indices, setup_object_two_transforms(current_backdrop.mesh_index));
+        table.insert(g_small_clocks_timers, 1);
     end
 
-    local clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
-    move_transparent_mesh_to_front(clock_backdrop.mesh_index);
+    local setup_object_transform = function(mesh_index)
+        local result = transform_create();
+        object_set_transform(mesh_index, result);
+        return result;
+    end
+
+    g_big_clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
+    g_big_clock_backdrop_transform_index = setup_object_transform(g_big_clock_backdrop.mesh_index);
+    move_transparent_mesh_to_front(g_big_clock_backdrop.mesh_index);
 
     Module.reset();
 
@@ -208,14 +231,10 @@ end
 function Module.reset()
     g_clock_num_frames_left = 0;
 
-    local iLoop = 10;  -- TODO: Use constant for base num
-
-    while iLoop < kNumClockTimers do
-        if g_clock_timers[iLoop] and g_clock_timers[iLoop] > 1 then
-            g_clock_timers[iLoop] = 1;
+    for iLoop = 1, kNumClockTimers do
+        if g_small_clocks_timers[iLoop] and g_small_clocks_timers[iLoop] > 1 then
+            g_small_clocks_timers[iLoop] = 1;
         end
-
-        iLoop = iLoop + 1;
     end
 
     g_game_logic.set_player_current_position_x(20);
