@@ -93,6 +93,9 @@ function Module.update()
         g_animation_counter = 0;
     end
 
+    local animation_was_moving_right = g_animation_frame_index == animation_frame.MOVE_RIGHT_2 or g_animation_frame_index == animation_frame.MOVE_RIGHT_1;
+    local animation_is_moving_right = true;
+
     if g_animation_counter > 5 then
         g_animation_frame_index = animation_frame.MOVE_RIGHT_2;
     else
@@ -104,6 +107,11 @@ function Module.update()
     if g_current_velocity_x <= 0 then
         iAdapt = 4.5;
         g_animation_frame_index = animation_frame.MOVE_LEFT_1 + g_animation_frame_index;  -- This works cause the indices are 0-based
+        animation_is_moving_right = false;
+    end
+
+    if animation_was_moving_right ~= animation_is_moving_right then
+        skip_next_mesh_interpolation(g_ghost_mesh);
     end
 
     set_mesh_to_mesh(g_ghost_mesh, g_animation_mesh_indices[g_animation_frame_index]);
