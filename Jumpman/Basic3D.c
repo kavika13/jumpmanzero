@@ -449,7 +449,8 @@ int ObjectGetTransform(long object_index) {
     int result = -1;
 
     if(object_index >= 0 && object_index < g_object_count) {
-        result = g_object_transform_index[object_index];
+        long redirected_object_index = g_object_redirects[object_index];
+        result = g_object_transform_index[redirected_object_index];
     } // TODO: Else log?
 
     return result;
@@ -462,7 +463,8 @@ void ObjectSetTransform(long object_index, int transform_index) {
     assert(transform_index < g_transform_count);
 
     if(object_index >= 0 && object_index < g_object_count && transform_index >= 0 && transform_index < g_transform_count) {
-        g_object_transform_index[object_index] = transform_index;
+        long redirected_object_index = g_object_redirects[object_index];
+        g_object_transform_index[redirected_object_index] = transform_index;
     } // TODO: Else log?
 }
 
@@ -471,7 +473,8 @@ void ObjectClearTransform(long object_index) {
     assert(object_index < g_object_count);
 
     if(object_index >= 0 && object_index < g_object_count) {
-        g_object_transform_index[object_index] = -1;
+        long redirected_object_index = g_object_redirects[object_index];
+        g_object_transform_index[redirected_object_index] = -1;
     } // TODO: Else log?
 }
 
