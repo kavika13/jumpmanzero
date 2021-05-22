@@ -25,6 +25,30 @@ local player_state = {
 };
 player_state = read_only.make_table_read_only(player_state);
 
+-- TODO: Auto-generate this table as separate file, and import it here?
+local resources = {
+    TextureJumpman = 0,
+    TextureConveyor = 1,
+    TextureWaterBack = 2,
+    TextureRedMetal = 3,
+    TextureDarkSky = 4,
+    SoundJump = 0,
+    SoundChomp = 1,
+    SoundBonk = 2,
+    SoundFire = 3,
+    ScriptBullet = 0,
+    MeshBullet1 = 0,
+    MeshBullet2 = 1,
+    TextureBullet = 5,
+    MeshWhomper = 2,
+    MeshProp = 3,
+    TextureBoringGray = 6,
+    ScriptWhomper = 1,
+    ScriptProp = 2,
+    TextureConveyor = 7,
+};
+resources = read_only.make_table_read_only(resources);
+
 local g_title_is_done_scrolling = false;
 
 local g_hud_overlay;
@@ -87,6 +111,8 @@ end
 local function CreateProp_(iX, iY, iR, iZ)
     local new_prop = prop_module();
     new_prop.GameLogic = g_game_logic;
+    new_prop.MeshResourceIndex = resources.MeshProp;
+    new_prop.TextureResourceIndex = resources.TextureBoringGray;
     new_prop.iX = iX;
     new_prop.iY = iY;
     new_prop.iR = iR;
@@ -98,6 +124,8 @@ end
 local function CreateWhomper_(iX, iY, iR, iRV)
     local new_whomper = whomper_module();
     new_whomper.GameLogic = g_game_logic;
+    new_whomper.MeshResourceIndex = resources.MeshWhomper;
+    new_whomper.TextureResourceIndex = resources.TextureBoringGray;
     new_whomper.iX = iX;
     new_whomper.iY = iY;
     new_whomper.iR = iR;

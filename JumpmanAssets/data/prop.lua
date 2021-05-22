@@ -1,44 +1,25 @@
-local read_only = require "data/read_only";
-
 local Module = {};
 
 Module.GameLogic = nil;
 
+Module.MeshResourceIndex = -1;
+Module.TextureResourceIndex = -1;
 Module.iX = 0;  -- TODO: Rename?
 Module.iY = 0;  -- TODO: Rename?
 Module.iZ = 0;  -- TODO: Rename?
 Module.iR = 0;  -- TODO: Rename?
 
--- TODO: Auto-generate this table as separate file, and import it here?
-local resources = {
-    TextureJumpman = 0,
-    TextureConveyor = 1,
-    TextureWaterBack = 2,
-    TextureRedMetal = 3,
-    TextureDarkSky = 4,
-    SoundJump = 0,
-    SoundChomp = 1,
-    SoundBonk = 2,
-    SoundFire = 3,
-    ScriptBullet = 0,
-    MeshBullet1 = 0,
-    MeshBullet2 = 1,
-    TextureBullet = 5,
-    MeshWhomper = 2,
-    MeshProp = 3,
-    TextureBoringGray = 6,
-    ScriptWhomper = 1,
-    ScriptProp = 2,
-    TextureConveyor = 7,
-};
-resources = read_only.make_table_read_only(resources);
-
-local g_propeller_mesh_index;
+local g_propeller_mesh_index = -1;
+local g_propeller_transform_indices = nil;
 local g_current_rotation = 0;
 
 function Module.initialize()
-    g_propeller_mesh_index = new_mesh(resources.MeshProp);
-    set_mesh_texture(g_propeller_mesh_index, resources.TextureBoringGray);
+    g_propeller_mesh_index = new_mesh(Module.MeshResourceIndex);
+    g_propeller_transform_indices = { transform_create(), transform_create(), transform_create() };
+    object_set_transform(g_propeller_mesh_index, g_propeller_transform_indices[1]);
+    transform_set_parent(g_propeller_transform_indices[1], g_propeller_transform_indices[2]);
+    transform_set_parent(g_propeller_transform_indices[2], g_propeller_transform_indices[3]);
+    set_mesh_texture(g_propeller_mesh_index, Module.TextureResourceIndex);
 end
 
 function Module.update()
@@ -48,11 +29,10 @@ function Module.update()
         g_current_rotation = 0;
     end
 
-    set_identity_mesh_matrix(g_propeller_mesh_index);
-    scale_mesh_matrix(g_propeller_mesh_index, 6, 8, 2);
-    rotate_x_mesh_matrix(g_propeller_mesh_index, 90);
-    rotate_y_mesh_matrix(g_propeller_mesh_index, g_current_rotation + Module.iR);
-    translate_mesh_matrix(g_propeller_mesh_index, Module.iX, Module.iY, Module.iZ);
+    transform_set_scale(g_propeller_transform_indices[1], 6, 8, 2);
+    transform_set_rotation_x(g_propeller_transform_indices[2], 90);
+    transform_concat_rotation_y(g_propeller_transform_indices[2], g_current_rotation + Module.iR);
+    transform_set_translation(g_propeller_transform_indices[3], Module.iX, Module.iY, Module.iZ);
     set_mesh_is_visible(g_propeller_mesh_index, true);
 
     local iPX = Module.GameLogic.get_player_current_position_x();
