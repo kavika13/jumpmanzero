@@ -52,8 +52,10 @@ local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
+
+local g_waterfall_backdrop_mesh_index = -1;
 local g_disappearing_platforms = {};
-local iBlow = 0;
+local iBlow = 0;  -- TODO: Add changing blowing horizontal wind effect to this level? Might be cool... This variable name sucks tho lol
 
 local function InitPlatforms_()
     for platform_index = 0, g_game_logic.get_platform_object_count() - 1 do
@@ -77,10 +79,7 @@ local function ProgressLevel_(game_input)
         return;
     end
 
-    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(5).mesh_index;  -- TODO: Use constant for num
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, 0, 0, 10);
-    scroll_texture_on_mesh(backdrop_mesh_index, 0, kWATERFALL_ANIMATION_FRAME_STEP);
+    scroll_texture_on_mesh(g_waterfall_backdrop_mesh_index, 0, kWATERFALL_ANIMATION_FRAME_STEP);
 
     for _, plat in ipairs(g_disappearing_platforms) do
         plat.update();
@@ -102,6 +101,8 @@ function Module.initialize(game_input)
     g_hud_overlay.GameLogic = g_game_logic;
 
     InitPlatforms_();
+
+    g_waterfall_backdrop_mesh_index = g_game_logic.find_backdrop_by_number(5).mesh_index;  -- TODO: Use constant for num
 
     Module.reset();
 

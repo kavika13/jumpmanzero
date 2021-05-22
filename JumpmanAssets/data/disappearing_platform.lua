@@ -25,6 +25,7 @@ local player_state = {
 player_state = read_only.make_table_read_only(player_state);
 
 local g_platform = nil;
+local g_platform_transform_index = -1;
 
 local g_original_pos_z = 0;
 local g_current_pos_offset_z = 0;
@@ -103,8 +104,7 @@ local function DrawStatus_()
         g_platform.set_pos_y(-g_platform.pos_lower_right[2], -g_platform.pos_upper_left[2]);
     end
 
-    set_identity_mesh_matrix(g_platform.mesh_index);
-    translate_mesh_matrix(g_platform.mesh_index, 0, 0, g_current_pos_offset_z);
+    transform_set_translation(g_platform_transform_index, 0, 0, g_current_pos_offset_z);
 
     if g_current_move_direction == 0 then
         set_mesh_texture(g_platform.mesh_index, Module.GoodColorTextureResourceIndex);
@@ -115,6 +115,8 @@ end
 
 function Module.initialize()
     g_platform = Module.GameLogic.get_platform(Module.PlatformIndex);
+    g_platform_transform_index = transform_create();
+    object_set_transform(g_platform.mesh_index, g_platform_transform_index);
     g_original_pos_z = g_platform.pos_z;
 end
 
