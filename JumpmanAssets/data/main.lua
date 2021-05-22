@@ -426,18 +426,6 @@ function Module.update(game_input)
     g_level_module.update(game_input);
 end
 
-function Module.pre_draw(seconds_per_update_timestep, seconds_since_previous_update, time_scale)
-    if g_is_exit_requested then
-        return false;
-    end
-
-    if g_level_module and g_level_module.pre_draw then
-        return g_level_module.pre_draw(seconds_per_update_timestep, seconds_since_previous_update, time_scale);
-    end
-
-    return false;
-end
-
 function Module.on_exit_requested()
     g_is_exit_requested = true;
 end
