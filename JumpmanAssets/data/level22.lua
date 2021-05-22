@@ -46,12 +46,15 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
+local kPLATFORM_COUNT = 9;
+
 local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
 
 local g_platform_indices = {};
+local g_platform_transform_indices = {};
 local g_platforms_x1 = {};
 local g_platforms_y1 = {};
 local g_platforms_x2 = {};
@@ -67,8 +70,10 @@ local g_platforms_previous_y1 = {};
 
 local g_animation_frame = 0;
 
-local g_small_gears_background_mesh_index;
-local g_large_gears_background_mesh_index;
+local g_small_gears_background_mesh_index = -1;
+local g_small_gears_background_transform_indices = nil;
+local g_large_gears_background_mesh_index = -1;
+local g_large_gears_background_transform_indices = nil;
 
 local function Cycle_(iCCount, iSpeed, iMin, iMax)
     local is_negative = false;
@@ -122,8 +127,7 @@ local function DisplayPlatform_(iNum)
     local iDX = g_platforms_x1[iNum] - g_platforms_original_x1[iNum];
     local iDY = g_platforms_y1[iNum] - g_platforms_original_y1[iNum];
 
-    set_identity_mesh_matrix(current_platform.mesh_index);
-    translate_mesh_matrix(current_platform.mesh_index, iDX, iDY, 0);
+    transform_set_translation(g_platform_transform_indices[iNum], iDX, iDY, 0);
 
     iDX = g_platforms_x1[iNum] - g_platforms_previous_x1[iNum];
     iDY = g_platforms_y1[iNum] - g_platforms_previous_y1[iNum];
@@ -156,6 +160,7 @@ local function ProgressLevel_(game_input)
 
     g_animation_frame = g_animation_frame + 1;
 
+    -- TODO: Pass in the angle, etc, to DisplayPlatform_ so the visuals can just use rotation interpolation instead of translation interpolation
     local iNX = math.cos(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
     local iNY = math.sin(((g_animation_frame * 2 / 3) + 180) * math.pi / 180.0) * 43 + 80;
     SetPosition_(6, iNX, iNY + 3);
@@ -201,16 +206,14 @@ local function ProgressLevel_(game_input)
     SetPosition_(5, iNX, iNY);
     DisplayPlatform_(5);
 
-    set_identity_mesh_matrix(g_small_gears_background_mesh_index);
-    rotate_z_mesh_matrix(g_small_gears_background_mesh_index, 0 - g_animation_frame);
-    scale_mesh_matrix(g_small_gears_background_mesh_index, 25, 25, 2);
-    translate_mesh_matrix(g_small_gears_background_mesh_index, 80, 80, 7);
+    transform_set_rotation_z(g_small_gears_background_transform_indices[1], 0 - g_animation_frame);
+    transform_set_scale(g_small_gears_background_transform_indices[1], 25, 25, 2);
+    transform_set_translation(g_small_gears_background_transform_indices[2], 80, 80, 7);
     set_mesh_is_visible(g_small_gears_background_mesh_index, true);
 
-    set_identity_mesh_matrix(g_large_gears_background_mesh_index);
-    rotate_z_mesh_matrix(g_large_gears_background_mesh_index, g_animation_frame * 2 / 3);
-    scale_mesh_matrix(g_large_gears_background_mesh_index, 50, 50, 2);
-    translate_mesh_matrix(g_large_gears_background_mesh_index, 80, 80, 9);
+    transform_set_rotation_z(g_large_gears_background_transform_indices[1], g_animation_frame * 2 / 3);
+    transform_set_scale(g_large_gears_background_transform_indices[1], 50, 50, 2);
+    transform_set_translation(g_large_gears_background_transform_indices[2], 80, 80, 9);
     set_mesh_is_visible(g_large_gears_background_mesh_index, true);
 
     g_game_logic.update_player_graphics();
@@ -218,6 +221,9 @@ end
 
 local function SetPlatformData_(platform_num)
     local current_platform = g_game_logic.find_platform_by_number(platform_num);
+
+    g_platform_transform_indices[platform_num] = transform_create();
+    object_set_transform(current_platform.mesh_index, g_platform_transform_indices[platform_num]);
 
     g_platform_indices[platform_num] = current_platform.index;
     g_platforms_x1[platform_num] = current_platform.pos_upper_left[1];
@@ -247,14 +253,20 @@ function Module.initialize(game_input)
 
     g_game_logic.set_level_extent_x(200);
 
-    for platform_num = 1, 9 do
+    for platform_num = 1, kPLATFORM_COUNT do
         SetPlatformData_(platform_num);
     end
 
     g_small_gears_background_mesh_index = new_mesh(resources.MeshSphere);
+    g_small_gears_background_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_small_gears_background_mesh_index, g_small_gears_background_transform_indices[1]);
+    transform_set_parent(g_small_gears_background_transform_indices[1], g_small_gears_background_transform_indices[2]);
     set_mesh_texture(g_small_gears_background_mesh_index, resources.TextureBoringGray);
 
     g_large_gears_background_mesh_index = new_mesh(resources.MeshSphere);
+    g_large_gears_background_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_large_gears_background_mesh_index, g_large_gears_background_transform_indices[1]);
+    transform_set_parent(g_large_gears_background_transform_indices[1], g_large_gears_background_transform_indices[2]);
     set_mesh_texture(g_large_gears_background_mesh_index, resources.TextureBoringGray);
 
     Module.reset();
