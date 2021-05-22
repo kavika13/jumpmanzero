@@ -10,7 +10,8 @@ Module.TextureResourceIndex = 0;
 Module.InitialPosX = 0;
 Module.InitialPosY = 0;
 
-local g_saw_mesh_index = 0;
+local g_saw_mesh_index = -1;
+local g_saw_transform_indices = nil;
 local g_is_initial_flight = false;
 
 local g_current_pos_x = 0;
@@ -140,6 +141,9 @@ end
 
 function Module.initialize()
     g_saw_mesh_index = new_mesh(Module.MeshResourceIndex);
+    g_saw_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_saw_mesh_index, g_saw_transform_indices[1]);
+    transform_set_parent(g_saw_transform_indices[1], g_saw_transform_indices[2]);
     set_mesh_texture(g_saw_mesh_index, Module.TextureResourceIndex);
 
     g_current_pos_x = Module.InitialPosX;
@@ -174,10 +178,9 @@ function Module.update()
         g_current_rotation_z_degrees = g_current_rotation_z_degrees + 6;
     end
 
-    set_identity_mesh_matrix(g_saw_mesh_index);
-    rotate_z_mesh_matrix(g_saw_mesh_index, g_current_rotation_z_degrees);
-    scale_mesh_matrix(g_saw_mesh_index, 0.75, 0.75, 0.75);
-    translate_mesh_matrix(g_saw_mesh_index, g_current_pos_x, g_current_pos_y + 4, g_current_pos_z - 0.1);
+    transform_set_rotation_z(g_saw_transform_indices[1], g_current_rotation_z_degrees);
+    transform_set_scale(g_saw_transform_indices[1], 0.75, 0.75, 0.75);
+    transform_set_translation(g_saw_transform_indices[2], g_current_pos_x, g_current_pos_y + 4, g_current_pos_z - 0.1);
     set_mesh_is_visible(g_saw_mesh_index, true);
 
     if Module.GameLogic.is_player_colliding_with_rect(
