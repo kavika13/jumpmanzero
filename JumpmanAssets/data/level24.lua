@@ -82,11 +82,12 @@ local baboons = {};
 local g_hang_animation_current_frame;
 local g_hang_animation_next_frame_counter = 0;
 local g_jumpman_hang_animation_mesh_indices = {};
-local g_jumpman_hang_mesh = nil;
+local g_jumpman_hang_mesh_index = -1;
+local g_jumpman_hang_transform_index = -1;
 
 local function CheckHanging_(game_input)
-    -- TODO: Animate jumpan via change mesh instead of making him invisible? Not imporant for anything but reducing mesh cloning and maybe reduced bugginess/statefulness
-    set_mesh_is_visible(g_jumpman_hang_mesh, false);
+    -- TODO: Animate base player mesh instead of hiding the player mesh and displaying an alternate one?
+    set_mesh_is_visible(g_jumpman_hang_mesh_index, false);
 
     if g_game_logic.get_player_current_state() == player_state.JSVINE or
             g_game_logic.get_player_current_state() == player_state.JSLADDER then
@@ -137,14 +138,13 @@ local function CheckHanging_(game_input)
                 end
             end
 
-            set_mesh_to_mesh(g_jumpman_hang_mesh, g_jumpman_hang_animation_mesh_indices[actual_hang_animation_frame]);
-            set_identity_mesh_matrix(g_jumpman_hang_mesh);
-            translate_mesh_matrix(
-                g_jumpman_hang_mesh,
+            set_mesh_to_mesh(g_jumpman_hang_mesh_index, g_jumpman_hang_animation_mesh_indices[actual_hang_animation_frame]);
+            transform_set_translation(
+                g_jumpman_transform_index,
                 g_game_logic.get_player_current_position_x() + 0,
                 g_game_logic.get_player_current_position_y() + 2,
                 g_game_logic.get_player_current_position_z() + 1.5);
-            set_mesh_is_visible(g_jumpman_hang_mesh, true);
+            set_mesh_is_visible(g_jumpman_hang_mesh_index, true);
 
             return;
         end
@@ -191,8 +191,10 @@ local function FixHangPlatforms_()
     g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_LEFT_3] = resources.MeshHangL3;
     g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_LEFT_4] = resources.MeshHangL4;
 
-    g_jumpman_hang_mesh = new_mesh(g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_NEUTRAL]);
-    set_mesh_texture(g_jumpman_hang_mesh, resources.TextureJumpman);
+    g_jumpman_hang_mesh_index = new_mesh(g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_NEUTRAL]);
+    g_jumpman_transform_index = transform_create();
+    object_set_transform(g_jumpman_hang_mesh_index, g_jumpman_transform_index);
+    set_mesh_texture(g_jumpman_hang_mesh_index, resources.TextureJumpman);
 end
 
 local function StartBaboon_(initial_pos_x, initial_pos_y);

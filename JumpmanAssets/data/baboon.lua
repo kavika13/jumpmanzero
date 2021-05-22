@@ -20,7 +20,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_baboon_mesh = nil;
+local g_baboon_mesh_index = -1;
+local g_baboon_transform_index = -1;
 local g_climb_animation_mesh_indices = {};
 local g_climb_animation_current_mesh_index;
 local g_climb_animation_frame_index = 0;
@@ -83,9 +84,11 @@ function Module.initialize()
     g_climb_animation_mesh_indices[animation_frame.CLIMB_4] = Module.BaboonClimbMeshResourceIndices[2];
     g_climb_animation_mesh_indices[animation_frame.CLIMB_5] = Module.BaboonClimbMeshResourceIndices[4];
 
-    g_baboon_mesh = new_mesh(g_climb_animation_mesh_indices[animation_frame.CLIMB_1]);
-    set_mesh_texture(g_baboon_mesh, Module.BaboonTextureResourceIndex);
-    set_mesh_is_visible(g_baboon_mesh, true);
+    g_baboon_mesh_index = new_mesh(g_climb_animation_mesh_indices[animation_frame.CLIMB_1]);
+    g_baboon_transform_index = transform_create();
+    object_set_transform(g_baboon_mesh_index, g_baboon_transform_index);
+    set_mesh_texture(g_baboon_mesh_index, Module.BaboonTextureResourceIndex);
+    set_mesh_is_visible(g_baboon_mesh_index, true);
 
     g_current_pos_x = Module.StartX;
     g_current_pos_y = Module.StartY;
@@ -97,9 +100,8 @@ end
 function Module.update()
     MoveBaboon_();
 
-    set_mesh_to_mesh(g_baboon_mesh, g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index]);
-    set_identity_mesh_matrix(g_baboon_mesh);
-    translate_mesh_matrix(g_baboon_mesh, g_current_pos_x, g_current_pos_y + 6, g_current_pos_z);
+    set_mesh_to_mesh(g_baboon_mesh_index, g_climb_animation_mesh_indices[g_climb_animation_current_mesh_index]);
+    transform_set_translation(g_baboon_transform_index, g_current_pos_x, g_current_pos_y + 6, g_current_pos_z);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 2, g_current_pos_y + 2,
