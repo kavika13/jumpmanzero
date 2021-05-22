@@ -31,6 +31,7 @@ local kPLAYER_CHAIN_OFFSET_Y = 6;
 local kPLAYER_CHAIN_OFFSET_Z = 2;
 
 local g_link_mesh_indices = {};
+local g_link_transform_indices = {};
 
 local g_chain_anchor_pos_x = 80;
 local g_chain_anchor_pos_y = 80;
@@ -78,11 +79,10 @@ local function PositionChain_()
             distance_link_prev_to_curr = 0.5;
         end
 
-        local mesh_index = g_link_mesh_indices[link_index - 1];
-        set_identity_mesh_matrix(mesh_index);
-        scale_mesh_matrix(mesh_index, distance_link_prev_to_curr * 1.6, 1, 1);
-        rotate_z_mesh_matrix(mesh_index, Angle);
-        translate_mesh_matrix(mesh_index, link_x_curr, link_y_curr, player_z);
+        local transform_indices = g_link_transform_indices[link_index];
+        transform_set_scale(transform_indices[1], distance_link_prev_to_curr * 1.6, 1, 1);
+        transform_set_rotation_z(transform_indices[2], Angle);
+        transform_set_translation(transform_indices[3], link_x_curr, link_y_curr, player_z);
 
         link_x_prev = link_x_curr;
         link_y_prev = link_y_curr;
@@ -221,8 +221,17 @@ local function EnforceMovement_()
 end
 
 function Module.initialize()
-    for iLoop = 0, kCHAIN_LINK_COUNT -1 do
+    local setup_object_three_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        transform_set_parent(result[2], result[3]);
+        return result;
+    end
+
+    for iLoop = 1, kCHAIN_LINK_COUNT do
         g_link_mesh_indices[iLoop] = new_mesh(Module.LinkMeshResourceIndex);
+        g_link_transform_indices[iLoop] = setup_object_three_transforms(g_link_mesh_indices[iLoop]);
         set_mesh_texture(g_link_mesh_indices[iLoop], Module.LinkTextureResourceIndex);
         set_mesh_is_visible(g_link_mesh_indices[iLoop], true);
     end
