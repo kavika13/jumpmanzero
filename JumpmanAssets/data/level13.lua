@@ -57,6 +57,7 @@ local resources = {
 resources = read_only.make_table_read_only(resources);
 
 local kBACKGROUND_ANIMATION_FRAME_STEP = -0.5;
+local kROTATING_BACKDROP_COUNT = 4;
 
 local g_title_is_done_scrolling = false;
 
@@ -64,19 +65,18 @@ local g_game_logic;
 local g_hud_overlay;
 local g_bullets = {};
 
+local g_rotating_backdrops_transform_indices = {};
+
 local g_visibility_bitmask;
 local g_visibility_change_frames_left = 0;
 local g_background_rotation = 0;
 
 local function RotateBack_(background_rotation)
-    for backdrop_num = 200, 203 do  -- TODO: Use constant for num
-        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(backdrop_num).mesh_index;
-        set_identity_mesh_matrix(backdrop_mesh_index);
-        translate_mesh_matrix(backdrop_mesh_index, -80, -40, 0);
-        scale_mesh_matrix(backdrop_mesh_index, 1.1, 1.1, 1);
-        rotate_z_mesh_matrix(backdrop_mesh_index, background_rotation);
-        translate_mesh_matrix(backdrop_mesh_index, 80, 40, 0);
-        skip_next_mesh_interpolation(backdrop_mesh_index);
+    for backdrop_num = 1, kROTATING_BACKDROP_COUNT do
+        transform_set_translation(g_rotating_backdrops_transform_indices[backdrop_num][1], -80, -40, 0);
+        transform_set_scale(g_rotating_backdrops_transform_indices[backdrop_num][1], 1.1, 1.1, 1);
+        transform_set_rotation_z(g_rotating_backdrops_transform_indices[backdrop_num][2], background_rotation);
+        transform_set_translation(g_rotating_backdrops_transform_indices[backdrop_num][3], 80, 40, 0);
     end
 end
 
@@ -94,8 +94,9 @@ local function SetConfig_()
         end
 
         platform_to_hide.set_pos_y(500, 500);
-        translate_mesh_matrix(platform_to_hide.mesh_index, 0, 0, 2000);  -- TODO: Just do set_mesh_is_visible false?
-        -- TODO: Need to skip interpolation?
+        local transform_index = transform_create();
+        object_set_transform(platform_to_hide.mesh_index, transform_index);
+        transform_set_translation(transform_index, 0, 0, 2000);  -- Can't just set_mesh_is_visible because it will be undone by ResetVisible_
     end
 end
 
@@ -224,6 +225,19 @@ function Module.initialize(game_input)
         set_mesh_texture(g_game_logic.get_platform(platform_index).mesh_index, resources.TextureClassicPlatform);
     end
 
+    local setup_object_three_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        transform_set_parent(result[2], result[3]);
+        return result;
+    end
+
+    for backdrop_num = 200, 200 + kROTATING_BACKDROP_COUNT - 1 do  -- TODO: Use constant for num
+        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(backdrop_num).mesh_index;
+        table.insert(g_rotating_backdrops_transform_indices, setup_object_three_transforms(backdrop_mesh_index));
+    end
+
     Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
@@ -243,18 +257,6 @@ function Module.update(game_input)
     end
 
     ProgressLevel_(game_input);
-end
-
-function Module.pre_draw(seconds_per_update_timestep, seconds_since_previous_update, time_scale)
-    if g_player_won then
-        return false;
-    end
-
-    local interpolation_scale = time_scale * seconds_since_previous_update / seconds_per_update_timestep;  -- TODO: Just pass in interpolation_scale instead?
-
-    RotateBack_(g_background_rotation + kBACKGROUND_ANIMATION_FRAME_STEP * interpolation_scale);
-
-    return false;  -- TODO: Should this ever be returned true?
 end
 
 function Module.on_collect_donut()
