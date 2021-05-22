@@ -27,8 +27,10 @@ animation_frame = read_only.make_table_read_only(animation_frame);
 local g_animation_mesh_indices = {};
 local g_animation_current_frame;
 
-local g_jumper_mesh = nil;
-local g_eye_mesh = nil;
+local g_jumper_mesh_index = -1;
+local g_jumper_transform_index = -1;
+local g_eye_mesh_index = -1;
+local g_eye_transform_index = -1;
 
 local g_current_status = status_type.CROUCHED;
 local g_time_crouching = 0;
@@ -184,13 +186,17 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.JUMP_2] = Module.AnimationMeshResourceIndices[2];
     g_animation_mesh_indices[animation_frame.JUMP_3] = Module.AnimationMeshResourceIndices[3];
 
-    g_jumper_mesh = new_mesh(g_animation_mesh_indices[animation_frame.JUMP_1]);
-    set_mesh_texture(g_jumper_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_jumper_mesh, true);
+    g_jumper_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.JUMP_1]);
+    g_jumper_transform_index = transform_create();
+    object_set_transform(g_jumper_mesh_index, g_jumper_transform_index);
+    set_mesh_texture(g_jumper_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_jumper_mesh_index, true);
 
-    g_eye_mesh = new_mesh(Module.EyesMeshResourceIndex);
-    set_mesh_texture(g_eye_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_eye_mesh, true);
+    g_eye_mesh_index = new_mesh(Module.EyesMeshResourceIndex);
+    g_eye_transform_index = transform_create();
+    object_set_transform(g_eye_mesh_index, g_eye_transform_index);
+    set_mesh_texture(g_eye_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_eye_mesh_index, true);
 
     if not Module.StartAlive then
         g_current_pos_x = -50;
@@ -210,9 +216,8 @@ end
 function Module.update(all_jumpers)
     MoveJumper_(all_jumpers);
 
-    set_mesh_to_mesh(g_jumper_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_jumper_mesh);
-    translate_mesh_matrix(g_jumper_mesh, g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
+    set_mesh_to_mesh(g_jumper_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
+    transform_set_translation(g_jumper_transform_index, g_current_pos_x, g_curret_pos_y + 9, g_current_pos_z);
 
     local iEyeX = (Module.GameLogic.get_player_current_position_x() - g_current_pos_x) / 85;
     local iEyeX = iEyeX - 0.5;
@@ -220,8 +225,7 @@ function Module.update(all_jumpers)
     iEyeY = (Module.GameLogic.get_player_current_position_y() - g_curret_pos_y) / 85;
     iEyeY = iEyeY + 9.2 + g_eye_offset_y;
 
-    set_identity_mesh_matrix(g_eye_mesh);
-    translate_mesh_matrix(g_eye_mesh, g_current_pos_x + iEyeX, g_curret_pos_y + iEyeY, g_current_pos_z);
+    transform_set_translation(g_eye_transform_index, g_current_pos_x + iEyeX, g_curret_pos_y + iEyeY, g_current_pos_z);
 
     if g_current_status == status_type.JUMPING then
         if Module.GameLogic.is_player_colliding_with_rect(

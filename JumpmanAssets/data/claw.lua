@@ -28,7 +28,9 @@ local jumper_status_type = {
 jumper_status_type = read_only.make_table_read_only(jumper_status_type);
 
 local g_claw_mesh_indices = {};
-local g_chain_mesh_index = 0;
+local g_claw_transform_indices = {};
+local g_chain_mesh_index = -1;
+local g_chain_transform_indices = nil;
 
 local g_claw_rotation = 0;
 local g_claw_degrees_open = 0;
@@ -42,6 +44,7 @@ local g_current_status = 0;
 local g_time_until_next_grab = 0;
 
 local g_rescued_donut = nil;
+local g_rescued_donut_mesh_index_to_transform_index_map = {};
 local g_rescued_jumper = nil;
 
 local function FindStranded_(all_jumpers)
@@ -64,6 +67,12 @@ local function FindDonut_()
         if Module.GameLogic.get_donut_is_collected(donut_index) then
             if current_donut.pos[1] > player_x - 60 and current_donut.pos[1] < player_x + 60 then
                 g_rescued_donut = current_donut;
+                if not g_rescued_donut_mesh_index_to_transform_index_map[g_rescued_donut.mesh_index] then
+                    -- TODO: Should the game logic create these transforms? Get existing transform instead?
+                    local new_transform_index = transform_create();
+                    g_rescued_donut_mesh_index_to_transform_index_map[g_rescued_donut.mesh_index] = new_transform_index;
+                    object_set_transform(g_rescued_donut.mesh_index, new_transform_index);
+                end
                 g_current_status = status_type.RESCUING_GRABBED_DONUT;
                 return;
             end
@@ -131,9 +140,8 @@ local function MoveChain_(all_jumpers)
             g_claw_current_pos_y = g_claw_current_pos_y - 1;
         end
 
-        set_identity_mesh_matrix(g_rescued_donut.mesh_index);
-        translate_mesh_matrix(
-            g_rescued_donut.mesh_index,
+        transform_set_translation(
+            g_rescued_donut_mesh_index_to_transform_index_map[g_rescued_donut.mesh_index],
             g_claw_current_pos_x - g_rescued_donut.pos[1],
             g_claw_current_pos_y - g_rescued_donut.pos[2],
             0 - g_rescued_donut.pos[3]);
@@ -141,9 +149,9 @@ local function MoveChain_(all_jumpers)
 
         if iOldX == g_claw_current_pos_x and iOldY == g_claw_current_pos_y then
             Module.GameLogic.set_donut_is_collected(g_rescued_donut.index, false);
-            set_identity_mesh_matrix(g_rescued_donut.mesh_index);
+            transform_clear_translation(g_rescued_donut_mesh_index_to_transform_index_map[g_rescued_donut.mesh_index]);
             g_current_status = status_type.GHOSTING_PLAYER;
-            g_time_until_next_grab = 50;
+            g_time_until_next_grab = 2;
         end
     end
 
@@ -199,21 +207,19 @@ local function MoveChain_(all_jumpers)
     end
 end
 
-local function DrawClaw_(current_animation_frame, iAngle, iSpread)
-    local anim_mesh_index = g_claw_mesh_indices[current_animation_frame];
-    set_identity_mesh_matrix(anim_mesh_index);
-    translate_mesh_matrix(anim_mesh_index, 0, -5, 0);
-    rotate_z_mesh_matrix(anim_mesh_index, iSpread);
-    rotate_y_mesh_matrix(anim_mesh_index, iAngle);
-    translate_mesh_matrix(anim_mesh_index, g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
-    set_mesh_is_visible(anim_mesh_index, true);
+local function DrawClaw_(claw_piece_index, iAngle, iSpread)
+    local claw_piece_transform_indices = g_claw_transform_indices[claw_piece_index];
+    transform_set_translation(claw_piece_transform_indices[1], 0, -5, 0);
+    transform_set_rotation_z(claw_piece_transform_indices[1], iSpread);
+    transform_concat_rotation_y(claw_piece_transform_indices[1], iAngle);
+    transform_set_translation(claw_piece_transform_indices[2], g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
+    set_mesh_is_visible(g_claw_mesh_indices[claw_piece_index], true);
 end
 
 local function DrawChain_()
-    set_identity_mesh_matrix(g_chain_mesh_index);
-    translate_mesh_matrix(g_chain_mesh_index, 0, -0.5, 0);
-    scale_mesh_matrix(g_chain_mesh_index, 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
-    translate_mesh_matrix(g_chain_mesh_index, g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);
+    transform_set_translation(g_chain_transform_indices[1], 0, -0.5, 0);
+    transform_set_scale(g_chain_transform_indices[1], 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
+    transform_set_translation(g_chain_transform_indices[2], g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);
     set_mesh_is_visible(g_chain_mesh_index, true);
 end
 
@@ -225,19 +231,25 @@ function Module.initialize()
     g_anchor_pos_y = 130;
     g_current_status = status_type.GHOSTING_PLAYER;
 
-    g_claw_mesh_indices[0] = new_mesh(Module.ClawMeshResourceIndex);
     g_claw_mesh_indices[1] = new_mesh(Module.ClawMeshResourceIndex);
     g_claw_mesh_indices[2] = new_mesh(Module.ClawMeshResourceIndex);
     g_claw_mesh_indices[3] = new_mesh(Module.ClawMeshResourceIndex);
+    g_claw_mesh_indices[4] = new_mesh(Module.ClawMeshResourceIndex);
 
-    for i = 0, 3 do
+    for i = 1, 4 do
+        g_claw_transform_indices[i] = { transform_create(), transform_create() };
+        object_set_transform(g_claw_mesh_indices[i], g_claw_transform_indices[i][1]);
+        transform_set_parent(g_claw_transform_indices[i][1], g_claw_transform_indices[i][2]);
         set_mesh_texture(g_claw_mesh_indices[i], Module.ClawTextureResourceIndex);
     end
 
     g_chain_mesh_index = new_mesh(Module.ChainMeshResourceIndex);
+    g_chain_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_chain_mesh_index, g_chain_transform_indices[1]);
+    transform_set_parent(g_chain_transform_indices[1], g_chain_transform_indices[2]);
     set_mesh_texture(g_chain_mesh_index, Module.ChainTextureResourceIndex);
 
-    g_time_until_next_grab = 120;
+    g_time_until_next_grab = 2;
 end
 
 function Module.update(all_jumpers)
@@ -245,10 +257,10 @@ function Module.update(all_jumpers)
 
     g_claw_rotation = g_claw_rotation + math.random(50, 90) / 300;
 
-    DrawClaw_(0, 0 + g_claw_rotation, g_claw_degrees_open);
-    DrawClaw_(1, 90 + g_claw_rotation, g_claw_degrees_open);
-    DrawClaw_(2, 180 + g_claw_rotation, g_claw_degrees_open);
-    DrawClaw_(3, 270 + g_claw_rotation, g_claw_degrees_open);
+    DrawClaw_(1, 0 + g_claw_rotation, g_claw_degrees_open);
+    DrawClaw_(2, 90 + g_claw_rotation, g_claw_degrees_open);
+    DrawClaw_(3, 180 + g_claw_rotation, g_claw_degrees_open);
+    DrawClaw_(4, 270 + g_claw_rotation, g_claw_degrees_open);
     DrawChain_();
 end
 
