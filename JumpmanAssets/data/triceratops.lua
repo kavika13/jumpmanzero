@@ -27,6 +27,7 @@ local kMOVING_LEFT = 3;
 local kMOVING_RIGHT = 4;
 
 local g_dino_mesh = nil;
+local g_dino_transform_indices = nil;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame;
 
@@ -123,7 +124,15 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.WALK_RIGHT_3] = Module.LeftWalkMeshResourceIndices[2];
     g_animation_mesh_indices[animation_frame.WALK_RIGHT_4] = Module.LeftStandMeshResourceIndex;
 
+    local setup_object_two_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        return result;
+    end
+
     g_dino_mesh = new_mesh(g_animation_mesh_indices[animation_frame.WALK_LEFT_1]);
+    g_dino_transform_indices = setup_object_two_transforms(g_dino_mesh);
     set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
     set_mesh_is_visible(g_dino_mesh, true);
 
@@ -137,10 +146,9 @@ function Module.update()
     SetAngle_();
 
     set_mesh_to_mesh(g_dino_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_dino_mesh);
-    rotate_z_mesh_matrix(g_dino_mesh, g_current_rotation_z);
-    scale_mesh_matrix(g_dino_mesh, 1.5, 1.5, 1.5);
-    translate_mesh_matrix(g_dino_mesh, g_current_pos_x, g_current_pos_y + 13, 9);
+    transform_set_rotation_z(g_dino_transform_indices[1], g_current_rotation_z);
+    transform_set_scale(g_dino_transform_indices[1], 1.5, 1.5, 1.5);
+    transform_set_translation(g_dino_transform_indices[2], g_current_pos_x, g_current_pos_y + 13, 9);
 
     if g_current_state == kMOVING_LEFT then
         if Module.GameLogic.is_player_colliding_with_rect(
