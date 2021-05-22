@@ -49,11 +49,13 @@ Module.BehaviorType = 0;
 
 local kTURN_DURATION = 50;  -- TODO: Could make configurable. Would have to calculate frame thresholds, not hard-code
 
-local g_zap_bot_mesh = nil;
+local g_zap_bot_mesh_index = -1;
+local g_zap_bot_transform_indices = nil;
+local g_laser_mesh_index = -1;
+local g_laser_transform_indices = nil;
+
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = 0;
-
-local g_laser_mesh_index = 0;
 
 local g_current_pos_x = 0;
 local g_current_pos_y = 0;
@@ -235,12 +237,18 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.FIRE_RIGHT_1] = Module.BotFireRightMeshResourceIndices[1];
     g_animation_mesh_indices[animation_frame.FIRE_RIGHT_2] = Module.BotFireRightMeshResourceIndices[2];
 
-    g_zap_bot_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_LEFT]);
-    set_mesh_texture(g_zap_bot_mesh, Module.BotTextureResourceIndex);
-    set_mesh_is_visible(g_zap_bot_mesh, true);
+    g_zap_bot_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_LEFT]);
+    g_zap_bot_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_zap_bot_mesh_index, g_zap_bot_transform_indices[1]);
+    transform_set_parent(g_zap_bot_transform_indices[1], g_zap_bot_transform_indices[2]);
+    set_mesh_texture(g_zap_bot_mesh_index, Module.BotTextureResourceIndex);
+    set_mesh_is_visible(g_zap_bot_mesh_index, true);
 
     g_wait_time_remaining = Module.WaitDuration;
     g_laser_mesh_index = new_mesh(Module.LaserMeshResourceIndex);
+    g_laser_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_laser_mesh_index, g_laser_transform_indices[1]);    
+    transform_set_parent(g_laser_transform_indices[1], g_laser_transform_indices[2]);
     set_mesh_texture(g_laser_mesh_index, Module.LaserTextureResourceIndex);
 end
 
@@ -250,22 +258,20 @@ function Module.update()
     SetFrame_();
     Move_();
 
-    set_mesh_to_mesh(g_zap_bot_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_zap_bot_mesh);
-    scale_mesh_matrix(g_zap_bot_mesh, 0.7, 0.55, 1);
-    translate_mesh_matrix(g_zap_bot_mesh, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
+    set_mesh_to_mesh(g_zap_bot_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
+    transform_set_scale(g_zap_bot_transform_indices[1], 0.7, 0.55, 1);
+    transform_set_translation(g_zap_bot_transform_indices[2], g_current_pos_x, g_current_pos_y + 5, g_current_pos_z + 2);
 
     local is_colliding = false;
 
     if g_move_direction == move_direction.LEFT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
         set_mesh_is_visible(g_laser_mesh_index, true);
-        set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * 0.1;
         iTemp = iTemp / 2;
-        scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
+        transform_set_scale(g_laser_transform_indices[1], 35, 4, 0);
+        transform_set_translation(g_laser_transform_indices[2], g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
-        translate_mesh_matrix(g_laser_mesh_index, g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 36, g_current_pos_y + 7.5,
             g_current_pos_x - 5, g_current_pos_y + 11);
@@ -274,12 +280,11 @@ function Module.update()
     if g_move_direction == move_direction.RIGHT and
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
         set_mesh_is_visible(g_laser_mesh_index, true);
-        set_identity_mesh_matrix(g_laser_mesh_index);
         local iTemp = math.random(50, 100) * -0.1;
         iTemp = iTemp / 2;
-        scale_mesh_matrix(g_laser_mesh_index, 35, 4, 0);
+        transform_set_scale(g_laser_transform_indices[1], 35, 4, 0);
+        transform_set_translation(g_laser_transform_indices[2], g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
-        translate_mesh_matrix(g_laser_mesh_index, g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         is_colliding = Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x + 5, g_current_pos_y + 7.5,
             g_current_pos_x + 36, g_current_pos_y + 11);

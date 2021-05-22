@@ -65,18 +65,20 @@ local g_game_logic;
 local g_hud_overlay;
 local g_zap_bots = {};
 
-local g_message_mesh_index;
-local g_progress_bar_mesh_index;
+local g_message_mesh_index = -1;
+local g_message_transform_indices = nil;
+local g_progress_bar_mesh_index = -1;
+local g_progress_bar_transform_indices = nil;
 
-local g_jumpman_work_1_mesh_index;
-local g_jumpman_work_2_mesh_index;
+local g_jumpman_work_mesh_index = -1;
+local g_jumpman_work_transform_index = -1;
 local g_work_animation_frame = 0;
 
 local g_is_disarm_hud_visible = false;
 local g_disarm_progress = 0;
 
 local function ShowWorking_(game_input)
-    -- TODO: Animate jumpan via change mesh instead of making him invisible? Not imporant for anything but reducing mesh cloning and maybe reduced bugginess/statefulness
+    -- TODO: Animate base player mesh instead of hiding the player mesh and displaying an alternate one?
     g_game_logic.set_player_is_visible(false);
     local iPX = g_game_logic.get_player_current_position_x();
     local iPY = g_game_logic.get_player_current_position_y();
@@ -88,25 +90,21 @@ local function ShowWorking_(game_input)
         g_work_animation_frame = 0;
     end
 
-    local mesh_index;
-
     if g_work_animation_frame > 5 then
-        mesh_index = g_jumpman_work_1_mesh_index;
+        set_mesh_to_mesh(g_jumpman_work_mesh_index, resources.MeshJMWork1);
     else
-        mesh_index = g_jumpman_work_2_mesh_index;
+        set_mesh_to_mesh(g_jumpman_work_mesh_index, resources.MeshJMWork2);
     end
 
-    set_identity_mesh_matrix(mesh_index);
-    translate_mesh_matrix(mesh_index, iPX, iPY + 6, iPZ + 1);
-    set_mesh_is_visible(mesh_index, true);
+    transform_set_translation(g_jumpman_work_transform_index, iPX, iPY + 6, iPZ + 1);
+    set_mesh_is_visible(g_jumpman_work_mesh_index, true);
 end
 
 local function CollideDonuts_(game_input)
     g_game_logic.set_player_is_visible(true);
     g_is_disarm_hud_visible = false;
 
-    set_mesh_is_visible(g_jumpman_work_1_mesh_index, false);
-    set_mesh_is_visible(g_jumpman_work_2_mesh_index, false);
+    set_mesh_is_visible(g_jumpman_work_mesh_index, false);
 
     -- Skip any progress checks if player is moving or not otherwise standing still
     local iPStat = g_game_logic.get_player_current_state();
@@ -201,17 +199,15 @@ local function ProgressLevel_(game_input)
     CollideDonuts_(game_input);
 
     if g_is_disarm_hud_visible then
-        set_identity_mesh_matrix(g_message_mesh_index);
-        scale_mesh_matrix(g_message_mesh_index, 20, 20, 1);
-        translate_mesh_matrix(g_message_mesh_index, 0 - 54, 0 - 39, 120.01);
-        undo_camera_perspective_on_mesh_matrix(g_message_mesh_index);
+        transform_set_scale(g_message_transform_indices[1], 20, 20, 1);
+        transform_set_translation(g_message_transform_indices[2], 0 - 54, 0 - 39, 120.01);
+        transform_set_parent_is_camera(g_message_transform_indices[2], true);
         set_mesh_is_visible(g_message_mesh_index, true);
 
-        set_identity_mesh_matrix(g_progress_bar_mesh_index);
         local iProg = (100 - g_disarm_progress) * 16.5 / 100;
-        scale_mesh_matrix(g_progress_bar_mesh_index, iProg, 3.8, 1);
-        translate_mesh_matrix(g_progress_bar_mesh_index, (0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
-        undo_camera_perspective_on_mesh_matrix(g_progress_bar_mesh_index);
+        transform_set_scale(g_progress_bar_transform_indices[1], iProg, 3.8, 1);
+        transform_set_translation(g_progress_bar_transform_indices[2], (0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
+        transform_set_parent_is_camera(g_progress_bar_transform_indices[2], true);
         set_mesh_is_visible(g_progress_bar_mesh_index, true);
     else
         set_mesh_is_visible(g_message_mesh_index, false);
@@ -247,18 +243,22 @@ function Module.initialize(game_input)
     g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
-    g_jumpman_work_1_mesh_index = new_mesh(resources.MeshJMWork1);
-    set_mesh_texture(g_jumpman_work_1_mesh_index, resources.TextureJumpman);
-    set_mesh_is_visible(g_jumpman_work_1_mesh_index, false);
-
-    g_jumpman_work_2_mesh_index = new_mesh(resources.MeshJMWork2);
-    set_mesh_texture(g_jumpman_work_2_mesh_index, resources.TextureJumpman);
-    set_mesh_is_visible(g_jumpman_work_2_mesh_index, false);
+    g_jumpman_work_mesh_index = new_mesh(resources.MeshJMWork1);
+    g_jumpman_work_transform_index = transform_create();
+    object_set_transform(g_jumpman_work_mesh_index, g_jumpman_work_transform_index);
+    set_mesh_texture(g_jumpman_work_mesh_index, resources.TextureJumpman);
+    set_mesh_is_visible(g_jumpman_work_mesh_index, false);
 
     g_message_mesh_index = new_mesh(resources.MeshSquare);
+    g_message_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_message_mesh_index, g_message_transform_indices[1]);
+    transform_set_parent(g_message_transform_indices[1], g_message_transform_indices[2]);
     set_mesh_texture(g_message_mesh_index, resources.TextureDisarming);
 
     g_progress_bar_mesh_index = new_mesh(resources.MeshSquare);
+    g_progress_bar_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_progress_bar_mesh_index, g_progress_bar_transform_indices[1]);
+    transform_set_parent(g_progress_bar_transform_indices[1], g_progress_bar_transform_indices[2]);
     set_mesh_texture(g_progress_bar_mesh_index, resources.TextureBoringGreen);
 
     MoveDonuts_();
