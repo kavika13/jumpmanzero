@@ -24,6 +24,7 @@ local block_status = {
 block_status = read_only.make_table_read_only(block_status);
 
 local g_block_piece_mesh_indices = {};
+local g_block_piece_transform_indices = {};
 
 local g_block_piece_positions_x = {};
 local g_block_piece_positions_y = {};
@@ -138,20 +139,19 @@ local function DrawBlock_()
 
     for iLoop = 1, kNUM_BLOCK_PIECES do
         local block_piece_mesh_index = g_block_piece_mesh_indices[iLoop];
-        set_identity_mesh_matrix(block_piece_mesh_index);
-        scale_mesh_matrix(block_piece_mesh_index, kBLOCK_PIECE_WIDTH + 0.2, kBLOCK_PIECE_HEIGHT + 0.2, 3.8);
+        local block_piece_transform_indices = g_block_piece_transform_indices[iLoop];
+        transform_set_scale(block_piece_transform_indices[1], kBLOCK_PIECE_WIDTH + 0.2, kBLOCK_PIECE_HEIGHT + 0.2, 3.8);
 
         if g_current_block_status == block_status.PREPARING_TO_FALL then
             -- TODO: Possible to rotate all shaking pieces as one?
-            rotate_z_mesh_matrix(block_piece_mesh_index, iShake);
-            translate_mesh_matrix(
-                block_piece_mesh_index,
+            transform_set_rotation_z(block_piece_transform_indices[2], iShake);
+            transform_set_translation(block_piece_transform_indices[3],
                 g_block_piece_positions_x[iLoop] * kBLOCK_PIECE_WIDTH + 41 + kBLOCK_PIECE_WIDTH / 2 + math.random(0, 2) - 1,
                 g_block_piece_positions_y[iLoop] * kBLOCK_PIECE_HEIGHT + 4,
                 2.5);
         else
-            translate_mesh_matrix(
-                block_piece_mesh_index,
+            transform_clear_rotation(block_piece_transform_indices[2]);
+            transform_set_translation(block_piece_transform_indices[3],
                 g_block_piece_positions_x[iLoop] * kBLOCK_PIECE_WIDTH + 41 + kBLOCK_PIECE_WIDTH / 2,
                 g_block_piece_positions_y[iLoop] * kBLOCK_PIECE_HEIGHT + 4,
                 2.5);
@@ -171,6 +171,10 @@ end
 function Module.initialize(all_blocks)
     for i = 1, kNUM_BLOCK_PIECES do
         g_block_piece_mesh_indices[i] = new_mesh(Module.BlockPieceMeshResourceIndex);
+        g_block_piece_transform_indices[i] = { transform_create(), transform_create(), transform_create() };
+        object_set_transform(g_block_piece_mesh_indices[i], g_block_piece_transform_indices[i][1]);
+        transform_set_parent(g_block_piece_transform_indices[i][1], g_block_piece_transform_indices[i][2]);
+        transform_set_parent(g_block_piece_transform_indices[i][2], g_block_piece_transform_indices[i][3]);
         set_mesh_texture(g_block_piece_mesh_indices[i], Module.BlockPieceTextureResourceIndex);
     end
 
