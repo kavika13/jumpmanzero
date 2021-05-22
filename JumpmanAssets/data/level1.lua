@@ -251,23 +251,29 @@ function Module.on_collect_donut(game_input, donut_num)
     if donut_num == 1 then  -- TODO: Use constant for num
         g_is_left_trap_door_moving = true;
         iPosition1 = 0;
+        skip_next_mesh_interpolation(g_left_trap_door_platforms[1].mesh_index);
+        skip_next_mesh_interpolation(g_left_trap_door_platforms[2].mesh_index);
     end
 
     if donut_num == 2 then  -- TODO: Use constant for num
         g_is_right_trap_door_moving = true;
         iPosition2 = 0;
+        skip_next_mesh_interpolation(g_right_trap_door_platforms[1].mesh_index);
+        skip_next_mesh_interpolation(g_right_trap_door_platforms[2].mesh_index);
     end
 
     if donut_num == 3 then  -- TODO: Use constant for num
         g_is_left_ladder_moving = true;
         iPosition3 = 0;
         g_left_ladder.set_pos_x(g_left_ladder.pos_x - 500);
+        skip_next_mesh_interpolation(g_left_ladder.mesh_index);
     end
 
     if donut_num == 4 then  -- TODO: Use constant for num
         g_is_right_ladder_moving = true;
         iPosition4 = 0;
         g_right_ladder.set_pos_x(g_right_ladder.pos_x - 500);
+        skip_next_mesh_interpolation(g_right_ladder.mesh_index);
     end
 end
 
