@@ -40,6 +40,7 @@ local animation_frame = {
 animation_frame = read_only.make_table_read_only(animation_frame);
 
 local g_run_donut_mesh = nil;
+local g_run_donut_transform_indices = nil;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_1;
 local g_animation_frame_counter = 0;
@@ -318,7 +319,16 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.HATCH_4] = Module.HatchMeshResourceIndices[4];
     g_animation_mesh_indices[animation_frame.HATCH_5] = Module.HatchMeshResourceIndices[5];
 
+    local setup_object_three_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        transform_set_parent(result[2], result[3]);
+        return result;
+    end
+
     g_run_donut_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_1]);
+    g_run_donut_transform_indices = setup_object_three_transforms(g_run_donut_mesh);
     set_mesh_texture(g_run_donut_mesh, Module.TextureResourceIndex);
 
     g_current_status = status_type.HATCHING;
@@ -371,10 +381,9 @@ function Module.update(all_run_donuts)
 
     if g_current_status > status_type.DEAD then
         set_mesh_to_mesh(g_run_donut_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-        set_identity_mesh_matrix(g_run_donut_mesh);
-        scale_mesh_matrix(g_run_donut_mesh, 0.6, 0.6, 1);
-        rotate_z_mesh_matrix(g_run_donut_mesh, g_current_rotation_z);
-        translate_mesh_matrix(g_run_donut_mesh, g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
+        transform_set_scale(g_run_donut_transform_indices[1], 0.6, 0.6, 1);
+        transform_set_rotation_z(g_run_donut_transform_indices[2], g_current_rotation_z);
+        transform_set_translation(g_run_donut_transform_indices[3], g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
         set_mesh_is_visible(g_run_donut_mesh, true);
     else
         set_mesh_is_visible(g_run_donut_mesh, false);
