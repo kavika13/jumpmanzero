@@ -10,8 +10,10 @@ Module.FramesToWait = 0;
 
 local g_frames_to_wait_before_start = 0;
 
-local g_drop_1_mesh_index;
-local g_drop_2_mesh_index;
+local g_drop_1_mesh_index = -1;
+local g_drop_1_transform_index = -1;
+local g_drop_2_mesh_index = -1;
+local g_drop_2_transform_index = -1;
 
 local g_current_pos_x = 0;
 local g_current_pos_y = 0;
@@ -48,9 +50,15 @@ end
 
 function Module.initialize()
     -- TODO: Use meshes instead of textures
-    g_drop_2_mesh_index = new_mesh(Module.DropMeshResourceIndex);
     g_drop_1_mesh_index = new_mesh(Module.DropMeshResourceIndex);
+    g_drop_1_transform_index = transform_create();
+    object_set_transform(g_drop_1_mesh_index, g_drop_1_transform_index);
+    g_drop_2_mesh_index = new_mesh(Module.DropMeshResourceIndex);
+
+    g_drop_2_transform_index = transform_create();
+    object_set_transform(g_drop_2_mesh_index, g_drop_2_transform_index);
     g_frames_to_wait_before_start = Module.FramesToWait;
+
     ResetMyPos_();
 end
 
@@ -70,13 +78,11 @@ function Module.update()
         end
 
         -- TODO: Use meshes instead of textures for animation. Only need to draw once in that case
-        set_identity_mesh_matrix(g_drop_1_mesh_index);
-        translate_mesh_matrix(g_drop_1_mesh_index, g_current_pos_x, g_current_pos_y, 8);
+        transform_set_translation(g_drop_1_transform_index, g_current_pos_x, g_current_pos_y, 8);
         set_mesh_texture(g_drop_1_mesh_index, Module.DropTextureResourceIndices[1]);
         set_mesh_is_visible(g_drop_1_mesh_index, true);
 
-        set_identity_mesh_matrix(g_drop_2_mesh_index);
-        translate_mesh_matrix(g_drop_2_mesh_index, g_current_pos_x, g_current_pos_y, 9);
+        transform_set_translation(g_drop_2_transform_index, g_current_pos_x, g_current_pos_y, 9);
         set_mesh_texture(g_drop_2_mesh_index, Module.DropTextureResourceIndices[1]);
         set_mesh_is_visible(g_drop_2_mesh_index, true);
     end
@@ -93,13 +99,11 @@ function Module.update()
             ResetMyPos_();
         end
 
-        set_identity_mesh_matrix(g_drop_1_mesh_index);
-        translate_mesh_matrix(g_drop_1_mesh_index, g_current_pos_x, g_current_pos_y, 8);
+        transform_set_translation(g_drop_1_transform_index, g_current_pos_x, g_current_pos_y, 8);
         set_mesh_texture(g_drop_1_mesh_index, Module.DropTextureResourceIndices[1 + g_animation_frame]);
         set_mesh_is_visible(g_drop_1_mesh_index, true);
 
-        set_identity_mesh_matrix(g_drop_2_mesh_index);
-        translate_mesh_matrix(g_drop_2_mesh_index, g_current_pos_x, g_current_pos_y, 9);
+        transform_set_translation(g_drop_2_transform_index, g_current_pos_x, g_current_pos_y, 9);
         set_mesh_texture(g_drop_2_mesh_index, Module.DropTextureResourceIndices[1 + g_animation_frame]);
         set_mesh_is_visible(g_drop_2_mesh_index, true);
     end
