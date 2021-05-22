@@ -24,7 +24,8 @@ Module.InitialRotationZ = 0;
 Module.InitialIsGrowing = false;
 Module.InitialChildren = {};
 
-local g_mesh_index = 0;
+local g_mesh_index = -1;
+local g_transform_indices = nil;
 local g_wobble_animation_counter = 0;
 
 local g_type = goo_type.TO_REMOVE;
@@ -283,14 +284,12 @@ local function DrawHorizontal_()
         end
     end
 
-    set_identity_mesh_matrix(g_mesh_index);
-
     local iDX = g_current_pos_x[2] - g_current_pos_x[1];
     local iDY = g_current_pos_y[2] - g_current_pos_y[1];
     local iLen = math.floor(math.sqrt(iDX * iDX + iDY * iDY)) + 1;
 
-    scale_mesh_matrix(g_mesh_index, iLen, 1, 3);
-    rotate_z_mesh_matrix(g_mesh_index, g_current_rotation_z);
+    transform_set_scale(g_transform_indices[1], iLen, 1, 3);
+    transform_set_rotation_z(g_transform_indices[2], g_current_rotation_z);
 
     g_wobble_animation_counter = g_wobble_animation_counter + 1;
 
@@ -303,9 +302,9 @@ local function DrawHorizontal_()
     end
 
     if g_wobble_animation_counter > 2 then
-        translate_mesh_matrix(g_mesh_index, (g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 + 0.04, 5);
+        transform_set_translation(g_transform_indices[3], (g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 + 0.04, 5);
     else
-        translate_mesh_matrix(g_mesh_index, (g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 - 0.04, 5);
+        transform_set_translation(g_transform_indices[3], (g_current_pos_x[1] + g_current_pos_x[2]) / 2, (g_current_pos_y[1] + g_current_pos_y[2]) / 2 - 0.04, 5);
     end
 end
 
@@ -318,10 +317,9 @@ local function DrawVertical_()
         Module.GameLogic.kill();
     end
 
-    set_identity_mesh_matrix(g_mesh_index);
-    scale_mesh_matrix(g_mesh_index, g_current_pos_y[1] - g_current_pos_y[2], 1.3, 3);
-    rotate_z_mesh_matrix(g_mesh_index, 90);
-    translate_mesh_matrix(g_mesh_index, g_current_pos_x[1] + 0.3, (g_current_pos_y[1] + g_current_pos_y[2]) / 2, 5);
+    transform_set_scale(g_transform_indices[1], g_current_pos_y[1] - g_current_pos_y[2], 1.3, 3);
+    transform_set_rotation_z(g_transform_indices[2], 90);
+    transform_set_translation(g_transform_indices[3], g_current_pos_x[1] + 0.3, (g_current_pos_y[1] + g_current_pos_y[2]) / 2, 5);
 end
 
 function Module.initialize()
@@ -334,7 +332,17 @@ function Module.initialize()
     g_is_growing = Module.InitialIsGrowing;
     g_children[1] = Module.InitialChildren[1];
     g_children[2] = Module.InitialChildren[2];
+
+    local setup_object_three_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        transform_set_parent(result[2], result[3]);
+        return result;
+    end
+
     g_mesh_index = new_mesh(Module.MeshResourceIndex);
+    g_transform_indices = setup_object_three_transforms(g_mesh_index);
     set_mesh_texture(g_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_mesh_index, true);
 end
