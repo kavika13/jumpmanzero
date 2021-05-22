@@ -43,14 +43,16 @@ local move_direction = {
 };
 move_direction = read_only.make_table_read_only(move_direction);
 
-local g_sheep_mesh = nil;
+local g_sheep_mesh_index = -1;
+local g_sheep_transform_index = -1;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_LEFT_1;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 3 frames increments alt)
 local g_animation_alt_frame_counter = 0;  -- On 1 or 3 switches to an alt frame in the current animation
 local g_jump_animation_time = 0;
 
-local g_copter_mesh = nil;
+local g_copter_mesh_index = -1;
+local g_copter_transform_indices = nil;
 
 local g_current_pos_x = 0;
 local g_current_pos_y = 0;
@@ -371,12 +373,18 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_2] = Module.SheepFlyRightMeshResourceIndices[2];
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_3] = Module.SheepFlyRightMeshResourceIndices[3];
 
-    g_sheep_mesh = new_mesh(g_animation_mesh_indices[g_animation_current_frame]);
-    set_mesh_texture(g_sheep_mesh, Module.SheepTextureResourceIndex);
-    set_mesh_is_visible(g_sheep_mesh, true);
+    g_sheep_mesh_index = new_mesh(g_animation_mesh_indices[g_animation_current_frame]);
+    g_sheep_transform_index = transform_create();
+    object_set_transform(g_sheep_mesh_index, g_sheep_transform_index);
+    set_mesh_texture(g_sheep_mesh_index, Module.SheepTextureResourceIndex);
+    set_mesh_is_visible(g_sheep_mesh_index, true);
 
-    g_copter_mesh = new_mesh(Module.CopterMeshResourceIndex);
-    set_mesh_texture(g_copter_mesh, Module.CopterTextureResourceIndex);
+    g_copter_mesh_index = new_mesh(Module.CopterMeshResourceIndex);
+    g_copter_transform_indices = { transform_create(), transform_create(), transform_create() };
+    object_set_transform(g_copter_mesh_index, g_copter_transform_indices[1]);
+    transform_set_parent(g_copter_transform_indices[1], g_copter_transform_indices[2]);
+    transform_set_parent(g_copter_transform_indices[2], g_copter_transform_indices[3]);
+    set_mesh_texture(g_copter_mesh_index, Module.CopterTextureResourceIndex);
 end
 
 function Module.update(follower_sheep)
@@ -385,21 +393,19 @@ function Module.update(follower_sheep)
     AdvanceFrame_();
     MoveSheep_(follower_sheep);
 
-    set_mesh_to_mesh(g_sheep_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_sheep_mesh);
-    translate_mesh_matrix(g_sheep_mesh, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
+    set_mesh_to_mesh(g_sheep_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
+    transform_set_translation(g_sheep_transform_index, g_current_pos_x, g_current_pos_y + 6.5, g_current_pos_z - 0.5);
 
     if g_copter_current_scale > 0 then
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
-        set_identity_mesh_matrix(g_copter_mesh);
-        rotate_x_mesh_matrix(g_copter_mesh, 270);
-        rotate_y_mesh_matrix(g_copter_mesh, g_copter_current_rotation_y);
-        translate_mesh_matrix(g_copter_mesh, 0, 4, 0);
-        scale_mesh_matrix(g_copter_mesh, g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
-        translate_mesh_matrix(g_copter_mesh, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
-        set_mesh_is_visible(g_copter_mesh, true);
+        transform_set_rotation_x(g_copter_transform_indices[1], 270);
+        transform_concat_rotation_y(g_copter_transform_indices[1], g_copter_current_rotation_y);
+        transform_set_translation(g_copter_transform_indices[2], 0, 4, 0);
+        transform_set_scale(g_copter_transform_indices[2], g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
+        transform_set_translation(g_copter_transform_indices[3], g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
+        set_mesh_is_visible(g_copter_mesh_index, true);
     else
-        set_mesh_is_visible(g_copter_mesh, false);
+        set_mesh_is_visible(g_copter_mesh_index, false);
     end
 
     if Module.GameLogic.is_player_colliding_with_rect(
