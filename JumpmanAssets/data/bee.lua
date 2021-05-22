@@ -17,7 +17,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_bee_mesh = nil;
+local g_bee_mesh_index = nil;
+local g_bee_transform_index = nil;
 local g_move_animation_mesh_indices = {};
 local g_move_animation_current_frame_index = animation_frame.MOVE_LEFT_1;
 local g_move_animation_counter = 0;
@@ -46,18 +47,18 @@ local function MoveBee_()
 
     if g_current_pos_x < iPX - 110 then
         g_current_pos_x = iPX + 110;
-        skip_next_mesh_interpolation(g_bee_mesh);
+        skip_next_mesh_interpolation(g_bee_mesh_index);
     elseif g_current_pos_x > iPX + 110 then
         g_current_pos_x = iPX - 110;
-        skip_next_mesh_interpolation(g_bee_mesh);
+        skip_next_mesh_interpolation(g_bee_mesh_index);
     end
 
     if g_current_pos_y < iPY - 110 then
         g_current_pos_y = iPY + 110;
-        skip_next_mesh_interpolation(g_bee_mesh);
+        skip_next_mesh_interpolation(g_bee_mesh_index);
     elseif g_current_pos_y > iPY + 110 then
         g_current_pos_y = iPY - 110;
-        skip_next_mesh_interpolation(g_bee_mesh);
+        skip_next_mesh_interpolation(g_bee_mesh_index);
     end
 
     if g_current_velocity_x == 0 then
@@ -95,9 +96,16 @@ function Module.initialize()
     g_move_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.MoveRightMeshResourceIndices[1];
     g_move_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.MoveRightMeshResourceIndices[2];
 
-    g_bee_mesh = new_mesh(g_move_animation_mesh_indices[animation_frame.MOVE_LEFT_1]);
-    set_mesh_texture(g_bee_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_bee_mesh, true);
+    local setup_object_transform = function(mesh_index)
+        local result = transform_create();
+        object_set_transform(mesh_index, result);
+        return result;
+    end
+
+    g_bee_mesh_index = new_mesh(g_move_animation_mesh_indices[animation_frame.MOVE_LEFT_1]);
+    g_bee_transform_index = setup_object_transform(g_bee_mesh_index);
+    set_mesh_texture(g_bee_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_bee_mesh_index, true);
 
     g_current_pos_x = Module.GameLogic.get_player_current_position_x() + 100;
     g_current_pos_y = Module.GameLogic.get_player_current_position_y();
@@ -121,9 +129,8 @@ function Module.update()
         g_move_animation_current_frame_index = g_move_animation_counter < 2 and 1 or 0;
     end
 
-    set_mesh_to_mesh(g_bee_mesh, g_move_animation_mesh_indices[g_move_animation_current_frame_index]);
-    set_identity_mesh_matrix(g_bee_mesh);
-    translate_mesh_matrix(g_bee_mesh, g_current_pos_x, g_current_pos_y + 6, 0);
+    set_mesh_to_mesh(g_bee_mesh_index, g_move_animation_mesh_indices[g_move_animation_current_frame_index]);
+    transform_set_translation(g_bee_transform_index, g_current_pos_x, g_current_pos_y + 6, 0);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y + 5,
@@ -136,7 +143,7 @@ end
 function Module.reset_pos()
     if g_current_pos_y < 120 then
         g_current_pos_y = 120;
-        skip_next_mesh_interpolation(g_bee_mesh);
+        skip_next_mesh_interpolation(g_bee_mesh_index);
     end
 end
 
