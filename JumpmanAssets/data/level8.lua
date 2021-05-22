@@ -57,17 +57,6 @@ local g_goo_spawn_point_object_num;
 local g_goo_spawn_pos_x;
 local g_goo_spawn_pos_y;
 
-local function MovePyramid_()
-    local iPic = 0;
-
-    while iPic < 6 do
-        local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(iPic + 200).mesh_index;  -- TODO: Use constant for num
-        set_identity_mesh_matrix(backdrop_mesh_index);
-        translate_mesh_matrix(backdrop_mesh_index, 0, -65, -35);
-        iPic = iPic + 1;
-    end
-end
-
 local function SetStartPos_()
     local iRnd = math.random(1, 7);
 
@@ -170,7 +159,6 @@ function Module.initialize(game_input)
     g_frames_until_next_goo_spawn = 5;
 
     SetStartPos_();
-    MovePyramid_();
 
     Module.reset();
 
