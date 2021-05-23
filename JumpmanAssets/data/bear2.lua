@@ -71,6 +71,9 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
+local g_bear_mesh_index = -1;
+local g_bear_transform_index = -1;
+
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_RIGHT_1;
 local g_animation_frame_increment_timer = 0;  -- Ticks 0 through 5, then increases g_animation_frame_counter
@@ -448,9 +451,11 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.CLIMB_1] = Module.ClimbMeshResourceIndices[1];
     g_animation_mesh_indices[animation_frame.CLIMB_2] = Module.ClimbMeshResourceIndices[2];
 
-    g_bear_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
-    set_mesh_texture(g_bear_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_bear_mesh, true);
+    g_bear_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
+    g_bear_transform_index = transform_create();
+    object_set_transform(g_bear_mesh_index, g_bear_transform_index);
+    set_mesh_texture(g_bear_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_bear_mesh_index, true);
 
     g_current_status = status_type.NORMAL;
 end
@@ -463,9 +468,8 @@ function Module.update()
     AdvanceFrame_();
     MoveBear_();
 
-    set_mesh_to_mesh(g_bear_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_bear_mesh);
-    translate_mesh_matrix(g_bear_mesh, g_current_pos_x, g_current_pos_y + 11, g_current_pos_z - 0.5);
+    set_mesh_to_mesh(g_bear_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
+    transform_set_translation(g_bear_transform_index, g_current_pos_x, g_current_pos_y + 11, g_current_pos_z - 0.5);
 
     local is_colliding = false;
 
