@@ -18,6 +18,9 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
+local g_ghost_mesh_index = -1;
+local g_ghost_transform_index = -1;
+
 local g_current_pos_x = 0;
 local g_current_pos_y = 0;
 local g_current_velocity_x = 0;
@@ -79,9 +82,11 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.MOVE_LEFT_1] = Module.MoveLeft1MeshResourceIndex;
     g_animation_mesh_indices[animation_frame.MOVE_LEFT_2] = Module.MoveLeft2MeshResourceIndex;
 
-    g_ghost_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
-    set_mesh_texture(g_ghost_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_ghost_mesh, true);
+    g_ghost_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
+    g_ghost_transform_index = transform_create();
+    object_set_transform(g_ghost_mesh_index, g_ghost_transform_index);
+    set_mesh_texture(g_ghost_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_ghost_mesh_index, true);
 end
 
 function Module.update()
@@ -111,12 +116,11 @@ function Module.update()
     end
 
     if animation_was_moving_right ~= animation_is_moving_right then
-        skip_next_mesh_interpolation(g_ghost_mesh);
+        skip_next_mesh_interpolation(g_ghost_mesh_index);
     end
 
-    set_mesh_to_mesh(g_ghost_mesh, g_animation_mesh_indices[g_animation_frame_index]);
-    set_identity_mesh_matrix(g_ghost_mesh);
-    translate_mesh_matrix(g_ghost_mesh, g_current_pos_x + iAdapt, g_current_pos_y + 5, 0 - 0.25);
+    set_mesh_to_mesh(g_ghost_mesh_index, g_animation_mesh_indices[g_animation_frame_index]);
+    transform_set_translation(g_ghost_transform_index, g_current_pos_x + iAdapt, g_current_pos_y + 5, 0 - 0.25);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x + iAdapt - 5, g_current_pos_y + 4,
