@@ -188,6 +188,7 @@ end
 function Module.on_collect_donut(game_input, iDonut)
     if iDonut == 1 then
         g_is_trap_door_triggering = true;
+        skip_next_mesh_interpolation(g_trap_door_platform.mesh_index);
     end
 end
 

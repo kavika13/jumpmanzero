@@ -68,7 +68,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_ninja_mesh = nil;
+local g_ninja_mesh_index = -1;
+local g_ninja_transform_index = -1;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_RIGHT_1;
 local g_animation_frame_counter = 0;  -- The current alt frame in the current animation. Counts 0 - 3
@@ -454,9 +455,11 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.FIX_DONUT_1] = Module.FixDonutMeshResourceIndices[1];
     g_animation_mesh_indices[animation_frame.FIX_DONUT_2] = Module.FixDonutMeshResourceIndices[2];
 
-    g_ninja_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
-    set_mesh_texture(g_ninja_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_ninja_mesh, true);
+    g_ninja_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_RIGHT_1]);
+    g_ninja_transform_index = transform_create();
+    object_set_transform(g_ninja_mesh_index, g_ninja_transform_index);
+    set_mesh_texture(g_ninja_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_ninja_mesh_index, true);
 end
 
 function Module.update()
@@ -470,9 +473,8 @@ function Module.update()
     MoveNinja_();
     CollidePlayer_();
 
-    set_mesh_to_mesh(g_ninja_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_ninja_mesh);
-    translate_mesh_matrix(g_ninja_mesh, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z - 0.5);
+    set_mesh_to_mesh(g_ninja_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
+    transform_set_translation(g_ninja_transform_index, g_current_pos_x, g_current_pos_y + 5, g_current_pos_z - 0.5);
 end
 
 
