@@ -55,10 +55,8 @@ local g_game_logic;
 local g_hud_overlay;
 local g_wave;
 
-local g_big_clock_backdrop = nil;
 local g_big_clock_backdrop_transform_index = -1;
-local g_big_clock_hand_mesh_index = -1;
-local g_big_clock_hand_transform_indices = {};
+local g_big_clock_hand_transform_index = -1;
 local g_clock_num_frames_left = 0;
 
 local g_small_clocks_backdrops = {};
@@ -74,9 +72,9 @@ local function SetClockPosition_(iPos)
     transform_set_translation(g_big_clock_backdrop_transform_index, 0 - 64, 0 - 48, 120);
     transform_set_parent_is_camera(g_big_clock_backdrop_transform_index, true);
 
-    transform_set_rotation_z(g_big_clock_hand_transform_indices[1], iPos);
-    transform_set_translation(g_big_clock_hand_transform_indices[2], 0 - 54, 0 - 38, 120);
-    transform_set_parent_is_camera(g_big_clock_hand_transform_indices[2], true);
+    transform_set_rotation_z(g_big_clock_hand_transform_index, iPos);
+    transform_set_translation(g_big_clock_hand_transform_index, 0 - 54, 0 - 38, 120);
+    transform_set_parent_is_camera(g_big_clock_hand_transform_index, true);
 end
 
 local function SpinLittleClocks_()
@@ -98,7 +96,7 @@ local function SpinClock_(clock_backdrop, transform_indices)
     local iObjX = clock_backdrop.pos[1];
 
     transform_set_translation(transform_indices[1], 0 - iObjX, 0, 0);
-    transform_set_rotation_y(transform_indices[1], g_small_clocks_current_rotation);
+    transform_set_rotation_y(transform_indices[2], g_small_clocks_current_rotation);
     transform_set_translation(transform_indices[2], iObjX, 0, 7);
     set_mesh_is_visible(clock_backdrop.mesh_index, true);
 
@@ -170,17 +168,11 @@ function Module.initialize(game_input)
     g_hud_overlay.MenuLogic = Module.MenuLogic;
     g_hud_overlay.GameLogic = g_game_logic;
 
-    local setup_object_two_transforms = function(mesh_index)
-        local result = { transform_create(), transform_create() };
-        object_set_transform(mesh_index, result[1]);
-        transform_set_parent(result[1], result[2]);
-        return result;
-    end
-
-    g_big_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
-    set_mesh_texture(g_big_clock_hand_mesh_index, resources.TextureBlack);
-    set_mesh_is_visible(g_big_clock_hand_mesh_index, true);
-    g_big_clock_hand_transform_indices = setup_object_two_transforms(g_big_clock_hand_mesh_index);
+    local big_clock_hand_mesh_index = new_mesh(resources.MeshClockHand);
+    set_mesh_texture(big_clock_hand_mesh_index, resources.TextureBlack);
+    set_mesh_is_visible(big_clock_hand_mesh_index, true);
+    g_big_clock_hand_transform_index = transform_create();
+    object_set_transform(big_clock_hand_mesh_index, g_big_clock_hand_transform_index);
 
     g_wave = pause_wave_module();
     g_wave.GameLogic = g_game_logic;
@@ -192,6 +184,13 @@ function Module.initialize(game_input)
     g_wave.TargetWaveHeight = kTOP_WAVE_HEIGHT;
     g_wave.initialize();
 
+    local setup_object_two_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create() };
+        object_set_transform(mesh_index, result[1]);
+        transform_set_parent(result[1], result[2]);
+        return result;
+    end
+
     for clock_backdrop_num = 10, 10 + kNumClockTimers - 1 do  -- TODO: Use constant for base num
         local current_backdrop = g_game_logic.find_backdrop_by_number(clock_backdrop_num);
         table.insert(g_small_clocks_backdrops, current_backdrop);
@@ -199,15 +198,10 @@ function Module.initialize(game_input)
         table.insert(g_small_clocks_timers, 1);
     end
 
-    local setup_object_transform = function(mesh_index)
-        local result = transform_create();
-        object_set_transform(mesh_index, result);
-        return result;
-    end
-
-    g_big_clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
-    g_big_clock_backdrop_transform_index = setup_object_transform(g_big_clock_backdrop.mesh_index);
-    move_transparent_mesh_to_front(g_big_clock_backdrop.mesh_index);
+    local big_clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
+    g_big_clock_backdrop_transform_index = transform_create();
+    object_set_transform(big_clock_backdrop.mesh_index, g_big_clock_backdrop_transform_index);
+    move_transparent_mesh_to_front(big_clock_backdrop.mesh_index);
 
     Module.reset();
 

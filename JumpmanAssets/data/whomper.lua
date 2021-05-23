@@ -14,10 +14,9 @@ local g_whomper_transform_indices = nil;
 
 function Module.initialize()
     g_whomper_mesh_index = new_mesh(Module.MeshResourceIndex);
-    g_whomper_transform_indices = { transform_create(), transform_create(), transform_create() };
+    g_whomper_transform_indices = { transform_create(), transform_create() };
     object_set_transform(g_whomper_mesh_index, g_whomper_transform_indices[1]);
     transform_set_parent(g_whomper_transform_indices[1], g_whomper_transform_indices[2]);
-    transform_set_parent(g_whomper_transform_indices[2], g_whomper_transform_indices[3]);
     set_mesh_texture(g_whomper_mesh_index, Module.TextureResourceIndex);
 end
 
@@ -65,9 +64,9 @@ function Module.update()
     Module.iR = Module.iR + Module.iRV;
 
     transform_set_scale(g_whomper_transform_indices[1], 8, 8, 8);
-    transform_set_translation(g_whomper_transform_indices[2], 0, -12, 0);
+    transform_set_translation(g_whomper_transform_indices[1], 0, -12, 0);
     transform_set_rotation_x(g_whomper_transform_indices[2], Module.iR);
-    transform_set_translation(g_whomper_transform_indices[3], Module.iX, Module.iY, 2);
+    transform_set_translation(g_whomper_transform_indices[2], Module.iX, Module.iY, 2);
     set_mesh_is_visible(g_whomper_mesh_index, true);
 
     if Module.GameLogic.is_player_colliding_with_rect(

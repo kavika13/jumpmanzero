@@ -10,15 +10,13 @@ Module.iZ = 0;  -- TODO: Rename?
 Module.iR = 0;  -- TODO: Rename?
 
 local g_propeller_mesh_index = -1;
-local g_propeller_transform_indices = nil;
+local g_propeller_transform_index = -1;
 local g_current_rotation = 0;
 
 function Module.initialize()
     g_propeller_mesh_index = new_mesh(Module.MeshResourceIndex);
-    g_propeller_transform_indices = { transform_create(), transform_create(), transform_create() };
-    object_set_transform(g_propeller_mesh_index, g_propeller_transform_indices[1]);
-    transform_set_parent(g_propeller_transform_indices[1], g_propeller_transform_indices[2]);
-    transform_set_parent(g_propeller_transform_indices[2], g_propeller_transform_indices[3]);
+    g_propeller_transform_index = transform_create();
+    object_set_transform(g_propeller_mesh_index, g_propeller_transform_index);
     set_mesh_texture(g_propeller_mesh_index, Module.TextureResourceIndex);
 end
 
@@ -29,10 +27,10 @@ function Module.update()
         g_current_rotation = 0;
     end
 
-    transform_set_scale(g_propeller_transform_indices[1], 6, 8, 2);
-    transform_set_rotation_x(g_propeller_transform_indices[2], 90);
-    transform_concat_rotation_y(g_propeller_transform_indices[2], g_current_rotation + Module.iR);
-    transform_set_translation(g_propeller_transform_indices[3], Module.iX, Module.iY, Module.iZ);
+    transform_set_scale(g_propeller_transform_index, 6, 8, 2);
+    transform_set_rotation_x(g_propeller_transform_index, 90);
+    transform_concat_rotation_y(g_propeller_transform_index, g_current_rotation + Module.iR);
+    transform_set_translation(g_propeller_transform_index, Module.iX, Module.iY, Module.iZ);
     set_mesh_is_visible(g_propeller_mesh_index, true);
 
     local iPX = Module.GameLogic.get_player_current_position_x();

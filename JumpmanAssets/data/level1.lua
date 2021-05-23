@@ -89,8 +89,8 @@ local function MoveLadder_(current_ladder, iPos, ladder_transform_indices)
     local iZ = current_ladder.pos_z[1];
 
     transform_set_translation(ladder_transform_indices[1], 0 - iX, 0 - iY, 0 - iZ);
-    transform_set_rotation_z(ladder_transform_indices[1], iPos * 2);
-    transform_concat_rotation_x(ladder_transform_indices[1], iPos);
+    transform_set_rotation_z(ladder_transform_indices[2], iPos * 2);
+    transform_concat_rotation_x(ladder_transform_indices[2], iPos);
     transform_set_translation(ladder_transform_indices[2], iX, iY, iZ - iPos);
 end
 
@@ -99,7 +99,7 @@ local function MovePlatform_(current_platform, iRotate, iTran, pos_property_name
     local iPlatY = current_platform[pos_property_name][2];
 
     transform_set_translation(platform_transform_indices[1], 0 - iPlatX, 0 - iPlatY, 0);
-    transform_set_rotation_z(platform_transform_indices[1], iRotate);
+    transform_set_rotation_z(platform_transform_indices[2], iRotate);
     transform_set_translation(platform_transform_indices[2], iPlatX + iTran, iPlatY, 0);
 end
 

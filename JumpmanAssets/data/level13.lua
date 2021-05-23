@@ -74,9 +74,9 @@ local g_background_rotation = 0;
 local function RotateBack_(background_rotation)
     for backdrop_num = 1, kROTATING_BACKDROP_COUNT do
         transform_set_translation(g_rotating_backdrops_transform_indices[backdrop_num][1], -80, -40, 0);
-        transform_set_scale(g_rotating_backdrops_transform_indices[backdrop_num][1], 1.1, 1.1, 1);
+        transform_set_scale(g_rotating_backdrops_transform_indices[backdrop_num][2], 1.1, 1.1, 1);
         transform_set_rotation_z(g_rotating_backdrops_transform_indices[backdrop_num][2], background_rotation);
-        transform_set_translation(g_rotating_backdrops_transform_indices[backdrop_num][3], 80, 40, 0);
+        transform_set_translation(g_rotating_backdrops_transform_indices[backdrop_num][2], 80, 40, 0);
     end
 end
 
@@ -225,17 +225,16 @@ function Module.initialize(game_input)
         set_mesh_texture(g_game_logic.get_platform(platform_index).mesh_index, resources.TextureClassicPlatform);
     end
 
-    local setup_object_three_transforms = function(mesh_index)
-        local result = { transform_create(), transform_create(), transform_create() };
+    local setup_object_two_transforms = function(mesh_index)
+        local result = { transform_create(), transform_create() };
         object_set_transform(mesh_index, result[1]);
         transform_set_parent(result[1], result[2]);
-        transform_set_parent(result[2], result[3]);
         return result;
     end
 
     for backdrop_num = 200, 200 + kROTATING_BACKDROP_COUNT - 1 do  -- TODO: Use constant for num
         local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(backdrop_num).mesh_index;
-        table.insert(g_rotating_backdrops_transform_indices, setup_object_three_transforms(backdrop_mesh_index));
+        table.insert(g_rotating_backdrops_transform_indices, setup_object_two_transforms(backdrop_mesh_index));
     end
 
     Module.reset();

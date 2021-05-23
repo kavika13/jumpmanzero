@@ -39,8 +39,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_run_donut_mesh = nil;
-local g_run_donut_transform_indices = nil;
+local g_run_donut_mesh_index = -1;
+local g_run_donut_transform_index = -1;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.MOVE_1;
 local g_animation_frame_counter = 0;
@@ -217,7 +217,8 @@ end
 
 local function DestroyMe_()
     g_current_status = status_type.DEAD;
-    delete_mesh(g_run_donut_mesh);
+    delete_mesh(g_run_donut_mesh_index);
+    -- TODO: Delete transform. It messes up existing transforms right now to delete it
     Module.KillCallback(Module);
 end
 
@@ -327,9 +328,10 @@ function Module.initialize()
         return result;
     end
 
-    g_run_donut_mesh = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_1]);
-    g_run_donut_transform_indices = setup_object_three_transforms(g_run_donut_mesh);
-    set_mesh_texture(g_run_donut_mesh, Module.TextureResourceIndex);
+    g_run_donut_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_1]);
+    g_run_donut_transform_index = transform_create();
+    object_set_transform(g_run_donut_mesh_index, g_run_donut_transform_index);
+    set_mesh_texture(g_run_donut_mesh_index, Module.TextureResourceIndex);
 
     g_current_status = status_type.HATCHING;
     g_current_status_counter = 0;
@@ -380,13 +382,13 @@ function Module.update(all_run_donuts)
     MoveDonut_(all_run_donuts);
 
     if g_current_status > status_type.DEAD then
-        set_mesh_to_mesh(g_run_donut_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-        transform_set_scale(g_run_donut_transform_indices[1], 0.6, 0.6, 1);
-        transform_set_rotation_z(g_run_donut_transform_indices[2], g_current_rotation_z);
-        transform_set_translation(g_run_donut_transform_indices[3], g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
-        set_mesh_is_visible(g_run_donut_mesh, true);
+        set_mesh_to_mesh(g_run_donut_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
+        transform_set_scale(g_run_donut_transform_index, 0.6, 0.6, 1);
+        transform_set_rotation_z(g_run_donut_transform_index, g_current_rotation_z);
+        transform_set_translation(g_run_donut_transform_index, g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
+        set_mesh_is_visible(g_run_donut_mesh_index, true);
     else
-        set_mesh_is_visible(g_run_donut_mesh, false);
+        set_mesh_is_visible(g_run_donut_mesh_index, false);
     end
 end
 

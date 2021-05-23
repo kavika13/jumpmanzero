@@ -9,8 +9,10 @@ Module.FireSoundIndex = -1;
 
 Module.FramesToWait = 0;  -- TODO: Separate "initial" wait, so it can be reset?
 
-local g_mesh_index_1;
-local g_mesh_index_2;
+local g_mesh_1_mesh_index = -1;
+local g_mesh_1_transform_index = -1;
+local g_mesh_2_mesh_index = -1;
+local g_mesh_2_transform_index = -1;
 
 local g_maximum_pos_x;
 
@@ -69,10 +71,10 @@ local function RestartBullet()
     local iSupp = 0;
     local iVel = 0;
 
-    set_mesh_is_visible(g_mesh_index_1, false);
-    set_mesh_is_visible(g_mesh_index_2, false);
-    skip_next_mesh_interpolation(g_mesh_index_1);
-    skip_next_mesh_interpolation(g_mesh_index_2);
+    set_mesh_is_visible(g_mesh_1_mesh_index, false);
+    set_mesh_is_visible(g_mesh_2_mesh_index, false);
+    skip_next_mesh_interpolation(g_mesh_1_mesh_index);
+    skip_next_mesh_interpolation(g_mesh_2_mesh_index);
 
     local iType = math.random(1, 100);
 
@@ -143,11 +145,15 @@ local function CheckOOB()
 end
 
 function Module.initialize()
-    g_mesh_index_1 = new_mesh(Module.Mesh1Index);
-    set_mesh_texture(g_mesh_index_1, Module.TextureIndex);
+    g_mesh_1_mesh_index = new_mesh(Module.Mesh1Index);
+    g_mesh_1_transform_index = transform_create();
+    object_set_transform(g_mesh_1_mesh_index, g_mesh_1_transform_index);
+    set_mesh_texture(g_mesh_1_mesh_index, Module.TextureIndex);
 
-    g_mesh_index_2 = new_mesh(Module.Mesh2Index);
-    set_mesh_texture(g_mesh_index_2, Module.TextureIndex);
+    g_mesh_2_mesh_index = new_mesh(Module.Mesh2Index);
+    g_mesh_2_transform_index = transform_create();
+    object_set_transform(g_mesh_2_mesh_index, g_mesh_2_transform_index);
+    set_mesh_texture(g_mesh_2_mesh_index, Module.TextureIndex);
 
     g_maximum_pos_x = Module.GameLogic.get_level_extent_x() + 40;
 
@@ -213,18 +219,16 @@ function Module.update()
         Module.GameLogic.kill();
     end
 
-    set_identity_mesh_matrix(g_mesh_index_1);
-    rotate_x_mesh_matrix(g_mesh_index_1, g_current_rotation_x);
-    rotate_z_mesh_matrix(g_mesh_index_1, g_current_rotation_z);
-    translate_mesh_matrix(g_mesh_index_1, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
-    set_mesh_is_visible(g_mesh_index_1, true);
+    transform_set_rotation_x(g_mesh_1_transform_index, g_current_rotation_x);
+    transform_concat_rotation_z(g_mesh_1_transform_index, g_current_rotation_z);
+    transform_set_translation(g_mesh_1_transform_index, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
+    set_mesh_is_visible(g_mesh_1_mesh_index, true);
 
-    set_identity_mesh_matrix(g_mesh_index_2);
-    rotate_y_mesh_matrix(g_mesh_index_2, 90);
-    rotate_x_mesh_matrix(g_mesh_index_2, g_current_rotation_x);
-    rotate_z_mesh_matrix(g_mesh_index_2, g_current_rotation_z);
-    translate_mesh_matrix(g_mesh_index_2, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
-    set_mesh_is_visible(g_mesh_index_2, true);
+    transform_set_rotation_y(g_mesh_2_transform_index, 90);
+    transform_concat_rotation_x(g_mesh_2_transform_index, g_current_rotation_x);
+    transform_concat_rotation_z(g_mesh_2_transform_index, g_current_rotation_z);
+    transform_set_translation(g_mesh_2_transform_index, g_current_pos_x, g_current_pos_y, g_current_pos_z - 2);
+    set_mesh_is_visible(g_mesh_2_mesh_index, true);
 end
 
 function Module.reset_pos()

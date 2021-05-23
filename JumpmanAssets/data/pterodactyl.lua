@@ -22,8 +22,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_dino_mesh = nil;
-local g_dino_transform_index = nil;
+local g_dino_mesh_index = -1;
+local g_dino_transform_index = -1;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame;
 local g_flapping_animation_current_frame = 0;
@@ -103,16 +103,11 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_3] = Module.RightMeshResourceIndices[3];
     g_animation_mesh_indices[animation_frame.FLY_RIGHT_4] = Module.RightMeshResourceIndices[4];
 
-    local setup_object_transform = function(mesh_index)
-        local result = transform_create();
-        object_set_transform(mesh_index, result);
-        return result;
-    end
-
-    g_dino_mesh = new_mesh(g_animation_mesh_indices[animation_frame.FLY_LEFT_1]);
-    g_dino_transform_index = setup_object_transform(g_dino_mesh);
-    set_mesh_texture(g_dino_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_dino_mesh, true);
+    g_dino_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.FLY_LEFT_1]);
+    g_dino_transform_index = transform_create();
+    object_set_transform(g_dino_mesh_index, g_dino_transform_index);
+    set_mesh_texture(g_dino_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_dino_mesh_index, true);
 
     g_animation_current_frame = animation_frame.FLY_LEFT_1;
 end
@@ -122,7 +117,7 @@ function Module.update()
     SetFrame_();
     Move_();
 
-    set_mesh_to_mesh(g_dino_mesh, g_animation_mesh_indices[g_animation_current_frame]);
+    set_mesh_to_mesh(g_dino_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
     transform_set_translation(g_dino_transform_index, g_current_pos_x, g_current_pos_y, 3);
 
     if Module.GameLogic.is_player_colliding_with_rect(

@@ -66,9 +66,9 @@ local g_hud_overlay;
 local g_zap_bots = {};
 
 local g_message_mesh_index = -1;
-local g_message_transform_indices = nil;
+local g_message_transform_index = -1;
 local g_progress_bar_mesh_index = -1;
-local g_progress_bar_transform_indices = nil;
+local g_progress_bar_transform_index = -1;
 
 local g_jumpman_work_mesh_index = -1;
 local g_jumpman_work_transform_index = -1;
@@ -199,15 +199,15 @@ local function ProgressLevel_(game_input)
     CollideDonuts_(game_input);
 
     if g_is_disarm_hud_visible then
-        transform_set_scale(g_message_transform_indices[1], 20, 20, 1);
-        transform_set_translation(g_message_transform_indices[2], 0 - 54, 0 - 39, 120.01);
-        transform_set_parent_is_camera(g_message_transform_indices[2], true);
+        transform_set_scale(g_message_transform_index, 20, 20, 1);
+        transform_set_translation(g_message_transform_index, 0 - 54, 0 - 39, 120.01);
+        transform_set_parent_is_camera(g_message_transform_index, true);
         set_mesh_is_visible(g_message_mesh_index, true);
 
         local iProg = (100 - g_disarm_progress) * 16.5 / 100;
-        transform_set_scale(g_progress_bar_transform_indices[1], iProg, 3.8, 1);
-        transform_set_translation(g_progress_bar_transform_indices[2], (0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
-        transform_set_parent_is_camera(g_progress_bar_transform_indices[2], true);
+        transform_set_scale(g_progress_bar_transform_index, iProg, 3.8, 1);
+        transform_set_translation(g_progress_bar_transform_index, (0 - 54) + (iProg / 2) - 8.25, 0 - 41.8, 120);
+        transform_set_parent_is_camera(g_progress_bar_transform_index, true);
         set_mesh_is_visible(g_progress_bar_mesh_index, true);
     else
         set_mesh_is_visible(g_message_mesh_index, false);
@@ -250,15 +250,13 @@ function Module.initialize(game_input)
     set_mesh_is_visible(g_jumpman_work_mesh_index, false);
 
     g_message_mesh_index = new_mesh(resources.MeshSquare);
-    g_message_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_message_mesh_index, g_message_transform_indices[1]);
-    transform_set_parent(g_message_transform_indices[1], g_message_transform_indices[2]);
+    g_message_transform_index = transform_create();
+    object_set_transform(g_message_mesh_index, g_message_transform_index);
     set_mesh_texture(g_message_mesh_index, resources.TextureDisarming);
 
     g_progress_bar_mesh_index = new_mesh(resources.MeshSquare);
-    g_progress_bar_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_progress_bar_mesh_index, g_progress_bar_transform_indices[1]);
-    transform_set_parent(g_progress_bar_transform_indices[1], g_progress_bar_transform_indices[2]);
+    g_progress_bar_transform_index = transform_create();
+    object_set_transform(g_progress_bar_mesh_index, g_progress_bar_transform_index);
     set_mesh_texture(g_progress_bar_mesh_index, resources.TextureBoringGreen);
 
     MoveDonuts_();

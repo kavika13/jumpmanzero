@@ -324,10 +324,9 @@ function Module.initialize()
     set_mesh_texture(g_sheep_mesh_index, Module.SheepTextureResourceIndex);
 
     g_copter_mesh_index = new_mesh(Module.CopterMeshResourceIndex);
-    g_copter_transform_indices = { transform_create(), transform_create(), transform_create() };
+    g_copter_transform_indices = { transform_create(), transform_create() };
     object_set_transform(g_copter_mesh_index, g_copter_transform_indices[1]);
     transform_set_parent(g_copter_transform_indices[1], g_copter_transform_indices[2]);
-    transform_set_parent(g_copter_transform_indices[2], g_copter_transform_indices[3]);
     set_mesh_texture(g_copter_mesh_index, Module.CopterTextureResourceIndex);
 end
 
@@ -357,9 +356,9 @@ function Module.update()
         g_copter_current_rotation_y = g_copter_current_rotation_y + 35;
         transform_set_rotation_x(g_copter_transform_indices[1], 270);
         transform_concat_rotation_y(g_copter_transform_indices[1], g_copter_current_rotation_y);
-        transform_set_translation(g_copter_transform_indices[2], 0, 4, 0);
+        transform_set_translation(g_copter_transform_indices[1], 0, 4, 0);
         transform_set_scale(g_copter_transform_indices[2], g_copter_current_scale, g_copter_current_scale, g_copter_current_scale);
-        transform_set_translation(g_copter_transform_indices[3], g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
+        transform_set_translation(g_copter_transform_indices[2], g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
         set_mesh_is_visible(g_copter_mesh_index, true);
     else
         set_mesh_is_visible(g_copter_mesh_index, false);

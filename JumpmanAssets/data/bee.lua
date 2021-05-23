@@ -17,8 +17,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_bee_mesh_index = nil;
-local g_bee_transform_index = nil;
+local g_bee_mesh_index = -1;
+local g_bee_transform_index = -1;
 local g_move_animation_mesh_indices = {};
 local g_move_animation_current_frame_index = animation_frame.MOVE_LEFT_1;
 local g_move_animation_counter = 0;
@@ -96,14 +96,9 @@ function Module.initialize()
     g_move_animation_mesh_indices[animation_frame.MOVE_RIGHT_1] = Module.MoveRightMeshResourceIndices[1];
     g_move_animation_mesh_indices[animation_frame.MOVE_RIGHT_2] = Module.MoveRightMeshResourceIndices[2];
 
-    local setup_object_transform = function(mesh_index)
-        local result = transform_create();
-        object_set_transform(mesh_index, result);
-        return result;
-    end
-
     g_bee_mesh_index = new_mesh(g_move_animation_mesh_indices[animation_frame.MOVE_LEFT_1]);
-    g_bee_transform_index = setup_object_transform(g_bee_mesh_index);
+    g_bee_transform_index = transform_create();
+    object_set_transform(g_bee_mesh_index, g_bee_transform_index);
     set_mesh_texture(g_bee_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_bee_mesh_index, true);
 

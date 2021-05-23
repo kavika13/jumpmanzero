@@ -55,7 +55,7 @@ local player_movement_direction = {
 player_movement_direction = read_only.make_table_read_only(player_movement_direction);
 
 local g_turtle_mesh_index = -1;
-local g_turtle_transform_indices = nil;
+local g_turtle_transform_index = -1;
 local g_move_animation_frames = {};
 local g_move_animation_current_frame = animation_frame.MOVE_RIGHT_1;
 local g_move_animation_current_alt_frame = 0;  -- Alternates between 0 and 1. Offset applied to current frame
@@ -188,9 +188,8 @@ function Module.initialize()
     g_move_animation_frames[animation_frame.HIDE_RIGHT] = Module.HideMeshResourceIndices[2];
 
     g_turtle_mesh_index = new_mesh(g_move_animation_frames[animation_frame.MOVE_RIGHT_1]);
-    g_turtle_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_turtle_mesh_index, g_turtle_transform_indices[1]);
-    transform_set_parent(g_turtle_transform_indices[1], g_turtle_transform_indices[2]);
+    g_turtle_transform_index = transform_create();
+    object_set_transform(g_turtle_mesh_index, g_turtle_transform_index);
     set_mesh_texture(g_turtle_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_turtle_mesh_index, true);
 
@@ -206,8 +205,8 @@ function Module.update(game_input, all_turtles)
     SetAngle_();
 
     set_mesh_to_mesh(g_turtle_mesh_index, g_move_animation_frames[g_move_animation_current_frame]);
-    transform_set_rotation_z(g_turtle_transform_indices[1], g_current_rotation_z);
-    transform_set_translation(g_turtle_transform_indices[2], g_current_pos_x, g_current_pos_y + 4.4, 2);
+    transform_set_rotation_z(g_turtle_transform_index, g_current_rotation_z);
+    transform_set_translation(g_turtle_transform_index, g_current_pos_x, g_current_pos_y + 4.4, 2);
 
     local is_colliding = true;
 

@@ -67,7 +67,7 @@ local g_game_logic;
 local g_hud_overlay;
 local g_saws = {};
 local g_frog_mesh_index = -1;
-local g_frog_transform_indices = nil;
+local g_frog_transform_index = -1;
 local g_frog_animation_mesh_indices = {};
 local g_frog_animation_current_mesh_index = frog_animation_frame.IDLE;
 local g_frog_animation_frame = 100;
@@ -148,8 +148,8 @@ local function ProgressLevel_(game_input)
 
     ControlFrog_();
 
-    transform_set_scale(g_frog_transform_indices[1], 2, 2, 2);
-    transform_set_translation(g_frog_transform_indices[2], 23, 175, 18);
+    transform_set_scale(g_frog_transform_index, 2, 2, 2);
+    transform_set_translation(g_frog_transform_index, 23, 175, 18);
 
     for _, saw in ipairs(g_saws) do
         saw.update();
@@ -167,9 +167,8 @@ local function LoadFrogMeshes_()
     g_frog_animation_mesh_indices[frog_animation_frame.CROAK_5] = resources.MeshFrogB5;
 
     g_frog_mesh_index = new_mesh(g_frog_animation_mesh_indices[frog_animation_frame.IDLE]);
-    g_frog_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_frog_mesh_index, g_frog_transform_indices[1]);
-    transform_set_parent(g_frog_transform_indices[1], g_frog_transform_indices[2]);
+    g_frog_transform_index = transform_create();
+    object_set_transform(g_frog_mesh_index, g_frog_transform_index);
     set_mesh_texture(g_frog_mesh_index, resources.TextureFrog);
     set_mesh_is_visible(g_frog_mesh_index, true);
 end

@@ -377,6 +377,7 @@ int TransformCreate(void) {
 }
 
 void TransformDelete(int deleting_transform_index) {
+    // TODO: This invalidates the index of the last transform. Need a redirect scheme instead/as well? Or maybe a linked list to find next free, etc.
     assert(deleting_transform_index >= 0);
     assert(deleting_transform_index < g_transform_count);
     int last_transform_index = g_transform_count - 1;
@@ -1131,6 +1132,7 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
 
     if(current_transform_index != -1) {
         // TODO: Calculate matrices in more cache-friendly/packed manner
+        // TODO: Are parent/child being multiplied in the correct order here? Seems they're reversed right now. Should do parent[SRT]child[SRT]?
         hmm_mat4 current_local_to_world_matrix = { {
             { 1, 0, 0, 0 },
             { 0, 1, 0, 0 },
@@ -1145,11 +1147,11 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
                 hmm_vec3 current_scale = HMM_LerpVec3(g_transform_scales_previous[current_transform_index], g_transform_scales[current_transform_index], interpolation_scale);
                 current_local_to_world_matrix =
                     HMM_MultiplyMat4(
-                        HMM_Scale(current_scale),
+                        HMM_Translate(current_translation),
                         HMM_MultiplyMat4(
                             HMM_QuaternionToMat4(current_rotation),
                             HMM_MultiplyMat4(
-                                HMM_Translate(current_translation),
+                                HMM_Scale(current_scale),
                                 current_local_to_world_matrix)));
 
                 if(g_transform_parent_is_camera[current_transform_index]) {
@@ -1165,11 +1167,11 @@ static void RenderObject(int object_index, long* previous_texture_index, main_sh
                 hmm_vec3 current_scale = g_transform_scales[current_transform_index];
                 current_local_to_world_matrix =
                     HMM_MultiplyMat4(
-                        HMM_Scale(current_scale),
+                        HMM_Translate(current_translation),
                         HMM_MultiplyMat4(
                             HMM_QuaternionToMat4(current_rotation),
                             HMM_MultiplyMat4(
-                                HMM_Translate(current_translation),
+                                HMM_Scale(current_scale),
                                 current_local_to_world_matrix)));
 
                 if(g_transform_parent_is_camera[current_transform_index]) {

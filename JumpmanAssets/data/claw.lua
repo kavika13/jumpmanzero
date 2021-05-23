@@ -210,15 +210,15 @@ end
 local function DrawClaw_(claw_piece_index, iAngle, iSpread)
     local claw_piece_transform_indices = g_claw_transform_indices[claw_piece_index];
     transform_set_translation(claw_piece_transform_indices[1], 0, -5, 0);
-    transform_set_rotation_z(claw_piece_transform_indices[1], iSpread);
-    transform_concat_rotation_y(claw_piece_transform_indices[1], iAngle);
+    transform_set_rotation_z(claw_piece_transform_indices[2], iSpread);
+    transform_concat_rotation_y(claw_piece_transform_indices[2], iAngle);
     transform_set_translation(claw_piece_transform_indices[2], g_claw_current_pos_x, g_claw_current_pos_y + 5, g_claw_current_pos_z);
     set_mesh_is_visible(g_claw_mesh_indices[claw_piece_index], true);
 end
 
 local function DrawChain_()
     transform_set_translation(g_chain_transform_indices[1], 0, -0.5, 0);
-    transform_set_scale(g_chain_transform_indices[1], 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
+    transform_set_scale(g_chain_transform_indices[2], 0.4, (g_anchor_pos_y - g_claw_current_pos_y) - 4, 0.4);
     transform_set_translation(g_chain_transform_indices[2], g_claw_current_pos_x, g_anchor_pos_y, g_claw_current_pos_z);
     set_mesh_is_visible(g_chain_mesh_index, true);
 end
