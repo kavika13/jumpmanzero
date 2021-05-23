@@ -25,7 +25,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_penguin_mesh = nil;
+local g_penguin_mesh_index = -1;
+local g_penguin_transform_index = -1;
 local g_animation_mesh_indices = {};
 local g_animation_current_frame = animation_frame.STAND_FRONT;
 local g_animation_frame_counter = 0;  -- Counts up until the next "alt frame" increment (every 6 frames increments alt)
@@ -184,18 +185,19 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.CLIMB_1] = Module.LadderClimbMeshResourceIndices[1];
     g_animation_mesh_indices[animation_frame.CLIMB_2] = Module.LadderClimbMeshResourceIndices[2];
 
-    g_penguin_mesh = new_mesh(g_animation_mesh_indices[animation_frame.STAND_FRONT]);
-    set_mesh_texture(g_penguin_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_penguin_mesh, true);
+    g_penguin_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.STAND_FRONT]);
+    g_penguin_transform_index = transform_create();
+    object_set_transform(g_penguin_mesh_index, g_penguin_transform_index);
+    set_mesh_texture(g_penguin_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_penguin_mesh_index, true);
 end
 
 function Module.update()
     AdvanceFrame_();
     MovePenguin_();
 
-    set_mesh_to_mesh(g_penguin_mesh, g_animation_mesh_indices[g_animation_current_frame]);
-    set_identity_mesh_matrix(g_penguin_mesh);
-    translate_mesh_matrix(g_penguin_mesh, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
+    set_mesh_to_mesh(g_penguin_mesh_index, g_animation_mesh_indices[g_animation_current_frame]);
+    transform_set_translation(g_penguin_transform_index, g_current_pos_x, g_current_pos_y + 8.5, g_current_pos_z - 0.5);
 
     if Module.GameLogic.is_player_colliding_with_rect(
             g_current_pos_x - 3, g_current_pos_y + 2,
