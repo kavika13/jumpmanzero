@@ -30,7 +30,6 @@ local function InitializeLetters_()
         local char_mesh_index = Module.GameLogic.new_char_mesh(current_level_title:sub(iChar, iChar):byte(1, -1));
         set_mesh_texture(char_mesh_index, get_loaded_texture_count() - 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
         table.insert(g_title_letter_mesh_indices, char_mesh_index);
-        print(iChar, current_level_title:sub(iChar, iChar):byte(1, -1), char_mesh_index);
 
         local transform_indices = {};
         if char_mesh_index ~= -1 then
