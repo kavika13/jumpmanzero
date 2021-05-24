@@ -125,7 +125,9 @@ player_dying_animation_state = read_only.make_table_read_only(player_dying_anima
 
 local g_game_time_inactive = 0;
 
-local g_player_mesh = nil;
+local g_player_mesh_index = -1;
+local g_player_transform_index = -1;
+local g_player_stars_transform_indices = nil;
 local g_player_mesh_indices = {};
 local g_letter_mesh_indices = {};
 
@@ -1657,11 +1659,12 @@ local function AnimateDying_(game_input)
 
     if g_player_dying_animation_state == player_dying_animation_state.SPINNING_STARS then
         local stars_mesh_index = g_player_mesh_indices[player_mesh.STARS];
-        set_identity_mesh_matrix(stars_mesh_index);
-        rotate_y_mesh_matrix(stars_mesh_index, g_player_absolute_frame_count * 180.0 / 50.0);
-        translate_mesh_matrix(
-            stars_mesh_index,
-            g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z + 1);
+        local kSTARS_OFFSET_Z = -1;
+        transform_set_translation(g_player_stars_transform_indices[1], 0, 0, kSTARS_OFFSET_Z);
+        transform_set_rotation_y(g_player_stars_transform_indices[2], g_player_absolute_frame_count * 180.0 / 50.0);
+        transform_set_translation(
+            g_player_stars_transform_indices[2],
+            g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z - kSTARS_OFFSET_Z);
         set_mesh_is_visible(stars_mesh_index, true);
 
         g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
@@ -1684,7 +1687,7 @@ local function AnimateDying_(game_input)
                     Module.ResetPlayerCallback(game_input);
 
                     if g_player_current_position_x ~= prev_x or g_player_current_position_y ~= prev_y then
-                        skip_next_mesh_interpolation(g_player_mesh);
+                        skip_next_mesh_interpolation(g_player_mesh_index);
                     end
                 end
 
@@ -1769,7 +1772,13 @@ function Module.initialize(skip_play_level_music)
     g_player_mesh_indices[player_mesh.BORED_4] = load_mesh("data/bored4.msh");
     g_player_mesh_indices[player_mesh.BORED_5] = load_mesh("data/bored5.msh");
 
-    g_player_mesh = load_mesh("data/stand.msh");
+    g_player_mesh_index = load_mesh("data/stand.msh");
+    g_player_transform_index = transform_create();
+    object_set_transform(g_player_mesh_index, g_player_transform_index);
+
+    g_player_stars_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_player_mesh_indices[player_mesh.STARS], g_player_stars_transform_indices[1]);
+    transform_set_parent(g_player_stars_transform_indices[1], g_player_stars_transform_indices[2]);
 
     -- Load character meshes
     for iChar = 0, 299 do
@@ -1922,13 +1931,12 @@ function Module.progress_game(game_input)
 end
 
 function Module.update_player_graphics()
-    set_mesh_to_mesh(g_player_mesh, g_player_mesh_indices[g_player_current_mesh] or 0);
-    set_identity_mesh_matrix(g_player_mesh);
-    rotate_x_mesh_matrix(g_player_mesh, g_player_current_rotation_x_radians * 180.0 / 3.14);
-    translate_mesh_matrix(
-        g_player_mesh,
+    set_mesh_to_mesh(g_player_mesh_index, g_player_mesh_indices[g_player_current_mesh] or 0);
+    transform_set_rotation_x(g_player_transform_index, g_player_current_rotation_x_radians * 180.0 / 3.14);
+    transform_set_translation(
+        g_player_transform_index,
         g_player_current_position_x, g_player_current_position_y + 6, g_player_current_position_z + 1);
-    set_mesh_is_visible(g_player_mesh, g_player_is_visible);
+    set_mesh_is_visible(g_player_mesh_index, g_player_is_visible);
 end
 
 function Module.reset_perspective()
@@ -2088,7 +2096,7 @@ function Module.set_player_current_position_z(new_pos_z)
 end
 
 function Module.skip_player_next_mesh_interpolation()
-    skip_next_mesh_interpolation(g_player_mesh);
+    skip_next_mesh_interpolation(g_player_mesh_index);
 end
 
 function Module.get_player_current_active_platform_index()
