@@ -53,8 +53,10 @@ resources = read_only.make_table_read_only(resources);
 
 local g_game_logic;
 
-local g_jumpman_mesh_index;
+local g_jumpman_mesh_index = -1;
+local g_jumpman_transform_index = -1;
 local g_game_over_letter_mesh_indices = {};
+local g_game_over_letter_transform_indices = {};
 local g_game_over_message_visible = false;
 local g_camera_pan_animation_timer = 0;
 local g_letter_drop_animation_timer = 0;
@@ -84,6 +86,8 @@ local function ProgressLevel_(game_input)
 
         for iLet = 1, #game_over_message do
             g_game_over_letter_mesh_indices[iLet] = g_game_logic.new_char_mesh(game_over_message:sub(iLet, iLet):byte(1, -1));
+            g_game_over_letter_transform_indices[iLet] = transform_create();
+            object_set_transform(g_game_over_letter_mesh_indices[iLet], g_game_over_letter_transform_indices[iLet]);
             set_mesh_texture(g_game_over_letter_mesh_indices[iLet], resources.TextureNewMetal);
         end
 
@@ -98,8 +102,8 @@ local function ProgressLevel_(game_input)
         g_letter_drop_animation_timer = g_letter_drop_animation_timer - 3;
 
         for letter_index, current_mesh_index in ipairs(g_game_over_letter_mesh_indices) do
-            set_identity_mesh_matrix(current_mesh_index);
-            scale_mesh_matrix(current_mesh_index, 2, 2, 1);
+            local current_transform_index = g_game_over_letter_transform_indices[letter_index];
+            transform_set_scale(current_transform_index, 2, 2, 1);
 
             local iTemp = g_letter_drop_animation_timer + letter_index * 5 - 50;
 
@@ -114,7 +118,7 @@ local function ProgressLevel_(game_input)
                 iX = iX + 5;
             end
 
-            translate_mesh_matrix(current_mesh_index, iX, iTemp, 0);
+            transform_set_translation(current_transform_index, iX, iTemp, 0);
             set_mesh_is_visible(current_mesh_index, true);
         end
     end
@@ -124,9 +128,8 @@ local function ProgressLevel_(game_input)
     g_game_logic.set_player_current_position_x(80);
     g_game_logic.set_player_current_position_y(70 + g_camera_pan_animation_timer);
 
-    set_identity_mesh_matrix(g_jumpman_mesh_index);
-    scale_mesh_matrix(g_jumpman_mesh_index, 3, 3, 3);
-    translate_mesh_matrix(g_jumpman_mesh_index, 80, 80, 0);
+    transform_set_scale(g_jumpman_transform_index, 3, 3, 3);
+    transform_set_translation(g_jumpman_transform_index, 80, 80, 0);
     set_mesh_is_visible(g_jumpman_mesh_index, true);
 
     if g_animation_skipped > 0 and g_animation_skipped < 3 then  -- TODO: why all these skips required for camera?
@@ -159,10 +162,14 @@ function Module.initialize(game_input)
     g_game_logic.initialize();
 
     g_jumpman_mesh_index = new_mesh(resources.MeshDead);
+    g_jumpman_transform_index = transform_create();
+    object_set_transform(g_jumpman_mesh_index, g_jumpman_transform_index);
     set_mesh_texture(g_jumpman_mesh_index, resources.TextureJumpman);
 
     local platform_mesh_index = g_game_logic.find_platform_by_number(1).mesh_index;  -- TODO: Use constant for num
-    scale_mesh_matrix(platform_mesh_index, 30, 3, 3);
+    local platform_transform_index = transform_create();
+    object_set_transform(platform_mesh_index, platform_transform_index);
+    transform_set_scale(platform_transform_index, 30, 3, 3);
     g_game_over_message_visible = false;
     g_camera_pan_animation_timer = 100;
 
@@ -174,6 +181,8 @@ function Module.initialize(game_input)
     ProgressLevel_(game_input);
     ProgressLevel_(game_input);
     ProgressLevel_(game_input);
+
+    skip_next_camera_interpolation();
 end
 
 function Module.update(game_input)
