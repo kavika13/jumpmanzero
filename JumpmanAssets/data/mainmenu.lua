@@ -57,9 +57,11 @@ local g_is_game_selected = false;
 local g_title_animation_is_done = false;
 local g_title_animation_counter = 0;
 
-local g_title_letter_mesh_ids = {};
-local g_option_letter_mesh_ids = {};
-local g_option_letter_title_indices = {};  -- 1:1 mapping with g_option_letter_mesh_ids
+local g_title_letter_mesh_indices = {};
+local g_title_letter_transform_indices = {};
+local g_option_letter_mesh_indices = {};
+local g_option_letter_transform_indices = {};
+local g_option_letter_title_indices = {};  -- 1:1 mapping with g_option_letter_mesh_indices
 
 local g_option_selected_index = 1;
 local g_option_previous_selected_index = 1;
@@ -81,9 +83,8 @@ local function ShowJMLetters_(skip_next_interpolation)
         iThick = (percent_complete - 61) / 4;
     end
 
-    for iChar = 1, #g_title_letter_mesh_ids do
-        set_identity_mesh_matrix(g_title_letter_mesh_ids[iChar]);
-        scale_mesh_matrix(g_title_letter_mesh_ids[iChar], 2, 0.8, iThick);
+    for iChar = 1, #g_title_letter_mesh_indices do
+        transform_set_scale(g_title_letter_transform_indices[iChar], 2, 0.8, iThick);
 
         local iX = iChar * 15 + 20;
 
@@ -129,14 +130,16 @@ local function ShowJMLetters_(skip_next_interpolation)
         local iDZ = iZ + iHeight;
 
         if iHeight > 3 then
-            rotate_x_mesh_matrix(g_title_letter_mesh_ids[iChar], (iHeight - 3) * 10);
+            transform_set_rotation_x(g_title_letter_transform_indices[iChar], (iHeight - 3) * 10);
+        else
+            transform_clear_rotation(g_title_letter_transform_indices[iChar]);
         end
 
-        translate_mesh_matrix(g_title_letter_mesh_ids[iChar], iDX, iDY, iDZ);
-        set_mesh_is_visible(g_title_letter_mesh_ids[iChar], true);
+        transform_set_translation(g_title_letter_transform_indices[iChar], iDX, iDY, iDZ);
+        set_mesh_is_visible(g_title_letter_mesh_indices[iChar], true);
 
         if skip_next_interpolation then
-            skip_next_mesh_interpolation(g_title_letter_mesh_ids[iChar]);
+            skip_next_mesh_interpolation(g_title_letter_mesh_indices[iChar]);
         end
     end
 end
@@ -264,12 +267,12 @@ local function ShowLetters_(skip_next_interpolation)
             previous_letter_title_index = current_letter_title_index;
         end
 
-        local current_letter_mesh_id = g_option_letter_mesh_ids[current_letter_index];
+        local current_letter_mesh_index = g_option_letter_mesh_indices[current_letter_index];
+        local current_letter_transform_index = g_option_letter_transform_indices[current_letter_index];
 
-        if current_letter_mesh_id > 0 then
-            set_identity_mesh_matrix(current_letter_mesh_id);
-            scale_mesh_matrix(current_letter_mesh_id, 0.7, 0.7, 1);
-            set_mesh_is_visible(current_letter_mesh_id, true);
+        if current_letter_mesh_index > 0 then
+            transform_set_scale(current_letter_transform_index, 0.7, 0.7, 1);
+            set_mesh_is_visible(current_letter_mesh_index, true);
 
             if g_is_game_selected then
                 if g_option_selected_index == current_letter_title_index then
@@ -280,19 +283,21 @@ local function ShowLetters_(skip_next_interpolation)
                     local iTempTime = (g_time_since_current_selection * 4) - (iX * 4) + (iFirstX * 4) + 10;
 
                     if iTempTime > 0 and iTempTime < 360 then
-                        rotate_x_mesh_matrix(current_letter_mesh_id, iTempTime);
+                        transform_set_rotation_x(current_letter_transform_index, iTempTime);
+                    else
+                        transform_clear_rotation(current_letter_transform_index);
                     end
 
-                    translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
+                    transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                    set_mesh_texture(current_letter_mesh_index, resources.TextureBoringBlue);
                 else
                     local iDZ = 0 + g_time_since_current_selection / 15;
                     local iDX = iX + ((g_time_since_current_selection / 100) * math.sin(iX * 27 * math.pi / 180.0) * 50);
                     local iDY = iY + ((g_time_since_current_selection / 100) * math.sin(iX * 59 * math.pi / 180.0) * 50);
 
-                    rotate_z_mesh_matrix(current_letter_mesh_id, g_time_since_current_selection + iX);
-                    translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
+                    transform_set_rotation_z(current_letter_transform_index, g_time_since_current_selection + iX);
+                    transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                    set_mesh_texture(current_letter_mesh_index, resources.TextureRachBlue);
                 end
             elseif g_option_selected_index == current_letter_title_index then
                 local iMoveScale;
@@ -307,8 +312,8 @@ local function ShowLetters_(skip_next_interpolation)
                 local iDX = iX;
                 local iDY = iY;
 
-                translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
+                transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                set_mesh_texture(current_letter_mesh_index, resources.TextureBoringBlue);
             elseif g_option_previous_selected_index == current_letter_title_index then
                 local iTempTime = (50 - g_time_since_current_selection);
 
@@ -328,15 +333,15 @@ local function ShowLetters_(skip_next_interpolation)
                 local iDX = iX;
                 local iDY = iY;
 
-                translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
+                transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                set_mesh_texture(current_letter_mesh_index, resources.TextureRachBlue);
             else
-                translate_mesh_matrix(current_letter_mesh_id, iX, iY, 0);
-                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
+                transform_set_translation(current_letter_transform_index, iX, iY, 0);
+                set_mesh_texture(current_letter_mesh_index, resources.TextureRachBlue);
             end
 
             if skip_next_interpolation then
-                skip_next_mesh_interpolation(current_letter_mesh_id);
+                skip_next_mesh_interpolation(current_letter_mesh_index);
             end
         end
 
@@ -348,17 +353,31 @@ local function InitializeLetters_()
     local title = "Jumpman";
 
     for iChar = 1, #title do
-        local char_mesh = g_game_logic.new_char_mesh(title:sub(iChar, iChar):byte(1, -1));
-        set_mesh_texture(char_mesh, resources.TextureBoringOrange);
-        table.insert(g_title_letter_mesh_ids, char_mesh);
+        local char_mesh_index = g_game_logic.new_char_mesh(title:sub(iChar, iChar):byte(1, -1));
+        set_mesh_texture(char_mesh_index, resources.TextureBoringOrange);
+        table.insert(g_title_letter_mesh_indices, char_mesh_index);
+
+        local char_transform_index = transform_create();
+        object_set_transform(char_mesh_index, char_transform_index);
+        table.insert(g_title_letter_transform_indices, char_transform_index);
     end
 
     local menu_options = { "Start Game", "Options" };
 
     for iTit, current_option in ipairs(menu_options) do
         for iChar = 1, #current_option do
-            table.insert(g_option_letter_mesh_ids, g_game_logic.new_char_mesh(menu_options[iTit]:sub(iChar, iChar):byte(1, -1)));
+            local letter_mesh_index = g_game_logic.new_char_mesh(menu_options[iTit]:sub(iChar, iChar):byte(1, -1));
+            table.insert(g_option_letter_mesh_indices, letter_mesh_index);
             table.insert(g_option_letter_title_indices, iTit);
+
+            local letter_transform_index = -1;
+
+            if letter_mesh_index ~= -1 then
+                letter_transform_index = transform_create();
+                object_set_transform(letter_mesh_index, letter_transform_index);
+            end
+
+            table.insert(g_option_letter_transform_indices, letter_transform_index);
         end
     end
 end
