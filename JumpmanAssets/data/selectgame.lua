@@ -48,8 +48,9 @@ local g_game_logic = nil;
 
 local g_is_game_selected = false;
 
-local g_letter_mesh_ids = {};
-local g_letter_title_indices = {};  -- 1:1 mapping with g_letter_mesh_ids
+local g_letter_mesh_indices = {};
+local g_letter_transform_indices = {};
+local g_letter_title_indices = {};  -- 1:1 mapping with g_letter_mesh_indices
 
 local g_title_count = 0;
 local g_title_selected_index = 1;
@@ -154,11 +155,11 @@ local function ShowLetters_()
             previous_letter_title_index = current_letter_title_index;
         end
 
-        local current_letter_mesh_id = g_letter_mesh_ids[current_letter_index];
+        local current_letter_mesh_index = g_letter_mesh_indices[current_letter_index];
+        local current_letter_transform_index = g_letter_transform_indices[current_letter_index];
 
-        if current_letter_mesh_id > 0 then
-            set_identity_mesh_matrix(current_letter_mesh_id);
-            set_mesh_is_visible(current_letter_mesh_id, true);
+        if current_letter_mesh_index > 0 then
+            set_mesh_is_visible(current_letter_mesh_index, true);
 
             if g_is_game_selected then
                 if g_title_selected_index == current_letter_title_index then
@@ -168,18 +169,18 @@ local function ShowLetters_()
                     local iTempTime = (g_time_since_current_selection * 4) - (iX * 4) + (iFirstX * 4) + 10;
 
                     if iTempTime > 0 and iTempTime < 360 then
-                        rotate_x_mesh_matrix(current_letter_mesh_id, iTempTime);
+                        transform_set_rotation_x(current_letter_transform_index, iTempTime);
                     end
 
-                    translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
+                    transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                    set_mesh_texture(current_letter_mesh_index, resources.TextureBoringBlue);
                 else
                     local iDZ = 0 + g_time_since_current_selection / 15;
                     local iDX = iX + ((g_time_since_current_selection / 100) * math.sin(iX * 27 * math.pi / 180.0) * 50);
                     local iDY = iY + ((g_time_since_current_selection / 100) * math.sin(iX * 59 * math.pi / 180.0) * 50);
-                    rotate_z_mesh_matrix(current_letter_mesh_id, g_time_since_current_selection + iX);
-                    translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                    set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
+                    transform_set_rotation_z(current_letter_transform_index, g_time_since_current_selection + iX);
+                    transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                    set_mesh_texture(current_letter_mesh_index, resources.TextureRachBlue);
                 end
             elseif g_title_selected_index == current_letter_title_index then
                 local iMoveScale;
@@ -194,8 +195,8 @@ local function ShowLetters_()
                 local iDX = iX;
                 local iDY = iY;
 
-                translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_mesh_texture(current_letter_mesh_id, resources.TextureBoringBlue);
+                transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                set_mesh_texture(current_letter_mesh_index, resources.TextureBoringBlue);
             elseif g_title_previous_selected_index == current_letter_title_index then
                 local iTempTime = (50 - g_time_since_current_selection);
 
@@ -215,11 +216,11 @@ local function ShowLetters_()
                 local iDX = iX;
                 local iDY = iY;
 
-                translate_mesh_matrix(current_letter_mesh_id, iDX, iDY, iDZ);
-                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
+                transform_set_translation(current_letter_transform_index, iDX, iDY, iDZ);
+                set_mesh_texture(current_letter_mesh_index, resources.TextureRachBlue);
             else
-                translate_mesh_matrix(current_letter_mesh_id, iX, iY, 0);
-                set_mesh_texture(current_letter_mesh_id, resources.TextureRachBlue);
+                transform_set_translation(current_letter_transform_index, iX, iY, 0);
+                set_mesh_texture(current_letter_mesh_index, resources.TextureRachBlue);
             end
         end
 
@@ -233,8 +234,18 @@ local function InitializeLetters_()
 
     for iTit, current_title in ipairs(game_list) do
         for iChar = 1, #current_title do
-            table.insert(g_letter_mesh_ids, g_game_logic.new_char_mesh(game_list[iTit]:sub(iChar, iChar):byte(1, -1)));
+            local char_mesh_index = g_game_logic.new_char_mesh(game_list[iTit]:sub(iChar, iChar):byte(1, -1));
+            table.insert(g_letter_mesh_indices, char_mesh_index);
             table.insert(g_letter_title_indices, iTit);
+
+            local char_transform_index = -1;
+
+            if char_mesh_index ~= -1 then
+                char_transform_index = transform_create();
+                object_set_transform(char_mesh_index, char_transform_index);
+            end
+
+            table.insert(g_letter_transform_indices, char_transform_index);
         end
     end
 end
