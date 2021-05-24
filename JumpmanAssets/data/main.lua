@@ -269,6 +269,7 @@ end
 -- This is a web of interdependencies, so must pre-declare them
 local load_main_menu;
 local load_options_menu;
+local load_credits;
 local load_select_game_menu;
 local game_start;
 local load_next_level_from_set;
@@ -281,6 +282,7 @@ load_main_menu = function(is_from_game_launch, is_from_level)
             level_module.MenuLogic = {
                 load_select_game_menu = load_select_game_menu,
                 load_options_menu = load_options_menu,
+                load_credits = load_credits,
             };
 
             -- TODO: Wrangle menu music in this main.lua script instead of in the menu level scripts themselves?
@@ -317,6 +319,23 @@ load_options_menu = function()
             level_module.StartMainMusicTrack = g_has_not_started_menu_music;
             level_module.MenuLogic = {
                 load_main_menu = function() load_main_menu(false, false); end,
+            };
+            g_has_not_started_menu_music = false;
+        end);
+end
+
+load_credits = function()
+    queue_load_level(
+        "data/ending.lua",
+        function(level_module)
+            level_module.SkipToCredits = true;
+            level_module.MenuLogic = {
+                get_current_level_title = function() return ""; end,
+                load_next_level_from_set = function() load_main_menu(false, true); end,
+                load_game_over = load_game_over,
+                -- TODO: These probably shouldn't live in this file, should be in game_logic.lua instead
+                get_remaining_life_count = function() return g_remaining_life_count; end,
+                set_remaining_life_count = function(new_life_count) g_remaining_life_count = new_life_count; end,
             };
             g_has_not_started_menu_music = false;
         end);

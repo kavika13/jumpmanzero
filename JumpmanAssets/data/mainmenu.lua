@@ -31,10 +31,12 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local kNUM_MENU_OPTIONS = 2;
 local kANIMATION_END_TIME = 4400;
 
-local menu_positions = {
+local kMENU_OPTIONS = { "Start Game", "Options", "Credits" };
+kMENU_OPTIONS = read_only.make_table_read_only(kMENU_OPTIONS);
+
+local kMENU_POSITIONS = {
     {
         left = 0.25,
         right = 0.73,
@@ -45,10 +47,16 @@ local menu_positions = {
         left = 0.33,
         right = 0.66,
         top = 0.75,
-        bottom = 0.83,
+        bottom = 0.84,
+    },
+    {
+        left = 0.33,
+        right = 0.66,
+        top = 0.84,
+        bottom = 0.93,
     },
 };
-menu_positions = read_only.make_table_read_only(menu_positions);
+kMENU_POSITIONS = read_only.make_table_read_only(kMENU_POSITIONS);
 
 local g_game_logic;
 local g_z_bits;
@@ -190,7 +198,7 @@ local function GetInput_(game_input)
     if game_input.cursor_is_on_screen then
         local is_option_hovered = false;
 
-        for menu_item_index, menu_item_dims in ipairs(menu_positions) do
+        for menu_item_index, menu_item_dims in ipairs(kMENU_POSITIONS) do
             if game_input.cursor_position.x >= menu_item_dims.left and game_input.cursor_position.x <= menu_item_dims.right and
                     game_input.cursor_position.y >= menu_item_dims.top and game_input.cursor_position.y <= menu_item_dims.bottom then
                 g_option_selected_index = menu_item_index;
@@ -214,10 +222,10 @@ local function GetInput_(game_input)
     end
 
     if g_option_selected_index < 1 then
-        g_option_selected_index = kNUM_MENU_OPTIONS;
+        g_option_selected_index = #kMENU_OPTIONS;
     end
 
-    if g_option_selected_index > kNUM_MENU_OPTIONS then
+    if g_option_selected_index > #kMENU_OPTIONS then
         g_option_selected_index = 1;
     end
 
@@ -362,11 +370,9 @@ local function InitializeLetters_()
         table.insert(g_title_letter_transform_indices, char_transform_index);
     end
 
-    local menu_options = { "Start Game", "Options" };
-
-    for iTit, current_option in ipairs(menu_options) do
+    for iTit, current_option in ipairs(kMENU_OPTIONS) do
         for iChar = 1, #current_option do
-            local letter_mesh_index = g_game_logic.new_char_mesh(menu_options[iTit]:sub(iChar, iChar):byte(1, -1));
+            local letter_mesh_index = g_game_logic.new_char_mesh(kMENU_OPTIONS[iTit]:sub(iChar, iChar):byte(1, -1));
             table.insert(g_option_letter_mesh_indices, letter_mesh_index);
             table.insert(g_option_letter_title_indices, iTit);
 
@@ -438,8 +444,10 @@ function Module.update(game_input)
     if g_is_game_selected and g_time_since_current_selection > 250 then
         if g_option_selected_index == 1 then
             Module.MenuLogic.load_select_game_menu();
-        else
+        elseif g_option_selected_index == 2 then
             Module.MenuLogic.load_options_menu();
+        else
+            Module.MenuLogic.load_credits();
         end
     end
 

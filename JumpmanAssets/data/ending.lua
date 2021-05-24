@@ -8,6 +8,7 @@ local credits_module = assert(loadfile("data/credits.lua"));
 local Module = {};
 
 Module.MenuLogic = nil;
+Module.SkipToCredits = false;
 
 -- TODO: Move this into a shared file, split into separate tables by type. Or inject from engine?
 local player_state = {
@@ -615,6 +616,11 @@ function Module.initialize(game_input)
         g_object_mesh_indices[iTemp] = new_mesh(0);
     end
 
+    if Module.SkipToCredits then
+        ClearAll_();
+        g_time_since_level_start = 3100 - 1;  -- TODO: Use constant
+    end
+
     Module.reset();
 
     -- Make sure staged initialization has happened, and Jumpman has floated to the floor
@@ -623,6 +629,8 @@ function Module.initialize(game_input)
     ProgressLevel_(game_input);
     ProgressLevel_(game_input);
     ProgressLevel_(game_input);
+
+    skip_next_camera_interpolation();
 end
 
 function Module.update(game_input)
