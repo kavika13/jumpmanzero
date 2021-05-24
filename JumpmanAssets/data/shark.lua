@@ -38,7 +38,8 @@ local animation_frame = {
 };
 animation_frame = read_only.make_table_read_only(animation_frame);
 
-local g_shark_mesh = nil;
+local g_shark_mesh_index = -1;
+local g_shark_transform_index = -1;
 local g_animation_mesh_indices = {};
 local g_current_animation_frame_index;
 local g_move_animation_frame_index = 0;
@@ -190,9 +191,11 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.TURN_LEFT_2] = Module.TurnLeftMeshResourceIndices[2];
     g_animation_mesh_indices[animation_frame.TURN_LEFT_3] = Module.TurnLeftMeshResourceIndices[3];
 
-    g_shark_mesh = new_mesh(g_animation_mesh_indices[animation_frame.SWIM_RIGHT_1]);
-    set_mesh_texture(g_shark_mesh, Module.TextureResourceIndex);
-    set_mesh_is_visible(g_shark_mesh, true);
+    g_shark_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.SWIM_RIGHT_1]);
+    g_shark_transform_index = transform_create();
+    object_set_transform(g_shark_mesh_index, g_shark_transform_index);
+    set_mesh_texture(g_shark_mesh_index, Module.TextureResourceIndex);
+    set_mesh_is_visible(g_shark_mesh_index, true);
 
     Module.CurrentPosX = Module.StartPosX;
     Module.CurrentPosY = Module.StartPosY;
@@ -216,9 +219,8 @@ function Module.update(game_input)
 
     MoveShark_(game_input);
 
-    set_mesh_to_mesh(g_shark_mesh, g_animation_mesh_indices[g_current_animation_frame_index]);
-    set_identity_mesh_matrix(g_shark_mesh);
-    translate_mesh_matrix(g_shark_mesh, Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
+    set_mesh_to_mesh(g_shark_mesh_index, g_animation_mesh_indices[g_current_animation_frame_index]);
+    transform_set_translation(g_shark_transform_index, Module.CurrentPosX, Module.CurrentPosY + 6, Module.CurrentPosZ);
 end
 
 return Module;

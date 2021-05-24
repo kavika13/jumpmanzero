@@ -106,7 +106,8 @@ local g_swim_collision;
 
 local g_frames_since_level_start = 0;
 
-local g_jumpman_swim_mesh = nil;
+local g_jumpman_swim_mesh_index = -1;
+local g_jumpman_swim_transform_index = -1;
 local g_swim_animation_mesh_indices = {};
 local g_swim_animation_current_mesh_index;
 local g_swim_rotation_angle;
@@ -114,6 +115,7 @@ local g_swim_death_spin_animation_frame;
 local g_swim_time_in_pool_frames;
 
 local g_splash_particle_mesh_indices = {};
+local g_splash_particle_transform_indices = {};
 local g_splash_particle_start_x = 0;
 local g_splash_particle_start_y = 0;
 local g_splash_particle_time = 0;
@@ -123,38 +125,38 @@ local g_splash_scale_y = 0;
 local function MoveSplashParticles_()
     local is_any_particle_visible = false;
 
-    for iLoop = 1, 20 do
+    for particle_index = 1, 20 do
         local iScale;
 
-        if iLoop & 1 then
+        if particle_index & 1 then
             iScale = g_splash_scale_y * 0.95;
         else
             iScale = g_splash_scale_y;
         end
 
-        local iDX = math.cos(((iLoop * 5) + 35) * math.pi / 180.0) * 40 * g_splash_particle_time * g_splash_scale_x;
-        iDX = iDX + iLoop - 5.5;
+        local iDX = math.cos(((particle_index * 5) + 35) * math.pi / 180.0) * 40 * g_splash_particle_time * g_splash_scale_x;
+        iDX = iDX + particle_index - 5.5;
 
-        local iDY = math.sin(((iLoop * 5) + 35) * math.pi / 180.0) * 40 * g_splash_particle_time * iScale;
+        local iDY = math.sin(((particle_index * 5) + 35) * math.pi / 180.0) * 40 * g_splash_particle_time * iScale;
         local iDrag = g_splash_particle_time / 2;
         iDrag = iDrag * iDrag;
         iDY = iDY - iDrag;
 
-        local mesh_index = g_splash_particle_mesh_indices[iLoop];
+        local mesh_index = g_splash_particle_mesh_indices[particle_index];
+        local transform_index = g_splash_particle_transform_indices[particle_index];
 
         if iDY < -1 then
             set_mesh_is_visible(mesh_index, false);
         else
             is_any_particle_visible = true;
-            set_identity_mesh_matrix(mesh_index);
 
-            if iLoop & 1 then
-                scale_mesh_matrix(mesh_index, 3, 2, 1);
+            if particle_index & 1 then
+                transform_set_scale(transform_index, 3, 2, 1);
             else
-                scale_mesh_matrix(mesh_index, 5, 3, 1);
+                transform_set_scale(transform_index, 5, 3, 1);
             end
 
-            translate_mesh_matrix(mesh_index, g_splash_particle_start_x + iDX / 200, g_splash_particle_start_y + iDY / 200, -1);
+            transform_set_translation(transform_index, g_splash_particle_start_x + iDX / 200, g_splash_particle_start_y + iDY / 200, -1);
             set_mesh_is_visible(mesh_index, true);
         end
     end
@@ -369,7 +371,7 @@ local function ProgressLevel_(game_input)
     backdrop_mesh_index = g_game_logic.find_backdrop_by_number(6).mesh_index;  -- TODO: Use constant for num
     scroll_texture_on_mesh(backdrop_mesh_index, 0.04, 0.04);
 
-    set_mesh_is_visible(g_jumpman_swim_mesh, false);
+    set_mesh_is_visible(g_jumpman_swim_mesh_index, false);
 
     if g_splash_particle_time > 0 then
         MoveSplashParticles_();
@@ -419,11 +421,10 @@ local function ProgressLevel_(game_input)
             iDrawY = iPY + math.sin(g_frames_since_level_start * 4 * math.pi / 180.0) * 2;
         end
 
-        set_mesh_to_mesh(g_jumpman_swim_mesh, g_swim_animation_mesh_indices[g_swim_animation_current_mesh_index]);
-        set_identity_mesh_matrix(g_jumpman_swim_mesh);
-        rotate_z_mesh_matrix(g_jumpman_swim_mesh, g_swim_rotation_angle);
-        translate_mesh_matrix(g_jumpman_swim_mesh, iDrawX, iDrawY + 5, 2);
-        set_mesh_is_visible(g_jumpman_swim_mesh, true);
+        set_mesh_to_mesh(g_jumpman_swim_mesh_index, g_swim_animation_mesh_indices[g_swim_animation_current_mesh_index]);
+        transform_set_rotation_z(g_jumpman_swim_transform_index, g_swim_rotation_angle);
+        transform_set_translation(g_jumpman_swim_transform_index, iDrawX, iDrawY + 5, 2);
+        set_mesh_is_visible(g_jumpman_swim_mesh_index, true);
 
         if g_game_logic.get_player_current_state() == player_state.JSDYING then
             g_game_logic.set_player_freeze_cooldown_frame_count(0);
@@ -444,9 +445,11 @@ local function ProgressLevel_(game_input)
 end
 
 local function InitSplashParticles_()
-    for iLoop = 1, 20 do
-        g_splash_particle_mesh_indices[iLoop] = new_mesh(resources.MeshSquare);
-        set_mesh_texture(g_splash_particle_mesh_indices[iLoop], resources.TextureSBit);
+    for particle_index = 1, 20 do
+        g_splash_particle_mesh_indices[particle_index] = new_mesh(resources.MeshSquare);
+        g_splash_particle_transform_indices[particle_index] = transform_create();
+        object_set_transform(g_splash_particle_mesh_indices[particle_index], g_splash_particle_transform_indices[particle_index]);
+        set_mesh_texture(g_splash_particle_mesh_indices[particle_index], resources.TextureSBit);
     end
 
     g_splash_particle_time = 0;
@@ -495,8 +498,10 @@ function Module.initialize(game_input)
     g_swim_animation_mesh_indices[swim_animation_frame.SWIM_RIGHT_3] = resources.MeshSwimR3;
     g_swim_animation_mesh_indices[swim_animation_frame.SWIM_RIGHT_4] = resources.MeshSwimR4;
 
-    g_jumpman_swim_mesh = new_mesh(g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_1]);
-    set_mesh_texture(g_jumpman_swim_mesh, resources.TextureJumpman);
+    g_jumpman_swim_mesh_index = new_mesh(g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_1]);
+    g_jumpman_swim_transform_index = transform_create();
+    object_set_transform(g_jumpman_swim_mesh_index, g_jumpman_swim_transform_index);
+    set_mesh_texture(g_jumpman_swim_mesh_index, resources.TextureJumpman);
 
     InitSplashParticles_();
 
