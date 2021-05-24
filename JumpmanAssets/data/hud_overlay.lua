@@ -6,12 +6,18 @@ Module.GameLogic = nil;
 local g_is_initialized = false;
 
 local g_title_letter_mesh_indices = {};
+local g_title_letter_transform_indices = {};
 local g_life_count_number_mesh_indices = {};
+local g_life_count_number_transform_indices = {};
 local g_fps_first_number_mesh_indices = {};
+local g_fps_first_number_transform_indices = {};
 local g_fps_second_number_mesh_indices = {};
+local g_fps_second_number_transform_indices = {};
 local g_fps_third_number_mesh_indices = {};
-local g_jumpman_icon_mesh_index;
--- local g_jumpman_hud_background_icon;  -- TODO: Maybe re-add with a transparent texture?
+local g_fps_third_number_transform_indices = {};
+local g_jumpman_icon_mesh_index = -1;
+local g_jumpman_icon_transform_index = -1;
+-- local g_jumpman_hud_background_icon_mesh_index;  -- TODO: Maybe re-add with a transparent texture?
 
 local g_title_scroll_timer = 0;
 
@@ -21,24 +27,32 @@ local function InitializeLetters_()
     local current_level_title = Module.MenuLogic.get_current_level_title();
 
     for iChar = 1, #current_level_title do
-        local char_mesh = Module.GameLogic.new_char_mesh(current_level_title:sub(iChar, iChar):byte(1, -1));
-        set_mesh_texture(char_mesh, get_loaded_texture_count() - 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
-        table.insert(g_title_letter_mesh_indices, char_mesh);
+        local char_mesh_index = Module.GameLogic.new_char_mesh(current_level_title:sub(iChar, iChar):byte(1, -1));
+        set_mesh_texture(char_mesh_index, get_loaded_texture_count() - 1);  -- Title letter tex always loaded last after level loaded - TODO: Don't hard-code that?
+        table.insert(g_title_letter_mesh_indices, char_mesh_index);
+        print(iChar, current_level_title:sub(iChar, iChar):byte(1, -1), char_mesh_index);
+
+        local transform_indices = {};
+        if char_mesh_index ~= -1 then
+            transform_indices = { transform_create(), transform_create() };
+            object_set_transform(char_mesh_index, transform_indices[1]);
+            transform_set_parent(transform_indices[1], transform_indices[2]);
+        end
+
+        table.insert(g_title_letter_transform_indices, transform_indices);
     end
 end
 
 local function ShowRemaining_(skip_next_interpolation)
-    -- set_mesh_is_visible(g_jumpman_hud_background_icon, true);
-    -- set_identity_mesh_matrix(g_jumpman_hud_background_icon);
-    -- scale_mesh_matrix(g_jumpman_hud_background_icon, 16, 8, 1);
-    -- translate_mesh_matrix(g_jumpman_hud_background_icon, 44, -34, 92);
-    -- undo_camera_perspective_on_mesh_matrix(g_jumpman_hud_background_icon);
+    -- set_mesh_is_visible(g_jumpman_hud_background_icon_mesh_index, true);
+    -- transform_set_scale(g_jumpman_hud_background_icon_transform_index, 16, 8, 1);
+    -- transform_set_translation(g_jumpman_hud_background_icon_transform_index, 44, -34, 92);
+    -- transform_set_parent_is_camera(g_jumpman_hud_background_icon_transform_index, true);
 
     set_mesh_is_visible(g_jumpman_icon_mesh_index, true);
-    set_identity_mesh_matrix(g_jumpman_icon_mesh_index);
-    scale_mesh_matrix(g_jumpman_icon_mesh_index, 0.5, 0.5, 0.5);
-    translate_mesh_matrix(g_jumpman_icon_mesh_index, 40, -34, 90);
-    undo_camera_perspective_on_mesh_matrix(g_jumpman_icon_mesh_index);
+    transform_set_scale(g_jumpman_icon_transform_index, 0.5, 0.5, 0.5);
+    transform_set_translation(g_jumpman_icon_transform_index, 40, -34, 90);
+    transform_set_parent_is_camera(g_jumpman_icon_transform_index, true);
     -- TODO: Skip interpolation on these frame after death because of camera jump
 
     if skip_next_interpolation then
@@ -67,15 +81,15 @@ local function ShowPerformance_(game_input, lives_remaining, skip_next_interpola
 
     for iNum = 0, 9 do
         local life_count_digit_mesh_index = g_life_count_number_mesh_indices[iNum + 1];
+        local life_count_digit_transform_index = g_life_count_number_transform_indices[iNum + 1];
 
         -- TODO: Skip interpolation on these frame after death because of camera jump? Or will set_mesh_to_mesh instead of set_mesh_is_visible fix it
         -- TODO: Swap mesh instead of set visible?
         if iNum == lives_remaining and lives_remaining > 0 then
             set_mesh_is_visible(life_count_digit_mesh_index, true);
-            set_identity_mesh_matrix(life_count_digit_mesh_index);
-            scale_mesh_matrix(life_count_digit_mesh_index, 0.5, 0.5, 0.2);
-            translate_mesh_matrix(life_count_digit_mesh_index, 47, -33, 90);
-            undo_camera_perspective_on_mesh_matrix(life_count_digit_mesh_index);
+            transform_set_scale(life_count_digit_transform_index, 0.5, 0.5, 0.2);
+            transform_set_translation(life_count_digit_transform_index, 47, -33, 90);
+            transform_set_parent_is_camera(life_count_digit_transform_index, true);
 
             if skip_next_interpolation then
                 skip_next_mesh_interpolation(life_count_digit_mesh_index);
@@ -85,12 +99,12 @@ local function ShowPerformance_(game_input, lives_remaining, skip_next_interpola
         end
 
         local fps_first_number_mesh_index = g_fps_first_number_mesh_indices[iNum + 1];
+        local fps_first_number_transform_index = g_fps_first_number_transform_indices[iNum + 1];
 
         if iNum == fps_hundreds_digit and game_input.debug_action.is_pressed then
             set_mesh_is_visible(fps_first_number_mesh_index, true);
-            set_identity_mesh_matrix(fps_first_number_mesh_index);
-            translate_mesh_matrix(fps_first_number_mesh_index, -40, 30, 90);
-            undo_camera_perspective_on_mesh_matrix(fps_first_number_mesh_index);
+            transform_set_translation(fps_first_number_transform_index, -40, 30, 90);
+            transform_set_parent_is_camera(fps_first_number_transform_index, true);
 
             if skip_next_interpolation then
                 skip_next_mesh_interpolation(fps_first_number_mesh_index);
@@ -100,12 +114,12 @@ local function ShowPerformance_(game_input, lives_remaining, skip_next_interpola
         end
 
         local fps_second_number_mesh_index = g_fps_second_number_mesh_indices[iNum + 1];
+        local fps_second_number_transform_index = g_fps_second_number_transform_indices[iNum + 1];
 
         if iNum == fps_tens_digit and game_input.debug_action.is_pressed then
             set_mesh_is_visible(fps_second_number_mesh_index, true);
-            set_identity_mesh_matrix(fps_second_number_mesh_index);
-            translate_mesh_matrix(fps_second_number_mesh_index, -34, 30, 90);
-            undo_camera_perspective_on_mesh_matrix(fps_second_number_mesh_index);
+            transform_set_translation(fps_second_number_transform_index, -34, 30, 90);
+            transform_set_parent_is_camera(fps_second_number_transform_index, true);
 
             if skip_next_interpolation then
                 skip_next_mesh_interpolation(fps_second_number_mesh_index);
@@ -115,12 +129,12 @@ local function ShowPerformance_(game_input, lives_remaining, skip_next_interpola
         end
 
         local fps_third_number_mesh_index = g_fps_third_number_mesh_indices[iNum + 1];
+        local fps_third_number_transform_index = g_fps_third_number_transform_indices[iNum + 1];
 
         if iNum == fps_ones_digit and game_input.debug_action.is_pressed then
             set_mesh_is_visible(fps_third_number_mesh_index, true);
-            set_identity_mesh_matrix(fps_third_number_mesh_index);
-            translate_mesh_matrix(fps_third_number_mesh_index, -28, 30, 90);
-            undo_camera_perspective_on_mesh_matrix(fps_third_number_mesh_index);
+            transform_set_translation(fps_third_number_transform_index, -28, 30, 90);
+            transform_set_parent_is_camera(fps_third_number_transform_index, true);
 
             if skip_next_interpolation then
                 skip_next_mesh_interpolation(fps_third_number_mesh_index);
@@ -142,15 +156,16 @@ local function ShowLevelTitleAnimation_(animation_time, skip_next_interpolation)
     iX = iX - (iFullWidth / 6);
     iX = iX - (animation_time * 3.2);
 
-    for _, letter_mesh_index in ipairs(g_title_letter_mesh_indices) do
+    for letter_index, letter_mesh_index in ipairs(g_title_letter_mesh_indices) do
         if letter_mesh_index > 0 then
+            local transform_indices = g_title_letter_transform_indices[letter_index];
+
             if iX > -90 and iX < 90 then
-                set_identity_mesh_matrix(letter_mesh_index);
-                scale_mesh_matrix(letter_mesh_index, 0.16, 0.16, 0.16);
-                translate_mesh_matrix(letter_mesh_index, 0, 0, 5);
-                rotate_y_mesh_matrix(letter_mesh_index, iX);
-                translate_mesh_matrix(letter_mesh_index, 0, 0, 8);
-                undo_camera_perspective_on_mesh_matrix(letter_mesh_index);
+                transform_set_scale(transform_indices[1], 0.16, 0.16, 0.16);
+                transform_set_translation(transform_indices[1], 0, 0, 5);
+                transform_set_rotation_y(transform_indices[2], iX);
+                transform_set_translation(transform_indices[2], 0, 0, 8);
+                transform_set_parent_is_camera(transform_indices[2], true);
                 set_mesh_is_visible(letter_mesh_index, true);
                 is_animation_still_active = true;
 
@@ -179,26 +194,36 @@ function Module.update(game_input, skip_next_interpolation)
 
         for iNum = 0, 9 do
             g_fps_first_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
+            g_fps_first_number_transform_indices[iNum + 1] = transform_create();
+            object_set_transform(g_fps_first_number_mesh_indices[iNum + 1], g_fps_first_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_fps_first_number_mesh_indices[iNum + 1], letter_texture_resource_index);
 
             g_fps_second_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
+            g_fps_second_number_transform_indices[iNum + 1] = transform_create();
+            object_set_transform(g_fps_second_number_mesh_indices[iNum + 1], g_fps_second_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_fps_second_number_mesh_indices[iNum + 1], letter_texture_resource_index);
 
             g_fps_third_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
+            g_fps_third_number_transform_indices[iNum + 1] = transform_create();
+            object_set_transform(g_fps_third_number_mesh_indices[iNum + 1], g_fps_third_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_fps_third_number_mesh_indices[iNum + 1], letter_texture_resource_index);
 
             g_life_count_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
+            g_life_count_number_transform_indices[iNum + 1] = transform_create();
+            object_set_transform(g_life_count_number_mesh_indices[iNum + 1], g_life_count_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_life_count_number_mesh_indices[iNum + 1], letter_texture_resource_index);
         end
 
         InitializeLetters_();
 
         g_jumpman_icon_mesh_index = Module.GameLogic.new_char_mesh(94);
+        g_jumpman_icon_transform_index = transform_create();
+        object_set_transform(g_jumpman_icon_mesh_index, g_jumpman_icon_transform_index);
         set_mesh_texture(g_jumpman_icon_mesh_index, 0);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
 
-        -- g_jumpman_hud_background_icon = Module.GameLogic.new_char_mesh(37);
+        -- g_jumpman_hud_background_icon_mesh_index = Module.GameLogic.new_char_mesh(37);
         -- local square_icon_texture_resource_index = get_loaded_texture_count() - 2;  -- Hud BG texture always loaded second to last after a level loaded - TODO: Don't hard code that?
-        -- set_mesh_texture(g_jumpman_hud_background_icon, square_icon_texture_resource_index);
+        -- set_mesh_texture(g_jumpman_hud_background_icon_mesh_index, square_icon_texture_resource_index);
 
         g_title_scroll_timer = 0;
     end
