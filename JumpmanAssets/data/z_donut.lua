@@ -19,6 +19,7 @@ local g_donut = nil;
 local g_animation_frames_since_launched = 0;
 
 local g_blast_particle_mesh_indices = {};
+local g_blast_particle_transform_indices = {};
 local g_animation_frames_since_blast_started = 0;
 
 local function DoBlasting()
@@ -48,17 +49,21 @@ local function DoBlasting()
         local iSize = math.random(10, 13);
 
         local mesh_index = g_blast_particle_mesh_indices[iTemp];
-        set_identity_mesh_matrix(mesh_index);
-        scale_mesh_matrix(mesh_index, iSize, iSize, 1);
-        rotate_z_mesh_matrix(mesh_index, iBR);
+        local transform_indices = g_blast_particle_transform_indices[iTemp];
+        transform_set_to_identity(transform_indices[1]);
+        transform_set_scale(transform_indices[1], iSize, iSize, 1);
+        transform_set_rotation_z(transform_indices[1], iBR);
 
         if iTemp > 10 then
-            translate_mesh_matrix(mesh_index, 0, 0, -10);
-            rotate_x_mesh_matrix(mesh_index, math.random(1, 90));
-            translate_mesh_matrix(mesh_index, 0, 0, 10);
+            transform_set_translation(transform_indices[1], 0, 0, -10);
+            transform_set_rotation_x(transform_indices[2], math.random(1, 90));
+            transform_set_translation(transform_indices[2], 0, 0, 10);
+        else
+            transform_clear_translation(transform_indices[1]);
+            transform_set_to_identity(transform_indices[2]);
         end
 
-        translate_mesh_matrix(mesh_index, iBX, iBY, iBZ);
+        transform_set_translation(transform_indices[3], iBX, iBY, iBZ);
         set_mesh_is_visible(mesh_index, true);
         skip_next_mesh_interpolation(mesh_index);
     end
@@ -67,10 +72,17 @@ end
 function Module.initialize()
     for iTemp = 0, kBlastParticleCount - 1 do
         g_blast_particle_mesh_indices[iTemp] = new_mesh(Module.BlastParticleMeshResourceIndex);
+        g_blast_particle_transform_indices[iTemp] = { transform_create(), transform_create(), transform_create() };
+        object_set_transform(g_blast_particle_mesh_indices[iTemp], g_blast_particle_transform_indices[iTemp][1]);
+        transform_set_parent(g_blast_particle_transform_indices[iTemp][1], g_blast_particle_transform_indices[iTemp][2]);
+        transform_set_parent(g_blast_particle_transform_indices[iTemp][2], g_blast_particle_transform_indices[iTemp][3]);
         set_mesh_texture(g_blast_particle_mesh_indices[iTemp], Module.LightningTextureResourceIndex);
     end
 
     g_donut = Module.GameLogic.find_donut_by_number(Module.DonutNum);
+    g_donut_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_donut.mesh_index, g_donut_transform_indices[1]);
+    transform_set_parent(g_donut_transform_indices[1], g_donut_transform_indices[2]);
 end
 
 function Module.update(skip_next_interpolation)
@@ -119,11 +131,10 @@ function Module.update(skip_next_interpolation)
     -- TODO: Any reason to keep this code if the donut becomes invisible?
     --       Check through the motion code, and make sure it doesn't affect the blasting particles.
     --       If not, move up into the top of the `if` above
-    set_identity_mesh_matrix(g_donut.mesh_index);
-    scale_mesh_matrix(g_donut.mesh_index, 1, 1, 5);
-    translate_mesh_matrix(g_donut.mesh_index, 0 - iX, 0, 0 - iDist);
-    rotate_y_mesh_matrix(g_donut.mesh_index, (iPX - iX) * 360 / Module.PlayAreaCircumference);
-    translate_mesh_matrix(g_donut.mesh_index, iPX, iY - g_donut.pos[2], iZ);
+    transform_set_scale(g_donut_transform_indices[1], 1, 1, 5);
+    transform_set_translation(g_donut_transform_indices[1], 0 - iX, 0, 0 - iDist);
+    transform_set_rotation_y(g_donut_transform_indices[2], (iPX - iX) * 360 / Module.PlayAreaCircumference);
+    transform_set_translation(g_donut_transform_indices[2], iPX, iY - g_donut.pos[2], iZ);
 
     if skip_next_interpolation then
         skip_next_mesh_interpolation(g_donut.mesh_index);

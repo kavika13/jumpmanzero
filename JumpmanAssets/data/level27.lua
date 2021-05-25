@@ -84,17 +84,33 @@ local g_title_is_done_scrolling = false;
 
 local g_game_logic;
 local g_hud_overlay;
+
+local g_platform_transform_indices = {};
+local g_vine_transform_indices = {};
+local g_ladder_transform_indices = {};
+local g_donut_transform_indices = {};
+
+local g_player_just_respawned = false;
+
 local g_blobs = {};
 local g_beams = {};
 local g_z_donut_objects = {};
 
 local g_frames_since_level_start = 0;
 
-local g_ship_top_mesh_index;
-local g_ship_base_mesh_index;
-local g_alien_mesh_index;
-local g_eye_1_mesh_index;
-local g_eye_2_mesh_index;
+local g_backdrop_mesh_index = -1;
+local g_backdrop_transform_index = -1;
+
+local g_ship_top_mesh_index = -1;
+local g_ship_top_transform_index = -1;
+local g_ship_base_mesh_index = -1;
+local g_ship_base_transform_index = -1;
+local g_alien_mesh_index = -1;
+local g_alien_transform_index = -1;
+local g_eye_1_mesh_index = -1;
+local g_eye_1_transform_indices = nil;
+local g_eye_2_mesh_index = -1;
+local g_eye_2_transform_indices = nil;
 
 local g_previous_player_position_x = 0;
 
@@ -136,10 +152,17 @@ local function RingPlatforms_()
         skip_next_interpolation = true;
     end
 
-    local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant
-    set_identity_mesh_matrix(backdrop_mesh_index);
-    translate_mesh_matrix(backdrop_mesh_index, iPX - 80, 0, 0);
-    skip_next_mesh_interpolation(backdrop_mesh_index);
+    if g_player_just_respawned then
+        g_player_just_respawned = false;
+        skip_next_camera_interpolation();
+        skip_next_interpolation = true;
+    end
+
+    transform_set_translation(g_backdrop_transform_index, iPX - 80, 0, 0);
+
+    if skip_next_interpolation then
+        skip_next_mesh_interpolation(g_backdrop_mesh_index);
+    end
 
     local platform_count = g_game_logic.get_platform_object_count();
 
@@ -148,12 +171,15 @@ local function RingPlatforms_()
         local x1 = current_platform.pos_upper_left[1];
         local x2 = current_platform.pos_lower_right[1];
         local iAve = (x1 + x2) / 2;
-        set_identity_mesh_matrix(current_platform.mesh_index);
-        translate_mesh_matrix(current_platform.mesh_index, 0 - iAve, 0, -75);
-        scale_mesh_matrix(current_platform.mesh_index, 1.64, 1, 1);
-        rotate_y_mesh_matrix(current_platform.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        translate_mesh_matrix(current_platform.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_platform.mesh_index);
+
+        transform_set_translation(g_platform_transform_indices[platform_index][1], 0 - iAve, 0, -75);
+        transform_set_scale(g_platform_transform_indices[platform_index][2], 1.64, 1, 1);
+        transform_set_rotation_y(g_platform_transform_indices[platform_index][2], (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
+        transform_set_translation(g_platform_transform_indices[platform_index][2], iPX, 0, 75);
+
+        if skip_next_interpolation then
+            skip_next_mesh_interpolation(current_platform.mesh_index);
+        end
     end
 
     local vine_count = g_game_logic.get_vine_object_count();
@@ -161,11 +187,14 @@ local function RingPlatforms_()
     for vine_index = 0, vine_count - 1 do
         local current_vine = g_game_logic.get_vine(vine_index);
         local iAve = current_vine.pos_x;
-        set_identity_mesh_matrix(current_vine.mesh_index);
-        translate_mesh_matrix(current_vine.mesh_index, 0 - iAve, 0, -75);
-        rotate_y_mesh_matrix(current_vine.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        translate_mesh_matrix(current_vine.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_vine.mesh_index);
+
+        transform_set_translation(g_vine_transform_indices[vine_index][1], 0 - iAve, 0, -75);
+        transform_set_rotation_y(g_vine_transform_indices[vine_index][2], (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
+        transform_set_translation(g_vine_transform_indices[vine_index][2], iPX, 0, 75);
+
+        if skip_next_interpolation then
+            skip_next_mesh_interpolation(current_vine.mesh_index);
+        end
     end
 
     local ladder_count = g_game_logic.get_ladder_object_count();
@@ -173,11 +202,14 @@ local function RingPlatforms_()
     for ladder_index = 0, ladder_count - 1 do
         local current_ladder = g_game_logic.get_ladder(ladder_index);
         local iAve = current_ladder.pos_x;
-        set_identity_mesh_matrix(current_ladder.mesh_index);
-        translate_mesh_matrix(current_ladder.mesh_index, 0 - iAve, 0, -75);
-        rotate_y_mesh_matrix(current_ladder.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        translate_mesh_matrix(current_ladder.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_ladder.mesh_index);
+
+        transform_set_translation(g_ladder_transform_indices[ladder_index][1], 0 - iAve, 0, -75);
+        transform_set_rotation_y(g_ladder_transform_indices[ladder_index][2], (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
+        transform_set_translation(g_ladder_transform_indices[ladder_index][2], iPX, 0, 75);
+
+        if skip_next_interpolation then
+            skip_next_mesh_interpolation(current_ladder.mesh_index);
+        end
     end
 
     local donut_count = g_game_logic.get_donut_object_count();
@@ -185,11 +217,14 @@ local function RingPlatforms_()
     for donut_index = 0, donut_count - 1 do
         local current_donut = g_game_logic.get_donut(donut_index);
         local iAve = current_donut.pos[1];
-        set_identity_mesh_matrix(current_donut.mesh_index);
-        translate_mesh_matrix(current_donut.mesh_index, 0 - iAve, 0, -75);
-        rotate_y_mesh_matrix(current_donut.mesh_index, (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
-        translate_mesh_matrix(current_donut.mesh_index, iPX, 0, 75);
-        skip_next_mesh_interpolation(current_donut.mesh_index);
+
+        transform_set_translation(g_donut_transform_indices[donut_index][1], 0 - iAve, 0, -75);
+        transform_set_rotation_y(g_donut_transform_indices[donut_index][2], (iPX - iAve) * 360 / kPLAY_AREA_CIRCUMFERENCE);
+        transform_set_translation(g_donut_transform_indices[donut_index][2], iPX, 0, 75);
+
+        if skip_next_interpolation then
+            skip_next_mesh_interpolation(current_donut.mesh_index);
+        end
     end
 
     return skip_next_interpolation;
@@ -285,11 +320,10 @@ local function ShowAlien_(skip_next_interpolation)
     iWiggleX = iWiggleX - g_ship_sink_amount / 2;
     iRotateZ = iRotateZ + g_ship_sink_amount;
 
-    set_identity_mesh_matrix(g_eye_1_mesh_index);
-    scale_mesh_matrix(g_eye_1_mesh_index, 0.6, 0.6, 0.7);
-    translate_mesh_matrix(g_eye_1_mesh_index, g_eye_waggle_x2 - 1, 0, 0);
-    rotate_z_mesh_matrix(g_eye_1_mesh_index, iRotateZ);
-    translate_mesh_matrix(g_eye_1_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
+    transform_set_scale(g_eye_1_transform_indices[1], 0.6, 0.6, 0.7);
+    transform_set_translation(g_eye_1_transform_indices[1], g_eye_waggle_x2 - 1, 0, 0);
+    transform_set_rotation_z(g_eye_1_transform_indices[2], iRotateZ);
+    transform_set_translation(g_eye_1_transform_indices[2], g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y1, 59);
     set_mesh_texture(g_eye_1_mesh_index, resources.TextureBrightRed);
     set_mesh_is_visible(g_eye_1_mesh_index, true);
 
@@ -297,11 +331,10 @@ local function ShowAlien_(skip_next_interpolation)
         skip_next_mesh_interpolation(g_eye_1_mesh_index);
     end
 
-    set_identity_mesh_matrix(g_eye_2_mesh_index);
-    scale_mesh_matrix(g_eye_2_mesh_index, 0.6, 0.6, 0.7);
-    translate_mesh_matrix(g_eye_2_mesh_index, 1 + g_eye_waggle_x2, 0, 0);
-    rotate_z_mesh_matrix(g_eye_2_mesh_index, iRotateZ);
-    translate_mesh_matrix(g_eye_2_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
+    transform_set_scale(g_eye_2_transform_indices[1], 0.6, 0.6, 0.7);
+    transform_set_translation(g_eye_2_transform_indices[1], 1 + g_eye_waggle_x2, 0, 0);
+    transform_set_rotation_z(g_eye_2_transform_indices[2], iRotateZ);
+    transform_set_translation(g_eye_2_transform_indices[2], g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10 + 1 + g_eye_waggle_y2, 59);
     set_mesh_texture(g_eye_2_mesh_index, resources.TextureBrightRed);
     set_mesh_is_visible(g_eye_2_mesh_index, true);
 
@@ -309,17 +342,15 @@ local function ShowAlien_(skip_next_interpolation)
         skip_next_mesh_interpolation(g_eye_2_mesh_index);
     end
 
-    set_identity_mesh_matrix(g_alien_mesh_index);
-
     if g_frames_since_level_start & 8 then
         set_mesh_to_mesh(g_alien_mesh_index, resources.MeshAlien1);
     else
         set_mesh_to_mesh(g_alien_mesh_index, resources.MeshAlien2);
     end
 
-    scale_mesh_matrix(g_alien_mesh_index, 0.55, 0.6, 0.7);
-    rotate_z_mesh_matrix(g_alien_mesh_index, iRotateZ);
-    translate_mesh_matrix(g_alien_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
+    transform_set_scale(g_alien_transform_index, 0.55, 0.6, 0.7);
+    transform_set_rotation_z(g_alien_transform_index, iRotateZ);
+    transform_set_translation(g_alien_transform_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position + 10, 59);
     set_mesh_texture(g_alien_mesh_index, resources.TextureAlien);
     set_mesh_is_visible(g_alien_mesh_index, true);
 
@@ -329,11 +360,10 @@ local function ShowAlien_(skip_next_interpolation)
 
     iWiggleX = iWiggleX + g_ship_sink_amount / 2;
 
-    set_identity_mesh_matrix(g_ship_base_mesh_index);
-    scale_mesh_matrix(g_ship_base_mesh_index, 11, 11, 11);
-    rotate_y_mesh_matrix(g_ship_base_mesh_index, g_ship_y_rotation);
-    rotate_z_mesh_matrix(g_ship_base_mesh_index, iRotateZ);
-    translate_mesh_matrix(g_ship_base_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
+    transform_set_scale(g_ship_base_transform_index, 11, 11, 11);
+    transform_set_rotation_y(g_ship_base_transform_index, g_ship_y_rotation);
+    transform_concat_rotation_z(g_ship_base_transform_index, iRotateZ);
+    transform_set_translation(g_ship_base_transform_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_y_position, 60);
     set_mesh_texture(g_ship_base_mesh_index, resources.TextureShipMetal);
     set_mesh_is_visible(g_ship_base_mesh_index, true);
 
@@ -346,11 +376,10 @@ local function ShowAlien_(skip_next_interpolation)
 
     iWiggleX = iWiggleX - g_ship_sink_amount;
 
-    set_identity_mesh_matrix(g_ship_top_mesh_index);
-    scale_mesh_matrix(g_ship_top_mesh_index, 12, 14, 14);
-    rotate_y_mesh_matrix(g_ship_top_mesh_index, g_ship_y_rotation);
-    rotate_z_mesh_matrix(g_ship_top_mesh_index, iRotateZ);
-    translate_mesh_matrix(g_ship_top_mesh_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
+    transform_set_scale(g_ship_top_transform_index, 12, 14, 14);
+    transform_set_rotation_y(g_ship_top_transform_index, g_ship_y_rotation);
+    transform_concat_rotation_z(g_ship_top_transform_index, iRotateZ);
+    transform_set_translation(g_ship_top_transform_index, g_game_logic.get_player_current_position_x() + iWiggleX, g_ship_sink_amount + g_ship_y_position - 3, 60 - g_ship_sink_amount);
     set_mesh_texture(g_ship_top_mesh_index, resources.TextureShipGlass);
     set_mesh_is_visible(g_ship_top_mesh_index, true);
 
@@ -461,10 +490,63 @@ function Module.initialize(game_input)
     set_fog(90, 400, 0, 0, 0);
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFollow);
 
+    local setup_mesh_transform = function(mesh_index)
+        local transform_index = transform_create();
+        object_set_transform(mesh_index, transform_index);
+        return transform_index;
+    end
+
+    local setup_two_mesh_transforms = function(mesh_index)
+        local transform_indices = { setup_mesh_transform(mesh_index), transform_create() };
+        transform_set_parent(transform_indices[1], transform_indices[2]);
+        return transform_indices;
+    end
+
+    local platform_count = g_game_logic.get_platform_object_count();
+
+    for platform_index = 0, platform_count - 1 do
+        local current_platform = g_game_logic.get_platform(platform_index);
+        g_platform_transform_indices[platform_index] = setup_two_mesh_transforms(current_platform.mesh_index);
+    end
+
+    local vine_count = g_game_logic.get_vine_object_count();
+
+    for vine_index = 0, vine_count - 1 do
+        local current_vine = g_game_logic.get_vine(vine_index);
+        g_vine_transform_indices[vine_index] = setup_two_mesh_transforms(current_vine.mesh_index);
+    end
+
+    local ladder_count = g_game_logic.get_ladder_object_count();
+
+    for ladder_index = 0, ladder_count - 1 do
+        local current_ladder = g_game_logic.get_ladder(ladder_index);
+        g_ladder_transform_indices[ladder_index] = setup_two_mesh_transforms(current_ladder.mesh_index);
+    end
+
+    local donut_count = g_game_logic.get_donut_object_count();
+
+    for donut_index = 0, donut_count - 1 do
+        local current_donut = g_game_logic.get_donut(donut_index);
+        g_donut_transform_indices[donut_index] = setup_two_mesh_transforms(current_donut.mesh_index);
+    end
+
+    g_backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant
+    g_backdrop_transform_index = setup_mesh_transform(g_backdrop_mesh_index);
+
     g_alien_mesh_index = new_mesh(resources.MeshAlien1);
+    g_alien_transform_index = setup_mesh_transform(g_alien_mesh_index);
+
     g_eye_1_mesh_index = new_mesh(resources.MeshCube);
+    g_eye_1_transform_indices = setup_two_mesh_transforms(g_eye_1_mesh_index);
+
     g_eye_2_mesh_index = new_mesh(resources.MeshCube);
+    g_eye_2_transform_indices = setup_two_mesh_transforms(g_eye_2_mesh_index);
+
     g_ship_base_mesh_index = new_mesh(resources.MeshShipBase);
+    g_ship_base_transform_index = setup_mesh_transform(g_ship_base_mesh_index);
+
+    g_ship_top_mesh_index = new_mesh(resources.MeshShipTop);
+    g_ship_top_transform_index = setup_mesh_transform(g_ship_top_mesh_index);
 
     g_ship_y_position = 40;
 
@@ -479,8 +561,6 @@ function Module.initialize(game_input)
 
     new_blob = CreateBlob_(160, 75);
     table.insert(g_blobs, new_blob);
-
-    g_ship_top_mesh_index = new_mesh(resources.MeshShipTop);
 
     Module.reset();
 
@@ -542,6 +622,7 @@ function Module.reset()
     g_game_logic.set_player_current_position_y(10);
     g_game_logic.set_player_current_position_z(3);
     g_game_logic.set_player_current_state(player_state.JSNORMAL);
+    g_player_just_respawned = true;
 end
 
 return Module;

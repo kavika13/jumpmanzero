@@ -10,7 +10,8 @@ Module.PlayAreaCircumference = 0;
 Module.StartPosX = 0;
 Module.StartPosY = 0;
 
-local g_blob_mesh_index;
+local g_blob_mesh_index = -1;
+local g_blob_transform_indices = nil;
 local g_animation_counter = 0;
 local g_animation_current_frame = 0;
 
@@ -69,17 +70,19 @@ end
 
 local function ShowBlob_()
     local iPX = Module.GameLogic.get_player_current_position_x();
-    set_identity_mesh_matrix(g_blob_mesh_index);
-    scale_mesh_matrix(g_blob_mesh_index, 0.6, 0.5, 0.8);
-    rotate_z_mesh_matrix(g_blob_mesh_index, g_current_rotation_z);
-    translate_mesh_matrix(g_blob_mesh_index, 0, 0, -75);
-    rotate_y_mesh_matrix(g_blob_mesh_index, (iPX - g_current_pos_x) * 360 / Module.PlayAreaCircumference);
-    translate_mesh_matrix(g_blob_mesh_index, iPX, g_current_pos_y - 0.6, 75.3);
+    transform_set_scale(g_blob_transform_indices[1], 0.6, 0.5, 0.8);
+    transform_set_rotation_z(g_blob_transform_indices[1], g_current_rotation_z);
+    transform_set_translation(g_blob_transform_indices[1], 0, 0, -75);
+    transform_set_rotation_y(g_blob_transform_indices[2], (iPX - g_current_pos_x) * 360 / Module.PlayAreaCircumference);
+    transform_set_translation(g_blob_transform_indices[2], iPX, g_current_pos_y - 0.6, 75.3);
     set_mesh_is_visible(g_blob_mesh_index, true);
 end
 
 function Module.initialize()
     g_blob_mesh_index = new_mesh(Module.MoveRightMeshResourceIndices[1]);
+    g_blob_transform_indices = { transform_create(), transform_create() };
+    object_set_transform(g_blob_mesh_index, g_blob_transform_indices[1]);
+    transform_set_parent(g_blob_transform_indices[1], g_blob_transform_indices[2]);
     set_mesh_texture(g_blob_mesh_index, Module.TextureResourceIndex);
 
     g_current_pos_x = Module.StartPosX;
