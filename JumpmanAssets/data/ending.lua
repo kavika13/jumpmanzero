@@ -125,6 +125,7 @@ local g_end_alien;
 local g_credits;
 
 local g_object_mesh_indices = {};
+local g_object_transform_indices = {};
 local g_time_since_level_start = 0;
 
 local g_current_pos_x = 0;
@@ -142,6 +143,7 @@ end
 local function ShowPlayerStanding_(iAT)
     g_game_logic.set_player_is_visible(true);
     g_game_logic.set_player_current_position_x(80);
+    g_game_logic.skip_player_next_mesh_interpolation();
 end
 
 local function Cycle_(iCCount, iSpeed, iMin, iMax)
@@ -179,17 +181,27 @@ local function Cycle_(iCCount, iSpeed, iMin, iMax)
     return iPlace;
 end
 
+local g_first_show_player_grooving = true;
+
 local function ShowPlayerGrooving_(iAT)
     local iFrame = Cycle_(iAT, 30, 0, 4);
     local iWiggle = Cycle_(iAT, 30, 0, 4) / 3;
 
     iFrame = resources.MeshDance1 + iFrame;
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
-    set_identity_mesh_matrix(g_object_mesh_indices[1]);
-    translate_mesh_matrix(g_object_mesh_indices[1], 80 + iWiggle, 85, 1.5);
+    transform_set_to_identity(g_object_transform_indices[1][1]);
+    transform_set_translation(g_object_transform_indices[1][1], 80 + iWiggle, 85, 1.5);
     set_mesh_texture(g_object_mesh_indices[1], resources.TextureJumpman);
     set_mesh_is_visible(g_object_mesh_indices[1], true);
+
+    if g_first_show_player_grooving then
+        skip_next_mesh_interpolation(g_object_mesh_indices[1]);
+    end
+
+    g_first_show_player_grooving = false;
 end
+
+local g_first_show_player_leaving = true;
 
 local function ShowPlayerLeaving_(iAT)
     local iFrame = 0;
@@ -202,11 +214,19 @@ local function ShowPlayerLeaving_(iAT)
     end
 
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
-    set_identity_mesh_matrix(g_object_mesh_indices[1]);
-    translate_mesh_matrix(g_object_mesh_indices[1], 80 - iAT, 85, 1.5);
+    transform_set_to_identity(g_object_transform_indices[1][1]);
+    transform_set_translation(g_object_transform_indices[1][1], 80 - iAT, 85, 1.5);
     set_mesh_texture(g_object_mesh_indices[1], resources.TextureJumpman);
     set_mesh_is_visible(g_object_mesh_indices[1], true);
+
+    if g_first_show_player_leaving then
+        skip_next_mesh_interpolation(g_object_mesh_indices[1]);
+    end
+
+    g_first_show_player_leaving = false;
 end
+
+local g_first_show_bear = true;
 
 local function ShowBear_(iAT)
     local iFrame = 0;
@@ -242,12 +262,20 @@ local function ShowBear_(iAT)
     end
 
     set_mesh_to_mesh(g_object_mesh_indices[1], iFrame);
-    set_identity_mesh_matrix(g_object_mesh_indices[1]);
-    scale_mesh_matrix(g_object_mesh_indices[1], 1, 1, 1.3);
-    translate_mesh_matrix(g_object_mesh_indices[1], g_current_pos_x, g_current_pos_y + 7, 1.5);
+    transform_set_to_identity(g_object_transform_indices[1][1]);
+    transform_set_scale(g_object_transform_indices[1][1], 1, 1, 1.3);
+    transform_set_translation(g_object_transform_indices[1][1], g_current_pos_x, g_current_pos_y + 7, 1.5);
     set_mesh_texture(g_object_mesh_indices[1], resources.TextureFur);
     set_mesh_is_visible(g_object_mesh_indices[1], true);
+
+    if g_first_show_bear then
+        skip_next_mesh_interpolation(g_object_mesh_indices[1]);
+    end
+
+    g_first_show_bear = false;
 end
+
+local g_first_show_sheep = true;
 
 local function ShowSheep_(iAT)
     if iAT == 0 then
@@ -280,12 +308,20 @@ local function ShowSheep_(iAT)
         end
 
         set_mesh_to_mesh(g_object_mesh_indices[iSheep], iFrame);
-        set_identity_mesh_matrix(g_object_mesh_indices[iSheep]);
-        translate_mesh_matrix(g_object_mesh_indices[iSheep], iSheepX, iSheepY, 2);
+        transform_set_to_identity(g_object_transform_indices[iSheep][1]);
+        transform_set_translation(g_object_transform_indices[iSheep][1], iSheepX, iSheepY, 2);
         set_mesh_texture(g_object_mesh_indices[iSheep], resources.TextureSheep);
         set_mesh_is_visible(g_object_mesh_indices[iSheep], true);
+
+        if g_first_show_sheep then
+            skip_next_mesh_interpolation(g_object_mesh_indices[iSheep]);
+        end
     end
+
+    g_first_show_sheep = false;
 end
+
+local g_first_show_turtles = true;
 
 local function ShowTurtles_(iAT)
     if iAT == 0 then
@@ -300,8 +336,9 @@ local function ShowTurtles_(iAT)
         local iTurtX = g_current_pos_x - iTurt * 16;
         local iTurtY = 84;
         local mesh_index = g_object_mesh_indices[iTurt];
+        local transform_indices = g_object_transform_indices[iTurt];
 
-        set_identity_mesh_matrix(mesh_index);
+        transform_set_to_identity(transform_indices[1]);
 
         if iTurtX < 101 then
             iFrame = resources.MeshTurtGR1 + Cycle_(iAT, 90, 0, 1);
@@ -310,17 +347,25 @@ local function ShowTurtles_(iAT)
             local iRZ = (iTurtX - 101)* - 5;
             local iTemp = math.sin(iTurt * 63 * math.pi / 180.0) * 20 + 10;
             iRZ = iRZ * iTemp / 20;
-            rotate_z_mesh_matrix(mesh_index, iRZ);
+            transform_set_rotation_z(transform_indices[1], iRZ);
             iTemp = (iTurtX - 101) * math.sin((iTurt * 111 + 20) * math.pi / 180.0);
             iTurtY = iTurtY - iTemp;
         end
 
         set_mesh_to_mesh(mesh_index, iFrame);
-        translate_mesh_matrix(mesh_index, iTurtX, iTurtY, 2);
+        transform_set_translation(transform_indices[1], iTurtX, iTurtY, 2);
         set_mesh_texture(mesh_index, resources.TextureTurtleTexture);
         set_mesh_is_visible(mesh_index, true);
+
+        if g_first_show_turtles then
+            skip_next_mesh_interpolation(mesh_index);
+        end
     end
+
+    g_first_show_turtles = false;
 end
+
+local g_first_show_run_donuts = true;
 
 local function ShowDonuts_(iAT)
     for iDon = 0, 2 do
@@ -343,8 +388,8 @@ local function ShowDonuts_(iAT)
         local iDonX = 69 + iDon * 10;
         local iDonY = g_current_pos_y;
 
-        set_identity_mesh_matrix(g_object_mesh_indices[iDon]);
-        scale_mesh_matrix(g_object_mesh_indices[iDon], 0.5, 0.5, 1);
+        transform_set_to_identity(g_object_transform_indices[iDon][1]);
+        transform_set_scale(g_object_transform_indices[iDon][1], 0.5, 0.5, 1);
 
         local iFrame = 0;
 
@@ -363,16 +408,25 @@ local function ShowDonuts_(iAT)
         end
 
         set_mesh_to_mesh(g_object_mesh_indices[iDon], iFrame);
-        translate_mesh_matrix(g_object_mesh_indices[iDon], iDonX, iDonY, iZ);
+        transform_set_translation(g_object_transform_indices[iDon][1], iDonX, iDonY, iZ);
         set_mesh_texture(g_object_mesh_indices[iDon], resources.TextureRunDonut);
         set_mesh_is_visible(g_object_mesh_indices[iDon], true);
+
+        if g_first_show_run_donuts then
+            skip_next_mesh_interpolation(g_object_mesh_indices[iDon]);
+        end
     end
+
+    g_first_show_run_donuts = false;
 end
+
+local g_first_show_dino = true;
 
 local function ShowDino_(iAT)
     local mesh_index = g_object_mesh_indices[0];
-    set_identity_mesh_matrix(mesh_index);
-    scale_mesh_matrix(mesh_index, 1.3, 1.3, 1.3);
+    local transform_indices = g_object_transform_indices[0];
+    transform_set_to_identity(transform_indices[1]);
+    transform_set_scale(transform_indices[1], 1.3, 1.3, 1.3);
 
     g_current_pos_x = 80;
     g_current_pos_y = 93;
@@ -393,19 +447,27 @@ local function ShowDino_(iAT)
         iFrame = iFrame + resources.MeshTSaurYR1;
     elseif iAT < 220 then
         g_current_pos_y = g_current_pos_y + (iAT - 200) / 4;
-        rotate_z_mesh_matrix(mesh_index, (iAT - 200) * 3);
+        transform_set_rotation_z(transform_indices[1], (iAT - 200) * 3);
         iFrame = resources.MeshTSaurWalkR1 + Cycle_(iAT, 60, 0, 3);
     else
         g_current_pos_y = g_current_pos_y + 5+(iAT - 220) / 2;
-        rotate_z_mesh_matrix(mesh_index, (iAT - 200) * 3);
+        transform_set_rotation_z(transform_indices[1], (iAT - 200) * 3);
         iFrame = resources.MeshTSaurWalkR1 + Cycle_(iAT, 60, 0, 3);
     end
 
     set_mesh_to_mesh(mesh_index, iFrame);
-    translate_mesh_matrix(mesh_index, g_current_pos_x, g_current_pos_y, 0);
+    transform_set_translation(transform_indices[1], g_current_pos_x, g_current_pos_y, 0);
     set_mesh_texture(mesh_index, resources.TextureDinosaur);
     set_mesh_is_visible(mesh_index, true);
+
+    if g_first_show_dino then
+        skip_next_mesh_interpolation(mesh_index);
+    end
+
+    g_first_show_dino = false;
 end
+
+local g_first_show_jumpman_chase = true;
 
 local function JumpmanChase_(iAT)
     if iAT == 0 then
@@ -433,34 +495,48 @@ local function JumpmanChase_(iAT)
 
     g_current_pos_x = (iAT * 4 / 5) + 40;
 
-    set_identity_mesh_matrix(g_object_mesh_indices[0]);
-    scale_mesh_matrix(g_object_mesh_indices[0], 1, 1, 1);
+    transform_set_to_identity(g_object_transform_indices[0][1]);
+    transform_set_scale(g_object_transform_indices[0][1], 1, 1, 1);
     set_mesh_to_mesh(g_object_mesh_indices[0], iFrame);
-    translate_mesh_matrix(g_object_mesh_indices[0], g_current_pos_x, g_current_pos_y, 3);
+    transform_set_translation(g_object_transform_indices[0][1], g_current_pos_x, g_current_pos_y, 3);
     set_mesh_texture(g_object_mesh_indices[0], resources.TextureJumpman);
     set_mesh_is_visible(g_object_mesh_indices[0], true);
+
+    if g_first_show_jumpman_chase then
+        skip_next_mesh_interpolation(g_object_mesh_indices[0]);
+    end
+
+    g_first_show_jumpman_chase = false;
 end
+
+local g_first_show_jumpman_rocket = true;
 
 local function ShowRocket_(iAT)
     g_current_pos_y = 20 + iAT / 2;
     local iRZ = math.sin(iAT * 3 * math.pi / 180.0) * 10;
 
     local mesh_index = g_object_mesh_indices[0];
+    local transform_indices = g_object_transform_indices[0];
     set_mesh_to_mesh(mesh_index, resources.MeshRocket);
-    set_identity_mesh_matrix(mesh_index);
-    rotate_y_mesh_matrix(mesh_index, iAT / 3);
-    rotate_z_mesh_matrix(mesh_index, iRZ);
-    scale_mesh_matrix(mesh_index, 2, 2, 2);
-    translate_mesh_matrix(mesh_index, 130, g_current_pos_y, 10);
+    transform_set_to_identity(transform_indices[1]);
+    transform_set_scale(transform_indices[1], 2, 2, 2);
+    transform_set_rotation_y(transform_indices[1], iAT / 3);
+    transform_concat_rotation_z(transform_indices[1], iRZ);
+    transform_set_translation(transform_indices[1], 130, g_current_pos_y, 10);
     set_mesh_texture(mesh_index, resources.TextureDABotO);
     set_mesh_is_visible(mesh_index, true);
 
-    for iBlip = 1, 14 do
+    if g_first_show_jumpman_rocket then
+        skip_next_mesh_interpolation(mesh_index);
+    end
+
+    for iBlip = 1, 14 do  -- TODO: Use constant
         local blip_mesh_index = g_object_mesh_indices[iBlip];
+        local blip_transform_indices = g_object_transform_indices[iBlip];
         set_mesh_to_mesh(blip_mesh_index, resources.MeshSquare);
-        set_identity_mesh_matrix(blip_mesh_index);
+        transform_set_to_identity(blip_transform_indices[1]);
         local iSize = math.random(3, 6);
-        scale_mesh_matrix(blip_mesh_index, iSize, iSize, 1);
+        transform_set_scale(blip_transform_indices[1], iSize, iSize, 1);
 
         local iBA = math.random(150, 210);
         local iBD = math.random(5, 20) * math.random(5, 20);
@@ -468,14 +544,18 @@ local function ShowRocket_(iAT)
 
         local iBX = math.sin(iBA * math.pi / 180.0) * iBD;
         local iBY = math.cos(iBA * math.pi / 180.0) * iBD;
-        translate_mesh_matrix(blip_mesh_index, iBX, iBY - 15, 0);
-        rotate_y_mesh_matrix(blip_mesh_index, 10);
-        rotate_z_mesh_matrix(blip_mesh_index, iRZ);
+        transform_set_translation(blip_transform_indices[1], iBX, iBY - 15, 0);
+        transform_set_rotation_y(blip_transform_indices[2], 10);
+        transform_concat_rotation_z(blip_transform_indices[2], iRZ);
 
-        translate_mesh_matrix(blip_mesh_index, 132.5, g_current_pos_y, 12);
+        transform_set_translation(blip_transform_indices[2], 132.5, g_current_pos_y, 12);
         set_mesh_texture(blip_mesh_index, resources.TextureBlast1);
         set_mesh_is_visible(blip_mesh_index, true);
+
+        skip_next_mesh_interpolation(blip_mesh_index);  -- They transport every frame, so don't interpolate
     end
+
+    g_first_show_jumpman_rocket = false;
 end
 
 local function ShowSomething_()
@@ -578,9 +658,12 @@ local function ProgressLevel_(game_input)
         set_mesh_is_visible(platform_mesh_index, false);
 
         local current_backdrop = g_game_logic.find_backdrop_by_number(100);  -- TODO: Use constant for num
-        translate_mesh_matrix(current_backdrop.mesh_index, 40, 0, 20);
+        local backdrop_transform_index = transform_create();
+        object_set_transform(current_backdrop.mesh_index, backdrop_transform_index);
+        transform_set_translation(backdrop_transform_index, 40, 0, 20);
         set_mesh_texture(current_backdrop.mesh_index, resources.TextureBlack);
         set_mesh_is_visible(current_backdrop.mesh_index, true);
+        skip_next_mesh_interpolation(current_backdrop.mesh_index);
     end
 
     if g_end_alien then
@@ -612,8 +695,11 @@ function Module.initialize(game_input)
     Module.MenuLogic.set_remaining_life_count(0);
     g_game_logic.set_current_camera_mode(camera_mode.PerspectiveFixed);
 
-    for iTemp = 0, 19 do
+    for iTemp = 0, 19 do  -- TODO: Use constant
         g_object_mesh_indices[iTemp] = new_mesh(0);
+        g_object_transform_indices[iTemp] = { transform_create(), transform_create() };
+        object_set_transform(g_object_mesh_indices[iTemp], g_object_transform_indices[iTemp][1]);
+        transform_set_parent(g_object_transform_indices[iTemp][1], g_object_transform_indices[iTemp][2]);
     end
 
     if Module.SkipToCredits then
