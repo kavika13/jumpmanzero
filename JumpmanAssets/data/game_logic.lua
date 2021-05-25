@@ -1659,12 +1659,13 @@ local function AnimateDying_(game_input)
 
     if g_player_dying_animation_state == player_dying_animation_state.SPINNING_STARS then
         local stars_mesh_index = g_player_mesh_indices[player_mesh.STARS];
-        local kSTARS_OFFSET_Z = -1;
-        transform_set_translation(g_player_stars_transform_indices[1], 0, 0, kSTARS_OFFSET_Z);
+        local kSTARS_OFFSET_X = 1;
+        local kSTARS_ROTATION_OFFSET_Z = -1;
+        transform_set_translation(g_player_stars_transform_indices[1], 0, 0, kSTARS_ROTATION_OFFSET_Z);
         transform_set_rotation_y(g_player_stars_transform_indices[2], g_player_absolute_frame_count * 180.0 / 50.0);
         transform_set_translation(
             g_player_stars_transform_indices[2],
-            g_player_current_position_x, g_player_current_position_y + 12, g_player_current_position_z - kSTARS_OFFSET_Z);
+            g_player_current_position_x + kSTARS_OFFSET_X, g_player_current_position_y + 12, g_player_current_position_z - kSTARS_ROTATION_OFFSET_Z);
         set_mesh_is_visible(stars_mesh_index, true);
 
         g_player_absolute_frame_count = g_player_absolute_frame_count + 1;
