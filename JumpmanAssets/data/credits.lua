@@ -5,6 +5,7 @@ Module.GameLogic = nil;
 Module.TextureResourceIndex = 0;
 
 local g_letter_mesh_indices = {};
+local g_letter_transform_indices = {};
 local g_letter_pos_x = {};
 local g_letter_pos_y = {};
 
@@ -73,11 +74,15 @@ local function StartLine_(iLine)
     end
 
     for iChar = 1, #credit_line do
-        local iMesh = Module.GameLogic.new_char_mesh(credit_line:sub(iChar, iChar):byte(1, -1));
-        set_mesh_texture(iMesh, Module.TextureResourceIndex);
+        local char_mesh_index = Module.GameLogic.new_char_mesh(credit_line:sub(iChar, iChar):byte(1, -1));
+        set_mesh_texture(char_mesh_index, Module.TextureResourceIndex);
 
-        if iMesh > 0 then
-            table.insert(g_letter_mesh_indices, iMesh);
+        if char_mesh_index > 0 then
+            local char_transform_index = transform_create();
+            object_set_transform(char_mesh_index, char_transform_index);
+
+            table.insert(g_letter_mesh_indices, char_mesh_index);
+            table.insert(g_letter_transform_indices, char_transform_index);
             table.insert(g_letter_pos_y, -50);
             table.insert(g_letter_pos_x, 55 + iChar * 11);
         end
@@ -89,9 +94,8 @@ local function ShowChars_()
     local to_delete = {};
 
     for current_char_i, current_char_mesh_index in ipairs(g_letter_mesh_indices) do
-        set_identity_mesh_matrix(current_char_mesh_index);
-        scale_mesh_matrix(current_char_mesh_index, 1.8, 2, 2);
-        translate_mesh_matrix(current_char_mesh_index, g_letter_pos_x[current_char_i], g_letter_pos_y[current_char_i], 70);
+        transform_set_scale(g_letter_transform_indices[current_char_i], 1.8, 2, 2);
+        transform_set_translation(g_letter_transform_indices[current_char_i], g_letter_pos_x[current_char_i], g_letter_pos_y[current_char_i], 70);
         set_mesh_is_visible(current_char_mesh_index, true);
         g_letter_pos_y[current_char_i] = g_letter_pos_y[current_char_i] + 0.4;
 
@@ -103,7 +107,9 @@ local function ShowChars_()
     for to_delete_index = #to_delete, 1, -1 do
         local actual_index = to_delete[to_delete_index];
         delete_mesh(g_letter_mesh_indices[actual_index]);
+        -- TODO: Uncomment when fixed in engine: transform_delete(g_letter_transform_indices[actual_index]);
         table.remove(g_letter_mesh_indices, actual_index);
+        table.remove(g_letter_transform_indices, actual_index);
         table.remove(g_letter_pos_x, actual_index);
         table.remove(g_letter_pos_y, actual_index);
     end
