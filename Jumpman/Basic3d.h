@@ -44,14 +44,6 @@ void CopyObject(long iObject, long* iNum);
 void MoveTransparentMeshToFront(long o1);
 void MoveTransparentMeshToBack(long o1);
 
-void ScaleMatrix(long iObj, float fX, float fY, float fZ);
-void PerspectiveMatrix(long iObj);
-void IdentityMatrix(long iObj);
-void TranslateMatrix(long iObj, float fX, float fY, float fZ);
-void RotateMatrixX(long iObj, float fDegrees);
-void RotateMatrixY(long iObj, float fDegrees);
-void RotateMatrixZ(long iObj, float fDegrees);
-
 int TransformCreate(void);
 void TransformDelete(int deleting_transform_index);
 int TransformGetParent(int transform_index);

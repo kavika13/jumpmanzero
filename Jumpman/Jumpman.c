@@ -176,57 +176,6 @@ static int set_mesh_to_mesh(lua_State* lua_state) {
     return 0;
 }
 
-static int set_identity_mesh_matrix(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    IdentityMatrix((long)mesh_index_arg);
-    return 0;
-}
-
-static int undo_camera_perspective_on_mesh_matrix(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    PerspectiveMatrix((long)mesh_index_arg);
-    return 0;
-}
-
-static int translate_mesh_matrix(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    double arg_x = luaL_checknumber(lua_state, 2);
-    double arg_y = luaL_checknumber(lua_state, 3);
-    double arg_z = luaL_checknumber(lua_state, 4);
-    TranslateMatrix((long)mesh_index_arg, (float)arg_x, (float)arg_y, (float)arg_z);
-    return 0;
-}
-
-static int scale_mesh_matrix(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    double arg_x = luaL_checknumber(lua_state, 2);
-    double arg_y = luaL_checknumber(lua_state, 3);
-    double arg_z = luaL_checknumber(lua_state, 4);
-    ScaleMatrix((long)mesh_index_arg, (float)arg_x, (float)arg_y, (float)arg_z);
-    return 0;
-}
-
-static int rotate_x_mesh_matrix(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    double arg_degrees = luaL_checknumber(lua_state, 2);
-    RotateMatrixX((long)mesh_index_arg, (float)arg_degrees);
-    return 0;
-}
-
-static int rotate_y_mesh_matrix(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    double arg_degrees = luaL_checknumber(lua_state, 2);
-    RotateMatrixY((long)mesh_index_arg, (float)arg_degrees);
-    return 0;
-}
-
-static int rotate_z_mesh_matrix(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    double arg_degrees = luaL_checknumber(lua_state, 2);
-    RotateMatrixZ((long)mesh_index_arg, (float)arg_degrees);
-    return 0;
-}
-
 
 static int transform_create(lua_State* lua_state) {
     int new_transform_index = TransformCreate();
@@ -710,7 +659,7 @@ static int lua_error_handler(lua_State* lua_state) {
     const char* error_message = lua_tostring(lua_state, 1);
 
     if(error_message == NULL) {
-        if (luaL_callmeta(lua_state, 1, "__tostring") && lua_type(lua_state, -1) == LUA_TSTRING) {
+        if(luaL_callmeta(lua_state, 1, "__tostring") && lua_type(lua_state, -1) == LUA_TSTRING) {
             // TODO: Is this part right?
             //       lua.c did something slightly different here, and I think didn't append a traceback?
             error_message = lua_tostring(lua_state, -1);
@@ -752,20 +701,6 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
 
     lua_pushcfunction(lua_state, set_mesh_to_mesh);
     lua_setglobal(lua_state, "set_mesh_to_mesh");
-    lua_pushcfunction(lua_state, set_identity_mesh_matrix);
-    lua_setglobal(lua_state, "set_identity_mesh_matrix");
-    lua_pushcfunction(lua_state, undo_camera_perspective_on_mesh_matrix);
-    lua_setglobal(lua_state, "undo_camera_perspective_on_mesh_matrix");
-    lua_pushcfunction(lua_state, translate_mesh_matrix);
-    lua_setglobal(lua_state, "translate_mesh_matrix");
-    lua_pushcfunction(lua_state, scale_mesh_matrix);
-    lua_setglobal(lua_state, "scale_mesh_matrix");
-    lua_pushcfunction(lua_state, rotate_x_mesh_matrix);
-    lua_setglobal(lua_state, "rotate_x_mesh_matrix");
-    lua_pushcfunction(lua_state, rotate_y_mesh_matrix);
-    lua_setglobal(lua_state, "rotate_y_mesh_matrix");
-    lua_pushcfunction(lua_state, rotate_z_mesh_matrix);
-    lua_setglobal(lua_state, "rotate_z_mesh_matrix");
     lua_pushcfunction(lua_state, scroll_texture_on_mesh);
     lua_setglobal(lua_state, "scroll_texture_on_mesh");
     lua_pushcfunction(lua_state, skip_next_mesh_interpolation);
@@ -889,7 +824,7 @@ static void LoadLuaScript(const char* filename, LuaModuleScriptContext* new_scri
     lua_pushcfunction(new_state, lua_error_handler);
     lua_insert(new_state, error_handler_stack_pos);
 
-    if (lua_pcall(new_state, 0, 1, error_handler_stack_pos) != 0) {
+    if(lua_pcall(new_state, 0, 1, error_handler_stack_pos) != 0) {
         const char* error_message = lua_tostring(new_state, -1);
         debug_log("Error while initially running script module: %s\n%s", full_filename, error_message);
         assert(false);  // TODO: Error handling
@@ -1002,7 +937,7 @@ bool Init3D(void) {
         g_script_mesh_indices[iLoop] = 0;
     }
 
-    if (!InitializeAll()) {
+    if(!InitializeAll()) {
         return 0;
     }
 
