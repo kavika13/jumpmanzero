@@ -88,19 +88,23 @@ local function MoveLadder_(current_ladder, iPos, ladder_transform_indices)
     local iY = (current_ladder.pos_y_bottom + current_ladder.pos_y_top) / 2;
     local iZ = current_ladder.pos_z[1];
 
+    -- Mesh data itself is translated to iX, iY, iZ. Need to undo that translation, rotate, and push back to do the equivalent of "just a rotation"
+    -- TODO: Zero mesh data and apply a default transform to it instead
     transform_set_translation(ladder_transform_indices[1], 0 - iX, 0 - iY, 0 - iZ);
     transform_set_rotation_z(ladder_transform_indices[2], iPos * 2);
     transform_concat_rotation_x(ladder_transform_indices[2], iPos);
     transform_set_translation(ladder_transform_indices[2], iX, iY, iZ - iPos);
 end
 
-local function MovePlatform_(current_platform, iRotate, iTran, pos_property_name, platform_transform_indices)
+local function MovePlatform_(current_platform, iRotate, pos_property_name, platform_transform_indices)
     local iPlatX = current_platform[pos_property_name][1];
     local iPlatY = current_platform[pos_property_name][2];
 
+    -- Mesh data itself is translated to iPlatX, iPlatY. Need to undo that translation, rotate, and push back to do the equivalent of "just a rotation"
+    -- TODO: Zero mesh data and apply a default transform to it instead
     transform_set_translation(platform_transform_indices[1], 0 - iPlatX, 0 - iPlatY, 0);
     transform_set_rotation_z(platform_transform_indices[2], iRotate);
-    transform_set_translation(platform_transform_indices[2], iPlatX + iTran, iPlatY, 0);
+    transform_set_translation(platform_transform_indices[2], iPlatX, iPlatY, 0);
 end
 
 local function ProgressLevel_(game_input)
@@ -114,8 +118,8 @@ local function ProgressLevel_(game_input)
     if g_is_left_trap_door_moving then
         g_left_trap_door_animation_frame = g_left_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
-        MovePlatform_(g_left_trap_door_platforms[1], 0 - g_left_trap_door_animation_frame, 1, "pos_upper_left", g_left_trap_door_platform_transform_indices[1]);
-        MovePlatform_(g_left_trap_door_platforms[2], g_left_trap_door_animation_frame, 0 - 1, "pos_lower_right", g_left_trap_door_platform_transform_indices[2]);
+        MovePlatform_(g_left_trap_door_platforms[1], 0 - g_left_trap_door_animation_frame, "pos_upper_left", g_left_trap_door_platform_transform_indices[1]);
+        MovePlatform_(g_left_trap_door_platforms[2], g_left_trap_door_animation_frame, "pos_lower_right", g_left_trap_door_platform_transform_indices[2]);
 
         if g_left_trap_door_animation_frame > 56 then
             g_is_left_trap_door_moving = false;
@@ -127,8 +131,8 @@ local function ProgressLevel_(game_input)
     if g_is_right_trap_door_moving then
         g_right_trap_door_animation_frame = g_right_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
-        MovePlatform_(g_right_trap_door_platforms[1], 0 - g_right_trap_door_animation_frame, 1, "pos_upper_left", g_right_trap_door_platform_transform_indices[1]);
-        MovePlatform_(g_right_trap_door_platforms[2], g_right_trap_door_animation_frame, 0 - 1, "pos_lower_right", g_right_trap_door_platform_transform_indices[2]);
+        MovePlatform_(g_right_trap_door_platforms[1], 0 - g_right_trap_door_animation_frame, "pos_upper_left", g_right_trap_door_platform_transform_indices[1]);
+        MovePlatform_(g_right_trap_door_platforms[2], g_right_trap_door_animation_frame, "pos_lower_right", g_right_trap_door_platform_transform_indices[2]);
 
         if g_right_trap_door_animation_frame > 56 then
             g_right_trap_door_animation_frame = 56;
