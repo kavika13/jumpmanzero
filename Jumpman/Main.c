@@ -150,7 +150,7 @@ static bool SaveSettings_(void) {
     return success;
 }
 
-static void SetFullscreen(bool enable_fullscreen) {
+static void SetFullscreen(bool enable_fullscreen, int32_t* new_width, int32_t* new_height) {
     g_fullscreen_is_enabled = enable_fullscreen;
 
     GLFWmonitor* monitor = NULL;
@@ -182,6 +182,14 @@ static void SetFullscreen(bool enable_fullscreen) {
         glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     } else {
         glfwSetInputMode(g_main_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    if(new_width) {
+        *new_width = target_width;
+    }
+
+    if(new_height) {
+        *new_height = target_height;
     }
 
     SaveSettings();
@@ -227,7 +235,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                 }
                 case GLFW_KEY_ENTER: {
                     if(mods & GLFW_MOD_ALT) {
-                        SetFullscreen(!g_fullscreen_is_enabled);
+                        SetFullscreen(!g_fullscreen_is_enabled, NULL, NULL);
                     } else {
                         game_current_input->select_action.is_pressed = true;
                     }
@@ -238,7 +246,7 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                     break;
                 }
                 case GLFW_KEY_F11:
-                    SetFullscreen(!g_fullscreen_is_enabled);
+                    SetFullscreen(!g_fullscreen_is_enabled, NULL, NULL);
                     break;
                 case GLFW_KEY_ESCAPE: {
                     ExitGame();
@@ -583,7 +591,7 @@ int main(int arguments_count, char* arguments[]) {
     glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
 
     if(g_fullscreen_is_enabled) {
-        SetFullscreen(true);
+        SetFullscreen(true, &target_width, &target_height);
     }
 
     ResizeViewport(target_width, target_height);  // Callback not set up yet
