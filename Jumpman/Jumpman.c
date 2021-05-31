@@ -944,6 +944,14 @@ bool Init3D(void) {
     return 1;
 }
 
+void InitGameDebugScript(const char* base_path, const char* script_name) {
+    g_game_base_path = base_path;
+    char relative_script_filename[300];  // TODO: Standardize path lengths? Bigger paths?
+    stbsp_snprintf(relative_script_filename, sizeof(relative_script_filename), "data/%s", script_name);
+    LoadLuaScript(relative_script_filename, &g_main_script_context);
+    CallLuaModuleFunction(&g_main_script_context, "initialize", NULL, 0, 0, false);
+}
+
 void InitGameDebugLevel(const char* base_path, const char* level_name) {
     g_game_base_path = base_path;
     LoadLuaScript("data/main.lua", &g_main_script_context);

@@ -8,6 +8,8 @@ extern "C" {
 #endif
 
 bool Init3D(void);
+
+void InitGameDebugScript(const char* base_path, const char* script_name);
 void InitGameDebugLevel(const char* base_path, const char* level_name);
 void InitGameNormal(const char* base_path);
 void UpdateGame(const GameInput* game_input, double seconds_per_update_timestep);

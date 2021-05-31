@@ -645,9 +645,19 @@ int main(int arguments_count, char* arguments[]) {
     srand((unsigned)previous_frame_time);  // TODO: Seed prng with something that will actually be unique
     double previous_update_time = previous_frame_time;
 
-    if(arguments_count > 1 && strlen(arguments[1])) {
-        InitGameDebugLevel(g_game_base_path, arguments[1]);
-    } else {
+    bool is_debug_init = false;
+    if(arguments_count > 1) {
+        size_t arg_length = strlen(arguments[1]);
+        if (arg_length > 4 && arguments[1][arg_length - 4] == '.' && arguments[1][arg_length - 3] == 'l' && arguments[1][arg_length - 2] == 'u' && arguments[1][arg_length - 1] == 'a') {
+            InitGameDebugScript(g_game_base_path, arguments[1]);
+            is_debug_init = true;
+        } else if(arg_length > 0) {
+            InitGameDebugLevel(g_game_base_path, arguments[1]);
+            is_debug_init = true;
+        }
+    }
+
+    if(!is_debug_init) {
         InitGameNormal(g_game_base_path);
     }
 
