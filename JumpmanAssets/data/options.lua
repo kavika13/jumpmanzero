@@ -118,7 +118,7 @@ local function ClearLetters_()
 
     for _, current_option_letter_transform_index in ipairs(g_option_letter_transform_indices) do
         if current_option_letter_transform_index > -1 then
-            -- TODO: Uncomment once fixed in engine - transform_delete(current_option_letter_transform_index);
+            transform_delete(current_option_letter_transform_index);
         end
     end
 

@@ -218,7 +218,7 @@ end
 local function DestroyMe_()
     g_current_status = status_type.DEAD;
     delete_mesh(g_run_donut_mesh_index);
-    -- TODO: Delete transform. It messes up existing transforms right now to delete it
+    transform_delete(g_run_donut_transform_index);
     Module.KillCallback(Module);
 end
 
@@ -319,14 +319,6 @@ function Module.initialize()
     g_animation_mesh_indices[animation_frame.HATCH_3] = Module.HatchMeshResourceIndices[3];
     g_animation_mesh_indices[animation_frame.HATCH_4] = Module.HatchMeshResourceIndices[4];
     g_animation_mesh_indices[animation_frame.HATCH_5] = Module.HatchMeshResourceIndices[5];
-
-    local setup_object_three_transforms = function(mesh_index)
-        local result = { transform_create(), transform_create(), transform_create() };
-        object_set_transform(mesh_index, result[1]);
-        transform_set_parent(result[1], result[2]);
-        transform_set_parent(result[2], result[3]);
-        return result;
-    end
 
     g_run_donut_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_1]);
     g_run_donut_transform_index = transform_create();

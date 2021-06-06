@@ -345,6 +345,7 @@ function Module.update()
 
     if g_type == goo_type.TO_REMOVE then
         delete_mesh(g_mesh_index);
+        transform_delete(g_transform_index);
         Module.KillCallback(Module);
         return;
     end

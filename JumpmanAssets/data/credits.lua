@@ -107,7 +107,7 @@ local function ShowChars_()
     for to_delete_index = #to_delete, 1, -1 do
         local actual_index = to_delete[to_delete_index];
         delete_mesh(g_letter_mesh_indices[actual_index]);
-        -- TODO: Uncomment when fixed in engine: transform_delete(g_letter_transform_indices[actual_index]);
+        transform_delete(g_letter_transform_indices[actual_index]);
         table.remove(g_letter_mesh_indices, actual_index);
         table.remove(g_letter_transform_indices, actual_index);
         table.remove(g_letter_pos_x, actual_index);
