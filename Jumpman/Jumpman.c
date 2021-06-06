@@ -864,6 +864,8 @@ static void PushGameInputAsTable(lua_State* lua_state, const GameInput* game_inp
     lua_setfield(lua_state, -2, "select_action");
     PushGameActionAsTable(lua_state, &game_input->debug_action);
     lua_setfield(lua_state, -2, "debug_action");
+    PushGameActionAsTable(lua_state, &game_input->cheat_action);
+    lua_setfield(lua_state, -2, "cheat_action");
     PushGameActionAsTable(lua_state, &game_input->cursor_select_action);
     lua_setfield(lua_state, -2, "cursor_select_action");
 

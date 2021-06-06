@@ -198,6 +198,7 @@ local function get_empty_input()
         attack_action = { is_pressed = false, just_pressed = false },
         select_action = { is_pressed = false, just_pressed = false },
         debug_action = { is_pressed = false, just_pressed = false },
+        cheat_action = { is_pressed = false, just_pressed = false },
     };
 end
 

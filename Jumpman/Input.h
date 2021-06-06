@@ -27,6 +27,7 @@ typedef struct {
     GameAction select_action;
     GameAction slowmo_action;
     GameAction debug_action;
+    GameAction cheat_action;
     GameAction cursor_select_action;
     GameCursorPosition cursor_position;
     bool cursor_is_on_screen;

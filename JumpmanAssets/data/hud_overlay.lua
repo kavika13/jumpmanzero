@@ -237,9 +237,9 @@ function Module.update(game_input, skip_next_interpolation)
 
     ShowPerformance_(game_input, lives_remaining, skip_next_interpolation);
 
-    -- if game_input.debug_action.just_pressed then
-    --     Module.GameLogic.win_with_no_delay_debug();
-    -- end
+    if game_input.cheat_action.just_pressed then  -- TODO: Only enable this if the right command line is passed in. Or maybe in a debug build?
+        Module.GameLogic.win_with_no_delay_debug();
+    end
 
     if not g_is_title_animation_complete then
         if g_title_scroll_timer < 1000 then

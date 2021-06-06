@@ -212,6 +212,10 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
                     game_current_input->debug_action.is_pressed = true;
                     break;
                 }
+                case GLFW_KEY_F1: {
+                    game_current_input->cheat_action.is_pressed = true;
+                    break;
+                }
                 case GLFW_KEY_UP: {
                     game_current_input->move_up_action.is_pressed = true;
                     break;
@@ -301,6 +305,10 @@ static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
             switch(key) {
                 case GLFW_KEY_GRAVE_ACCENT: {
                     game_current_input->debug_action.is_pressed = false;
+                    break;
+                }
+                case GLFW_KEY_F1: {
+                    game_current_input->cheat_action.is_pressed = false;
                     break;
                 }
                 case GLFW_KEY_UP: {
@@ -509,6 +517,7 @@ static void GetInput(GameInput* game_current_input, GameInput* game_prev_input) 
     game_current_input->select_action.just_pressed = game_current_input->select_action.is_pressed && !game_prev_input->select_action.is_pressed;
     game_current_input->slowmo_action.just_pressed = game_current_input->slowmo_action.is_pressed && !game_prev_input->slowmo_action.is_pressed;
     game_current_input->debug_action.just_pressed = game_current_input->debug_action.is_pressed && !game_prev_input->debug_action.is_pressed;
+    game_current_input->cheat_action.just_pressed = game_current_input->cheat_action.is_pressed && !game_prev_input->cheat_action.is_pressed;
     game_current_input->cursor_select_action.just_pressed = game_current_input->cursor_select_action.is_pressed && !game_prev_input->cursor_select_action.is_pressed;
 }
 
