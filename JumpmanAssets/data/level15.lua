@@ -46,7 +46,7 @@ local resources = {
 };
 resources = read_only.make_table_read_only(resources);
 
-local kWATERFALL_ANIMATION_FRAME_STEP = -0.15;
+local kWATERFALL_ANIMATION_FRAME_STEP = -0.15 / 16.0;
 
 local g_title_is_done_scrolling = false;
 

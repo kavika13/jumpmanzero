@@ -283,7 +283,7 @@ function Module.update(game_input)
     ShowLetters_();
 
     local scrolling_background = g_game_logic.find_backdrop_by_number(100);  -- TODO: Use constant for num
-    scroll_texture_on_mesh(scrolling_background.mesh_index, 0.01, 0.01);
+    scroll_texture_on_mesh(scrolling_background.mesh_index, 0.01 / 16.0, 0.01 / 16.0);
 
     if g_is_game_selected and g_time_since_current_selection > 450 then
         Module.MenuLogic.game_start(g_title_selected_index);

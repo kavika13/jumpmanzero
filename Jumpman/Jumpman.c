@@ -319,8 +319,7 @@ static int scroll_texture_on_mesh(lua_State* lua_state) {
     lua_Integer mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
     double translate_x_arg = luaL_checknumber(lua_state, 2);
     double argtranslate_y_arg = luaL_checknumber(lua_state, 3);
-    // TODO: Remove pre-multiplication from scripts, and divide from here
-    MeshScrollTexture((int)mesh_handle_index_arg, (float)translate_x_arg / 16.0f, (float)argtranslate_y_arg / 16.0f);
+    MeshScrollTexture((int)mesh_handle_index_arg, (float)translate_x_arg, (float)argtranslate_y_arg);
     return 0;
 }
 

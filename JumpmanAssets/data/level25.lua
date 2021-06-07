@@ -366,10 +366,10 @@ local function ProgressLevel_(game_input)
     g_frames_since_level_start = g_frames_since_level_start + 1;
 
     local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(1).mesh_index;  -- TODO: Use constant for num
-    scroll_texture_on_mesh(backdrop_mesh_index, 0.025, 0.025);
+    scroll_texture_on_mesh(backdrop_mesh_index, 0.025 / 16.0, 0.025 / 16.0);
 
     backdrop_mesh_index = g_game_logic.find_backdrop_by_number(6).mesh_index;  -- TODO: Use constant for num
-    scroll_texture_on_mesh(backdrop_mesh_index, 0.04, 0.04);
+    scroll_texture_on_mesh(backdrop_mesh_index, 0.04 / 16.0, 0.04 / 16.0);
 
     set_mesh_is_visible(g_jumpman_swim_mesh_index, false);
 

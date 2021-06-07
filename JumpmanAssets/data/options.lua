@@ -406,7 +406,7 @@ function Module.update(game_input)
     ShowLetters_();
 
     local backdrop_mesh_index = g_game_logic.find_backdrop_by_number(100).mesh_index;  -- TODO: Use constant for num
-    scroll_texture_on_mesh(backdrop_mesh_index, 0.01, 0.01);
+    scroll_texture_on_mesh(backdrop_mesh_index, 0.01 / 16.0, 0.01 / 16.0);
 
     if g_is_game_selected and g_time_since_current_selection > 250 and g_option_selected_index == 9 then
         save_config_options();

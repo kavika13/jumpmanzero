@@ -57,7 +57,7 @@ local whompers = {};
 
 local function ConveyPlatform_(platform_num, iDist)
     local platform_mesh_index = g_game_logic.find_platform_by_number(platform_num).mesh_index;
-    scroll_texture_on_mesh(platform_mesh_index, iDist * 16, 0);
+    scroll_texture_on_mesh(platform_mesh_index, iDist, 0);
 
     if g_game_logic.get_player_current_state() == player_state.JSJUMPING then
         return;

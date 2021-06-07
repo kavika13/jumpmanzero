@@ -266,7 +266,7 @@ function Module.update()
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
         set_mesh_is_visible(g_laser_mesh_index, true);
         local iTemp = math.random(50, 100) * 0.1;
-        iTemp = iTemp / 2;
+        iTemp = iTemp / 32;
         transform_set_scale(g_laser_transform_index, 35, 4, 0);
         transform_set_translation(g_laser_transform_index, g_current_pos_x - 19, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
@@ -279,7 +279,7 @@ function Module.update()
             g_is_firing and g_time_since_fire_start > 15 and g_time_since_fire_start < Module.FireDuration - 15 then
         set_mesh_is_visible(g_laser_mesh_index, true);
         local iTemp = math.random(50, 100) * -0.1;
-        iTemp = iTemp / 2;
+        iTemp = iTemp / 32;
         transform_set_scale(g_laser_transform_index, 35, 4, 0);
         transform_set_translation(g_laser_transform_index, g_current_pos_x + 20.5, g_current_pos_y + 8.6, g_current_pos_z + 2.2);
         scroll_texture_on_mesh(g_laser_mesh_index, iTemp, 0);
