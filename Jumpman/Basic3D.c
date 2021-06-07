@@ -56,12 +56,12 @@ typedef struct Material {
     hmm_vec3 diffuse_tint;
 } Material;
 
-static void FatalError(const char* error_msg);
-static long init_3d(void);
-static void kill_3d(void);
-static void init_scene(void);
-static void kill_scene(void);
-static void SwapObjects(long o1, long o2);
+static void FatalError_(const char* error_msg);
+static long init_3d_(void);
+static void kill_3d_(void);
+static void init_scene_(void);
+static void kill_scene_(void);
+static void SwapObjects_(long o1, long o2);
 
 static int g_backbuffer_width;
 static int g_backbuffer_height;
@@ -279,14 +279,14 @@ static hmm_vec2 HMM_LerpVec2(hmm_vec2 lhs, hmm_vec2 rhs, float time) {
 
 // End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
-static long SurfaceObject(long o1) {
+static long SurfaceObject_(long o1) {
     for(int iLoop = 0; iLoop < kMAX_MESHES; ++iLoop) {
         if(g_mesh_handles[iLoop] == o1) {
             return iLoop;
         }
     }
 
-    boxerShow("Can't find object to surface!", "Jumpman Zero", BoxerStyleWarning, BoxerButtonsOK);
+    boxerShow("Can't find mesh to surface!", "Jumpman Zero", BoxerStyleWarning, BoxerButtonsOK);
 
     return 0;
 }
@@ -294,7 +294,7 @@ static long SurfaceObject(long o1) {
 void DeleteMesh(long iMesh) {
     // TODO: Assert we even are allowed to do this
     long iReal = g_mesh_handles[iMesh];
-    SwapObjects(iReal, g_mesh_count - 1);
+    SwapObjects_(iReal, g_mesh_count - 1);
 
     g_mesh_handles[iMesh] = -1;
     --g_mesh_count;
@@ -310,7 +310,7 @@ void ScrollTexture(long iObj, float fX, float fY) {
 
 
 // Returns -1 if handle not valid
-static int GetMeshIndexFromHandle(int mesh_handle_index) {
+static int GetMeshIndexFromHandle_(int mesh_handle_index) {
     assert(mesh_handle_index >= 0);
     assert(mesh_handle_index < kMAX_MESHES);
 
@@ -329,7 +329,7 @@ static int GetMeshIndexFromHandle(int mesh_handle_index) {
 }
 
 // Returns -1 if handle not valid
-static int GetTransformIndexFromHandle(int transform_handle_index) {
+static int GetTransformIndexFromHandle_(int transform_handle_index) {
     assert(transform_handle_index >= 0);
     assert(transform_handle_index < kMAX_TRANSFORMS);
 
@@ -377,7 +377,7 @@ void TransformDelete(int deleting_transform_handle_index) {
     assert(g_transform_count > 0);
 
     if(g_transform_count > 0) {
-        int deleting_transform_index = GetTransformIndexFromHandle(deleting_transform_handle_index);
+        int deleting_transform_index = GetTransformIndexFromHandle_(deleting_transform_handle_index);
         int last_transform_index = g_transform_count - 1;
 
         if(deleting_transform_index != -1) {
@@ -393,10 +393,10 @@ void TransformDelete(int deleting_transform_handle_index) {
                 g_transform_parent_handles[deleting_transform_index] = g_transform_parent_handles[last_transform_index];
                 g_transform_parent_is_camera[deleting_transform_index] = g_transform_parent_is_camera[last_transform_index];
 
-                // Redirect all objects that pointed at last transform to its new location
-                for(int object_index = 0; object_index < g_mesh_count; ++object_index) {
-                    if(g_mesh_transform_indices[object_index] == last_transform_index) {
-                        g_mesh_transform_indices[object_index] = deleting_transform_index;
+                // Redirect all meshes that pointed at last transform to its new location
+                for(int mesh_index = 0; mesh_index < g_mesh_count; ++mesh_index) {
+                    if(g_mesh_transform_indices[mesh_index] == last_transform_index) {
+                        g_mesh_transform_indices[mesh_index] = deleting_transform_index;
                     }
                 }
 
@@ -424,7 +424,7 @@ void TransformDelete(int deleting_transform_handle_index) {
 }
 
 int TransformGetParent(int transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
     int result = -1;
 
     if(transform_index != -1) {
@@ -435,8 +435,8 @@ int TransformGetParent(int transform_handle_index) {
 }
 
 void TransformSetParent(int transform_handle_index, int new_parent_transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
-    int new_parent_transform_index = GetTransformIndexFromHandle(new_parent_transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
+    int new_parent_transform_index = GetTransformIndexFromHandle_(new_parent_transform_handle_index);
 
     if(transform_index != -1 && new_parent_transform_index != -1) {
         // TODO: Detect cycle, assert, and break the cycle in non-debug build
@@ -447,7 +447,7 @@ void TransformSetParent(int transform_handle_index, int new_parent_transform_han
 }
 
 void TransformClearParent(int transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_parent_indices[transform_index] = -1;
@@ -457,7 +457,7 @@ void TransformClearParent(int transform_handle_index) {
 }
 
 bool TransformGetParentIsCamera(int transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
     bool result = false;
 
     if(transform_index != -1) {
@@ -468,7 +468,7 @@ bool TransformGetParentIsCamera(int transform_handle_index) {
 }
 
 void TransformSetParentIsCamera(int transform_handle_index, bool is_parent_camera) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         if(is_parent_camera) {
@@ -481,7 +481,7 @@ void TransformSetParentIsCamera(int transform_handle_index, bool is_parent_camer
 }
 
 int MeshGetTransform(int mesh_handle_index) {
-    int mesh_index = GetMeshIndexFromHandle(mesh_handle_index);
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
     int result = -1;
 
     if(mesh_index != -1) {
@@ -492,8 +492,8 @@ int MeshGetTransform(int mesh_handle_index) {
 }
 
 void MeshSetTransform(int mesh_handle_index, int transform_handle_index) {
-    int mesh_index = GetMeshIndexFromHandle(mesh_handle_index);
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(mesh_index != -1 && transform_index != -1) {
         g_mesh_transform_indices[mesh_index] = transform_index;
@@ -501,7 +501,7 @@ void MeshSetTransform(int mesh_handle_index, int transform_handle_index) {
 }
 
 void MeshClearTransform(int mesh_handle_index) {
-    int mesh_index = GetMeshIndexFromHandle(mesh_handle_index);
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
 
     if(mesh_index != -1) {
         g_mesh_transform_indices[mesh_index] = -1;
@@ -509,7 +509,7 @@ void MeshClearTransform(int mesh_handle_index) {
 }
 
 void TransformSetToIdentity(int transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_translations[transform_index] = (hmm_vec3){ 0 };
@@ -519,7 +519,7 @@ void TransformSetToIdentity(int transform_handle_index) {
 }
 
 void TransformSetTranslation(int transform_handle_index, float x, float y, float z) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_translations[transform_index] = (hmm_vec3){ .X = x, .Y = y, .Z = z };
@@ -527,7 +527,7 @@ void TransformSetTranslation(int transform_handle_index, float x, float y, float
 }
 
 void TransformClearTranslation(int transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_translations[transform_index] = (hmm_vec3){ 0 };
@@ -535,7 +535,7 @@ void TransformClearTranslation(int transform_handle_index) {
 }
 
 void TransformSetRotationX(int transform_handle_index, float angle_in_degrees) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 1.0f, .Y = 0.0f, .Z = 0.0f }, HMM_ToRadians(angle_in_degrees));
@@ -543,7 +543,7 @@ void TransformSetRotationX(int transform_handle_index, float angle_in_degrees) {
 }
 
 void TransformSetRotationY(int transform_handle_index, float angle_in_degrees) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 0.0f, .Y = 1.0f, .Z = 0.0f }, HMM_ToRadians(angle_in_degrees));
@@ -551,7 +551,7 @@ void TransformSetRotationY(int transform_handle_index, float angle_in_degrees) {
 }
 
 void TransformSetRotationZ(int transform_handle_index, float angle_in_degrees) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle((hmm_vec3){ .X = 0.0f, .Y = 0.0f, .Z = 1.0f }, HMM_ToRadians(angle_in_degrees));
@@ -559,7 +559,7 @@ void TransformSetRotationZ(int transform_handle_index, float angle_in_degrees) {
 }
 
 void TransformConcatRotationX(int transform_handle_index, float angle_in_degrees) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_rotations[transform_index] = HMM_MultiplyQuaternion(
@@ -569,7 +569,7 @@ void TransformConcatRotationX(int transform_handle_index, float angle_in_degrees
 }
 
 void TransformConcatRotationY(int transform_handle_index, float angle_in_degrees) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_rotations[transform_index] = HMM_MultiplyQuaternion(
@@ -579,7 +579,7 @@ void TransformConcatRotationY(int transform_handle_index, float angle_in_degrees
 }
 
 void TransformConcatRotationZ(int transform_handle_index, float angle_in_degrees) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_rotations[transform_index] = HMM_MultiplyQuaternion(
@@ -589,7 +589,7 @@ void TransformConcatRotationZ(int transform_handle_index, float angle_in_degrees
 }
 
 void TransformClearRotation(int transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_rotations[transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
@@ -597,7 +597,7 @@ void TransformClearRotation(int transform_handle_index) {
 }
 
 void TransformSetScale(int transform_handle_index, float x, float y, float z) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_scales[transform_index] = (hmm_vec3){ .X = x, .Y = y, .Z = z };
@@ -605,7 +605,7 @@ void TransformSetScale(int transform_handle_index, float x, float y, float z) {
 }
 
 void TransformClearScale(int transform_handle_index) {
-    int transform_index = GetTransformIndexFromHandle(transform_handle_index);
+    int transform_index = GetTransformIndexFromHandle_(transform_handle_index);
 
     if(transform_index != -1) {
         g_transform_scales[transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
@@ -615,29 +615,29 @@ void TransformClearScale(int transform_handle_index) {
 
 void MoveTransparentMeshToFront(long o1) {
     for(long iSwap = g_mesh_handles[o1] + 1; iSwap < g_mesh_count; ++iSwap) {
-        SwapObjects(iSwap, iSwap - 1);
+        SwapObjects_(iSwap, iSwap - 1);
     }
 }
 
 void MoveTransparentMeshToBack(long o1) {
     for(long iSwap = g_mesh_handles[o1] - 1; iSwap >= 0; --iSwap) {
-        SwapObjects(iSwap, iSwap + 1);
+        SwapObjects_(iSwap, iSwap + 1);
     }
 }
 
-static void SwapLong(long* l1, long* l2) {
+static void SwapLong_(long* l1, long* l2) {
     long iSwap = *l1;
     *l1 = *l2;
     *l2 = iSwap;
 }
 
-static void SwapInt(int* l1, int* l2) {
+static void SwapInt_(int* l1, int* l2) {
     int iSwap = *l1;
     *l1 = *l2;
     *l2 = iSwap;
 }
 
-static void SwapObjects(long o1, long o2) {
+static void SwapObjects_(long o1, long o2) {
     long iRealO1 = o1;
     long iRealO2 = o2;
 
@@ -653,15 +653,15 @@ static void SwapObjects(long o1, long o2) {
     g_mesh_animation_is_continuous[iRealO1] = g_mesh_animation_is_continuous[iRealO2];
     g_mesh_animation_is_continuous[iRealO2] = temp_animation_is_continuous;
 
-    SwapLong(&g_mesh_vertex_start_indices[iRealO1], &g_mesh_vertex_start_indices[iRealO2]);
-    SwapLong(&g_mesh_vertex_counts[iRealO1], &g_mesh_vertex_counts[iRealO2]);
-    SwapLong(&g_mesh_texture_indices[iRealO1], &g_mesh_texture_indices[iRealO2]);
-    SwapLong(&g_mesh_is_visible[iRealO1], &g_mesh_is_visible[iRealO2]);
-    SwapLong(&g_mesh_is_visible_previous[iRealO1], &g_mesh_is_visible_previous[iRealO2]);
+    SwapLong_(&g_mesh_vertex_start_indices[iRealO1], &g_mesh_vertex_start_indices[iRealO2]);
+    SwapLong_(&g_mesh_vertex_counts[iRealO1], &g_mesh_vertex_counts[iRealO2]);
+    SwapLong_(&g_mesh_texture_indices[iRealO1], &g_mesh_texture_indices[iRealO2]);
+    SwapLong_(&g_mesh_is_visible[iRealO1], &g_mesh_is_visible[iRealO2]);
+    SwapLong_(&g_mesh_is_visible_previous[iRealO1], &g_mesh_is_visible_previous[iRealO2]);
 
-    SwapInt(&g_mesh_transform_indices[iRealO1], &g_mesh_transform_indices[iRealO2]);
+    SwapInt_(&g_mesh_transform_indices[iRealO1], &g_mesh_transform_indices[iRealO2]);
 
-    SwapLong(&g_mesh_handles[SurfaceObject(o1)], &g_mesh_handles[SurfaceObject(o2)]);
+    SwapLong_(&g_mesh_handles[SurfaceObject_(o1)], &g_mesh_handles[SurfaceObject_(o2)]);
 }
 
 void Clear3dData(void) {
@@ -752,7 +752,7 @@ void LoadTexture(int iTex, char* sFile, long image_type, int is_alpha_blend_enab
     g_textures[iTex] = sg_make_image(&image_desc);
 
     if(g_textures[iTex].id == SG_INVALID_ID) {
-        FatalError("Error unlocking texture data");  // TODO: Read back error info
+        FatalError_("Error unlocking texture data");  // TODO: Read back error info
     }
 
     if(load_was_successful) {
@@ -919,11 +919,11 @@ void Reset3d(void) {
 }
 
 bool InitializeAll(void) {
-    if(!init_3d()) {
+    if(!init_3d_()) {
         return false;
     }
 
-    init_scene();
+    init_scene_();
 
     return true;
 }
@@ -937,7 +937,7 @@ void Begin3dLoad(void) {
     g_vertices_to_load = (MeshVertex*)malloc(kMAX_VERTICES * sizeof(MeshVertex));
 
     if(!g_vertices_to_load) {
-        FatalError("Failed to allocate enough memory in order to load model's vertex data");
+        FatalError_("Failed to allocate enough memory in order to load model's vertex data");
     }
 }
 
@@ -951,11 +951,11 @@ void EndAndCommit3dLoad(void) {
 }
 
 void DoCleanUp(void) {
-    kill_scene();
-    kill_3d();
+    kill_scene_();
+    kill_3d_();
 }
 
-static long init_3d(void) {
+static long init_3d_(void) {
     for(int iLoop = 0; iLoop < kMAX_TEXTURES; ++iLoop) {
         g_textures[iLoop].id = SG_INVALID_ID;
     }
@@ -977,7 +977,7 @@ static long init_3d(void) {
     return 1;
 }
 
-static void kill_3d(void) {
+static void kill_3d_(void) {
     sg_shutdown();
 }
 
@@ -999,7 +999,7 @@ void SetPerspective(float iCamX, float iCamY, float iCamZ, float iPoiX, float iP
     g_camera_light.ambient_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
 }
 
-static void init_scene(void) {
+static void init_scene_(void) {
     g_camera_light = (const Light){ 0 };
     g_camera_light.diffuse_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
     g_camera_light.ambient_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
@@ -1059,7 +1059,7 @@ static void init_scene(void) {
     g_pass_action.colors[0].value.a = 1.0f;
 }
 
-static void kill_scene(void) {
+static void kill_scene_(void) {
     for(int iLoop = 0; iLoop < kMAX_TEXTURES; ++iLoop) {
         if(g_textures[iLoop].id != SG_INVALID_ID) {
             sg_destroy_image(g_textures[iLoop]);
@@ -1097,7 +1097,7 @@ void RendererPostUpdate(void) {
     }
 }
 
-static void RenderObject(int object_index, long* previous_texture_index, main_shader_vs_params_t* vs_params, bool* are_fs_params_applied, main_shader_fs_params_t* fs_params, bool do_interpolation, float interpolation_scale) {
+static void RenderObject_(int object_index, long* previous_texture_index, main_shader_vs_params_t* vs_params, bool* are_fs_params_applied, main_shader_fs_params_t* fs_params, bool do_interpolation, float interpolation_scale) {
     long current_texture_index = g_mesh_texture_indices[object_index];
 
     if(*previous_texture_index != current_texture_index) {
@@ -1237,7 +1237,7 @@ void RendererDraw(bool do_interpolation, float interpolation_scale) {
 
     for(long object_index = 0; object_index < g_mesh_count; ++object_index) {
         if(g_mesh_is_visible[object_index] && !g_texture_is_alpha_blend_enabled[g_mesh_texture_indices[object_index]]) {
-            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
+            RenderObject_(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
         }
     }
 
@@ -1249,7 +1249,7 @@ void RendererDraw(bool do_interpolation, float interpolation_scale) {
 
     for(long object_index = 0; object_index < g_mesh_count; ++object_index) {
         if(g_mesh_is_visible[object_index] && g_texture_is_alpha_blend_enabled[g_mesh_texture_indices[object_index]]) {
-            RenderObject(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
+            RenderObject_(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
         }
     }
 
@@ -1257,8 +1257,8 @@ void RendererDraw(bool do_interpolation, float interpolation_scale) {
     sg_commit();
 }
 
-static void FatalError(const char* error_msg) {
-    kill_scene();
-    kill_3d();
+static void FatalError_(const char* error_msg) {
+    kill_scene_();
+    kill_3d_();
     boxerShow(error_msg, "Jumpman Zero", BoxerStyleError, BoxerButtonsOK);
 }
