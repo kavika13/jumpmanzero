@@ -223,23 +223,23 @@ static int transform_set_parent_is_camera(lua_State* lua_state) {
     return 0;
 }
 
-static int object_get_transform(lua_State* lua_state) {
-    lua_Integer arg_object_index = luaL_checkinteger(lua_state, 1);
-    int transform_index = ObjectGetTransform((long)arg_object_index);
+static int mesh_get_transform(lua_State* lua_state) {
+    lua_Integer arg_mesh_handle_index = luaL_checkinteger(lua_state, 1);
+    int transform_index = MeshGetTransform((int)arg_mesh_handle_index);
     lua_pushinteger(lua_state, transform_index);
     return 1;
 }
 
-static int object_set_transform(lua_State* lua_state) {
-    lua_Integer arg_object_index = luaL_checkinteger(lua_state, 1);
+static int mesh_set_transform(lua_State* lua_state) {
+    lua_Integer arg_mesh_handle_index = luaL_checkinteger(lua_state, 1);
     lua_Integer arg_transform_index = luaL_checkinteger(lua_state, 2);
-    ObjectSetTransform((long)arg_object_index, (int)arg_transform_index);
+    MeshSetTransform((int)arg_mesh_handle_index, (int)arg_transform_index);
     return 0;
 }
 
-static int object_clear_transform(lua_State* lua_state) {
-    lua_Integer arg_object_index = luaL_checkinteger(lua_state, 1);
-    ObjectClearTransform((long)arg_object_index);
+static int mesh_clear_transform(lua_State* lua_state) {
+    lua_Integer arg_mesh_handle_index = luaL_checkinteger(lua_state, 1);
+    MeshClearTransform((int)arg_mesh_handle_index);
     return 0;
 }
 
@@ -724,14 +724,12 @@ static void RegisterLuaScriptFunctions(lua_State* lua_state) {
     lua_setglobal(lua_state, "transform_clear_parent");
     lua_pushcfunction(lua_state, transform_set_parent_is_camera);
     lua_setglobal(lua_state, "transform_set_parent_is_camera");
-    lua_pushcfunction(lua_state, object_get_transform);
-    lua_setglobal(lua_state, "object_get_transform");
-    lua_pushcfunction(lua_state, object_get_transform);
-    lua_setglobal(lua_state, "object_get_transform");
-    lua_pushcfunction(lua_state, object_set_transform);
-    lua_setglobal(lua_state, "object_set_transform");
-    lua_pushcfunction(lua_state, object_clear_transform);
-    lua_setglobal(lua_state, "object_clear_transform");
+    lua_pushcfunction(lua_state, mesh_get_transform);
+    lua_setglobal(lua_state, "mesh_get_transform");
+    lua_pushcfunction(lua_state, mesh_set_transform);
+    lua_setglobal(lua_state, "mesh_set_transform");
+    lua_pushcfunction(lua_state, mesh_clear_transform);
+    lua_setglobal(lua_state, "mesh_clear_transform");
     lua_pushcfunction(lua_state, transform_set_to_identity);
     lua_setglobal(lua_state, "transform_set_to_identity");
     lua_pushcfunction(lua_state, transform_set_translation);

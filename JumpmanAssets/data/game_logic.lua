@@ -1775,10 +1775,10 @@ function Module.initialize(skip_play_level_music)
 
     g_player_mesh_index = load_mesh("data/stand.msh");
     g_player_transform_index = transform_create();
-    object_set_transform(g_player_mesh_index, g_player_transform_index);
+    mesh_set_transform(g_player_mesh_index, g_player_transform_index);
 
     g_player_stars_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_player_mesh_indices[player_mesh.STARS], g_player_stars_transform_indices[1]);
+    mesh_set_transform(g_player_mesh_indices[player_mesh.STARS], g_player_stars_transform_indices[1]);
     transform_set_parent(g_player_stars_transform_indices[1], g_player_stars_transform_indices[2]);
 
     -- Load character meshes

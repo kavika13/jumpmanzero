@@ -52,11 +52,11 @@ function Module.initialize()
     -- TODO: Use meshes instead of textures
     g_drop_1_mesh_index = new_mesh(Module.DropMeshResourceIndex);
     g_drop_1_transform_index = transform_create();
-    object_set_transform(g_drop_1_mesh_index, g_drop_1_transform_index);
+    mesh_set_transform(g_drop_1_mesh_index, g_drop_1_transform_index);
     g_drop_2_mesh_index = new_mesh(Module.DropMeshResourceIndex);
 
     g_drop_2_transform_index = transform_create();
-    object_set_transform(g_drop_2_mesh_index, g_drop_2_transform_index);
+    mesh_set_transform(g_drop_2_mesh_index, g_drop_2_transform_index);
     g_frames_to_wait_before_start = Module.FramesToWait;
 
     ResetMyPos_();

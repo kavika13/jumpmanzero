@@ -87,7 +87,7 @@ local function ProgressLevel_(game_input)
         for iLet = 1, #game_over_message do
             g_game_over_letter_mesh_indices[iLet] = g_game_logic.new_char_mesh(game_over_message:sub(iLet, iLet):byte(1, -1));
             g_game_over_letter_transform_indices[iLet] = transform_create();
-            object_set_transform(g_game_over_letter_mesh_indices[iLet], g_game_over_letter_transform_indices[iLet]);
+            mesh_set_transform(g_game_over_letter_mesh_indices[iLet], g_game_over_letter_transform_indices[iLet]);
             set_mesh_texture(g_game_over_letter_mesh_indices[iLet], resources.TextureNewMetal);
         end
 
@@ -163,12 +163,12 @@ function Module.initialize(game_input)
 
     g_jumpman_mesh_index = new_mesh(resources.MeshDead);
     g_jumpman_transform_index = transform_create();
-    object_set_transform(g_jumpman_mesh_index, g_jumpman_transform_index);
+    mesh_set_transform(g_jumpman_mesh_index, g_jumpman_transform_index);
     set_mesh_texture(g_jumpman_mesh_index, resources.TextureJumpman);
 
     local platform_mesh_index = g_game_logic.find_platform_by_number(1).mesh_index;  -- TODO: Use constant for num
     local platform_transform_index = transform_create();
-    object_set_transform(platform_mesh_index, platform_transform_index);
+    mesh_set_transform(platform_mesh_index, platform_transform_index);
     transform_set_scale(platform_transform_index, 30, 3, 3);
     g_game_over_message_visible = false;
     g_camera_pan_animation_timer = 100;

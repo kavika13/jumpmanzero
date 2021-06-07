@@ -492,7 +492,7 @@ function Module.initialize(game_input)
 
     local setup_mesh_transform = function(mesh_index)
         local transform_index = transform_create();
-        object_set_transform(mesh_index, transform_index);
+        mesh_set_transform(mesh_index, transform_index);
         return transform_index;
     end
 

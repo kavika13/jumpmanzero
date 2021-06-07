@@ -98,7 +98,7 @@ function Module.initialize()
 
     g_bee_mesh_index = new_mesh(g_move_animation_mesh_indices[animation_frame.MOVE_LEFT_1]);
     g_bee_transform_index = transform_create();
-    object_set_transform(g_bee_mesh_index, g_bee_transform_index);
+    mesh_set_transform(g_bee_mesh_index, g_bee_transform_index);
     set_mesh_texture(g_bee_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_bee_mesh_index, true);
 

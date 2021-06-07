@@ -193,7 +193,7 @@ local function FixHangPlatforms_()
 
     g_jumpman_hang_mesh_index = new_mesh(g_jumpman_hang_animation_mesh_indices[jumpman_hang_animation_frame.HANG_NEUTRAL]);
     g_jumpman_transform_index = transform_create();
-    object_set_transform(g_jumpman_hang_mesh_index, g_jumpman_transform_index);
+    mesh_set_transform(g_jumpman_hang_mesh_index, g_jumpman_transform_index);
     set_mesh_texture(g_jumpman_hang_mesh_index, resources.TextureJumpman);
 end
 

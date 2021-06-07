@@ -73,7 +73,7 @@ function Module.initialize()
     for iTemp = 0, kBlastParticleCount - 1 do
         g_blast_particle_mesh_indices[iTemp] = new_mesh(Module.BlastParticleMeshResourceIndex);
         g_blast_particle_transform_indices[iTemp] = { transform_create(), transform_create(), transform_create() };
-        object_set_transform(g_blast_particle_mesh_indices[iTemp], g_blast_particle_transform_indices[iTemp][1]);
+        mesh_set_transform(g_blast_particle_mesh_indices[iTemp], g_blast_particle_transform_indices[iTemp][1]);
         transform_set_parent(g_blast_particle_transform_indices[iTemp][1], g_blast_particle_transform_indices[iTemp][2]);
         transform_set_parent(g_blast_particle_transform_indices[iTemp][2], g_blast_particle_transform_indices[iTemp][3]);
         set_mesh_texture(g_blast_particle_mesh_indices[iTemp], Module.LightningTextureResourceIndex);
@@ -81,7 +81,7 @@ function Module.initialize()
 
     g_donut = Module.GameLogic.find_donut_by_number(Module.DonutNum);
     g_donut_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_donut.mesh_index, g_donut_transform_indices[1]);
+    mesh_set_transform(g_donut.mesh_index, g_donut_transform_indices[1]);
     transform_set_parent(g_donut_transform_indices[1], g_donut_transform_indices[2]);
 end
 

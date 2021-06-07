@@ -239,14 +239,14 @@ function Module.initialize()
 
     g_zap_bot_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_LEFT]);
     g_zap_bot_transform_index = transform_create();
-    object_set_transform(g_zap_bot_mesh_index, g_zap_bot_transform_index);
+    mesh_set_transform(g_zap_bot_mesh_index, g_zap_bot_transform_index);
     set_mesh_texture(g_zap_bot_mesh_index, Module.BotTextureResourceIndex);
     set_mesh_is_visible(g_zap_bot_mesh_index, true);
 
     g_wait_time_remaining = Module.WaitDuration;
     g_laser_mesh_index = new_mesh(Module.LaserMeshResourceIndex);
     g_laser_transform_index = transform_create();
-    object_set_transform(g_laser_mesh_index, g_laser_transform_index);
+    mesh_set_transform(g_laser_mesh_index, g_laser_transform_index);
     set_mesh_texture(g_laser_mesh_index, Module.LaserTextureResourceIndex);
 end
 

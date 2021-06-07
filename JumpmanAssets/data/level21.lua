@@ -168,7 +168,7 @@ local function LoadFrogMeshes_()
 
     g_frog_mesh_index = new_mesh(g_frog_animation_mesh_indices[frog_animation_frame.IDLE]);
     g_frog_transform_index = transform_create();
-    object_set_transform(g_frog_mesh_index, g_frog_transform_index);
+    mesh_set_transform(g_frog_mesh_index, g_frog_transform_index);
     set_mesh_texture(g_frog_mesh_index, resources.TextureFrog);
     set_mesh_is_visible(g_frog_mesh_index, true);
 end

@@ -205,7 +205,7 @@ function Module.initialize(game_input)
 
     local setup_object_two_transforms = function(mesh_index)
         local result = { transform_create(), transform_create() };
-        object_set_transform(mesh_index, result[1]);
+        mesh_set_transform(mesh_index, result[1]);
         transform_set_parent(result[1], result[2]);
         return result;
     end

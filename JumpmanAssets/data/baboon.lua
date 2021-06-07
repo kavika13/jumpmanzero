@@ -86,7 +86,7 @@ function Module.initialize()
 
     g_baboon_mesh_index = new_mesh(g_climb_animation_mesh_indices[animation_frame.CLIMB_1]);
     g_baboon_transform_index = transform_create();
-    object_set_transform(g_baboon_mesh_index, g_baboon_transform_index);
+    mesh_set_transform(g_baboon_mesh_index, g_baboon_transform_index);
     set_mesh_texture(g_baboon_mesh_index, Module.BaboonTextureResourceIndex);
     set_mesh_is_visible(g_baboon_mesh_index, true);
 

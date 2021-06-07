@@ -481,7 +481,7 @@ void TransformSetParentIsCamera(int transform_handle_index, bool is_parent_camer
     } // TODO: Else log?
 }
 
-int ObjectGetTransform(long mesh_handle_index) {  // TODO: Rename MeshGetTransform
+int MeshGetTransform(int mesh_handle_index) {
     int mesh_index = GetMeshIndexFromHandle(mesh_handle_index);
     int result = -1;
 
@@ -492,7 +492,7 @@ int ObjectGetTransform(long mesh_handle_index) {  // TODO: Rename MeshGetTransfo
     return result;
 }
 
-void ObjectSetTransform(long mesh_handle_index, int transform_handle_index) {  // TODO: Rename MeshSetTransform
+void MeshSetTransform(int mesh_handle_index, int transform_handle_index) {
     int mesh_index = GetMeshIndexFromHandle(mesh_handle_index);
     int transform_index = GetTransformIndexFromHandle(transform_handle_index);
 
@@ -501,7 +501,7 @@ void ObjectSetTransform(long mesh_handle_index, int transform_handle_index) {  /
     } // TODO: Else log?
 }
 
-void ObjectClearTransform(long mesh_handle_index) {  // TODO: Rename MeshClearTransform
+void MeshClearTransform(int mesh_handle_index) {
     int mesh_index = GetMeshIndexFromHandle(mesh_handle_index);
 
     if(mesh_index != -1) {

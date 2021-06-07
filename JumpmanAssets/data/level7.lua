@@ -172,7 +172,7 @@ function Module.initialize(game_input)
     set_mesh_texture(big_clock_hand_mesh_index, resources.TextureBlack);
     set_mesh_is_visible(big_clock_hand_mesh_index, true);
     g_big_clock_hand_transform_index = transform_create();
-    object_set_transform(big_clock_hand_mesh_index, g_big_clock_hand_transform_index);
+    mesh_set_transform(big_clock_hand_mesh_index, g_big_clock_hand_transform_index);
 
     g_wave = pause_wave_module();
     g_wave.GameLogic = g_game_logic;
@@ -186,7 +186,7 @@ function Module.initialize(game_input)
 
     local setup_object_two_transforms = function(mesh_index)
         local result = { transform_create(), transform_create() };
-        object_set_transform(mesh_index, result[1]);
+        mesh_set_transform(mesh_index, result[1]);
         transform_set_parent(result[1], result[2]);
         return result;
     end
@@ -200,7 +200,7 @@ function Module.initialize(game_input)
 
     local big_clock_backdrop = g_game_logic.find_backdrop_by_number(1);  -- TODO: Use constant for num
     g_big_clock_backdrop_transform_index = transform_create();
-    object_set_transform(big_clock_backdrop.mesh_index, g_big_clock_backdrop_transform_index);
+    mesh_set_transform(big_clock_backdrop.mesh_index, g_big_clock_backdrop_transform_index);
     move_transparent_mesh_to_front(big_clock_backdrop.mesh_index);
 
     Module.reset();

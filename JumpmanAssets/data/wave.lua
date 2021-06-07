@@ -27,17 +27,17 @@ local g_wave_animation_cycle_degrees = 0;
 function Module.initialize()
     g_wave_2_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
     g_wave_2_transform_index = transform_create();
-    object_set_transform(g_wave_2_mesh_index, g_wave_2_transform_index);
+    mesh_set_transform(g_wave_2_mesh_index, g_wave_2_transform_index);
     set_mesh_texture(g_wave_2_mesh_index, Module.Wave2TextureResourceIndex);
 
     g_wave_1_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
     g_wave_1_transform_index = transform_create();
-    object_set_transform(g_wave_1_mesh_index, g_wave_1_transform_index);
+    mesh_set_transform(g_wave_1_mesh_index, g_wave_1_transform_index);
     set_mesh_texture(g_wave_1_mesh_index, Module.Wave1TextureResourceIndex);
 
     g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
     g_sea_transform_index = transform_create();
-    object_set_transform(g_sea_mesh_index, g_sea_transform_index);
+    mesh_set_transform(g_sea_mesh_index, g_sea_transform_index);
     set_mesh_texture(g_sea_mesh_index, Module.SeaTextureResourceIndex);
 end
 

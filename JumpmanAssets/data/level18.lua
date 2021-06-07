@@ -245,18 +245,18 @@ function Module.initialize(game_input)
 
     g_jumpman_work_mesh_index = new_mesh(resources.MeshJMWork1);
     g_jumpman_work_transform_index = transform_create();
-    object_set_transform(g_jumpman_work_mesh_index, g_jumpman_work_transform_index);
+    mesh_set_transform(g_jumpman_work_mesh_index, g_jumpman_work_transform_index);
     set_mesh_texture(g_jumpman_work_mesh_index, resources.TextureJumpman);
     set_mesh_is_visible(g_jumpman_work_mesh_index, false);
 
     g_message_mesh_index = new_mesh(resources.MeshSquare);
     g_message_transform_index = transform_create();
-    object_set_transform(g_message_mesh_index, g_message_transform_index);
+    mesh_set_transform(g_message_mesh_index, g_message_transform_index);
     set_mesh_texture(g_message_mesh_index, resources.TextureDisarming);
 
     g_progress_bar_mesh_index = new_mesh(resources.MeshSquare);
     g_progress_bar_transform_index = transform_create();
-    object_set_transform(g_progress_bar_mesh_index, g_progress_bar_transform_index);
+    mesh_set_transform(g_progress_bar_mesh_index, g_progress_bar_transform_index);
     set_mesh_texture(g_progress_bar_mesh_index, resources.TextureBoringGreen);
 
     MoveDonuts_();

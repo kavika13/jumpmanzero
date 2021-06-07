@@ -193,7 +193,7 @@ function Module.initialize()
 
     g_shark_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.SWIM_RIGHT_1]);
     g_shark_transform_index = transform_create();
-    object_set_transform(g_shark_mesh_index, g_shark_transform_index);
+    mesh_set_transform(g_shark_mesh_index, g_shark_transform_index);
     set_mesh_texture(g_shark_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_shark_mesh_index, true);
 

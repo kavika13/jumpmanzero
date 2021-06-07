@@ -659,7 +659,7 @@ local function ProgressLevel_(game_input)
 
         local current_backdrop = g_game_logic.find_backdrop_by_number(100);  -- TODO: Use constant for num
         local backdrop_transform_index = transform_create();
-        object_set_transform(current_backdrop.mesh_index, backdrop_transform_index);
+        mesh_set_transform(current_backdrop.mesh_index, backdrop_transform_index);
         transform_set_translation(backdrop_transform_index, 40, 0, 20);
         set_mesh_texture(current_backdrop.mesh_index, resources.TextureBlack);
         set_mesh_is_visible(current_backdrop.mesh_index, true);
@@ -698,7 +698,7 @@ function Module.initialize(game_input)
     for iTemp = 0, 19 do  -- TODO: Use constant
         g_object_mesh_indices[iTemp] = new_mesh(0);
         g_object_transform_indices[iTemp] = { transform_create(), transform_create() };
-        object_set_transform(g_object_mesh_indices[iTemp], g_object_transform_indices[iTemp][1]);
+        mesh_set_transform(g_object_mesh_indices[iTemp], g_object_transform_indices[iTemp][1]);
         transform_set_parent(g_object_transform_indices[iTemp][1], g_object_transform_indices[iTemp][2]);
     end
 

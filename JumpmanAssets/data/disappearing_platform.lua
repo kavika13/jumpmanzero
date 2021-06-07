@@ -116,7 +116,7 @@ end
 function Module.initialize()
     g_platform = Module.GameLogic.get_platform(Module.PlatformIndex);
     g_platform_transform_index = transform_create();
-    object_set_transform(g_platform.mesh_index, g_platform_transform_index);
+    mesh_set_transform(g_platform.mesh_index, g_platform_transform_index);
     g_original_pos_z = g_platform.pos_z;
 end
 

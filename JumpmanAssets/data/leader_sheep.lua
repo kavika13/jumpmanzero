@@ -375,13 +375,13 @@ function Module.initialize()
 
     g_sheep_mesh_index = new_mesh(g_animation_mesh_indices[g_animation_current_frame]);
     g_sheep_transform_index = transform_create();
-    object_set_transform(g_sheep_mesh_index, g_sheep_transform_index);
+    mesh_set_transform(g_sheep_mesh_index, g_sheep_transform_index);
     set_mesh_texture(g_sheep_mesh_index, Module.SheepTextureResourceIndex);
     set_mesh_is_visible(g_sheep_mesh_index, true);
 
     g_copter_mesh_index = new_mesh(Module.CopterMeshResourceIndex);
     g_copter_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_copter_mesh_index, g_copter_transform_indices[1]);
+    mesh_set_transform(g_copter_mesh_index, g_copter_transform_indices[1]);
     transform_set_parent(g_copter_transform_indices[1], g_copter_transform_indices[2]);
    set_mesh_texture(g_copter_mesh_index, Module.CopterTextureResourceIndex);
 end

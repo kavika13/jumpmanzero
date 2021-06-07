@@ -171,7 +171,7 @@ function Module.initialize(all_blocks)
     for i = 1, kNUM_BLOCK_PIECES do
         g_block_piece_mesh_indices[i] = new_mesh(Module.BlockPieceMeshResourceIndex);
         g_block_piece_transform_indices[i] = transform_create();
-        object_set_transform(g_block_piece_mesh_indices[i], g_block_piece_transform_indices[i]);
+        mesh_set_transform(g_block_piece_mesh_indices[i], g_block_piece_transform_indices[i]);
         set_mesh_texture(g_block_piece_mesh_indices[i], Module.BlockPieceTextureResourceIndex);
     end
 

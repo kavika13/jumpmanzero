@@ -34,7 +34,7 @@ local function InitializeLetters_()
         local transform_indices = {};
         if char_mesh_index ~= -1 then
             transform_indices = { transform_create(), transform_create() };
-            object_set_transform(char_mesh_index, transform_indices[1]);
+            mesh_set_transform(char_mesh_index, transform_indices[1]);
             transform_set_parent(transform_indices[1], transform_indices[2]);
         end
 
@@ -194,22 +194,22 @@ function Module.update(game_input, skip_next_interpolation)
         for iNum = 0, 9 do
             g_fps_first_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             g_fps_first_number_transform_indices[iNum + 1] = transform_create();
-            object_set_transform(g_fps_first_number_mesh_indices[iNum + 1], g_fps_first_number_transform_indices[iNum + 1]);
+            mesh_set_transform(g_fps_first_number_mesh_indices[iNum + 1], g_fps_first_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_fps_first_number_mesh_indices[iNum + 1], letter_texture_resource_index);
 
             g_fps_second_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             g_fps_second_number_transform_indices[iNum + 1] = transform_create();
-            object_set_transform(g_fps_second_number_mesh_indices[iNum + 1], g_fps_second_number_transform_indices[iNum + 1]);
+            mesh_set_transform(g_fps_second_number_mesh_indices[iNum + 1], g_fps_second_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_fps_second_number_mesh_indices[iNum + 1], letter_texture_resource_index);
 
             g_fps_third_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             g_fps_third_number_transform_indices[iNum + 1] = transform_create();
-            object_set_transform(g_fps_third_number_mesh_indices[iNum + 1], g_fps_third_number_transform_indices[iNum + 1]);
+            mesh_set_transform(g_fps_third_number_mesh_indices[iNum + 1], g_fps_third_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_fps_third_number_mesh_indices[iNum + 1], letter_texture_resource_index);
 
             g_life_count_number_mesh_indices[iNum + 1] = Module.GameLogic.new_char_mesh(48 + iNum);
             g_life_count_number_transform_indices[iNum + 1] = transform_create();
-            object_set_transform(g_life_count_number_mesh_indices[iNum + 1], g_life_count_number_transform_indices[iNum + 1]);
+            mesh_set_transform(g_life_count_number_mesh_indices[iNum + 1], g_life_count_number_transform_indices[iNum + 1]);
             set_mesh_texture(g_life_count_number_mesh_indices[iNum + 1], letter_texture_resource_index);
         end
 
@@ -217,7 +217,7 @@ function Module.update(game_input, skip_next_interpolation)
 
         g_jumpman_icon_mesh_index = Module.GameLogic.new_char_mesh(94);
         g_jumpman_icon_transform_index = transform_create();
-        object_set_transform(g_jumpman_icon_mesh_index, g_jumpman_icon_transform_index);
+        mesh_set_transform(g_jumpman_icon_mesh_index, g_jumpman_icon_transform_index);
         set_mesh_texture(g_jumpman_icon_mesh_index, 0);  -- Jumpman texture always set to first index inside a level - TODO: Don't hard code that?
 
         -- g_jumpman_hud_background_icon_mesh_index = Module.GameLogic.new_char_mesh(37);

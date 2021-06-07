@@ -71,7 +71,7 @@ local function FindDonut_()
                     -- TODO: Should the game logic create these transforms? Get existing transform instead?
                     local new_transform_index = transform_create();
                     g_rescued_donut_mesh_index_to_transform_index_map[g_rescued_donut.mesh_index] = new_transform_index;
-                    object_set_transform(g_rescued_donut.mesh_index, new_transform_index);
+                    mesh_set_transform(g_rescued_donut.mesh_index, new_transform_index);
                 end
                 g_current_status = status_type.RESCUING_GRABBED_DONUT;
                 return;
@@ -238,14 +238,14 @@ function Module.initialize()
 
     for i = 1, 4 do
         g_claw_transform_indices[i] = { transform_create(), transform_create() };
-        object_set_transform(g_claw_mesh_indices[i], g_claw_transform_indices[i][1]);
+        mesh_set_transform(g_claw_mesh_indices[i], g_claw_transform_indices[i][1]);
         transform_set_parent(g_claw_transform_indices[i][1], g_claw_transform_indices[i][2]);
         set_mesh_texture(g_claw_mesh_indices[i], Module.ClawTextureResourceIndex);
     end
 
     g_chain_mesh_index = new_mesh(Module.ChainMeshResourceIndex);
     g_chain_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_chain_mesh_index, g_chain_transform_indices[1]);
+    mesh_set_transform(g_chain_mesh_index, g_chain_transform_indices[1]);
     transform_set_parent(g_chain_transform_indices[1], g_chain_transform_indices[2]);
     set_mesh_texture(g_chain_mesh_index, Module.ChainTextureResourceIndex);
 

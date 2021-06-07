@@ -48,7 +48,7 @@ local function CreateParticle_(iSX, iSY)
     g_particle_current_pos_x[g_particle_count] = g_particle_target_pos_x[g_particle_count] + math.random(1, 200) - 100;
     g_particle_current_pos_y[g_particle_count] = g_particle_target_pos_y[g_particle_count] + math.random(1, 200) - 100;
     g_particle_transform_indices[g_particle_count] = transform_create();
-    object_set_transform(g_particle_mesh_indices[g_particle_count], g_particle_transform_indices[g_particle_count]);
+    mesh_set_transform(g_particle_mesh_indices[g_particle_count], g_particle_transform_indices[g_particle_count]);
     set_mesh_texture(g_particle_mesh_indices[g_particle_count], Module.TextureResourceIndex);
 end
 

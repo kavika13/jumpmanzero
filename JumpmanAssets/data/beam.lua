@@ -150,19 +150,19 @@ function Module.initialize()
     --       Is that important/interesting for the animation? Or does it change nothing visually?
     g_beam_1_mesh_index = new_mesh(Module.BeamMeshResourceIndex);
     g_beam_1_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_beam_1_mesh_index, g_beam_1_transform_indices[1]);
+    mesh_set_transform(g_beam_1_mesh_index, g_beam_1_transform_indices[1]);
     transform_set_parent(g_beam_1_transform_indices[1], g_beam_1_transform_indices[2]);
     set_mesh_texture(g_beam_1_mesh_index, Module.BeamColorTextureResourceIndex);
 
     g_beam_2_mesh_index = new_mesh(Module.BeamMeshResourceIndex);
     g_beam_2_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_beam_2_mesh_index, g_beam_2_transform_indices[1]);
+    mesh_set_transform(g_beam_2_mesh_index, g_beam_2_transform_indices[1]);
     transform_set_parent(g_beam_2_transform_indices[1], g_beam_2_transform_indices[2]);
     set_mesh_texture(g_beam_2_mesh_index, Module.BeamTextureResourceIndex);
 
     g_blast_mesh_index = new_mesh(Module.BlastMeshResourceIndex);
     g_blast_transform_index = transform_create();
-    object_set_transform(g_blast_mesh_index, g_blast_transform_index);
+    mesh_set_transform(g_blast_mesh_index, g_blast_transform_index);
     set_mesh_texture(g_blast_mesh_index, Module.BlastTextureResourceIndex);
 
     g_ship_pos_z = 60;

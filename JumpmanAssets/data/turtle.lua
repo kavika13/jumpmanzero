@@ -189,7 +189,7 @@ function Module.initialize()
 
     g_turtle_mesh_index = new_mesh(g_move_animation_frames[animation_frame.MOVE_RIGHT_1]);
     g_turtle_transform_index = transform_create();
-    object_set_transform(g_turtle_mesh_index, g_turtle_transform_index);
+    mesh_set_transform(g_turtle_mesh_index, g_turtle_transform_index);
     set_mesh_texture(g_turtle_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_turtle_mesh_index, true);
 

@@ -335,7 +335,7 @@ function Module.initialize()
 
     g_mesh_index = new_mesh(Module.MeshResourceIndex);
     g_transform_index = transform_create();
-    object_set_transform(g_mesh_index, g_transform_index);
+    mesh_set_transform(g_mesh_index, g_transform_index);
     set_mesh_texture(g_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_mesh_index, true);
 end

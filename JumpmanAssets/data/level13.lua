@@ -95,7 +95,7 @@ local function SetConfig_()
 
         platform_to_hide.set_pos_y(500, 500);
         local transform_index = transform_create();
-        object_set_transform(platform_to_hide.mesh_index, transform_index);
+        mesh_set_transform(platform_to_hide.mesh_index, transform_index);
         transform_set_translation(transform_index, 0, 0, 2000);  -- Can't just set_mesh_is_visible because it will be undone by ResetVisible_
     end
 end
@@ -227,7 +227,7 @@ function Module.initialize(game_input)
 
     local setup_object_two_transforms = function(mesh_index)
         local result = { transform_create(), transform_create() };
-        object_set_transform(mesh_index, result[1]);
+        mesh_set_transform(mesh_index, result[1]);
         transform_set_parent(result[1], result[2]);
         return result;
     end

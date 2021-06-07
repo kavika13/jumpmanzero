@@ -322,7 +322,7 @@ function Module.initialize()
 
     g_run_donut_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.MOVE_1]);
     g_run_donut_transform_index = transform_create();
-    object_set_transform(g_run_donut_mesh_index, g_run_donut_transform_index);
+    mesh_set_transform(g_run_donut_mesh_index, g_run_donut_transform_index);
     set_mesh_texture(g_run_donut_mesh_index, Module.TextureResourceIndex);
 
     g_current_status = status_type.HATCHING;

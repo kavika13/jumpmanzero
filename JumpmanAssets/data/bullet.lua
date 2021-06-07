@@ -147,12 +147,12 @@ end
 function Module.initialize()
     g_mesh_1_mesh_index = new_mesh(Module.Mesh1Index);
     g_mesh_1_transform_index = transform_create();
-    object_set_transform(g_mesh_1_mesh_index, g_mesh_1_transform_index);
+    mesh_set_transform(g_mesh_1_mesh_index, g_mesh_1_transform_index);
     set_mesh_texture(g_mesh_1_mesh_index, Module.TextureIndex);
 
     g_mesh_2_mesh_index = new_mesh(Module.Mesh2Index);
     g_mesh_2_transform_index = transform_create();
-    object_set_transform(g_mesh_2_mesh_index, g_mesh_2_transform_index);
+    mesh_set_transform(g_mesh_2_mesh_index, g_mesh_2_transform_index);
     set_mesh_texture(g_mesh_2_mesh_index, Module.TextureIndex);
 
     g_maximum_pos_x = Module.GameLogic.get_level_extent_x() + 40;

@@ -366,7 +366,7 @@ local function InitializeLetters_()
         table.insert(g_title_letter_mesh_indices, char_mesh_index);
 
         local char_transform_index = transform_create();
-        object_set_transform(char_mesh_index, char_transform_index);
+        mesh_set_transform(char_mesh_index, char_transform_index);
         table.insert(g_title_letter_transform_indices, char_transform_index);
     end
 
@@ -380,7 +380,7 @@ local function InitializeLetters_()
 
             if letter_mesh_index ~= -1 then
                 letter_transform_index = transform_create();
-                object_set_transform(letter_mesh_index, letter_transform_index);
+                mesh_set_transform(letter_mesh_index, letter_transform_index);
             end
 
             table.insert(g_option_letter_transform_indices, letter_transform_index);

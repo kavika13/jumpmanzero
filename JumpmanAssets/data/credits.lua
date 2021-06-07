@@ -79,7 +79,7 @@ local function StartLine_(iLine)
 
         if char_mesh_index > 0 then
             local char_transform_index = transform_create();
-            object_set_transform(char_mesh_index, char_transform_index);
+            mesh_set_transform(char_mesh_index, char_transform_index);
 
             table.insert(g_letter_mesh_indices, char_mesh_index);
             table.insert(g_letter_transform_indices, char_transform_index);

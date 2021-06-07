@@ -223,7 +223,7 @@ local function SetPlatformData_(platform_num)
     local current_platform = g_game_logic.find_platform_by_number(platform_num);
 
     g_platform_transform_indices[platform_num] = transform_create();
-    object_set_transform(current_platform.mesh_index, g_platform_transform_indices[platform_num]);
+    mesh_set_transform(current_platform.mesh_index, g_platform_transform_indices[platform_num]);
 
     g_platform_indices[platform_num] = current_platform.index;
     g_platforms_x1[platform_num] = current_platform.pos_upper_left[1];
@@ -259,12 +259,12 @@ function Module.initialize(game_input)
 
     g_small_gears_background_mesh_index = new_mesh(resources.MeshSphere);
     g_small_gears_background_transform_index = transform_create();
-    object_set_transform(g_small_gears_background_mesh_index, g_small_gears_background_transform_index);
+    mesh_set_transform(g_small_gears_background_mesh_index, g_small_gears_background_transform_index);
     set_mesh_texture(g_small_gears_background_mesh_index, resources.TextureBoringGray);
 
     g_large_gears_background_mesh_index = new_mesh(resources.MeshSphere);
     g_large_gears_background_transform_index = transform_create();
-    object_set_transform(g_large_gears_background_mesh_index, g_large_gears_background_transform_index);
+    mesh_set_transform(g_large_gears_background_mesh_index, g_large_gears_background_transform_index);
     set_mesh_texture(g_large_gears_background_mesh_index, resources.TextureBoringGray);
 
     Module.reset();

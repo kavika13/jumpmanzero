@@ -187,7 +187,7 @@ function Module.initialize()
 
     g_penguin_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.STAND_FRONT]);
     g_penguin_transform_index = transform_create();
-    object_set_transform(g_penguin_mesh_index, g_penguin_transform_index);
+    mesh_set_transform(g_penguin_mesh_index, g_penguin_transform_index);
     set_mesh_texture(g_penguin_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_penguin_mesh_index, true);
 end

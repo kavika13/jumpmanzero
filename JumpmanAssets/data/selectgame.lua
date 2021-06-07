@@ -242,7 +242,7 @@ local function InitializeLetters_()
 
             if char_mesh_index ~= -1 then
                 char_transform_index = transform_create();
-                object_set_transform(char_mesh_index, char_transform_index);
+                mesh_set_transform(char_mesh_index, char_transform_index);
             end
 
             table.insert(g_letter_transform_indices, char_transform_index);

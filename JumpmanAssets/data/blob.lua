@@ -81,7 +81,7 @@ end
 function Module.initialize()
     g_blob_mesh_index = new_mesh(Module.MoveRightMeshResourceIndices[1]);
     g_blob_transform_indices = { transform_create(), transform_create() };
-    object_set_transform(g_blob_mesh_index, g_blob_transform_indices[1]);
+    mesh_set_transform(g_blob_mesh_index, g_blob_transform_indices[1]);
     transform_set_parent(g_blob_transform_indices[1], g_blob_transform_indices[2]);
     set_mesh_texture(g_blob_mesh_index, Module.TextureResourceIndex);
 

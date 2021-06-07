@@ -188,13 +188,13 @@ function Module.initialize()
 
     g_jumper_mesh_index = new_mesh(g_animation_mesh_indices[animation_frame.JUMP_1]);
     g_jumper_transform_index = transform_create();
-    object_set_transform(g_jumper_mesh_index, g_jumper_transform_index);
+    mesh_set_transform(g_jumper_mesh_index, g_jumper_transform_index);
     set_mesh_texture(g_jumper_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_jumper_mesh_index, true);
 
     g_eye_mesh_index = new_mesh(Module.EyesMeshResourceIndex);
     g_eye_transform_index = transform_create();
-    object_set_transform(g_eye_mesh_index, g_eye_transform_index);
+    mesh_set_transform(g_eye_mesh_index, g_eye_transform_index);
     set_mesh_texture(g_eye_mesh_index, Module.TextureResourceIndex);
     set_mesh_is_visible(g_eye_mesh_index, true);
 

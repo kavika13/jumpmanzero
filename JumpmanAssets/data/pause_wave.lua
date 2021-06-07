@@ -30,19 +30,19 @@ function Module.initialize()
 
     g_wave_back_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
     g_wave_back_transform_index = transform_create();
-    object_set_transform(g_wave_back_mesh_index, g_wave_back_transform_index);
+    mesh_set_transform(g_wave_back_mesh_index, g_wave_back_transform_index);
     set_mesh_texture(g_wave_back_mesh_index, Module.Wave2TextureResourceIndex);
     move_transparent_mesh_to_back(g_wave_back_mesh_index);
 
     g_wave_front_mesh_index = new_mesh(Module.WaveMeshResourceIndex);
     g_wave_front_transform_index = transform_create();
-    object_set_transform(g_wave_front_mesh_index, g_wave_front_transform_index);
+    mesh_set_transform(g_wave_front_mesh_index, g_wave_front_transform_index);
     set_mesh_texture(g_wave_front_mesh_index, Module.Wave1TextureResourceIndex);
     move_transparent_mesh_to_front(g_wave_front_mesh_index);
 
     g_sea_mesh_index = new_mesh(Module.SeaMeshResourceIndex);
     g_sea_transform_index = transform_create();
-    object_set_transform(g_sea_mesh_index, g_sea_transform_index);
+    mesh_set_transform(g_sea_mesh_index, g_sea_transform_index);
     set_mesh_texture(g_sea_mesh_index, Module.SeaTextureResourceIndex);
     move_transparent_mesh_to_front(g_sea_mesh_index);
 

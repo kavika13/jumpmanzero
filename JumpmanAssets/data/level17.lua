@@ -421,7 +421,7 @@ function Module.initialize(game_input)
         local current_arrow_backdrop = g_game_logic.find_backdrop_by_number(iArrow);
         g_arrow_cooldown_frames[iArrow] = 0;
         g_arrow_backdrop_transform_indices[iArrow] = { transform_create(), transform_create() };
-        object_set_transform(current_arrow_backdrop.mesh_index, g_arrow_backdrop_transform_indices[iArrow][1]);
+        mesh_set_transform(current_arrow_backdrop.mesh_index, g_arrow_backdrop_transform_indices[iArrow][1]);
         transform_set_parent(g_arrow_backdrop_transform_indices[iArrow][1], g_arrow_backdrop_transform_indices[iArrow][2]);
     end
 
@@ -429,7 +429,7 @@ function Module.initialize(game_input)
         local current_platform = g_game_logic.get_platform(platform_index);
         -- TODO: Figure out how to reduce transform count
         g_platform_transform_indices[platform_index] = { transform_create(), transform_create(), transform_create(), transform_create() };
-        object_set_transform(current_platform.mesh_index, g_platform_transform_indices[platform_index][1]);
+        mesh_set_transform(current_platform.mesh_index, g_platform_transform_indices[platform_index][1]);
         transform_set_parent(g_platform_transform_indices[platform_index][1], g_platform_transform_indices[platform_index][2]);
         transform_set_parent(g_platform_transform_indices[platform_index][2], g_platform_transform_indices[platform_index][3]);
         transform_set_parent(g_platform_transform_indices[platform_index][3], g_platform_transform_indices[platform_index][4]);
@@ -439,7 +439,7 @@ function Module.initialize(game_input)
         local current_ladder = g_game_logic.get_ladder(ladder_index);
         -- TODO: Figure out how to reduce transform count
         g_ladder_transform_indices[ladder_index] = { transform_create(), transform_create(), transform_create(), transform_create() };
-        object_set_transform(current_ladder.mesh_index, g_ladder_transform_indices[ladder_index][1]);
+        mesh_set_transform(current_ladder.mesh_index, g_ladder_transform_indices[ladder_index][1]);
         transform_set_parent(g_ladder_transform_indices[ladder_index][1], g_ladder_transform_indices[ladder_index][2]);
         transform_set_parent(g_ladder_transform_indices[ladder_index][2], g_ladder_transform_indices[ladder_index][3]);
         transform_set_parent(g_ladder_transform_indices[ladder_index][3], g_ladder_transform_indices[ladder_index][4]);
@@ -449,7 +449,7 @@ function Module.initialize(game_input)
         local current_donut = g_game_logic.get_donut(donut_index);
         -- TODO: Figure out how to reduce transform count
         g_donut_transform_indices[donut_index] = { transform_create(), transform_create(), transform_create(), transform_create() };
-        object_set_transform(current_donut.mesh_index, g_donut_transform_indices[donut_index][1]);
+        mesh_set_transform(current_donut.mesh_index, g_donut_transform_indices[donut_index][1]);
         transform_set_parent(g_donut_transform_indices[donut_index][1], g_donut_transform_indices[donut_index][2]);
         transform_set_parent(g_donut_transform_indices[donut_index][2], g_donut_transform_indices[donut_index][3]);
         transform_set_parent(g_donut_transform_indices[donut_index][3], g_donut_transform_indices[donut_index][4]);
@@ -459,7 +459,7 @@ function Module.initialize(game_input)
         local current_vine = g_game_logic.get_vine(vine_index);
         -- TODO: Figure out how to reduce transform count
         g_vine_transform_indices[vine_index] = { transform_create(), transform_create(), transform_create(), transform_create() };
-        object_set_transform(current_vine.mesh_index, g_vine_transform_indices[vine_index][1]);
+        mesh_set_transform(current_vine.mesh_index, g_vine_transform_indices[vine_index][1]);
         transform_set_parent(g_vine_transform_indices[vine_index][1], g_vine_transform_indices[vine_index][2]);
         transform_set_parent(g_vine_transform_indices[vine_index][2], g_vine_transform_indices[vine_index][3]);
         transform_set_parent(g_vine_transform_indices[vine_index][3], g_vine_transform_indices[vine_index][4]);

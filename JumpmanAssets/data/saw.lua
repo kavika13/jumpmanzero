@@ -142,7 +142,7 @@ end
 function Module.initialize()
     g_saw_mesh_index = new_mesh(Module.MeshResourceIndex);
     g_saw_transform_index = transform_create();
-    object_set_transform(g_saw_mesh_index, g_saw_transform_index);
+    mesh_set_transform(g_saw_mesh_index, g_saw_transform_index);
     set_mesh_texture(g_saw_mesh_index, Module.TextureResourceIndex);
 
     g_current_pos_x = Module.InitialPosX;

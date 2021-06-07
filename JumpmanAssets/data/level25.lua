@@ -448,7 +448,7 @@ local function InitSplashParticles_()
     for particle_index = 1, 20 do
         g_splash_particle_mesh_indices[particle_index] = new_mesh(resources.MeshSquare);
         g_splash_particle_transform_indices[particle_index] = transform_create();
-        object_set_transform(g_splash_particle_mesh_indices[particle_index], g_splash_particle_transform_indices[particle_index]);
+        mesh_set_transform(g_splash_particle_mesh_indices[particle_index], g_splash_particle_transform_indices[particle_index]);
         set_mesh_texture(g_splash_particle_mesh_indices[particle_index], resources.TextureSBit);
     end
 
@@ -500,7 +500,7 @@ function Module.initialize(game_input)
 
     g_jumpman_swim_mesh_index = new_mesh(g_swim_animation_mesh_indices[swim_animation_frame.SWIM_TREAD_WATER_1]);
     g_jumpman_swim_transform_index = transform_create();
-    object_set_transform(g_jumpman_swim_mesh_index, g_jumpman_swim_transform_index);
+    mesh_set_transform(g_jumpman_swim_mesh_index, g_jumpman_swim_transform_index);
     set_mesh_texture(g_jumpman_swim_mesh_index, resources.TextureJumpman);
 
     InitSplashParticles_();
