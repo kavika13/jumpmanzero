@@ -33,12 +33,9 @@ typedef struct LuaModuleScriptContext {
 static const char* g_game_base_path;
 
 static int g_loaded_texture_count;
-static int g_loaded_mesh_count;
 static int g_loaded_sound_count;
 
 #define kMAX_SCRIPT_MESHES ((size_t)600)
-
-static int g_script_mesh_handle_indices[kMAX_SCRIPT_MESHES];  // TODO: Shouldn't need this mapping. If delete/create are set up correctly in Basic3D, can skip
 
 static LuaModuleScriptContext g_main_script_context = { 0, -1 };
 
@@ -55,7 +52,6 @@ static int unload_all_resources(lua_State* lua_state) {
     Clear3dData();
 
     g_loaded_texture_count = 0;
-    g_loaded_mesh_count = 0;
     g_loaded_sound_count = 0;
 
     return 0;
@@ -130,25 +126,21 @@ static int load_texture(lua_State* lua_state) {
 }
 
 static int LoadMesh(const char* base_path, const char* sFileName) {
-    unsigned char* cData;
-    long* vertex_components;
     char sFullFile[300];
-    int result_mesh_handle_index;
-    int vertex_component_count;
 
     stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/%s", base_path, sFileName);
 
-    cData = NULL;
-    vertex_component_count = FileToString(sFullFile, &cData);
+    unsigned char* cData = NULL;
+    int vertex_component_count = FileToString(sFullFile, &cData);
     vertex_component_count = vertex_component_count / 4;
 
-    vertex_components = (long*)(malloc(vertex_component_count * sizeof(long)));
+    long* vertex_components = (long*)(malloc(vertex_component_count * sizeof(long)));
 
     for(int component_index = 0; component_index < vertex_component_count; ++component_index) {
         vertex_components[component_index] = StringToLong(&cData[component_index << 2]);
     }
 
-    MeshCreateFromVertexComponents(vertex_components, vertex_component_count / 9, &result_mesh_handle_index);
+    int result_mesh_handle_index = MeshCreateFromVertexComponents(vertex_components, vertex_component_count / 9);
 
     free(cData);
     free(vertex_components);
@@ -159,20 +151,15 @@ static int LoadMesh(const char* base_path, const char* sFileName) {
 static int load_mesh(lua_State* lua_state) {
     // TODO: Error checking for filename?
     const char* filename_arg = lua_tostring(lua_state, 1);
-
-    assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     int loaded_mesh_handle_index = LoadMesh(g_game_base_path, filename_arg);
-    g_script_mesh_handle_indices[g_loaded_mesh_count] = loaded_mesh_handle_index;
     lua_pushinteger(lua_state, loaded_mesh_handle_index);
-    ++g_loaded_mesh_count;
-
     return 1;
 }
 
 static int set_mesh_to_mesh(lua_State* lua_state) {
     lua_Integer target_mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
     lua_Integer source_mesh_handle_index_arg = luaL_checkinteger(lua_state, 2);
-    MeshReplaceWithCopy((int)target_mesh_handle_index_arg, g_script_mesh_handle_indices[(int)source_mesh_handle_index_arg]);
+    MeshReplaceWithCopy((int)target_mesh_handle_index_arg, (int)source_mesh_handle_index_arg);
     return 0;
 }
 
@@ -452,10 +439,7 @@ static int create_mesh(lua_State* lua_state) {
         lua_pop(lua_state, 1);  // Current vertex table
     }
 
-    assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
     int new_mesh_handle_index = MeshCreateFromVertices(new_mesh_vertices, (int)vertex_count, texture_index_arg, is_visible_arg);
-    g_script_mesh_handle_indices[g_loaded_mesh_count] = new_mesh_handle_index;
-    ++g_loaded_mesh_count;
 
     lua_pushnumber(lua_state, (lua_Number)new_mesh_handle_index);
 
@@ -464,11 +448,7 @@ static int create_mesh(lua_State* lua_state) {
 
 static int new_mesh(lua_State* lua_state) {
     double script_mesh_index_arg = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
-    assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
-    int new_mesh_handle_index;
-    MeshCreateFromCopy(g_script_mesh_handle_indices[(int)script_mesh_index_arg], &new_mesh_handle_index);
-    g_script_mesh_handle_indices[g_loaded_mesh_count] = new_mesh_handle_index;
-    ++g_loaded_mesh_count;
+    int new_mesh_handle_index = MeshCreateFromCopy((int)script_mesh_index_arg);
     lua_pushnumber(lua_state, new_mesh_handle_index);
     return 1;
 }
@@ -635,10 +615,7 @@ static int play_sound_effect(lua_State* lua_state) {
 
 static int delete_mesh(lua_State* lua_state) {
     double mesh_handle_index_arg = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
-    // TODO: Does this assert make sense? assert(mesh_index < g_loaded_mesh_count);
     MeshDelete((int)mesh_handle_index_arg);
-    // TODO: Need to decrement the mesh counter here, but can't without messing with future mesh index allocations
-    //       Is there a way to just rely on Basic3D to handle the mesh tracking stuff somehow?
     return 0;
 }
 
@@ -933,10 +910,6 @@ static bool CallLuaModuleFunction(LuaModuleScriptContext* script_context, const 
 // ------------------- API FOR PLATFORM LAYER -------------------------------
 
 bool Init3D(void) {
-    for(int mesh_index = 0; mesh_index < kMAX_SCRIPT_MESHES; ++mesh_index) {
-        g_script_mesh_handle_indices[mesh_index] = -1;
-    }
-
     if(!InitializeAll()) {
         return 0;
     }

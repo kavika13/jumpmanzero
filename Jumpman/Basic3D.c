@@ -111,7 +111,6 @@ static int g_transform_handle_first_free_index;
 
 static int g_mesh_count = 0;
 
-static int g_mesh_handles[kMAX_MESHES];
 static int g_mesh_vertex_start_indices[kMAX_MESHES];
 static int g_mesh_vertex_counts[kMAX_MESHES];
 static int g_mesh_texture_indices[kMAX_MESHES];
@@ -121,6 +120,10 @@ static bool g_mesh_is_visible_previous[kMAX_MESHES];
 static hmm_vec2 g_mesh_uv_offsets_previous[kMAX_MESHES];
 static bool g_mesh_animation_is_continuous[kMAX_MESHES];
 static int g_mesh_transform_indices[kMAX_MESHES];
+
+static int g_mesh_handles[kMAX_MESHES];
+static int g_mesh_handle_next_free_indices[kMAX_MESHES];
+static int g_mesh_handle_first_free_index;
 
 // Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
@@ -310,12 +313,16 @@ void Clear3dData(void) {
     g_mesh_count = 0;
 
     for(int mesh_index = 0; mesh_index < kMAX_MESHES; ++mesh_index) {
-        g_mesh_handles[mesh_index] = -1;
         g_mesh_uv_offsets[mesh_index] = (const hmm_vec2){ 0 };
         g_mesh_animation_is_continuous[mesh_index] = false;
         g_mesh_transform_indices[mesh_index] = -1;
         // TODO: Set visibility?
+        g_mesh_handles[mesh_index] = -1;
+        g_mesh_handle_next_free_indices[mesh_index] = mesh_index + 1;
     }
+
+    g_mesh_handle_next_free_indices[kMAX_MESHES - 1] = -1;
+    g_mesh_handle_first_free_index = 0;
 
     g_vertices_to_load_count = 0;
 }
@@ -869,92 +876,104 @@ static void MeshSwap_(int mesh_index_1, int mesh_index_2) {
     SwapInt_(&g_mesh_handles[mesh_handle_index_1], &g_mesh_handles[mesh_handle_index_2]);
 }
 
-void MeshCreateFromVertexComponents(long* vertex_components, int vertex_count, int* result_mesh_handle_index) {
-    *result_mesh_handle_index = g_mesh_count;
+int MeshCreateFromVertexComponents(long* vertex_components, int vertex_count) {
+    assert(g_mesh_count < kMAX_MESHES);
+    assert(g_mesh_handle_first_free_index != -1);
+    int new_mesh_handle_index = -1;
 
-    g_mesh_handles[g_mesh_count] = g_mesh_count;  // TODO: Find next free handle instead of assuming it's sequentially loaded from 0
-    g_mesh_vertex_start_indices[g_mesh_count] = g_vertices_to_load_count;
-    g_mesh_vertex_counts[g_mesh_count] = vertex_count;
+    if(g_mesh_count < kMAX_TRANSFORMS && g_mesh_handle_first_free_index != -1) {
+        int new_mesh_index = g_mesh_count;
 
-    g_mesh_texture_indices[g_mesh_count] = -1;
-    g_mesh_is_visible[g_mesh_count] = false;
-    g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
-    g_mesh_animation_is_continuous[g_mesh_count] = false;
-    // TODO: Set visibility?
+        g_mesh_vertex_start_indices[new_mesh_index] = g_vertices_to_load_count;
+        g_mesh_vertex_counts[new_mesh_index] = vertex_count;
 
-    for(int vertex_index = 0; vertex_index < vertex_count; ++vertex_index) {
-        g_vertices_to_load[g_vertices_to_load_count].x = vertex_components[vertex_index * 9 + 0] / 256.0f;
-        g_vertices_to_load[g_vertices_to_load_count].y = vertex_components[vertex_index * 9 + 1] / 256.0f;
-        g_vertices_to_load[g_vertices_to_load_count].z = vertex_components[vertex_index * 9 + 2] / 256.0f;
-        g_vertices_to_load[g_vertices_to_load_count].nx = vertex_components[vertex_index * 9 + 3] / 256.0f;
-        g_vertices_to_load[g_vertices_to_load_count].ny = vertex_components[vertex_index * 9 + 4] / 256.0f;
-        g_vertices_to_load[g_vertices_to_load_count].nz = vertex_components[vertex_index * 9 + 5] / 256.0f;
-        g_vertices_to_load[g_vertices_to_load_count].tu = vertex_components[vertex_index * 9 + 7] / 256.0f;
-        g_vertices_to_load[g_vertices_to_load_count].tv = vertex_components[vertex_index * 9 + 8] / 256.0f;
+        g_mesh_texture_indices[new_mesh_index] = -1;
+        g_mesh_is_visible[new_mesh_index] = false;
+        g_mesh_uv_offsets[new_mesh_index] = (const hmm_vec2){ 0 };
+        g_mesh_animation_is_continuous[new_mesh_index] = false;
+        // TODO: Set visibility?
 
-        ++g_vertices_to_load_count;
-    }
+        for(int vertex_index = 0; vertex_index < vertex_count; ++vertex_index) {
+            g_vertices_to_load[g_vertices_to_load_count].x = vertex_components[vertex_index * 9 + 0] / 256.0f;
+            g_vertices_to_load[g_vertices_to_load_count].y = vertex_components[vertex_index * 9 + 1] / 256.0f;
+            g_vertices_to_load[g_vertices_to_load_count].z = vertex_components[vertex_index * 9 + 2] / 256.0f;
+            g_vertices_to_load[g_vertices_to_load_count].nx = vertex_components[vertex_index * 9 + 3] / 256.0f;
+            g_vertices_to_load[g_vertices_to_load_count].ny = vertex_components[vertex_index * 9 + 4] / 256.0f;
+            g_vertices_to_load[g_vertices_to_load_count].nz = vertex_components[vertex_index * 9 + 5] / 256.0f;
+            g_vertices_to_load[g_vertices_to_load_count].tu = vertex_components[vertex_index * 9 + 7] / 256.0f;
+            g_vertices_to_load[g_vertices_to_load_count].tv = vertex_components[vertex_index * 9 + 8] / 256.0f;
 
-    ++g_mesh_count;
+            ++g_vertices_to_load_count;
+        }
+
+        ++g_mesh_count;
+
+        new_mesh_handle_index = g_mesh_handle_first_free_index;
+        g_mesh_handles[new_mesh_handle_index] = new_mesh_index;
+        g_mesh_handle_first_free_index = g_mesh_handle_next_free_indices[g_mesh_handle_first_free_index];
+    } // TODO: Else log?
+
+    return new_mesh_handle_index;
 }
 
 int MeshCreateFromVertices(MeshVertex* vertices, int vertex_count, int texture_index, bool is_visible) {
-    int result_mesh_handle_index = g_mesh_count;
+    assert(g_mesh_count < kMAX_MESHES);
+    assert(g_mesh_handle_first_free_index != -1);
+    int new_mesh_handle_index = -1;
 
-    g_mesh_handles[g_mesh_count] = g_mesh_count;  // TODO: Find next free handle instead of assuming it's sequentially loaded from 0
-    g_mesh_vertex_start_indices[g_mesh_count] = g_vertices_to_load_count;
-    g_mesh_vertex_counts[g_mesh_count] = vertex_count;
+    if(g_mesh_count < kMAX_TRANSFORMS && g_mesh_handle_first_free_index != -1) {
+        int new_mesh_index = g_mesh_count;
 
-    g_mesh_texture_indices[g_mesh_count] = texture_index;
-    g_mesh_is_visible[g_mesh_count] = is_visible;
-    g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
-    g_mesh_animation_is_continuous[g_mesh_count] = false;
-    // TODO: Set visibility?
+        g_mesh_vertex_start_indices[new_mesh_index] = g_vertices_to_load_count;
+        g_mesh_vertex_counts[new_mesh_index] = vertex_count;
 
-    for(size_t vertex_index = 0; vertex_index < vertex_count; ++vertex_index) {
-        g_vertices_to_load[g_vertices_to_load_count] = vertices[vertex_index];
-        ++g_vertices_to_load_count;
+        g_mesh_texture_indices[new_mesh_index] = texture_index;
+        g_mesh_is_visible[new_mesh_index] = is_visible;
+        g_mesh_uv_offsets[new_mesh_index] = (const hmm_vec2){ 0 };
+        g_mesh_animation_is_continuous[new_mesh_index] = false;
+        // TODO: Set visibility?
+
+        for(size_t vertex_index = 0; vertex_index < vertex_count; ++vertex_index) {
+            g_vertices_to_load[g_vertices_to_load_count] = vertices[vertex_index];
+            ++g_vertices_to_load_count;
+        }
+
+        ++g_mesh_count;
+
+        new_mesh_handle_index = g_mesh_handle_first_free_index;
+        g_mesh_handles[new_mesh_handle_index] = new_mesh_index;
+        g_mesh_handle_first_free_index = g_mesh_handle_next_free_indices[g_mesh_handle_first_free_index];
     }
 
-    ++g_mesh_count;
-
-    return result_mesh_handle_index;
+    return new_mesh_handle_index;
 }
 
-void MeshCreateFromCopy(int source_mesh_handle_index, int* result_mesh_handle_index) {
-    assert(result_mesh_handle_index != NULL);
+int MeshCreateFromCopy(int source_mesh_handle_index) {
+    assert(g_mesh_count < kMAX_MESHES);
+    assert(g_mesh_handle_first_free_index != -1);
     int source_mesh_index = GetMeshIndexFromHandle_(source_mesh_handle_index);
     int new_mesh_handle_index = -1;
 
-    if(source_mesh_index != -1) {
-        // TODO: Use free list instead
-        for(int mesh_handle_index = 0; mesh_handle_index < kMAX_MESHES && new_mesh_handle_index == -1; ++mesh_handle_index) {
-            if(g_mesh_handles[mesh_handle_index] == -1) {
-                new_mesh_handle_index = mesh_handle_index;
-            }
-        }
+    if(g_mesh_count < kMAX_TRANSFORMS && g_mesh_handle_first_free_index != -1 && source_mesh_index != -1) {
+        int new_mesh_index = g_mesh_count;
 
-        if(new_mesh_handle_index == -1) {
-            boxerShow("Too many meshes!", "Jumpman Zero", BoxerStyleError, BoxerButtonsOK);  // TODO: Better error handling?
-        } else {
-            g_mesh_handles[new_mesh_handle_index] = g_mesh_count;
+        g_mesh_vertex_start_indices[new_mesh_index] = g_mesh_vertex_start_indices[source_mesh_index];
+        g_mesh_vertex_counts[new_mesh_index] = g_mesh_vertex_counts[source_mesh_index];
 
-            g_mesh_vertex_start_indices[g_mesh_count] = g_mesh_vertex_start_indices[source_mesh_index];
-            g_mesh_vertex_counts[g_mesh_count] = g_mesh_vertex_counts[source_mesh_index];
+        g_mesh_texture_indices[new_mesh_index] = -1;  // TODO: Copy texture over?
+        g_mesh_is_visible[new_mesh_index] = false;
+        g_mesh_uv_offsets[new_mesh_index] = (const hmm_vec2){ 0 };
+        g_mesh_animation_is_continuous[new_mesh_index] = false;
+        // TODO: Set visibility?
 
-            g_mesh_texture_indices[g_mesh_count] = -1;
-            g_mesh_is_visible[g_mesh_count] = false;
-            g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
-            g_mesh_animation_is_continuous[g_mesh_count] = false;
-            // TODO: Set visibility?
+        ++g_mesh_count;
 
-            ++g_mesh_count;
-        }
+        new_mesh_handle_index = g_mesh_handle_first_free_index;
+        g_mesh_handles[new_mesh_handle_index] = new_mesh_index;
+        g_mesh_handle_first_free_index = g_mesh_handle_next_free_indices[g_mesh_handle_first_free_index];
     }
 
-    if(result_mesh_handle_index != NULL) {
-        *result_mesh_handle_index = new_mesh_handle_index;
-    }
+    return new_mesh_handle_index;
 }
 
 void MeshReplaceWithCopy(int target_mesh_handle_index, int source_mesh_handle_index) {
@@ -967,15 +986,40 @@ void MeshReplaceWithCopy(int target_mesh_handle_index, int source_mesh_handle_in
     }
 }
 
-void MeshDelete(int mesh_handle_index) {
-    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+void MeshDelete(int deleting_mesh_handle_index) {
+    assert(g_mesh_count > 0);
+    int deleting_mesh_index = GetMeshIndexFromHandle_(deleting_mesh_handle_index);
 
-    if(mesh_index != -1) {
-        // TODO: Implement free list
-        MeshSwap_(mesh_index, g_mesh_count - 1);
-        g_mesh_handles[mesh_handle_index] = -1;
+    if(g_mesh_count > 0 && deleting_mesh_index != -1) {
+        int last_mesh_index = g_mesh_count - 1;
+
+        if(g_mesh_count > 1 && deleting_mesh_index < last_mesh_index) {
+            // Overwrite the mesh being deleted with the last mesh
+            g_mesh_uv_offsets[deleting_mesh_index] = g_mesh_uv_offsets[last_mesh_index];
+            g_mesh_uv_offsets_previous[deleting_mesh_index] = g_mesh_uv_offsets_previous[last_mesh_index];
+            g_mesh_animation_is_continuous[deleting_mesh_index] = g_mesh_animation_is_continuous[last_mesh_index];
+
+            g_mesh_vertex_start_indices[deleting_mesh_index] = g_mesh_vertex_start_indices[last_mesh_index];
+            g_mesh_vertex_counts[deleting_mesh_index] = g_mesh_vertex_counts[last_mesh_index];
+            g_mesh_texture_indices[deleting_mesh_index] = g_mesh_texture_indices[last_mesh_index];
+            g_mesh_is_visible[deleting_mesh_index] = g_mesh_is_visible[last_mesh_index];
+            g_mesh_is_visible_previous[deleting_mesh_index] = g_mesh_is_visible_previous[last_mesh_index];
+
+            g_mesh_transform_indices[deleting_mesh_index] = g_mesh_transform_indices[last_mesh_index];
+
+            // Redirect all handles that pointed at the last mesh to its new location
+            for(int handle_index = 0; handle_index < kMAX_MESHES; ++handle_index) {
+                if(g_mesh_handles[handle_index] == last_mesh_index) {
+                    g_mesh_handles[handle_index] = deleting_mesh_index;
+                }
+            }
+        }
+
+        g_mesh_handle_next_free_indices[deleting_mesh_handle_index] = g_mesh_handle_first_free_index;
+        g_mesh_handle_first_free_index = deleting_mesh_handle_index;
+
         --g_mesh_count;
-    }
+    } // TODO: Else log?
 }
 
 void MeshSetIsVisible(int mesh_handle_index, bool is_visible) {

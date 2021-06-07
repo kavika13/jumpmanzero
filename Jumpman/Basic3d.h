@@ -28,9 +28,9 @@ void GetViewportMousePos(float* pos_x, float* pos_y);  // In/out parameters. Tes
 void Reset3d(void);  // TODO: Is this function necessary anymore? Used for resetting context after focus switch
 void DoCleanUp(void);
 
-void MeshCreateFromVertexComponents(long* vertex_components, int vertex_count, int* result_mesh_handle_index);
+int MeshCreateFromVertexComponents(long* vertex_components, int vertex_count);
 int MeshCreateFromVertices(MeshVertex* vertices, int vertex_count, int texture_index, bool is_visible);
-void MeshCreateFromCopy(int source_mesh_handle_index, int* result_mesh_handle_index);
+int MeshCreateFromCopy(int source_mesh_handle_index);
 void MeshReplaceWithCopy(int target_mesh_handle_index, int source_mesh_handle_index);
 void MeshDelete(int mesh_handle_index);
 void MeshSetIsVisible(int mesh_handle_index, bool is_visible);
