@@ -38,7 +38,7 @@ static int g_loaded_sound_count;
 
 #define kMAX_SCRIPT_MESHES ((size_t)600)
 
-static long g_script_mesh_indices[kMAX_SCRIPT_MESHES];
+static int g_script_mesh_handle_indices[kMAX_SCRIPT_MESHES];  // TODO: Shouldn't need this mapping. If delete/create are set up correctly in Basic3D, can skip
 
 static LuaModuleScriptContext g_main_script_context = { 0, -1 };
 
@@ -118,42 +118,42 @@ static int load_texture(lua_State* lua_state) {
     // TODO: Error checking for filename?
     const char* filename_arg = lua_tostring(lua_state, 1);
     lua_Integer image_type_arg = luaL_checkinteger(lua_state, 2);
-    bool alpha_blend_arg = lua_checkbool(lua_state, 3);
+    bool is_alpha_blend_enabled_arg = lua_checkbool(lua_state, 3);
     char full_filename[300];  // TODO: Standardize path lengths? Bigger paths?
     stbsp_snprintf(full_filename, sizeof(full_filename), "%s/%s", g_game_base_path, filename_arg);
 
-    LoadTexture(g_loaded_texture_count, full_filename, (long)image_type_arg, alpha_blend_arg ? 1 : 0);
+    LoadTexture(g_loaded_texture_count, full_filename, (int)image_type_arg, is_alpha_blend_enabled_arg);
     lua_pushinteger(lua_state, g_loaded_texture_count);
     ++g_loaded_texture_count;
 
     return 1;
 }
 
-static long LoadMesh(const char* base_path, const char* sFileName) {
+static int LoadMesh(const char* base_path, const char* sFileName) {
     unsigned char* cData;
-    long* oData;
+    long* vertex_components;
     char sFullFile[300];
-    long iObjectNum;
-    long iNums;
+    int result_mesh_handle_index;
+    int vertex_component_count;
 
     stbsp_snprintf(sFullFile, sizeof(sFullFile), "%s/%s", base_path, sFileName);
 
     cData = NULL;
-    iNums = FileToString(sFullFile, &cData);
-    iNums = iNums / 4;
+    vertex_component_count = FileToString(sFullFile, &cData);
+    vertex_component_count = vertex_component_count / 4;
 
-    oData = (long*)(malloc(iNums * sizeof(long)));
+    vertex_components = (long*)(malloc(vertex_component_count * sizeof(long)));
 
-    for(int iNum = 0; iNum < iNums; ++iNum) {
-        oData[iNum] = StringToLong(&cData[iNum << 2]);
+    for(int component_index = 0; component_index < vertex_component_count; ++component_index) {
+        vertex_components[component_index] = StringToLong(&cData[component_index << 2]);
     }
 
-    CreateObject(oData, iNums / 9, &iObjectNum);
+    MeshCreateFromVertexComponents(vertex_components, vertex_component_count / 9, &result_mesh_handle_index);
 
     free(cData);
-    free(oData);
+    free(vertex_components);
 
-    return iObjectNum;
+    return result_mesh_handle_index;
 }
 
 static int load_mesh(lua_State* lua_state) {
@@ -161,18 +161,18 @@ static int load_mesh(lua_State* lua_state) {
     const char* filename_arg = lua_tostring(lua_state, 1);
 
     assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
-    long result = LoadMesh(g_game_base_path, filename_arg);
-    g_script_mesh_indices[g_loaded_mesh_count] = result;
-    lua_pushinteger(lua_state, result);
+    int loaded_mesh_handle_index = LoadMesh(g_game_base_path, filename_arg);
+    g_script_mesh_handle_indices[g_loaded_mesh_count] = loaded_mesh_handle_index;
+    lua_pushinteger(lua_state, loaded_mesh_handle_index);
     ++g_loaded_mesh_count;
 
     return 1;
 }
 
 static int set_mesh_to_mesh(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    lua_Integer new_mesh_index_arg = luaL_checkinteger(lua_state, 2);
-    ChangeMesh((long)mesh_index_arg, g_script_mesh_indices[new_mesh_index_arg]);
+    lua_Integer target_mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
+    lua_Integer source_mesh_handle_index_arg = luaL_checkinteger(lua_state, 2);
+    MeshReplaceWithCopy((int)target_mesh_handle_index_arg, g_script_mesh_handle_indices[(int)source_mesh_handle_index_arg]);
     return 0;
 }
 
@@ -329,17 +329,17 @@ static int transform_clear_scale(lua_State* lua_state) {
 
 
 static int scroll_texture_on_mesh(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    double arg_x = luaL_checknumber(lua_state, 2);
-    double arg_y = luaL_checknumber(lua_state, 3);
+    lua_Integer mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
+    double translate_x_arg = luaL_checknumber(lua_state, 2);
+    double argtranslate_y_arg = luaL_checknumber(lua_state, 3);
     // TODO: Remove pre-multiplication from scripts, and divide from here
-    ScrollTexture((long)mesh_index_arg, (float)arg_x / 16.0f, (float)arg_y / 16.0f);
+    MeshScrollTexture((int)mesh_handle_index_arg, (float)translate_x_arg / 16.0f, (float)argtranslate_y_arg / 16.0f);
     return 0;
 }
 
 static int skip_next_mesh_interpolation(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    SetObjectIsAnimationContinuous((long)mesh_index_arg, false);
+    lua_Integer mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
+    MeshSetIsAnimationContinuous((int)mesh_handle_index_arg, false);
     return 0;
 }
 
@@ -382,7 +382,7 @@ static int create_mesh(lua_State* lua_state) {
     // }
     luaL_checktype(lua_state, 1, LUA_TTABLE);
 
-    long texture_index_arg = (long)luaL_checkinteger(lua_state, 2);
+    int texture_index_arg = (int)luaL_checkinteger(lua_state, 2);
     bool is_visible_arg = true;
 
     if(lua_isboolean(lua_state, 3)) {
@@ -453,11 +453,11 @@ static int create_mesh(lua_State* lua_state) {
     }
 
     assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
-    size_t new_mesh_index = CreateMesh(new_mesh_vertices, vertex_count, texture_index_arg, is_visible_arg);
-    g_script_mesh_indices[g_loaded_mesh_count] = (long)new_mesh_index;
+    int new_mesh_handle_index = MeshCreateFromVertices(new_mesh_vertices, (int)vertex_count, texture_index_arg, is_visible_arg);
+    g_script_mesh_handle_indices[g_loaded_mesh_count] = new_mesh_handle_index;
     ++g_loaded_mesh_count;
 
-    lua_pushnumber(lua_state, (lua_Number)new_mesh_index);
+    lua_pushnumber(lua_state, (lua_Number)new_mesh_handle_index);
 
     return 1;
 }
@@ -465,37 +465,37 @@ static int create_mesh(lua_State* lua_state) {
 static int new_mesh(lua_State* lua_state) {
     double script_mesh_index_arg = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
     assert(g_loaded_mesh_count < kMAX_SCRIPT_MESHES);
-    long iNew;
-    CopyObject(g_script_mesh_indices[(size_t)script_mesh_index_arg], &iNew);
-    g_script_mesh_indices[g_loaded_mesh_count] = iNew;
+    int new_mesh_handle_index;
+    MeshCreateFromCopy(g_script_mesh_handle_indices[(int)script_mesh_index_arg], &new_mesh_handle_index);
+    g_script_mesh_handle_indices[g_loaded_mesh_count] = new_mesh_handle_index;
     ++g_loaded_mesh_count;
-    lua_pushnumber(lua_state, iNew);
+    lua_pushnumber(lua_state, new_mesh_handle_index);
     return 1;
 }
 
 static int set_mesh_texture(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    lua_Integer mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
     lua_Integer texture_index_arg = luaL_checkinteger(lua_state, 2);
-    SetObjectTextureIndex((long)mesh_index_arg, (long)texture_index_arg);
+    MeshSetTextureIndex((int)mesh_handle_index_arg, (int)texture_index_arg);
     return 0;
 }
 
 static int set_mesh_is_visible(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
+    lua_Integer mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
     bool is_visible_arg = lua_checkbool(lua_state, 2);
-    SetObjectIsVisible((long)mesh_index_arg, is_visible_arg);
+    MeshSetIsVisible((int)mesh_handle_index_arg, is_visible_arg);
     return 0;
 }
 
 static int move_transparent_mesh_to_front(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    MoveTransparentMeshToFront((long)mesh_index_arg);
+    lua_Integer mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
+    MeshMoveToFrontForTransparentDrawing((int)mesh_handle_index_arg);
     return 0;
 }
 
 static int move_transparent_mesh_to_back(lua_State* lua_state) {
-    lua_Integer mesh_index_arg = luaL_checkinteger(lua_state, 1);
-    MoveTransparentMeshToBack((long)mesh_index_arg);
+    lua_Integer mesh_handle_index_arg = luaL_checkinteger(lua_state, 1);
+    MeshMoveToBackForTransparentDrawing((int)mesh_handle_index_arg);
     return 0;
 }
 
@@ -634,9 +634,9 @@ static int play_sound_effect(lua_State* lua_state) {
 }
 
 static int delete_mesh(lua_State* lua_state) {
-    double mesh_index = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
+    double mesh_handle_index_arg = luaL_checknumber(lua_state, 1);  // TODO: luaL_checkinteger?
     // TODO: Does this assert make sense? assert(mesh_index < g_loaded_mesh_count);
-    DeleteMesh((long)mesh_index);
+    MeshDelete((int)mesh_handle_index_arg);
     // TODO: Need to decrement the mesh counter here, but can't without messing with future mesh index allocations
     //       Is there a way to just rely on Basic3D to handle the mesh tracking stuff somehow?
     return 0;
@@ -933,8 +933,8 @@ static bool CallLuaModuleFunction(LuaModuleScriptContext* script_context, const 
 // ------------------- API FOR PLATFORM LAYER -------------------------------
 
 bool Init3D(void) {
-    for(int iLoop = 0; iLoop < kMAX_SCRIPT_MESHES; ++iLoop) {
-        g_script_mesh_indices[iLoop] = 0;
+    for(int mesh_index = 0; mesh_index < kMAX_SCRIPT_MESHES; ++mesh_index) {
+        g_script_mesh_handle_indices[mesh_index] = -1;
     }
 
     if(!InitializeAll()) {
