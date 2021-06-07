@@ -57,11 +57,6 @@ typedef struct Material {
 } Material;
 
 static void FatalError_(const char* error_msg);
-static bool init_3d_(void);
-static void kill_3d_(void);
-static void init_scene_(void);
-static void kill_scene_(void);
-static void MeshSwap_(int mesh_index_1, int mesh_index_2);
 
 static int g_backbuffer_width;
 static int g_backbuffer_height;
@@ -280,13 +275,246 @@ static hmm_vec2 HMM_LerpVec2(hmm_vec2 lhs, hmm_vec2 rhs, float time) {
 // End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
 
+void Clear3dData(void) {
+    for(uint32_t pixel_index = 0; pixel_index < kERROR_IMAGE_WIDTH * kERROR_IMAGE_HEIGHT; ++pixel_index) {
+        ((uint32_t*)&g_error_image_data[0][0][0])[pixel_index] = 0x7FFF00FF;  // AABBGGRR
+    }
+
+    for(int texture_index = 0; texture_index < kMAX_TEXTURES; ++texture_index) {
+        if(g_textures[texture_index].id != SG_INVALID_ID) {
+            sg_destroy_image(g_textures[texture_index]);
+        }
+
+        g_textures[texture_index].id = SG_INVALID_ID;
+    }
+
+    g_transform_count = 0;
+
+    for(int transform_index = 0; transform_index < kMAX_TRANSFORMS; ++transform_index) {
+        g_transform_translations[transform_index] = (hmm_vec3){ 0 };
+        g_transform_rotations[transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+        g_transform_scales[transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+        g_transform_translations_previous[transform_index] = (hmm_vec3){ 0 };
+        g_transform_rotations_previous[transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
+        g_transform_scales_previous[transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
+        g_transform_parent_indices[transform_index] = -1;
+        g_transform_parent_handles[transform_index] = -1;
+        g_transform_parent_is_camera[transform_index] = false;
+        g_transform_handles[transform_index] = -1;
+        g_transform_handle_next_free_indices[transform_index] = transform_index + 1;
+    }
+
+    g_transform_handle_next_free_indices[kMAX_TRANSFORMS - 1] = -1;
+    g_transform_handle_first_free_index = 0;
+
+    g_mesh_count = 0;
+
+    for(int mesh_index = 0; mesh_index < kMAX_MESHES; ++mesh_index) {
+        g_mesh_handles[mesh_index] = -1;
+        g_mesh_uv_offsets[mesh_index] = (const hmm_vec2){ 0 };
+        g_mesh_animation_is_continuous[mesh_index] = false;
+        g_mesh_transform_indices[mesh_index] = -1;
+        // TODO: Set visibility?
+    }
+
+    g_vertices_to_load_count = 0;
+}
+
+void LoadTexture(int texture_index, char* sFile, int image_type, bool is_alpha_blend_enabled) {
+    g_texture_is_alpha_blend_enabled[texture_index] = is_alpha_blend_enabled;
+    stbsp_snprintf(g_texture_filename[texture_index], sizeof(g_texture_filename[texture_index]), "%s", sFile);
+    g_texture_is_color_key_alpha_enabled[texture_index] = image_type == 1;
+
+    int width = 0, height = 0, channels_in_file;
+    unsigned char* image_data = stbi_load(sFile, &width, &height, &channels_in_file, 4);
+    bool load_was_successful = image_data != NULL;
+
+    if(load_was_successful) {
+        if(image_type == 1) {
+            // Color key alpha, on 0xFFFFFFFF
+            for(int y = 0; y < height; ++y) {
+                for(int x = 0; x < width; ++x) {
+                    if(*((uint32_t*)&image_data[y * width * 4 + x * 4 + 0]) == 0xFFFFFFFF) {
+                        image_data[y * width * 4 + x * 4 + 3] = 0x0;
+                    }
+                }
+            }
+        }
+    } else {
+        width = kERROR_IMAGE_WIDTH;
+        height = kERROR_IMAGE_HEIGHT;
+        image_data = &g_error_image_data[0][0][0];
+
+        // TODO: Error handling
+        const char* error_message = stbi_failure_reason();
+        debug_log("Failed to load image file \"%s\": %s\ndefault texture loaded instead", sFile, error_message);
+    }
+
+    sg_image_desc image_desc = { 0 };
+    image_desc.width = width;
+    image_desc.height = height;
+    image_desc.pixel_format = SG_PIXELFORMAT_RGBA8;
+    // TODO: Diff mipmap level based on image_type. 0: full set, 1: only one. Probably have to manually do the resize for each mip level. Use stb_image_resize.h?
+    image_desc.min_filter = SG_FILTER_LINEAR;
+    image_desc.mag_filter = SG_FILTER_LINEAR;
+    image_desc.data.subimage[0][0].ptr = image_data;
+    image_desc.data.subimage[0][0].size = width * height * 4;
+
+    g_textures[texture_index] = sg_make_image(&image_desc);
+
+    if(g_textures[texture_index].id == SG_INVALID_ID) {
+        FatalError_("Error unlocking texture data");  // TODO: Read back error info
+    }
+
+    if(load_was_successful) {
+        stbi_image_free(image_data);
+    }
+}
+
+static bool init_3d_(void) {
+    for(int texture_index = 0; texture_index < kMAX_TEXTURES; ++texture_index) {
+        g_textures[texture_index].id = SG_INVALID_ID;
+    }
+
+    for(int mesh_index = 0; mesh_index < kMAX_MESHES; ++mesh_index) {
+        g_mesh_handles[mesh_index] = -1;
+        g_mesh_uv_offsets[mesh_index] = (const hmm_vec2){ 0 };
+        g_mesh_animation_is_continuous[mesh_index] = false;
+        // TODO: Set visibility?
+    }
+
+    sg_desc desc = {0};
+    sg_setup(&desc);
+
+    if(!sg_isvalid()) {
+        return false;
+    }
+
+    return true;
+}
+
+static void init_scene_(void) {
+    g_camera_light = (const Light){ 0 };
+    g_camera_light.diffuse_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
+    g_camera_light.ambient_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
+    g_camera_light.position = (const hmm_vec3){ { 80.0f, 100.0f, -200.0f } };
+    g_camera_light.range = 1000.0f;
+
+    g_scene_ambient_color = (const hmm_vec3){ { 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f } };
+
+    SetPerspective(80.0f, 90.0f, -145.0f, 80.0f, 59.0f, 0.0f);
+
+    g_view_to_projection_matrix = HMM_PerspectiveLH_NO(45.0f, 640.0f / 480.0f, 1.0f, 300.0f);  // Fixed aspect ratio. Will be letterboxed elsewhere
+
+    g_global_material = (const Material){ 0 };
+    g_global_material.ambient_tint = (const hmm_vec3){ { 0.5f, 0.5f, 0.5f } };
+    g_global_material.diffuse_tint = (const hmm_vec3){ { 0.5f, 0.5f, 0.5f } };
+
+    sg_buffer_desc vbuf_desc = { 0 };
+    vbuf_desc.usage = SG_USAGE_STREAM;
+    vbuf_desc.size = kMAX_VERTICES * sizeof(MeshVertex);
+
+    g_bindings = (const sg_bindings){ 0 };
+    g_bindings.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
+
+    sg_shader shd = sg_make_shader(main_shader_shader_desc(SG_BACKEND_GLCORE33));
+
+    sg_pipeline_desc pip_desc = { 0 };
+
+    pip_desc.layout.buffers[0].stride = sizeof(MeshVertex);
+    sg_vertex_attr_desc* attrs = pip_desc.layout.attrs;
+    attrs[0].format = SG_VERTEXFORMAT_FLOAT3;
+    attrs[1].format = SG_VERTEXFORMAT_FLOAT3;
+    attrs[2].format = SG_VERTEXFORMAT_FLOAT2;
+
+    pip_desc.shader = shd;
+
+    pip_desc.depth.compare = SG_COMPAREFUNC_LESS;
+    pip_desc.depth.write_enabled = false;
+    pip_desc.face_winding = SG_FACEWINDING_CW;
+    pip_desc.cull_mode = SG_CULLMODE_BACK;
+
+    pip_desc.colors[0].blend.enabled = true;
+    pip_desc.colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
+    pip_desc.colors[0].blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    pip_desc.colors[0].write_mask = SG_COLORMASK_RGBA;
+
+    g_transparent_pipline = sg_make_pipeline(&pip_desc);
+
+    pip_desc.depth.write_enabled = true;
+    pip_desc.colors[0].blend.enabled = false;
+    g_opaque_pipline = sg_make_pipeline(&pip_desc);
+
+    g_pass_action = (const sg_pass_action){ 0 };
+    g_pass_action.colors[0].action = SG_ACTION_CLEAR;
+    g_pass_action.colors[0].value.r = 0.0f;
+    g_pass_action.colors[0].value.g = 0.0f;
+    g_pass_action.colors[0].value.b = 0.0f;
+    g_pass_action.colors[0].value.a = 1.0f;
+}
+
+bool InitializeAll(void) {
+    if(!init_3d_()) {
+        return false;
+    }
+
+    init_scene_();
+
+    return true;
+}
+
+void Begin3dLoad(void) {
+    if(g_vertices_to_load) {
+        free(g_vertices_to_load);
+        g_vertices_to_load = NULL;
+    }
+
+    g_vertices_to_load = (MeshVertex*)malloc(kMAX_VERTICES * sizeof(MeshVertex));
+
+    if(!g_vertices_to_load) {
+        FatalError_("Failed to allocate enough memory in order to load model's vertex data");
+    }
+}
+
+void EndAndCommit3dLoad(void) {
+    sg_update_buffer(g_bindings.vertex_buffers[0], &(sg_range){ g_vertices_to_load, kMAX_VERTICES * sizeof(MeshVertex) });
+
+    if(g_vertices_to_load) {
+        free(g_vertices_to_load);
+        g_vertices_to_load = NULL;
+    }
+}
+
+void Reset3d(void) {
+    // TODO: Is there any case where we need to reset the context? I think this is a relic from D3D9. Do we might need to handle suspend/resume, ala UWP though?
+}
+
+static void kill_scene_(void) {
+    for(int texture_index = 0; texture_index < kMAX_TEXTURES; ++texture_index) {
+        if(g_textures[texture_index].id != SG_INVALID_ID) {
+            sg_destroy_image(g_textures[texture_index]);
+            g_textures[texture_index].id = SG_INVALID_ID;
+        }
+    }
+}
+
+static void kill_3d_(void) {
+    sg_shutdown();
+}
+
+void DoCleanUp(void) {
+    kill_scene_();
+    kill_3d_();
+}
+
+
 // Returns -1 if handle not valid
 static int GetMeshIndexFromHandle_(int mesh_handle_index) {
     assert(mesh_handle_index >= 0);
     assert(mesh_handle_index < kMAX_MESHES);
 
     int mesh_index = -1;
-    if (mesh_handle_index >= 0 && mesh_handle_index < kMAX_MESHES) {
+    if(mesh_handle_index >= 0 && mesh_handle_index < kMAX_MESHES) {
         int temp_mesh_index = g_mesh_handles[mesh_handle_index];
         assert(temp_mesh_index >= 0);
         assert(temp_mesh_index < g_mesh_count);
@@ -305,7 +533,7 @@ static int GetTransformIndexFromHandle_(int transform_handle_index) {
     assert(transform_handle_index < kMAX_TRANSFORMS);
 
     int transform_index = -1;
-    if (transform_handle_index >= 0 && transform_handle_index < kMAX_MESHES) {
+    if(transform_handle_index >= 0 && transform_handle_index < kMAX_MESHES) {
         int temp_transform_index = g_transform_handles[transform_handle_index];
         assert(temp_transform_index >= 0);
         assert(temp_transform_index < g_transform_count);
@@ -584,43 +812,6 @@ void TransformClearScale(int transform_handle_index) {
 }
 
 
-void MeshDelete(int mesh_handle_index) {
-    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
-
-    if(mesh_index != -1) {
-        // TODO: Implement free list
-        MeshSwap_(mesh_index, g_mesh_count - 1);
-        g_mesh_handles[mesh_handle_index] = -1;
-        --g_mesh_count;
-    }
-}
-
-void MeshScrollTexture(int mesh_handle_index, float translate_x, float translate_y) {
-    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
-
-    if(mesh_index != -1) {
-        g_mesh_uv_offsets[mesh_index] = HMM_AddVec2(
-            HMM_Vec2(translate_x, translate_y),
-            g_mesh_uv_offsets[mesh_index]);
-    }
-}
-
-void MeshMoveToFrontForTransparentDrawing(int mesh_handle_index) {
-    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
-
-    for(int current_mesh_index = mesh_index + 1; current_mesh_index < g_mesh_count; ++current_mesh_index) {
-        MeshSwap_(current_mesh_index, current_mesh_index - 1);
-    }
-}
-
-void MeshMoveToBackForTransparentDrawing(int mesh_handle_index) {
-    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
-
-    for(int current_mesh_index = mesh_index - 1; current_mesh_index >= 0; --current_mesh_index) {
-        MeshSwap_(current_mesh_index, current_mesh_index + 1);
-    }
-}
-
 static void SwapBool_(bool* lhs, bool* rhs) {
     bool temp = *lhs;
     *lhs = *rhs;
@@ -678,148 +869,6 @@ static void MeshSwap_(int mesh_index_1, int mesh_index_2) {
     SwapInt_(&g_mesh_handles[mesh_handle_index_1], &g_mesh_handles[mesh_handle_index_2]);
 }
 
-void Clear3dData(void) {
-    for(uint32_t pixel_index = 0; pixel_index < kERROR_IMAGE_WIDTH * kERROR_IMAGE_HEIGHT; ++pixel_index) {
-        ((uint32_t*)&g_error_image_data[0][0][0])[pixel_index] = 0x7FFF00FF;  // AABBGGRR
-    }
-
-    for(int texture_index = 0; texture_index < kMAX_TEXTURES; ++texture_index) {
-        if(g_textures[texture_index].id != SG_INVALID_ID) {
-            sg_destroy_image(g_textures[texture_index]);
-        }
-
-        g_textures[texture_index].id = SG_INVALID_ID;
-    }
-
-    g_transform_count = 0;
-
-    for(int transform_index = 0; transform_index < kMAX_TRANSFORMS; ++transform_index) {
-        g_transform_translations[transform_index] = (hmm_vec3){ 0 };
-        g_transform_rotations[transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
-        g_transform_scales[transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
-        g_transform_translations_previous[transform_index] = (hmm_vec3){ 0 };
-        g_transform_rotations_previous[transform_index] = (hmm_quaternion){ .X = 0.0f, .Y = 0.0f, .Z = 0.0f, .W = 1.0f };
-        g_transform_scales_previous[transform_index] = (hmm_vec3){ .X = 1.0f, .Y = 1.0f, .Z = 1.0f };
-        g_transform_parent_indices[transform_index] = -1;
-        g_transform_parent_handles[transform_index] = -1;
-        g_transform_parent_is_camera[transform_index] = false;
-        g_transform_handles[transform_index] = -1;
-        g_transform_handle_next_free_indices[transform_index] = transform_index + 1;
-    }
-
-    g_transform_handle_next_free_indices[kMAX_TRANSFORMS - 1] = -1;
-    g_transform_handle_first_free_index = 0;
-
-    g_mesh_count = 0;
-
-    for(int mesh_index = 0; mesh_index < kMAX_MESHES; ++mesh_index) {
-        g_mesh_handles[mesh_index] = -1;
-        g_mesh_uv_offsets[mesh_index] = (const hmm_vec2){ 0 };
-        g_mesh_animation_is_continuous[mesh_index] = false;
-        g_mesh_transform_indices[mesh_index] = -1;
-        // TODO: Set visibility?
-    }
-
-    g_vertices_to_load_count = 0;
-}
-
-void LoadTexture(int texture_index, char* sFile, int image_type, bool is_alpha_blend_enabled) {
-    g_texture_is_alpha_blend_enabled[texture_index] = is_alpha_blend_enabled;
-    stbsp_snprintf(g_texture_filename[texture_index], sizeof(g_texture_filename[texture_index]), "%s", sFile);
-    g_texture_is_color_key_alpha_enabled[texture_index] = image_type == 1;
-
-    int width = 0, height = 0, channels_in_file;
-    unsigned char* image_data = stbi_load(sFile, &width, &height, &channels_in_file, 4);
-    bool load_was_successful = image_data != NULL;
-
-    if(load_was_successful) {
-        if(image_type == 1) {
-            // Color key alpha, on 0xFFFFFFFF
-            for(int y = 0; y < height; ++y) {
-                for(int x = 0; x < width; ++x) {
-                    if(*((uint32_t*)&image_data[y * width * 4 + x * 4 + 0]) == 0xFFFFFFFF) {
-                        image_data[y * width * 4 + x * 4 + 3] = 0x0;
-                    }
-                }
-            }
-        }
-    } else {
-        width = kERROR_IMAGE_WIDTH;
-        height = kERROR_IMAGE_HEIGHT;
-        image_data = &g_error_image_data[0][0][0];
-
-        // TODO: Error handling
-        const char* error_message = stbi_failure_reason();
-        debug_log("Failed to load image file \"%s\": %s\ndefault texture loaded instead", sFile, error_message);
-    }
-
-    sg_image_desc image_desc = { 0 };
-    image_desc.width = width;
-    image_desc.height = height;
-    image_desc.pixel_format = SG_PIXELFORMAT_RGBA8;
-    // TODO: Diff mipmap level based on image_type. 0: full set, 1: only one. Probably have to manually do the resize for each mip level. Use stb_image_resize.h?
-    image_desc.min_filter = SG_FILTER_LINEAR;
-    image_desc.mag_filter = SG_FILTER_LINEAR;
-    image_desc.data.subimage[0][0].ptr = image_data;
-    image_desc.data.subimage[0][0].size = width * height * 4;
-
-    g_textures[texture_index] = sg_make_image(&image_desc);
-
-    if(g_textures[texture_index].id == SG_INVALID_ID) {
-        FatalError_("Error unlocking texture data");  // TODO: Read back error info
-    }
-
-    if(load_was_successful) {
-        stbi_image_free(image_data);
-    }
-}
-
-void MeshReplaceWithCopy(int target_mesh_handle_index, int source_mesh_handle_index) {
-    int target_mesh_index = GetMeshIndexFromHandle_(target_mesh_handle_index);
-    int source_mesh_index = GetMeshIndexFromHandle_(source_mesh_handle_index);
-
-    if(target_mesh_index != -1 && source_mesh_index != -1) {
-        g_mesh_vertex_start_indices[target_mesh_index] = g_mesh_vertex_start_indices[source_mesh_index];
-        g_mesh_vertex_counts[target_mesh_index] = g_mesh_vertex_counts[source_mesh_index];
-    }
-}
-
-void MeshCreateFromCopy(int source_mesh_handle_index, int* result_mesh_handle_index) {
-    assert(result_mesh_handle_index != NULL);
-    int source_mesh_index = GetMeshIndexFromHandle_(source_mesh_handle_index);
-    int new_mesh_handle_index = -1;
-
-    if(source_mesh_index != -1) {
-        // TODO: Use free list instead
-        for(int mesh_handle_index = 0; mesh_handle_index < kMAX_MESHES && new_mesh_handle_index == -1; ++mesh_handle_index) {
-            if(g_mesh_handles[mesh_handle_index] == -1) {
-                new_mesh_handle_index = mesh_handle_index;
-            }
-        }
-
-        if(new_mesh_handle_index == -1) {
-            boxerShow("Too many meshes!", "Jumpman Zero", BoxerStyleError, BoxerButtonsOK);  // TODO: Better error handling?
-        } else {
-            g_mesh_handles[new_mesh_handle_index] = g_mesh_count;
-
-            g_mesh_vertex_start_indices[g_mesh_count] = g_mesh_vertex_start_indices[source_mesh_index];
-            g_mesh_vertex_counts[g_mesh_count] = g_mesh_vertex_counts[source_mesh_index];
-
-            g_mesh_texture_indices[g_mesh_count] = -1;
-            g_mesh_is_visible[g_mesh_count] = false;
-            g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
-            g_mesh_animation_is_continuous[g_mesh_count] = false;
-            // TODO: Set visibility?
-
-            ++g_mesh_count;
-        }
-    }
-
-    if(result_mesh_handle_index != NULL) {
-        *result_mesh_handle_index = new_mesh_handle_index;
-    }
-}
-
 void MeshCreateFromVertexComponents(long* vertex_components, int vertex_count, int* result_mesh_handle_index) {
     *result_mesh_handle_index = g_mesh_count;
 
@@ -872,10 +921,60 @@ int MeshCreateFromVertices(MeshVertex* vertices, int vertex_count, int texture_i
     return result_mesh_handle_index;
 }
 
-void MeshSetTextureIndex(int mesh_handle_index, int texture_index) {
+void MeshCreateFromCopy(int source_mesh_handle_index, int* result_mesh_handle_index) {
+    assert(result_mesh_handle_index != NULL);
+    int source_mesh_index = GetMeshIndexFromHandle_(source_mesh_handle_index);
+    int new_mesh_handle_index = -1;
+
+    if(source_mesh_index != -1) {
+        // TODO: Use free list instead
+        for(int mesh_handle_index = 0; mesh_handle_index < kMAX_MESHES && new_mesh_handle_index == -1; ++mesh_handle_index) {
+            if(g_mesh_handles[mesh_handle_index] == -1) {
+                new_mesh_handle_index = mesh_handle_index;
+            }
+        }
+
+        if(new_mesh_handle_index == -1) {
+            boxerShow("Too many meshes!", "Jumpman Zero", BoxerStyleError, BoxerButtonsOK);  // TODO: Better error handling?
+        } else {
+            g_mesh_handles[new_mesh_handle_index] = g_mesh_count;
+
+            g_mesh_vertex_start_indices[g_mesh_count] = g_mesh_vertex_start_indices[source_mesh_index];
+            g_mesh_vertex_counts[g_mesh_count] = g_mesh_vertex_counts[source_mesh_index];
+
+            g_mesh_texture_indices[g_mesh_count] = -1;
+            g_mesh_is_visible[g_mesh_count] = false;
+            g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
+            g_mesh_animation_is_continuous[g_mesh_count] = false;
+            // TODO: Set visibility?
+
+            ++g_mesh_count;
+        }
+    }
+
+    if(result_mesh_handle_index != NULL) {
+        *result_mesh_handle_index = new_mesh_handle_index;
+    }
+}
+
+void MeshReplaceWithCopy(int target_mesh_handle_index, int source_mesh_handle_index) {
+    int target_mesh_index = GetMeshIndexFromHandle_(target_mesh_handle_index);
+    int source_mesh_index = GetMeshIndexFromHandle_(source_mesh_handle_index);
+
+    if(target_mesh_index != -1 && source_mesh_index != -1) {
+        g_mesh_vertex_start_indices[target_mesh_index] = g_mesh_vertex_start_indices[source_mesh_index];
+        g_mesh_vertex_counts[target_mesh_index] = g_mesh_vertex_counts[source_mesh_index];
+    }
+}
+
+void MeshDelete(int mesh_handle_index) {
     int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+
     if(mesh_index != -1) {
-        g_mesh_texture_indices[mesh_index] = texture_index;
+        // TODO: Implement free list
+        MeshSwap_(mesh_index, g_mesh_count - 1);
+        g_mesh_handles[mesh_handle_index] = -1;
+        --g_mesh_count;
     }
 }
 
@@ -886,6 +985,39 @@ void MeshSetIsVisible(int mesh_handle_index, bool is_visible) {
     }
 }
 
+void MeshSetTextureIndex(int mesh_handle_index, int texture_index) {
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+    if(mesh_index != -1) {
+        g_mesh_texture_indices[mesh_index] = texture_index;
+    }
+}
+
+void MeshMoveToFrontForTransparentDrawing(int mesh_handle_index) {
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+
+    for(int current_mesh_index = mesh_index + 1; current_mesh_index < g_mesh_count; ++current_mesh_index) {
+        MeshSwap_(current_mesh_index, current_mesh_index - 1);
+    }
+}
+
+void MeshMoveToBackForTransparentDrawing(int mesh_handle_index) {
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+
+    for(int current_mesh_index = mesh_index - 1; current_mesh_index >= 0; --current_mesh_index) {
+        MeshSwap_(current_mesh_index, current_mesh_index + 1);
+    }
+}
+
+void MeshScrollTexture(int mesh_handle_index, float translate_x, float translate_y) {
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+
+    if(mesh_index != -1) {
+        g_mesh_uv_offsets[mesh_index] = HMM_AddVec2(
+            HMM_Vec2(translate_x, translate_y),
+            g_mesh_uv_offsets[mesh_index]);
+    }
+}
+
 void MeshSetIsAnimationContinuous(int mesh_handle_index, bool is_continuous) {
     int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
     if(mesh_index != -1) {
@@ -893,119 +1025,9 @@ void MeshSetIsAnimationContinuous(int mesh_handle_index, bool is_continuous) {
     }
 }
 
+
 void SetCameraIsAnimationContinuous(bool is_continuous) {
     g_camera_animation_is_continuous = is_continuous;
-}
-
-void ResizeViewport(int width, int height) {
-    g_backbuffer_width = width;
-    g_backbuffer_height = height;
-}
-
-void GetViewportMousePos(float* pos_x, float* pos_y) {
-    float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
-    const float target_aspect_ratio = 640.0f / 480.0f;
-
-    float temp_x;
-    float temp_y;
-
-    if(backbuffer_aspect_ratio > target_aspect_ratio) {
-        float width_scale = target_aspect_ratio / backbuffer_aspect_ratio;
-        float border_half_width = (g_backbuffer_width - width_scale * g_backbuffer_width) / 2.0f;
-
-        temp_x = (*pos_x - border_half_width) / (g_backbuffer_width - (border_half_width * 2.0f));
-        temp_y = *pos_y / g_backbuffer_height;
-
-    } else {
-        float height_scale = backbuffer_aspect_ratio / target_aspect_ratio;
-        float border_half_height = (g_backbuffer_height - height_scale * g_backbuffer_height) / 2.0f;
-
-        temp_x = *pos_x / g_backbuffer_width;
-        temp_y = (*pos_y - border_half_height) / (g_backbuffer_height - (border_half_height * 2.0f));
-    }
-
-    if(temp_x < 0.0f) {
-        temp_x = 0.0f;
-    }
-    if(temp_x > 1.0f) {
-        temp_x = 1.0f;
-    }
-    if(temp_y < 0.0f) {
-        temp_y = 0.0f;
-    }
-    if(temp_y > 1.0f) {
-        temp_y = 1.0f;
-    }
-
-    *pos_x = temp_x;
-    *pos_y = temp_y;
-}
-
-void Reset3d(void) {
-    // TODO: Is there any case where we need to reset the context? I think this is a relic from D3D9. Do we might need to handle suspend/resume, ala UWP though?
-}
-
-bool InitializeAll(void) {
-    if(!init_3d_()) {
-        return false;
-    }
-
-    init_scene_();
-
-    return true;
-}
-
-void Begin3dLoad(void) {
-    if(g_vertices_to_load) {
-        free(g_vertices_to_load);
-        g_vertices_to_load = NULL;
-    }
-
-    g_vertices_to_load = (MeshVertex*)malloc(kMAX_VERTICES * sizeof(MeshVertex));
-
-    if(!g_vertices_to_load) {
-        FatalError_("Failed to allocate enough memory in order to load model's vertex data");
-    }
-}
-
-void EndAndCommit3dLoad(void) {
-    sg_update_buffer(g_bindings.vertex_buffers[0], &(sg_range){ g_vertices_to_load, kMAX_VERTICES * sizeof(MeshVertex) });
-
-    if(g_vertices_to_load) {
-        free(g_vertices_to_load);
-        g_vertices_to_load = NULL;
-    }
-}
-
-void DoCleanUp(void) {
-    kill_scene_();
-    kill_3d_();
-}
-
-static bool init_3d_(void) {
-    for(int texture_index = 0; texture_index < kMAX_TEXTURES; ++texture_index) {
-        g_textures[texture_index].id = SG_INVALID_ID;
-    }
-
-    for(int mesh_index = 0; mesh_index < kMAX_MESHES; ++mesh_index) {
-        g_mesh_handles[mesh_index] = -1;
-        g_mesh_uv_offsets[mesh_index] = (const hmm_vec2){ 0 };
-        g_mesh_animation_is_continuous[mesh_index] = false;
-        // TODO: Set visibility?
-    }
-
-    sg_desc desc = {0};
-    sg_setup(&desc);
-
-    if(!sg_isvalid()) {
-        return false;
-    }
-
-    return true;
-}
-
-static void kill_3d_(void) {
-    sg_shutdown();
 }
 
 void SetFog(float fog_start, float fog_end, uint8_t red, uint8_t green, uint8_t blue) {
@@ -1026,74 +1048,6 @@ void SetPerspective(float cam_x, float cam_y, float cam_z, float look_at_x, floa
     g_camera_light.ambient_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
 }
 
-static void init_scene_(void) {
-    g_camera_light = (const Light){ 0 };
-    g_camera_light.diffuse_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
-    g_camera_light.ambient_color = (const hmm_vec3){ { 1.0f, 1.0f, 1.0f } };
-    g_camera_light.position = (const hmm_vec3){ { 80.0f, 100.0f, -200.0f } };
-    g_camera_light.range = 1000.0f;
-
-    g_scene_ambient_color = (const hmm_vec3){ { 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f } };
-
-    SetPerspective(80.0f, 90.0f, -145.0f, 80.0f, 59.0f, 0.0f);
-
-    g_view_to_projection_matrix = HMM_PerspectiveLH_NO(45.0f, 640.0f / 480.0f, 1.0f, 300.0f);  // Fixed aspect ratio. Will be letterboxed elsewhere
-
-    g_global_material = (const Material){ 0 };
-    g_global_material.ambient_tint = (const hmm_vec3){ { 0.5f, 0.5f, 0.5f } };
-    g_global_material.diffuse_tint = (const hmm_vec3){ { 0.5f, 0.5f, 0.5f } };
-
-    sg_buffer_desc vbuf_desc = { 0 };
-    vbuf_desc.usage = SG_USAGE_STREAM;
-    vbuf_desc.size = kMAX_VERTICES * sizeof(MeshVertex);
-
-    g_bindings = (const sg_bindings){ 0 };
-    g_bindings.vertex_buffers[0] = sg_make_buffer(&vbuf_desc);
-
-    sg_shader shd = sg_make_shader(main_shader_shader_desc(SG_BACKEND_GLCORE33));
-
-    sg_pipeline_desc pip_desc = { 0 };
-
-    pip_desc.layout.buffers[0].stride = sizeof(MeshVertex);
-    sg_vertex_attr_desc* attrs = pip_desc.layout.attrs;
-    attrs[0].format = SG_VERTEXFORMAT_FLOAT3;
-    attrs[1].format = SG_VERTEXFORMAT_FLOAT3;
-    attrs[2].format = SG_VERTEXFORMAT_FLOAT2;
-
-    pip_desc.shader = shd;
-
-    pip_desc.depth.compare = SG_COMPAREFUNC_LESS;
-    pip_desc.depth.write_enabled = false;
-    pip_desc.face_winding = SG_FACEWINDING_CW;
-    pip_desc.cull_mode = SG_CULLMODE_BACK;
-
-    pip_desc.colors[0].blend.enabled = true;
-    pip_desc.colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
-    pip_desc.colors[0].blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-    pip_desc.colors[0].write_mask = SG_COLORMASK_RGBA;
-
-    g_transparent_pipline = sg_make_pipeline(&pip_desc);
-
-    pip_desc.depth.write_enabled = true;
-    pip_desc.colors[0].blend.enabled = false;
-    g_opaque_pipline = sg_make_pipeline(&pip_desc);
-
-    g_pass_action = (const sg_pass_action){ 0 };
-    g_pass_action.colors[0].action = SG_ACTION_CLEAR;
-    g_pass_action.colors[0].value.r = 0.0f;
-    g_pass_action.colors[0].value.g = 0.0f;
-    g_pass_action.colors[0].value.b = 0.0f;
-    g_pass_action.colors[0].value.a = 1.0f;
-}
-
-static void kill_scene_(void) {
-    for(int texture_index = 0; texture_index < kMAX_TEXTURES; ++texture_index) {
-        if(g_textures[texture_index].id != SG_INVALID_ID) {
-            sg_destroy_image(g_textures[texture_index]);
-            g_textures[texture_index].id = SG_INVALID_ID;
-        }
-    }
-}
 
 void RendererPreUpdate(double seconds_per_update_timestep) {
     g_world_to_view_matrix_previous = g_world_to_view_matrix;
@@ -1285,6 +1239,51 @@ void RendererDraw(bool do_interpolation, float interpolation_scale) {
     sg_end_pass();
     sg_commit();
 }
+
+void ResizeViewport(int width, int height) {
+    g_backbuffer_width = width;
+    g_backbuffer_height = height;
+}
+
+void GetViewportMousePos(float* pos_x, float* pos_y) {
+    float backbuffer_aspect_ratio = (float)g_backbuffer_width / g_backbuffer_height;
+    const float target_aspect_ratio = 640.0f / 480.0f;
+
+    float temp_x;
+    float temp_y;
+
+    if(backbuffer_aspect_ratio > target_aspect_ratio) {
+        float width_scale = target_aspect_ratio / backbuffer_aspect_ratio;
+        float border_half_width = (g_backbuffer_width - width_scale * g_backbuffer_width) / 2.0f;
+
+        temp_x = (*pos_x - border_half_width) / (g_backbuffer_width - (border_half_width * 2.0f));
+        temp_y = *pos_y / g_backbuffer_height;
+
+    } else {
+        float height_scale = backbuffer_aspect_ratio / target_aspect_ratio;
+        float border_half_height = (g_backbuffer_height - height_scale * g_backbuffer_height) / 2.0f;
+
+        temp_x = *pos_x / g_backbuffer_width;
+        temp_y = (*pos_y - border_half_height) / (g_backbuffer_height - (border_half_height * 2.0f));
+    }
+
+    if(temp_x < 0.0f) {
+        temp_x = 0.0f;
+    }
+    if(temp_x > 1.0f) {
+        temp_x = 1.0f;
+    }
+    if(temp_y < 0.0f) {
+        temp_y = 0.0f;
+    }
+    if(temp_y > 1.0f) {
+        temp_y = 1.0f;
+    }
+
+    *pos_x = temp_x;
+    *pos_y = temp_y;
+}
+
 
 static void FatalError_(const char* error_msg) {
     kill_scene_();

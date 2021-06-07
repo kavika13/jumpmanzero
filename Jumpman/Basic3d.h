@@ -28,17 +28,17 @@ void GetViewportMousePos(float* pos_x, float* pos_y);  // In/out parameters. Tes
 void Reset3d(void);  // TODO: Is this function necessary anymore? Used for resetting context after focus switch
 void DoCleanUp(void);
 
-void MeshReplaceWithCopy(int target_mesh_handle_index, int source_mesh_handle_index);
-void MeshScrollTexture(int mesh_handle_index, float translate_x, float translate_y);
-void MeshDelete(int mesh_handle_index);
 void MeshCreateFromVertexComponents(long* vertex_components, int vertex_count, int* result_mesh_handle_index);
 int MeshCreateFromVertices(MeshVertex* vertices, int vertex_count, int texture_index, bool is_visible);
-void MeshSetTextureIndex(int mesh_handle_index, int texture_index);
-void MeshSetIsVisible(int mesh_handle_index, bool is_visible);
-void MeshSetIsAnimationContinuous(int mesh_handle_index, bool is_continuous);
 void MeshCreateFromCopy(int source_mesh_handle_index, int* result_mesh_handle_index);
+void MeshReplaceWithCopy(int target_mesh_handle_index, int source_mesh_handle_index);
+void MeshDelete(int mesh_handle_index);
+void MeshSetIsVisible(int mesh_handle_index, bool is_visible);
+void MeshSetTextureIndex(int mesh_handle_index, int texture_index);
 void MeshMoveToFrontForTransparentDrawing(int mesh_handle_index);
 void MeshMoveToBackForTransparentDrawing(int mesh_handle_index);
+void MeshScrollTexture(int mesh_handle_index, float translate_x, float translate_y);
+void MeshSetIsAnimationContinuous(int mesh_handle_index, bool is_continuous);
 
 void SetPerspective(float cam_x, float cam_y, float cam_z, float look_at_x, float look_at_y, float look_at_z);
 void SetCameraIsAnimationContinuous(bool is_continuous);
