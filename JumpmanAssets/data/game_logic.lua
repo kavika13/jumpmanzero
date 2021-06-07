@@ -1776,10 +1776,12 @@ function Module.initialize(skip_play_level_music)
     g_player_mesh_index = load_mesh("data/stand.msh");
     g_player_transform_index = transform_create();
     mesh_set_transform(g_player_mesh_index, g_player_transform_index);
+    set_mesh_texture(g_player_mesh_index, 0);  -- TODO: Don't hard-code jumpman texture
 
     g_player_stars_transform_indices = { transform_create(), transform_create() };
     mesh_set_transform(g_player_mesh_indices[player_mesh.STARS], g_player_stars_transform_indices[1]);
     transform_set_parent(g_player_stars_transform_indices[1], g_player_stars_transform_indices[2]);
+    set_mesh_texture(g_player_mesh_indices[player_mesh.STARS], 0);  -- TODO: Don't hard-code jumpman texture
 
     -- Load character meshes
     for iChar = 0, 299 do

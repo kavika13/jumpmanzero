@@ -379,8 +379,6 @@ function Module.update(all_run_donuts)
         transform_set_rotation_z(g_run_donut_transform_index, g_current_rotation_z);
         transform_set_translation(g_run_donut_transform_index, g_current_pos_x, g_current_pos_y + 3, g_current_pos_z);
         set_mesh_is_visible(g_run_donut_mesh_index, true);
-    else
-        set_mesh_is_visible(g_run_donut_mesh_index, false);
     end
 end
 

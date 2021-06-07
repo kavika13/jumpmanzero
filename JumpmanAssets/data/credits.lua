@@ -75,11 +75,11 @@ local function StartLine_(iLine)
 
     for iChar = 1, #credit_line do
         local char_mesh_index = Module.GameLogic.new_char_mesh(credit_line:sub(iChar, iChar):byte(1, -1));
-        set_mesh_texture(char_mesh_index, Module.TextureResourceIndex);
 
         if char_mesh_index > 0 then
             local char_transform_index = transform_create();
             mesh_set_transform(char_mesh_index, char_transform_index);
+            set_mesh_texture(char_mesh_index, Module.TextureResourceIndex);
 
             table.insert(g_letter_mesh_indices, char_mesh_index);
             table.insert(g_letter_transform_indices, char_transform_index);

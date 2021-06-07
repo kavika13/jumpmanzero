@@ -805,7 +805,7 @@ void MeshCreateFromCopy(int source_mesh_handle_index, int* result_mesh_handle_in
             g_mesh_vertex_start_indices[g_mesh_count] = g_mesh_vertex_start_indices[source_mesh_index];
             g_mesh_vertex_counts[g_mesh_count] = g_mesh_vertex_counts[source_mesh_index];
 
-            g_mesh_texture_indices[g_mesh_count] = 0;  // TODO: Set to -1 by default. Will require script changes
+            g_mesh_texture_indices[g_mesh_count] = -1;
             g_mesh_is_visible[g_mesh_count] = false;
             g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
             g_mesh_animation_is_continuous[g_mesh_count] = false;
@@ -827,7 +827,7 @@ void MeshCreateFromVertexComponents(long* vertex_components, int vertex_count, i
     g_mesh_vertex_start_indices[g_mesh_count] = g_vertices_to_load_count;
     g_mesh_vertex_counts[g_mesh_count] = vertex_count;
 
-    g_mesh_texture_indices[g_mesh_count] = 0;  // TODO: Set to -1 by default. Will require script changes
+    g_mesh_texture_indices[g_mesh_count] = -1;
     g_mesh_is_visible[g_mesh_count] = false;
     g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
     g_mesh_animation_is_continuous[g_mesh_count] = false;
@@ -873,22 +873,14 @@ int MeshCreateFromVertices(MeshVertex* vertices, int vertex_count, int texture_i
 }
 
 void MeshSetTextureIndex(int mesh_handle_index, int texture_index) {
-    int mesh_index = -1;
-    if(mesh_handle_index != -1) {
-        mesh_index = g_mesh_handles[mesh_handle_index];
-    }
-    // TODO: Replace with this once scripting changes can go in: int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
     if(mesh_index != -1) {
         g_mesh_texture_indices[mesh_index] = texture_index;
     }
 }
 
 void MeshSetIsVisible(int mesh_handle_index, bool is_visible) {
-    int mesh_index = -1;
-    if(mesh_handle_index != -1) {
-        mesh_index = g_mesh_handles[mesh_handle_index];
-    }
-    // TODO: Replace with this once scripting changes can go in: int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
+    int mesh_index = GetMeshIndexFromHandle_(mesh_handle_index);
     if(mesh_index != -1) {
         g_mesh_is_visible[mesh_index] = is_visible;
     }
