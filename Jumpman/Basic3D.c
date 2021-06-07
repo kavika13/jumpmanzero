@@ -61,7 +61,7 @@ static long init_3d_(void);
 static void kill_3d_(void);
 static void init_scene_(void);
 static void kill_scene_(void);
-static void SwapObjects_(long o1, long o2);
+static void MeshSwap_(int mesh_index_1, int mesh_index_2);
 
 static int g_backbuffer_width;
 static int g_backbuffer_height;
@@ -279,22 +279,10 @@ static hmm_vec2 HMM_LerpVec2(hmm_vec2 lhs, hmm_vec2 rhs, float time) {
 
 // End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
-static long SurfaceObject_(long o1) {
-    for(int iLoop = 0; iLoop < kMAX_MESHES; ++iLoop) {
-        if(g_mesh_handles[iLoop] == o1) {
-            return iLoop;
-        }
-    }
-
-    boxerShow("Can't find mesh to surface!", "Jumpman Zero", BoxerStyleWarning, BoxerButtonsOK);
-
-    return 0;
-}
-
 void DeleteMesh(long iMesh) {
     // TODO: Assert we even are allowed to do this
     long iReal = g_mesh_handles[iMesh];
-    SwapObjects_(iReal, g_mesh_count - 1);
+    MeshSwap_(iReal, g_mesh_count - 1);
 
     g_mesh_handles[iMesh] = -1;
     --g_mesh_count;
@@ -615,13 +603,13 @@ void TransformClearScale(int transform_handle_index) {
 
 void MoveTransparentMeshToFront(long o1) {
     for(long iSwap = g_mesh_handles[o1] + 1; iSwap < g_mesh_count; ++iSwap) {
-        SwapObjects_(iSwap, iSwap - 1);
+        MeshSwap_(iSwap, iSwap - 1);
     }
 }
 
 void MoveTransparentMeshToBack(long o1) {
     for(long iSwap = g_mesh_handles[o1] - 1; iSwap >= 0; --iSwap) {
-        SwapObjects_(iSwap, iSwap + 1);
+        MeshSwap_(iSwap, iSwap + 1);
     }
 }
 
@@ -637,31 +625,47 @@ static void SwapInt_(int* l1, int* l2) {
     *l2 = iSwap;
 }
 
-static void SwapObjects_(long o1, long o2) {
-    long iRealO1 = o1;
-    long iRealO2 = o2;
+static long GetMeshHandleFromIndex_(int mesh_index) {
+    assert(mesh_index >= 0);
+    assert(mesh_index < kMAX_MESHES);
 
-    hmm_vec2 temp_uv_offset = g_mesh_uv_offsets[iRealO1];
-    g_mesh_uv_offsets[iRealO1] = g_mesh_uv_offsets[iRealO2];
-    g_mesh_uv_offsets[iRealO2] = temp_uv_offset;
+    int result = -1;
+    for(int mesh_handle_index = 0; mesh_handle_index < kMAX_MESHES; ++mesh_handle_index) {
+        if(g_mesh_handles[mesh_handle_index] == mesh_index) {
+            result = mesh_handle_index;
+            break;
+        }
+    }
 
-    temp_uv_offset = g_mesh_uv_offsets_previous[iRealO1];
-    g_mesh_uv_offsets_previous[iRealO1] = g_mesh_uv_offsets_previous[iRealO2];
-    g_mesh_uv_offsets_previous[iRealO2] = temp_uv_offset;
+    boxerShow("Can't find mesh handle with given mesh index!", "Jumpman Zero", BoxerStyleWarning, BoxerButtonsOK);  // TODO: Better error handling?
 
-    bool temp_animation_is_continuous = g_mesh_animation_is_continuous[iRealO1];
-    g_mesh_animation_is_continuous[iRealO1] = g_mesh_animation_is_continuous[iRealO2];
-    g_mesh_animation_is_continuous[iRealO2] = temp_animation_is_continuous;
+    return result;
+}
 
-    SwapLong_(&g_mesh_vertex_start_indices[iRealO1], &g_mesh_vertex_start_indices[iRealO2]);
-    SwapLong_(&g_mesh_vertex_counts[iRealO1], &g_mesh_vertex_counts[iRealO2]);
-    SwapLong_(&g_mesh_texture_indices[iRealO1], &g_mesh_texture_indices[iRealO2]);
-    SwapLong_(&g_mesh_is_visible[iRealO1], &g_mesh_is_visible[iRealO2]);
-    SwapLong_(&g_mesh_is_visible_previous[iRealO1], &g_mesh_is_visible_previous[iRealO2]);
+static void MeshSwap_(int mesh_index_1, int mesh_index_2) {
+    hmm_vec2 temp_uv_offset = g_mesh_uv_offsets[mesh_index_1];
+    g_mesh_uv_offsets[mesh_index_1] = g_mesh_uv_offsets[mesh_index_2];
+    g_mesh_uv_offsets[mesh_index_2] = temp_uv_offset;
 
-    SwapInt_(&g_mesh_transform_indices[iRealO1], &g_mesh_transform_indices[iRealO2]);
+    temp_uv_offset = g_mesh_uv_offsets_previous[mesh_index_1];
+    g_mesh_uv_offsets_previous[mesh_index_1] = g_mesh_uv_offsets_previous[mesh_index_2];
+    g_mesh_uv_offsets_previous[mesh_index_2] = temp_uv_offset;
 
-    SwapLong_(&g_mesh_handles[SurfaceObject_(o1)], &g_mesh_handles[SurfaceObject_(o2)]);
+    bool temp_animation_is_continuous = g_mesh_animation_is_continuous[mesh_index_1];
+    g_mesh_animation_is_continuous[mesh_index_1] = g_mesh_animation_is_continuous[mesh_index_2];
+    g_mesh_animation_is_continuous[mesh_index_2] = temp_animation_is_continuous;
+
+    SwapLong_(&g_mesh_vertex_start_indices[mesh_index_1], &g_mesh_vertex_start_indices[mesh_index_2]);
+    SwapLong_(&g_mesh_vertex_counts[mesh_index_1], &g_mesh_vertex_counts[mesh_index_2]);
+    SwapLong_(&g_mesh_texture_indices[mesh_index_1], &g_mesh_texture_indices[mesh_index_2]);
+    SwapLong_(&g_mesh_is_visible[mesh_index_1], &g_mesh_is_visible[mesh_index_2]);
+    SwapLong_(&g_mesh_is_visible_previous[mesh_index_1], &g_mesh_is_visible_previous[mesh_index_2]);
+
+    SwapInt_(&g_mesh_transform_indices[mesh_index_1], &g_mesh_transform_indices[mesh_index_2]);
+
+    int mesh_handle_index_1 = GetMeshHandleFromIndex_(mesh_index_1);
+    int mesh_handle_index_2 = GetMeshHandleFromIndex_(mesh_index_2);
+    SwapLong_(&g_mesh_handles[mesh_handle_index_1], &g_mesh_handles[mesh_handle_index_2]);
 }
 
 void Clear3dData(void) {
@@ -1072,14 +1076,14 @@ void RendererPreUpdate(double seconds_per_update_timestep) {
     g_world_to_view_matrix_previous = g_world_to_view_matrix;
     g_camera_animation_is_continuous = true;
 
-    for(long object_index = 0; object_index < g_mesh_count; ++object_index) {
-        if(!g_mesh_animation_is_continuous[object_index]) {
+    for(long mesh_index = 0; mesh_index < g_mesh_count; ++mesh_index) {
+        if(!g_mesh_animation_is_continuous[mesh_index]) {
             // Has to have existed since previous update call for this to be triggered
-            g_mesh_animation_is_continuous[object_index] = true;
+            g_mesh_animation_is_continuous[mesh_index] = true;
         }
 
-        g_mesh_is_visible_previous[object_index] = g_mesh_is_visible[object_index];
-        g_mesh_uv_offsets_previous[object_index] = g_mesh_uv_offsets[object_index];
+        g_mesh_is_visible_previous[mesh_index] = g_mesh_is_visible[mesh_index];
+        g_mesh_uv_offsets_previous[mesh_index] = g_mesh_uv_offsets[mesh_index];
     }
 
     for(int transform_index = 0; transform_index < g_transform_count; ++transform_index) {
@@ -1090,15 +1094,15 @@ void RendererPreUpdate(double seconds_per_update_timestep) {
 }
 
 void RendererPostUpdate(void) {
-    for(long object_index = 0; object_index < g_mesh_count; ++object_index) {
-        if(!g_mesh_is_visible_previous[object_index] && g_mesh_is_visible[object_index]) {
-            g_mesh_animation_is_continuous[object_index] = false;
+    for(long mesh_index = 0; mesh_index < g_mesh_count; ++mesh_index) {
+        if(!g_mesh_is_visible_previous[mesh_index] && g_mesh_is_visible[mesh_index]) {
+            g_mesh_animation_is_continuous[mesh_index] = false;
         }
     }
 }
 
-static void RenderObject_(int object_index, long* previous_texture_index, main_shader_vs_params_t* vs_params, bool* are_fs_params_applied, main_shader_fs_params_t* fs_params, bool do_interpolation, float interpolation_scale) {
-    long current_texture_index = g_mesh_texture_indices[object_index];
+static void RenderMesh_(int mesh_index, long* previous_texture_index, main_shader_vs_params_t* vs_params, bool* are_fs_params_applied, main_shader_fs_params_t* fs_params, bool do_interpolation, float interpolation_scale) {
+    long current_texture_index = g_mesh_texture_indices[mesh_index];
 
     if(*previous_texture_index != current_texture_index) {
         *previous_texture_index = current_texture_index;
@@ -1106,7 +1110,7 @@ static void RenderObject_(int object_index, long* previous_texture_index, main_s
         sg_apply_bindings(&g_bindings);
     }
 
-    int current_transform_index = g_mesh_transform_indices[object_index];
+    int current_transform_index = g_mesh_transform_indices[mesh_index];
     bool transform_skip_world_to_view = false;
 
     // TODO: Calculate matrices in more cache-friendly/packed manner
@@ -1118,7 +1122,7 @@ static void RenderObject_(int object_index, long* previous_texture_index, main_s
         { 0, 0, 0, 1 },
     } };
 
-    if(do_interpolation && g_mesh_animation_is_continuous[object_index]) {
+    if(do_interpolation && g_mesh_animation_is_continuous[mesh_index]) {
         while(current_transform_index != -1) {
             hmm_vec3 current_translation = HMM_LerpVec3(g_transform_translations_previous[current_transform_index], g_transform_translations[current_transform_index], interpolation_scale);
             hmm_quaternion current_rotation = HMM_Slerp(g_transform_rotations_previous[current_transform_index], interpolation_scale, g_transform_rotations[current_transform_index]);
@@ -1169,10 +1173,10 @@ static void RenderObject_(int object_index, long* previous_texture_index, main_s
         : HMM_MultiplyMat4(g_interpolated_world_to_projection_matrix, current_local_to_world_matrix);
     vs_params->transpose_world_to_local_matrix = HMM_Transpose(JM_HMM_Inverse(current_local_to_world_matrix));
 
-    if(do_interpolation && g_mesh_animation_is_continuous[object_index]) {
-        vs_params->uv_offset = HMM_LerpVec2(g_mesh_uv_offsets_previous[object_index], g_mesh_uv_offsets[object_index], interpolation_scale);
+    if(do_interpolation && g_mesh_animation_is_continuous[mesh_index]) {
+        vs_params->uv_offset = HMM_LerpVec2(g_mesh_uv_offsets_previous[mesh_index], g_mesh_uv_offsets[mesh_index], interpolation_scale);
     } else {
-        vs_params->uv_offset = g_mesh_uv_offsets[object_index];
+        vs_params->uv_offset = g_mesh_uv_offsets[mesh_index];
     }
 
     sg_apply_uniforms(SG_SHADERSTAGE_VS, 0, &(sg_range){ vs_params, sizeof(*vs_params) });
@@ -1182,7 +1186,7 @@ static void RenderObject_(int object_index, long* previous_texture_index, main_s
         *are_fs_params_applied = true;
     }
 
-    sg_draw((int)g_mesh_vertex_start_indices[object_index], (int)g_mesh_vertex_counts[object_index], 1);
+    sg_draw((int)g_mesh_vertex_start_indices[mesh_index], (int)g_mesh_vertex_counts[mesh_index], 1);
 }
 
 void RendererDraw(bool do_interpolation, float interpolation_scale) {
@@ -1233,11 +1237,11 @@ void RendererDraw(bool do_interpolation, float interpolation_scale) {
     sg_apply_pipeline(g_opaque_pipline);
 
     long previous_texture_index = -1;
-    bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every object
+    bool are_fs_params_applied = false;  // These are currently set globally, so don't need to be set for every mesh
 
-    for(long object_index = 0; object_index < g_mesh_count; ++object_index) {
-        if(g_mesh_is_visible[object_index] && !g_texture_is_alpha_blend_enabled[g_mesh_texture_indices[object_index]]) {
-            RenderObject_(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
+    for(long mesh_index = 0; mesh_index < g_mesh_count; ++mesh_index) {
+        if(g_mesh_is_visible[mesh_index] && !g_texture_is_alpha_blend_enabled[g_mesh_texture_indices[mesh_index]]) {
+            RenderMesh_(mesh_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
         }
     }
 
@@ -1247,9 +1251,9 @@ void RendererDraw(bool do_interpolation, float interpolation_scale) {
     previous_texture_index = -1;
     are_fs_params_applied = false;
 
-    for(long object_index = 0; object_index < g_mesh_count; ++object_index) {
-        if(g_mesh_is_visible[object_index] && g_texture_is_alpha_blend_enabled[g_mesh_texture_indices[object_index]]) {
-            RenderObject_(object_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
+    for(long mesh_index = 0; mesh_index < g_mesh_count; ++mesh_index) {
+        if(g_mesh_is_visible[mesh_index] && g_texture_is_alpha_blend_enabled[g_mesh_texture_indices[mesh_index]]) {
+            RenderMesh_(mesh_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
         }
     }
 
