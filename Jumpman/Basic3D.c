@@ -794,8 +794,10 @@ void CopyObject(long iObject, long* iNum) {
     g_mesh_vertex_start_indices[g_mesh_count] = g_mesh_vertex_start_indices[iObjectToCopy];
     g_mesh_vertex_counts[g_mesh_count] = g_mesh_vertex_counts[iObjectToCopy];
 
-    SetObjectData(*iNum, 0, 0);
-    SetObjectIsAnimationContinuous(*iNum, false);
+    g_mesh_texture_indices[*iNum] = 0;  // TODO: Set to -1 by default. Will require script changes
+    g_mesh_is_visible[*iNum] = 0;
+    g_mesh_uv_offsets[*iNum] = (const hmm_vec2){ 0 };
+    g_mesh_animation_is_continuous[*iNum] = false;
     // TODO: Set visibility?
 
     ++g_mesh_count;
@@ -807,8 +809,10 @@ void CreateObject(long* iParams, long iCount, long* iNum) {
     g_mesh_vertex_start_indices[g_mesh_count] = g_vertices_to_load_count;
     g_mesh_vertex_counts[g_mesh_count] = iCount;
 
-    SetObjectData(g_mesh_count, 0, 0);
-    SetObjectIsAnimationContinuous(g_mesh_count, false);
+    g_mesh_texture_indices[g_mesh_count] = 0;  // TODO: Set to -1 by default. Will require script changes
+    g_mesh_is_visible[g_mesh_count] = 0;
+    g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
+    g_mesh_animation_is_continuous[g_mesh_count] = false;
     // TODO: Set visibility?
 
     for(int iPlace = 0; iPlace < iCount; ++iPlace) {
@@ -834,8 +838,10 @@ size_t CreateMesh(MeshVertex* vertices, size_t vertex_count, long texture_index,
     g_mesh_vertex_start_indices[g_mesh_count] = g_vertices_to_load_count;
     g_mesh_vertex_counts[g_mesh_count] = (long)vertex_count;
 
-    SetObjectData(g_mesh_count, texture_index, is_visible ? 1 : 0);
-    SetObjectIsAnimationContinuous(g_mesh_count, false);
+    g_mesh_texture_indices[g_mesh_count] = texture_index;
+    g_mesh_is_visible[g_mesh_count] = is_visible ? 1 : 0;
+    g_mesh_uv_offsets[g_mesh_count] = (const hmm_vec2){ 0 };
+    g_mesh_animation_is_continuous[g_mesh_count] = false;
     // TODO: Set visibility?
 
     for(size_t index = 0; index < vertex_count; ++index) {
@@ -846,13 +852,6 @@ size_t CreateMesh(MeshVertex* vertices, size_t vertex_count, long texture_index,
     ++g_mesh_count;
 
     return result;
-}
-
-void SetObjectData(long iNum, long iTexture, int iVisible) {
-    long iRNum = g_mesh_handles[iNum];
-    g_mesh_texture_indices[iRNum] = iTexture;
-    g_mesh_is_visible[iRNum] = iVisible;
-    g_mesh_uv_offsets[iRNum] = (const hmm_vec2){ 0 };  // TODO: Expose this separately?
 }
 
 void SetObjectTextureIndex(long iNum, long texture_index) {

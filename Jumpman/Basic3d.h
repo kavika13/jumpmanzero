@@ -34,7 +34,6 @@ void Reset3d(void);  // TODO: Is this function necessary anymore? Used for reset
 void DoCleanUp(void);
 void CreateObject(long* iParams, long iCount, long* iNum);
 size_t CreateMesh(MeshVertex* vertices, size_t vertex_count, long texture_index, bool is_visible);
-void SetObjectData(long iNum, long iTexture, int iVisible);
 void SetObjectTextureIndex(long iNum, long texture_index);
 void SetObjectIsVisible(long iNum, bool is_visible);
 void SetObjectIsAnimationContinuous(long iNum, bool is_continuous);
