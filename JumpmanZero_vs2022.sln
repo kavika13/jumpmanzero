@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Jumpman_vs2022", "Jumpman\Jumpman_vs2022.vcxproj", "{6B934F67-0959-4EE9-B2DF-16F7F0470840}"
+	ProjectSection(ProjectDependencies) = postProject
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B} = {28B5F807-54B6-411F-9FD9-4F7E22CABB3B}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanGraphics", "JumpmanGraphics\JumpmanGraphics.vbproj", "{90A13BBE-E346-4B4C-B435-04693566ADC7}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanLevels", "JumpmanLevels\JumpmanLevels.vbproj", "{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JumpmanLevelLib", "JumpmanLevelLib\JumpmanLevelLib.vbproj", "{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JumpmanLevelCompiler", "JumpmanLevelCompiler\JumpmanLevelCompiler.csproj", "{22D92A38-029B-4545-B8AF-BF6C7803B082}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua-5.3.5-static_vs2022", "lua-5.3.5-static\lua-5.3.5-static_vs2022.vcxproj", "{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B934F67-0959-4EE9-B2DF-16F7F0470840}.Debug|x64.ActiveCfg = Debug|x64
+		{6B934F67-0959-4EE9-B2DF-16F7F0470840}.Debug|x64.Build.0 = Debug|x64
+		{6B934F67-0959-4EE9-B2DF-16F7F0470840}.Release|x64.ActiveCfg = Release|x64
+		{6B934F67-0959-4EE9-B2DF-16F7F0470840}.Release|x64.Build.0 = Release|x64
+		{90A13BBE-E346-4B4C-B435-04693566ADC7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90A13BBE-E346-4B4C-B435-04693566ADC7}.Debug|x64.Build.0 = Debug|Any CPU
+		{90A13BBE-E346-4B4C-B435-04693566ADC7}.Release|x64.ActiveCfg = Release|Any CPU
+		{90A13BBE-E346-4B4C-B435-04693566ADC7}.Release|x64.Build.0 = Release|Any CPU
+		{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}.Debug|x64.Build.0 = Debug|Any CPU
+		{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}.Release|x64.ActiveCfg = Release|Any CPU
+		{59BAEE6F-4CCB-4AC7-A251-7F3FD04A171C}.Release|x64.Build.0 = Release|Any CPU
+		{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}.Debug|x64.Build.0 = Debug|Any CPU
+		{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}.Release|x64.ActiveCfg = Release|Any CPU
+		{42E7A7B8-3CA8-4211-9B4D-9C2E309FDEBA}.Release|x64.Build.0 = Release|Any CPU
+		{22D92A38-029B-4545-B8AF-BF6C7803B082}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{22D92A38-029B-4545-B8AF-BF6C7803B082}.Debug|x64.Build.0 = Debug|Any CPU
+		{22D92A38-029B-4545-B8AF-BF6C7803B082}.Release|x64.ActiveCfg = Release|Any CPU
+		{22D92A38-029B-4545-B8AF-BF6C7803B082}.Release|x64.Build.0 = Release|Any CPU
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Debug|x64.ActiveCfg = Debug|x64
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Release|x64.ActiveCfg = Release|x64
+		{28B5F807-54B6-411F-9FD9-4F7E22CABB3B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40F18F40-C7D5-411A-923D-2619993EC437}
+	EndGlobalSection
+EndGlobal
