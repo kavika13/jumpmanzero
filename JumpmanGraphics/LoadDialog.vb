@@ -101,12 +101,13 @@ Public Class LoadDialog
     End Sub
 
     Sub AddToList(ByVal sExt As String)
-        Dim sDir As String
-        sDir = Dir(Directory & "*." & sExt)
-        While sDir <> ""
-            lstFiles.Items.Add(sDir)
-            sDir = Dir()
-        End While
+        If My.Computer.FileSystem.DirectoryExists(Directory) Then
+            Dim dirInfo As IO.DirectoryInfo
+            dirInfo = My.Computer.FileSystem.GetDirectoryInfo(Directory)
+            For Each file As IO.FileInfo In dirInfo.EnumerateFiles("*." & sExt)
+                lstFiles.Items.Add(file.Name)
+            Next
+        End If
     End Sub
 
     Private Sub cmdCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCancel.Click
