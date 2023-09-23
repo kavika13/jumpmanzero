@@ -53,40 +53,40 @@ Namespace My
                 Return defaultInstance
             End Get
         End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Source\")>  _
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),
+         Global.System.Configuration.DefaultSettingValueAttribute("JumpmanAssets\Source\")>
         Public Property SourceDirectory() As String
             Get
-                Return CType(Me("SourceDirectory"),String)
+                Return CType(Me("SourceDirectory"), String)
             End Get
             Set
-                Me("SourceDirectory") = value
+                Me("SourceDirectory") = Value
             End Set
         End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Data\")>  _
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),
+         Global.System.Configuration.DefaultSettingValueAttribute("JumpmanAssets\Data\")>
         Public Property OutputDirectory() As String
             Get
-                Return CType(Me("OutputDirectory"),String)
+                Return CType(Me("OutputDirectory"), String)
             End Get
             Set
-                Me("OutputDirectory") = value
+                Me("OutputDirectory") = Value
             End Set
         End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\JumpmanGraphics\3dJunk\")>  _
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),
+         Global.System.Configuration.DefaultSettingValueAttribute("JumpmanGraphics\3dJunk\")>
         Public Property AseImportDirectory() As String
             Get
-                Return CType(Me("AseImportDirectory"),String)
+                Return CType(Me("AseImportDirectory"), String)
             End Get
             Set
-                Me("AseImportDirectory") = value
+                Me("AseImportDirectory") = Value
             End Set
         End Property
     End Class

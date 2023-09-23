@@ -53,52 +53,52 @@ Namespace My
                 Return defaultInstance
             End Get
         End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Sound\")>  _
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),
+         Global.System.Configuration.DefaultSettingValueAttribute("JumpmanAssets\Sound\")>
         Public Property SoundResourceDirectory() As String
             Get
-                Return CType(Me("SoundResourceDirectory"),String)
+                Return CType(Me("SoundResourceDirectory"), String)
             End Get
             Set
-                Me("SoundResourceDirectory") = value
+                Me("SoundResourceDirectory") = Value
             End Set
         End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Data\")>  _
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),
+         Global.System.Configuration.DefaultSettingValueAttribute("JumpmanAssets\Data\")>
         Public Property ContentResourceDirectory() As String
             Get
-                Return CType(Me("ContentResourceDirectory"),String)
+                Return CType(Me("ContentResourceDirectory"), String)
             End Get
             Set
-                Me("ContentResourceDirectory") = value
+                Me("ContentResourceDirectory") = Value
             End Set
         End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Source\")>  _
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),
+         Global.System.Configuration.DefaultSettingValueAttribute("JumpmanAssets\Source\")>
         Public Property LevelSourceDirectory() As String
             Get
-                Return CType(Me("LevelSourceDirectory"),String)
+                Return CType(Me("LevelSourceDirectory"), String)
             End Get
             Set
-                Me("LevelSourceDirectory") = value
+                Me("LevelSourceDirectory") = Value
             End Set
         End Property
-        
-        <Global.System.Configuration.UserScopedSettingAttribute(),  _
-         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("C:\Jumpman\Data\")>  _
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),
+         Global.System.Configuration.DefaultSettingValueAttribute("JumpmanAssets\Data\")>
         Public Property LevelCompileOutputDirectory() As String
             Get
-                Return CType(Me("LevelCompileOutputDirectory"),String)
+                Return CType(Me("LevelCompileOutputDirectory"), String)
             End Get
             Set
-                Me("LevelCompileOutputDirectory") = value
+                Me("LevelCompileOutputDirectory") = Value
             End Set
         End Property
     End Class

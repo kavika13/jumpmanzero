@@ -3,13 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="SourceDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Jumpman\Source\</Value>
+      <Value Profile="(Default)">JumpmanAssets\Source\</Value>
     </Setting>
     <Setting Name="OutputDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Jumpman\Data\</Value>
+      <Value Profile="(Default)">JumpmanAssets\Data\</Value>
     </Setting>
     <Setting Name="AseImportDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\JumpmanGraphics\3dJunk\</Value>
+      <Value Profile="(Default)">JumpmanGraphics\3dJunk\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

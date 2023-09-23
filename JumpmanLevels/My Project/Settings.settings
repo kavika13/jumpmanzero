@@ -3,16 +3,16 @@
   <Profiles />
   <Settings>
     <Setting Name="SoundResourceDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Jumpman\Sound\</Value>
+      <Value Profile="(Default)">JumpmanAssets\Sound\</Value>
     </Setting>
     <Setting Name="ContentResourceDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Jumpman\Data\</Value>
+      <Value Profile="(Default)">JumpmanAssets\Data\</Value>
     </Setting>
     <Setting Name="LevelSourceDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Jumpman\Source\</Value>
+      <Value Profile="(Default)">JumpmanAssets\Source\</Value>
     </Setting>
     <Setting Name="LevelCompileOutputDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Jumpman\Data\</Value>
+      <Value Profile="(Default)">JumpmanAssets\Data\</Value>
     </Setting>
   </Settings>
 </SettingsFile>
