@@ -1698,6 +1698,7 @@ Public Class Form1
         Dim sParts() As String
         Dim iNum As Integer
         Dim iTemp As Integer
+        Dim iTriangleCount As Integer
 
         For iLine = 0 To UBound(sLines)
             sLine = sLines(iLine)
@@ -1777,9 +1778,11 @@ Public Class Form1
                 End If
 
                 AddASETriangle(fVertex(iV1, 0), fVertex(iV1, 1), fVertex(iV1, 2), fVertex(iV2, 0), fVertex(iV2, 1), fVertex(iV2, 2), fVertex(iV3, 0), fVertex(iV3, 1), fVertex(iV3, 2), 0.1, 0)
-
+                iTriangleCount = iTriangleCount + 1
             End If
         Next
+
+        txtOutput.Text = "Finished importing " & sImport & ".ASE " & Now & " Tri Count: " & iTriangleCount & vbCrLf
 
         FileClose(1)
     End Sub
