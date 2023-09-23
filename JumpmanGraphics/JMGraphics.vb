@@ -47,6 +47,7 @@ Public Class Form1
     Friend WithEvents lblZ2 As System.Windows.Forms.Label
     Friend WithEvents cmdRenderAll As System.Windows.Forms.Button
     Friend WithEvents cbDrawBack As System.Windows.Forms.CheckBox
+    Friend WithEvents cbPosOffset As System.Windows.Forms.CheckBox
     Friend WithEvents picTextured As System.Windows.Forms.PictureBox
     Friend WithEvents cmdReset As System.Windows.Forms.Button
     Friend WithEvents MenuStrip As System.Windows.Forms.MenuStrip
@@ -70,6 +71,7 @@ Public Class Form1
         Me.lblZ2 = New System.Windows.Forms.Label()
         Me.cmdRenderAll = New System.Windows.Forms.Button()
         Me.cbDrawBack = New System.Windows.Forms.CheckBox()
+        Me.cbPosOffset = New System.Windows.Forms.CheckBox()
         Me.picTextured = New System.Windows.Forms.PictureBox()
         Me.cmdReset = New System.Windows.Forms.Button()
         Me.cmdASE = New System.Windows.Forms.Button()
@@ -209,11 +211,19 @@ Public Class Form1
         '
         'cbDrawBack
         '
-        Me.cbDrawBack.Location = New System.Drawing.Point(565, 507)
+        Me.cbDrawBack.Location = New System.Drawing.Point(565, 491)
         Me.cbDrawBack.Name = "cbDrawBack"
         Me.cbDrawBack.Size = New System.Drawing.Size(80, 16)
         Me.cbDrawBack.TabIndex = 33
         Me.cbDrawBack.Text = "Draw Back"
+        '
+        'cbPosOffset
+        '
+        Me.cbPosOffset.Location = New System.Drawing.Point(565, 513)
+        Me.cbPosOffset.Name = "cbPosOffset"
+        Me.cbPosOffset.Size = New System.Drawing.Size(80, 16)
+        Me.cbPosOffset.TabIndex = 34
+        Me.cbPosOffset.Text = "Pos Offset"
         '
         'picTextured
         '
@@ -221,7 +231,7 @@ Public Class Form1
         Me.picTextured.Location = New System.Drawing.Point(12, 239)
         Me.picTextured.Name = "picTextured"
         Me.picTextured.Size = New System.Drawing.Size(270, 204)
-        Me.picTextured.TabIndex = 34
+        Me.picTextured.TabIndex = 35
         Me.picTextured.TabStop = False
         '
         'cmdReset
@@ -229,7 +239,7 @@ Public Class Form1
         Me.cmdReset.Location = New System.Drawing.Point(202, 449)
         Me.cmdReset.Name = "cmdReset"
         Me.cmdReset.Size = New System.Drawing.Size(80, 20)
-        Me.cmdReset.TabIndex = 35
+        Me.cmdReset.TabIndex = 36
         Me.cmdReset.Text = "Reset Colors"
         '
         'cmdASE
@@ -237,7 +247,7 @@ Public Class Form1
         Me.cmdASE.Location = New System.Drawing.Point(434, 517)
         Me.cmdASE.Name = "cmdASE"
         Me.cmdASE.Size = New System.Drawing.Size(116, 20)
-        Me.cmdASE.TabIndex = 36
+        Me.cmdASE.TabIndex = 37
         Me.cmdASE.Text = "Import ASE"
         '
         'MenuStrip
@@ -246,7 +256,7 @@ Public Class Form1
         Me.MenuStrip.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip.Name = "MenuStrip"
         Me.MenuStrip.Size = New System.Drawing.Size(657, 24)
-        Me.MenuStrip.TabIndex = 37
+        Me.MenuStrip.TabIndex = 38
         Me.MenuStrip.Text = "MenuStrip"
         '
         'EditMenuItem
@@ -259,7 +269,7 @@ Public Class Form1
         'EditSettingsMenuItem
         '
         Me.EditSettingsMenuItem.Name = "EditSettingsMenuItem"
-        Me.EditSettingsMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.EditSettingsMenuItem.Size = New System.Drawing.Size(116, 22)
         Me.EditSettingsMenuItem.Text = "&Settings"
         '
         'Form1
@@ -270,6 +280,7 @@ Public Class Form1
         Me.Controls.Add(Me.cmdReset)
         Me.Controls.Add(Me.picTextured)
         Me.Controls.Add(Me.cbDrawBack)
+        Me.Controls.Add(Me.cbPosOffset)
         Me.Controls.Add(Me.cmdRenderAll)
         Me.Controls.Add(Me.lblZ2)
         Me.Controls.Add(Me.lblZ1)
@@ -877,6 +888,7 @@ Public Class Form1
     Private iSrcFiles As Long
     Private sSrcFile(50) As String
     Private bSrcBack(50) As Boolean
+    Private bSrcOffset(50) As Boolean
 
     Private iWidth As Integer
     Private iHeight As Integer
@@ -1060,11 +1072,12 @@ Public Class Form1
 
     End Sub
 
-    Private Sub RenderObject()
+    Private Sub RenderObject(drawBack As Boolean, doOffset As Boolean)
         FileOpen(1, Path.Combine(My.Settings.OutputDirectory, sCurFile & ".msh"), OpenMode.Output, OpenAccess.Default)
         Dim iCol As Long
         Dim iCurCol As Long
         Dim iCount As Long
+        Dim iTriangleCount As Long
         Dim iX As Long
         Dim iY As Long
         Dim iStartX As Single, iEndX As Single, iShiftX As Single
@@ -1077,15 +1090,24 @@ Public Class Form1
         iShiftY = iHeight / 2 + 1
 
         iCount = 0
+        iTriangleCount = 0
 
         For iY = 1 To iHeight
             iCurCol = 0
+
             For iX = 1 To iWidth
                 iCol = iColor(iX, iY)
+
                 If iCurCol <> iCol Then
                     If iCurCol <> 0 Then
-                        iStartX = iX - iCount - iShiftX - 0.01
-                        iStartY = iY - iShiftY - 0.01
+                        If doOffset Then
+                            iStartX = iX - iCount - iShiftX - 0.01
+                            iStartY = iY - iShiftY - 0.01
+                        Else
+                            iStartX = iX - iCount - iShiftX
+                            iStartY = iY - iShiftY
+                        End If
+
                         iEndX = iX - iShiftX
                         iEndY = iY + 1 - iShiftY
 
@@ -1100,14 +1122,15 @@ Public Class Form1
 
                         iZ1 = iColZ1(iCurCol)
                         iZ2 = iColZ2(iCurCol)
-                        AddFullTriangle(iStartX, 0 - iStartY, iZ1, iEndX, 0 - iStartY, iZ1, iStartX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
-                        AddFullTriangle(iEndX, 0 - iStartY, iZ1, iEndX, 0 - iEndY, iZ1, iStartX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
+                        AddFullTriangle(iTriangleCount, iStartX, 0 - iStartY, iZ1, iEndX, 0 - iStartY, iZ1, iStartX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
+                        AddFullTriangle(iTriangleCount, iEndX, 0 - iStartY, iZ1, iEndX, 0 - iEndY, iZ1, iStartX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
 
-                        If cbDrawBack.Checked Then
-                            AddFullTriangle(iEndX, 0 - iStartY, iZ2, iStartX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ2, iEndU, iStartV, iStartU, iStartV, iEndU, iEndV)
-                            AddFullTriangle(iStartX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ2, iEndX, 0 - iEndY, iZ2, iStartU, iStartV, iStartU, iEndV, iEndU, iEndV)
+                        If drawBack Then
+                            AddFullTriangle(iTriangleCount, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ2, iEndU, iStartV, iStartU, iStartV, iEndU, iEndV)
+                            AddFullTriangle(iTriangleCount, iStartX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ2, iEndX, 0 - iEndY, iZ2, iStartU, iStartV, iStartU, iEndV, iEndU, iEndV)
                         End If
                     End If
+
                     iCurCol = iCol
                     iCount = 1
                 Else
@@ -1116,18 +1139,18 @@ Public Class Form1
             Next
         Next
 
-        RenderObjectSide(-1, 0, 0, 0, 0, 1)
-        RenderObjectSide(1, 0, 1, 1, 0, 1)
-        RenderObjectSide(0, -1, 0, 1, 0, 0)
-        RenderObjectSide(0, 1, 0, 1, 1, 1)
+        RenderObjectSide(iTriangleCount, -1, 0, 0, 0, 0, 1)
+        RenderObjectSide(iTriangleCount, 1, 0, 1, 1, 0, 1)
+        RenderObjectSide(iTriangleCount, 0, -1, 0, 1, 0, 0)
+        RenderObjectSide(iTriangleCount, 0, 1, 0, 1, 1, 1)
 
-        txtOutput.Text = "Imported " & sCurFile & ".MSH " & Now & vbCrLf
+        txtOutput.Text = "Exported " & sCurFile & ".MSH " & Now & " Tri Count: " & iTriangleCount & vbCrLf
 
         FileClose(1)
 
     End Sub
 
-    Private Sub RenderObjectSide(ByVal iXV As Long, ByVal iYV As Long, ByVal iPX1 As Long, ByVal iPX2 As Long, ByVal iPY1 As Long, ByVal iPY2 As Long)
+    Private Sub RenderObjectSide(ByRef iTriangleCount As Long, ByVal iXV As Long, ByVal iYV As Long, ByVal iPX1 As Long, ByVal iPX2 As Long, ByVal iPY1 As Long, ByVal iPY2 As Long)
         Dim iD1 As Long, iD2 As Long, iD1Max As Long, iD2Max As Long
         Dim iX As Long
         Dim iY As Long
@@ -1198,17 +1221,17 @@ Public Class Form1
                         iEndV = iEndV + iColT(iForeCol)
 
                         If iYV = -1 And iXV = 0 Then
-                            AddFullTriangle(iStartX, 0 - iStartY, iZ1, iStartX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
-                            AddFullTriangle(iStartX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ2, iEndX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
+                            AddFullTriangle(iTriangleCount, iStartX, 0 - iStartY, iZ1, iStartX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
+                            AddFullTriangle(iTriangleCount, iStartX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ2, iEndX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
                         ElseIf iYV = 1 And iXV = 0 Then
-                            AddFullTriangle(iEndX, 0 - iStartY, iZ1, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
-                            AddFullTriangle(iEndX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ2, iStartX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
+                            AddFullTriangle(iTriangleCount, iEndX, 0 - iStartY, iZ1, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
+                            AddFullTriangle(iTriangleCount, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ2, iStartX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
                         ElseIf iXV = 1 And iYV = 0 Then
-                            AddFullTriangle(iStartX, 0 - iStartY, iZ1, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
-                            AddFullTriangle(iEndX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ2, iStartX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
+                            AddFullTriangle(iTriangleCount, iStartX, 0 - iStartY, iZ1, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iEndY, iZ1, iStartU, iStartV, iEndU, iStartV, iStartU, iEndV)
+                            AddFullTriangle(iTriangleCount, iEndX, 0 - iStartY, iZ2, iEndX, 0 - iEndY, iZ2, iStartX, 0 - iEndY, iZ1, iEndU, iStartV, iEndU, iEndV, iStartU, iEndV)
                         ElseIf iXV = -1 And iYV = 0 Then
-                            AddFullTriangle(iStartX, 0 - iEndY, iZ1, iEndX, 0 - iEndY, iZ2, iStartX, 0 - iStartY, iZ1, iStartU, iEndV, iEndU, iEndV, iStartU, iStartV)
-                            AddFullTriangle(iEndX, 0 - iEndY, iZ2, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iStartY, iZ1, iEndU, iEndV, iEndU, iStartV, iStartU, iStartV)
+                            AddFullTriangle(iTriangleCount, iStartX, 0 - iEndY, iZ1, iEndX, 0 - iEndY, iZ2, iStartX, 0 - iStartY, iZ1, iStartU, iEndV, iEndU, iEndV, iStartU, iStartV)
+                            AddFullTriangle(iTriangleCount, iEndX, 0 - iEndY, iZ2, iEndX, 0 - iStartY, iZ2, iStartX, 0 - iStartY, iZ1, iEndU, iEndV, iEndU, iStartV, iStartU, iStartV)
                         End If
                     End If
 
@@ -1218,7 +1241,7 @@ Public Class Form1
 
     End Sub
 
-    Private Sub AddFullTriangle(ByVal iX1 As Double, ByVal iY1 As Double, ByVal iZ1 As Double, ByVal iX2 As Double, ByVal iY2 As Double, ByVal iZ2 As Double, ByVal iX3 As Double, ByVal iY3 As Double, ByVal iZ3 As Double, ByVal tX1 As Single, ByVal tY1 As Single, ByVal tX2 As Single, ByVal tY2 As Single, ByVal tX3 As Single, ByVal tY3 As Single)
+    Private Sub AddFullTriangle(ByRef iTriangleCount As Long, ByVal iX1 As Double, ByVal iY1 As Double, ByVal iZ1 As Double, ByVal iX2 As Double, ByVal iY2 As Double, ByVal iZ2 As Double, ByVal iX3 As Double, ByVal iY3 As Double, ByVal iZ3 As Double, ByVal tX1 As Single, ByVal tY1 As Single, ByVal tX2 As Single, ByVal tY2 As Single, ByVal tX3 As Single, ByVal tY3 As Single)
         Dim uX As Double, uY As Double, uZ As Double
         Dim vX As Double, vY As Double, vZ As Double
 
@@ -1276,6 +1299,7 @@ Public Class Form1
         Print(1, NumToString(tX3))
         Print(1, NumToString(tY3))
 
+        iTriangleCount = iTriangleCount + 1
     End Sub
 
     Private Function NumToString(ByVal sNum As Single, Optional ByVal iRep As Integer = 4) As String
@@ -1388,7 +1412,8 @@ Public Class Form1
     End Sub
 
     Private Sub cmdRender_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdRender.Click
-        RenderObject()
+        ' TODO: Selected index instead of current checked value?
+        RenderObject(cbDrawBack.Checked, cbPosOffset.Checked)
     End Sub
 
     Private Sub picGraphics_Paint(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs) Handles picGraphics.Paint
@@ -1422,7 +1447,7 @@ Public Class Form1
 
         sAll = sAll & iSrcFiles & vbCrLf
         For iLoop = 0 To iSrcFiles - 1
-            sAll = sAll & sSrcFile(iLoop) & " " & bSrcBack(iLoop) & vbCrLf
+            sAll = sAll & sSrcFile(iLoop) & " " & bSrcBack(iLoop) & " " & bSrcOffset(iLoop) & vbCrLf
         Next
 
         sAll = sAll & iDefinedColors & vbCrLf
@@ -1473,7 +1498,8 @@ Public Class Form1
             For iLoop = 0 To iSrcFiles - 1
                 sParts = Split(sLines(iLoop + iLine + 1))
                 sSrcFile(iLoop) = sParts(0)
-                If UBound(sParts) = 1 Then bSrcBack(iLoop) = sParts(1)
+                If UBound(sParts) > 0 Then bSrcBack(iLoop) = sParts(1) Else bSrcBack(iLoop) = False
+                If UBound(sParts) > 1 Then bSrcOffset(iLoop) = sParts(2) Else bSrcOffset(iLoop) = False
             Next
             iLine = iLine + iSrcFiles + 1
 
@@ -1573,6 +1599,7 @@ Public Class Form1
         If iLoop >= 0 And iLoop < iSrcFiles Then
             LoadBitmap(sSrcFile(iLoop))
             cbDrawBack.Checked = bSrcBack(iLoop)
+            cbPosOffset.Checked = bSrcOffset(iLoop)
 
             ShowColorList(picColors.CreateGraphics)
             DrawTexturedObject(picTextured.CreateGraphics())
@@ -1596,9 +1623,8 @@ Public Class Form1
     Private Sub cmdRenderAll_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdRenderAll.Click
         Dim iLoop As Long
         For iLoop = 0 To iSrcFiles - 1
-            LoadBitmap(sSrcFile(iLoop))
-            cbDrawBack.Checked = bSrcBack(iLoop)
-            RenderObject()
+            LoadBitmap(sSrcFile(iLoop))  ' TODO: Don't edit UI settings! Just spit out data from item in list
+            RenderObject(bSrcBack(iLoop), bSrcOffset(iLoop))
         Next
     End Sub
 
@@ -1607,6 +1633,14 @@ Public Class Form1
         iLoop = lstSrcFiles.SelectedIndex
         If iLoop >= 0 And iLoop < iSrcFiles Then
             bSrcBack(iLoop) = cbDrawBack.Checked
+        End If
+    End Sub
+
+    Private Sub cbPosOffset_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbPosOffset.CheckedChanged
+        Dim iLoop As Long
+        iLoop = lstSrcFiles.SelectedIndex
+        If iLoop >= 0 And iLoop < iSrcFiles Then
+            bSrcOffset(iLoop) = cbPosOffset.Checked
         End If
     End Sub
 

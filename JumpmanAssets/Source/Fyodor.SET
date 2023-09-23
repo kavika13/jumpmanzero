@@ -1,23 +1,23 @@
 c:\jumpman\data\Fur.bmp
 18
-FyFL1 False
-FyFL2 False
-fyFlopL False
-fyFlopR False
-FyFR1 False
-FyFR2 False
-FyLC1 False
-FyLC2 False
-FyLeft1 False
-FyLeft2 False
-FyRight1 False
-FyRight2 False
-FySL1 False
-FySL2 False
-FySR1 False
-FySR2 False
-FyStand False
-FyStandL False
+FyFL1 False True
+FyFL2 False True
+fyFlopL False True
+fyFlopR False True
+FyFR1 False True
+FyFR2 False True
+FyLC1 False True
+FyLC2 False True
+FyLeft1 False True
+FyLeft2 False True
+FyRight1 False True
+FyRight2 False True
+FySL1 False True
+FySL2 False True
+FySR1 False True
+FySR2 False True
+FyStand False True
+FyStandL False True
 4
 192 192 192 0.07142857 0.547619 0.375 0.3809524 0 3
 128 64 0 0.005952381 0 0.4761905 0.4880952 0 3

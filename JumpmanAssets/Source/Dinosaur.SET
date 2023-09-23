@@ -1,23 +1,23 @@
 c:\jumpman\data\Dinosaur.bmp
 18
-tsaurStandL False
-tsaurStandR False
-tsaurWalkL1 False
-tsaurWalkL2 False
-tsaurWalkL3 False
-tsaurWalkL4 False
-tsaurWalkR1 False
-tsaurWalkR2 False
-tsaurWalkR3 False
-tsaurWalkR4 False
-tsaurYL1 False
-tsaurYL2 False
-tsaurYL3 False
-tsaurYL4 False
-tsaurYR1 False
-tsaurYR2 False
-tsaurYR3 False
-tsaurYR4 False
+tsaurStandL False True
+tsaurStandR False True
+tsaurWalkL1 False True
+tsaurWalkL2 False True
+tsaurWalkL3 False True
+tsaurWalkL4 False True
+tsaurWalkR1 False True
+tsaurWalkR2 False True
+tsaurWalkR3 False True
+tsaurWalkR4 False True
+tsaurYL1 False True
+tsaurYL2 False True
+tsaurYL3 False True
+tsaurYL4 False True
+tsaurYR1 False True
+tsaurYR2 False True
+tsaurYR3 False True
+tsaurYR4 False True
 4
 69 180 50 0.5178571 0.01190476 0.452381 0.4761905 0 3
 255 255 255 0.5238096 0.5178571 0.4583333 0.4583333 0 3

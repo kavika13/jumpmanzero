@@ -1,13 +1,13 @@
 c:\jumpman\data\RunDonut.bmp
 8
-RunDonut1 False
-RunDonut2 False
-RunDonut3 False
-RunDonutHatch1 False
-RunDonutHatch2 False
-RunDonutHatch3 False
-RunDonutHatch4 False
-RunDonutHatch5 False
+RunDonut1 False True
+RunDonut2 False True
+RunDonut3 False True
+RunDonutHatch1 False True
+RunDonutHatch2 False True
+RunDonutHatch3 False True
+RunDonutHatch4 False True
+RunDonutHatch5 False True
 4
 128 128 128 0.01785714 0.5059524 0.4583333 0.4642857 1 2
 255 255 255 0.005952381 0.01190476 0.4761905 0.4821429 0 1.5

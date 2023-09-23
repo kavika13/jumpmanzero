@@ -1,12 +1,12 @@
 c:\jumpman\data\TurtleTexture.bmp
 7
-TurtGL1 False
-TurtGL2 False
-TurtGR1 False
-TurtGR2 False
-TurtS1 False
-TurtSH1 False
-TurtSH2 False
+TurtGL1 False True
+TurtGL2 False True
+TurtGR1 False True
+TurtGR2 False True
+TurtS1 False True
+TurtSH1 False True
+TurtSH2 False True
 4
 0 128 0 0.5119048 0.02380952 0.452381 0.4404762 0 2
 0 255 0 0.5238096 0.5119048 0.4404762 0.4285714 0 2

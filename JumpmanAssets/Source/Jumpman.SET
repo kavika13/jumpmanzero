@@ -1,38 +1,38 @@
 c:\jumpman\data\Prisoner.bmp
 33
-Dead True
-DiveLeft False
-DiveRight False
-JumpLeft False
-JumpRight False
-JumpUp True
-KickLeft False
-KickRight False
-LadderClimb1 False
-LadderClimb2 False
-Left1 False
-Left2 False
-PunchLeft False
-PunchLeft2 False
-PunchRight False
-PunchRight2 False
-Right1 False
-Right2 False
-RollLeft1 False
-RollLeft2 False
-RollLeft3 False
-RollLeft4 False
-RollRight1 False
-RollRight2 False
-RollRight3 False
-RollRight4 False
-RopeClimb1 False
-RopeClimb2 False
-SlideL False
-SlideLB False
-SlideR False
-SlideRB False
-Stand False
+Dead True True
+DiveLeft False True
+DiveRight False True
+JumpLeft False True
+JumpRight False True
+JumpUp True True
+KickLeft False True
+KickRight False True
+LadderClimb1 False True
+LadderClimb2 False True
+Left1 False True
+Left2 False True
+PunchLeft False True
+PunchLeft2 False True
+PunchRight False True
+PunchRight2 False True
+Right1 False True
+Right2 False True
+RollLeft1 False True
+RollLeft2 False True
+RollLeft3 False True
+RollLeft4 False True
+RollRight1 False True
+RollRight2 False True
+RollRight3 False True
+RollRight4 False True
+RopeClimb1 False True
+RopeClimb2 False True
+SlideL False True
+SlideLB False True
+SlideR False True
+SlideRB False True
+Stand False True
 3
 255 255 255 0.01785714 0.005952381 0.4583333 0.4761905 0 1.5
 0 128 192 0.5 0.005952381 0.4821429 0.5178571 0 1.5

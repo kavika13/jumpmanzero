@@ -1,21 +1,21 @@
 c:\jumpman\data\Sheep.bmp
 16
-SheepFL1 False
-SheepFL2 False
-SheepFL3 False
-SheepFR1 False
-SheepFR2 False
-SheepFR3 False
-SheepJL1 False
-SheepJL2 False
-SheepJL3 False
-SheepJR1 False
-SheepJR2 False
-SheepJR3 False
-SheepL1 False
-SheepL2 False
-SheepR1 False
-SheepR2 False
+SheepFL1 False True
+SheepFL2 False True
+SheepFL3 False True
+SheepFR1 False True
+SheepFR2 False True
+SheepFR3 False True
+SheepJL1 False True
+SheepJL2 False True
+SheepJL3 False True
+SheepJR1 False True
+SheepJR2 False True
+SheepJR3 False True
+SheepL1 False True
+SheepL2 False True
+SheepR1 False True
+SheepR2 False True
 3
 192 192 192 0.5297619 0.5416667 0.422619 0.4345238 0 1.5
 255 255 255 0.5238096 0.01785714 0.4107143 0.452381 0 1.5
