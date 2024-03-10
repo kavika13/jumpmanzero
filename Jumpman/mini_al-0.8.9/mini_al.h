@@ -26900,7 +26900,7 @@ mal_result mal_decoder_internal_on_seek_to_frame__wav(mal_decoder* pDecoder, mal
     drwav* pWav = (drwav*)pDecoder->pInternalDecoder;
     mal_assert(pWav != NULL);
 
-    drwav_bool32 result = drwav_seek_to_sample(pWav, frameIndex*pWav->channels);
+    drwav_bool32 result = drwav_seek_to_pcm_frame(pWav, frameIndex*pWav->channels);
     if (result) {
         return MAL_SUCCESS;
     } else {
@@ -26925,9 +26925,9 @@ mal_uint32 mal_decoder_internal_on_read_frames__wav(mal_dsp* pDSP, mal_uint32 fr
     mal_assert(pWav != NULL);
 
     switch (pDecoder->internalFormat) {
-        case mal_format_s16: return (mal_uint32)drwav_read_s16(pWav, frameCount*pDecoder->internalChannels, (drwav_int16*)pSamplesOut) / pDecoder->internalChannels;
-        case mal_format_s32: return (mal_uint32)drwav_read_s32(pWav, frameCount*pDecoder->internalChannels, (drwav_int32*)pSamplesOut) / pDecoder->internalChannels;
-        case mal_format_f32: return (mal_uint32)drwav_read_f32(pWav, frameCount*pDecoder->internalChannels,       (float*)pSamplesOut) / pDecoder->internalChannels;
+        case mal_format_s16: return (mal_uint32)drwav_read_pcm_frames_s16(pWav, frameCount*pDecoder->internalChannels, (drwav_int16*)pSamplesOut) / pDecoder->internalChannels;
+        case mal_format_s32: return (mal_uint32)drwav_read_pcm_frames_s32(pWav, frameCount*pDecoder->internalChannels, (drwav_int32*)pSamplesOut) / pDecoder->internalChannels;
+        case mal_format_f32: return (mal_uint32)drwav_read_pcm_frames_f32(pWav, frameCount*pDecoder->internalChannels,       (float*)pSamplesOut) / pDecoder->internalChannels;
         default: break;
     }
 
