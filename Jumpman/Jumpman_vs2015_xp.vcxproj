@@ -56,7 +56,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;USE_MODULAR_WIN32_LIB;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -64,7 +64,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>WindowsHModular-master-83b8419\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-0c5bc3a;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>WindowsHModular-master-a8d378c\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-0c5bc3a;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -89,7 +89,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;USE_MODULAR_WIN32_LIB;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -97,7 +97,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <AdditionalIncludeDirectories>WindowsHModular-master-83b8419\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-0c5bc3a;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>WindowsHModular-master-a8d378c\include;glad\include;glfw-3.2.1.bin.WIN32\include;boxer-c\include;handmademath-1.7.0;stb-image-2.19.0;stb-sprintf-1.06.0;sokol-gfx-master-0c5bc3a;mini_al-0.8.9;tiny_sound_font-master-5506592;cute_files-6760a7d;lua-5.3.5\src</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -157,22 +157,22 @@
     <ClInclude Include="tiny_sound_font-master-7e646b6\tml.h" />
     <ClInclude Include="tiny_sound_font-master-7e646b6\tsf.h" />
     <ClInclude Include="Utilities.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\atomic.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dbghelp.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dds.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\fiber.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\file.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\gdi.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\intrin.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\io.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\misc.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\process.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\sysinfo.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\threads.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\window.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_base.h" />
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_modular.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\atomic.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\dbghelp.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\dds.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\fiber.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\file.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\gdi.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\intrin.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\io.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\misc.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\process.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\sysinfo.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\threads.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\window.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\windows.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\windows_base.h" />
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\windows_modular.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Jumpman.ico" />

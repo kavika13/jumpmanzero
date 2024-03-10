@@ -45,6 +45,25 @@ extern "C" {
 #define CTRL_LOGOFF_EVENT       0x5
 #define CTRL_SHUTDOWN_EVENT     0x6
 
+/* Console Input Mode flags */
+#define ENABLE_PROCESSED_INPUT              0x0001
+#define ENABLE_LINE_INPUT                   0x0002
+#define ENABLE_ECHO_INPUT                   0x0004
+#define ENABLE_WINDOW_INPUT                 0x0008
+#define ENABLE_MOUSE_INPUT                  0x0010
+#define ENABLE_INSERT_MODE                  0x0020
+#define ENABLE_QUICK_EDIT_MODE              0x0040
+#define ENABLE_EXTENDED_FLAGS               0x0080
+#define ENABLE_AUTO_POSITION                0x0100
+#define ENABLE_VIRTUAL_TERMINAL_INPUT       0x0200
+
+/* Console Output Mode flags */
+#define ENABLE_PROCESSED_OUTPUT             0x0001
+#define ENABLE_WRAP_AT_EOL_OUTPUT           0x0002
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING  0x0004
+#define DISABLE_NEWLINE_AUTO_RETURN         0x0008
+#define ENABLE_LVB_GRID_WORLDWIDE           0x0010
+
 /* HeapAlloc, HeapReAlloc, etc: */
 #define HEAP_NO_SERIALIZE           0x00000001
 #define HEAP_ZERO_MEMORY            0x00000008
@@ -157,6 +176,12 @@ BOOL WINAPI GetConsoleScreenBufferInfo(
 BOOL WINAPI SetConsoleTextAttribute(
         HANDLE hConsoleOutput,
         WORD wAttributes);
+BOOL WINAPI GetConsoleMode(
+        HANDLE hConsoleHandle,
+        LPDWORD lpMode);
+BOOL WINAPI SetConsoleMode(
+        HANDLE hConsoleHandle,
+        DWORD dwMode);
 BOOL WINAPI CloseHandle(
         HANDLE hObject);
 BOOL WINAPI SetHandleInformation(
@@ -254,11 +279,46 @@ BOOL WINAPI FlushInstructionCache(
 
 /* ========================================================================== */
 /* Pipe Functions: */
+#define PIPE_WAIT 0x00000000
+#define PIPE_NOWAIT 0x00000001
+#define PIPE_READMODE_BYTE 0x00000000
+#define PIPE_READMODE_MESSAGE 0x00000002
+#define PIPE_TYPE_BYTE 0x00000000
+#define PIPE_TYPE_MESSAGE 0x00000004
+#define PIPE_ACCEPT_REMOTE_CLIENTS 0x00000000
+#define PIPE_REJECT_REMOTE_CLIENTS 0x00000008
+
+#define PIPE_ACCESS_INBOUND 0x00000001
+#define PIPE_ACCESS_OUTBOUND 0x00000002
+#define PIPE_ACCESS_DUPLEX 0x00000003
+
+#define PIPE_UNLIMITED_INSTANCES 255
+#define ERROR_PIPE_BUSY 231L
+
+HANDLE WINAPI CreateNamedPipeA(
+        LPCSTR lpName,
+        DWORD dwOpenMode,
+        DWORD dwPipeMode,
+        DWORD nMaxInstances,
+        DWORD nOutBufferSize,
+        DWORD nInBufferSize,
+        DWORD nDefaultTimeOut,
+        LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+HANDLE WINAPI CreateNamedPipeW(
+        LPCWSTR lpName,
+        DWORD dwOpenMode,
+        DWORD dwPipeMode,
+        DWORD nMaxInstances,
+        DWORD nOutBufferSize,
+        DWORD nInBufferSize,
+        DWORD nDefaultTimeOut,
+        LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 BOOL WINAPI CreatePipe(
         PHANDLE hReadPipe,
         PHANDLE hWritePipe,
         LPSECURITY_ATTRIBUTES lpPipeAttributes,
         DWORD nSize);
+BOOL WINAPI ConnectNamedPipe(HANDLE hNamedPipe, LPOVERLAPPED lpOverlapped);
 BOOL WINAPI PeekNamedPipe(
         HANDLE  hNamedPipe,
         LPVOID  lpBuffer,
@@ -266,6 +326,8 @@ BOOL WINAPI PeekNamedPipe(
         LPDWORD lpBytesRead,
         LPDWORD lpTotalBytesAvail,
         LPDWORD lpBytesLeftThisMessage);
+BOOL WINAPI WaitNamedPipeA(LPCSTR lpNamedPipeName, DWORD nTimeOut);
+BOOL WINAPI WaitNamedPipeW(LPCWSTR lpNamedPipeName, DWORD nTimeOut);
 
 /* ========================================================================== */
 /* Path Functions: */

@@ -173,52 +173,52 @@
     <ClInclude Include="boxer-c\include\boxer\boxer.h">
       <Filter>Header Files\boxer\boxer</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\atomic.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\atomic.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dbghelp.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\dbghelp.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\dds.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\dds.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\fiber.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\fiber.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\file.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\file.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\gdi.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\gdi.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\intrin.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\intrin.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\io.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\io.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\misc.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\misc.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\process.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\process.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\sysinfo.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\sysinfo.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\threads.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\threads.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\window.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\window.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\windows.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_base.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\windows_base.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHModular-master-83b8419\include\win32\windows_modular.h">
+    <ClInclude Include="WindowsHModular-master-a8d378c\include\win32\windows_modular.h">
       <Filter>Header Files\WindowsHModular\win32</Filter>
     </ClInclude>
     <ClInclude Include="logging.h">

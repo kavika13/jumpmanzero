@@ -284,6 +284,98 @@ PVOID SecureZeroMemory(
         PVOID  ptr,
         SIZE_T cnt);
 
+VOID __stosb(
+        PBYTE  Destination,
+        BYTE  Value,
+        SIZE_T Count);
+
+VOID __stosw(
+        PWORD   Destination,
+        WORD   Value,
+        SIZE_T Count);
+
+VOID __stosd(
+        PDWORD Destination,
+        DWORD Value,
+        SIZE_T Count);
+
+VOID __stosq(
+        PDWORD64 Destination,
+        DWORD64 Value,
+        SIZE_T Count);
+
+#pragma intrinsic(__stosb)
+#pragma intrinsic(__stosw)
+#pragma intrinsic(__stosd)
+#pragma intrinsic(__stosq)
+
+FORCEINLINE PVOID SecureZeroMemory(
+        PVOID ptr,
+        SIZE_T cnt)
+{
+    volatile char* vptr = (volatile char*)ptr;
+
+#if defined(_M_AMD64)
+    __stosb((PBYTE)((DWORD64)vptr), 0, cnt);
+#else
+    while (cnt)
+    {
+#   if !defined(_M_CEE) && (defined(_M_ARM) || defined(_M_ARM64))
+        __iso_volatile_store8(vptr, 0);
+#   else
+        * vptr = 0;
+#   endif
+
+        vptr++;
+        cnt--;
+    }
+
+#endif // _M_AMD64
+
+    return ptr;
+}
+
+_NODISCARD _Check_return_
+int __cdecl memcmp(
+    _In_reads_bytes_(_Size) void const* _Buf1,
+    _In_reads_bytes_(_Size) void const* _Buf2,
+    _In_                    size_t      _Size
+);
+
+_CRT_INSECURE_DEPRECATE_MEMORY(memmove_s)
+_VCRTIMP void* __cdecl memmove(
+    _Out_writes_bytes_all_opt_(_Size) void* _Dst,
+    _In_reads_bytes_opt_(_Size)       void const* _Src,
+    _In_                              size_t      _Size
+);
+
+void* __cdecl memcpy(
+    _Out_writes_bytes_all_(_Size) void* _Dst,
+    _In_reads_bytes_(_Size)       void const* _Src,
+    _In_                          size_t      _Size
+);
+
+void* __cdecl memset(
+    _Out_writes_bytes_all_(_Size) void* _Dst,
+    _In_                          int    _Val,
+    _In_                          size_t _Size
+);
+
+
+#define RtlEqualMemory(Destination,Source,Length) (!memcmp((Destination),(Source),(Length)))
+#define RtlMoveMemory(Destination,Source,Length) memmove((Destination),(Source),(Length))
+#define RtlCopyMemory(Destination,Source,Length) memcpy((Destination),(Source),(Length))
+#define RtlFillMemory(Destination,Length,Fill) memset((Destination),(Fill),(Length))
+#define RtlZeroMemory(Destination,Length) memset((Destination),0,(Length))
+
+#define MoveMemory RtlMoveMemory
+#define CopyMemory RtlCopyMemory
+#define FillMemory RtlFillMemory
+#define ZeroMemory RtlZeroMemory
+
+UINT WINAPI GetDoubleClickTime(VOID);
+BOOL WINAPI SetDoubleClickTime(UINT);
+
 #if defined(__cplusplus)
 }
 #endif

@@ -1,12 +1,11 @@
- 
-#ifndef _WINDOWS_ 
-#pragma once 
-#ifndef _INC_WINDOWS 
-#define _INC_WINDOWS 
-#ifndef WINDOWS_H 
-#define WINDOWS_H 
- 
- 
+#ifndef _WINDOWS_
+#pragma once
+#ifndef _INC_WINDOWS
+#define _INC_WINDOWS
+#ifndef WINDOWS_H
+#define WINDOWS_H
+
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -43,7 +42,7 @@ extern "C" {
 /* Basic Defines: */
 #define NTAPI __stdcall
 #define WINAPI __stdcall
-#define APIENTRY WINAPI
+#define APIENTRY __stdcall
 #define CALLBACK __stdcall
 #define TRUE (1)
 #define FALSE (0)
@@ -392,7 +391,7 @@ typedef struct _FILETIME {
 #endif /* WINDOWS_BASE_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -670,7 +669,7 @@ void _ReadWriteBarrier(void);
 #endif /* WINDOWS_ATOMIC_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -947,11 +946,19 @@ typedef struct DECLSPEC_ALIGN(16) _CONTEXT {
 } CONTEXT, *PCONTEXT;
 typedef PCONTEXT LPCONTEXT;
 #elif _WIN32
+typedef struct _FLOATING_SAVE_AREA
+{
+    ULONG ControlWord;
+    ULONG StatusWord;
+    ULONG TagWord;
+    ULONG ErrorOffset;
+    ULONG ErrorSelector;
+    ULONG DataOffset;
+    ULONG DataSelector;
+    UCHAR RegisterArea[80];
+    ULONG Cr0NpxState;
+} FLOATING_SAVE_AREA, *PFLOATING_SAVE_AREA;
 #define MAXIMUM_SUPPORTED_EXTENSION     512
-typedef struct _FLOATING_SAVE_AREA {
-    // TODO: This is not an empty struct, must properly define it!
-    int unused_;
-} FLOATING_SAVE_AREA;
 typedef struct _CONTEXT {
     DWORD ContextFlags;
     DWORD   Dr0;
@@ -1585,7 +1592,7 @@ GetTib(void)
 #endif /* WINDOWS_DBGHELP_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -1797,7 +1804,7 @@ typedef struct {
 #endif /* WINDOWS_DDS_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -2113,13 +2120,13 @@ typedef struct _WIN32_FILE_ATTRIBUTE_DATA {
     DWORD nFileSizeLow;
 } WIN32_FILE_ATTRIBUTE_DATA, *LPWIN32_FILE_ATTRIBUTE_DATA;
 BOOL WINAPI GetFileAttributesExA(
-        LPCSTR lpFileName,
-        GET_FILEEX_INFO_LEVELS fInfoLevelId,
-        LPVOID lpFileInformation);
+    LPCSTR lpFileName,
+    GET_FILEEX_INFO_LEVELS fInfoLevelId,
+    LPVOID lpFileInformation);
 BOOL WINAPI GetFileAttributesExW(
-        LPCWSTR lpFileName,
-        GET_FILEEX_INFO_LEVELS fInfoLevelId,
-        LPVOID lpFileInformation);
+    LPCWSTR lpFileName,
+    GET_FILEEX_INFO_LEVELS fInfoLevelId,
+    LPVOID lpFileInformation);
 
 BOOL WINAPI GetFileTime(
         HANDLE  hFile,
@@ -2251,7 +2258,7 @@ BOOL WINAPI GetFileSecurityW(
 #endif /* WINDOWS_FILE_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -2314,7 +2321,7 @@ HCURSOR WINAPI SetCursor(
 #endif /* WINDOWS_GDI_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -2619,7 +2626,7 @@ DWORD WINAPI GetCurrentDirectoryW(
 #endif /* WINDOWS_IO_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -2918,7 +2925,7 @@ PVOID SecureZeroMemory(
 #endif /* WINDOWS_MISC_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -3209,7 +3216,7 @@ BOOL WINAPI AssignProcessToJobObject(
 #endif /* WINDOWS_PROCESS_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -3806,7 +3813,7 @@ LONG WINAPI RegFlushKey(
 #endif /* WINDOWS_SYSINFO_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -4163,7 +4170,7 @@ BOOL WINAPI ResetEvent(
 #endif /* WINDOWS_THREADS_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -4534,7 +4541,7 @@ SHORT WINAPI GetKeyState(
 #endif /* WINDOWS_WINDOW_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -4577,7 +4584,7 @@ extern void _ReadWriteBarrier(void);
 #endif /* WINDOWS_INTRIN_H */
 #endif /* _WINDOWS_ */
 
- 
+
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Copyright (c) Arvid Gerstmann. All rights reserved.
@@ -4681,8 +4688,8 @@ BOOL WINAPI FlsFree(DWORD dwFlsIndex);
 #endif /* WINDOWS_FIBER_H */
 #endif /* _WINDOWS_ */
 
- 
-#endif 
-#endif 
-#define _WINDOWS_ 
-#endif 
+
+#endif
+#endif
+#define _WINDOWS_
+#endif

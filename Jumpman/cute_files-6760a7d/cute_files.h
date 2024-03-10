@@ -131,7 +131,11 @@ void cf_do_unit_tests();
 #if !defined _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <win32/windows.h>
+#ifdef USE_MODULAR_WIN32_LIB
+    #include <win32/windows.h>
+#else
+    #include <windows.h>
+#endif
 
 	struct cf_file_t
 	{

@@ -6,7 +6,11 @@
 
 #if defined(_WIN32)
     #include <malloc.h>
-    #include <win32/dbghelp.h>
+    #ifdef USE_MODULAR_WIN32_LIB
+        #include <win32/dbghelp.h>
+    #else
+        #include <windows.h>
+    #endif
 #endif
 
 static int vdebug_log(char const* const format_string, va_list argp) {

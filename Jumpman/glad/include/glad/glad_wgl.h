@@ -81,7 +81,11 @@
 #ifndef NOMINMAX
 #define NOMINMAX 1
 #endif
-#include <win32/windows.h>
+#ifdef USE_MODULAR_WIN32_LIB
+    #include <win32/windows.h>
+#else
+    #include <windows.h>
+#endif
 #endif
 
 #include <glad/glad.h>
