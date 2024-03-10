@@ -20,6 +20,7 @@
     #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 #define STB_SPRINTF_IMPLEMENTATION
+#define STB_SPRINTF_NOUNALIGNED
 #include <stb_sprintf.h>
 #if defined(__APPLE__)
     #pragma clang diagnostic pop
