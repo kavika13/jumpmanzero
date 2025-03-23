@@ -253,7 +253,7 @@ bool InitMusic(void) {
     }
 
     tsf_channel_set_bank_preset(g_track_1.sound_font, 9, 128, 0);
-    tsf_set_output(g_track_1.sound_font, TSF_STEREO_INTERLEAVED, 44100, 0.0f);
+    tsf_set_output(g_track_1.sound_font, TSF_STEREO_INTERLEAVED, 44100, -10.0f);
 
     g_track_2 = (const MusicTrack){ 0 };
     g_track_2.sound_font = tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
@@ -264,7 +264,7 @@ bool InitMusic(void) {
     }
 
     tsf_channel_set_bank_preset(g_track_2.sound_font, 9, 128, 0);
-    tsf_set_output(g_track_2.sound_font, TSF_STEREO_INTERLEAVED, 44100, 0.0f);
+    tsf_set_output(g_track_2.sound_font, TSF_STEREO_INTERLEAVED, 44100, -10.0f);
 
     g_music_is_initialized = true;
 

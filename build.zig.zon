@@ -1,0 +1,45 @@
+.{
+    .name = .jumpmanzero,
+    .version = "0.0.1",
+    .fingerprint = 0x4db1d097273958aa, // Changing this has security and trust implications.
+    .minimum_zig_version = "0.14.0-dev.3446+50b40c962",
+
+    .dependencies = .{
+        // TODO: glad, glfw,
+        .lua = .{
+            // .url = "git+https://github.com/kavika13/lua#5.4.7",
+            .url = "git+https://github.com/kavika13/lua?ref=main#56b987be70d2c813a9f25f02e89d386ccfb6237b",
+            .hash = "lua-5.4.7-zqrcyj4kAAA0i5b6B0jM8V5RxRKJXmeqQy1d0TFOwpFR",
+        },
+        .cute_headers_deprecated = .{
+            .url = "git+https://github.com/RandyGaul/cute_headers_deprecated#bb2781dea677304897a0b2765e24dcc259341291",
+            .hash = "N-V-__8AAANoBgA9P8jy4uNwCnFNbOujgBD3iHWtURoSBY4e",
+        },
+        // .sokol = .{
+        //     .url = "git+https://github.com/floooh/sokol#bcdf25ae58c4fe82cd444ea1ce3f1b8f2532c7ed",
+        //     .hash = "N-V-__8AAMHpWACD0nbMjYyEdXXBQqwS4Y_BGKa5N5uZHxJp",
+        // },
+        .stb = .{
+            .url = "git+https://github.com/nothings/stb/#f0569113c93ad095470c54bf34a17b36646bbbb5",
+            .hash = "N-V-__8AAJopTgBuYbPPno6GEtqFAeIhKHyhTJcJ-Vp2FpHj",
+        },
+        // .handmade_math = .{
+        //     .url = "git+https://github.com/HandmadeMath/HandmadeMath/?ref=v1.7.0#295f6c476f187ed2cd7fd5fd31ca031bce81fe2d",
+        //     .hash = "N-V-__8AADE4AgAUxPx_tzS9XGbdkfCp14ZaFFGcoXR7Osxg",
+        // },
+        // .miniaudio = .{
+        //     .url = "git+https://github.com/mackron/miniaudio/?ref=0.11.22#350784a9467a79d0fa65802132668e5afbcf3777",
+        //     .hash = "N-V-__8AAIX6uQBMQoqkZK7Ws3HsCwSJf1Z_KLsW4CJx81k3",
+        // },
+        .tiny_sound_font = .{
+            .url = "git+https://github.com/kavika13/TinySoundFont?ref=main#0855574a217bdea7d415a0c063db2c30b8a1cee4",
+            .hash = "N-V-__8AAB6VFQAonhRVKajGD1uzH4mmoOMHY-9l7GKbxF2B",
+        },
+    },
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
