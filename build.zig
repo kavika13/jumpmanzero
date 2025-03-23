@@ -27,16 +27,17 @@ pub fn build(b: *std.Build) void {
     //     .target = target,
     //     .optimize = optimize,
     // });
-    // const miniaudio_dep = b.dependency("miniaudio", .{
-    //     .target = target,
-    //     .optimize = optimize,
-    // });
+    const miniaudio_dep = b.dependency("miniaudio", .{
+        .target = target,
+        .optimize = optimize,
+    });
     const tiny_sound_font_dep = b.dependency("tiny_sound_font", .{
         .target = target,
         .optimize = optimize,
     });
 
     const exe_mod = b.createModule(.{
+        .root_source_file = b.path("src/game/main.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -46,13 +47,14 @@ pub fn build(b: *std.Build) void {
         .root_module = exe_mod,
     });
 
+    exe.addIncludePath(b.path("Jumpman"));
     // TODO: Use deps instead of vendored source
     exe.addIncludePath(lua_dep.path(""));
     exe.addIncludePath(cute_headers_deprecated_dep.path(""));
     // exe.addIncludePath(sokol_dep.path(""));
     exe.addIncludePath(stb_dep.path(""));
     // exe.addIncludePath(handmade_math_dep.path(""));
-    // exe.addIncludePath(miniaudio_dep.path(""));
+    exe.addIncludePath(miniaudio_dep.path(""));
     exe.addIncludePath(tiny_sound_font_dep.path(""));
 
     // TODO: Use deps instead of vendored source
@@ -61,21 +63,18 @@ pub fn build(b: *std.Build) void {
     exe.addIncludePath(b.path("Jumpman/boxer-c/include"));
     exe.addIncludePath(b.path("Jumpman/sokol-gfx-master-0c5bc3a"));
     exe.addIncludePath(b.path("Jumpman/handmademath-1.7.0"));
-    exe.addIncludePath(b.path("Jumpman/mini_al-0.8.9"));
 
     exe.addCSourceFiles(.{
         .files = &.{
             "Jumpman/Jumpman.c",
             "Jumpman/Basic3D.c",
             "Jumpman/logging.c",
-            "Jumpman/Main.c",
             "Jumpman/Music.c",
-            "Jumpman/Sound.c",
-            "Jumpman/SoundBuffer.c",
             "Jumpman/Utilities.c",
             "Jumpman/boxer-c/src/boxer_win.c",
             "Jumpman/glad/src/glad.c",
             "Jumpman/glad/src/glad_wgl.c",
+            "src/game/lib_impl.c",
         },
         .flags = &.{
             // ...

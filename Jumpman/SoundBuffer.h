@@ -11,7 +11,7 @@ extern "C" {
 
 #define kSOUND_CHANNEL_COUNT ((size_t)64)
 
-typedef uint32_t (*SoundChannel)(uint32_t frameCount, float* interleaved_stereo_samples);
+typedef uint64_t (*SoundChannel)(uint64_t frameCount, float* interleaved_stereo_samples);
 
 bool InitSoundBuffer(void);
 void CleanupSoundBuffer(void);

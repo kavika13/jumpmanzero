@@ -27,10 +27,10 @@
         //     .url = "git+https://github.com/HandmadeMath/HandmadeMath/?ref=v1.7.0#295f6c476f187ed2cd7fd5fd31ca031bce81fe2d",
         //     .hash = "N-V-__8AADE4AgAUxPx_tzS9XGbdkfCp14ZaFFGcoXR7Osxg",
         // },
-        // .miniaudio = .{
-        //     .url = "git+https://github.com/mackron/miniaudio/?ref=0.11.22#350784a9467a79d0fa65802132668e5afbcf3777",
-        //     .hash = "N-V-__8AAIX6uQBMQoqkZK7Ws3HsCwSJf1Z_KLsW4CJx81k3",
-        // },
+        .miniaudio = .{
+            .url = "git+https://github.com/kavika13/miniaudio-zig-hacks?ref=main#8a39a800544cd504196e246c99445af2fdc11cd7",
+            .hash = "N-V-__8AAF_6uQA5f-qgdJo440U1uAdKEiQu8af5qM_ug77n",
+        },
         .tiny_sound_font = .{
             .url = "git+https://github.com/kavika13/TinySoundFont?ref=main#0855574a217bdea7d415a0c063db2c30b8a1cee4",
             .hash = "N-V-__8AAB6VFQAonhRVKajGD1uzH4mmoOMHY-9l7GKbxF2B",

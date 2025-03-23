@@ -193,11 +193,11 @@ static uint32_t AddMidiSamples(size_t sound_channel, MusicTrack* track, uint32_t
     return frameCount;
 }
 
-static uint32_t AddTrack1Samples(uint32_t frameCount, float* interleaved_stereo_samples) {
+static uint64_t AddTrack1Samples(uint64_t frameCount, float* interleaved_stereo_samples) {
     return AddMidiSamples(0, &g_track_1, frameCount, interleaved_stereo_samples);
 }
 
-static uint32_t AddTrack2Samples(uint32_t frameCount, float* interleaved_stereo_samples) {
+static uint64_t AddTrack2Samples(uint64_t frameCount, float* interleaved_stereo_samples) {
     return AddMidiSamples(1, &g_track_2, frameCount, interleaved_stereo_samples);
 }
 
