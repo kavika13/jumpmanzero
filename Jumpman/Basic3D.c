@@ -22,16 +22,45 @@
 
 #include <stb_sprintf.h>
 
-#if defined(__APPLE__)
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wconditional-uninitialized"
-#endif
-#define HANDMADE_MATH_IMPLEMENTATION
-#define HANDMADE_MATH_NO_SSE
-#include "HandmadeMath.h"
-#if defined(__APPLE__)
-    #pragma clang diagnostic pop
-#endif
+// Begin: helpers from HandmadeMath. Rename after HMM is removed from build
+
+typedef union hmm_vec2 {
+    struct {
+        float X, Y;
+    };
+} hmm_vec2;
+
+typedef union hmm_vec3 {
+    struct {
+        float X, Y, Z;
+    };
+} hmm_vec3;
+
+typedef union hmm_vec4 {
+    struct {
+        float X, Y, Z, W;
+    };
+} hmm_vec4;
+
+typedef union hmm_mat4 {
+    float Elements[4][4];
+} hmm_mat4;
+
+typedef union hmm_quaternion {
+    struct {
+        union {
+            hmm_vec3 XYZ;
+            struct
+            {
+                float X, Y, Z;
+            };
+        };
+
+        float W;
+    };
+} hmm_quaternion;
+
+// End: helpers from HandmadeMath. Rename after HMM is removed from build
 
 #include "shader.h"
 
@@ -43,6 +72,272 @@
 #define kMAX_TRANSFORMS ((size_t)1200)
 #define kMAX_MESHES ((size_t)600)
 #define kMAX_VERTICES ((size_t)110000)
+
+// Begin: helpers from HandmadeMath. Rename after HMM is removed from build
+
+#define HMM_PI32 3.14159265359f
+
+float HMM_ToRadians(float degrees) {
+    float result = degrees * (HMM_PI32 / 180.0f);
+    return result;
+}
+
+float HMM_Lerp(float lhs, float time, float rhs) {
+    float result = (1.0f - time) * lhs + time * rhs;
+    return result;
+}
+
+hmm_vec2 HMM_Vec2(float x, float y) {
+    hmm_vec2 result = { x, y };
+    return result;
+}
+
+hmm_vec2 HMM_AddVec2(hmm_vec2 lhs, hmm_vec2 rhs) {
+    hmm_vec2 result = { lhs.X + rhs.X, lhs.Y + rhs.Y };
+    return result;
+}
+
+hmm_vec2 HMM_SubtractVec2(hmm_vec2 lhs, hmm_vec2 rhs) {
+    hmm_vec2 result = { lhs.X - rhs.X, lhs.Y - rhs.Y };
+    return result;
+}
+
+hmm_vec2 HMM_MultiplyVec2f(hmm_vec2 lhs, float rhs) {
+    hmm_vec2 result = { lhs.X * rhs, lhs.Y * rhs };
+    return result;
+}
+
+hmm_vec3 HMM_Vec3(float x, float y, float z) {
+    hmm_vec3 result = { x, y, z };
+    return result;
+}
+
+hmm_vec3 HMM_AddVec3(hmm_vec3 lhs, hmm_vec3 rhs) {
+    hmm_vec3 result = { lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z };
+    return result;
+}
+
+hmm_vec3 HMM_SubtractVec3(hmm_vec3 lhs, hmm_vec3 rhs) {
+    hmm_vec3 result = { lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z };
+    return result;
+}
+
+hmm_vec3 HMM_MultiplyVec3f(hmm_vec3 lhs, float rhs) {
+    hmm_vec3 result = { lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs };
+    return result;
+}
+
+hmm_vec3 HMM_DivideVec3f(hmm_vec3 vec, float scalar) {
+    hmm_vec3 result = { vec.X / scalar, vec.Y / scalar, vec.Z / scalar };
+    return result;
+}
+
+float HMM_DotVec3(hmm_vec3 lhs, hmm_vec3 rhs) {
+    float result = lhs.X * rhs.X + lhs.Y * rhs.Y + lhs.Z * rhs.Z;
+    return result;
+}
+
+hmm_vec3 HMM_Cross(hmm_vec3 lhs, hmm_vec3 rhs) {
+    hmm_vec3 result = { lhs.Y * rhs.Z - lhs.Z * rhs.Y, lhs.Z * rhs.X - lhs.X * rhs.Z, lhs.X * rhs.Y - lhs.Y * rhs.X };
+    return result;
+}
+
+hmm_vec3 HMM_NormalizeVec3(hmm_vec3 vec) {
+    hmm_vec3 result = {0};
+    float vector_length = sqrtf(HMM_DotVec3(vec, vec));
+    if (vector_length != 0.0f)
+    {
+        result = (hmm_vec3){ vec.X * (1.0f / vector_length), vec.Y * (1.0f / vector_length), vec.Z * (1.0f / vector_length) };
+    }
+    return result;
+}
+
+hmm_vec4 HMM_Vec4(float x, float y, float z, float w) {
+    hmm_vec4 result = { x, y, z, w };
+    return result;
+}
+
+hmm_vec4 HMM_AddVec4(hmm_vec4 lhs, hmm_vec4 rhs) {
+    hmm_vec4 result = { lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W };
+    return result;
+}
+
+hmm_vec4 HMM_SubtractVec4(hmm_vec4 lhs, hmm_vec4 rhs) {
+    hmm_vec4 result = { lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z, lhs.W - rhs.W };
+    return result;
+}
+
+hmm_vec4 HMM_MultiplyVec4(hmm_vec4 lhs, hmm_vec4 rhs) {
+    hmm_vec4 result = { lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z, lhs.W * rhs.W };
+    return result;
+}
+
+hmm_mat4 HMM_Translate(hmm_vec3 translation) {
+    hmm_mat4 result = {
+                 1.0f,          0.0f,          0.0f,          0.0f,
+                 0.0f,          1.0f,          0.0f,          0.0f,
+                 0.0f,          0.0f,          1.0f,          0.0f,
+        translation.X, translation.Y, translation.Z,          1.0f,
+    };
+    return result;
+}
+
+hmm_mat4 HMM_Scale(hmm_vec3 scale) {
+    hmm_mat4 result = {
+        scale.X,    0.0f,    0.0f,    0.0f,
+           0.0f, scale.Y,    0.0f,    0.0f,
+           0.0f,    0.0f, scale.Z,    0.0f,
+           0.0f,    0.0f,    0.0f,    1.0f,
+    };
+    return result;
+}
+
+hmm_mat4 HMM_Transpose(hmm_mat4 mat) {
+    hmm_mat4 result;
+    for(int columns = 0; columns < 4; ++columns)
+    {
+        for(int rows = 0; rows < 4; ++rows)
+        {
+            result.Elements[rows][columns] = mat.Elements[columns][rows];
+        }
+    }
+    return result;
+}
+
+hmm_mat4 HMM_MultiplyMat4(hmm_mat4 lhs, hmm_mat4 rhs) {
+    hmm_mat4 result;
+    for(int columns = 0; columns < 4; ++columns)
+    {
+        for(int rows = 0; rows < 4; ++rows)
+        {
+            float sum = 0;
+            for(int current_index = 0; current_index < 4; ++current_index)
+            {
+                sum += lhs.Elements[current_index][rows] * rhs.Elements[columns][current_index];
+            }
+            result.Elements[columns][rows] = sum;
+        }
+    }
+    return result;
+}
+
+hmm_mat4 HMM_MultiplyMat4f(hmm_mat4 mat, float scalar) {
+    hmm_mat4 result;
+    for(int columns = 0; columns < 4; ++columns)
+    {
+        for(int rows = 0; rows < 4; ++rows)
+        {
+            result.Elements[columns][rows] = mat.Elements[columns][rows] * scalar;
+        }
+    }
+    return result;
+}
+
+hmm_quaternion HMM_QuaternionFromAxisAngle(hmm_vec3 axis, float angle) {
+    hmm_quaternion result;
+    float axis_norm = sqrtf(HMM_DotVec3(axis, axis));
+    float sine_angle_over_two = sinf(angle / 2.0f);
+    hmm_vec3 rotated_vector = HMM_MultiplyVec3f(axis, sine_angle_over_two);
+    result.W = cosf(angle / 2.0f);
+    result.XYZ = HMM_DivideVec3f(rotated_vector, axis_norm);
+    return result;
+}
+
+hmm_quaternion HMM_AddQuaternion(hmm_quaternion lhs, hmm_quaternion rhs) {
+    hmm_quaternion result = { lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W };
+    return result;
+}
+
+hmm_quaternion HMM_MultiplyQuaternion(hmm_quaternion lhs, hmm_quaternion rhs) {
+    hmm_quaternion result = {
+        (lhs.X * rhs.W) + (lhs.Y * rhs.Z) - (lhs.Z * rhs.Y) + (lhs.W * rhs.X),
+        (-lhs.X * rhs.Z) + (lhs.Y * rhs.W) + (lhs.Z * rhs.X) + (lhs.W * rhs.Y),
+        (lhs.X * rhs.Y) - (lhs.Y * rhs.X) + (lhs.Z * rhs.W) + (lhs.W * rhs.Z),
+        (-lhs.X * rhs.X) - (lhs.Y * rhs.Y) - (lhs.Z * rhs.Z) + (lhs.W * rhs.W),
+    };
+    return result;
+}
+
+hmm_quaternion HMM_MultiplyQuaternionF(hmm_quaternion quat, float scalar) {
+    hmm_quaternion result = { quat.X * scalar, quat.Y * scalar, quat.Z * scalar, quat.W * scalar };
+    return result;
+}
+
+float HMM_DotQuaternion(hmm_quaternion lhs, hmm_quaternion rhs) {
+    float result = lhs.X * rhs.X + lhs.Y * rhs.Y + lhs.Z * rhs.Z + lhs.W * rhs.W;
+    return result;
+}
+
+hmm_quaternion HMM_NormalizeQuaternion(hmm_quaternion quat) {
+    float length = sqrtf(HMM_DotQuaternion(quat, quat));
+    hmm_quaternion result = { quat.X / length, quat.Y / length, quat.Z / length, quat.W / length };
+    return result;
+}
+
+hmm_mat4 HMM_QuaternionToMat4(hmm_quaternion quat) {
+    hmm_quaternion norm_quat = HMM_NormalizeQuaternion(quat);
+    float xx = norm_quat.X * norm_quat.X;
+    float yy = norm_quat.Y * norm_quat.Y;
+    float zz = norm_quat.Z * norm_quat.Z;
+    float xy = norm_quat.X * norm_quat.Y;
+    float xz = norm_quat.X * norm_quat.Z;
+    float yz = norm_quat.Y * norm_quat.Z;
+    float wx = norm_quat.W * norm_quat.X;
+    float wy = norm_quat.W * norm_quat.Y;
+    float wz = norm_quat.W * norm_quat.Z;
+
+    hmm_mat4 result = { 0 };
+    result.Elements[0][0] = 1.0f - 2.0f * (yy + zz);
+    result.Elements[0][1] = 2.0f * (xy + wz);
+    result.Elements[0][2] = 2.0f * (xz - wy);
+    result.Elements[1][0] = 2.0f * (xy - wz);
+    result.Elements[1][1] = 1.0f - 2.0f * (xx + zz);
+    result.Elements[1][2] = 2.0f * (yz + wx);
+    result.Elements[2][0] = 2.0f * (xz + wy);
+    result.Elements[2][1] = 2.0f * (yz - wx);
+    result.Elements[2][2] = 1.0f - 2.0f * (xx + yy);
+    result.Elements[3][3] = 1.0f;
+
+    return result;
+}
+
+hmm_quaternion HMM_Slerp(hmm_quaternion lhs, float time, hmm_quaternion rhs) {
+    float cos_theta = HMM_DotQuaternion(lhs, rhs);
+    // Jumpman modification --- start
+
+    // If cosTheta < 0, the interpolation will take the long way around the sphere.
+    // To fix this, one quat must be negated.
+    if(cos_theta < 0.0f)
+    {
+        rhs = (hmm_quaternion){ .X = -rhs.X, .Y = -rhs.Y, .Z = -rhs.Z, .W = -rhs.W };
+        cos_theta = -cos_theta;
+    }
+
+    // Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+    if(cos_theta > 1.0f - 0.001f)
+    {
+        hmm_quaternion result = { HMM_Lerp(lhs.X, time, rhs.X), HMM_Lerp(lhs.Y, time, rhs.Y), HMM_Lerp(lhs.Z, time, rhs.Z), HMM_Lerp(lhs.W, time, rhs.W) };
+        return result;
+    }
+
+    // Jumpman modification --- end
+    float angle = acosf(cos_theta);
+
+    float s1 = sinf((1.0f - time) * angle);
+    float s2 = sinf(time * angle);
+    float inverse_sine_angle = 1.0f / sinf(angle);
+
+    hmm_quaternion quat_left = HMM_MultiplyQuaternionF(lhs, s1);
+    hmm_quaternion quat_right = HMM_MultiplyQuaternionF(rhs, s2);
+
+    hmm_quaternion result = HMM_MultiplyQuaternionF(
+        HMM_AddQuaternion(quat_left, quat_right),
+        inverse_sine_angle);
+
+    return result;
+}
+
+// End: helpers from HandmadeMath. Rename after HMM is removed from build
 
 typedef struct Light {
     hmm_vec3 ambient_color;
@@ -129,10 +424,10 @@ static int g_mesh_handle_first_free_index;
 
 static hmm_mat4 HMM_Mat4FromVec4(hmm_vec4 column_0, hmm_vec4 column_1, hmm_vec4 column_2, hmm_vec4 column_3) {
     hmm_mat4 result = { {
-        { column_0.Elements[0], column_0.Elements[1], column_0.Elements[2], column_0.Elements[3] },
-        { column_1.Elements[0], column_1.Elements[1], column_1.Elements[2], column_1.Elements[3] },
-        { column_2.Elements[0], column_2.Elements[1], column_2.Elements[2], column_2.Elements[3] },
-        { column_3.Elements[0], column_3.Elements[1], column_3.Elements[2], column_3.Elements[3] },
+        { column_0.X, column_0.Y, column_0.Z, column_0.W },
+        { column_1.X, column_1.Y, column_1.Z, column_1.W },
+        { column_2.X, column_2.Y, column_2.Z, column_2.W },
+        { column_3.X, column_3.Y, column_3.Z, column_3.W },
     } };
     return result;
 }
@@ -241,13 +536,13 @@ static hmm_mat4 HMM_LookAtLH(hmm_vec3 Eye, hmm_vec3 Center, hmm_vec3 Up) {
     Result.Elements[3][2] = -HMM_DotVec3(F, Eye);
     Result.Elements[3][3] = 1.0f;
 
-    return (Result);
+    return Result;
 }
 
-HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Near, float Far) {
-    hmm_mat4 Result = HMM_Mat4();
+hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Near, float Far) {
+    hmm_mat4 Result = {0};
 
-    float TanThetaOver2 = HMM_TanF(FOV * (HMM_PI32 / 360.0f));
+    float TanThetaOver2 = tanf(FOV * (HMM_PI32 / 360.0f));
 
     Result.Elements[0][0] = 1.0f / (AspectRatio * TanThetaOver2);
     Result.Elements[1][1] = 1.0f / TanThetaOver2;
@@ -256,7 +551,7 @@ HMM_INLINE hmm_mat4 HMM_PerspectiveLH_NO(float FOV, float AspectRatio, float Nea
     Result.Elements[3][2] = -(2.0f * Far * Near) / (Far - Near);
     Result.Elements[3][3] = 0.0f;
 
-    return (Result);
+    return Result;
 }
 
 static hmm_vec3 HMM_LerpVec3(hmm_vec3 lhs, hmm_vec3 rhs, float time) {

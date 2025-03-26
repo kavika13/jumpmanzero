@@ -23,10 +23,6 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    // const handmade_math_dep = b.dependency("handmade_math", .{
-    //     .target = target,
-    //     .optimize = optimize,
-    // });
     const miniaudio_dep = b.dependency("miniaudio", .{
         .target = target,
         .optimize = optimize,
@@ -53,7 +49,6 @@ pub fn build(b: *std.Build) void {
     exe.addIncludePath(cute_headers_deprecated_dep.path(""));
     // exe.addIncludePath(sokol_dep.path(""));
     exe.addIncludePath(stb_dep.path(""));
-    // exe.addIncludePath(handmade_math_dep.path(""));
     exe.addIncludePath(miniaudio_dep.path(""));
     exe.addIncludePath(tiny_sound_font_dep.path(""));
 
@@ -62,7 +57,6 @@ pub fn build(b: *std.Build) void {
     exe.addIncludePath(b.path("Jumpman/glfw-3.3.2.bin.WIN64/include"));
     exe.addIncludePath(b.path("Jumpman/boxer-c/include"));
     exe.addIncludePath(b.path("Jumpman/sokol-gfx-master-0c5bc3a"));
-    exe.addIncludePath(b.path("Jumpman/handmademath-1.7.0"));
 
     exe.addCSourceFiles(.{
         .files = &.{
