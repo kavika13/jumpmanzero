@@ -10,44 +10,26 @@ pub fn build(b: *std.Build) void {
     });
     const lua_lib = lua_dep.artifact(if (target.result.os.tag == .windows) "lua54" else "lua");
 
-    // TODO: Use deps instead of vendored source
-    const cute_headers_deprecated_dep = b.dependency("cute_headers_deprecated", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    // const sokol_dep = b.dependency("sokol", .{
-    //     .target = target,
-    //     .optimize = optimize,
-    // });
-    const stb_dep = b.dependency("stb", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    const miniaudio_dep = b.dependency("miniaudio", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    const tiny_sound_font_dep = b.dependency("tiny_sound_font", .{
-        .target = target,
-        .optimize = optimize,
-    });
-
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/game/main.zig"),
         .target = target,
         .optimize = optimize,
     });
-
     const exe = b.addExecutable(.{
         .name = "jumpmanzero",
         .root_module = exe_mod,
     });
 
+    const cute_headers_deprecated_dep = b.dependency("cute_headers_deprecated", .{ .target = target, .optimize = optimize });
+    const sokol_dep = b.dependency("sokol", .{ .target = target, .optimize = optimize });
+    const stb_dep = b.dependency("stb", .{ .target = target, .optimize = optimize });
+    const miniaudio_dep = b.dependency("miniaudio", .{ .target = target, .optimize = optimize });
+    const tiny_sound_font_dep = b.dependency("tiny_sound_font", .{ .target = target, .optimize = optimize });
+
     exe.addIncludePath(b.path("Jumpman"));
-    // TODO: Use deps instead of vendored source
     exe.addIncludePath(lua_dep.path(""));
     exe.addIncludePath(cute_headers_deprecated_dep.path(""));
-    // exe.addIncludePath(sokol_dep.path(""));
+    exe.addIncludePath(sokol_dep.path(""));
     exe.addIncludePath(stb_dep.path(""));
     exe.addIncludePath(miniaudio_dep.path(""));
     exe.addIncludePath(tiny_sound_font_dep.path(""));
@@ -56,7 +38,6 @@ pub fn build(b: *std.Build) void {
     exe.addIncludePath(b.path("Jumpman/glad/include"));
     exe.addIncludePath(b.path("Jumpman/glfw-3.3.2.bin.WIN64/include"));
     exe.addIncludePath(b.path("Jumpman/boxer-c/include"));
-    exe.addIncludePath(b.path("Jumpman/sokol-gfx-master-0c5bc3a"));
 
     exe.addCSourceFiles(.{
         .files = &.{
