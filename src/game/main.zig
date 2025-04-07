@@ -9,7 +9,6 @@ const jumpman_main_c = @cImport({
     @cInclude("Basic3d.h");
     @cInclude("Input.h");
     @cInclude("Jumpman.h");
-    @cInclude("Main.h");
     @cInclude("Music.h");
     @cInclude("Sound.h");
     @cInclude("SoundBuffer.h");
