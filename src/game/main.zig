@@ -1,12 +1,12 @@
 const std = @import("std");
 usingnamespace @import("sound.zig"); // TODO: Is there some other way to get the exports to show to C?
 usingnamespace @import("sound_buffer.zig"); // TODO: Is there some other way to get the exports to show to C?
+const basic_3d = @import("basic_3d.zig");
 const jumpman_main_c = @cImport({
     @cDefine("ZIG_DEFINES_MAIN", {});
     @cDefine("GLFW_INCLUDE_NONE", {});
     @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
-    @cInclude("Basic3d.h");
     @cInclude("Input.h");
     @cInclude("Jumpman.h");
     @cInclude("Music.h");
@@ -393,7 +393,7 @@ fn CursorEnterCallback(window: ?*jumpman_main_c.GLFWwindow, is_entering: c_int) 
 fn WindowFocusCallback(_: ?*jumpman_main_c.GLFWwindow, is_focused: c_int) callconv(.C) void {
     if (is_focused != 0) {
         g_game_is_frozen = false;
-        jumpman_main_c.Reset3d();
+        basic_3d.Reset3d();
     } else {
         g_game_is_frozen = true;
     }
@@ -408,7 +408,7 @@ fn WindowSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_in
 }
 
 fn FramebufferSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_int) callconv(.C) void {
-    jumpman_main_c.ResizeViewport(width, height);
+    basic_3d.ResizeViewport(width, height);
 }
 
 fn GetInput(game_current_input: *jumpman_main_c.GameInput, game_prev_input: *jumpman_main_c.GameInput) void {
@@ -478,7 +478,7 @@ fn GetInput(game_current_input: *jumpman_main_c.GameInput, game_prev_input: *jum
 
     var cursor_pos_x_f: f32 = @floatCast(cursor_pos_x);
     var cursor_pos_y_f: f32 = @floatCast(cursor_pos_y);
-    jumpman_main_c.GetViewportMousePos(&cursor_pos_x_f, &cursor_pos_y_f);
+    basic_3d.GetViewportMousePos(&cursor_pos_x_f, &cursor_pos_y_f);
 
     game_current_input.*.cursor_position.x = cursor_pos_x_f;
     game_current_input.*.cursor_position.y = cursor_pos_y_f;
@@ -575,7 +575,7 @@ pub fn main() u8 {
         SetFullscreen(true, &target_width, &target_height);
     }
 
-    jumpman_main_c.ResizeViewport(target_width, target_height); // Callback not set up yet
+    basic_3d.ResizeViewport(target_width, target_height);
 
     jumpman_main_c.glfwSetWindowSizeLimits(g_main_window, 320, 240, jumpman_main_c.GLFW_DONT_CARE, jumpman_main_c.GLFW_DONT_CARE);
     _ = jumpman_main_c.glfwSetWindowFocusCallback(g_main_window, &WindowFocusCallback);

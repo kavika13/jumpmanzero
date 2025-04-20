@@ -7,8 +7,9 @@ pub fn build(b: *std.Build) void {
     const lua_dep = b.dependency("lua", .{
         .target = target,
         .release = optimize != .Debug,
+        .shared = false,
     });
-    const lua_lib = lua_dep.artifact(if (target.result.os.tag == .windows) "lua54" else "lua");
+    const lua_lib = lua_dep.artifact("lua");
 
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/game/main.zig"),
@@ -42,7 +43,6 @@ pub fn build(b: *std.Build) void {
     exe.addCSourceFiles(.{
         .files = &.{
             "Jumpman/Jumpman.c",
-            "Jumpman/Basic3D.c",
             "Jumpman/logging.c",
             "Jumpman/Music.c",
             "Jumpman/Utilities.c",

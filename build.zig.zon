@@ -7,9 +7,8 @@
     .dependencies = .{
         // TODO: glad, glfw, boxer-c
         .lua = .{
-            // .url = "git+https://github.com/kavika13/lua#5.4.7",
-            .url = "git+https://github.com/kavika13/lua?ref=main#56b987be70d2c813a9f25f02e89d386ccfb6237b",
-            .hash = "lua-5.4.7-zqrcyj4kAAA0i5b6B0jM8V5RxRKJXmeqQy1d0TFOwpFR",
+            .url = "git+https://github.com/kavika13/lua#7697bec84130e498624a51ef3b3cc5a05741f4f3",
+            .hash = "lua-5.4.7-zqrcynEkAAAUUKXa4Jb6kRcDA7S7UWIgipg5aPm1IjGf",
         },
         .cute_headers_deprecated = .{
             .url = "git+https://github.com/RandyGaul/cute_headers_deprecated#bb2781dea677304897a0b2765e24dcc259341291",

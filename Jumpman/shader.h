@@ -91,6 +91,7 @@
 #define ATTR_main_shader_vs_texcoord0 (2)
 #define SLOT_tex (0)
 #define SLOT_main_shader_vs_params (0)
+#if !defined(ZIG_SKIP_SHADER_DEF)
 #pragma pack(push,1)
 SOKOL_SHDC_ALIGN(16) typedef struct main_shader_vs_params_t {
     hmm_mat4 local_to_world_matrix;
@@ -101,7 +102,9 @@ SOKOL_SHDC_ALIGN(16) typedef struct main_shader_vs_params_t {
     uint8_t _pad_264[8];
 } main_shader_vs_params_t;
 #pragma pack(pop)
+#endif
 #define SLOT_main_shader_fs_params (0)
+#if !defined(ZIG_SKIP_SHADER_DEF)
 #pragma pack(push,1)
 SOKOL_SHDC_ALIGN(16) typedef struct main_shader_fs_params_t {
     hmm_vec3 scene_ambient_color;
@@ -124,6 +127,7 @@ SOKOL_SHDC_ALIGN(16) typedef struct main_shader_fs_params_t {
     uint8_t _pad_132[12];
 } main_shader_fs_params_t;
 #pragma pack(pop)
+#endif
 /*
     #version 330
     
