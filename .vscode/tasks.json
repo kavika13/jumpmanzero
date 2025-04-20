@@ -1,64 +1,50 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558 
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "meson-configure-dev",
-            "command": "meson",
-            "args": ["build-dev"],
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "problemMatcher": [],
-            "group": "build"
-        },
-        {
-            "label": "ninja-build-dev",
-            "command": "ninja",
-            "options": {
-                "cwd": "${workspaceRoot}/build-dev"
-            },
-            "problemMatcher": {
-                "base": "$gcc",
-                "fileLocation": [
-                    "relative",
-                    "${workspaceRoot}/build-dev"
-                ]
-            },
-            "group": "build"
-        },
-        {
-            "label": "ninja-clean-dev",
-            "command": "ninja",
-            "options": {
-                "cwd": "${workspaceRoot}/build-dev"
-            },
-            "args": ["clean"],
-            "problemMatcher": {
-                "base": "$gcc",
-                "fileLocation": [
-                    "relative",
-                    "${workspaceRoot}/build-dev"
-                ]
-            },
-            "group": "build"
-        },
-        {
-            "label": "ninja-clean-rebuild-dev",
-            "command": "ninja clean && ninja all",
+            "label": "zig build run",
             "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}/build-dev"
-            },
-            "problemMatcher": {
-                "base": "$gcc",
-                "fileLocation": [
-                    "relative",
-                    "${workspaceRoot}/build-dev"
-                ]
-            },
-            "group": "build"
+            "command": "zig",
+            "args": [
+                "build",
+                "run",
+            ],
+            "problemMatcher": "$zig",
+            "group": {
+                "isDefault": true
+            }
+        },
+        {
+            "label": "zig build",
+            "type": "shell",
+            "command": "zig",
+            "args": [
+                "build"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build_test",
+            "type": "shell",
+            "command": "zig",
+            "args": [
+                "test",
+                "${input:testFile}",
+                "--test-no-exec",
+                "-femit-bin=${workspaceFolder}/zig-out/bin/test-binary"
+            ],
+            "group": "test"
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "testFile",
+            "description": "Test file path",
+            "default": "src/main.zig"
         }
     ]
 }
