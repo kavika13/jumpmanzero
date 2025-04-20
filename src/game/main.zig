@@ -13,7 +13,6 @@ const jumpman_main_c = @cImport({
     @cInclude("Sound.h");
     @cInclude("SoundBuffer.h");
     @cInclude("Utilities.h");
-    @cInclude("logging.h");
 });
 
 const kFULLSCREEN_IS_ENABLED_DEFAULT: bool = false;
@@ -198,7 +197,7 @@ fn SetFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) v
 }
 
 fn ErrorCallback(_: c_int, description: ?[*:0]const u8) callconv(.C) void {
-    _ = jumpman_main_c.debug_log("Error: %s\n", description);
+    std.log.err("Error: {?s}\n", .{description});
 }
 
 fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action: c_int, mods: c_int) callconv(.C) void {
