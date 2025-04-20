@@ -10,7 +10,7 @@ const jumpman_basic_3d_c = @cImport({
     @cInclude("shader.h");
 });
 
-const MeshVertex = struct {
+const MeshVertex = extern struct {
     x: f32,
     y: f32,
     z: f32,
@@ -745,8 +745,7 @@ export fn Begin3dLoad() void {
         g_vertices_to_load = null;
     }
 
-    // g_vertices_to_load = std.heap.c_allocator.alloc(MeshVertex, kMAX_VERTICES) catch @panic("failed to allocate"); // TODO: Better error handling
-    g_vertices_to_load = @ptrCast(std.heap.c_allocator.alloc(MeshVertex, kMAX_VERTICES) catch @panic("failed to allocate")); // TODO: Better error handling
+    g_vertices_to_load = std.heap.c_allocator.alloc(MeshVertex, kMAX_VERTICES) catch @panic("failed to allocate"); // TODO: Better error handling
 
     if (g_vertices_to_load == null) {
         fatalError_("Failed to allocate enough memory in order to load model's vertex data");

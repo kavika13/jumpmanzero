@@ -2,6 +2,7 @@ const std = @import("std");
 usingnamespace @import("sound.zig"); // TODO: Is there some other way to get the exports to show to C?
 usingnamespace @import("sound_buffer.zig"); // TODO: Is there some other way to get the exports to show to C?
 const basic_3d = @import("basic_3d.zig");
+const jumpman = @import("jumpman.zig");
 const jumpman_main_c = @cImport({
     @cDefine("ZIG_DEFINES_MAIN", {});
     @cDefine("GLFW_INCLUDE_NONE", {});
