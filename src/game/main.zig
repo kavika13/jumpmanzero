@@ -3,16 +3,15 @@ usingnamespace @import("sound.zig"); // TODO: Is there some other way to get the
 usingnamespace @import("sound_buffer.zig"); // TODO: Is there some other way to get the exports to show to C?
 const basic_3d = @import("basic_3d.zig");
 const jumpman = @import("jumpman.zig");
+const sound = @import("sound.zig");
+const sound_buffer = @import("sound_buffer.zig");
 const jumpman_main_c = @cImport({
     @cDefine("ZIG_DEFINES_MAIN", {});
     @cDefine("GLFW_INCLUDE_NONE", {});
     @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
     @cInclude("Input.h");
-    @cInclude("Jumpman.h");
     @cInclude("Music.h");
-    @cInclude("Sound.h");
-    @cInclude("SoundBuffer.h");
     @cInclude("Utilities.h");
 });
 
@@ -49,7 +48,7 @@ var g_current_max_draw_and_swap_frame_time: f64 = 0.0;
 var g_main_window: ?*jumpman_main_c.GLFWwindow = null;
 
 const GameState = struct {
-    current_input: jumpman_main_c.GameInput,
+    current_input: jumpman.GameInput,
 };
 
 fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool) bool {
@@ -128,9 +127,9 @@ fn save_settings() bool {
             g_key_bindings[3],
             g_key_bindings[4],
             g_key_bindings[5],
-            @as(c_int, if (jumpman_main_c.GetIsSoundEnabled()) 1 else 0),
-            @as(c_int, if (jumpman_main_c.GetIsMusicEnabled()) 1 else 0),
-            @as(c_int, if (g_fullscreen_is_enabled) 1 else 0), // TODO: Report bug that if I don't use @as here, the compiler errors out without a message
+            @intFromBool(sound.GetIsSoundEnabled()),
+            @intFromBool(jumpman_main_c.GetIsMusicEnabled()),
+            @intFromBool(g_fullscreen_is_enabled),
             g_window_resolution_x,
             g_window_resolution_y,
         },
@@ -244,7 +243,7 @@ fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action
                     SetFullscreen(!g_fullscreen_is_enabled, null, null);
                 },
                 jumpman_main_c.GLFW_KEY_ESCAPE => {
-                    jumpman_main_c.ExitGame();
+                    jumpman.ExitGame();
                     jumpman_main_c.glfwSetWindowShouldClose(window, jumpman_main_c.GLFW_TRUE);
                 },
                 else => {},
@@ -411,7 +410,7 @@ fn FramebufferSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height:
     basic_3d.ResizeViewport(width, height);
 }
 
-fn GetInput(game_current_input: *jumpman_main_c.GameInput, game_prev_input: *jumpman_main_c.GameInput) void {
+fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.GameInput) void {
     // TODO: Move this over before this checkin
     // TODO: Dead zone?
     var i: c_int = jumpman_main_c.GLFW_JOYSTICK_1;
@@ -496,35 +495,35 @@ fn GetInput(game_current_input: *jumpman_main_c.GameInput, game_prev_input: *jum
     game_current_input.*.cursor_select_action.just_pressed = game_current_input.*.cursor_select_action.is_pressed and !game_prev_input.*.cursor_select_action.is_pressed;
 }
 
-export fn IsGameFrozen() bool {
+pub fn IsGameFrozen() bool {
     return g_game_is_frozen;
 }
 
-export fn GetCurrentFps() i32 {
+pub fn GetCurrentFps() i32 {
     return g_current_fps;
 }
 
-export fn GetCurrentMaxUpdateFrameTime() f64 {
+pub fn GetCurrentMaxUpdateFrameTime() f64 {
     return g_current_max_update_frame_time;
 }
 
-export fn GetCurrentMaxDrawAndSwapFrameTime() f64 {
+pub fn GetCurrentMaxDrawAndSwapFrameTime() f64 {
     return g_current_max_draw_and_swap_frame_time;
 }
 
-export fn GetLastKeyPressed() i32 {
+pub fn GetLastKeyPressed() i32 {
     return g_last_key_pressed;
 }
 
-export fn GetKeyBinding(binding_index: usize) i32 {
+pub fn GetKeyBinding(binding_index: usize) i32 {
     return g_key_bindings[binding_index];
 }
 
-export fn SetKeyBinding(binding_index: usize, value: i32) void {
+pub fn SetKeyBinding(binding_index: usize, value: i32) void {
     g_key_bindings[binding_index] = value;
 }
 
-export fn SaveSettings() void {
+pub fn SaveSettings() void {
     g_save_settings_is_queued = true;
 }
 
@@ -598,17 +597,17 @@ pub fn main() u8 {
 
     g_game_is_frozen = false;
 
-    if (!jumpman_main_c.Init3D()) {
+    if (!jumpman.Init3D()) {
         // TODO: Proper error handling
         return jumpman_main_c.EXIT_FAILURE;
     }
 
-    if (jumpman_main_c.InitSoundBuffer()) {
+    if (sound_buffer.InitSoundBuffer()) {
         if (!jumpman_main_c.InitMusic()) {
             music_is_initially_enabled = false;
         }
 
-        if (!jumpman_main_c.InitSound()) {
+        if (!sound.InitSound()) {
             sound_is_initially_enabled = false;
         }
     } else {
@@ -621,7 +620,7 @@ pub fn main() u8 {
     }
 
     if (sound_is_initially_enabled) {
-        jumpman_main_c.SetIsSoundEnabled(true);
+        sound.SetIsSoundEnabled(true);
     }
 
     var previous_frame_time: f64 = jumpman_main_c.glfwGetTime();
@@ -633,21 +632,21 @@ pub fn main() u8 {
         const arg_length: usize = std.mem.len(arguments[1]);
         if (arg_length > 4 and std.mem.eql(u8, arguments[1][arg_length - 4 .. arg_length], ".lua")) { // TODO: Check this is correct and see if there's something more idiomatic
             //if (arg_length > 4 and arguments[1][arg_length - 4] == '.' and arguments[1][arg_length - 3] == 'l' and arguments[1][arg_length - 2] == 'u' and arguments[1][arg_length - 1] == 'a') { // TODO: If string ends with ".lua"
-            jumpman_main_c.InitGameDebugScript(&g_game_base_path, arguments[1]);
+            jumpman.InitGameDebugScript(&g_game_base_path, std.mem.span(arguments[1][0.. :0]));
             is_debug_init = true;
         } else if (arg_length > 0) {
-            jumpman_main_c.InitGameDebugLevel(&g_game_base_path, arguments[1]);
+            jumpman.InitGameDebugLevel(&g_game_base_path, std.mem.span(arguments[1][0.. :0]));
             is_debug_init = true;
         }
     }
 
     if (!is_debug_init) {
-        jumpman_main_c.InitGameNormal(&g_game_base_path);
+        jumpman.InitGameNormal(&g_game_base_path);
     }
 
     var frame_count_since_last_perf_update: i32 = 0;
     var last_perf_update_time: f64 = previous_frame_time;
-    var game_prev_input: jumpman_main_c.GameInput = game_state.current_input;
+    var game_prev_input: jumpman.GameInput = game_state.current_input;
 
     while (jumpman_main_c.glfwWindowShouldClose(g_main_window) == 0) {
         const current_time: f64 = jumpman_main_c.glfwGetTime();
@@ -663,10 +662,10 @@ pub fn main() u8 {
         if (current_time - previous_frame_time > current_update_duration) {
             previous_frame_time = current_time;
             GetInput(&game_state.current_input, &game_prev_input);
-            var processed_input: jumpman_main_c.GameInput = game_state.current_input;
+            const processed_input: jumpman.GameInput = game_state.current_input;
 
             const update_begin_time = jumpman_main_c.glfwGetTime();
-            jumpman_main_c.UpdateGame(&processed_input, kSECONDS_PER_FRAME);
+            jumpman.UpdateGame(&processed_input, kSECONDS_PER_FRAME);
             const update_end_time = jumpman_main_c.glfwGetTime();
             previous_update_time = update_end_time;
 
@@ -708,7 +707,7 @@ pub fn main() u8 {
         }
 
         const draw_and_swap_begin_time = jumpman_main_c.glfwGetTime();
-        jumpman_main_c.DrawGame(kSECONDS_PER_FRAME, current_draw_time - previous_update_time, time_scale);
+        jumpman.DrawGame(kSECONDS_PER_FRAME, current_draw_time - previous_update_time, time_scale);
         jumpman_main_c.glfwSwapBuffers(g_main_window);
         const draw_and_swap_end_time = jumpman_main_c.glfwGetTime();
         const current_draw_and_swap_frame_time = draw_and_swap_end_time - draw_and_swap_begin_time;

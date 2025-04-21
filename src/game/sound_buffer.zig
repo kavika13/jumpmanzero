@@ -1,19 +1,22 @@
 const std = @import("std");
 const assert = std.debug.assert;
+const sound = @import("sound.zig");
 const jumpman_sound_buffer_c = @cImport({
     // No AVX2 or greater for better backward compatibility
     @cDefine("MAL_NO_AVX2", {});
     @cInclude("miniaudio.h");
-    @cInclude("SoundBuffer.h");
 });
 
 extern fn malloc(size: usize) ?[*]u8;
 extern fn free(memoryToFree: ?[*]u8) void;
 extern fn memset(dest: ?[*]u8, character: c_int, count: usize) void;
 
+pub const kSOUND_CHANNEL_COUNT: usize = 64;
+pub const SoundChannel = fn (frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64; // TODO: Make not export
+
 var g_is_initialized: bool = false;
 var g_sound_device = std.mem.zeroes(jumpman_sound_buffer_c.ma_device);
-var g_sound_channels = std.mem.zeroes([jumpman_sound_buffer_c.kSOUND_CHANNEL_COUNT]jumpman_sound_buffer_c.SoundChannel);
+var g_sound_channels = std.mem.zeroes([kSOUND_CHANNEL_COUNT]?*const SoundChannel);
 var g_temporary_sample_buffer: ?[*]f32 = null;
 var g_temporary_sample_buffer_byte_count: usize = 0;
 
@@ -39,11 +42,11 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
     const hard_coded_channel_gain: f32 = 0.8; // TODO: Expose gain interface?
 
     i = 0;
-    while (i < jumpman_sound_buffer_c.kSOUND_CHANNEL_COUNT) : (i += 1) {
+    while (i < kSOUND_CHANNEL_COUNT) : (i += 1) {
         memset(@ptrCast(g_temporary_sample_buffer), 0, buffer_byte_count);
 
         if (g_sound_channels[i]) |sound_channel| {
-            _ = sound_channel(frame_count, g_temporary_sample_buffer);
+            _ = sound_channel(frame_count, g_temporary_sample_buffer.?);
 
             var current_frame_index: usize = 0;
             while (current_frame_index < frame_count) : (current_frame_index += 1) {
@@ -60,7 +63,7 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
     }
 }
 
-export fn InitSoundBuffer() bool {
+pub fn InitSoundBuffer() bool {
     if (!g_is_initialized) {
         var config: jumpman_sound_buffer_c.ma_device_config = jumpman_sound_buffer_c.ma_device_config_init(jumpman_sound_buffer_c.ma_device_type_playback); // TODO: This is the problem line. Causing circular dependencies in the C code?
         config.playback.format = jumpman_sound_buffer_c.ma_format_f32;
@@ -80,7 +83,7 @@ export fn InitSoundBuffer() bool {
         }
 
         var i: usize = 0;
-        while (i < jumpman_sound_buffer_c.kSOUND_CHANNEL_COUNT) : (i += 1) {
+        while (i < kSOUND_CHANNEL_COUNT) : (i += 1) {
             g_sound_channels[i] = null;
         }
 
@@ -90,12 +93,12 @@ export fn InitSoundBuffer() bool {
     return true;
 }
 
-export fn CleanupSoundBuffer() void {
+pub fn CleanupSoundBuffer() void {
     jumpman_sound_buffer_c.ma_device_uninit(&g_sound_device);
     g_is_initialized = false;
 }
 
-export fn SetSoundChannel(channel_index: usize, new_channel_node: jumpman_sound_buffer_c.SoundChannel) void {
-    assert(channel_index < jumpman_sound_buffer_c.kSOUND_CHANNEL_COUNT);
+pub export fn SetSoundChannel(channel_index: usize, new_channel_node: ?*const SoundChannel) void { // TODO: Make not export
+    assert(channel_index < kSOUND_CHANNEL_COUNT);
     g_sound_channels[channel_index] = new_channel_node;
 }
