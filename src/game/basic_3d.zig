@@ -427,8 +427,7 @@ var g_fog_start: f32 = 0;
 var g_fog_end: f32 = 0;
 
 var g_textures = std.mem.zeroes([kMAX_TEXTURES]jumpman_basic_3d_c.sg_image);
-const kTEXTURE_FILENAME_LENGTH: usize = 300;
-var g_texture_filename = std.mem.zeroes([kMAX_TEXTURES][kTEXTURE_FILENAME_LENGTH:0]u8);
+var g_texture_filename = std.mem.zeroes([kMAX_TEXTURES][std.fs.max_path_bytes:0]u8);
 var g_texture_is_alpha_blend_enabled = std.mem.zeroes([kMAX_TEXTURES]bool);
 var g_texture_is_color_key_alpha_enabled = std.mem.zeroes([kMAX_TEXTURES]bool); // TODO: This is just for debugging. ifdef it out for release builds
 
@@ -590,7 +589,7 @@ pub fn Clear3dData() void {
 pub fn LoadTexture(texture_index_i32: i32, sFile: [:0]const u8, image_type: i32, is_alpha_blend_enabled: bool) void {
     const texture_index: usize = @intCast(texture_index_i32);
     g_texture_is_alpha_blend_enabled[texture_index] = is_alpha_blend_enabled;
-    std.mem.copyForwards(u8, &g_texture_filename[texture_index], sFile);
+    @memcpy(&g_texture_filename[texture_index], sFile);
     g_texture_is_color_key_alpha_enabled[texture_index] = image_type == 1;
 
     // TODO: Convert to usize asap instead of casting a bunch below

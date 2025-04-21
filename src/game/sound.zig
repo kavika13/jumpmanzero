@@ -58,7 +58,7 @@ pub fn InitSound() bool {
     return true;
 }
 
-pub export fn GetIsSoundEnabled() bool { // TODO: Don't export
+pub fn GetIsSoundEnabled() bool {
     return g_sound_is_enabled;
 }
 
@@ -77,7 +77,7 @@ pub fn PlaySoundEffect(sound_index: usize) void {
     sound_buffer.SetSoundChannel(kSOUND_CHANNEL_START_INDEX + sound_index, g_sound_channel_callbacks[sound_index]);
 }
 
-pub export fn LoadSound(filename: [*:0]const u8, sound_index: usize) bool { // TODO: Don't export
+pub fn LoadSound(filename: [:0]const u8, sound_index: usize) bool {
     // For now, enable loading sounds even if sounds are not enabled, so we can switch it enabled without having to load sounds again
     if (!g_sound_is_initialized) {
         return false;

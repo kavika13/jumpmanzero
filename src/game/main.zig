@@ -31,7 +31,6 @@ const kSECONDS_PER_FRAME_SLOWMO: f64 = kSLOWMO_RATIO / kFRAMES_PER_SECOND;
 var g_update_frame_times = std.mem.zeroes([kFRAMES_PER_SECOND]f64);
 var g_update_frame_times_current_index: usize = 0;
 
-var g_game_base_path = std.mem.zeroes([300:0]u8);
 var g_key_bindings = std.mem.zeroes([6]i32);
 var g_last_key_pressed: i32 = 0;
 var g_fullscreen_is_enabled: bool = kFULLSCREEN_IS_ENABLED_DEFAULT;
@@ -53,17 +52,12 @@ const GameState = struct {
 
 fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool) bool {
     var sTemp = std.mem.zeroes([30]u8);
-    var sFileNameBuffer = std.mem.zeroes([300]u8); // TODO: Is path long enough?
-    _ = std.fmt.bufPrintZ(
-        &sFileNameBuffer,
-        "{s}/data/settings.dat",
-        .{@as([*:0]const u8, &g_game_base_path)},
-    ) catch {
-        return false;
-    };
+    var sFileNameBuffer = std.mem.zeroes([std.fs.max_path_bytes]u8);
+    const filename = std.fs.cwd().realpathZ("data/settings.dat", &sFileNameBuffer) catch return false; // TODO: Better error handling
 
     var sData: ?[*:0]u8 = null;
-    const iLen = jumpman_main_c.FileToString(&sFileNameBuffer, @ptrCast(&sData)); // TODO: Zig native equivalent
+    const iLen = jumpman_main_c.FileToString(&filename[0], @ptrCast(&sData)); // TODO: Zig native equivalent, with streaming IO
+    defer std.heap.raw_c_allocator.free(std.mem.span(sData.?));
 
     // TODO: Handle file missing case without an error message - should create it and set defaults instead
     if (iLen == 0) {
@@ -137,14 +131,8 @@ fn save_settings() bool {
         return false;
     };
 
-    var sFileNameBuffer = std.mem.zeroes([300]u8); // TODO: Is path long enough?
-    _ = std.fmt.bufPrintZ(
-        &sFileNameBuffer,
-        "{s}/data/settings.dat",
-        .{@as([*:0]const u8, &g_game_base_path)},
-    ) catch {
-        return false;
-    };
+    var sFileNameBuffer = std.mem.zeroes([std.fs.max_path_bytes]u8);
+    _ = std.fs.cwd().realpathZ("data/settings.dat", &sFileNameBuffer) catch return false; // TODO: Better error handling
 
     success = jumpman_main_c.StringToFile(&sFileNameBuffer, &sFileBuffer);
 
@@ -531,10 +519,6 @@ pub fn main() u8 {
     const arguments = std.os.argv;
     var game_state = std.mem.zeroes(GameState);
 
-    if (!jumpman_main_c.GetWorkingDirectoryPath(&g_game_base_path)) { // TODO: Zig os substitute?
-        return jumpman_main_c.EXIT_FAILURE;
-    }
-
     var sound_is_initially_enabled: bool = false;
     var music_is_initially_enabled: bool = false;
 
@@ -632,16 +616,16 @@ pub fn main() u8 {
         const arg_length: usize = std.mem.len(arguments[1]);
         if (arg_length > 4 and std.mem.eql(u8, arguments[1][arg_length - 4 .. arg_length], ".lua")) { // TODO: Check this is correct and see if there's something more idiomatic
             //if (arg_length > 4 and arguments[1][arg_length - 4] == '.' and arguments[1][arg_length - 3] == 'l' and arguments[1][arg_length - 2] == 'u' and arguments[1][arg_length - 1] == 'a') { // TODO: If string ends with ".lua"
-            jumpman.InitGameDebugScript(&g_game_base_path, std.mem.span(arguments[1][0.. :0]));
+            jumpman.InitGameDebugScript(std.mem.span(arguments[1][0.. :0]));
             is_debug_init = true;
         } else if (arg_length > 0) {
-            jumpman.InitGameDebugLevel(&g_game_base_path, std.mem.span(arguments[1][0.. :0]));
+            jumpman.InitGameDebugLevel(std.mem.span(arguments[1][0.. :0]));
             is_debug_init = true;
         }
     }
 
     if (!is_debug_init) {
-        jumpman.InitGameNormal(&g_game_base_path);
+        jumpman.InitGameNormal();
     }
 
     var frame_count_since_last_perf_update: i32 = 0;

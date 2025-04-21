@@ -18,8 +18,6 @@ const LuaModuleScriptContext = struct {
     module_table_registry_index: i32,
 };
 
-var g_game_base_path: [*:0]const u8 = undefined;
-
 var g_loaded_texture_count: i32 = undefined;
 var g_loaded_sound_count: i32 = undefined;
 
@@ -84,10 +82,10 @@ fn play_music_track_2(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
 fn load_sound(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state, 1, null);
-    var full_filename_buf: [300]u8 = undefined; // TODO: Standardize path lengths? Bigger paths?
-    const full_filename = std.fmt.bufPrintZ(&full_filename_buf, "{s}/{s}", .{ g_game_base_path, filename_arg }) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+    var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
+    _ = std.fs.cwd().realpathZ(filename_arg, &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
-    _ = sound.LoadSound(full_filename, @intCast(g_loaded_sound_count)); // TODO: Handle return value/error
+    _ = sound.LoadSound(&full_filename_buf, @intCast(g_loaded_sound_count)); // TODO: Handle return value/error
     lua_c.lua_pushinteger(lua_state, g_loaded_sound_count);
     g_loaded_sound_count += 1;
 
@@ -99,10 +97,10 @@ fn load_texture(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     const filename_arg = lua_c.lua_tolstring(lua_state.?, 1, null);
     const image_type_arg = lua_c.luaL_checkinteger(lua_state.?, 2);
     const is_alpha_blend_enabled_arg: bool = lua_checkbool(lua_state.?, 3);
-    var full_filename_buf: [300]u8 = undefined; // TODO: Standardize path lengths? Bigger paths?
-    const full_filename = std.fmt.bufPrintZ(&full_filename_buf, "{s}/{s}", .{ g_game_base_path, filename_arg }) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+    var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
+    _ = std.fs.cwd().realpathZ(filename_arg, &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
-    basic_3d.LoadTexture(g_loaded_texture_count, full_filename, @truncate(image_type_arg), is_alpha_blend_enabled_arg);
+    basic_3d.LoadTexture(g_loaded_texture_count, &full_filename_buf, @truncate(image_type_arg), is_alpha_blend_enabled_arg);
     lua_c.lua_pushinteger(lua_state, g_loaded_texture_count);
     g_loaded_texture_count += 1;
 
@@ -110,12 +108,12 @@ fn load_texture(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
 }
 
 // TODO: Take allocator as param
-fn LoadMesh(base_path: [*:0]const u8, sFileName: [*:0]const u8) i32 {
-    var sFullFileBuf: [300]u8 = undefined;
-    const sFullFile = std.fmt.bufPrintZ(&sFullFileBuf, "{s}/{s}", .{ base_path, sFileName }) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+fn LoadMesh(sFileName: [*:0]const u8) i32 {
+    var sFullFileBuf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
+    _ = std.fs.cwd().realpathZ(sFileName, &sFullFileBuf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
     var cData: [*c]u8 = null;
-    var vertex_component_count: usize = @intCast(jumpman_main_c.FileToString(sFullFile, &cData)); // TODO: Don't use utility function for this?
+    var vertex_component_count: usize = @intCast(jumpman_main_c.FileToString(&sFullFileBuf, &cData)); // TODO: Don't use utility function for this?
     defer std.heap.raw_c_allocator.free(std.mem.span(cData));
     vertex_component_count = vertex_component_count / 4;
 
@@ -134,7 +132,7 @@ fn LoadMesh(base_path: [*:0]const u8, sFileName: [*:0]const u8) i32 {
 fn load_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state, 1, null);
-    const loaded_mesh_handle_index: i32 = LoadMesh(g_game_base_path, std.mem.span(filename_arg));
+    const loaded_mesh_handle_index: i32 = LoadMesh(std.mem.span(filename_arg));
     lua_c.lua_pushinteger(lua_state, loaded_mesh_handle_index);
     return 1;
 }
@@ -747,23 +745,23 @@ fn RegisterLuaScriptFunctions(lua_state: *lua_c.lua_State) void {
     lua_c.lua_setglobal(lua_state, "set_perspective");
 }
 
-fn LoadLuaScript(filename: []const u8, new_script_context: *LuaModuleScriptContext) void {
+fn LoadLuaScript(filename: [:0]const u8, new_script_context: *LuaModuleScriptContext) void {
     if (new_script_context.lua_state != null) {
         lua_c.lua_close(new_script_context.lua_state);
     }
 
-    var full_filename_buf: [300]u8 = undefined; // TODO: Standardize path lengths? Bigger paths?
-    const full_filename = std.fmt.bufPrintZ(&full_filename_buf, "{s}/{s}", .{ std.mem.span(g_game_base_path), filename }) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+    var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
+    _ = std.fs.cwd().realpathZ(filename, &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
     const new_state: ?*lua_c.lua_State = lua_c.luaL_newstate();
     std.debug.assert(new_state != null); // TODO: Error handling
 
     lua_c.luaL_openlibs(new_state);
 
-    const load_file_result: i32 = lua_c.luaL_loadfilex(new_state, &full_filename[0], null);
+    const load_file_result: i32 = lua_c.luaL_loadfilex(new_state, &full_filename_buf, null);
     if (load_file_result != 0) {
         const error_message = lua_c.lua_tolstring(new_state, -1, null);
-        std.log.err("Error while loading script: {s}\n{s}", .{ full_filename, error_message });
+        std.log.err("Error while loading script: {s}\n{s}", .{ full_filename_buf, error_message });
         std.debug.assert(false); // TODO: Error handling
     }
 
@@ -777,7 +775,7 @@ fn LoadLuaScript(filename: []const u8, new_script_context: *LuaModuleScriptConte
 
     if (lua_c.lua_pcallk(new_state, 0, 1, error_handler_stack_pos, 0, null) != 0) {
         const error_message = lua_c.lua_tolstring(new_state, -1, null);
-        std.log.err("Error while initially running script module: {s}\n{s}", .{ full_filename, error_message });
+        std.log.err("Error while initially running script module: {s}\n{s}", .{ full_filename_buf, error_message });
         std.debug.assert(false); // TODO: Error handling
     }
 
@@ -919,23 +917,21 @@ pub fn Init3D() bool {
     return true;
 }
 
-pub fn InitGameDebugScript(base_path: [*:0]const u8, script_name: [*:0]const u8) void {
-    g_game_base_path = base_path;
-    var relative_script_filename_buf: [300]u8 = undefined; // TODO: Standardize path lengths? Bigger paths?
-    const relative_script_filename = std.fmt.bufPrint(&relative_script_filename_buf, "data/{s}", .{script_name}) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+pub fn InitGameDebugScript(script_name: [:0]const u8) void {
+    var relative_script_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
+    // TODO: Use path-specific concatenation? one that can just use the relative_script_filename_buf buffer
+    const relative_script_filename = std.fmt.bufPrintZ(&relative_script_filename_buf, "data/{s}", .{script_name}) catch @panic("Failed to print to buffer"); // TODO: Error handling?
     LoadLuaScript(relative_script_filename, &g_main_script_context);
     _ = CallLuaModuleFunction(&g_main_script_context, "initialize", null, 0, 0, false); // TODO: Don't ignore result
 }
 
-pub fn InitGameDebugLevel(base_path: [*:0]const u8, level_name: [*:0]const u8) void {
-    g_game_base_path = base_path;
+pub fn InitGameDebugLevel(level_name: [*:0]const u8) void {
     LoadLuaScript("data/main.lua", &g_main_script_context);
     _ = lua_c.lua_pushstring(g_main_script_context.lua_state, level_name); // TODO: Don't ignore result
     _ = CallLuaModuleFunction(&g_main_script_context, "initialize", null, 1, 0, false); // TODO: Don't ignore result
 }
 
-pub fn InitGameNormal(base_path: [*:0]const u8) void {
-    g_game_base_path = base_path;
+pub fn InitGameNormal() void {
     LoadLuaScript("data/main.lua", &g_main_script_context);
     _ = CallLuaModuleFunction(&g_main_script_context, "initialize", null, 0, 0, false); // TODO: Don't ignore result
 }
