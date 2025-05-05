@@ -279,7 +279,7 @@ void SetIsMusicEnabled(bool is_enabled) {
     if(g_music_is_enabled != is_enabled) {
         g_music_is_enabled = is_enabled;
 
-        if(g_music_is_initialized) {
+        if(g_music_is_initialized && g_current_track_filename[0] != '\0') {
             // TODO: Handle track 2?
             if(is_enabled) {
                 NewTrack1(g_current_track_filename, g_current_track_song_start_music_time, g_current_track_loop_start_music_time);
