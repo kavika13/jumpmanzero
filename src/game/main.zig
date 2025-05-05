@@ -10,7 +10,6 @@ const jumpman_main_c = @cImport({
     @cDefine("GLFW_INCLUDE_NONE", {});
     @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
-    @cInclude("Input.h");
     @cInclude("Music.h");
     @cInclude("Utilities.h");
 });
@@ -134,7 +133,7 @@ fn save_settings() bool {
     var sFileNameBuffer = std.mem.zeroes([std.fs.max_path_bytes]u8);
     _ = std.fs.cwd().realpathZ("data/settings.dat", &sFileNameBuffer) catch return false; // TODO: Better error handling
 
-    success = jumpman_main_c.StringToFile(&sFileNameBuffer, &sFileBuffer);
+    success = jumpman_main_c.StringToFile(&sFileNameBuffer, &sFileBuffer); // TODO: Zig native equivalent
 
     return success;
 }
@@ -704,7 +703,7 @@ pub fn main() u8 {
 
         if (g_save_settings_is_queued) {
             if (!save_settings()) {
-                // TODO: debug_log("Failed to save config file\n");
+                std.log.err("Failed to save config file\n", .{});
             }
 
             g_save_settings_is_queued = false;
@@ -712,4 +711,9 @@ pub fn main() u8 {
     }
 
     return jumpman_main_c.EXIT_SUCCESS;
+}
+
+// TODO: Remove this and replace all usage with direct calls to std.log.err
+export fn debug_log(text: [*c]const u8) void {
+    std.log.err("{s}", .{std.mem.span(text)});
 }

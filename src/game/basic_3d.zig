@@ -2,7 +2,6 @@ const std = @import("std");
 const jumpman_basic_3d_c = @cImport({
     @cInclude("glad/glad.h");
     @cInclude("sokol_gfx.h");
-    @cInclude("stb_sprintf.h");
     @cInclude("stb_image.h");
     @cInclude("boxer/boxer.h");
     @cDefine("ZIG_SKIP_SHADER_DEF", "");

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-int debug_log(char const* const format_string, ...);
+void debug_log(char const* const text);
 
 #if defined(__cplusplus)
 }  // extern "C"

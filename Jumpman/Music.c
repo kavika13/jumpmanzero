@@ -206,7 +206,7 @@ static void LoadAndPlayTrack(const char* filename, MusicTrack* track, unsigned i
     tiny_midi_loader = tml_load_filename(filename);
 
     if(!tiny_midi_loader) {
-        // TODO: debug_log("Could not load MIDI file\n");
+        debug_log("Could not load MIDI file\n");
         return;
     }
 
@@ -248,7 +248,7 @@ bool InitMusic(void) {
     g_track_1.sound_font = tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
 
     if(!g_track_1.sound_font) {
-        // TODO: debug_log("Could not load SoundFont\n");
+        debug_log("Could not load SoundFont\n");
         return false;
     }
 
@@ -259,7 +259,7 @@ bool InitMusic(void) {
     g_track_2.sound_font = tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
 
     if(!g_track_2.sound_font) {
-        // TODO: debug_log("Could not load SoundFont\n");
+        debug_log("Could not load SoundFont\n");
         return false;
     }
 

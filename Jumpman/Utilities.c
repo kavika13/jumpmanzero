@@ -34,13 +34,7 @@ long StringToLong2(unsigned char* sString) {
     }
 }
 
-long StringToInt(unsigned char* sString) {
-    float fTemp;
-    fTemp = sString[0] * 256.0f + sString[1];
-    return (long)(fTemp);
-}
-
-bool TextLine(char* sText, size_t iTextLen, char* sOut, size_t iOutLen, int iLine) {
+static bool TextLine(char* sText, size_t iTextLen, char* sOut, size_t iOutLen, int iLine) {
     bool is_found = false;
 
     int iCR;
@@ -73,15 +67,6 @@ bool TextLine(char* sText, size_t iTextLen, char* sOut, size_t iOutLen, int iLin
     }
 
     return is_found;
-}
-
-bool GetWorkingDirectoryPath(char* output_path) {
-    if(getcwd(output_path, 200) == NULL) {
-        // TODO: Proper error handling, handle longer paths, full cross-platform solution, check for unicode support
-        return false;
-    }
-
-    return true;
 }
 
 size_t FileToString(const char* filename, unsigned char** sNewBuffer) {

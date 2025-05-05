@@ -8,7 +8,6 @@ const lua_c = @cImport({
     @cInclude("lauxlib.h");
 });
 const jumpman_main_c = @cImport({
-    @cInclude("Input.h");
     @cInclude("Music.h");
     @cInclude("Utilities.h");
 });
