@@ -644,6 +644,7 @@ fn RegisterLuaScriptFunctions(lua_state: *lua_c.lua_State) void {
     // TODO: Add all engine functions to a (read-only) global table instead of directly exposing in the global context.
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
+    // TODO: Rename all these functions to more zig-friendly names (on the zig implementation side only)
     lua_c.lua_pushcclosure(lua_state, unload_all_resources, 0);
     lua_c.lua_setglobal(lua_state, "unload_all_resources");
     lua_c.lua_pushcclosure(lua_state, begin_loading_3d_data, 0);

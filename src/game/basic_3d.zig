@@ -19,396 +19,481 @@ pub const MeshVertex = extern struct {
     tv: f32,
 };
 
-// Begin: helpers from HandmadeMath. Rename after HMM is removed from build
+const Color3 = extern struct {
+    r: f32,
+    g: f32,
+    b: f32,
 
-const hmm_vec2 = extern struct {
-    // TODO: lowercase
-    X: f32,
-    Y: f32,
-
-    fn init(x: f32, y: f32) hmm_vec2 {
-        const result = hmm_vec2{ .X = x, .Y = y };
+    fn init(r: f32, g: f32, b: f32) Color3 {
+        const result = Color3{ .r = r, .g = g, .b = b };
         return result;
+    }
+
+    fn initFromU8(r: u8, g: u8, b: u8) Color3 {
+        const max_value: f32 = 255.0;
+        const result = init(
+            @as(f32, @floatFromInt(r)) / max_value,
+            @as(f32, @floatFromInt(g)) / max_value,
+            @as(f32, @floatFromInt(b)) / max_value,
+        );
+        return result;
+    }
+
+    const black = init(0, 0, 0);
+    const white = init(1, 1, 1);
+    const red = init(1, 0, 0);
+    const green = init(0, 1, 0);
+    const blue = init(0, 0, 1);
+    const magenta = init(1, 0, 1);
+    const yellow = init(1, 1, 0);
+    const cyan = init(0, 1, 1);
+
+    const almost_black = init(1.0 / 255.0, 1.0 / 255.0, 1.0 / 255.0);
+};
+
+const Vec2 = extern struct {
+    x: f32,
+    y: f32,
+
+    fn init(x: f32, y: f32) Vec2 {
+        const result = Vec2{ .x = x, .y = y };
+        return result;
+    }
+
+    fn add(lhs: Vec2, rhs: Vec2) Vec2 {
+        const result = init(lhs.x + rhs.x, lhs.y + rhs.y);
+        return result;
+    }
+
+    fn sub(lhs: Vec2, rhs: Vec2) Vec2 {
+        const result = init(lhs.x - rhs.x, lhs.y - rhs.y);
+        return result;
+    }
+
+    fn mul(lhs: Vec2, rhs: f32) Vec2 {
+        const result = init(lhs.x * rhs, lhs.y * rhs);
+        return result;
+    }
+
+    fn lerp(lhs: Vec2, rhs: Vec2, time: f32) Vec2 {
+        return add(lhs, mul(sub(rhs, lhs), time));
     }
 
     const zero = init(0, 0);
 };
 
-const hmm_vec3 = extern struct {
-    // TODO: lowercase
-    X: f32,
-    Y: f32,
-    Z: f32,
+const Vec3 = extern struct {
+    x: f32,
+    y: f32,
+    z: f32,
 
-    fn init(x: f32, y: f32, z: f32) hmm_vec3 {
-        const result = hmm_vec3{ .X = x, .Y = y, .Z = z };
+    fn init(x: f32, y: f32, z: f32) Vec3 {
+        const result = Vec3{ .x = x, .y = y, .z = z };
+        return result;
+    }
+
+    fn add(lhs: Vec3, rhs: Vec3) Vec3 {
+        const result = init(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+        return result;
+    }
+
+    fn sub(lhs: Vec3, rhs: Vec3) Vec3 {
+        const result = init(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+        return result;
+    }
+
+    fn mul(lhs: Vec3, rhs: f32) Vec3 {
+        const result = init(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
+        return result;
+    }
+
+    fn div(vec: Vec3, scalar: f32) Vec3 {
+        const result = init(vec.x / scalar, vec.y / scalar, vec.z / scalar);
+        return result;
+    }
+
+    fn dot(lhs: Vec3, rhs: Vec3) f32 {
+        const result = lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+        return result;
+    }
+
+    fn cross(lhs: Vec3, rhs: Vec3) Vec3 {
+        const result = init(lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x);
+        return result;
+    }
+
+    fn lerp(lhs: Vec3, rhs: Vec3, time: f32) Vec3 {
+        return add(lhs, mul(sub(rhs, lhs), time));
+    }
+
+    fn getNormalized(self: Vec3) Vec3 {
+        var result: Vec3 = .zero;
+        const vector_length = std.math.sqrt(dot(self, self));
+        if (vector_length != 0.0) {
+            result = init(
+                self.x * (1.0 / vector_length),
+                self.y * (1.0 / vector_length),
+                self.z * (1.0 / vector_length),
+            );
+        }
         return result;
     }
 
     const zero = init(0, 0, 0);
+    const one = init(1, 1, 1);
+    const x_axis = init(1, 0, 0);
+    const y_axis = init(0, 1, 0);
+    const z_axis = init(0, 0, 1);
 };
 
-const hmm_vec4 = struct {
-    // TODO: lowercase
-    X: f32,
-    Y: f32,
-    Z: f32,
-    W: f32,
+const Vec4 = struct {
+    x: f32,
+    y: f32,
+    z: f32,
+    w: f32,
 
-    fn init(x: f32, y: f32, z: f32, w: f32) hmm_vec4 {
-        const result = hmm_vec4{ .X = x, .Y = y, .Z = z, .W = w };
+    fn init(x: f32, y: f32, z: f32, w: f32) Vec4 {
+        const result = Vec4{ .x = x, .y = y, .z = z, .w = w };
+        return result;
+    }
+
+    fn add(lhs: Vec4, rhs: Vec4) Vec4 {
+        const result = init(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w);
+        return result;
+    }
+
+    fn sub(lhs: Vec4, rhs: Vec4) Vec4 {
+        const result = init(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w);
+        return result;
+    }
+
+    fn mul(lhs: Vec4, rhs: Vec4) Vec4 {
+        const result = init(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w);
         return result;
     }
 
     const zero = init(0, 0, 0, 0);
+    const one = init(1, 1, 1, 1);
+    const x_axis = init(1, 0, 0, 0);
+    const y_axis = init(0, 1, 0, 0);
+    const z_axis = init(0, 0, 1, 0);
+    const w_axis = init(0, 0, 0, 1);
 };
 
-const hmm_mat4 = extern struct {
-    Elements: [4][4]f32,
+const Mat4 = extern struct {
+    elements: [4][4]f32,
 
-    const zero: hmm_mat4 = .fromVec4(.zero, .zero, .zero, .zero);
-
-    fn fromVec4(column_0: hmm_vec4, column_1: hmm_vec4, column_2: hmm_vec4, column_3: hmm_vec4) hmm_mat4 {
-        const result: hmm_mat4 = .{ .Elements = .{
-            .{ column_0.X, column_0.Y, column_0.Z, column_0.W },
-            .{ column_1.X, column_1.Y, column_1.Z, column_1.W },
-            .{ column_2.X, column_2.Y, column_2.Z, column_2.W },
-            .{ column_3.X, column_3.Y, column_3.Z, column_3.W },
+    fn fromVec4(column_0: Vec4, column_1: Vec4, column_2: Vec4, column_3: Vec4) Mat4 {
+        const result: Mat4 = .{ .elements = .{
+            .{ column_0.x, column_0.y, column_0.z, column_0.w },
+            .{ column_1.x, column_1.y, column_1.z, column_1.w },
+            .{ column_2.x, column_2.y, column_2.z, column_2.w },
+            .{ column_3.x, column_3.y, column_3.z, column_3.w },
         } };
         return result;
     }
 
-    fn scale(value: hmm_vec3) hmm_mat4 {
-        const result: hmm_mat4 = .{ .Elements = .{
-            .{ value.X, 0.0, 0.0, 0.0 },
-            .{ 0.0, value.Y, 0.0, 0.0 },
-            .{ 0.0, 0.0, value.Z, 0.0 },
+    fn fromScale(value: Vec3) Mat4 {
+        const result: Mat4 = .{ .elements = .{
+            .{ value.x, 0.0, 0.0, 0.0 },
+            .{ 0.0, value.y, 0.0, 0.0 },
+            .{ 0.0, 0.0, value.z, 0.0 },
             .{ 0.0, 0.0, 0.0, 1.0 },
         } };
         return result;
     }
 
-    fn getTranspose(self: @This()) hmm_mat4 {
-        var result: hmm_mat4 = undefined;
+    fn fromTranslation(translation: Vec3) Mat4 {
+        const result: Mat4 = .{ .elements = .{
+            .{ 1.0, 0.0, 0.0, 0.0 },
+            .{ 0.0, 1.0, 0.0, 0.0 },
+            .{ 0.0, 0.0, 1.0, 0.0 },
+            .{ translation.x, translation.y, translation.z, 1.0 },
+        } };
+        return result;
+    }
+
+    fn fromLookAtLeftHanded(eye: Vec3, center: Vec3, up: Vec3) Mat4 {
+        var result: Mat4 = undefined;
+
+        const f = Vec3.getNormalized(Vec3.sub(center, eye));
+        const s = Vec3.getNormalized(Vec3.cross(up, f));
+        const u = Vec3.cross(f, s);
+
+        result.elements[0][0] = s.x;
+        result.elements[0][1] = u.x;
+        result.elements[0][2] = f.x;
+        result.elements[0][3] = 0.0;
+
+        result.elements[1][0] = s.y;
+        result.elements[1][1] = u.y;
+        result.elements[1][2] = f.y;
+        result.elements[1][3] = 0.0;
+
+        result.elements[2][0] = s.z;
+        result.elements[2][1] = u.z;
+        result.elements[2][2] = f.z;
+        result.elements[2][3] = 0.0;
+
+        result.elements[3][0] = -Vec3.dot(s, eye);
+        result.elements[3][1] = -Vec3.dot(u, eye);
+        result.elements[3][2] = -Vec3.dot(f, eye);
+        result.elements[3][3] = 1.0;
+
+        return result;
+    }
+
+    // TODO: What does "NO" stand for, again?
+    fn fromPerspectiveLeftHandedNO(fov: f32, aspect_ratio: f32, near_distance: f32, far_distance: f32) Mat4 {
+        var result = std.mem.zeroes(Mat4);
+
+        const TanThetaOver2: f32 = std.math.tan(std.math.degreesToRadians(fov / 2));
+
+        result.elements[0][0] = 1.0 / (aspect_ratio * TanThetaOver2);
+        result.elements[1][1] = 1.0 / TanThetaOver2;
+        result.elements[2][2] = (far_distance + near_distance) / (far_distance - near_distance);
+        result.elements[2][3] = 1.0;
+        result.elements[3][2] = -(2.0 * far_distance * near_distance) / (far_distance - near_distance);
+        result.elements[3][3] = 0.0;
+
+        return result;
+    }
+
+    fn mul(lhs: Mat4, rhs: Mat4) Mat4 {
+        var result: Mat4 = undefined;
         for (0..4) |column| {
             for (0..4) |row| {
-                result.Elements[row][column] = self.Elements[column][row];
+                var sum: f32 = 0;
+                for (0..4) |current_index| {
+                    sum += lhs.elements[current_index][row] * rhs.elements[column][current_index];
+                }
+                result.elements[column][row] = sum;
             }
         }
         return result;
     }
 
-    fn getInverse(self: @This()) hmm_mat4 {
-        const coef_00: f32 = self.Elements[2][2] * self.Elements[3][3] - self.Elements[3][2] * self.Elements[2][3];
-        const coef_02: f32 = self.Elements[1][2] * self.Elements[3][3] - self.Elements[3][2] * self.Elements[1][3];
-        const coef_03: f32 = self.Elements[1][2] * self.Elements[2][3] - self.Elements[2][2] * self.Elements[1][3];
-
-        const coef_04: f32 = self.Elements[2][1] * self.Elements[3][3] - self.Elements[3][1] * self.Elements[2][3];
-        const coef_06: f32 = self.Elements[1][1] * self.Elements[3][3] - self.Elements[3][1] * self.Elements[1][3];
-        const coef_07: f32 = self.Elements[1][1] * self.Elements[2][3] - self.Elements[2][1] * self.Elements[1][3];
-
-        const coef_08: f32 = self.Elements[2][1] * self.Elements[3][2] - self.Elements[3][1] * self.Elements[2][2];
-        const coef_10: f32 = self.Elements[1][1] * self.Elements[3][2] - self.Elements[3][1] * self.Elements[1][2];
-        const coef_11: f32 = self.Elements[1][1] * self.Elements[2][2] - self.Elements[2][1] * self.Elements[1][2];
-
-        const coef_12: f32 = self.Elements[2][0] * self.Elements[3][3] - self.Elements[3][0] * self.Elements[2][3];
-        const coef_14: f32 = self.Elements[1][0] * self.Elements[3][3] - self.Elements[3][0] * self.Elements[1][3];
-        const coef_15: f32 = self.Elements[1][0] * self.Elements[2][3] - self.Elements[2][0] * self.Elements[1][3];
-
-        const coef_16: f32 = self.Elements[2][0] * self.Elements[3][2] - self.Elements[3][0] * self.Elements[2][2];
-        const coef_18: f32 = self.Elements[1][0] * self.Elements[3][2] - self.Elements[3][0] * self.Elements[1][2];
-        const coef_19: f32 = self.Elements[1][0] * self.Elements[2][2] - self.Elements[2][0] * self.Elements[1][2];
-
-        const coef_20: f32 = self.Elements[2][0] * self.Elements[3][1] - self.Elements[3][0] * self.Elements[2][1];
-        const coef_22: f32 = self.Elements[1][0] * self.Elements[3][1] - self.Elements[3][0] * self.Elements[1][1];
-        const coef_23: f32 = self.Elements[1][0] * self.Elements[2][1] - self.Elements[2][0] * self.Elements[1][1];
-
-        const fac_0: hmm_vec4 = .init(coef_00, coef_00, coef_02, coef_03);
-        const fac_1: hmm_vec4 = .init(coef_04, coef_04, coef_06, coef_07);
-        const fac_2: hmm_vec4 = .init(coef_08, coef_08, coef_10, coef_11);
-        const fac_3: hmm_vec4 = .init(coef_12, coef_12, coef_14, coef_15);
-        const fac_4: hmm_vec4 = .init(coef_16, coef_16, coef_18, coef_19);
-        const fac_5: hmm_vec4 = .init(coef_20, coef_20, coef_22, coef_23);
-
-        const vec_0: hmm_vec4 = .init(self.Elements[1][0], self.Elements[0][0], self.Elements[0][0], self.Elements[0][0]);
-        const vec_1: hmm_vec4 = .init(self.Elements[1][1], self.Elements[0][1], self.Elements[0][1], self.Elements[0][1]);
-        const vec_2: hmm_vec4 = .init(self.Elements[1][2], self.Elements[0][2], self.Elements[0][2], self.Elements[0][2]);
-        const vec_3: hmm_vec4 = .init(self.Elements[1][3], self.Elements[0][3], self.Elements[0][3], self.Elements[0][3]);
-
-        const inv_0: hmm_vec4 = HMM_AddVec4_(HMM_SubtractVec4_(HMM_MultiplyVec4_(vec_1, fac_0), HMM_MultiplyVec4_(vec_2, fac_1)), HMM_MultiplyVec4_(vec_3, fac_2));
-        const inv_1: hmm_vec4 = HMM_AddVec4_(HMM_SubtractVec4_(HMM_MultiplyVec4_(vec_0, fac_0), HMM_MultiplyVec4_(vec_2, fac_3)), HMM_MultiplyVec4_(vec_3, fac_4));
-        const inv_2: hmm_vec4 = HMM_AddVec4_(HMM_SubtractVec4_(HMM_MultiplyVec4_(vec_0, fac_1), HMM_MultiplyVec4_(vec_1, fac_3)), HMM_MultiplyVec4_(vec_3, fac_5));
-        const inv_3: hmm_vec4 = HMM_AddVec4_(HMM_SubtractVec4_(HMM_MultiplyVec4_(vec_0, fac_2), HMM_MultiplyVec4_(vec_1, fac_4)), HMM_MultiplyVec4_(vec_2, fac_5));
-
-        const sign_a: hmm_vec4 = .init(1, -1, 1, -1);
-        const sign_b: hmm_vec4 = .init(-1, 1, -1, 1);
-        const inverse_matrix: hmm_mat4 = .fromVec4(HMM_MultiplyVec4_(inv_0, sign_a), HMM_MultiplyVec4_(inv_1, sign_b), HMM_MultiplyVec4_(inv_2, sign_a), HMM_MultiplyVec4_(inv_3, sign_b));
-
-        const row_0: hmm_vec4 = .init(inverse_matrix.Elements[0][0], inverse_matrix.Elements[1][0], inverse_matrix.Elements[2][0], inverse_matrix.Elements[3][0]);
-        const self_column_0: hmm_vec4 = .init(self.Elements[0][0], self.Elements[0][1], self.Elements[0][2], self.Elements[0][3]);
-
-        const dot_0: hmm_vec4 = HMM_MultiplyVec4_(self_column_0, row_0);
-        const dot_1: f32 = (dot_0.X + dot_0.Y) + (dot_0.Z + dot_0.W);
-
-        const one_over_determinant: f32 = 1.0 / dot_1;
-
-        return HMM_MultiplyMat4f_(inverse_matrix, one_over_determinant);
-    }
-};
-
-const hmm_quaternion = struct {
-    X: f32,
-    Y: f32,
-    Z: f32,
-    W: f32,
-
-    fn init(x: f32, y: f32, z: f32, w: f32) hmm_quaternion {
-        const result = hmm_quaternion{ .X = x, .Y = y, .Z = z, .W = w };
+    fn mulByScalar(mat: Mat4, scalar: f32) Mat4 {
+        var result: Mat4 = undefined;
+        for (0..4) |column| {
+            for (0..4) |row| {
+                result.elements[column][row] = mat.elements[column][row] * scalar;
+            }
+        }
         return result;
     }
+
+    fn getTranspose(self: Mat4) Mat4 {
+        var result: Mat4 = undefined;
+        for (0..4) |column| {
+            for (0..4) |row| {
+                result.elements[row][column] = self.elements[column][row];
+            }
+        }
+        return result;
+    }
+
+    fn getInverse(self: Mat4) Mat4 {
+        const coef_00 = self.elements[2][2] * self.elements[3][3] - self.elements[3][2] * self.elements[2][3];
+        const coef_02 = self.elements[1][2] * self.elements[3][3] - self.elements[3][2] * self.elements[1][3];
+        const coef_03 = self.elements[1][2] * self.elements[2][3] - self.elements[2][2] * self.elements[1][3];
+
+        const coef_04 = self.elements[2][1] * self.elements[3][3] - self.elements[3][1] * self.elements[2][3];
+        const coef_06 = self.elements[1][1] * self.elements[3][3] - self.elements[3][1] * self.elements[1][3];
+        const coef_07 = self.elements[1][1] * self.elements[2][3] - self.elements[2][1] * self.elements[1][3];
+
+        const coef_08 = self.elements[2][1] * self.elements[3][2] - self.elements[3][1] * self.elements[2][2];
+        const coef_10 = self.elements[1][1] * self.elements[3][2] - self.elements[3][1] * self.elements[1][2];
+        const coef_11 = self.elements[1][1] * self.elements[2][2] - self.elements[2][1] * self.elements[1][2];
+
+        const coef_12 = self.elements[2][0] * self.elements[3][3] - self.elements[3][0] * self.elements[2][3];
+        const coef_14 = self.elements[1][0] * self.elements[3][3] - self.elements[3][0] * self.elements[1][3];
+        const coef_15 = self.elements[1][0] * self.elements[2][3] - self.elements[2][0] * self.elements[1][3];
+
+        const coef_16 = self.elements[2][0] * self.elements[3][2] - self.elements[3][0] * self.elements[2][2];
+        const coef_18 = self.elements[1][0] * self.elements[3][2] - self.elements[3][0] * self.elements[1][2];
+        const coef_19 = self.elements[1][0] * self.elements[2][2] - self.elements[2][0] * self.elements[1][2];
+
+        const coef_20 = self.elements[2][0] * self.elements[3][1] - self.elements[3][0] * self.elements[2][1];
+        const coef_22 = self.elements[1][0] * self.elements[3][1] - self.elements[3][0] * self.elements[1][1];
+        const coef_23 = self.elements[1][0] * self.elements[2][1] - self.elements[2][0] * self.elements[1][1];
+
+        const fac_0: Vec4 = .init(coef_00, coef_00, coef_02, coef_03);
+        const fac_1: Vec4 = .init(coef_04, coef_04, coef_06, coef_07);
+        const fac_2: Vec4 = .init(coef_08, coef_08, coef_10, coef_11);
+        const fac_3: Vec4 = .init(coef_12, coef_12, coef_14, coef_15);
+        const fac_4: Vec4 = .init(coef_16, coef_16, coef_18, coef_19);
+        const fac_5: Vec4 = .init(coef_20, coef_20, coef_22, coef_23);
+
+        const vec_0: Vec4 = .init(self.elements[1][0], self.elements[0][0], self.elements[0][0], self.elements[0][0]);
+        const vec_1: Vec4 = .init(self.elements[1][1], self.elements[0][1], self.elements[0][1], self.elements[0][1]);
+        const vec_2: Vec4 = .init(self.elements[1][2], self.elements[0][2], self.elements[0][2], self.elements[0][2]);
+        const vec_3: Vec4 = .init(self.elements[1][3], self.elements[0][3], self.elements[0][3], self.elements[0][3]);
+
+        const inv_0: Vec4 = .add(.sub(.mul(vec_1, fac_0), .mul(vec_2, fac_1)), .mul(vec_3, fac_2));
+        const inv_1: Vec4 = .add(.sub(.mul(vec_0, fac_0), .mul(vec_2, fac_3)), .mul(vec_3, fac_4));
+        const inv_2: Vec4 = .add(.sub(.mul(vec_0, fac_1), .mul(vec_1, fac_3)), .mul(vec_3, fac_5));
+        const inv_3: Vec4 = .add(.sub(.mul(vec_0, fac_2), .mul(vec_1, fac_4)), .mul(vec_2, fac_5));
+
+        const sign_a: Vec4 = .init(1, -1, 1, -1);
+        const sign_b: Vec4 = .init(-1, 1, -1, 1);
+        const inverse_matrix = fromVec4(
+            .mul(inv_0, sign_a),
+            .mul(inv_1, sign_b),
+            .mul(inv_2, sign_a),
+            .mul(inv_3, sign_b),
+        );
+
+        const row_0: Vec4 = .init(inverse_matrix.elements[0][0], inverse_matrix.elements[1][0], inverse_matrix.elements[2][0], inverse_matrix.elements[3][0]);
+        const self_column_0: Vec4 = .init(self.elements[0][0], self.elements[0][1], self.elements[0][2], self.elements[0][3]);
+
+        const dot_0 = Vec4.mul(self_column_0, row_0);
+        const dot_1 = (dot_0.x + dot_0.y) + (dot_0.z + dot_0.w);
+
+        const one_over_determinant = 1.0 / dot_1;
+
+        return mulByScalar(inverse_matrix, one_over_determinant);
+    }
+
+    const zero = fromVec4(.zero, .zero, .zero, .zero);
+    const identity = fromVec4(.x_axis, .y_axis, .z_axis, .w_axis);
 };
 
-// End: helpers from HandmadeMath. Rename after HMM is removed from build
+const Quaternion = struct {
+    x: f32,
+    y: f32,
+    z: f32,
+    w: f32,
+
+    fn init(x: f32, y: f32, z: f32, w: f32) Quaternion {
+        const result = Quaternion{ .x = x, .y = y, .z = z, .w = w };
+        return result;
+    }
+
+    fn fromAxisAngle(axis: Vec3, angle: f32) Quaternion {
+        const axis_norm: f32 = std.math.sqrt(Vec3.dot(axis, axis));
+        const sine_angle_over_two = std.math.sin(angle / 2.0);
+        const rotated_vector = Vec3.mul(axis, sine_angle_over_two);
+        const w_part: f32 = std.math.cos(angle / 2.0);
+        const xyz_part = Vec3.div(rotated_vector, axis_norm);
+        const result = init(xyz_part.x, xyz_part.y, xyz_part.z, w_part);
+        return result;
+    }
+
+    fn add(lhs: Quaternion, rhs: Quaternion) Quaternion {
+        const result = init(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w);
+        return result;
+    }
+
+    fn mul(lhs: Quaternion, rhs: Quaternion) Quaternion {
+        const result = init(
+            (lhs.x * rhs.w) + (lhs.y * rhs.z) - (lhs.z * rhs.y) + (lhs.w * rhs.x),
+            (-lhs.x * rhs.z) + (lhs.y * rhs.w) + (lhs.z * rhs.x) + (lhs.w * rhs.y),
+            (lhs.x * rhs.y) - (lhs.y * rhs.x) + (lhs.z * rhs.w) + (lhs.w * rhs.z),
+            (-lhs.x * rhs.x) - (lhs.y * rhs.y) - (lhs.z * rhs.z) + (lhs.w * rhs.w),
+        );
+        return result;
+    }
+
+    fn mulByScalar(quat: Quaternion, scalar: f32) Quaternion {
+        const result = init(quat.x * scalar, quat.y * scalar, quat.z * scalar, quat.w * scalar);
+        return result;
+    }
+
+    fn dot(lhs: Quaternion, rhs: Quaternion) f32 {
+        const result = lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
+        return result;
+    }
+
+    fn slerp(lhs: Quaternion, rhs: Quaternion, time: f32) Quaternion {
+        var cos_theta = dot(lhs, rhs);
+
+        // If cosTheta < 0, the interpolation will take the long way around the sphere.
+        // To fix this, one quat must be negated.
+        const corrected_rhs: Quaternion = blk: {
+            if (cos_theta < 0.0) {
+                cos_theta = -cos_theta;
+                break :blk init(-rhs.x, -rhs.y, -rhs.z, -rhs.w);
+            }
+            break :blk rhs;
+        };
+
+        // Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+        if (cos_theta > 1.0 - 0.001) {
+            const result = init(
+                std.math.lerp(lhs.x, corrected_rhs.x, time),
+                std.math.lerp(lhs.y, corrected_rhs.y, time),
+                std.math.lerp(lhs.z, corrected_rhs.z, time),
+                std.math.lerp(lhs.w, corrected_rhs.w, time),
+            );
+            return result;
+        }
+
+        const angle: f32 = std.math.cos(cos_theta);
+
+        const s1: f32 = std.math.sin((1.0 - time) * angle);
+        const s2: f32 = std.math.sin(time * angle);
+        const inverse_sine_angle: f32 = 1.0 / std.math.sin(angle);
+
+        const quat_left = mulByScalar(lhs, s1);
+        const quat_right = mulByScalar(corrected_rhs, s2);
+
+        const result = mulByScalar(.add(quat_left, quat_right), inverse_sine_angle);
+
+        return result;
+    }
+
+    fn getNormalized(self: Quaternion) Quaternion {
+        const length: f32 = std.math.sqrt(dot(self, self));
+        const result = init(self.x / length, self.y / length, self.z / length, self.w / length);
+        return result;
+    }
+
+    fn toMat4(self: Quaternion) Mat4 {
+        const norm_quat = getNormalized(self);
+        const xx = norm_quat.x * norm_quat.x;
+        const yy = norm_quat.y * norm_quat.y;
+        const zz = norm_quat.z * norm_quat.z;
+        const xy = norm_quat.x * norm_quat.y;
+        const xz = norm_quat.x * norm_quat.z;
+        const yz = norm_quat.y * norm_quat.z;
+        const wx = norm_quat.w * norm_quat.x;
+        const wy = norm_quat.w * norm_quat.y;
+        const wz = norm_quat.w * norm_quat.z;
+
+        var result: Mat4 = .zero;
+        result.elements[0][0] = 1.0 - 2.0 * (yy + zz);
+        result.elements[0][1] = 2.0 * (xy + wz);
+        result.elements[0][2] = 2.0 * (xz - wy);
+        result.elements[1][0] = 2.0 * (xy - wz);
+        result.elements[1][1] = 1.0 - 2.0 * (xx + zz);
+        result.elements[1][2] = 2.0 * (yz + wx);
+        result.elements[2][0] = 2.0 * (xz + wy);
+        result.elements[2][1] = 2.0 * (yz - wx);
+        result.elements[2][2] = 1.0 - 2.0 * (xx + yy);
+        result.elements[3][3] = 1.0;
+
+        return result;
+    }
+
+    const identity = init(0, 0, 0, 1);
+};
 
 const kMAX_TEXTURES: usize = 30;
 const kMAX_TRANSFORMS: usize = 1200;
 const kMAX_MESHES: usize = 600;
 const kMAX_VERTICES: usize = 110000;
 
-// Begin: helpers from HandmadeMath. Rename after HMM is removed from build
-
-const HMM_PI32: f32 = 3.14159265359;
-
-fn HMM_ToRadians_(degrees: f32) f32 {
-    const result: f32 = degrees * (HMM_PI32 / 180.0);
-    return result;
-}
-
-fn HMM_Lerp_(lhs: f32, time: f32, rhs: f32) f32 {
-    const result: f32 = (1.0 - time) * lhs + time * rhs;
-    return result;
-}
-
-fn HMM_AddVec2_(lhs: hmm_vec2, rhs: hmm_vec2) hmm_vec2 {
-    const result: hmm_vec2 = .init(lhs.X + rhs.X, lhs.Y + rhs.Y);
-    return result;
-}
-
-fn HMM_SubtractVec2_(lhs: hmm_vec2, rhs: hmm_vec2) hmm_vec2 {
-    const result: hmm_vec2 = .init(lhs.X - rhs.X, lhs.Y - rhs.Y);
-    return result;
-}
-
-fn HMM_MultiplyVec2f_(lhs: hmm_vec2, rhs: f32) hmm_vec2 {
-    const result: hmm_vec2 = .init(lhs.X * rhs, lhs.Y * rhs);
-    return result;
-}
-
-fn HMM_AddVec3_(lhs: hmm_vec3, rhs: hmm_vec3) hmm_vec3 {
-    const result: hmm_vec3 = .init(lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z);
-    return result;
-}
-
-fn HMM_SubtractVec3_(lhs: hmm_vec3, rhs: hmm_vec3) hmm_vec3 {
-    const result: hmm_vec3 = .init(lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z);
-    return result;
-}
-
-fn HMM_MultiplyVec3f_(lhs: hmm_vec3, rhs: f32) hmm_vec3 {
-    const result: hmm_vec3 = .init(lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs);
-    return result;
-}
-
-fn HMM_DivideVec3f_(vec: hmm_vec3, scalar: f32) hmm_vec3 {
-    const result: hmm_vec3 = .init(vec.X / scalar, vec.Y / scalar, vec.Z / scalar);
-    return result;
-}
-
-fn HMM_DotVec3_(lhs: hmm_vec3, rhs: hmm_vec3) f32 {
-    const result: f32 = lhs.X * rhs.X + lhs.Y * rhs.Y + lhs.Z * rhs.Z;
-    return result;
-}
-
-fn HMM_Cross_(lhs: hmm_vec3, rhs: hmm_vec3) hmm_vec3 {
-    const result: hmm_vec3 = .init(lhs.Y * rhs.Z - lhs.Z * rhs.Y, lhs.Z * rhs.X - lhs.X * rhs.Z, lhs.X * rhs.Y - lhs.Y * rhs.X);
-    return result;
-}
-
-fn HMM_NormalizeVec3_(vec: hmm_vec3) hmm_vec3 {
-    var result: hmm_vec3 = .zero;
-    const vector_length: f32 = std.math.sqrt(HMM_DotVec3_(vec, vec));
-    if (vector_length != 0.0) {
-        result = .init(
-            vec.X * (1.0 / vector_length),
-            vec.Y * (1.0 / vector_length),
-            vec.Z * (1.0 / vector_length),
-        );
-    }
-    return result;
-}
-
-fn HMM_AddVec4_(lhs: hmm_vec4, rhs: hmm_vec4) hmm_vec4 {
-    const result: hmm_vec4 = .init(lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W);
-    return result;
-}
-
-fn HMM_SubtractVec4_(lhs: hmm_vec4, rhs: hmm_vec4) hmm_vec4 {
-    const result: hmm_vec4 = .init(lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z, lhs.W - rhs.W);
-    return result;
-}
-
-fn HMM_MultiplyVec4_(lhs: hmm_vec4, rhs: hmm_vec4) hmm_vec4 {
-    const result: hmm_vec4 = .init(lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z, lhs.W * rhs.W);
-    return result;
-}
-
-fn HMM_Translate_(translation: hmm_vec3) hmm_mat4 {
-    const result: hmm_mat4 = .{ .Elements = .{
-        .{ 1.0, 0.0, 0.0, 0.0 },
-        .{ 0.0, 1.0, 0.0, 0.0 },
-        .{ 0.0, 0.0, 1.0, 0.0 },
-        .{ translation.X, translation.Y, translation.Z, 1.0 },
-    } };
-    return result;
-}
-
-fn HMM_MultiplyMat4_(lhs: hmm_mat4, rhs: hmm_mat4) hmm_mat4 {
-    var result: hmm_mat4 = undefined;
-    for (0..4) |column| {
-        for (0..4) |row| {
-            var sum: f32 = 0;
-            for (0..4) |current_index| {
-                sum += lhs.Elements[current_index][row] * rhs.Elements[column][current_index];
-            }
-            result.Elements[column][row] = sum;
-        }
-    }
-    return result;
-}
-
-fn HMM_MultiplyMat4f_(mat: hmm_mat4, scalar: f32) hmm_mat4 {
-    var result: hmm_mat4 = undefined;
-    for (0..4) |column| {
-        for (0..4) |row| {
-            result.Elements[column][row] = mat.Elements[column][row] * scalar;
-        }
-    }
-    return result;
-}
-
-fn HMM_QuaternionFromAxisAngle_(axis: hmm_vec3, angle: f32) hmm_quaternion {
-    const axis_norm: f32 = std.math.sqrt(HMM_DotVec3_(axis, axis));
-    const sine_angle_over_two: f32 = std.math.sin(angle / 2.0);
-    const rotated_vector: hmm_vec3 = HMM_MultiplyVec3f_(axis, sine_angle_over_two);
-    const w_part: f32 = std.math.cos(angle / 2.0);
-    const xyz_part: hmm_vec3 = HMM_DivideVec3f_(rotated_vector, axis_norm);
-    const result: hmm_quaternion = .init(xyz_part.X, xyz_part.Y, xyz_part.Z, w_part);
-    return result;
-}
-
-fn HMM_AddQuaternion_(lhs: hmm_quaternion, rhs: hmm_quaternion) hmm_quaternion {
-    const result: hmm_quaternion = .init(lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W);
-    return result;
-}
-
-fn HMM_MultiplyQuaternion_(lhs: hmm_quaternion, rhs: hmm_quaternion) hmm_quaternion {
-    const result: hmm_quaternion = .init(
-        (lhs.X * rhs.W) + (lhs.Y * rhs.Z) - (lhs.Z * rhs.Y) + (lhs.W * rhs.X),
-        (-lhs.X * rhs.Z) + (lhs.Y * rhs.W) + (lhs.Z * rhs.X) + (lhs.W * rhs.Y),
-        (lhs.X * rhs.Y) - (lhs.Y * rhs.X) + (lhs.Z * rhs.W) + (lhs.W * rhs.Z),
-        (-lhs.X * rhs.X) - (lhs.Y * rhs.Y) - (lhs.Z * rhs.Z) + (lhs.W * rhs.W),
-    );
-    return result;
-}
-
-fn HMM_MultiplyQuaternionF_(quat: hmm_quaternion, scalar: f32) hmm_quaternion {
-    const result: hmm_quaternion = .init(quat.X * scalar, quat.Y * scalar, quat.Z * scalar, quat.W * scalar);
-    return result;
-}
-
-fn HMM_DotQuaternion_(lhs: hmm_quaternion, rhs: hmm_quaternion) f32 {
-    const result: f32 = lhs.X * rhs.X + lhs.Y * rhs.Y + lhs.Z * rhs.Z + lhs.W * rhs.W;
-    return result;
-}
-
-fn HMM_NormalizeQuaternion_(quat: hmm_quaternion) hmm_quaternion {
-    const length: f32 = std.math.sqrt(HMM_DotQuaternion_(quat, quat));
-    const result: hmm_quaternion = .init(quat.X / length, quat.Y / length, quat.Z / length, quat.W / length);
-    return result;
-}
-
-fn HMM_QuaternionToMat4_(quat: hmm_quaternion) hmm_mat4 {
-    const norm_quat: hmm_quaternion = HMM_NormalizeQuaternion_(quat);
-    const xx: f32 = norm_quat.X * norm_quat.X;
-    const yy: f32 = norm_quat.Y * norm_quat.Y;
-    const zz: f32 = norm_quat.Z * norm_quat.Z;
-    const xy: f32 = norm_quat.X * norm_quat.Y;
-    const xz: f32 = norm_quat.X * norm_quat.Z;
-    const yz: f32 = norm_quat.Y * norm_quat.Z;
-    const wx: f32 = norm_quat.W * norm_quat.X;
-    const wy: f32 = norm_quat.W * norm_quat.Y;
-    const wz: f32 = norm_quat.W * norm_quat.Z;
-
-    var result: hmm_mat4 = .zero;
-    result.Elements[0][0] = 1.0 - 2.0 * (yy + zz);
-    result.Elements[0][1] = 2.0 * (xy + wz);
-    result.Elements[0][2] = 2.0 * (xz - wy);
-    result.Elements[1][0] = 2.0 * (xy - wz);
-    result.Elements[1][1] = 1.0 - 2.0 * (xx + zz);
-    result.Elements[1][2] = 2.0 * (yz + wx);
-    result.Elements[2][0] = 2.0 * (xz + wy);
-    result.Elements[2][1] = 2.0 * (yz - wx);
-    result.Elements[2][2] = 1.0 - 2.0 * (xx + yy);
-    result.Elements[3][3] = 1.0;
-
-    return result;
-}
-
-fn HMM_Slerp_(lhs: hmm_quaternion, time: f32, rhs: hmm_quaternion) hmm_quaternion {
-    var cos_theta: f32 = HMM_DotQuaternion_(lhs, rhs);
-
-    // If cosTheta < 0, the interpolation will take the long way around the sphere.
-    // To fix this, one quat must be negated.
-    const corrected_rhs: hmm_quaternion = blk: {
-        if (cos_theta < 0.0) {
-            cos_theta = -cos_theta;
-            break :blk .init(-rhs.X, -rhs.Y, -rhs.Z, -rhs.W);
-        }
-        break :blk rhs;
-    };
-
-    // Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
-    if (cos_theta > 1.0 - 0.001) {
-        const result: hmm_quaternion = .init(HMM_Lerp_(lhs.X, time, corrected_rhs.X), HMM_Lerp_(lhs.Y, time, corrected_rhs.Y), HMM_Lerp_(lhs.Z, time, corrected_rhs.Z), HMM_Lerp_(lhs.W, time, corrected_rhs.W));
-        return result;
-    }
-
-    const angle: f32 = std.math.cos(cos_theta);
-
-    const s1: f32 = std.math.sin((1.0 - time) * angle);
-    const s2: f32 = std.math.sin(time * angle);
-    const inverse_sine_angle: f32 = 1.0 / std.math.sin(angle);
-
-    const quat_left: hmm_quaternion = HMM_MultiplyQuaternionF_(lhs, s1);
-    const quat_right: hmm_quaternion = HMM_MultiplyQuaternionF_(corrected_rhs, s2);
-
-    const result: hmm_quaternion = HMM_MultiplyQuaternionF_(HMM_AddQuaternion_(quat_left, quat_right), inverse_sine_angle);
-
-    return result;
-}
-
-// End: helpers from HandmadeMath. Rename after HMM is removed from build
-
 const Light = struct {
-    ambient_color: hmm_vec3,
-    diffuse_color: hmm_vec3,
-    position: hmm_vec3,
+    ambient_color: Color3,
+    diffuse_color: Color3,
+    position: Vec3,
     range: f32,
 };
 
 const Material = struct {
-    ambient_tint: hmm_vec3,
-    diffuse_tint: hmm_vec3,
+    ambient_tint: Color3,
+    diffuse_tint: Color3,
 };
 
 var g_backbuffer_width: i32 = 0;
@@ -419,9 +504,9 @@ var g_transparent_pipline: jumpman_basic_3d_c.sg_pipeline = .{};
 var g_pass_action: jumpman_basic_3d_c.sg_pass_action = .{};
 var g_camera_light = std.mem.zeroes(Light);
 var g_global_material = std.mem.zeroes(Material);
-var g_scene_ambient_color: hmm_vec3 = .zero;
+var g_scene_ambient_color: Color3 = .black;
 var g_is_fog_enabled: bool = false;
-var g_fog_color: hmm_vec3 = .zero;
+var g_fog_color: Color3 = .black;
 var g_fog_start: f32 = 0;
 var g_fog_end: f32 = 0;
 
@@ -434,12 +519,12 @@ const kERROR_IMAGE_WIDTH: usize = 32;
 const kERROR_IMAGE_HEIGHT: usize = 32;
 var g_error_image_data = std.mem.zeroes([kERROR_IMAGE_HEIGHT][kERROR_IMAGE_WIDTH][4]u8);
 
-var g_world_to_view_matrix = std.mem.zeroes(hmm_mat4);
-var g_world_to_view_matrix_previous = std.mem.zeroes(hmm_mat4);
-var g_view_to_projection_matrix = std.mem.zeroes(hmm_mat4);
+var g_world_to_view_matrix = std.mem.zeroes(Mat4);
+var g_world_to_view_matrix_previous = std.mem.zeroes(Mat4);
+var g_view_to_projection_matrix = std.mem.zeroes(Mat4);
 // These aren't necessarily interpolated, but if not then will fall back to the correct non-interpolated matrix for this frame
-var g_interpolated_world_to_view_matrix = std.mem.zeroes(hmm_mat4);
-var g_interpolated_world_to_projection_matrix = std.mem.zeroes(hmm_mat4);
+var g_interpolated_world_to_view_matrix = std.mem.zeroes(Mat4);
+var g_interpolated_world_to_projection_matrix = std.mem.zeroes(Mat4);
 var g_camera_animation_is_continuous = false;
 
 var g_vertices_to_load_count: i32 = 0;
@@ -447,12 +532,12 @@ var g_vertices_to_load: ?[]MeshVertex = null;
 
 var g_transform_count: i32 = 0;
 
-var g_transform_translations = std.mem.zeroes([kMAX_TRANSFORMS]hmm_vec3);
-var g_transform_rotations = std.mem.zeroes([kMAX_TRANSFORMS]hmm_quaternion);
-var g_transform_scales = std.mem.zeroes([kMAX_TRANSFORMS]hmm_vec3);
-var g_transform_translations_previous = std.mem.zeroes([kMAX_TRANSFORMS]hmm_vec3);
-var g_transform_rotations_previous = std.mem.zeroes([kMAX_TRANSFORMS]hmm_quaternion);
-var g_transform_scales_previous = std.mem.zeroes([kMAX_TRANSFORMS]hmm_vec3);
+var g_transform_translations = std.mem.zeroes([kMAX_TRANSFORMS]Vec3);
+var g_transform_rotations = std.mem.zeroes([kMAX_TRANSFORMS]Quaternion);
+var g_transform_scales = std.mem.zeroes([kMAX_TRANSFORMS]Vec3);
+var g_transform_translations_previous = std.mem.zeroes([kMAX_TRANSFORMS]Vec3);
+var g_transform_rotations_previous = std.mem.zeroes([kMAX_TRANSFORMS]Quaternion);
+var g_transform_scales_previous = std.mem.zeroes([kMAX_TRANSFORMS]Vec3);
 var g_transform_parent_indices = std.mem.zeroes([kMAX_TRANSFORMS]i32);
 var g_transform_parent_handles = std.mem.zeroes([kMAX_TRANSFORMS]i32);
 var g_transform_parent_is_camera = std.mem.zeroes([kMAX_TRANSFORMS]bool);
@@ -468,72 +553,15 @@ var g_mesh_vertex_start_indices = std.mem.zeroes([kMAX_MESHES]i32);
 var g_mesh_vertex_counts = std.mem.zeroes([kMAX_MESHES]i32);
 var g_mesh_texture_indices = std.mem.zeroes([kMAX_MESHES]i32);
 var g_mesh_is_visible = std.mem.zeroes([kMAX_MESHES]bool);
-var g_mesh_uv_offsets = std.mem.zeroes([kMAX_MESHES]hmm_vec2);
+var g_mesh_uv_offsets = std.mem.zeroes([kMAX_MESHES]Vec2);
 var g_mesh_is_visible_previous = std.mem.zeroes([kMAX_MESHES]bool);
-var g_mesh_uv_offsets_previous = std.mem.zeroes([kMAX_MESHES]hmm_vec2);
+var g_mesh_uv_offsets_previous = std.mem.zeroes([kMAX_MESHES]Vec2);
 var g_mesh_animation_is_continuous = std.mem.zeroes([kMAX_MESHES]bool);
 var g_mesh_transform_indices = std.mem.zeroes([kMAX_MESHES]i32);
 
 var g_mesh_handles = std.mem.zeroes([kMAX_MESHES]i32);
 var g_mesh_handle_next_free_indices = std.mem.zeroes([kMAX_MESHES]i32);
 var g_mesh_handle_first_free_index: i32 = 0;
-
-// Begin: helpers that weren't included in HandmadeMath (yet). Replace if they are added
-
-fn HMM_LookAtLH_(Eye: hmm_vec3, Center: hmm_vec3, Up: hmm_vec3) hmm_mat4 {
-    var Result: hmm_mat4 = undefined;
-
-    const F: hmm_vec3 = HMM_NormalizeVec3_(HMM_SubtractVec3_(Center, Eye));
-    const S: hmm_vec3 = HMM_NormalizeVec3_(HMM_Cross_(Up, F));
-    const U: hmm_vec3 = HMM_Cross_(F, S);
-
-    Result.Elements[0][0] = S.X;
-    Result.Elements[0][1] = U.X;
-    Result.Elements[0][2] = F.X;
-    Result.Elements[0][3] = 0.0;
-
-    Result.Elements[1][0] = S.Y;
-    Result.Elements[1][1] = U.Y;
-    Result.Elements[1][2] = F.Y;
-    Result.Elements[1][3] = 0.0;
-
-    Result.Elements[2][0] = S.Z;
-    Result.Elements[2][1] = U.Z;
-    Result.Elements[2][2] = F.Z;
-    Result.Elements[2][3] = 0.0;
-
-    Result.Elements[3][0] = -HMM_DotVec3_(S, Eye);
-    Result.Elements[3][1] = -HMM_DotVec3_(U, Eye);
-    Result.Elements[3][2] = -HMM_DotVec3_(F, Eye);
-    Result.Elements[3][3] = 1.0;
-
-    return Result;
-}
-
-fn HMM_PerspectiveLH_NO_(FOV: f32, AspectRatio: f32, Near: f32, Far: f32) hmm_mat4 {
-    var Result = std.mem.zeroes(hmm_mat4);
-
-    const TanThetaOver2: f32 = std.math.tan(FOV * (HMM_PI32 / 360.0));
-
-    Result.Elements[0][0] = 1.0 / (AspectRatio * TanThetaOver2);
-    Result.Elements[1][1] = 1.0 / TanThetaOver2;
-    Result.Elements[2][2] = (Far + Near) / (Far - Near);
-    Result.Elements[2][3] = 1.0;
-    Result.Elements[3][2] = -(2.0 * Far * Near) / (Far - Near);
-    Result.Elements[3][3] = 0.0;
-
-    return Result;
-}
-
-fn HMM_LerpVec3_(lhs: hmm_vec3, rhs: hmm_vec3, time: f32) hmm_vec3 {
-    return HMM_AddVec3_(lhs, HMM_MultiplyVec3f_(HMM_SubtractVec3_(rhs, lhs), time));
-}
-
-fn HMM_LerpVec2_(lhs: hmm_vec2, rhs: hmm_vec2, time: f32) hmm_vec2 {
-    return HMM_AddVec2_(lhs, HMM_MultiplyVec2f_(HMM_SubtractVec2_(rhs, lhs), time));
-}
-
-// End: helpers that weren't included in HandmadeMath (yet). Replace if they are added
 
 pub fn Clear3dData() void {
     for (0..kERROR_IMAGE_WIDTH * kERROR_IMAGE_HEIGHT) |pixel_index| {
@@ -552,11 +580,11 @@ pub fn Clear3dData() void {
 
     for (0..kMAX_TRANSFORMS) |transform_index| {
         g_transform_translations[transform_index] = .zero;
-        g_transform_rotations[transform_index] = .{ .X = 0.0, .Y = 0.0, .Z = 0.0, .W = 1.0 };
-        g_transform_scales[transform_index] = .{ .X = 1.0, .Y = 1.0, .Z = 1.0 };
+        g_transform_rotations[transform_index] = .identity;
+        g_transform_scales[transform_index] = .one;
         g_transform_translations_previous[transform_index] = .zero;
-        g_transform_rotations_previous[transform_index] = .{ .X = 0.0, .Y = 0.0, .Z = 0.0, .W = 1.0 };
-        g_transform_scales_previous[transform_index] = .{ .X = 1.0, .Y = 1.0, .Z = 1.0 };
+        g_transform_rotations_previous[transform_index] = .identity;
+        g_transform_scales_previous[transform_index] = .one;
         g_transform_parent_indices[transform_index] = -1;
         g_transform_parent_handles[transform_index] = -1;
         g_transform_parent_is_camera[transform_index] = false;
@@ -664,17 +692,17 @@ fn init3d_() bool {
 
 fn initScene_() void {
     g_camera_light = .{
-        .diffuse_color = .init(1.0, 1.0, 1.0),
-        .ambient_color = .init(1.0, 1.0, 1.0),
+        .diffuse_color = .white,
+        .ambient_color = .white,
         .position = .init(80.0, 100.0, -200.0),
         .range = 1000.0,
     };
 
-    g_scene_ambient_color = .init(1.0 / 255.0, 1.0 / 255.0, 1.0 / 255.0);
+    g_scene_ambient_color = .almost_black;
 
     SetPerspective(80.0, 90.0, -145.0, 80.0, 59.0, 0.0);
 
-    g_view_to_projection_matrix = HMM_PerspectiveLH_NO_(45.0, 640.0 / 480.0, 1.0, 300.0); // Fixed aspect ratio. Will be letterboxed elsewhere
+    g_view_to_projection_matrix = Mat4.fromPerspectiveLeftHandedNO(45.0, 640.0 / 480.0, 1.0, 300.0); // Fixed aspect ratio. Will be letterboxed elsewhere
 
     g_global_material = .{
         .ambient_tint = .init(0.5, 0.5, 0.5),
@@ -826,11 +854,11 @@ pub fn TransformCreate() i32 {
     if (g_transform_count < kMAX_TRANSFORMS and g_transform_handle_first_free_index != -1) {
         const new_transform_index: usize = @intCast(g_transform_count);
         g_transform_translations[new_transform_index] = .zero;
-        g_transform_rotations[new_transform_index] = .{ .X = 0.0, .Y = 0.0, .Z = 0.0, .W = 1.0 };
-        g_transform_scales[new_transform_index] = .{ .X = 1.0, .Y = 1.0, .Z = 1.0 };
+        g_transform_rotations[new_transform_index] = .identity;
+        g_transform_scales[new_transform_index] = .one;
         g_transform_translations_previous[new_transform_index] = .zero;
-        g_transform_rotations_previous[new_transform_index] = .{ .X = 0.0, .Y = 0.0, .Z = 0.0, .W = 1.0 };
-        g_transform_scales_previous[new_transform_index] = .{ .X = 1.0, .Y = 1.0, .Z = 1.0 };
+        g_transform_rotations_previous[new_transform_index] = .identity;
+        g_transform_scales_previous[new_transform_index] = .one;
         g_transform_parent_indices[new_transform_index] = -1;
         g_transform_parent_handles[new_transform_index] = -1;
         g_transform_parent_is_camera[new_transform_index] = false;
@@ -991,8 +1019,8 @@ pub fn TransformSetToIdentity(transform_handle_index: i32) void {
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_translations[transform_index] = .zero;
-        g_transform_rotations[transform_index] = .init(0.0, 0.0, 0.0, 1.0);
-        g_transform_scales[transform_index] = .init(1.0, 1.0, 1.0);
+        g_transform_rotations[transform_index] = .identity;
+        g_transform_scales[transform_index] = .one;
     } // TODO: Else log?
 }
 
@@ -1016,7 +1044,7 @@ pub fn TransformSetRotationX(transform_handle_index: i32, angle_in_degrees: f32)
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle_(.init(1.0, 0.0, 0.0), HMM_ToRadians_(angle_in_degrees));
+        g_transform_rotations[transform_index] = Quaternion.fromAxisAngle(.x_axis, std.math.degreesToRadians(angle_in_degrees));
     } // TODO: Else log?
 }
 
@@ -1024,7 +1052,7 @@ pub fn TransformSetRotationY(transform_handle_index: i32, angle_in_degrees: f32)
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle_(.init(0.0, 1.0, 0.0), HMM_ToRadians_(angle_in_degrees));
+        g_transform_rotations[transform_index] = Quaternion.fromAxisAngle(.y_axis, std.math.degreesToRadians(angle_in_degrees));
     } // TODO: Else log?
 }
 
@@ -1032,7 +1060,7 @@ pub fn TransformSetRotationZ(transform_handle_index: i32, angle_in_degrees: f32)
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_rotations[transform_index] = HMM_QuaternionFromAxisAngle_(.init(0.0, 0.0, 1.0), HMM_ToRadians_(angle_in_degrees));
+        g_transform_rotations[transform_index] = Quaternion.fromAxisAngle(.z_axis, std.math.degreesToRadians(angle_in_degrees));
     } // TODO: Else log?
 }
 
@@ -1040,7 +1068,7 @@ pub fn TransformConcatRotationX(transform_handle_index: i32, angle_in_degrees: f
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_rotations[transform_index] = HMM_MultiplyQuaternion_(HMM_QuaternionFromAxisAngle_((hmm_vec3){ .X = 1.0, .Y = 0.0, .Z = 0.0 }, HMM_ToRadians_(angle_in_degrees)), g_transform_rotations[transform_index]);
+        g_transform_rotations[transform_index] = Quaternion.mul(Quaternion.fromAxisAngle(.x_axis, std.math.degreesToRadians(angle_in_degrees)), g_transform_rotations[transform_index]);
     } // TODO: Else log?
 }
 
@@ -1048,7 +1076,7 @@ pub fn TransformConcatRotationY(transform_handle_index: i32, angle_in_degrees: f
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_rotations[transform_index] = HMM_MultiplyQuaternion_(HMM_QuaternionFromAxisAngle_((hmm_vec3){ .X = 0.0, .Y = 1.0, .Z = 0.0 }, HMM_ToRadians_(angle_in_degrees)), g_transform_rotations[transform_index]);
+        g_transform_rotations[transform_index] = Quaternion.mul(Quaternion.fromAxisAngle(.y_axis, std.math.degreesToRadians(angle_in_degrees)), g_transform_rotations[transform_index]);
     } // TODO: Else log?
 }
 
@@ -1056,7 +1084,7 @@ pub fn TransformConcatRotationZ(transform_handle_index: i32, angle_in_degrees: f
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_rotations[transform_index] = HMM_MultiplyQuaternion_(HMM_QuaternionFromAxisAngle_((hmm_vec3){ .X = 0.0, .Y = 0.0, .Z = 1.0 }, HMM_ToRadians_(angle_in_degrees)), g_transform_rotations[transform_index]);
+        g_transform_rotations[transform_index] = Quaternion.mul(Quaternion.fromAxisAngle(.z_axis, std.math.degreesToRadians(angle_in_degrees)), g_transform_rotations[transform_index]);
     } // TODO: Else log?
 }
 
@@ -1064,7 +1092,7 @@ pub fn TransformClearRotation(transform_handle_index: i32) void {
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_rotations[transform_index] = .init(0.0, 0.0, 0.0, 1.0);
+        g_transform_rotations[transform_index] = .identity;
     } // TODO: Else log?
 }
 
@@ -1080,7 +1108,7 @@ pub fn TransformClearScale(transform_handle_index: i32) void {
     const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        g_transform_scales[transform_index] = .init(1.0, 1.0, 1.0);
+        g_transform_scales[transform_index] = .one;
     } // TODO: Else log?
 }
 
@@ -1116,7 +1144,7 @@ fn getMeshHandleFromIndex_(mesh_index: i32) ?usize {
 }
 
 fn meshSwap_(mesh_index_1: usize, mesh_index_2: usize) void {
-    var temp_uv_offset: hmm_vec2 = g_mesh_uv_offsets[mesh_index_1];
+    var temp_uv_offset: Vec2 = g_mesh_uv_offsets[mesh_index_1];
     g_mesh_uv_offsets[mesh_index_1] = g_mesh_uv_offsets[mesh_index_2];
     g_mesh_uv_offsets[mesh_index_2] = temp_uv_offset;
 
@@ -1340,7 +1368,7 @@ pub fn MeshScrollTexture(mesh_handle_index: i32, translate_x: f32, translate_y: 
     const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
-        g_mesh_uv_offsets[mesh_index] = HMM_AddVec2_(.init(translate_x, translate_y), g_mesh_uv_offsets[mesh_index]);
+        g_mesh_uv_offsets[mesh_index] = Vec2.add(.init(translate_x, translate_y), g_mesh_uv_offsets[mesh_index]);
     }
 }
 
@@ -1360,17 +1388,17 @@ pub fn SetFog(fog_start: f32, fog_end: f32, red: u8, green: u8, blue: u8) void {
         g_is_fog_enabled = false;
     } else {
         g_is_fog_enabled = true;
-        g_fog_color = .init(@as(f32, @floatFromInt(red)) / 255.0, @as(f32, @floatFromInt(green)) / 255.0, @as(f32, @floatFromInt(blue)) / 255.0);
+        g_fog_color = .initFromU8(red, green, blue);
         g_fog_start = fog_start;
         g_fog_end = fog_end;
     }
 }
 
 pub fn SetPerspective(cam_x: f32, cam_y: f32, cam_z: f32, look_at_x: f32, look_at_y: f32, look_at_z: f32) void {
-    g_world_to_view_matrix = HMM_LookAtLH_(.init(cam_x, cam_y, cam_z), .init(look_at_x, look_at_y, look_at_z), .init(0.0, 1.0, 0.0));
+    g_world_to_view_matrix = Mat4.fromLookAtLeftHanded(.init(cam_x, cam_y, cam_z), .init(look_at_x, look_at_y, look_at_z), .init(0.0, 1.0, 0.0));
     g_camera_light.position = .init(cam_x, cam_y + 10.0, -200.0);
-    g_camera_light.diffuse_color = .init(1.0, 1.0, 1.0);
-    g_camera_light.ambient_color = .init(1.0, 1.0, 1.0);
+    g_camera_light.diffuse_color = .white;
+    g_camera_light.ambient_color = .white;
 }
 
 pub fn RendererPreUpdate(_: f64) void {
@@ -1419,21 +1447,22 @@ fn renderMesh_(mesh_index: usize, previous_texture_index: *i32, vs_params: *main
 
     // TODO: Calculate matrices in more cache-friendly/packed manner
     // TODO: Are parent/child being multiplied in the correct order here? Seems they're reversed right now. Should do parent[SRT]child[SRT]?
-    var current_local_to_world_matrix: hmm_mat4 = .{ .Elements = .{
-        .{ 1, 0, 0, 0 },
-        .{ 0, 1, 0, 0 },
-        .{ 0, 0, 1, 0 },
-        .{ 0, 0, 0, 1 },
-    } };
+    var current_local_to_world_matrix = Mat4.identity;
 
     if (do_interpolation and g_mesh_animation_is_continuous[mesh_index]) {
         while (current_transform_index_i32 != -1) {
             const current_transform_index: usize = @intCast(current_transform_index_i32);
-            const current_translation: hmm_vec3 = HMM_LerpVec3_(g_transform_translations_previous[current_transform_index], g_transform_translations[current_transform_index], interpolation_scale);
-            const current_rotation: hmm_quaternion = HMM_Slerp_(g_transform_rotations_previous[current_transform_index], interpolation_scale, g_transform_rotations[current_transform_index]);
-            const current_scale: hmm_vec3 = HMM_LerpVec3_(g_transform_scales_previous[current_transform_index], g_transform_scales[current_transform_index], interpolation_scale);
+            const current_translation = Vec3.lerp(g_transform_translations_previous[current_transform_index], g_transform_translations[current_transform_index], interpolation_scale);
+            const current_rotation = Quaternion.slerp(g_transform_rotations_previous[current_transform_index], g_transform_rotations[current_transform_index], interpolation_scale);
+            const current_scale = Vec3.lerp(g_transform_scales_previous[current_transform_index], g_transform_scales[current_transform_index], interpolation_scale);
             current_local_to_world_matrix =
-                HMM_MultiplyMat4_(HMM_Translate_(current_translation), HMM_MultiplyMat4_(HMM_QuaternionToMat4_(current_rotation), HMM_MultiplyMat4_(.scale(current_scale), current_local_to_world_matrix)));
+                Mat4.mul(
+                    Mat4.fromTranslation(current_translation),
+                    Mat4.mul(
+                        current_rotation.toMat4(),
+                        Mat4.mul(Mat4.fromScale(current_scale), current_local_to_world_matrix),
+                    ),
+                );
 
             if (g_transform_parent_is_camera[current_transform_index]) {
                 transform_skip_world_to_view = true;
@@ -1444,11 +1473,17 @@ fn renderMesh_(mesh_index: usize, previous_texture_index: *i32, vs_params: *main
     } else {
         while (current_transform_index_i32 != -1) {
             const current_transform_index: usize = @intCast(current_transform_index_i32);
-            const current_translation: hmm_vec3 = g_transform_translations[current_transform_index];
-            const current_rotation: hmm_quaternion = g_transform_rotations[current_transform_index];
-            const current_scale: hmm_vec3 = g_transform_scales[current_transform_index];
+            const current_translation: Vec3 = g_transform_translations[current_transform_index];
+            const current_rotation: Quaternion = g_transform_rotations[current_transform_index];
+            const current_scale: Vec3 = g_transform_scales[current_transform_index];
             current_local_to_world_matrix =
-                HMM_MultiplyMat4_(HMM_Translate_(current_translation), HMM_MultiplyMat4_(HMM_QuaternionToMat4_(current_rotation), HMM_MultiplyMat4_(.scale(current_scale), current_local_to_world_matrix)));
+                Mat4.mul(
+                    Mat4.fromTranslation(current_translation),
+                    Mat4.mul(
+                        current_rotation.toMat4(),
+                        Mat4.mul(Mat4.fromScale(current_scale), current_local_to_world_matrix),
+                    ),
+                );
 
             if (g_transform_parent_is_camera[current_transform_index]) {
                 transform_skip_world_to_view = true;
@@ -1462,15 +1497,15 @@ fn renderMesh_(mesh_index: usize, previous_texture_index: *i32, vs_params: *main
     vs_params.local_to_view_matrix = if (transform_skip_world_to_view)
         current_local_to_world_matrix
     else
-        HMM_MultiplyMat4_(g_interpolated_world_to_view_matrix, current_local_to_world_matrix);
+        Mat4.mul(g_interpolated_world_to_view_matrix, current_local_to_world_matrix);
     vs_params.local_to_projection_matrix = if (transform_skip_world_to_view)
-        HMM_MultiplyMat4_(g_view_to_projection_matrix, current_local_to_world_matrix)
+        Mat4.mul(g_view_to_projection_matrix, current_local_to_world_matrix)
     else
-        HMM_MultiplyMat4_(g_interpolated_world_to_projection_matrix, current_local_to_world_matrix);
+        Mat4.mul(g_interpolated_world_to_projection_matrix, current_local_to_world_matrix);
     vs_params.transpose_world_to_local_matrix = current_local_to_world_matrix.getInverse().getTranspose();
 
     if (do_interpolation and g_mesh_animation_is_continuous[mesh_index]) {
-        vs_params.uv_offset = HMM_LerpVec2_(g_mesh_uv_offsets_previous[mesh_index], g_mesh_uv_offsets[mesh_index], interpolation_scale);
+        vs_params.uv_offset = Vec2.lerp(g_mesh_uv_offsets_previous[mesh_index], g_mesh_uv_offsets[mesh_index], interpolation_scale);
     } else {
         vs_params.uv_offset = g_mesh_uv_offsets[mesh_index];
     }
@@ -1487,31 +1522,31 @@ fn renderMesh_(mesh_index: usize, previous_texture_index: *i32, vs_params: *main
 
 // TODO: Rename to match zig naming standards
 const main_shader_vs_params_t = extern struct {
-    local_to_world_matrix: hmm_mat4,
-    local_to_view_matrix: hmm_mat4,
-    local_to_projection_matrix: hmm_mat4,
-    transpose_world_to_local_matrix: hmm_mat4,
-    uv_offset: hmm_vec2,
+    local_to_world_matrix: Mat4,
+    local_to_view_matrix: Mat4,
+    local_to_projection_matrix: Mat4,
+    transpose_world_to_local_matrix: Mat4,
+    uv_offset: Vec2,
     _pad_264: [8]u8,
 };
 
 // TODO: Rename to match zig naming standards
 const main_shader_fs_params_t = extern struct {
-    scene_ambient_color: hmm_vec3,
+    scene_ambient_color: Color3,
     _pad_12: [4]u8,
-    material_ambient_tint: hmm_vec3,
+    material_ambient_tint: Color3,
     _pad_28: [4]u8,
-    material_diffuse_tint: hmm_vec3,
+    material_diffuse_tint: Color3,
     _pad_44: [4]u8,
-    light_ambient_color: hmm_vec3,
+    light_ambient_color: Color3,
     _pad_60: [4]u8,
-    light_diffuse_color: hmm_vec3,
+    light_diffuse_color: Color3,
     _pad_76: [4]u8,
-    light_position: hmm_vec3,
+    light_position: Vec3,
     light_range: f32,
     is_fog_enabled: f32,
     _pad_100: [12]u8,
-    fog_color: hmm_vec3,
+    fog_color: Color3,
     fog_start: f32,
     fog_end: f32,
     _pad_132: [12]u8,
@@ -1550,12 +1585,12 @@ pub fn RendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
     g_interpolated_world_to_view_matrix = g_world_to_view_matrix;
 
     if (do_interpolation and g_camera_animation_is_continuous) {
-        const camera_pos_current: hmm_vec3 = @as(*const hmm_vec3, @ptrCast(&g_world_to_view_matrix.Elements[3])).*;
-        const camera_pos_previous: hmm_vec3 = @as(*const hmm_vec3, @ptrCast(&g_world_to_view_matrix_previous.Elements[3])).*;
-        @as(*hmm_vec3, @ptrCast(&g_interpolated_world_to_view_matrix.Elements[3][0])).* = HMM_AddVec3_(camera_pos_previous, HMM_MultiplyVec3f_(HMM_SubtractVec3_(camera_pos_current, camera_pos_previous), if (g_camera_animation_is_continuous) interpolation_scale else 0.0));
+        const camera_pos_current: Vec3 = @as(*const Vec3, @ptrCast(&g_world_to_view_matrix.elements[3])).*;
+        const camera_pos_previous: Vec3 = @as(*const Vec3, @ptrCast(&g_world_to_view_matrix_previous.elements[3])).*;
+        @as(*Vec3, @ptrCast(&g_interpolated_world_to_view_matrix.elements[3][0])).* = Vec3.add(camera_pos_previous, Vec3.mul(Vec3.sub(camera_pos_current, camera_pos_previous), if (g_camera_animation_is_continuous) interpolation_scale else 0.0));
     }
 
-    g_interpolated_world_to_projection_matrix = HMM_MultiplyMat4_(g_view_to_projection_matrix, g_interpolated_world_to_view_matrix);
+    g_interpolated_world_to_projection_matrix = Mat4.mul(g_view_to_projection_matrix, g_interpolated_world_to_view_matrix);
 
     // Draw opaque
     jumpman_basic_3d_c.sg_apply_pipeline(g_opaque_pipline);
