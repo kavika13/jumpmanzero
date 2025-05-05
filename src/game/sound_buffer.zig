@@ -7,10 +7,6 @@ const jumpman_sound_buffer_c = @cImport({
     @cInclude("miniaudio.h");
 });
 
-extern fn malloc(size: usize) ?[*]u8;
-extern fn free(memoryToFree: ?[*]u8) void;
-extern fn memset(dest: ?[*]u8, character: c_int, count: usize) void;
-
 pub const kSOUND_CHANNEL_COUNT: usize = 64;
 pub const SoundChannel = fn (frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64; // TODO: Make not export
 
@@ -20,8 +16,7 @@ var g_sound_channels = std.mem.zeroes([kSOUND_CHANNEL_COUNT]?*const SoundChannel
 var g_temporary_sample_buffer: ?[*]f32 = null;
 var g_temporary_sample_buffer_byte_count: usize = 0;
 
-pub extern fn ma_device_config_init(deviceType: jumpman_sound_buffer_c.ma_device_type) callconv(.C) jumpman_sound_buffer_c.ma_device_config;
-
+// TODO: Take allocator somehow?
 fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const anyopaque, frame_count: u32) callconv(.C) void {
     const output: [*]f32 = @alignCast(@ptrCast(pOutput));
 
@@ -31,11 +26,15 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
         output[i * 2 + 1] = 0.0;
     }
 
+    // TODO: Don't need to use byte counts, since allocated buffers can be strongly typed in zig.
+    //       Still will need to use frame_count * 2 though.
     const buffer_byte_count: usize = frame_count * @sizeOf(f32) * 2;
 
     if (g_temporary_sample_buffer_byte_count < buffer_byte_count) {
-        free(@ptrCast(g_temporary_sample_buffer));
-        g_temporary_sample_buffer = @alignCast(@ptrCast(malloc(buffer_byte_count)));
+        if (g_temporary_sample_buffer != null) {
+            std.heap.raw_c_allocator.free(g_temporary_sample_buffer.?[0..g_temporary_sample_buffer_byte_count]);
+        }
+        g_temporary_sample_buffer = @alignCast(@ptrCast(std.heap.raw_c_allocator.alloc(u8, buffer_byte_count) catch @panic("oom"))); // TODO: Don't panic?
         g_temporary_sample_buffer_byte_count = buffer_byte_count;
     }
 
@@ -43,7 +42,7 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
 
     i = 0;
     while (i < kSOUND_CHANNEL_COUNT) : (i += 1) {
-        memset(@ptrCast(g_temporary_sample_buffer), 0, buffer_byte_count);
+        @memset(g_temporary_sample_buffer.?[0 .. buffer_byte_count / @sizeOf(f32)], 0);
 
         if (g_sound_channels[i]) |sound_channel| {
             _ = sound_channel(frame_count, g_temporary_sample_buffer.?);
