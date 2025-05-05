@@ -5,13 +5,13 @@ const basic_3d = @import("basic_3d.zig");
 const jumpman = @import("jumpman.zig");
 const sound = @import("sound.zig");
 const sound_buffer = @import("sound_buffer.zig");
+const utilities = @import("utilities.zig");
 const jumpman_main_c = @cImport({
     @cDefine("ZIG_DEFINES_MAIN", {});
     @cDefine("GLFW_INCLUDE_NONE", {});
     @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
     @cInclude("Music.h");
-    @cInclude("Utilities.h");
 });
 
 const kFULLSCREEN_IS_ENABLED_DEFAULT: bool = false;
@@ -49,14 +49,15 @@ const GameState = struct {
     current_input: jumpman.GameInput,
 };
 
+// TODO: Take allocator as param
 fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool) bool {
     var sTemp = std.mem.zeroes([30]u8);
-    var sFileNameBuffer = std.mem.zeroes([std.fs.max_path_bytes]u8);
+    var sFileNameBuffer = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
     const filename = std.fs.cwd().realpathZ("data/settings.dat", &sFileNameBuffer) catch return false; // TODO: Better error handling
 
-    var sData: ?[*:0]u8 = null;
-    const iLen = jumpman_main_c.FileToString(&filename[0], @ptrCast(&sData)); // TODO: Zig native equivalent, with streaming IO
-    defer std.heap.raw_c_allocator.free(std.mem.span(sData.?));
+    var sData: [*c]u8 = null;
+    const iLen = utilities.FileToString(std.mem.span(@as([*:0]const u8, @ptrCast(&filename[0]))), &sData); // TODO: Zig native equivalent, with streaming IO
+    defer std.heap.raw_c_allocator.free(sData[0..iLen]);
 
     // TODO: Handle file missing case without an error message - should create it and set defaults instead
     if (iLen == 0) {
@@ -64,28 +65,28 @@ fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
     }
 
     for (0..6) |key_index| {
-        g_key_bindings[key_index] = if (jumpman_main_c.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, @intCast(key_index)))
+        g_key_bindings[key_index] = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, @intCast(key_index)))
             jumpman_main_c.atoi(&sTemp)
         else
             0;
     }
 
-    sound_is_initially_enabled.* = if (jumpman_main_c.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 6))
+    sound_is_initially_enabled.* = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 6))
         jumpman_main_c.atoi(&sTemp) != 0
     else
         false;
 
-    music_is_initially_enabled.* = if (jumpman_main_c.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 7))
+    music_is_initially_enabled.* = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 7))
         jumpman_main_c.atoi(&sTemp) != 0
     else
         false;
 
-    g_fullscreen_is_enabled = if (jumpman_main_c.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 8))
+    g_fullscreen_is_enabled = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 8))
         jumpman_main_c.atoi(&sTemp) != 0
     else
         false;
 
-    g_window_resolution_x = if (jumpman_main_c.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 9))
+    g_window_resolution_x = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 9))
         jumpman_main_c.atoi(&sTemp)
     else
         kWINDOW_RESOLUTION_DEFAULT_X;
@@ -94,7 +95,7 @@ fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
         g_window_resolution_x = kWINDOW_RESOLUTION_MIN_X;
     }
 
-    g_window_resolution_y = if (jumpman_main_c.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 10))
+    g_window_resolution_y = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 10))
         jumpman_main_c.atoi(&sTemp)
     else
         kWINDOW_RESOLUTION_DEFAULT_Y;
@@ -107,12 +108,10 @@ fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
 }
 
 fn save_settings() bool {
-    var success = true;
-
     var sFileBuffer = std.mem.zeroes([300]u8);
-    _ = std.fmt.bufPrintZ(
+    const data_to_output = std.fmt.bufPrintZ(
         &sFileBuffer,
-        "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}",
+        "{}\r\n{}\r\n{}\r\n{}\r\n{}\r\n{}\r\n{}\r\n{}\r\n{}\r\n{}\r\n{}",
         .{
             g_key_bindings[0],
             g_key_bindings[1],
@@ -130,12 +129,11 @@ fn save_settings() bool {
         return false;
     };
 
-    var sFileNameBuffer = std.mem.zeroes([std.fs.max_path_bytes]u8);
-    _ = std.fs.cwd().realpathZ("data/settings.dat", &sFileNameBuffer) catch return false; // TODO: Better error handling
+    const file = std.fs.cwd().createFile("data/settings.dat", .{}) catch return false;
+    defer file.close();
+    file.writeAll(data_to_output) catch return false;
 
-    success = jumpman_main_c.StringToFile(&sFileNameBuffer, &sFileBuffer); // TODO: Zig native equivalent
-
-    return success;
+    return true;
 }
 
 fn SetFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) void {

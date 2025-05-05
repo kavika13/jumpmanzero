@@ -2,6 +2,7 @@ const std = @import("std");
 const basic_3d = @import("basic_3d.zig");
 const main = @import("main.zig");
 const sound = @import("sound.zig");
+const utilities = @import("utilities.zig");
 const lua_c = @cImport({
     @cInclude("lua.h");
     @cInclude("lualib.h");
@@ -9,7 +10,6 @@ const lua_c = @cImport({
 });
 const jumpman_main_c = @cImport({
     @cInclude("Music.h");
-    @cInclude("Utilities.h");
 });
 
 const LuaModuleScriptContext = struct {
@@ -106,21 +106,32 @@ fn load_texture(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 1;
 }
 
+fn stringToLong(text: []const u8) i32 {
+    const fTemp: f32 = @as(f32, @floatFromInt(text[1])) * 256.0 + @as(f32, @floatFromInt(text[2])) + @as(f32, @floatFromInt(text[3])) / 256.0;
+
+    if (text[0] != 0) {
+        return @intFromFloat(fTemp * -1.0);
+    } else {
+        return @intFromFloat(fTemp);
+    }
+}
+
 // TODO: Take allocator as param
 fn LoadMesh(sFileName: [*:0]const u8) i32 {
     var sFullFileBuf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
     _ = std.fs.cwd().realpathZ(sFileName, &sFullFileBuf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
     var cData: [*c]u8 = null;
-    var vertex_component_count: usize = @intCast(jumpman_main_c.FileToString(&sFullFileBuf, &cData)); // TODO: Don't use utility function for this?
-    defer std.heap.raw_c_allocator.free(std.mem.span(cData));
-    vertex_component_count = vertex_component_count / 4;
+    const data_length: usize = utilities.FileToString(&sFullFileBuf, &cData); // TODO: Don't use utility function for this?
+    defer std.heap.raw_c_allocator.free(cData[0..data_length]);
+    const vertex_component_count = data_length / 4;
 
     const vertex_components: []i32 = std.heap.c_allocator.alloc(i32, vertex_component_count) catch @panic("failed to allocate"); // TODO: Better error handling
     defer std.heap.c_allocator.free(vertex_components);
 
     for (0..vertex_component_count) |component_index| {
-        vertex_components[component_index] = jumpman_main_c.StringToLong(&cData[component_index << 2]);
+        const index = component_index << 2;
+        vertex_components[component_index] = stringToLong(cData[index .. index + 4]);
     }
 
     const result_mesh_handle_index: i32 = basic_3d.MeshCreateFromVertexComponents(@ptrCast(&vertex_components[0]), @intCast(vertex_component_count / 9));
@@ -337,6 +348,7 @@ fn get_current_fps(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 1;
 }
 
+// TODO: Take allocator as param
 fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     // Handle data in the format:
     // {
