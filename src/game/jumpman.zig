@@ -22,13 +22,13 @@ var g_gpa: std.mem.Allocator = .failing;
 
 // ------------------- LUA SCRIPT API -------------------------------
 
-fn lua_checkbool(L: *lua_c.lua_State, arg: i32) bool {
+fn luaCheckbool(L: *lua_c.lua_State, arg: i32) bool {
     lua_c.luaL_checktype(L, arg, lua_c.LUA_TBOOLEAN);
     const d = lua_c.lua_toboolean(L, arg);
     return d != 0;
 }
 
-fn unload_all_resources(_: ?*lua_c.lua_State) callconv(.c) c_int {
+fn unloadAllResources(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.clear3dData();
 
     g_loaded_texture_count = 0;
@@ -37,17 +37,17 @@ fn unload_all_resources(_: ?*lua_c.lua_State) callconv(.c) c_int {
     return 0;
 }
 
-fn begin_loading_3d_data(_: ?*lua_c.lua_State) callconv(.c) c_int {
+fn beginLoading3dData(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.begin3dLoad(g_gpa);
     return 0;
 }
 
-fn end_and_commit_loading_3d_data(_: ?*lua_c.lua_State) callconv(.c) c_int {
+fn endAndCommitLoading3dData(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.endAndCommit3dLoad(g_gpa);
     return 0;
 }
 
-fn play_music_track_1(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn playMusicTrack1(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const new_music_track_arg = lua_c.lua_tolstring(lua_state, 1, null);
     const song_start_music_time_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
@@ -62,19 +62,19 @@ fn play_music_track_1(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 0;
 }
 
-fn stop_music_track_1(_: ?*lua_c.lua_State) callconv(.c) c_int {
+fn stopMusicTrack1(_: ?*lua_c.lua_State) callconv(.c) c_int {
     music.stopMusic1(); // TODO: Error checking?
     return 0;
 }
 
-fn play_music_track_2(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn playMusicTrack2(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const new_music_track_arg = lua_c.lua_tolstring(lua_state, 1, null);
     music.newTrack2(std.mem.span(new_music_track_arg));
     return 0;
 }
 
-fn load_sound(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn loadSound(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state, 1, null);
     var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
@@ -87,11 +87,11 @@ fn load_sound(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 1;
 }
 
-fn load_texture(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn loadTexture(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state.?, 1, null);
     const image_type_arg = lua_c.luaL_checkinteger(lua_state.?, 2);
-    const is_alpha_blend_enabled_arg: bool = lua_checkbool(lua_state.?, 3);
+    const is_alpha_blend_enabled_arg: bool = luaCheckbool(lua_state.?, 3);
     var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
     _ = std.Io.Dir.cwd().realPathFile(g_io, std.mem.span(filename_arg), &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
@@ -136,7 +136,7 @@ fn LoadMesh(sFileName: [:0]const u8) i32 {
     return result_mesh_handle_index;
 }
 
-fn load_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn loadMesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state, 1, null);
     const loaded_mesh_handle_index: i32 = LoadMesh(std.mem.span(filename_arg));
@@ -144,86 +144,86 @@ fn load_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 1;
 }
 
-fn set_mesh_to_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn setMeshToMesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const target_mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const source_mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.meshReplaceWithCopy(@truncate(target_mesh_handle_index_arg), @truncate(source_mesh_handle_index_arg));
     return 0;
 }
 
-fn transform_create(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformCreate(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const new_transform_index: i32 = basic_3d.transformCreate();
     lua_c.lua_pushinteger(lua_state, new_transform_index);
     return 1;
 }
 
-fn transform_delete(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformDelete(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.transformDelete(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_get_parent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformGetParent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const parent_transform_index: i32 = basic_3d.transformGetParent(@truncate(arg_transform_index));
     lua_c.lua_pushinteger(lua_state, parent_transform_index);
     return 1;
 }
 
-fn transform_set_parent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetParent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_new_parent_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.transformSetParent(@truncate(arg_transform_index), @truncate(arg_new_parent_index));
     return 0;
 }
 
-fn transform_clear_parent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformClearParent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.transformClearParent(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_get_parent_is_camera(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformGetParentIsCamera(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const is_parent_camera: bool = basic_3d.transformGetParentIsCamera(@truncate(arg_transform_index));
     lua_c.lua_pushboolean(lua_state, is_parent_camera);
     return 1;
 }
 
-fn transform_set_parent_is_camera(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetParentIsCamera(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
-    const arg_is_parent_camera: bool = lua_checkbool(lua_state.?, 2);
+    const arg_is_parent_camera: bool = luaCheckbool(lua_state.?, 2);
     basic_3d.transformSetParentIsCamera(@truncate(arg_transform_index), arg_is_parent_camera);
     return 0;
 }
 
-fn mesh_get_transform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn meshGetTransform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_mesh_handle_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const transform_index: i32 = basic_3d.meshGetTransform(@truncate(arg_mesh_handle_index));
     lua_c.lua_pushinteger(lua_state, transform_index);
     return 1;
 }
 
-fn mesh_set_transform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn meshSetTransform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_mesh_handle_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.meshSetTransform(@truncate(arg_mesh_handle_index), @truncate(arg_transform_index));
     return 0;
 }
 
-fn mesh_clear_transform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn meshClearTransform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_mesh_handle_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.meshClearTransform(@truncate(arg_mesh_handle_index));
     return 0;
 }
 
-fn transform_set_to_identity(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetToIdentity(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.transformSetToIdentity(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_set_translation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetTranslation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_x: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const arg_y: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -232,61 +232,61 @@ fn transform_set_translation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 0;
 }
 
-fn transform_clear_translation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformClearTranslation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.transformClearTranslation(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_set_rotation_x(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetRotationX(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.transformSetRotationX(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_set_rotation_y(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetRotationY(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.transformSetRotationY(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_set_rotation_z(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetRotationZ(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.transformSetRotationZ(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_concat_rotation_x(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformConcatRotationX(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.transformConcatRotationX(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_concat_rotation_y(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformConcatRotationY(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.transformConcatRotationY(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_concat_rotation_z(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformConcatRotationZ(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.transformConcatRotationZ(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_clear_rotation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformClearRotation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.transformClearRotation(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_set_scale(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformSetScale(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_x: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const arg_y: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -295,13 +295,13 @@ fn transform_set_scale(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 0;
 }
 
-fn transform_clear_scale(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn transformClearScale(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.transformClearScale(@truncate(arg_transform_index));
     return 0;
 }
 
-fn scroll_texture_on_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn scrollTextureOnMesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const translate_x_arg: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const argtranslate_y_arg: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -309,43 +309,43 @@ fn scroll_texture_on_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 0;
 }
 
-fn skip_next_mesh_interpolation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn skipNextMeshInterpolation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.meshSetIsAnimationContinuous(@truncate(mesh_handle_index_arg), false);
     return 0;
 }
 
-fn skip_next_camera_interpolation(_: ?*lua_c.lua_State) callconv(.c) c_int {
+fn skipNextCameraInterpolation(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.setCameraIsAnimationContinuous(false);
     return 0;
 }
 
-fn get_loaded_texture_count(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn getLoadedTextureCount(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushnumber(lua_state, @floatFromInt(g_loaded_texture_count));
     return 1;
 }
 
-fn get_is_sound_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn getIsSoundEnabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushboolean(lua_state, @intFromBool(sound.getIsSoundEnabled()));
     return 1;
 }
 
-fn get_is_music_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn getIsMusicEnabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushboolean(lua_state, @intFromBool(music.getIsMusicEnabled()));
     return 1;
 }
 
-fn get_last_key_pressed(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn getLastKeyPressed(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushnumber(lua_state, @floatFromInt(main.getLastKeyPressed()));
     return 1;
 }
 
-fn get_current_fps(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn getCurrentFps(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushnumber(lua_state, @floatFromInt(main.getCurrentFps()));
     return 1;
 }
 
-fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn createMesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // Handle data in the format:
     // {
     //     { pos = { 137, 140, 15 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
@@ -432,40 +432,40 @@ fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 1;
 }
 
-fn new_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn newMesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const script_mesh_index_arg: f64 = lua_c.luaL_checknumber(lua_state, 1); // TODO: luaL_checkinteger?
     const new_mesh_handle_index: i32 = basic_3d.meshCreateFromCopy(@intFromFloat(script_mesh_index_arg));
     lua_c.lua_pushnumber(lua_state, @floatFromInt(new_mesh_handle_index));
     return 1;
 }
 
-fn set_mesh_texture(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn setMeshTexture(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const texture_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.meshSetTextureIndex(@truncate(mesh_handle_index_arg), @truncate(texture_index_arg));
     return 0;
 }
 
-fn set_mesh_is_visible(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn setMeshIsVisible(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
-    const is_visible_arg: bool = lua_checkbool(lua_state.?, 2);
+    const is_visible_arg: bool = luaCheckbool(lua_state.?, 2);
     basic_3d.meshSetIsVisible(@truncate(mesh_handle_index_arg), is_visible_arg);
     return 0;
 }
 
-fn move_transparent_mesh_to_front(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn moveTransparentMeshToFront(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.meshMoveToFrontForTransparentDrawing(@truncate(mesh_handle_index_arg));
     return 0;
 }
 
-fn move_transparent_mesh_to_back(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn moveTransparentMeshToBack(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.meshMoveToBackForTransparentDrawing(@truncate(mesh_handle_index_arg));
     return 0;
 }
 
-fn set_fog(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn setFog(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const fog_start_arg: lua_c.lua_Number = lua_c.luaL_checknumber(lua_state, 1);
     const fog_end_arg: lua_c.lua_Number = lua_c.luaL_checknumber(lua_state, 2);
     const red_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 3);
@@ -475,7 +475,7 @@ fn set_fog(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 0;
 }
 
-fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn getConfigOptionString(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     var sNameBuf: [100:0]u8 = undefined;
     var sName: []u8 = undefined;
     const option_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
@@ -526,7 +526,7 @@ fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 1;
 }
 
-fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn setConfigOption(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const option_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const key_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
 
@@ -589,24 +589,24 @@ fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 1;
 }
 
-fn save_config_options(_: ?*lua_c.lua_State) callconv(.c) c_int { // TODO: Might be able to move to Lua?
+fn saveConfigOptions(_: ?*lua_c.lua_State) callconv(.c) c_int { // TODO: Might be able to move to Lua?
     main.saveSettings();
     return 0;
 }
 
-fn play_sound_effect(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn playSoundEffect(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg1: f64 = lua_c.luaL_checknumber(lua_state, 1); // TODO: luaL_checkinteger?
     sound.playSoundEffect(@intFromFloat(arg1));
     return 0;
 }
 
-fn delete_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn deleteMesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: f64 = lua_c.luaL_checknumber(lua_state, 1); // TODO: luaL_checkinteger?
     basic_3d.meshDelete(@intFromFloat(mesh_handle_index_arg));
     return 0;
 }
 
-fn set_perspective(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn setPerspective(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const camera_x_arg: f64 = lua_c.luaL_checknumber(lua_state, 1);
     const camera_y_arg: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const camera_z_arg: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -617,7 +617,7 @@ fn set_perspective(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 0;
 }
 
-fn lua_error_handler(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
+fn luaErrorHandler(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     var error_message = lua_c.lua_tolstring(lua_state, 1, null);
 
     if (error_message == null) {
@@ -642,115 +642,115 @@ fn RegisterLuaScriptFunctions(lua_state: *lua_c.lua_State) void {
     //       List of remaining exposed functions will be lower-level at that point, so will be important to distinguish.
 
     // TODO: Rename all these functions to more zig-friendly names (on the zig implementation side only)
-    lua_c.lua_pushcclosure(lua_state, unload_all_resources, 0);
+    lua_c.lua_pushcclosure(lua_state, unloadAllResources, 0);
     lua_c.lua_setglobal(lua_state, "unload_all_resources");
-    lua_c.lua_pushcclosure(lua_state, begin_loading_3d_data, 0);
+    lua_c.lua_pushcclosure(lua_state, beginLoading3dData, 0);
     lua_c.lua_setglobal(lua_state, "begin_loading_3d_data");
-    lua_c.lua_pushcclosure(lua_state, end_and_commit_loading_3d_data, 0);
+    lua_c.lua_pushcclosure(lua_state, endAndCommitLoading3dData, 0);
     lua_c.lua_setglobal(lua_state, "end_and_commit_loading_3d_data");
 
-    lua_c.lua_pushcclosure(lua_state, play_music_track_1, 0);
+    lua_c.lua_pushcclosure(lua_state, playMusicTrack1, 0);
     lua_c.lua_setglobal(lua_state, "play_music_track_1");
-    lua_c.lua_pushcclosure(lua_state, stop_music_track_1, 0);
+    lua_c.lua_pushcclosure(lua_state, stopMusicTrack1, 0);
     lua_c.lua_setglobal(lua_state, "stop_music_track_1");
-    lua_c.lua_pushcclosure(lua_state, play_music_track_2, 0);
+    lua_c.lua_pushcclosure(lua_state, playMusicTrack2, 0);
     lua_c.lua_setglobal(lua_state, "play_music_track_2");
-    lua_c.lua_pushcclosure(lua_state, load_sound, 0);
+    lua_c.lua_pushcclosure(lua_state, loadSound, 0);
     lua_c.lua_setglobal(lua_state, "load_sound");
-    lua_c.lua_pushcclosure(lua_state, load_texture, 0);
+    lua_c.lua_pushcclosure(lua_state, loadTexture, 0);
     lua_c.lua_setglobal(lua_state, "load_texture");
-    lua_c.lua_pushcclosure(lua_state, load_mesh, 0);
+    lua_c.lua_pushcclosure(lua_state, loadMesh, 0);
     lua_c.lua_setglobal(lua_state, "load_mesh");
 
-    lua_c.lua_pushcclosure(lua_state, set_mesh_to_mesh, 0);
+    lua_c.lua_pushcclosure(lua_state, setMeshToMesh, 0);
     lua_c.lua_setglobal(lua_state, "set_mesh_to_mesh");
-    lua_c.lua_pushcclosure(lua_state, scroll_texture_on_mesh, 0);
+    lua_c.lua_pushcclosure(lua_state, scrollTextureOnMesh, 0);
     lua_c.lua_setglobal(lua_state, "scroll_texture_on_mesh");
-    lua_c.lua_pushcclosure(lua_state, skip_next_mesh_interpolation, 0);
+    lua_c.lua_pushcclosure(lua_state, skipNextMeshInterpolation, 0);
     lua_c.lua_setglobal(lua_state, "skip_next_mesh_interpolation");
-    lua_c.lua_pushcclosure(lua_state, skip_next_camera_interpolation, 0);
+    lua_c.lua_pushcclosure(lua_state, skipNextCameraInterpolation, 0);
     lua_c.lua_setglobal(lua_state, "skip_next_camera_interpolation");
-    lua_c.lua_pushcclosure(lua_state, set_mesh_texture, 0);
+    lua_c.lua_pushcclosure(lua_state, setMeshTexture, 0);
     lua_c.lua_setglobal(lua_state, "set_mesh_texture");
-    lua_c.lua_pushcclosure(lua_state, set_mesh_is_visible, 0);
+    lua_c.lua_pushcclosure(lua_state, setMeshIsVisible, 0);
     lua_c.lua_setglobal(lua_state, "set_mesh_is_visible");
 
-    lua_c.lua_pushcclosure(lua_state, transform_create, 0);
+    lua_c.lua_pushcclosure(lua_state, transformCreate, 0);
     lua_c.lua_setglobal(lua_state, "transform_create");
-    lua_c.lua_pushcclosure(lua_state, transform_delete, 0);
+    lua_c.lua_pushcclosure(lua_state, transformDelete, 0);
     lua_c.lua_setglobal(lua_state, "transform_delete");
-    lua_c.lua_pushcclosure(lua_state, transform_get_parent, 0);
+    lua_c.lua_pushcclosure(lua_state, transformGetParent, 0);
     lua_c.lua_setglobal(lua_state, "transform_get_parent");
-    lua_c.lua_pushcclosure(lua_state, transform_set_parent, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetParent, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_parent");
-    lua_c.lua_pushcclosure(lua_state, transform_clear_parent, 0);
+    lua_c.lua_pushcclosure(lua_state, transformClearParent, 0);
     lua_c.lua_setglobal(lua_state, "transform_clear_parent");
-    lua_c.lua_pushcclosure(lua_state, transform_set_parent_is_camera, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetParentIsCamera, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_parent_is_camera");
-    lua_c.lua_pushcclosure(lua_state, mesh_get_transform, 0);
+    lua_c.lua_pushcclosure(lua_state, meshGetTransform, 0);
     lua_c.lua_setglobal(lua_state, "mesh_get_transform");
-    lua_c.lua_pushcclosure(lua_state, mesh_set_transform, 0);
+    lua_c.lua_pushcclosure(lua_state, meshSetTransform, 0);
     lua_c.lua_setglobal(lua_state, "mesh_set_transform");
-    lua_c.lua_pushcclosure(lua_state, mesh_clear_transform, 0);
+    lua_c.lua_pushcclosure(lua_state, meshClearTransform, 0);
     lua_c.lua_setglobal(lua_state, "mesh_clear_transform");
-    lua_c.lua_pushcclosure(lua_state, transform_set_to_identity, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetToIdentity, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_to_identity");
-    lua_c.lua_pushcclosure(lua_state, transform_set_translation, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetTranslation, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_translation");
-    lua_c.lua_pushcclosure(lua_state, transform_clear_translation, 0);
+    lua_c.lua_pushcclosure(lua_state, transformClearTranslation, 0);
     lua_c.lua_setglobal(lua_state, "transform_clear_translation");
-    lua_c.lua_pushcclosure(lua_state, transform_set_rotation_x, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetRotationX, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_rotation_x");
-    lua_c.lua_pushcclosure(lua_state, transform_set_rotation_y, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetRotationY, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_rotation_y");
-    lua_c.lua_pushcclosure(lua_state, transform_set_rotation_z, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetRotationZ, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_rotation_z");
-    lua_c.lua_pushcclosure(lua_state, transform_concat_rotation_x, 0);
+    lua_c.lua_pushcclosure(lua_state, transformConcatRotationX, 0);
     lua_c.lua_setglobal(lua_state, "transform_concat_rotation_x");
-    lua_c.lua_pushcclosure(lua_state, transform_concat_rotation_y, 0);
+    lua_c.lua_pushcclosure(lua_state, transformConcatRotationY, 0);
     lua_c.lua_setglobal(lua_state, "transform_concat_rotation_y");
-    lua_c.lua_pushcclosure(lua_state, transform_concat_rotation_z, 0);
+    lua_c.lua_pushcclosure(lua_state, transformConcatRotationZ, 0);
     lua_c.lua_setglobal(lua_state, "transform_concat_rotation_z");
-    lua_c.lua_pushcclosure(lua_state, transform_clear_rotation, 0);
+    lua_c.lua_pushcclosure(lua_state, transformClearRotation, 0);
     lua_c.lua_setglobal(lua_state, "transform_clear_rotation");
-    lua_c.lua_pushcclosure(lua_state, transform_set_scale, 0);
+    lua_c.lua_pushcclosure(lua_state, transformSetScale, 0);
     lua_c.lua_setglobal(lua_state, "transform_set_scale");
-    lua_c.lua_pushcclosure(lua_state, transform_clear_scale, 0);
+    lua_c.lua_pushcclosure(lua_state, transformClearScale, 0);
     lua_c.lua_setglobal(lua_state, "transform_clear_scale");
 
-    lua_c.lua_pushcclosure(lua_state, get_loaded_texture_count, 0);
+    lua_c.lua_pushcclosure(lua_state, getLoadedTextureCount, 0);
     lua_c.lua_setglobal(lua_state, "get_loaded_texture_count");
-    lua_c.lua_pushcclosure(lua_state, get_is_sound_enabled, 0);
+    lua_c.lua_pushcclosure(lua_state, getIsSoundEnabled, 0);
     lua_c.lua_setglobal(lua_state, "get_is_sound_enabled");
-    lua_c.lua_pushcclosure(lua_state, get_is_music_enabled, 0);
+    lua_c.lua_pushcclosure(lua_state, getIsMusicEnabled, 0);
     lua_c.lua_setglobal(lua_state, "get_is_music_enabled");
-    lua_c.lua_pushcclosure(lua_state, get_last_key_pressed, 0);
+    lua_c.lua_pushcclosure(lua_state, getLastKeyPressed, 0);
     lua_c.lua_setglobal(lua_state, "get_last_key_pressed");
-    lua_c.lua_pushcclosure(lua_state, get_current_fps, 0);
+    lua_c.lua_pushcclosure(lua_state, getCurrentFps, 0);
     lua_c.lua_setglobal(lua_state, "get_current_fps");
 
-    lua_c.lua_pushcclosure(lua_state, create_mesh, 0);
+    lua_c.lua_pushcclosure(lua_state, createMesh, 0);
     lua_c.lua_setglobal(lua_state, "create_mesh");
-    lua_c.lua_pushcclosure(lua_state, new_mesh, 0);
+    lua_c.lua_pushcclosure(lua_state, newMesh, 0);
     lua_c.lua_setglobal(lua_state, "new_mesh");
-    lua_c.lua_pushcclosure(lua_state, move_transparent_mesh_to_front, 0);
+    lua_c.lua_pushcclosure(lua_state, moveTransparentMeshToFront, 0);
     lua_c.lua_setglobal(lua_state, "move_transparent_mesh_to_front");
-    lua_c.lua_pushcclosure(lua_state, move_transparent_mesh_to_back, 0);
+    lua_c.lua_pushcclosure(lua_state, moveTransparentMeshToBack, 0);
     lua_c.lua_setglobal(lua_state, "move_transparent_mesh_to_back");
-    lua_c.lua_pushcclosure(lua_state, set_fog, 0);
+    lua_c.lua_pushcclosure(lua_state, setFog, 0);
     lua_c.lua_setglobal(lua_state, "set_fog");
-    lua_c.lua_pushcclosure(lua_state, get_config_option_string, 0);
+    lua_c.lua_pushcclosure(lua_state, getConfigOptionString, 0);
     lua_c.lua_setglobal(lua_state, "get_config_option_string");
-    lua_c.lua_pushcclosure(lua_state, set_config_option, 0);
+    lua_c.lua_pushcclosure(lua_state, setConfigOption, 0);
     lua_c.lua_setglobal(lua_state, "set_config_option");
-    lua_c.lua_pushcclosure(lua_state, save_config_options, 0);
+    lua_c.lua_pushcclosure(lua_state, saveConfigOptions, 0);
     lua_c.lua_setglobal(lua_state, "save_config_options");
-    lua_c.lua_pushcclosure(lua_state, play_sound_effect, 0);
+    lua_c.lua_pushcclosure(lua_state, playSoundEffect, 0);
     lua_c.lua_setglobal(lua_state, "play_sound_effect");
 
-    lua_c.lua_pushcclosure(lua_state, delete_mesh, 0);
+    lua_c.lua_pushcclosure(lua_state, deleteMesh, 0);
     lua_c.lua_setglobal(lua_state, "delete_mesh");
-    lua_c.lua_pushcclosure(lua_state, set_perspective, 0);
+    lua_c.lua_pushcclosure(lua_state, setPerspective, 0);
     lua_c.lua_setglobal(lua_state, "set_perspective");
 }
 
@@ -779,7 +779,7 @@ fn LoadLuaScript(filename: [:0]const u8, new_script_context: *LuaModuleScriptCon
     const arg_count: i32 = 0;
     const error_handler_stack_pos: i32 = lua_c.lua_gettop(new_state) - arg_count;
 
-    lua_c.lua_pushcclosure(new_state, lua_error_handler, 0);
+    lua_c.lua_pushcclosure(new_state, luaErrorHandler, 0);
     lua_c.lua_insert(new_state, error_handler_stack_pos);
 
     if (lua_c.lua_pcallk(new_state, 0, 1, error_handler_stack_pos, 0, null) != 0) {
@@ -863,7 +863,7 @@ fn CallLuaModuleFunction(script_context: *LuaModuleScriptContext, function_name:
 
         // Place error handler just under module function
         const error_handler_stack_pos: i32 = module_function_stack_pos;
-        lua_c.lua_pushcclosure(lua_state, lua_error_handler, 0);
+        lua_c.lua_pushcclosure(lua_state, luaErrorHandler, 0);
         lua_c.lua_insert(lua_state, error_handler_stack_pos);
 
         if (lua_c.lua_pcallk(lua_state, arg_count, expected_result_count, error_handler_stack_pos, 0, null) != 0) {
@@ -968,7 +968,7 @@ pub fn DrawGame(seconds_per_update_timestep: f64, seconds_since_previous_update:
 
     var do_interpolation: bool = true;
     if (pre_draw_function_existed) {
-        do_interpolation = !lua_checkbool(g_main_script_context.lua_state.?, -1);
+        do_interpolation = !luaCheckbool(g_main_script_context.lua_state.?, -1);
         lua_c.lua_pop(g_main_script_context.lua_state, 1);
     }
 
