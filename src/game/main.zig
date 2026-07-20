@@ -62,7 +62,7 @@ fn loadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
     }
     sound_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
     music_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
-    g_fullscreen_is_enabled = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
+    g_fullscreen_is_enabled = parseIntOrDefault(u8, file_lines.next(), 0) != 0;
     g_window_resolution_x = parseIntOrDefault(i32, file_lines.next(), kWINDOW_RESOLUTION_DEFAULT_X);
 
     if (g_window_resolution_x < kWINDOW_RESOLUTION_MIN_X) {
@@ -346,7 +346,7 @@ fn CursorEnterCallback(window: ?*glfw_c.GLFWwindow, is_entering: c_int) callconv
 fn WindowFocusCallback(_: ?*glfw_c.GLFWwindow, is_focused: c_int) callconv(.c) void {
     if (is_focused != 0) {
         g_game_is_frozen = false;
-        basic_3d.Reset3d();
+        basic_3d.reset3d();
     } else {
         g_game_is_frozen = true;
     }
@@ -361,7 +361,7 @@ fn WindowSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callc
 }
 
 fn FramebufferSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
-    basic_3d.ResizeViewport(width, height);
+    basic_3d.resizeViewport(width, height);
 }
 
 fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.GameInput) void {
@@ -431,7 +431,7 @@ fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.Ga
 
     var cursor_pos_x_f: f32 = @floatCast(cursor_pos_x);
     var cursor_pos_y_f: f32 = @floatCast(cursor_pos_y);
-    basic_3d.GetViewportMousePos(&cursor_pos_x_f, &cursor_pos_y_f);
+    basic_3d.getViewportMousePos(&cursor_pos_x_f, &cursor_pos_y_f);
 
     game_current_input.*.cursor_position.x = cursor_pos_x_f;
     game_current_input.*.cursor_position.y = cursor_pos_y_f;
@@ -524,7 +524,7 @@ pub fn main(init: std.process.Init) !void {
         SetFullscreen(true, &target_width, &target_height);
     }
 
-    basic_3d.ResizeViewport(target_width, target_height);
+    basic_3d.resizeViewport(target_width, target_height);
 
     glfw_c.glfwSetWindowSizeLimits(g_main_window, 320, 240, glfw_c.GLFW_DONT_CARE, glfw_c.GLFW_DONT_CARE);
     _ = glfw_c.glfwSetWindowFocusCallback(g_main_window, &WindowFocusCallback);
