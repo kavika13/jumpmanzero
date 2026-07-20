@@ -336,12 +336,12 @@ fn get_is_music_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
 }
 
 fn get_last_key_pressed(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
-    lua_c.lua_pushnumber(lua_state, @floatFromInt(main.GetLastKeyPressed()));
+    lua_c.lua_pushnumber(lua_state, @floatFromInt(main.getLastKeyPressed()));
     return 1;
 }
 
 fn get_current_fps(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
-    lua_c.lua_pushnumber(lua_state, @floatFromInt(main.GetCurrentFps()));
+    lua_c.lua_pushnumber(lua_state, @floatFromInt(main.getCurrentFps()));
     return 1;
 }
 
@@ -481,7 +481,7 @@ fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const option_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
 
     if (option_index_arg >= 0 and option_index_arg <= 5) {
-        const iKey: i32 = main.GetKeyBinding(@intCast(option_index_arg));
+        const iKey: i32 = main.getKeyBinding(@intCast(option_index_arg));
         const key_as_char = @as(*const [1]u8, &@as(u8, @intCast(iKey)));
 
         if (iKey >= 'A' and iKey <= 'Z') {
@@ -564,13 +564,13 @@ fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
         }
 
         for (0..6) |iLoop| {
-            if (option_index_arg != iLoop and main.GetKeyBinding(iLoop) == iKey) {
+            if (option_index_arg != iLoop and main.getKeyBinding(iLoop) == iKey) {
                 is_key_good = false;
             }
         }
 
         if (is_key_good) {
-            main.SetKeyBinding(@intCast(option_index_arg), iKey);
+            main.setKeyBinding(@intCast(option_index_arg), iKey);
         }
     }
 
@@ -590,7 +590,7 @@ fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
 }
 
 fn save_config_options(_: ?*lua_c.lua_State) callconv(.c) c_int { // TODO: Might be able to move to Lua?
-    main.SaveSettings();
+    main.saveSettings();
     return 0;
 }
 
@@ -951,7 +951,7 @@ pub fn InitGameNormal() void {
 }
 
 pub fn UpdateGame(game_input: *const GameInput, seconds_per_update_timestep: f64) void {
-    if (!main.IsGameFrozen()) {
+    if (!main.isGameFrozen()) {
         basic_3d.rendererPreUpdate(seconds_per_update_timestep);
         _ = CallLuaModuleFunction(&g_main_script_context, "update", game_input, 0, 0, false); // TODO: Don't ignore result
         basic_3d.rendererPostUpdate();

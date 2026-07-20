@@ -76,7 +76,7 @@ fn loadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
     }
 }
 
-fn saveSettings(io: std.Io) bool {
+fn saveSettingsImpl(io: std.Io) bool {
     var sFileBuffer = std.mem.zeroes([300]u8);
     const data_to_output = std.fmt.bufPrintZ(
         &sFileBuffer,
@@ -105,7 +105,7 @@ fn saveSettings(io: std.Io) bool {
     return true;
 }
 
-fn SetFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) void {
+fn setFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) void {
     g_fullscreen_is_enabled = enable_fullscreen;
 
     var monitor: ?*glfw_c.GLFWmonitor = null;
@@ -147,14 +147,14 @@ fn SetFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) v
         new_height.?.* = target_height;
     }
 
-    SaveSettings();
+    saveSettings();
 }
 
-fn ErrorCallback(_: c_int, description: ?[*:0]const u8) callconv(.c) void {
+fn errorCallback(_: c_int, description: ?[*:0]const u8) callconv(.c) void {
     std.log.err("Error: {?s}\n", .{description});
 }
 
-fn KeyCallback(window: ?*glfw_c.GLFWwindow, key: c_int, _: c_int, action: c_int, mods: c_int) callconv(.c) void {
+fn keyCallback(window: ?*glfw_c.GLFWwindow, key: c_int, _: c_int, action: c_int, mods: c_int) callconv(.c) void {
     const game_state: ?*GameState = @ptrCast(@alignCast(glfw_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input;
 
@@ -185,7 +185,7 @@ fn KeyCallback(window: ?*glfw_c.GLFWwindow, key: c_int, _: c_int, action: c_int,
                 },
                 glfw_c.GLFW_KEY_ENTER => {
                     if (mods & glfw_c.GLFW_MOD_ALT != 0) {
-                        SetFullscreen(!g_fullscreen_is_enabled, null, null);
+                        setFullscreen(!g_fullscreen_is_enabled, null, null);
                     } else {
                         game_current_input.*.select_action.is_pressed = true;
                     }
@@ -194,7 +194,7 @@ fn KeyCallback(window: ?*glfw_c.GLFWwindow, key: c_int, _: c_int, action: c_int,
                     game_current_input.*.slowmo_action.is_pressed = true;
                 },
                 glfw_c.GLFW_KEY_F11 => {
-                    SetFullscreen(!g_fullscreen_is_enabled, null, null);
+                    setFullscreen(!g_fullscreen_is_enabled, null, null);
                 },
                 glfw_c.GLFW_KEY_ESCAPE => {
                     jumpman.ExitGame();
@@ -318,7 +318,7 @@ fn KeyCallback(window: ?*glfw_c.GLFWwindow, key: c_int, _: c_int, action: c_int,
     }
 }
 
-fn MouseButtonCallback(window: ?*glfw_c.GLFWwindow, button: c_int, action: c_int, _: c_int) callconv(.c) void {
+fn mouseButtonCallback(window: ?*glfw_c.GLFWwindow, button: c_int, action: c_int, _: c_int) callconv(.c) void {
     const game_state: ?*GameState = @ptrCast(@alignCast(glfw_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input;
 
@@ -337,13 +337,13 @@ fn MouseButtonCallback(window: ?*glfw_c.GLFWwindow, button: c_int, action: c_int
     }
 }
 
-fn CursorEnterCallback(window: ?*glfw_c.GLFWwindow, is_entering: c_int) callconv(.c) void {
+fn cursorEnterCallback(window: ?*glfw_c.GLFWwindow, is_entering: c_int) callconv(.c) void {
     const game_state: ?*GameState = @ptrCast(@alignCast(glfw_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input; // TODO: Does this just panic if it's null?
     game_current_input.*.cursor_is_on_screen = is_entering != 0; // TODO: Does this get wiped out every frame?
 }
 
-fn WindowFocusCallback(_: ?*glfw_c.GLFWwindow, is_focused: c_int) callconv(.c) void {
+fn windowFocusCallback(_: ?*glfw_c.GLFWwindow, is_focused: c_int) callconv(.c) void {
     if (is_focused != 0) {
         g_game_is_frozen = false;
         basic_3d.reset3d();
@@ -352,19 +352,19 @@ fn WindowFocusCallback(_: ?*glfw_c.GLFWwindow, is_focused: c_int) callconv(.c) v
     }
 }
 
-fn WindowSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
+fn windowSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
     if (!g_fullscreen_is_enabled) {
         g_window_resolution_x = width;
         g_window_resolution_y = height;
-        SaveSettings();
+        saveSettings();
     }
 }
 
-fn FramebufferSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
+fn framebufferSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
     basic_3d.resizeViewport(width, height);
 }
 
-fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.GameInput) void {
+fn getInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.GameInput) void {
     // TODO: Move this over before this checkin
     // TODO: Dead zone?
     var i: c_int = glfw_c.GLFW_JOYSTICK_1;
@@ -449,35 +449,35 @@ fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.Ga
     game_current_input.*.cursor_select_action.just_pressed = game_current_input.*.cursor_select_action.is_pressed and !game_prev_input.*.cursor_select_action.is_pressed;
 }
 
-pub fn IsGameFrozen() bool {
+pub fn isGameFrozen() bool {
     return g_game_is_frozen;
 }
 
-pub fn GetCurrentFps() i32 {
+pub fn getCurrentFps() i32 {
     return g_current_fps;
 }
 
-pub fn GetCurrentMaxUpdateFrameTime() f64 {
+pub fn getCurrentMaxUpdateFrameTime() f64 {
     return g_current_max_update_frame_time;
 }
 
-pub fn GetCurrentMaxDrawAndSwapFrameTime() f64 {
+pub fn getCurrentMaxDrawAndSwapFrameTime() f64 {
     return g_current_max_draw_and_swap_frame_time;
 }
 
-pub fn GetLastKeyPressed() i32 {
+pub fn getLastKeyPressed() i32 {
     return g_last_key_pressed;
 }
 
-pub fn GetKeyBinding(binding_index: usize) i32 {
+pub fn getKeyBinding(binding_index: usize) i32 {
     return g_key_bindings[binding_index];
 }
 
-pub fn SetKeyBinding(binding_index: usize, value: i32) void {
+pub fn setKeyBinding(binding_index: usize, value: i32) void {
     g_key_bindings[binding_index] = value;
 }
 
-pub fn SaveSettings() void {
+pub fn saveSettings() void {
     g_save_settings_is_queued = true;
 }
 
@@ -492,7 +492,7 @@ pub fn main(init: std.process.Init) !void {
 
     try loadSettings(&sound_is_initially_enabled, &music_is_initially_enabled, init.io, init.gpa);
 
-    _ = glfw_c.glfwSetErrorCallback(&ErrorCallback);
+    _ = glfw_c.glfwSetErrorCallback(&errorCallback);
 
     if (glfw_c.glfwInit() == 0) {
         return error.InitGlfwFailed;
@@ -521,18 +521,18 @@ pub fn main(init: std.process.Init) !void {
     glfw_c.glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
 
     if (g_fullscreen_is_enabled) {
-        SetFullscreen(true, &target_width, &target_height);
+        setFullscreen(true, &target_width, &target_height);
     }
 
     basic_3d.resizeViewport(target_width, target_height);
 
     glfw_c.glfwSetWindowSizeLimits(g_main_window, 320, 240, glfw_c.GLFW_DONT_CARE, glfw_c.GLFW_DONT_CARE);
-    _ = glfw_c.glfwSetWindowFocusCallback(g_main_window, &WindowFocusCallback);
-    _ = glfw_c.glfwSetWindowSizeCallback(g_main_window, &WindowSizeCallback);
-    _ = glfw_c.glfwSetFramebufferSizeCallback(g_main_window, &FramebufferSizeCallback);
-    _ = glfw_c.glfwSetKeyCallback(g_main_window, &KeyCallback);
-    _ = glfw_c.glfwSetMouseButtonCallback(g_main_window, &MouseButtonCallback);
-    _ = glfw_c.glfwSetCursorEnterCallback(g_main_window, &CursorEnterCallback);
+    _ = glfw_c.glfwSetWindowFocusCallback(g_main_window, &windowFocusCallback);
+    _ = glfw_c.glfwSetWindowSizeCallback(g_main_window, &windowSizeCallback);
+    _ = glfw_c.glfwSetFramebufferSizeCallback(g_main_window, &framebufferSizeCallback);
+    _ = glfw_c.glfwSetKeyCallback(g_main_window, &keyCallback);
+    _ = glfw_c.glfwSetMouseButtonCallback(g_main_window, &mouseButtonCallback);
+    _ = glfw_c.glfwSetCursorEnterCallback(g_main_window, &cursorEnterCallback);
     glfw_c.glfwMakeContextCurrent(g_main_window);
 
     if (glfw_c.glfwExtensionSupported("WGL_EXT_swap_control_tear") == glfw_c.GLFW_TRUE or
@@ -613,7 +613,7 @@ pub fn main(init: std.process.Init) !void {
 
         if (current_time - previous_frame_time > current_update_duration) {
             previous_frame_time = current_time;
-            GetInput(&game_state.current_input, &game_prev_input);
+            getInput(&game_state.current_input, &game_prev_input);
             const processed_input: jumpman.GameInput = game_state.current_input;
 
             const update_begin_time = glfw_c.glfwGetTime();
@@ -671,7 +671,7 @@ pub fn main(init: std.process.Init) !void {
         glfw_c.glfwPollEvents();
 
         if (g_save_settings_is_queued) {
-            if (!saveSettings(init.io)) {
+            if (!saveSettingsImpl(init.io)) {
                 std.log.err("Failed to save config file\n", .{});
             }
 
