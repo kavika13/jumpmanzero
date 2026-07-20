@@ -1,14 +1,12 @@
 const std = @import("std");
 const basic_3d = @import("basic_3d.zig");
 const main = @import("main.zig");
+const music = @import("music.zig");
 const sound = @import("sound.zig");
 const lua_c = @cImport({
     @cInclude("lua.h");
     @cInclude("lualib.h");
     @cInclude("lauxlib.h");
-});
-const jumpman_main_c = @cImport({
-    @cInclude("Music.h");
 });
 
 const LuaModuleScriptContext = struct {
@@ -63,20 +61,20 @@ fn play_music_track_1(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
         _ = lua_c.luaL_argerror(lua_state, 2, "song_start_music_time must be 0 or greater"); // TODO: Don't ignore return type?
     }
 
-    jumpman_main_c.NewTrack1(new_music_track_arg, @intCast(song_start_music_time_arg), @intCast(loop_start_music_time_arg));
+    music.NewTrack1(std.mem.span(new_music_track_arg), @intCast(song_start_music_time_arg), @intCast(loop_start_music_time_arg));
 
     return 0;
 }
 
 fn stop_music_track_1(_: ?*lua_c.lua_State) callconv(.c) c_int {
-    jumpman_main_c.StopMusic1(); // TODO: Error checking?
+    music.StopMusic1(); // TODO: Error checking?
     return 0;
 }
 
 fn play_music_track_2(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const new_music_track_arg = lua_c.lua_tolstring(lua_state, 1, null);
-    jumpman_main_c.NewTrack2(new_music_track_arg);
+    music.NewTrack2(std.mem.span(new_music_track_arg));
     return 0;
 }
 
@@ -337,7 +335,7 @@ fn get_is_sound_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
 }
 
 fn get_is_music_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
-    lua_c.lua_pushboolean(lua_state, @intFromBool(jumpman_main_c.GetIsMusicEnabled()));
+    lua_c.lua_pushboolean(lua_state, @intFromBool(music.GetIsMusicEnabled()));
     return 1;
 }
 
@@ -517,7 +515,7 @@ fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
         if (option_index_arg == 32) {
             is_enabled = sound.GetIsSoundEnabled();
         } else {
-            is_enabled = jumpman_main_c.GetIsMusicEnabled();
+            is_enabled = music.GetIsMusicEnabled();
         }
 
         if (is_enabled) {
@@ -586,7 +584,7 @@ fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     }
 
     if (option_index_arg == 33) {
-        jumpman_main_c.SetIsMusicEnabled(key_arg != 0);
+        music.SetIsMusicEnabled(key_arg != 0);
         is_key_good = true;
     }
 

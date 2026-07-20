@@ -42,7 +42,6 @@ pub fn build(b: *std.Build) void {
 
     exe_mod.addCSourceFiles(.{
         .files = &.{
-            "Jumpman/Music.c",
             "Jumpman/boxer-c/src/boxer_win.c",
             "Jumpman/glad/src/glad.c",
             "Jumpman/glad/src/glad_wgl.c",

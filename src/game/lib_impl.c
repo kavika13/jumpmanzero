@@ -12,6 +12,8 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 
-#define STB_SPRINTF_IMPLEMENTATION
-#define STB_SPRINTF_NOUNALIGNED
-#include "stb_sprintf.h"
+#define TSF_IMPLEMENTATION
+#include "tsf.h"
+
+#define TML_IMPLEMENTATION
+#include "tml.h"

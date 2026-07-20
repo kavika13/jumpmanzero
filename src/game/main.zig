@@ -1,7 +1,7 @@
 const std = @import("std");
-
 const basic_3d = @import("basic_3d.zig");
 const jumpman = @import("jumpman.zig");
+const music = @import("music.zig");
 const sound = @import("sound.zig");
 const sound_buffer = @import("sound_buffer.zig");
 const jumpman_main_c = @cImport({
@@ -9,7 +9,6 @@ const jumpman_main_c = @cImport({
     @cDefine("GLFW_INCLUDE_NONE", {});
     @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
-    @cInclude("Music.h");
 });
 
 const kFULLSCREEN_IS_ENABLED_DEFAULT: bool = false;
@@ -91,7 +90,7 @@ fn saveSettings(io: std.Io) bool {
             g_key_bindings[4],
             g_key_bindings[5],
             @intFromBool(sound.GetIsSoundEnabled()),
-            @intFromBool(jumpman_main_c.GetIsMusicEnabled()),
+            @intFromBool(music.GetIsMusicEnabled()),
             @intFromBool(g_fullscreen_is_enabled),
             g_window_resolution_x,
             g_window_resolution_y,
@@ -561,7 +560,7 @@ pub fn main(init: std.process.Init) !u8 {
     const init_sound_buffer_succeeded = sound_buffer.InitSoundBuffer(init.gpa);
     defer if (init_sound_buffer_succeeded) sound_buffer.CleanupSoundBuffer();
     if (init_sound_buffer_succeeded) {
-        if (!jumpman_main_c.InitMusic()) {
+        if (!music.InitMusic()) {
             music_is_initially_enabled = false;
         }
 
@@ -574,7 +573,7 @@ pub fn main(init: std.process.Init) !u8 {
     }
 
     if (music_is_initially_enabled) {
-        jumpman_main_c.SetIsMusicEnabled(true);
+        music.SetIsMusicEnabled(true);
     }
 
     if (sound_is_initially_enabled) {
