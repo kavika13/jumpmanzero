@@ -4,12 +4,8 @@ const jumpman = @import("jumpman.zig");
 const music = @import("music.zig");
 const sound = @import("sound.zig");
 const sound_buffer = @import("sound_buffer.zig");
-const jumpman_main_c = @cImport({
-    @cDefine("ZIG_DEFINES_MAIN", {});
-    @cDefine("GLFW_INCLUDE_NONE", {});
-    @cInclude("glad/glad.h");
-    @cInclude("GLFW/glfw3.h");
-});
+const glad_c = @import("glad_c");
+const glfw_c = @import("glfw_c");
 
 const kFULLSCREEN_IS_ENABLED_DEFAULT: bool = false;
 const kWINDOW_RESOLUTION_DEFAULT_X: i32 = 640;
@@ -40,41 +36,44 @@ var g_current_fps: i32 = 0;
 var g_current_max_update_frame_time: f64 = 0.0;
 var g_current_max_draw_and_swap_frame_time: f64 = 0.0;
 
-var g_main_window: ?*jumpman_main_c.GLFWwindow = null;
+var g_main_window: ?*glfw_c.GLFWwindow = null;
 
 const GameState = struct {
     current_input: jumpman.GameInput,
 };
 
-fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool, io: std.Io, gpa: std.mem.Allocator) bool {
+fn parseIntOrDefault(comptime T: type, line: ?[]const u8, default: T) T {
+    const trimmed_line = if (line) |l| std.mem.trim(u8, l, "\t\r ") else return default;
+    return std.fmt.parseInt(T, trimmed_line, 10) catch default;
+}
+
+fn loadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool, io: std.Io, gpa: std.mem.Allocator) !void {
     const sData: []u8 = std.Io.Dir.cwd().readFileAlloc(io, "data/settings.dat", gpa, .unlimited) catch |err| err: {
         switch (err) {
             error.FileNotFound => break :err "",
-            else => return false,
+            else => return err,
         }
     };
     defer gpa.free(sData);
 
     var file_lines = std.mem.splitScalar(u8, sData, '\n');
     for (0..6) |key_index| {
-        g_key_bindings[key_index] = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) else 0;
+        g_key_bindings[key_index] = parseIntOrDefault(i32, file_lines.next(), 0);
     }
-    sound_is_initially_enabled.* = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) != 0 else false;
-    music_is_initially_enabled.* = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) != 0 else false;
-    g_fullscreen_is_enabled = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) != 0 else false;
-    g_window_resolution_x = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) else kWINDOW_RESOLUTION_DEFAULT_X;
+    sound_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
+    music_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
+    g_fullscreen_is_enabled = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
+    g_window_resolution_x = parseIntOrDefault(i32, file_lines.next(), kWINDOW_RESOLUTION_DEFAULT_X);
 
     if (g_window_resolution_x < kWINDOW_RESOLUTION_MIN_X) {
         g_window_resolution_x = kWINDOW_RESOLUTION_MIN_X;
     }
 
-    g_window_resolution_y = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) else kWINDOW_RESOLUTION_DEFAULT_Y;
+    g_window_resolution_y = parseIntOrDefault(i32, file_lines.next(), kWINDOW_RESOLUTION_DEFAULT_Y);
 
     if (g_window_resolution_y < kWINDOW_RESOLUTION_MIN_Y) {
         g_window_resolution_y = kWINDOW_RESOLUTION_MIN_Y;
     }
-
-    return true;
 }
 
 fn saveSettings(io: std.Io) bool {
@@ -109,22 +108,22 @@ fn saveSettings(io: std.Io) bool {
 fn SetFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) void {
     g_fullscreen_is_enabled = enable_fullscreen;
 
-    var monitor: ?*jumpman_main_c.GLFWmonitor = null;
+    var monitor: ?*glfw_c.GLFWmonitor = null;
     var target_pos_x: i32 = g_window_pos_x_backup;
     var target_pos_y: i32 = g_window_pos_y_backup;
     var target_width: i32 = g_window_resolution_x;
     var target_height: i32 = g_window_resolution_y;
 
     if (enable_fullscreen) {
-        monitor = jumpman_main_c.glfwGetPrimaryMonitor();
+        monitor = glfw_c.glfwGetPrimaryMonitor();
 
-        jumpman_main_c.glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
+        glfw_c.glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
 
-        const mode: ?*const jumpman_main_c.GLFWvidmode = jumpman_main_c.glfwGetVideoMode(monitor);
-        jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_RED_BITS, mode.?.*.redBits);
-        jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_GREEN_BITS, mode.?.*.greenBits);
-        jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_BLUE_BITS, mode.?.*.blueBits);
-        jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_REFRESH_RATE, mode.?.*.refreshRate);
+        const mode: ?*const glfw_c.GLFWvidmode = glfw_c.glfwGetVideoMode(monitor);
+        glfw_c.glfwWindowHint(glfw_c.GLFW_RED_BITS, mode.?.*.redBits);
+        glfw_c.glfwWindowHint(glfw_c.GLFW_GREEN_BITS, mode.?.*.greenBits);
+        glfw_c.glfwWindowHint(glfw_c.GLFW_BLUE_BITS, mode.?.*.blueBits);
+        glfw_c.glfwWindowHint(glfw_c.GLFW_REFRESH_RATE, mode.?.*.refreshRate);
 
         target_pos_x = 0;
         target_pos_y = 0;
@@ -132,12 +131,12 @@ fn SetFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) v
         target_height = mode.?.*.height;
     }
 
-    jumpman_main_c.glfwSetWindowMonitor(g_main_window, monitor, target_pos_x, target_pos_y, target_width, target_height, jumpman_main_c.GLFW_DONT_CARE);
+    glfw_c.glfwSetWindowMonitor(g_main_window, monitor, target_pos_x, target_pos_y, target_width, target_height, glfw_c.GLFW_DONT_CARE);
 
     if (enable_fullscreen) {
-        jumpman_main_c.glfwSetInputMode(g_main_window, jumpman_main_c.GLFW_CURSOR, jumpman_main_c.GLFW_CURSOR_HIDDEN);
+        glfw_c.glfwSetInputMode(g_main_window, glfw_c.GLFW_CURSOR, glfw_c.GLFW_CURSOR_HIDDEN);
     } else {
-        jumpman_main_c.glfwSetInputMode(g_main_window, jumpman_main_c.GLFW_CURSOR, jumpman_main_c.GLFW_CURSOR_NORMAL);
+        glfw_c.glfwSetInputMode(g_main_window, glfw_c.GLFW_CURSOR, glfw_c.GLFW_CURSOR_NORMAL);
     }
 
     if (new_width != null) {
@@ -155,63 +154,63 @@ fn ErrorCallback(_: c_int, description: ?[*:0]const u8) callconv(.c) void {
     std.log.err("Error: {?s}\n", .{description});
 }
 
-fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action: c_int, mods: c_int) callconv(.c) void {
-    const game_state: ?*GameState = @ptrCast(@alignCast(jumpman_main_c.glfwGetWindowUserPointer(window)));
+fn KeyCallback(window: ?*glfw_c.GLFWwindow, key: c_int, _: c_int, action: c_int, mods: c_int) callconv(.c) void {
+    const game_state: ?*GameState = @ptrCast(@alignCast(glfw_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input;
 
     switch (action) {
-        jumpman_main_c.GLFW_PRESS => {
+        glfw_c.GLFW_PRESS => {
             switch (key) {
-                jumpman_main_c.GLFW_KEY_GRAVE_ACCENT => {
+                glfw_c.GLFW_KEY_GRAVE_ACCENT => {
                     game_current_input.*.debug_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_F1 => {
+                glfw_c.GLFW_KEY_F1 => {
                     game_current_input.*.cheat_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_UP => {
+                glfw_c.GLFW_KEY_UP => {
                     game_current_input.*.move_up_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_DOWN => {
+                glfw_c.GLFW_KEY_DOWN => {
                     game_current_input.*.move_down_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_LEFT => {
+                glfw_c.GLFW_KEY_LEFT => {
                     game_current_input.*.move_left_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_RIGHT => {
+                glfw_c.GLFW_KEY_RIGHT => {
                     game_current_input.*.move_right_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_SPACE => {
+                glfw_c.GLFW_KEY_SPACE => {
                     game_current_input.*.jump_action.is_pressed = true;
                     game_current_input.*.select_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_ENTER => {
-                    if (mods & jumpman_main_c.GLFW_MOD_ALT != 0) {
+                glfw_c.GLFW_KEY_ENTER => {
+                    if (mods & glfw_c.GLFW_MOD_ALT != 0) {
                         SetFullscreen(!g_fullscreen_is_enabled, null, null);
                     } else {
                         game_current_input.*.select_action.is_pressed = true;
                     }
                 },
-                jumpman_main_c.GLFW_KEY_TAB => {
+                glfw_c.GLFW_KEY_TAB => {
                     game_current_input.*.slowmo_action.is_pressed = true;
                 },
-                jumpman_main_c.GLFW_KEY_F11 => {
+                glfw_c.GLFW_KEY_F11 => {
                     SetFullscreen(!g_fullscreen_is_enabled, null, null);
                 },
-                jumpman_main_c.GLFW_KEY_ESCAPE => {
+                glfw_c.GLFW_KEY_ESCAPE => {
                     jumpman.ExitGame();
-                    jumpman_main_c.glfwSetWindowShouldClose(window, jumpman_main_c.GLFW_TRUE);
+                    glfw_c.glfwSetWindowShouldClose(window, glfw_c.GLFW_TRUE);
                 },
                 else => {},
             }
 
             // Modifier keys
-            if (mods & jumpman_main_c.GLFW_MOD_CONTROL != 0) {
+            if (mods & glfw_c.GLFW_MOD_CONTROL != 0) {
                 game_current_input.*.jump_action.is_pressed = true;
                 game_current_input.*.select_action.is_pressed = true;
             }
 
-            if (mods & jumpman_main_c.GLFW_MOD_ALT != 0) {
-                if (key != jumpman_main_c.GLFW_KEY_ENTER) { // Ignore for alt + enter combo
+            if (mods & glfw_c.GLFW_MOD_ALT != 0) {
+                if (key != glfw_c.GLFW_KEY_ENTER) { // Ignore for alt + enter combo
                     game_current_input.*.attack_action.is_pressed = true;
                 }
             }
@@ -244,46 +243,46 @@ fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action
 
             g_last_key_pressed = key;
         },
-        jumpman_main_c.GLFW_RELEASE => {
+        glfw_c.GLFW_RELEASE => {
             switch (key) {
-                jumpman_main_c.GLFW_KEY_GRAVE_ACCENT => {
+                glfw_c.GLFW_KEY_GRAVE_ACCENT => {
                     game_current_input.*.debug_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_F1 => {
+                glfw_c.GLFW_KEY_F1 => {
                     game_current_input.*.cheat_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_UP => {
+                glfw_c.GLFW_KEY_UP => {
                     game_current_input.*.move_up_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_DOWN => {
+                glfw_c.GLFW_KEY_DOWN => {
                     game_current_input.*.move_down_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_LEFT => {
+                glfw_c.GLFW_KEY_LEFT => {
                     game_current_input.*.move_left_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_RIGHT => {
+                glfw_c.GLFW_KEY_RIGHT => {
                     game_current_input.*.move_right_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_SPACE => {
+                glfw_c.GLFW_KEY_SPACE => {
                     game_current_input.*.jump_action.is_pressed = false;
                     game_current_input.*.select_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_ENTER => {
+                glfw_c.GLFW_KEY_ENTER => {
                     game_current_input.*.select_action.is_pressed = false;
                 },
-                jumpman_main_c.GLFW_KEY_TAB => {
+                glfw_c.GLFW_KEY_TAB => {
                     game_current_input.*.slowmo_action.is_pressed = false;
                 },
                 else => {},
             }
 
             // Modifier keys
-            if (mods & jumpman_main_c.GLFW_MOD_CONTROL == 0) {
+            if (mods & glfw_c.GLFW_MOD_CONTROL == 0) {
                 game_current_input.*.jump_action.is_pressed = false;
                 game_current_input.*.select_action.is_pressed = false;
             }
 
-            if (mods & jumpman_main_c.GLFW_MOD_ALT == 0) {
+            if (mods & glfw_c.GLFW_MOD_ALT == 0) {
                 game_current_input.*.attack_action.is_pressed = false;
             }
 
@@ -319,18 +318,18 @@ fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action
     }
 }
 
-fn MouseButtonCallback(window: ?*jumpman_main_c.GLFWwindow, button: c_int, action: c_int, _: c_int) callconv(.c) void {
-    const game_state: ?*GameState = @ptrCast(@alignCast(jumpman_main_c.glfwGetWindowUserPointer(window)));
+fn MouseButtonCallback(window: ?*glfw_c.GLFWwindow, button: c_int, action: c_int, _: c_int) callconv(.c) void {
+    const game_state: ?*GameState = @ptrCast(@alignCast(glfw_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input;
 
     switch (action) {
-        jumpman_main_c.GLFW_PRESS => {
-            if (button == jumpman_main_c.GLFW_MOUSE_BUTTON_LEFT) {
+        glfw_c.GLFW_PRESS => {
+            if (button == glfw_c.GLFW_MOUSE_BUTTON_LEFT) {
                 game_current_input.*.cursor_select_action.is_pressed = true;
             }
         },
-        jumpman_main_c.GLFW_RELEASE => {
-            if (button == jumpman_main_c.GLFW_MOUSE_BUTTON_LEFT) {
+        glfw_c.GLFW_RELEASE => {
+            if (button == glfw_c.GLFW_MOUSE_BUTTON_LEFT) {
                 game_current_input.*.cursor_select_action.is_pressed = false;
             }
         },
@@ -338,13 +337,13 @@ fn MouseButtonCallback(window: ?*jumpman_main_c.GLFWwindow, button: c_int, actio
     }
 }
 
-fn CursorEnterCallback(window: ?*jumpman_main_c.GLFWwindow, is_entering: c_int) callconv(.c) void {
-    const game_state: ?*GameState = @ptrCast(@alignCast(jumpman_main_c.glfwGetWindowUserPointer(window)));
+fn CursorEnterCallback(window: ?*glfw_c.GLFWwindow, is_entering: c_int) callconv(.c) void {
+    const game_state: ?*GameState = @ptrCast(@alignCast(glfw_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input; // TODO: Does this just panic if it's null?
     game_current_input.*.cursor_is_on_screen = is_entering != 0; // TODO: Does this get wiped out every frame?
 }
 
-fn WindowFocusCallback(_: ?*jumpman_main_c.GLFWwindow, is_focused: c_int) callconv(.c) void {
+fn WindowFocusCallback(_: ?*glfw_c.GLFWwindow, is_focused: c_int) callconv(.c) void {
     if (is_focused != 0) {
         g_game_is_frozen = false;
         basic_3d.Reset3d();
@@ -353,7 +352,7 @@ fn WindowFocusCallback(_: ?*jumpman_main_c.GLFWwindow, is_focused: c_int) callco
     }
 }
 
-fn WindowSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
+fn WindowSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
     if (!g_fullscreen_is_enabled) {
         g_window_resolution_x = width;
         g_window_resolution_y = height;
@@ -361,18 +360,18 @@ fn WindowSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_in
     }
 }
 
-fn FramebufferSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
+fn FramebufferSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
     basic_3d.ResizeViewport(width, height);
 }
 
 fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.GameInput) void {
     // TODO: Move this over before this checkin
     // TODO: Dead zone?
-    var i: c_int = jumpman_main_c.GLFW_JOYSTICK_1;
-    while (i <= jumpman_main_c.GLFW_JOYSTICK_LAST) : (i += 1) {
-        if (jumpman_main_c.glfwJoystickPresent(i) == jumpman_main_c.GLFW_TRUE) {
+    var i: c_int = glfw_c.GLFW_JOYSTICK_1;
+    while (i <= glfw_c.GLFW_JOYSTICK_LAST) : (i += 1) {
+        if (glfw_c.glfwJoystickPresent(i) == glfw_c.GLFW_TRUE) {
             var axis_count: c_int = undefined;
-            const axis_values: [*]const f32 = jumpman_main_c.glfwGetJoystickAxes(i, &axis_count);
+            const axis_values: [*]const f32 = glfw_c.glfwGetJoystickAxes(i, &axis_count);
 
             if (axis_count > 0) {
                 if (axis_values[0] <= -0.5) {
@@ -395,32 +394,32 @@ fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.Ga
             }
 
             var button_count: c_int = undefined;
-            const button_values: [*]const u8 = jumpman_main_c.glfwGetJoystickButtons(jumpman_main_c.GLFW_JOYSTICK_1, &button_count);
+            const button_values: [*]const u8 = glfw_c.glfwGetJoystickButtons(glfw_c.GLFW_JOYSTICK_1, &button_count);
 
             // Face buttons - PS4 values
-            if (button_count > 1 and button_values[1] == jumpman_main_c.GLFW_PRESS) {
+            if (button_count > 1 and button_values[1] == glfw_c.GLFW_PRESS) {
                 game_current_input.*.jump_action.is_pressed = true;
             }
 
-            if (button_count > 0 and button_values[0] == jumpman_main_c.GLFW_PRESS) {
+            if (button_count > 0 and button_values[0] == glfw_c.GLFW_PRESS) {
                 game_current_input.*.attack_action.is_pressed = true;
             }
 
             // D-Pad buttons - PS4 values
             // TODO: Need to map per controller type?
-            if (button_count > 14 and button_values[14] == jumpman_main_c.GLFW_PRESS) {
+            if (button_count > 14 and button_values[14] == glfw_c.GLFW_PRESS) {
                 game_current_input.*.move_up_action.is_pressed = true;
             }
 
-            if (button_count > 15 and button_values[15] == jumpman_main_c.GLFW_PRESS) {
+            if (button_count > 15 and button_values[15] == glfw_c.GLFW_PRESS) {
                 game_current_input.*.move_right_action.is_pressed = true;
             }
 
-            if (button_count > 16 and button_values[16] == jumpman_main_c.GLFW_PRESS) {
+            if (button_count > 16 and button_values[16] == glfw_c.GLFW_PRESS) {
                 game_current_input.*.move_down_action.is_pressed = true;
             }
 
-            if (button_count > 17 and button_values[17] == jumpman_main_c.GLFW_PRESS) {
+            if (button_count > 17 and button_values[17] == glfw_c.GLFW_PRESS) {
                 game_current_input.*.move_left_action.is_pressed = true;
             }
         }
@@ -428,7 +427,7 @@ fn GetInput(game_current_input: *jumpman.GameInput, game_prev_input: *jumpman.Ga
 
     var cursor_pos_x: f64 = undefined;
     var cursor_pos_y: f64 = undefined;
-    jumpman_main_c.glfwGetCursorPos(g_main_window, &cursor_pos_x, &cursor_pos_y);
+    glfw_c.glfwGetCursorPos(g_main_window, &cursor_pos_x, &cursor_pos_y);
 
     var cursor_pos_x_f: f32 = @floatCast(cursor_pos_x);
     var cursor_pos_y_f: f32 = @floatCast(cursor_pos_y);
@@ -482,7 +481,7 @@ pub fn SaveSettings() void {
     g_save_settings_is_queued = true;
 }
 
-pub fn main(init: std.process.Init) !u8 {
+pub fn main(init: std.process.Init) !void {
     const arena = init.arena.allocator();
 
     const arguments = try init.minimal.args.toSlice(arena);
@@ -491,37 +490,35 @@ pub fn main(init: std.process.Init) !u8 {
     var sound_is_initially_enabled: bool = false;
     var music_is_initially_enabled: bool = false;
 
-    if (!LoadSettings(&sound_is_initially_enabled, &music_is_initially_enabled, init.io, init.gpa)) {
-        return jumpman_main_c.EXIT_FAILURE;
+    try loadSettings(&sound_is_initially_enabled, &music_is_initially_enabled, init.io, init.gpa);
+
+    _ = glfw_c.glfwSetErrorCallback(&ErrorCallback);
+
+    if (glfw_c.glfwInit() == 0) {
+        return error.InitGlfwFailed;
     }
 
-    _ = jumpman_main_c.glfwSetErrorCallback(&ErrorCallback);
-
-    if (jumpman_main_c.glfwInit() == 0) {
-        return jumpman_main_c.EXIT_FAILURE;
-    }
-
-    jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_CONTEXT_VERSION_MAJOR, 3);
-    jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_CONTEXT_VERSION_MINOR, 3);
-    jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_OPENGL_FORWARD_COMPAT, jumpman_main_c.GL_TRUE);
-    jumpman_main_c.glfwWindowHint(jumpman_main_c.GLFW_OPENGL_PROFILE, jumpman_main_c.GLFW_OPENGL_CORE_PROFILE);
+    glfw_c.glfwWindowHint(glfw_c.GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfw_c.glfwWindowHint(glfw_c.GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfw_c.glfwWindowHint(glfw_c.GLFW_OPENGL_FORWARD_COMPAT, glad_c.GL_TRUE);
+    glfw_c.glfwWindowHint(glfw_c.GLFW_OPENGL_PROFILE, glfw_c.GLFW_OPENGL_CORE_PROFILE);
 
     // Creating as window first to get OS default positioning, but setting correct dimensions for first time creation
     // Will revert back to selected window resolution instead of fullscreen res, even if started in fullscreen
     var target_width: i32 = g_window_resolution_x;
     var target_height: i32 = g_window_resolution_y;
 
-    g_main_window = jumpman_main_c.glfwCreateWindow(target_width, target_height, "Jumpman Zero", null, null);
+    g_main_window = glfw_c.glfwCreateWindow(target_width, target_height, "Jumpman Zero", null, null);
 
     if (g_main_window == null) {
-        jumpman_main_c.glfwTerminate();
-        return jumpman_main_c.EXIT_FAILURE;
+        glfw_c.glfwTerminate();
+        return error.WindowCreationFailed;
     }
 
-    jumpman_main_c.glfwSetWindowUserPointer(g_main_window, &game_state);
+    glfw_c.glfwSetWindowUserPointer(g_main_window, &game_state);
 
     // Now backup window position before switching to fullscreen (if fullscreen dims, will be in upper left, but not offscreen)
-    jumpman_main_c.glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
+    glfw_c.glfwGetWindowPos(g_main_window, &g_window_pos_x_backup, &g_window_pos_y_backup);
 
     if (g_fullscreen_is_enabled) {
         SetFullscreen(true, &target_width, &target_height);
@@ -529,32 +526,31 @@ pub fn main(init: std.process.Init) !u8 {
 
     basic_3d.ResizeViewport(target_width, target_height);
 
-    jumpman_main_c.glfwSetWindowSizeLimits(g_main_window, 320, 240, jumpman_main_c.GLFW_DONT_CARE, jumpman_main_c.GLFW_DONT_CARE);
-    _ = jumpman_main_c.glfwSetWindowFocusCallback(g_main_window, &WindowFocusCallback);
-    _ = jumpman_main_c.glfwSetWindowSizeCallback(g_main_window, &WindowSizeCallback);
-    _ = jumpman_main_c.glfwSetFramebufferSizeCallback(g_main_window, &FramebufferSizeCallback);
-    _ = jumpman_main_c.glfwSetKeyCallback(g_main_window, &KeyCallback);
-    _ = jumpman_main_c.glfwSetMouseButtonCallback(g_main_window, &MouseButtonCallback);
-    _ = jumpman_main_c.glfwSetCursorEnterCallback(g_main_window, &CursorEnterCallback);
-    jumpman_main_c.glfwMakeContextCurrent(g_main_window);
+    glfw_c.glfwSetWindowSizeLimits(g_main_window, 320, 240, glfw_c.GLFW_DONT_CARE, glfw_c.GLFW_DONT_CARE);
+    _ = glfw_c.glfwSetWindowFocusCallback(g_main_window, &WindowFocusCallback);
+    _ = glfw_c.glfwSetWindowSizeCallback(g_main_window, &WindowSizeCallback);
+    _ = glfw_c.glfwSetFramebufferSizeCallback(g_main_window, &FramebufferSizeCallback);
+    _ = glfw_c.glfwSetKeyCallback(g_main_window, &KeyCallback);
+    _ = glfw_c.glfwSetMouseButtonCallback(g_main_window, &MouseButtonCallback);
+    _ = glfw_c.glfwSetCursorEnterCallback(g_main_window, &CursorEnterCallback);
+    glfw_c.glfwMakeContextCurrent(g_main_window);
 
-    if (jumpman_main_c.glfwExtensionSupported("WGL_EXT_swap_control_tear") == jumpman_main_c.GLFW_TRUE or
-        jumpman_main_c.glfwExtensionSupported("GLX_EXT_swap_control_tear") == jumpman_main_c.GLFW_TRUE)
+    if (glfw_c.glfwExtensionSupported("WGL_EXT_swap_control_tear") == glfw_c.GLFW_TRUE or
+        glfw_c.glfwExtensionSupported("GLX_EXT_swap_control_tear") == glfw_c.GLFW_TRUE)
     {
-        jumpman_main_c.glfwSwapInterval(-1);
+        glfw_c.glfwSwapInterval(-1);
     } else {
-        jumpman_main_c.glfwSwapInterval(1);
+        glfw_c.glfwSwapInterval(1);
     }
 
-    _ = jumpman_main_c.gladLoadGLLoader(@as(jumpman_main_c.GLADloadproc, @ptrCast(@alignCast(&jumpman_main_c.glfwGetProcAddress))));
+    _ = glad_c.gladLoadGLLoader(@as(glad_c.GLADloadproc, @ptrCast(@alignCast(&glfw_c.glfwGetProcAddress))));
 
     g_game_is_frozen = false;
 
     jumpman.initZig(init.io, init.gpa);
 
     if (!jumpman.Init3D()) {
-        // TODO: Proper error handling
-        return jumpman_main_c.EXIT_FAILURE;
+        return error.Init3DFailed;
     }
 
     const init_sound_buffer_succeeded = sound_buffer.InitSoundBuffer(init.gpa);
@@ -580,8 +576,8 @@ pub fn main(init: std.process.Init) !u8 {
         sound.SetIsSoundEnabled(true);
     }
 
-    var previous_frame_time: f64 = jumpman_main_c.glfwGetTime();
-    jumpman_main_c.srand(@intFromFloat(previous_frame_time)); // TODO: Seed zig's random instead?
+    var previous_frame_time: f64 = glfw_c.glfwGetTime();
+    glad_c.srand(@intFromFloat(previous_frame_time)); // TODO: Seed zig's random instead?
     var previous_update_time: f64 = previous_frame_time;
 
     var is_debug_init: bool = false;
@@ -604,8 +600,8 @@ pub fn main(init: std.process.Init) !u8 {
     var last_perf_update_time: f64 = previous_frame_time;
     var game_prev_input: jumpman.GameInput = game_state.current_input;
 
-    while (jumpman_main_c.glfwWindowShouldClose(g_main_window) == 0) {
-        const current_time: f64 = jumpman_main_c.glfwGetTime();
+    while (glfw_c.glfwWindowShouldClose(g_main_window) == 0) {
+        const current_time: f64 = glfw_c.glfwGetTime();
         const current_draw_time: f64 = current_time;
         const current_update_duration: f64 = if (game_state.current_input.slowmo_action.is_pressed) kSECONDS_PER_FRAME_SLOWMO else kSECONDS_PER_FRAME;
         const time_scale: f64 = if (g_game_is_frozen)
@@ -620,9 +616,9 @@ pub fn main(init: std.process.Init) !u8 {
             GetInput(&game_state.current_input, &game_prev_input);
             const processed_input: jumpman.GameInput = game_state.current_input;
 
-            const update_begin_time = jumpman_main_c.glfwGetTime();
+            const update_begin_time = glfw_c.glfwGetTime();
             jumpman.UpdateGame(&processed_input, kSECONDS_PER_FRAME);
-            const update_end_time = jumpman_main_c.glfwGetTime();
+            const update_end_time = glfw_c.glfwGetTime();
             previous_update_time = update_end_time;
 
             game_prev_input = game_state.current_input;
@@ -662,17 +658,17 @@ pub fn main(init: std.process.Init) !u8 {
             g_current_max_draw_and_swap_frame_time = 0.0; // Updates continuously
         }
 
-        const draw_and_swap_begin_time = jumpman_main_c.glfwGetTime();
+        const draw_and_swap_begin_time = glfw_c.glfwGetTime();
         jumpman.DrawGame(kSECONDS_PER_FRAME, current_draw_time - previous_update_time, time_scale);
-        jumpman_main_c.glfwSwapBuffers(g_main_window);
-        const draw_and_swap_end_time = jumpman_main_c.glfwGetTime();
+        glfw_c.glfwSwapBuffers(g_main_window);
+        const draw_and_swap_end_time = glfw_c.glfwGetTime();
         const current_draw_and_swap_frame_time = draw_and_swap_end_time - draw_and_swap_begin_time;
 
         if (current_draw_and_swap_frame_time > g_current_max_draw_and_swap_frame_time) {
             g_current_max_draw_and_swap_frame_time = current_draw_and_swap_frame_time;
         }
 
-        jumpman_main_c.glfwPollEvents();
+        glfw_c.glfwPollEvents();
 
         if (g_save_settings_is_queued) {
             if (!saveSettings(init.io)) {
@@ -682,6 +678,4 @@ pub fn main(init: std.process.Init) !u8 {
             g_save_settings_is_queued = false;
         }
     }
-
-    return jumpman_main_c.EXIT_SUCCESS;
 }

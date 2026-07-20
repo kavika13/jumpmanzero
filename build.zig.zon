@@ -10,10 +10,6 @@
             .url = "git+https://github.com/kavika13/lua#4a325a7ae3e09691a7b5632b0a8e156c8e47e820",
             .hash = "lua-5.4.7-zqrcymMoAADYXfJ5wuea11S1-Uc1olRT1hZh3Vug8Fh2",
         },
-        .cute_headers_deprecated = .{
-            .url = "git+https://github.com/RandyGaul/cute_headers_deprecated#bb2781dea677304897a0b2765e24dcc259341291",
-            .hash = "N-V-__8AAANoBgA9P8jy4uNwCnFNbOujgBD3iHWtURoSBY4e",
-        },
         .sokol = .{
             .url = "git+https://github.com/floooh/sokol#0c5bc3a7f08a507d85a83bfc0140665c9eb7cf50",
             .hash = "N-V-__8AAK22JQB4-uBCkyJ--PJFfecJCzEZvbSFkZ7T8oT9",

@@ -3,11 +3,7 @@ const basic_3d = @import("basic_3d.zig");
 const main = @import("main.zig");
 const music = @import("music.zig");
 const sound = @import("sound.zig");
-const lua_c = @cImport({
-    @cInclude("lua.h");
-    @cInclude("lualib.h");
-    @cInclude("lauxlib.h");
-});
+const lua_c = @import("lua_c");
 
 const LuaModuleScriptContext = struct {
     lua_state: ?*lua_c.lua_State,

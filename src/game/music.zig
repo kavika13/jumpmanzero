@@ -1,21 +1,19 @@
 const std = @import("std");
 const sound_buffer = @import("sound_buffer.zig");
-const jumpman_music_c = @cImport({
-    @cInclude("tsf.h");
-    @cInclude("tml.h");
-});
+const tml_c = @import("tml_c");
+const tsf_c = @import("tsf_c");
 
 const kMIDI_CHANNEL_COUNT: usize = 16;
 
 const MusicTrack = struct {
-    sound_font: ?*jumpman_music_c.tsf,
+    sound_font: ?*tsf_c.tsf,
     current_playback_timestamp_msec: f64,
     loop_start_point_msec: u32,
     track_end_point_msec: u32,
     current_tempo_usec_per_quarter_note: i32,
     is_looped: bool,
-    first_midi_message: ?*jumpman_music_c.tml_message,
-    current_midi_message: ?*jumpman_music_c.tml_message,
+    first_midi_message: ?*tml_c.tml_message,
+    current_midi_message: ?*tml_c.tml_message,
     is_midi_channel_note_on: [kMIDI_CHANNEL_COUNT]bool,
     is_stopping: bool,
 
@@ -41,10 +39,10 @@ var g_current_track_filename: []const u8 = &.{};
 var g_current_track_song_start_music_time: i32 = 0;
 var g_current_track_loop_start_music_time: i32 = 0;
 
-fn MusicTimeToMilliseconds(first_midi_message: *jumpman_music_c.tml_message, music_time_value: i32) u32 {
+fn MusicTimeToMilliseconds(first_midi_message: *tml_c.tml_message, music_time_value: i32) u32 {
     const kMUSIC_TIME_PER_QUARTER_NOTE: f64 = 768.0;
 
-    var current_midi_message: *jumpman_music_c.tml_message = first_midi_message;
+    var current_midi_message: *tml_c.tml_message = first_midi_message;
     var current_time_ms: f64 = 0.0;
     var remaining_quarter_notes: f64 = music_time_value / kMUSIC_TIME_PER_QUARTER_NOTE;
     var current_tempo_ms_per_quarter_note: f64 = 500.0;
@@ -53,7 +51,7 @@ fn MusicTimeToMilliseconds(first_midi_message: *jumpman_music_c.tml_message, mus
     while (current_midi_message.time < target_time_ms) {
         remaining_quarter_notes -= (current_midi_message.time - current_time_ms) / current_tempo_ms_per_quarter_note;
         current_time_ms = current_midi_message.time;
-        const new_tempo_ms_per_quarter_note: f64 = @as(f64, @floatFromInt(jumpman_music_c.tml_get_tempo_value(current_midi_message))) / 1000.0;
+        const new_tempo_ms_per_quarter_note: f64 = @as(f64, @floatFromInt(tml_c.tml_get_tempo_value(current_midi_message))) / 1000.0;
         current_midi_message = current_midi_message.next;
 
         if (new_tempo_ms_per_quarter_note != 0) { // tml_get_tempo_value returns 0 if not a tempo change
@@ -67,7 +65,7 @@ fn MusicTimeToMilliseconds(first_midi_message: *jumpman_music_c.tml_message, mus
 
 fn StopAllNotesWithSustainAndRelease(track: *MusicTrack) void {
     if (track.sound_font) |sound_font| {
-        jumpman_music_c.tsf_note_off_all(sound_font);
+        tsf_c.tsf_note_off_all(sound_font);
     }
 
     for (0..kMIDI_CHANNEL_COUNT) |i| {
@@ -80,28 +78,28 @@ fn SeekTrack(track: *MusicTrack, target_timestamp_msec: u32) void {
 
     while (track.current_midi_message != null and (track.current_midi_message.?.time < target_timestamp_msec)) {
         switch (track.current_midi_message.?.type) {
-            jumpman_music_c.TML_PROGRAM_CHANGE => {
-                _ = jumpman_music_c.tsf_channel_set_presetnumber(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.program, if (track.current_midi_message.?.channel == 9) 1 else 0);
+            tml_c.TML_PROGRAM_CHANGE => {
+                _ = tsf_c.tsf_channel_set_presetnumber(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.program, if (track.current_midi_message.?.channel == 9) 1 else 0);
             },
-            jumpman_music_c.TML_SET_TEMPO => {
-                const new_tempo_usec_per_quarter_note: i32 = jumpman_music_c.tml_get_tempo_value(track.current_midi_message.?);
+            tml_c.TML_SET_TEMPO => {
+                const new_tempo_usec_per_quarter_note: i32 = tml_c.tml_get_tempo_value(track.current_midi_message.?);
 
                 if (new_tempo_usec_per_quarter_note > 0) {
                     track.current_tempo_usec_per_quarter_note = new_tempo_usec_per_quarter_note;
                 }
             },
-            jumpman_music_c.TML_NOTE_ON => {
+            tml_c.TML_NOTE_ON => {
                 track.is_midi_channel_note_on[track.current_midi_message.?.channel] = true;
             },
-            jumpman_music_c.TML_NOTE_OFF => {
+            tml_c.TML_NOTE_OFF => {
                 track.is_midi_channel_note_on[track.current_midi_message.?.channel] = false;
             },
-            jumpman_music_c.TML_PITCH_BEND => {
-                _ = jumpman_music_c.tsf_channel_set_pitchwheel(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_1.pitch_bend);
+            tml_c.TML_PITCH_BEND => {
+                _ = tsf_c.tsf_channel_set_pitchwheel(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_1.pitch_bend);
             },
-            jumpman_music_c.TML_CONTROL_CHANGE => {
+            tml_c.TML_CONTROL_CHANGE => {
                 // TODO: control and control_value are from different unions structs??
-                _ = jumpman_music_c.tsf_channel_midi_control(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.control, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_1.control_value);
+                _ = tsf_c.tsf_channel_midi_control(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.control, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_1.control_value);
             },
             else => {}, // TODO: Anything else that should be handled? Should this assert?
         }
@@ -130,38 +128,38 @@ fn AddMidiSamples(sound_channel: usize, track: *MusicTrack, frame_count: usize, 
             track.current_playback_timestamp_msec += @as(f64, @floatFromInt(SampleBlock)) * (1000.0 / 44100.0);
             while (track.current_midi_message != null and track.current_playback_timestamp_msec >= track.current_midi_message.?.time) : (track.current_midi_message = track.current_midi_message.?.next) {
                 switch (track.current_midi_message.?.type) {
-                    jumpman_music_c.TML_PROGRAM_CHANGE => {
-                        _ = jumpman_music_c.tsf_channel_set_presetnumber(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.program, if (track.current_midi_message.?.channel == 9) 1 else 0);
+                    tml_c.TML_PROGRAM_CHANGE => {
+                        _ = tsf_c.tsf_channel_set_presetnumber(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.program, if (track.current_midi_message.?.channel == 9) 1 else 0);
                     },
-                    jumpman_music_c.TML_SET_TEMPO => {
-                        const new_tempo_usec_per_quarter_note: i32 = jumpman_music_c.tml_get_tempo_value(track.current_midi_message.?);
+                    tml_c.TML_SET_TEMPO => {
+                        const new_tempo_usec_per_quarter_note: i32 = tml_c.tml_get_tempo_value(track.current_midi_message.?);
 
                         if (new_tempo_usec_per_quarter_note > 0) {
                             track.current_tempo_usec_per_quarter_note = new_tempo_usec_per_quarter_note;
                         }
                     },
-                    jumpman_music_c.TML_NOTE_ON => {
+                    tml_c.TML_NOTE_ON => {
                         track.is_midi_channel_note_on[track.current_midi_message.?.channel] = true;
                         // TODO: key and velocity are from different unions structs??
-                        _ = jumpman_music_c.tsf_channel_note_on(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.key, @as(f32, @floatFromInt(track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_1.velocity)) / 127.0);
+                        _ = tsf_c.tsf_channel_note_on(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.key, @as(f32, @floatFromInt(track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_1.velocity)) / 127.0);
                     },
-                    jumpman_music_c.TML_NOTE_OFF => {
+                    tml_c.TML_NOTE_OFF => {
                         track.is_midi_channel_note_on[track.current_midi_message.?.channel] = false;
-                        _ = jumpman_music_c.tsf_channel_note_off(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.key);
+                        _ = tsf_c.tsf_channel_note_off(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.key);
                     },
-                    jumpman_music_c.TML_PITCH_BEND => {
-                        _ = jumpman_music_c.tsf_channel_set_pitchwheel(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_1.pitch_bend);
+                    tml_c.TML_PITCH_BEND => {
+                        _ = tsf_c.tsf_channel_set_pitchwheel(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_1.pitch_bend);
                     },
-                    jumpman_music_c.TML_CONTROL_CHANGE => {
+                    tml_c.TML_CONTROL_CHANGE => {
                         // TODO: control and control_value are from different unions structs??
-                        _ = jumpman_music_c.tsf_channel_midi_control(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.control, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_1.control_value);
+                        _ = tsf_c.tsf_channel_midi_control(track.sound_font, track.current_midi_message.?.channel, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_0.control, track.current_midi_message.?.unnamed_0.unnamed_0.unnamed_1.control_value);
                     },
                     else => {}, // TODO: Anything else that should be handled? Should this assert?
                 }
             }
         }
 
-        jumpman_music_c.tsf_render_float(track.sound_font, samples_pointer, SampleBlock, 1);
+        tsf_c.tsf_render_float(track.sound_font, samples_pointer, SampleBlock, 1);
     }
 
     if (track.current_midi_message != null and track.current_playback_timestamp_msec > track.track_end_point_msec) {
@@ -184,7 +182,7 @@ fn AddMidiSamples(sound_channel: usize, track: *MusicTrack, frame_count: usize, 
         }
     }
 
-    if (track.is_stopping and jumpman_music_c.tsf_active_voice_count(track.sound_font) == 0) {
+    if (track.is_stopping and tsf_c.tsf_active_voice_count(track.sound_font) == 0) {
         // Unhook callback - TODO: Better name for these callback functions/callback setup functions. "SetSoundChannel" is a little abstract
         sound_buffer.SetSoundChannel(sound_channel, null);
     }
@@ -201,8 +199,8 @@ fn AddTrack2Samples(frame_count: u64, interleaved_stereo_samples: [*]f32) callco
 }
 
 fn LoadAndPlayTrack(filename: []const u8, track: *MusicTrack, start_time_music_time: i32, loop_start_music_time: i32, sound_channel_index: usize, sound_channel: sound_buffer.SoundChannel) void {
-    var tiny_midi_loader: ?*jumpman_music_c.tml_message = null;
-    tiny_midi_loader = jumpman_music_c.tml_load_filename(filename.ptr);
+    var tiny_midi_loader: ?*tml_c.tml_message = null;
+    tiny_midi_loader = tml_c.tml_load_filename(filename.ptr);
 
     if (tiny_midi_loader == null) {
         std.log.err("Could not load MIDI file\n", .{});
@@ -210,7 +208,7 @@ fn LoadAndPlayTrack(filename: []const u8, track: *MusicTrack, start_time_music_t
     }
 
     var time_length: u32 = undefined;
-    _ = jumpman_music_c.tml_get_info(tiny_midi_loader.?, null, null, null, null, &time_length);
+    _ = tml_c.tml_get_info(tiny_midi_loader.?, null, null, null, null, &time_length);
     track.track_end_point_msec = time_length;
     track.first_midi_message = tiny_midi_loader;
     track.current_midi_message = tiny_midi_loader;
@@ -244,26 +242,26 @@ pub fn InitMusic() bool {
     }
 
     g_track_1 = .default;
-    g_track_1.sound_font = jumpman_music_c.tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
+    g_track_1.sound_font = tsf_c.tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
 
     if (g_track_1.sound_font == null) {
         std.log.err("Could not load SoundFont", .{});
         return false;
     }
 
-    _ = jumpman_music_c.tsf_channel_set_bank_preset(g_track_1.sound_font.?, 9, 128, 0);
-    jumpman_music_c.tsf_set_output(g_track_1.sound_font, jumpman_music_c.TSF_STEREO_INTERLEAVED, 44100, -10.0);
+    _ = tsf_c.tsf_channel_set_bank_preset(g_track_1.sound_font.?, 9, 128, 0);
+    tsf_c.tsf_set_output(g_track_1.sound_font, tsf_c.TSF_STEREO_INTERLEAVED, 44100, -10.0);
 
     g_track_2 = .default;
-    g_track_2.sound_font = jumpman_music_c.tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
+    g_track_2.sound_font = tsf_c.tsf_load_filename("sound/reality_gmgs_falcomod.sf2");
 
     if (g_track_2.sound_font == null) {
         std.log.err("Could not load SoundFont", .{});
         return false;
     }
 
-    _ = jumpman_music_c.tsf_channel_set_bank_preset(g_track_2.sound_font.?, 9, 128, 0);
-    jumpman_music_c.tsf_set_output(g_track_2.sound_font, jumpman_music_c.TSF_STEREO_INTERLEAVED, 44100, -10.0);
+    _ = tsf_c.tsf_channel_set_bank_preset(g_track_2.sound_font.?, 9, 128, 0);
+    tsf_c.tsf_set_output(g_track_2.sound_font, tsf_c.TSF_STEREO_INTERLEAVED, 44100, -10.0);
 
     g_music_is_initialized = true;
 
@@ -304,7 +302,7 @@ pub fn NewTrack1(filename: []const u8, song_start_music_time: i32, loop_start_mu
     }
 
     StopTrack(&g_track_1);
-    jumpman_music_c.tml_free(g_track_1.first_midi_message);
+    tml_c.tml_free(g_track_1.first_midi_message);
 
     LoadAndPlayTrack(filename, &g_track_1, song_start_music_time, loop_start_music_time, 0, AddTrack1Samples);
 }
@@ -324,7 +322,7 @@ pub fn NewTrack2(filename: []const u8) void {
     }
 
     StopTrack(&g_track_2);
-    jumpman_music_c.tml_free(g_track_2.first_midi_message);
+    tml_c.tml_free(g_track_2.first_midi_message);
 
     LoadAndPlayTrack(filename, &g_track_2, 0, -1, 1, AddTrack2Samples);
 }
@@ -353,12 +351,12 @@ pub fn CleanUpMusic() void {
 
     sound_buffer.SetSoundChannel(0, null);
     sound_buffer.SetSoundChannel(1, null);
-    jumpman_music_c.tsf_reset(g_track_1.sound_font);
-    jumpman_music_c.tsf_reset(g_track_2.sound_font);
-    jumpman_music_c.tsf_close(g_track_1.sound_font);
-    jumpman_music_c.tsf_close(g_track_2.sound_font);
-    jumpman_music_c.tml_free(g_track_1.first_midi_message);
-    jumpman_music_c.tml_free(g_track_2.first_midi_message);
+    tsf_c.tsf_reset(g_track_1.sound_font);
+    tsf_c.tsf_reset(g_track_2.sound_font);
+    tsf_c.tsf_close(g_track_1.sound_font);
+    tsf_c.tsf_close(g_track_2.sound_font);
+    tml_c.tml_free(g_track_1.first_midi_message);
+    tml_c.tml_free(g_track_2.first_midi_message);
     g_track_1 = .default;
     g_track_2 = .default;
 
@@ -372,12 +370,12 @@ pub fn CleanupMusic() void {
 
     sound_buffer.SetSoundChannel(0, null);
     sound_buffer.SetSoundChannel(1, null);
-    jumpman_music_c.tsf_reset(g_track_1.sound_font);
-    jumpman_music_c.tsf_reset(g_track_2.sound_font);
-    jumpman_music_c.tsf_close(g_track_1.sound_font);
-    jumpman_music_c.tsf_close(g_track_2.sound_font);
-    jumpman_music_c.tml_free(g_track_1.first_midi_message);
-    jumpman_music_c.tml_free(g_track_2.first_midi_message);
+    tsf_c.tsf_reset(g_track_1.sound_font);
+    tsf_c.tsf_reset(g_track_2.sound_font);
+    tsf_c.tsf_close(g_track_1.sound_font);
+    tsf_c.tsf_close(g_track_2.sound_font);
+    tml_c.tml_free(g_track_1.first_midi_message);
+    tml_c.tml_free(g_track_2.first_midi_message);
     g_track_1 = .default;
     g_track_2 = .default;
 

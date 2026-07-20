@@ -1,12 +1,7 @@
 const std = @import("std");
-const jumpman_basic_3d_c = @cImport({
-    @cInclude("glad/glad.h");
-    @cInclude("sokol_gfx.h");
-    @cInclude("stb_image.h");
-    @cInclude("boxer/boxer.h");
-    @cDefine("ZIG_SKIP_SHADER_DEF", "");
-    @cInclude("shader.h");
-});
+const boxer_c = @import("boxer_c");
+const sokol_gfx_c = @import("sokol_gfx_c");
+const stb_image_c = @import("stb_image_c");
 
 pub const MeshVertex = extern struct {
     x: f32,
@@ -498,10 +493,10 @@ const Material = struct {
 
 var g_backbuffer_width: i32 = 0;
 var g_backbuffer_height: i32 = 0;
-var g_bindings: jumpman_basic_3d_c.sg_bindings = .{};
-var g_opaque_pipline: jumpman_basic_3d_c.sg_pipeline = .{};
-var g_transparent_pipline: jumpman_basic_3d_c.sg_pipeline = .{};
-var g_pass_action: jumpman_basic_3d_c.sg_pass_action = .{};
+var g_bindings: sokol_gfx_c.sg_bindings = .{};
+var g_opaque_pipline: sokol_gfx_c.sg_pipeline = .{};
+var g_transparent_pipline: sokol_gfx_c.sg_pipeline = .{};
+var g_pass_action: sokol_gfx_c.sg_pass_action = .{};
 var g_camera_light = std.mem.zeroes(Light);
 var g_global_material = std.mem.zeroes(Material);
 var g_scene_ambient_color: Color3 = .black;
@@ -510,7 +505,7 @@ var g_fog_color: Color3 = .black;
 var g_fog_start: f32 = 0;
 var g_fog_end: f32 = 0;
 
-var g_textures = std.mem.zeroes([kMAX_TEXTURES]jumpman_basic_3d_c.sg_image);
+var g_textures = std.mem.zeroes([kMAX_TEXTURES]sokol_gfx_c.sg_image);
 var g_texture_filename = std.mem.zeroes([kMAX_TEXTURES][std.fs.max_path_bytes:0]u8);
 var g_texture_is_alpha_blend_enabled = std.mem.zeroes([kMAX_TEXTURES]bool);
 var g_texture_is_color_key_alpha_enabled = std.mem.zeroes([kMAX_TEXTURES]bool); // TODO: This is just for debugging. ifdef it out for release builds
@@ -569,11 +564,11 @@ pub fn Clear3dData() void {
     }
 
     for (0..kMAX_TEXTURES) |texture_index| {
-        if (g_textures[texture_index].id != jumpman_basic_3d_c.SG_INVALID_ID) {
-            jumpman_basic_3d_c.sg_destroy_image(g_textures[texture_index]);
+        if (g_textures[texture_index].id != sokol_gfx_c.SG_INVALID_ID) {
+            sokol_gfx_c.sg_destroy_image(g_textures[texture_index]);
         }
 
-        g_textures[texture_index].id = jumpman_basic_3d_c.SG_INVALID_ID;
+        g_textures[texture_index].id = sokol_gfx_c.SG_INVALID_ID;
     }
 
     g_transform_count = 0;
@@ -621,9 +616,9 @@ pub fn LoadTexture(texture_index: usize, sFile: [:0]const u8, image_type: i32, i
     var width_cint: c_int = 0;
     var height_cint: c_int = 0;
     var channels_in_file: i32 = undefined;
-    var image_data: ?[*]u8 = jumpman_basic_3d_c.stbi_load(&sFile[0], &width_cint, &height_cint, &channels_in_file, 4);
+    var image_data: ?[*]u8 = stb_image_c.stbi_load(&sFile[0], &width_cint, &height_cint, &channels_in_file, 4);
     defer if (image_data != null) {
-        jumpman_basic_3d_c.stbi_image_free(image_data);
+        stb_image_c.stbi_image_free(image_data);
     };
     var width: usize = @intCast(width_cint);
     var height: usize = @intCast(height_cint);
@@ -645,30 +640,30 @@ pub fn LoadTexture(texture_index: usize, sFile: [:0]const u8, image_type: i32, i
         image_data = @ptrCast(&g_error_image_data[0][0][0]);
 
         // TODO: Error handling
-        const error_message: ?[*c]const u8 = jumpman_basic_3d_c.stbi_failure_reason();
+        const error_message: ?[*c]const u8 = stb_image_c.stbi_failure_reason();
         std.log.err("Failed to load image file \"{s}\": {s}\ndefault texture loaded instead", .{ sFile, error_message.? });
     }
 
-    var image_desc: jumpman_basic_3d_c.sg_image_desc = .{};
+    var image_desc: sokol_gfx_c.sg_image_desc = .{};
     image_desc.width = @intCast(width);
     image_desc.height = @intCast(height);
-    image_desc.pixel_format = jumpman_basic_3d_c.SG_PIXELFORMAT_RGBA8;
+    image_desc.pixel_format = sokol_gfx_c.SG_PIXELFORMAT_RGBA8;
     // TODO: Diff mipmap level based on image_type. 0: full set, 1: only one. Probably have to manually do the resize for each mip level. Use stb_image_resize.h?
-    image_desc.min_filter = jumpman_basic_3d_c.SG_FILTER_LINEAR;
-    image_desc.mag_filter = jumpman_basic_3d_c.SG_FILTER_LINEAR;
+    image_desc.min_filter = sokol_gfx_c.SG_FILTER_LINEAR;
+    image_desc.mag_filter = sokol_gfx_c.SG_FILTER_LINEAR;
     image_desc.data.subimage[0][0].ptr = image_data;
     image_desc.data.subimage[0][0].size = width * height * 4;
 
-    g_textures[texture_index] = jumpman_basic_3d_c.sg_make_image(&image_desc);
+    g_textures[texture_index] = sokol_gfx_c.sg_make_image(&image_desc);
 
-    if (g_textures[texture_index].id == jumpman_basic_3d_c.SG_INVALID_ID) {
+    if (g_textures[texture_index].id == sokol_gfx_c.SG_INVALID_ID) {
         fatalError_("Error unlocking texture data"); // TODO: Read back error info
     }
 }
 
 fn init3d_() bool {
     for (0..kMAX_TEXTURES) |texture_index| {
-        g_textures[texture_index].id = jumpman_basic_3d_c.SG_INVALID_ID;
+        g_textures[texture_index].id = sokol_gfx_c.SG_INVALID_ID;
     }
 
     for (0..kMAX_MESHES) |mesh_index| {
@@ -678,10 +673,10 @@ fn init3d_() bool {
         // TODO: Set visibility?
     }
 
-    var desc: jumpman_basic_3d_c.sg_desc = .{};
-    jumpman_basic_3d_c.sg_setup(&desc);
+    var desc: sokol_gfx_c.sg_desc = .{};
+    sokol_gfx_c.sg_setup(&desc);
 
-    if (!jumpman_basic_3d_c.sg_isvalid()) {
+    if (!sokol_gfx_c.sg_isvalid()) {
         return false;
     }
 
@@ -707,43 +702,43 @@ fn initScene_() void {
         .diffuse_tint = .init(0.5, 0.5, 0.5),
     };
 
-    var vbuf_desc: jumpman_basic_3d_c.sg_buffer_desc = .{};
-    vbuf_desc.usage = jumpman_basic_3d_c.SG_USAGE_STREAM;
+    var vbuf_desc: sokol_gfx_c.sg_buffer_desc = .{};
+    vbuf_desc.usage = sokol_gfx_c.SG_USAGE_STREAM;
     vbuf_desc.size = kMAX_VERTICES * @sizeOf(MeshVertex);
 
     g_bindings = .{};
-    g_bindings.vertex_buffers[0] = jumpman_basic_3d_c.sg_make_buffer(&vbuf_desc);
+    g_bindings.vertex_buffers[0] = sokol_gfx_c.sg_make_buffer(&vbuf_desc);
 
-    const shd: jumpman_basic_3d_c.sg_shader = jumpman_basic_3d_c.sg_make_shader(jumpman_basic_3d_c.main_shader_shader_desc(jumpman_basic_3d_c.SG_BACKEND_GLCORE33));
+    const shd: sokol_gfx_c.sg_shader = sokol_gfx_c.sg_make_shader(sokol_gfx_c.main_shader_shader_desc(sokol_gfx_c.SG_BACKEND_GLCORE33));
 
-    var pip_desc: jumpman_basic_3d_c.sg_pipeline_desc = .{};
+    var pip_desc: sokol_gfx_c.sg_pipeline_desc = .{};
 
     pip_desc.layout.buffers[0].stride = @sizeOf(MeshVertex);
-    var attrs: [*]jumpman_basic_3d_c.sg_vertex_attr_desc = @ptrCast(&pip_desc.layout.attrs[0]);
-    attrs[0].format = jumpman_basic_3d_c.SG_VERTEXFORMAT_FLOAT3;
-    attrs[1].format = jumpman_basic_3d_c.SG_VERTEXFORMAT_FLOAT3;
-    attrs[2].format = jumpman_basic_3d_c.SG_VERTEXFORMAT_FLOAT2;
+    var attrs: [*]sokol_gfx_c.sg_vertex_attr_desc = @ptrCast(&pip_desc.layout.attrs[0]);
+    attrs[0].format = sokol_gfx_c.SG_VERTEXFORMAT_FLOAT3;
+    attrs[1].format = sokol_gfx_c.SG_VERTEXFORMAT_FLOAT3;
+    attrs[2].format = sokol_gfx_c.SG_VERTEXFORMAT_FLOAT2;
 
     pip_desc.shader = shd;
 
-    pip_desc.depth.compare = jumpman_basic_3d_c.SG_COMPAREFUNC_LESS;
+    pip_desc.depth.compare = sokol_gfx_c.SG_COMPAREFUNC_LESS;
     pip_desc.depth.write_enabled = false;
-    pip_desc.face_winding = jumpman_basic_3d_c.SG_FACEWINDING_CW;
-    pip_desc.cull_mode = jumpman_basic_3d_c.SG_CULLMODE_BACK;
+    pip_desc.face_winding = sokol_gfx_c.SG_FACEWINDING_CW;
+    pip_desc.cull_mode = sokol_gfx_c.SG_CULLMODE_BACK;
 
     pip_desc.colors[0].blend.enabled = true;
-    pip_desc.colors[0].blend.src_factor_rgb = jumpman_basic_3d_c.SG_BLENDFACTOR_SRC_ALPHA;
-    pip_desc.colors[0].blend.dst_factor_rgb = jumpman_basic_3d_c.SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-    pip_desc.colors[0].write_mask = jumpman_basic_3d_c.SG_COLORMASK_RGBA;
+    pip_desc.colors[0].blend.src_factor_rgb = sokol_gfx_c.SG_BLENDFACTOR_SRC_ALPHA;
+    pip_desc.colors[0].blend.dst_factor_rgb = sokol_gfx_c.SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    pip_desc.colors[0].write_mask = sokol_gfx_c.SG_COLORMASK_RGBA;
 
-    g_transparent_pipline = jumpman_basic_3d_c.sg_make_pipeline(&pip_desc);
+    g_transparent_pipline = sokol_gfx_c.sg_make_pipeline(&pip_desc);
 
     pip_desc.depth.write_enabled = true;
     pip_desc.colors[0].blend.enabled = false;
-    g_opaque_pipline = jumpman_basic_3d_c.sg_make_pipeline(&pip_desc);
+    g_opaque_pipline = sokol_gfx_c.sg_make_pipeline(&pip_desc);
 
     g_pass_action = .{};
-    g_pass_action.colors[0].action = jumpman_basic_3d_c.SG_ACTION_CLEAR;
+    g_pass_action.colors[0].action = sokol_gfx_c.SG_ACTION_CLEAR;
     g_pass_action.colors[0].value.r = 0.0;
     g_pass_action.colors[0].value.g = 0.0;
     g_pass_action.colors[0].value.b = 0.0;
@@ -774,7 +769,7 @@ pub fn Begin3dLoad(gpa: std.mem.Allocator) void {
 }
 
 pub fn EndAndCommit3dLoad(gpa: std.mem.Allocator) void {
-    jumpman_basic_3d_c.sg_update_buffer(g_bindings.vertex_buffers[0], &.{ .ptr = &g_vertices_to_load.?[0], .size = kMAX_VERTICES * @sizeOf(MeshVertex) });
+    sokol_gfx_c.sg_update_buffer(g_bindings.vertex_buffers[0], &.{ .ptr = &g_vertices_to_load.?[0], .size = kMAX_VERTICES * @sizeOf(MeshVertex) });
 
     if (g_vertices_to_load != null) {
         gpa.free(g_vertices_to_load.?);
@@ -788,15 +783,15 @@ pub fn Reset3d() void {
 
 fn killScene_() void {
     for (0..kMAX_TEXTURES) |texture_index| {
-        if (g_textures[texture_index].id != jumpman_basic_3d_c.SG_INVALID_ID) {
-            jumpman_basic_3d_c.sg_destroy_image(g_textures[texture_index]);
-            g_textures[texture_index].id = jumpman_basic_3d_c.SG_INVALID_ID;
+        if (g_textures[texture_index].id != sokol_gfx_c.SG_INVALID_ID) {
+            sokol_gfx_c.sg_destroy_image(g_textures[texture_index]);
+            g_textures[texture_index].id = sokol_gfx_c.SG_INVALID_ID;
         }
     }
 }
 
 fn kill3d_() void {
-    jumpman_basic_3d_c.sg_shutdown();
+    sokol_gfx_c.sg_shutdown();
 }
 
 pub fn DoCleanUp() void {
@@ -1133,7 +1128,7 @@ fn getMeshHandleFromIndex_(mesh_index: i32) ?usize {
     }
 
     if (result_mesh_handle_index == null) {
-        _ = jumpman_basic_3d_c.boxerShow("Can't find mesh handle with given mesh index!", "Jumpman Zero", jumpman_basic_3d_c.BoxerStyleWarning, jumpman_basic_3d_c.BoxerButtonsOK); // TODO: Better error handling? Don't ignore result?
+        _ = boxer_c.boxerShow("Can't find mesh handle with given mesh index!", "Jumpman Zero", boxer_c.BoxerStyleWarning, boxer_c.BoxerButtonsOK); // TODO: Better error handling? Don't ignore result?
     }
 
     return result_mesh_handle_index;
@@ -1435,7 +1430,7 @@ fn renderMesh_(mesh_index: usize, previous_texture_index: *i32, vs_params: *main
     if (previous_texture_index.* != current_texture_index) {
         previous_texture_index.* = current_texture_index_i32;
         g_bindings.fs_images[0] = g_textures[current_texture_index];
-        jumpman_basic_3d_c.sg_apply_bindings(&g_bindings);
+        sokol_gfx_c.sg_apply_bindings(&g_bindings);
     }
 
     var current_transform_index_i32: i32 = g_mesh_transform_indices[mesh_index];
@@ -1506,14 +1501,14 @@ fn renderMesh_(mesh_index: usize, previous_texture_index: *i32, vs_params: *main
         vs_params.uv_offset = g_mesh_uv_offsets[mesh_index];
     }
 
-    jumpman_basic_3d_c.sg_apply_uniforms(jumpman_basic_3d_c.SG_SHADERSTAGE_VS, 0, &.{ .ptr = vs_params, .size = @sizeOf(main_shader_vs_params_t) });
+    sokol_gfx_c.sg_apply_uniforms(sokol_gfx_c.SG_SHADERSTAGE_VS, 0, &.{ .ptr = vs_params, .size = @sizeOf(main_shader_vs_params_t) });
 
     if (!are_fs_params_applied.*) {
-        jumpman_basic_3d_c.sg_apply_uniforms(jumpman_basic_3d_c.SG_SHADERSTAGE_FS, 0, &.{ .ptr = fs_params, .size = @sizeOf(main_shader_fs_params_t) });
+        sokol_gfx_c.sg_apply_uniforms(sokol_gfx_c.SG_SHADERSTAGE_FS, 0, &.{ .ptr = fs_params, .size = @sizeOf(main_shader_fs_params_t) });
         are_fs_params_applied.* = true;
     }
 
-    jumpman_basic_3d_c.sg_draw(g_mesh_vertex_start_indices[mesh_index], g_mesh_vertex_counts[mesh_index], 1);
+    sokol_gfx_c.sg_draw(g_mesh_vertex_start_indices[mesh_index], g_mesh_vertex_counts[mesh_index], 1);
 }
 
 // TODO: Rename to match zig naming standards
@@ -1549,7 +1544,7 @@ const main_shader_fs_params_t = extern struct {
 };
 
 pub fn RendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
-    jumpman_basic_3d_c.sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
+    sokol_gfx_c.sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
     const backbuffer_aspect_ratio: f32 = @as(f32, @floatFromInt(g_backbuffer_width)) / @as(f32, @floatFromInt(g_backbuffer_height));
     const target_aspect_ratio: f32 = 640.0 / 480.0;
@@ -1557,11 +1552,11 @@ pub fn RendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
     if (backbuffer_aspect_ratio > target_aspect_ratio) {
         const width_scale: f32 = target_aspect_ratio / backbuffer_aspect_ratio;
         const border_half_width: f32 = (@as(f32, @floatFromInt(g_backbuffer_width)) - width_scale * @as(f32, @floatFromInt(g_backbuffer_width))) / 2.0;
-        jumpman_basic_3d_c.sg_apply_viewport(@intFromFloat(border_half_width), 0, g_backbuffer_width - @as(i32, @intFromFloat(border_half_width * 2.0)), g_backbuffer_height, true);
+        sokol_gfx_c.sg_apply_viewport(@intFromFloat(border_half_width), 0, g_backbuffer_width - @as(i32, @intFromFloat(border_half_width * 2.0)), g_backbuffer_height, true);
     } else {
         const height_scale: f32 = backbuffer_aspect_ratio / target_aspect_ratio;
         const border_half_height: f32 = (@as(f32, @floatFromInt(g_backbuffer_height)) - height_scale * @as(f32, @floatFromInt(g_backbuffer_height))) / 2.0;
-        jumpman_basic_3d_c.sg_apply_viewport(0, @intFromFloat(border_half_height), g_backbuffer_width, g_backbuffer_height - @as(i32, @intFromFloat(border_half_height * 2.0)), true);
+        sokol_gfx_c.sg_apply_viewport(0, @intFromFloat(border_half_height), g_backbuffer_width, g_backbuffer_height - @as(i32, @intFromFloat(border_half_height * 2.0)), true);
     }
 
     var vs_params: main_shader_vs_params_t = undefined;
@@ -1589,7 +1584,7 @@ pub fn RendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
     g_interpolated_world_to_projection_matrix = Mat4.mul(g_view_to_projection_matrix, g_interpolated_world_to_view_matrix);
 
     // Draw opaque
-    jumpman_basic_3d_c.sg_apply_pipeline(g_opaque_pipline);
+    sokol_gfx_c.sg_apply_pipeline(g_opaque_pipline);
 
     var previous_texture_index: i32 = -1;
     var are_fs_params_applied: bool = false; // These are currently set globally, so don't need to be set for every mesh
@@ -1601,7 +1596,7 @@ pub fn RendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
     }
 
     // Draw transparent
-    jumpman_basic_3d_c.sg_apply_pipeline(g_transparent_pipline);
+    sokol_gfx_c.sg_apply_pipeline(g_transparent_pipline);
 
     previous_texture_index = -1;
     are_fs_params_applied = false;
@@ -1612,8 +1607,8 @@ pub fn RendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
         }
     }
 
-    jumpman_basic_3d_c.sg_end_pass();
-    jumpman_basic_3d_c.sg_commit();
+    sokol_gfx_c.sg_end_pass();
+    sokol_gfx_c.sg_commit();
 }
 
 pub fn ResizeViewport(width: i32, height: i32) void {
@@ -1664,5 +1659,5 @@ pub fn GetViewportMousePos(pos_x: *f32, pos_y: *f32) void {
 fn fatalError_(error_msg: []const u8) void {
     killScene_();
     kill3d_();
-    _ = jumpman_basic_3d_c.boxerShow(&error_msg[0], "Jumpman Zero", jumpman_basic_3d_c.BoxerStyleError, jumpman_basic_3d_c.BoxerButtonsOK); // TODO: Don't discard result?
+    _ = boxer_c.boxerShow(&error_msg[0], "Jumpman Zero", boxer_c.BoxerStyleError, boxer_c.BoxerButtonsOK); // TODO: Don't discard result?
 }
