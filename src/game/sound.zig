@@ -70,7 +70,7 @@ pub fn PlaySoundEffect(sound_index: usize) void {
     assert(sound_index < kNUM_SOUND_DECODERS);
 
     _ = miniaudio_c.ma_decoder_seek_to_pcm_frame(&g_sound_decoders[sound_index], 0); // TODO: Detect and handle error?
-    sound_buffer.SetSoundChannel(kSOUND_CHANNEL_START_INDEX + sound_index, g_sound_channel_callbacks[sound_index]);
+    sound_buffer.setSoundChannel(kSOUND_CHANNEL_START_INDEX + sound_index, g_sound_channel_callbacks[sound_index]);
 }
 
 pub fn LoadSound(filename: [:0]const u8, sound_index: usize) bool {
@@ -81,7 +81,7 @@ pub fn LoadSound(filename: [:0]const u8, sound_index: usize) bool {
 
     assert(sound_index < kNUM_SOUND_DECODERS);
 
-    sound_buffer.SetSoundChannel(kSOUND_CHANNEL_START_INDEX + sound_index, null);
+    sound_buffer.setSoundChannel(kSOUND_CHANNEL_START_INDEX + sound_index, null);
     _ = miniaudio_c.ma_decoder_uninit(&g_sound_decoders[sound_index]); // TODO: Detect and handle error
 
     const config: miniaudio_c.ma_decoder_config = miniaudio_c.ma_decoder_config_init(miniaudio_c.ma_format_f32, 2, 44100);

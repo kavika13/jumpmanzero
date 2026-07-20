@@ -4,7 +4,7 @@ const sound = @import("sound.zig");
 const miniaudio_c = @import("miniaudio_c");
 
 pub const kSOUND_CHANNEL_COUNT: usize = 64;
-pub const SoundChannel = fn (frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64; // TODO: Make not export
+pub const SoundChannel = fn (frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64;
 
 var g_is_initialized: bool = false;
 var g_gpa: std.mem.Allocator = .failing;
@@ -12,7 +12,7 @@ var g_sound_device = std.mem.zeroes(miniaudio_c.ma_device);
 var g_sound_channels = std.mem.zeroes([kSOUND_CHANNEL_COUNT]?*const SoundChannel);
 var g_temporary_sample_buffer: []f32 = &.{};
 
-fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const anyopaque, frame_count: u32) callconv(.c) void {
+fn onSendFramesToDevice(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const anyopaque, frame_count: u32) callconv(.c) void {
     const output: [*]f32 = @ptrCast(@alignCast(pOutput));
 
     var i: u32 = 0;
@@ -54,7 +54,7 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
     }
 }
 
-pub fn InitSoundBuffer(gpa: std.mem.Allocator) bool {
+pub fn init(gpa: std.mem.Allocator) bool {
     if (!g_is_initialized) {
         g_gpa = gpa;
 
@@ -62,7 +62,7 @@ pub fn InitSoundBuffer(gpa: std.mem.Allocator) bool {
         config.playback.format = miniaudio_c.ma_format_f32;
         config.playback.channels = 2;
         config.sampleRate = 44100;
-        config.dataCallback = on_send_frames_to_device;
+        config.dataCallback = onSendFramesToDevice;
 
         if (miniaudio_c.ma_device_init(null, &config, &g_sound_device) != miniaudio_c.MA_SUCCESS) {
             // TODO: printf("Failed to open playback device.\n");
@@ -86,7 +86,7 @@ pub fn InitSoundBuffer(gpa: std.mem.Allocator) bool {
     return true;
 }
 
-pub fn CleanupSoundBuffer() void {
+pub fn cleanup() void {
     miniaudio_c.ma_device_uninit(&g_sound_device);
     if (g_temporary_sample_buffer.len > 0) {
         g_gpa.free(g_temporary_sample_buffer);
@@ -95,7 +95,7 @@ pub fn CleanupSoundBuffer() void {
     g_is_initialized = false;
 }
 
-pub export fn SetSoundChannel(channel_index: usize, new_channel_node: ?*const SoundChannel) void { // TODO: Make not export
+pub fn setSoundChannel(channel_index: usize, new_channel_node: ?*const SoundChannel) void {
     assert(channel_index < kSOUND_CHANNEL_COUNT);
     g_sound_channels[channel_index] = new_channel_node;
 }

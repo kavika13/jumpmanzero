@@ -183,8 +183,8 @@ fn AddMidiSamples(sound_channel: usize, track: *MusicTrack, frame_count: usize, 
     }
 
     if (track.is_stopping and tsf_c.tsf_active_voice_count(track.sound_font) == 0) {
-        // Unhook callback - TODO: Better name for these callback functions/callback setup functions. "SetSoundChannel" is a little abstract
-        sound_buffer.SetSoundChannel(sound_channel, null);
+        // Unhook callback - TODO: Better name for these callback functions/callback setup functions. "setSoundChannel" is a little abstract
+        sound_buffer.setSoundChannel(sound_channel, null);
     }
 
     return frame_count;
@@ -227,7 +227,7 @@ fn LoadAndPlayTrack(filename: []const u8, track: *MusicTrack, start_time_music_t
         SeekTrack(track, start_time_msec);
     }
 
-    sound_buffer.SetSoundChannel(sound_channel_index, sound_channel);
+    sound_buffer.setSoundChannel(sound_channel_index, sound_channel);
     track.is_stopping = false;
 }
 
@@ -349,8 +349,8 @@ pub fn CleanUpMusic() void {
         return;
     }
 
-    sound_buffer.SetSoundChannel(0, null);
-    sound_buffer.SetSoundChannel(1, null);
+    sound_buffer.setSoundChannel(0, null);
+    sound_buffer.setSoundChannel(1, null);
     tsf_c.tsf_reset(g_track_1.sound_font);
     tsf_c.tsf_reset(g_track_2.sound_font);
     tsf_c.tsf_close(g_track_1.sound_font);
@@ -368,8 +368,8 @@ pub fn CleanupMusic() void {
         return;
     }
 
-    sound_buffer.SetSoundChannel(0, null);
-    sound_buffer.SetSoundChannel(1, null);
+    sound_buffer.setSoundChannel(0, null);
+    sound_buffer.setSoundChannel(1, null);
     tsf_c.tsf_reset(g_track_1.sound_font);
     tsf_c.tsf_reset(g_track_2.sound_font);
     tsf_c.tsf_close(g_track_1.sound_font);

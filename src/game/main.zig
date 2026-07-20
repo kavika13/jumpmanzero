@@ -553,8 +553,8 @@ pub fn main(init: std.process.Init) !void {
         return error.Init3DFailed;
     }
 
-    const init_sound_buffer_succeeded = sound_buffer.InitSoundBuffer(init.gpa);
-    defer if (init_sound_buffer_succeeded) sound_buffer.CleanupSoundBuffer();
+    const init_sound_buffer_succeeded = sound_buffer.init(init.gpa);
+    defer if (init_sound_buffer_succeeded) sound_buffer.cleanup();
     if (init_sound_buffer_succeeded) {
         if (!music.InitMusic()) {
             music_is_initially_enabled = false;
