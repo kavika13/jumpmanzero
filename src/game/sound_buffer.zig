@@ -8,7 +8,7 @@ const jumpman_sound_buffer_c = @cImport({
 });
 
 pub const kSOUND_CHANNEL_COUNT: usize = 64;
-pub const SoundChannel = fn (frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64; // TODO: Make not export
+pub const SoundChannel = fn (frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64; // TODO: Make not export
 
 var g_is_initialized: bool = false;
 var g_sound_device = std.mem.zeroes(jumpman_sound_buffer_c.ma_device);
@@ -17,8 +17,8 @@ var g_temporary_sample_buffer: ?[*]f32 = null;
 var g_temporary_sample_buffer_byte_count: usize = 0;
 
 // TODO: Take allocator somehow?
-fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const anyopaque, frame_count: u32) callconv(.C) void {
-    const output: [*]f32 = @alignCast(@ptrCast(pOutput));
+fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const anyopaque, frame_count: u32) callconv(.c) void {
+    const output: [*]f32 = @ptrCast(@alignCast(pOutput));
 
     var i: u32 = 0;
     while (i < frame_count) : (i += 1) {
@@ -32,9 +32,9 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
 
     if (g_temporary_sample_buffer_byte_count < buffer_byte_count) {
         if (g_temporary_sample_buffer != null) {
-            std.heap.raw_c_allocator.free(g_temporary_sample_buffer.?[0..g_temporary_sample_buffer_byte_count]);
+            std.heap.c_allocator.free(g_temporary_sample_buffer.?[0..g_temporary_sample_buffer_byte_count]);
         }
-        g_temporary_sample_buffer = @alignCast(@ptrCast(std.heap.raw_c_allocator.alloc(u8, buffer_byte_count) catch @panic("oom"))); // TODO: Don't panic?
+        g_temporary_sample_buffer = @ptrCast(@alignCast(std.heap.c_allocator.alloc(u8, buffer_byte_count) catch @panic("oom"))); // TODO: Don't panic?
         g_temporary_sample_buffer_byte_count = buffer_byte_count;
     }
 

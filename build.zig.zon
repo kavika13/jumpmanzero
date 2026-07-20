@@ -2,13 +2,13 @@
     .name = .jumpmanzero,
     .version = "0.0.1",
     .fingerprint = 0x4db1d097273958aa, // Changing this has security and trust implications.
-    .minimum_zig_version = "0.14.0-dev.3446+50b40c962",
+    .minimum_zig_version = "0.16.0",
 
     .dependencies = .{
         // TODO: glad, glfw, boxer-c
         .lua = .{
-            .url = "git+https://github.com/kavika13/lua#7697bec84130e498624a51ef3b3cc5a05741f4f3",
-            .hash = "lua-5.4.7-zqrcynEkAAAUUKXa4Jb6kRcDA7S7UWIgipg5aPm1IjGf",
+            .url = "git+https://github.com/kavika13/lua#4a325a7ae3e09691a7b5632b0a8e156c8e47e820",
+            .hash = "lua-5.4.7-zqrcymMoAADYXfJ5wuea11S1-Uc1olRT1hZh3Vug8Fh2",
         },
         .cute_headers_deprecated = .{
             .url = "git+https://github.com/RandyGaul/cute_headers_deprecated#bb2781dea677304897a0b2765e24dcc259341291",

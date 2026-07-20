@@ -1,6 +1,4 @@
 const std = @import("std");
-usingnamespace @import("sound.zig"); // TODO: Is there some other way to get the exports to show to C?
-usingnamespace @import("sound_buffer.zig"); // TODO: Is there some other way to get the exports to show to C?
 const basic_3d = @import("basic_3d.zig");
 const jumpman = @import("jumpman.zig");
 const sound = @import("sound.zig");
@@ -50,14 +48,11 @@ const GameState = struct {
 };
 
 // TODO: Take allocator as param
-fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool) bool {
+fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool, io: std.Io) bool {
     var sTemp = std.mem.zeroes([30]u8);
-    var sFileNameBuffer = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
-    const filename = std.fs.cwd().realpathZ("data/settings.dat", &sFileNameBuffer) catch return false; // TODO: Better error handling
-
     var sData: [*c]u8 = null;
-    const iLen = utilities.FileToString(std.mem.span(@as([*:0]const u8, @ptrCast(&filename[0]))), &sData); // TODO: Zig native equivalent, with streaming IO
-    defer std.heap.raw_c_allocator.free(sData[0..iLen]);
+    const iLen = utilities.FileToString(io, "data/settings.dat", &sData); // TODO: Zig native equivalent, with streaming IO
+    defer std.heap.c_allocator.free(sData[0..iLen]);
 
     // TODO: Handle file missing case without an error message - should create it and set defaults instead
     if (iLen == 0) {
@@ -65,28 +60,28 @@ fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
     }
 
     for (0..6) |key_index| {
-        g_key_bindings[key_index] = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, @intCast(key_index)))
+        g_key_bindings[key_index] = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", @intCast(key_index)))
             jumpman_main_c.atoi(&sTemp)
         else
             0;
     }
 
-    sound_is_initially_enabled.* = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 6))
+    sound_is_initially_enabled.* = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 6))
         jumpman_main_c.atoi(&sTemp) != 0
     else
         false;
 
-    music_is_initially_enabled.* = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 7))
+    music_is_initially_enabled.* = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 7))
         jumpman_main_c.atoi(&sTemp) != 0
     else
         false;
 
-    g_fullscreen_is_enabled = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 8))
+    g_fullscreen_is_enabled = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 8))
         jumpman_main_c.atoi(&sTemp) != 0
     else
         false;
 
-    g_window_resolution_x = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 9))
+    g_window_resolution_x = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 9))
         jumpman_main_c.atoi(&sTemp)
     else
         kWINDOW_RESOLUTION_DEFAULT_X;
@@ -95,7 +90,7 @@ fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
         g_window_resolution_x = kWINDOW_RESOLUTION_MIN_X;
     }
 
-    g_window_resolution_y = if (utilities.GetFileLine(&sTemp, sTemp.len, &sFileNameBuffer, 10))
+    g_window_resolution_y = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 10))
         jumpman_main_c.atoi(&sTemp)
     else
         kWINDOW_RESOLUTION_DEFAULT_Y;
@@ -107,7 +102,7 @@ fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
     return true;
 }
 
-fn save_settings() bool {
+fn save_settings(io: std.Io) bool {
     var sFileBuffer = std.mem.zeroes([300]u8);
     const data_to_output = std.fmt.bufPrintZ(
         &sFileBuffer,
@@ -129,9 +124,9 @@ fn save_settings() bool {
         return false;
     };
 
-    const file = std.fs.cwd().createFile("data/settings.dat", .{}) catch return false;
-    defer file.close();
-    file.writeAll(data_to_output) catch return false;
+    const file = std.Io.Dir.cwd().createFile(io, "data/settings.dat", .{}) catch return false;
+    defer file.close(io);
+    file.writeStreamingAll(io, data_to_output) catch return false;
 
     return true;
 }
@@ -181,11 +176,11 @@ fn SetFullscreen(enable_fullscreen: bool, new_width: ?*i32, new_height: ?*i32) v
     SaveSettings();
 }
 
-fn ErrorCallback(_: c_int, description: ?[*:0]const u8) callconv(.C) void {
+fn ErrorCallback(_: c_int, description: ?[*:0]const u8) callconv(.c) void {
     std.log.err("Error: {?s}\n", .{description});
 }
 
-fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action: c_int, mods: c_int) callconv(.C) void {
+fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action: c_int, mods: c_int) callconv(.c) void {
     const game_state: ?*GameState = @ptrCast(@alignCast(jumpman_main_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input;
 
@@ -349,7 +344,7 @@ fn KeyCallback(window: ?*jumpman_main_c.GLFWwindow, key: c_int, _: c_int, action
     }
 }
 
-fn MouseButtonCallback(window: ?*jumpman_main_c.GLFWwindow, button: c_int, action: c_int, _: c_int) callconv(.C) void {
+fn MouseButtonCallback(window: ?*jumpman_main_c.GLFWwindow, button: c_int, action: c_int, _: c_int) callconv(.c) void {
     const game_state: ?*GameState = @ptrCast(@alignCast(jumpman_main_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input;
 
@@ -368,13 +363,13 @@ fn MouseButtonCallback(window: ?*jumpman_main_c.GLFWwindow, button: c_int, actio
     }
 }
 
-fn CursorEnterCallback(window: ?*jumpman_main_c.GLFWwindow, is_entering: c_int) callconv(.C) void {
+fn CursorEnterCallback(window: ?*jumpman_main_c.GLFWwindow, is_entering: c_int) callconv(.c) void {
     const game_state: ?*GameState = @ptrCast(@alignCast(jumpman_main_c.glfwGetWindowUserPointer(window)));
     const game_current_input = &game_state.?.*.current_input; // TODO: Does this just panic if it's null?
     game_current_input.*.cursor_is_on_screen = is_entering != 0; // TODO: Does this get wiped out every frame?
 }
 
-fn WindowFocusCallback(_: ?*jumpman_main_c.GLFWwindow, is_focused: c_int) callconv(.C) void {
+fn WindowFocusCallback(_: ?*jumpman_main_c.GLFWwindow, is_focused: c_int) callconv(.c) void {
     if (is_focused != 0) {
         g_game_is_frozen = false;
         basic_3d.Reset3d();
@@ -383,7 +378,7 @@ fn WindowFocusCallback(_: ?*jumpman_main_c.GLFWwindow, is_focused: c_int) callco
     }
 }
 
-fn WindowSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_int) callconv(.C) void {
+fn WindowSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
     if (!g_fullscreen_is_enabled) {
         g_window_resolution_x = width;
         g_window_resolution_y = height;
@@ -391,7 +386,7 @@ fn WindowSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_in
     }
 }
 
-fn FramebufferSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_int) callconv(.C) void {
+fn FramebufferSizeCallback(_: ?*jumpman_main_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
     basic_3d.ResizeViewport(width, height);
 }
 
@@ -512,14 +507,16 @@ pub fn SaveSettings() void {
     g_save_settings_is_queued = true;
 }
 
-pub fn main() u8 {
-    const arguments = std.os.argv;
+pub fn main(init: std.process.Init) !u8 {
+    const arena = init.arena.allocator();
+
+    const arguments = try init.minimal.args.toSlice(arena);
     var game_state = std.mem.zeroes(GameState);
 
     var sound_is_initially_enabled: bool = false;
     var music_is_initially_enabled: bool = false;
 
-    if (!LoadSettings(&sound_is_initially_enabled, &music_is_initially_enabled)) {
+    if (!LoadSettings(&sound_is_initially_enabled, &music_is_initially_enabled, init.io)) {
         return jumpman_main_c.EXIT_FAILURE;
     }
 
@@ -578,6 +575,8 @@ pub fn main() u8 {
 
     g_game_is_frozen = false;
 
+    jumpman.initZig(init.io, init.gpa);
+
     if (!jumpman.Init3D()) {
         // TODO: Proper error handling
         return jumpman_main_c.EXIT_FAILURE;
@@ -610,13 +609,13 @@ pub fn main() u8 {
 
     var is_debug_init: bool = false;
     if (arguments.len > 1) {
-        const arg_length: usize = std.mem.len(arguments[1]);
+        const arg_length: usize = arguments[1].len;
         if (arg_length > 4 and std.mem.eql(u8, arguments[1][arg_length - 4 .. arg_length], ".lua")) { // TODO: Check this is correct and see if there's something more idiomatic
             //if (arg_length > 4 and arguments[1][arg_length - 4] == '.' and arguments[1][arg_length - 3] == 'l' and arguments[1][arg_length - 2] == 'u' and arguments[1][arg_length - 1] == 'a') { // TODO: If string ends with ".lua"
-            jumpman.InitGameDebugScript(std.mem.span(arguments[1][0.. :0]));
+            jumpman.InitGameDebugScript(arguments[1]);
             is_debug_init = true;
         } else if (arg_length > 0) {
-            jumpman.InitGameDebugLevel(std.mem.span(arguments[1][0.. :0]));
+            jumpman.InitGameDebugLevel(arguments[1]);
             is_debug_init = true;
         }
     }
@@ -700,7 +699,7 @@ pub fn main() u8 {
         jumpman_main_c.glfwPollEvents();
 
         if (g_save_settings_is_queued) {
-            if (!save_settings()) {
+            if (!save_settings(init.io)) {
                 std.log.err("Failed to save config file\n", .{});
             }
 

@@ -37,22 +37,20 @@ fn TextLine(sText: []const u8, iTextLen: usize, sOut: []u8, iLine: i32) bool {
 
 // TODO: This utility function should be eliminated
 // TODO: Take allocator as param
-pub fn FileToString(filename: [*:0]const u8, sNewBuffer: *[*c]u8) usize {
-    const file = std.fs.openFileAbsoluteZ(filename, .{}) catch return 0;
-    defer file.close();
-    const contents = file.readToEndAlloc(std.heap.raw_c_allocator, 4 * 1024 * 1024) catch return 0;
+pub fn FileToString(io: std.Io, filename: [:0]const u8, sNewBuffer: *[*c]u8) usize {
+    const contents = std.Io.Dir.cwd().readFileAlloc(io, filename, std.heap.c_allocator, .unlimited) catch @panic("unable to read file"); // TODO: better error handling
     sNewBuffer.* = contents.ptr;
     return contents.len;
 }
 
 // TODO: This utility function should be eliminated
-pub fn GetFileLine(sOut: [*c]u8, sOutSize: usize, filename: [*:0]const u8, iLine: c_int) bool {
+pub fn GetFileLine(io: std.Io, sOut: [*c]u8, sOutSize: usize, filename: [:0]const u8, iLine: c_int) bool {
     var is_found = false;
     var sTemp = std.mem.zeroes([20]u8);
     var sData: [*c]u8 = null;
 
-    const iLen: usize = FileToString(filename, &sData);
-    defer if (iLen != 0) std.heap.raw_c_allocator.free(sData[0..iLen]);
+    const iLen: usize = FileToString(io, filename, &sData);
+    defer if (iLen != 0) std.heap.c_allocator.free(sData[0..iLen]);
 
     if (TextLine(sData[0..iLen], iLen, sTemp[0..], iLine)) {
         is_found = true;

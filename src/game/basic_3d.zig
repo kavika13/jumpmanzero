@@ -565,7 +565,7 @@ var g_mesh_handle_first_free_index: i32 = 0;
 
 pub fn Clear3dData() void {
     for (0..kERROR_IMAGE_WIDTH * kERROR_IMAGE_HEIGHT) |pixel_index| {
-        @as([*]u32, @alignCast(@ptrCast(&g_error_image_data[0][0][0])))[pixel_index] = 0x7FFF00FF; // AABBGGRR
+        @as([*]u32, @ptrCast(@alignCast(&g_error_image_data[0][0][0])))[pixel_index] = 0x7FFF00FF; // AABBGGRR
     }
 
     for (0..kMAX_TEXTURES) |texture_index| {
@@ -635,7 +635,7 @@ pub fn LoadTexture(texture_index_i32: i32, sFile: [:0]const u8, image_type: i32,
             // Color key alpha, on 0xFFFFFFFF
             for (0..height) |y| {
                 for (0..width) |x| {
-                    if (@as(*u32, @alignCast(@ptrCast(&image_data.?[y * width * 4 + x * 4 + 0]))).* == 0xFFFFFFFF) {
+                    if (@as(*u32, @ptrCast(@alignCast(&image_data.?[y * width * 4 + x * 4 + 0]))).* == 0xFFFFFFFF) {
                         image_data.?[y * width * 4 + x * 4 + 3] = 0x0;
                     }
                 }

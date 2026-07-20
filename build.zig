@@ -27,20 +27,20 @@ pub fn build(b: *std.Build) void {
     const miniaudio_dep = b.dependency("miniaudio", .{ .target = target, .optimize = optimize });
     const tiny_sound_font_dep = b.dependency("tiny_sound_font", .{ .target = target, .optimize = optimize });
 
-    exe.addIncludePath(b.path("Jumpman"));
-    exe.addIncludePath(lua_dep.path(""));
-    exe.addIncludePath(cute_headers_deprecated_dep.path(""));
-    exe.addIncludePath(sokol_dep.path(""));
-    exe.addIncludePath(stb_dep.path(""));
-    exe.addIncludePath(miniaudio_dep.path(""));
-    exe.addIncludePath(tiny_sound_font_dep.path(""));
+    exe_mod.addIncludePath(b.path("Jumpman"));
+    exe_mod.addIncludePath(lua_dep.path(""));
+    exe_mod.addIncludePath(cute_headers_deprecated_dep.path(""));
+    exe_mod.addIncludePath(sokol_dep.path(""));
+    exe_mod.addIncludePath(stb_dep.path(""));
+    exe_mod.addIncludePath(miniaudio_dep.path(""));
+    exe_mod.addIncludePath(tiny_sound_font_dep.path(""));
 
     // TODO: Use deps instead of vendored source
-    exe.addIncludePath(b.path("Jumpman/glad/include"));
-    exe.addIncludePath(b.path("Jumpman/glfw-3.3.2.bin.WIN64/include"));
-    exe.addIncludePath(b.path("Jumpman/boxer-c/include"));
+    exe_mod.addIncludePath(b.path("Jumpman/glad/include"));
+    exe_mod.addIncludePath(b.path("Jumpman/glfw-3.3.2.bin.WIN64/include"));
+    exe_mod.addIncludePath(b.path("Jumpman/boxer-c/include"));
 
-    exe.addCSourceFiles(.{
+    exe_mod.addCSourceFiles(.{
         .files = &.{
             "Jumpman/Music.c",
             "Jumpman/boxer-c/src/boxer_win.c",
@@ -53,8 +53,8 @@ pub fn build(b: *std.Build) void {
         },
     });
 
-    exe.linkLibrary(lua_lib);
-    exe.addObjectFile(b.path("Jumpman/glfw-3.3.2.bin.WIN64/lib-vc2015/glfw3dll.lib"));
+    exe_mod.linkLibrary(lua_lib);
+    exe_mod.addObjectFile(b.path("Jumpman/glfw-3.3.2.bin.WIN64/lib-vc2015/glfw3dll.lib"));
 
     b.installArtifact(exe);
 

@@ -24,6 +24,9 @@ const kMAX_SCRIPT_MESHES: usize = 600;
 
 var g_main_script_context: LuaModuleScriptContext = .{ .lua_state = null, .module_table_registry_index = -1 };
 
+var g_io: std.Io = .failing;
+var g_gpa: std.mem.Allocator = .failing;
+
 // ------------------- LUA SCRIPT API -------------------------------
 
 fn lua_checkbool(L: *lua_c.lua_State, arg: i32) bool {
@@ -32,7 +35,7 @@ fn lua_checkbool(L: *lua_c.lua_State, arg: i32) bool {
     return d != 0;
 }
 
-fn unload_all_resources(_: ?*lua_c.lua_State) callconv(.C) c_int {
+fn unload_all_resources(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.Clear3dData();
 
     g_loaded_texture_count = 0;
@@ -41,17 +44,17 @@ fn unload_all_resources(_: ?*lua_c.lua_State) callconv(.C) c_int {
     return 0;
 }
 
-fn begin_loading_3d_data(_: ?*lua_c.lua_State) callconv(.C) c_int {
+fn begin_loading_3d_data(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.Begin3dLoad();
     return 0;
 }
 
-fn end_and_commit_loading_3d_data(_: ?*lua_c.lua_State) callconv(.C) c_int {
+fn end_and_commit_loading_3d_data(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.EndAndCommit3dLoad();
     return 0;
 }
 
-fn play_music_track_1(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn play_music_track_1(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const new_music_track_arg = lua_c.lua_tolstring(lua_state, 1, null);
     const song_start_music_time_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
@@ -66,23 +69,23 @@ fn play_music_track_1(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 0;
 }
 
-fn stop_music_track_1(_: ?*lua_c.lua_State) callconv(.C) c_int {
+fn stop_music_track_1(_: ?*lua_c.lua_State) callconv(.c) c_int {
     jumpman_main_c.StopMusic1(); // TODO: Error checking?
     return 0;
 }
 
-fn play_music_track_2(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn play_music_track_2(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const new_music_track_arg = lua_c.lua_tolstring(lua_state, 1, null);
     jumpman_main_c.NewTrack2(new_music_track_arg);
     return 0;
 }
 
-fn load_sound(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn load_sound(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state, 1, null);
     var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
-    _ = std.fs.cwd().realpathZ(filename_arg, &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+    _ = std.Io.Dir.cwd().realPathFile(g_io, std.mem.span(filename_arg), &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
     _ = sound.LoadSound(&full_filename_buf, @intCast(g_loaded_sound_count)); // TODO: Handle return value/error
     lua_c.lua_pushinteger(lua_state, g_loaded_sound_count);
@@ -91,13 +94,13 @@ fn load_sound(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 1;
 }
 
-fn load_texture(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn load_texture(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state.?, 1, null);
     const image_type_arg = lua_c.luaL_checkinteger(lua_state.?, 2);
     const is_alpha_blend_enabled_arg: bool = lua_checkbool(lua_state.?, 3);
     var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
-    _ = std.fs.cwd().realpathZ(filename_arg, &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+    _ = std.Io.Dir.cwd().realPathFile(g_io, std.mem.span(filename_arg), &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
     basic_3d.LoadTexture(g_loaded_texture_count, &full_filename_buf, @truncate(image_type_arg), is_alpha_blend_enabled_arg);
     lua_c.lua_pushinteger(lua_state, g_loaded_texture_count);
@@ -117,13 +120,10 @@ fn stringToLong(text: []const u8) i32 {
 }
 
 // TODO: Take allocator as param
-fn LoadMesh(sFileName: [*:0]const u8) i32 {
-    var sFullFileBuf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
-    _ = std.fs.cwd().realpathZ(sFileName, &sFullFileBuf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
-
+fn LoadMesh(sFileName: [:0]const u8) i32 {
     var cData: [*c]u8 = null;
-    const data_length: usize = utilities.FileToString(&sFullFileBuf, &cData); // TODO: Don't use utility function for this?
-    defer std.heap.raw_c_allocator.free(cData[0..data_length]);
+    const data_length: usize = utilities.FileToString(g_io, sFileName, &cData); // TODO: Don't use utility function for this?
+    defer std.heap.c_allocator.free(cData[0..data_length]);
     const vertex_component_count = data_length / 4;
 
     const vertex_components: []i32 = std.heap.c_allocator.alloc(i32, vertex_component_count) catch @panic("failed to allocate"); // TODO: Better error handling
@@ -139,7 +139,7 @@ fn LoadMesh(sFileName: [*:0]const u8) i32 {
     return result_mesh_handle_index;
 }
 
-fn load_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn load_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // TODO: Error checking for filename?
     const filename_arg = lua_c.lua_tolstring(lua_state, 1, null);
     const loaded_mesh_handle_index: i32 = LoadMesh(std.mem.span(filename_arg));
@@ -147,86 +147,86 @@ fn load_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 1;
 }
 
-fn set_mesh_to_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn set_mesh_to_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const target_mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const source_mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.MeshReplaceWithCopy(@truncate(target_mesh_handle_index_arg), @truncate(source_mesh_handle_index_arg));
     return 0;
 }
 
-fn transform_create(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_create(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const new_transform_index: i32 = basic_3d.TransformCreate();
     lua_c.lua_pushinteger(lua_state, new_transform_index);
     return 1;
 }
 
-fn transform_delete(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_delete(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.TransformDelete(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_get_parent(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_get_parent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const parent_transform_index: i32 = basic_3d.TransformGetParent(@truncate(arg_transform_index));
     lua_c.lua_pushinteger(lua_state, parent_transform_index);
     return 1;
 }
 
-fn transform_set_parent(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_parent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_new_parent_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.TransformSetParent(@truncate(arg_transform_index), @truncate(arg_new_parent_index));
     return 0;
 }
 
-fn transform_clear_parent(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_clear_parent(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.TransformClearParent(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_get_parent_is_camera(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_get_parent_is_camera(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const is_parent_camera: bool = basic_3d.TransformGetParentIsCamera(@truncate(arg_transform_index));
     lua_c.lua_pushboolean(lua_state, is_parent_camera);
     return 1;
 }
 
-fn transform_set_parent_is_camera(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_parent_is_camera(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_is_parent_camera: bool = lua_checkbool(lua_state.?, 2);
     basic_3d.TransformSetParentIsCamera(@truncate(arg_transform_index), arg_is_parent_camera);
     return 0;
 }
 
-fn mesh_get_transform(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn mesh_get_transform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_mesh_handle_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const transform_index: i32 = basic_3d.MeshGetTransform(@truncate(arg_mesh_handle_index));
     lua_c.lua_pushinteger(lua_state, transform_index);
     return 1;
 }
 
-fn mesh_set_transform(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn mesh_set_transform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_mesh_handle_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.MeshSetTransform(@truncate(arg_mesh_handle_index), @truncate(arg_transform_index));
     return 0;
 }
 
-fn mesh_clear_transform(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn mesh_clear_transform(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_mesh_handle_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.MeshClearTransform(@truncate(arg_mesh_handle_index));
     return 0;
 }
 
-fn transform_set_to_identity(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_to_identity(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.TransformSetToIdentity(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_set_translation(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_translation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_x: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const arg_y: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -235,61 +235,61 @@ fn transform_set_translation(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 0;
 }
 
-fn transform_clear_translation(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_clear_translation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.TransformClearTranslation(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_set_rotation_x(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_rotation_x(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.TransformSetRotationX(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_set_rotation_y(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_rotation_y(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.TransformSetRotationY(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_set_rotation_z(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_rotation_z(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.TransformSetRotationZ(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_concat_rotation_x(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_concat_rotation_x(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.TransformConcatRotationX(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_concat_rotation_y(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_concat_rotation_y(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.TransformConcatRotationY(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_concat_rotation_z(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_concat_rotation_z(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_angle_in_degrees: f64 = lua_c.luaL_checknumber(lua_state, 2);
     basic_3d.TransformConcatRotationZ(@truncate(arg_transform_index), @floatCast(arg_angle_in_degrees));
     return 0;
 }
 
-fn transform_clear_rotation(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_clear_rotation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.TransformClearRotation(@truncate(arg_transform_index));
     return 0;
 }
 
-fn transform_set_scale(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_set_scale(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const arg_x: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const arg_y: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -298,13 +298,13 @@ fn transform_set_scale(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 0;
 }
 
-fn transform_clear_scale(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn transform_clear_scale(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg_transform_index: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.TransformClearScale(@truncate(arg_transform_index));
     return 0;
 }
 
-fn scroll_texture_on_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn scroll_texture_on_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const translate_x_arg: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const argtranslate_y_arg: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -312,44 +312,44 @@ fn scroll_texture_on_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 0;
 }
 
-fn skip_next_mesh_interpolation(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn skip_next_mesh_interpolation(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.MeshSetIsAnimationContinuous(@truncate(mesh_handle_index_arg), false);
     return 0;
 }
 
-fn skip_next_camera_interpolation(_: ?*lua_c.lua_State) callconv(.C) c_int {
+fn skip_next_camera_interpolation(_: ?*lua_c.lua_State) callconv(.c) c_int {
     basic_3d.SetCameraIsAnimationContinuous(false);
     return 0;
 }
 
-fn get_loaded_texture_count(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn get_loaded_texture_count(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushnumber(lua_state, @floatFromInt(g_loaded_texture_count));
     return 1;
 }
 
-fn get_is_sound_enabled(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn get_is_sound_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushboolean(lua_state, @intFromBool(sound.GetIsSoundEnabled()));
     return 1;
 }
 
-fn get_is_music_enabled(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn get_is_music_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushboolean(lua_state, @intFromBool(jumpman_main_c.GetIsMusicEnabled()));
     return 1;
 }
 
-fn get_last_key_pressed(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn get_last_key_pressed(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushnumber(lua_state, @floatFromInt(main.GetLastKeyPressed()));
     return 1;
 }
 
-fn get_current_fps(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn get_current_fps(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     lua_c.lua_pushnumber(lua_state, @floatFromInt(main.GetCurrentFps()));
     return 1;
 }
 
 // TODO: Take allocator as param
-fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // Handle data in the format:
     // {
     //     { pos = { 137, 140, 15 }, normal = { 0, 0, -1 }, uv = { 0, 0 } },
@@ -435,40 +435,40 @@ fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 1;
 }
 
-fn new_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn new_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const script_mesh_index_arg: f64 = lua_c.luaL_checknumber(lua_state, 1); // TODO: luaL_checkinteger?
     const new_mesh_handle_index: i32 = basic_3d.MeshCreateFromCopy(@intFromFloat(script_mesh_index_arg));
     lua_c.lua_pushnumber(lua_state, @floatFromInt(new_mesh_handle_index));
     return 1;
 }
 
-fn set_mesh_texture(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn set_mesh_texture(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const texture_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
     basic_3d.MeshSetTextureIndex(@truncate(mesh_handle_index_arg), @truncate(texture_index_arg));
     return 0;
 }
 
-fn set_mesh_is_visible(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn set_mesh_is_visible(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const is_visible_arg: bool = lua_checkbool(lua_state.?, 2);
     basic_3d.MeshSetIsVisible(@truncate(mesh_handle_index_arg), is_visible_arg);
     return 0;
 }
 
-fn move_transparent_mesh_to_front(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn move_transparent_mesh_to_front(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.MeshMoveToFrontForTransparentDrawing(@truncate(mesh_handle_index_arg));
     return 0;
 }
 
-fn move_transparent_mesh_to_back(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn move_transparent_mesh_to_back(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     basic_3d.MeshMoveToBackForTransparentDrawing(@truncate(mesh_handle_index_arg));
     return 0;
 }
 
-fn set_fog(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn set_fog(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const fog_start_arg: lua_c.lua_Number = lua_c.luaL_checknumber(lua_state, 1);
     const fog_end_arg: lua_c.lua_Number = lua_c.luaL_checknumber(lua_state, 2);
     const red_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 3);
@@ -478,7 +478,7 @@ fn set_fog(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 0;
 }
 
-fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     var sNameBuf: [100:0]u8 = undefined;
     var sName: []u8 = undefined;
     const option_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
@@ -529,7 +529,7 @@ fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 1;
 }
 
-fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const option_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
     const key_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 2);
 
@@ -592,24 +592,24 @@ fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 1;
 }
 
-fn save_config_options(_: ?*lua_c.lua_State) callconv(.C) c_int { // TODO: Might be able to move to Lua?
+fn save_config_options(_: ?*lua_c.lua_State) callconv(.c) c_int { // TODO: Might be able to move to Lua?
     main.SaveSettings();
     return 0;
 }
 
-fn play_sound_effect(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn play_sound_effect(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg1: f64 = lua_c.luaL_checknumber(lua_state, 1); // TODO: luaL_checkinteger?
     sound.PlaySoundEffect(@intFromFloat(arg1));
     return 0;
 }
 
-fn delete_mesh(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn delete_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const mesh_handle_index_arg: f64 = lua_c.luaL_checknumber(lua_state, 1); // TODO: luaL_checkinteger?
     basic_3d.MeshDelete(@intFromFloat(mesh_handle_index_arg));
     return 0;
 }
 
-fn set_perspective(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn set_perspective(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const camera_x_arg: f64 = lua_c.luaL_checknumber(lua_state, 1);
     const camera_y_arg: f64 = lua_c.luaL_checknumber(lua_state, 2);
     const camera_z_arg: f64 = lua_c.luaL_checknumber(lua_state, 3);
@@ -620,7 +620,7 @@ fn set_perspective(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
     return 0;
 }
 
-fn lua_error_handler(lua_state: ?*lua_c.lua_State) callconv(.C) c_int {
+fn lua_error_handler(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     var error_message = lua_c.lua_tolstring(lua_state, 1, null);
 
     if (error_message == null) {
@@ -763,7 +763,7 @@ fn LoadLuaScript(filename: [:0]const u8, new_script_context: *LuaModuleScriptCon
     }
 
     var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
-    _ = std.fs.cwd().realpathZ(filename, &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
+    _ = std.Io.Dir.cwd().realPathFile(g_io, filename, &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
     const new_state: ?*lua_c.lua_State = lua_c.luaL_newstate();
     std.debug.assert(new_state != null); // TODO: Error handling
@@ -920,6 +920,11 @@ pub const GameInput = extern struct { // TODO: Make it not extern struct?
     cursor_position: GameCursorPosition = .zero,
     cursor_is_on_screen: bool = false,
 };
+
+pub fn initZig(io: std.Io, gpa: std.mem.Allocator) void {
+    g_io = io;
+    g_gpa = gpa;
+}
 
 pub fn Init3D() bool {
     if (!basic_3d.InitializeAll()) {

@@ -15,31 +15,31 @@ var g_sound_is_initialized: bool = false;
 var g_sound_is_enabled: bool = false;
 var g_sound_decoders = std.mem.zeroes([kNUM_SOUND_DECODERS]jumpman_sound_c.ma_decoder);
 
-fn AddChannel0Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64 {
+fn AddChannel0Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = jumpman_sound_c.ma_decoder_read_pcm_frames(&g_sound_decoders[0], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == jumpman_sound_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel1Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64 {
+fn AddChannel1Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = jumpman_sound_c.ma_decoder_read_pcm_frames(&g_sound_decoders[1], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == jumpman_sound_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel2Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64 {
+fn AddChannel2Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = jumpman_sound_c.ma_decoder_read_pcm_frames(&g_sound_decoders[2], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == jumpman_sound_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel3Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64 {
+fn AddChannel3Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = jumpman_sound_c.ma_decoder_read_pcm_frames(&g_sound_decoders[3], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == jumpman_sound_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel4Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.C) u64 {
+fn AddChannel4Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = jumpman_sound_c.ma_decoder_read_pcm_frames(&g_sound_decoders[4], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == jumpman_sound_c.MA_SUCCESS) frames_read else 0;
