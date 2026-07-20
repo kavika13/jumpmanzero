@@ -1,9 +1,9 @@
 const std = @import("std");
+
 const basic_3d = @import("basic_3d.zig");
 const jumpman = @import("jumpman.zig");
 const sound = @import("sound.zig");
 const sound_buffer = @import("sound_buffer.zig");
-const utilities = @import("utilities.zig");
 const jumpman_main_c = @cImport({
     @cDefine("ZIG_DEFINES_MAIN", {});
     @cDefine("GLFW_INCLUDE_NONE", {});
@@ -47,53 +47,29 @@ const GameState = struct {
     current_input: jumpman.GameInput,
 };
 
-// TODO: Take allocator as param
-fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool, io: std.Io) bool {
-    var sTemp = std.mem.zeroes([30]u8);
-    var sData: [*c]u8 = null;
-    const iLen = utilities.FileToString(io, "data/settings.dat", &sData); // TODO: Zig native equivalent, with streaming IO
-    defer std.heap.c_allocator.free(sData[0..iLen]);
+fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool, io: std.Io, gpa: std.mem.Allocator) bool {
+    const sData: []u8 = std.Io.Dir.cwd().readFileAlloc(io, "data/settings.dat", gpa, .unlimited) catch |err| err: {
+        switch (err) {
+            error.FileNotFound => break :err "",
+            else => return false,
+        }
+    };
+    defer gpa.free(sData);
 
-    // TODO: Handle file missing case without an error message - should create it and set defaults instead
-    if (iLen == 0) {
-        return false;
-    }
-
+    var file_lines = std.mem.splitScalar(u8, sData, '\n');
     for (0..6) |key_index| {
-        g_key_bindings[key_index] = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", @intCast(key_index)))
-            jumpman_main_c.atoi(&sTemp)
-        else
-            0;
+        g_key_bindings[key_index] = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) else 0;
     }
-
-    sound_is_initially_enabled.* = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 6))
-        jumpman_main_c.atoi(&sTemp) != 0
-    else
-        false;
-
-    music_is_initially_enabled.* = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 7))
-        jumpman_main_c.atoi(&sTemp) != 0
-    else
-        false;
-
-    g_fullscreen_is_enabled = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 8))
-        jumpman_main_c.atoi(&sTemp) != 0
-    else
-        false;
-
-    g_window_resolution_x = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 9))
-        jumpman_main_c.atoi(&sTemp)
-    else
-        kWINDOW_RESOLUTION_DEFAULT_X;
+    sound_is_initially_enabled.* = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) != 0 else false;
+    music_is_initially_enabled.* = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) != 0 else false;
+    g_fullscreen_is_enabled = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) != 0 else false;
+    g_window_resolution_x = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) else kWINDOW_RESOLUTION_DEFAULT_X;
 
     if (g_window_resolution_x < kWINDOW_RESOLUTION_MIN_X) {
         g_window_resolution_x = kWINDOW_RESOLUTION_MIN_X;
     }
 
-    g_window_resolution_y = if (utilities.GetFileLine(io, &sTemp, sTemp.len, "data/settings.dat", 10))
-        jumpman_main_c.atoi(&sTemp)
-    else
-        kWINDOW_RESOLUTION_DEFAULT_Y;
+    g_window_resolution_y = if (file_lines.next()) |line| jumpman_main_c.atoi(&line[0]) else kWINDOW_RESOLUTION_DEFAULT_Y;
 
     if (g_window_resolution_y < kWINDOW_RESOLUTION_MIN_Y) {
         g_window_resolution_y = kWINDOW_RESOLUTION_MIN_Y;
@@ -102,7 +78,7 @@ fn LoadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *
     return true;
 }
 
-fn save_settings(io: std.Io) bool {
+fn saveSettings(io: std.Io) bool {
     var sFileBuffer = std.mem.zeroes([300]u8);
     const data_to_output = std.fmt.bufPrintZ(
         &sFileBuffer,
@@ -516,7 +492,7 @@ pub fn main(init: std.process.Init) !u8 {
     var sound_is_initially_enabled: bool = false;
     var music_is_initially_enabled: bool = false;
 
-    if (!LoadSettings(&sound_is_initially_enabled, &music_is_initially_enabled, init.io)) {
+    if (!LoadSettings(&sound_is_initially_enabled, &music_is_initially_enabled, init.io, init.gpa)) {
         return jumpman_main_c.EXIT_FAILURE;
     }
 
@@ -582,7 +558,9 @@ pub fn main(init: std.process.Init) !u8 {
         return jumpman_main_c.EXIT_FAILURE;
     }
 
-    if (sound_buffer.InitSoundBuffer()) {
+    const init_sound_buffer_succeeded = sound_buffer.InitSoundBuffer(init.gpa);
+    defer if (init_sound_buffer_succeeded) sound_buffer.CleanupSoundBuffer();
+    if (init_sound_buffer_succeeded) {
         if (!jumpman_main_c.InitMusic()) {
             music_is_initially_enabled = false;
         }
@@ -610,8 +588,7 @@ pub fn main(init: std.process.Init) !u8 {
     var is_debug_init: bool = false;
     if (arguments.len > 1) {
         const arg_length: usize = arguments[1].len;
-        if (arg_length > 4 and std.mem.eql(u8, arguments[1][arg_length - 4 .. arg_length], ".lua")) { // TODO: Check this is correct and see if there's something more idiomatic
-            //if (arg_length > 4 and arguments[1][arg_length - 4] == '.' and arguments[1][arg_length - 3] == 'l' and arguments[1][arg_length - 2] == 'u' and arguments[1][arg_length - 1] == 'a') { // TODO: If string ends with ".lua"
+        if (std.mem.endsWith(u8, arguments[1], ".lua")) {
             jumpman.InitGameDebugScript(arguments[1]);
             is_debug_init = true;
         } else if (arg_length > 0) {
@@ -699,7 +676,7 @@ pub fn main(init: std.process.Init) !u8 {
         jumpman_main_c.glfwPollEvents();
 
         if (g_save_settings_is_queued) {
-            if (!save_settings(init.io)) {
+            if (!saveSettings(init.io)) {
                 std.log.err("Failed to save config file\n", .{});
             }
 
@@ -708,9 +685,4 @@ pub fn main(init: std.process.Init) !u8 {
     }
 
     return jumpman_main_c.EXIT_SUCCESS;
-}
-
-// TODO: Remove this and replace all usage with direct calls to std.log.err
-export fn debug_log(text: [*c]const u8) void {
-    std.log.err("{s}", .{std.mem.span(text)});
 }

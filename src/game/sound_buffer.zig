@@ -11,12 +11,11 @@ pub const kSOUND_CHANNEL_COUNT: usize = 64;
 pub const SoundChannel = fn (frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64; // TODO: Make not export
 
 var g_is_initialized: bool = false;
+var g_gpa: std.mem.Allocator = .failing;
 var g_sound_device = std.mem.zeroes(jumpman_sound_buffer_c.ma_device);
 var g_sound_channels = std.mem.zeroes([kSOUND_CHANNEL_COUNT]?*const SoundChannel);
-var g_temporary_sample_buffer: ?[*]f32 = null;
-var g_temporary_sample_buffer_byte_count: usize = 0;
+var g_temporary_sample_buffer: []f32 = &.{};
 
-// TODO: Take allocator somehow?
 fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const anyopaque, frame_count: u32) callconv(.c) void {
     const output: [*]f32 = @ptrCast(@alignCast(pOutput));
 
@@ -26,31 +25,28 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
         output[i * 2 + 1] = 0.0;
     }
 
-    // TODO: Don't need to use byte counts, since allocated buffers can be strongly typed in zig.
-    //       Still will need to use frame_count * 2 though.
-    const buffer_byte_count: usize = frame_count * @sizeOf(f32) * 2;
+    const buffer_count: usize = frame_count * 2;
 
-    if (g_temporary_sample_buffer_byte_count < buffer_byte_count) {
-        if (g_temporary_sample_buffer != null) {
-            std.heap.c_allocator.free(g_temporary_sample_buffer.?[0..g_temporary_sample_buffer_byte_count]);
+    if (g_temporary_sample_buffer.len < buffer_count) {
+        if (g_temporary_sample_buffer.len != 0) {
+            g_gpa.free(g_temporary_sample_buffer);
         }
-        g_temporary_sample_buffer = @ptrCast(@alignCast(std.heap.c_allocator.alloc(u8, buffer_byte_count) catch @panic("oom"))); // TODO: Don't panic?
-        g_temporary_sample_buffer_byte_count = buffer_byte_count;
+        g_temporary_sample_buffer = g_gpa.alloc(f32, buffer_count) catch @panic("oom"); // TODO: Don't panic?
     }
 
     const hard_coded_channel_gain: f32 = 0.8; // TODO: Expose gain interface?
 
     i = 0;
     while (i < kSOUND_CHANNEL_COUNT) : (i += 1) {
-        @memset(g_temporary_sample_buffer.?[0 .. buffer_byte_count / @sizeOf(f32)], 0);
+        @memset(g_temporary_sample_buffer, 0);
 
         if (g_sound_channels[i]) |sound_channel| {
-            _ = sound_channel(frame_count, g_temporary_sample_buffer.?);
+            _ = sound_channel(frame_count, g_temporary_sample_buffer.ptr);
 
             var current_frame_index: usize = 0;
             while (current_frame_index < frame_count) : (current_frame_index += 1) {
-                output[current_frame_index * 2 + 0] += g_temporary_sample_buffer.?[current_frame_index * 2 + 0] * hard_coded_channel_gain;
-                output[current_frame_index * 2 + 1] += g_temporary_sample_buffer.?[current_frame_index * 2 + 1] * hard_coded_channel_gain;
+                output[current_frame_index * 2 + 0] += g_temporary_sample_buffer[current_frame_index * 2 + 0] * hard_coded_channel_gain;
+                output[current_frame_index * 2 + 1] += g_temporary_sample_buffer[current_frame_index * 2 + 1] * hard_coded_channel_gain;
             }
         }
     }
@@ -62,8 +58,10 @@ fn on_send_frames_to_device(_: ?*anyopaque, pOutput: ?*anyopaque, _: ?*const any
     }
 }
 
-pub fn InitSoundBuffer() bool {
+pub fn InitSoundBuffer(gpa: std.mem.Allocator) bool {
     if (!g_is_initialized) {
+        g_gpa = gpa;
+
         var config: jumpman_sound_buffer_c.ma_device_config = jumpman_sound_buffer_c.ma_device_config_init(jumpman_sound_buffer_c.ma_device_type_playback); // TODO: This is the problem line. Causing circular dependencies in the C code?
         config.playback.format = jumpman_sound_buffer_c.ma_format_f32;
         config.playback.channels = 2;
@@ -94,6 +92,10 @@ pub fn InitSoundBuffer() bool {
 
 pub fn CleanupSoundBuffer() void {
     jumpman_sound_buffer_c.ma_device_uninit(&g_sound_device);
+    if (g_temporary_sample_buffer.len > 0) {
+        g_gpa.free(g_temporary_sample_buffer);
+        g_temporary_sample_buffer = &.{};
+    }
     g_is_initialized = false;
 }
 

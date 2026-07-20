@@ -612,11 +612,9 @@ pub fn Clear3dData() void {
     g_vertices_to_load_count = 0;
 }
 
-// TODO: texture_index should be usize
-pub fn LoadTexture(texture_index_i32: i32, sFile: [:0]const u8, image_type: i32, is_alpha_blend_enabled: bool) void {
-    const texture_index: usize = @intCast(texture_index_i32);
+pub fn LoadTexture(texture_index: usize, sFile: [:0]const u8, image_type: i32, is_alpha_blend_enabled: bool) void {
     g_texture_is_alpha_blend_enabled[texture_index] = is_alpha_blend_enabled;
-    @memcpy(&g_texture_filename[texture_index], sFile);
+    @memcpy(g_texture_filename[texture_index][0..sFile.len], sFile);
     g_texture_is_color_key_alpha_enabled[texture_index] = image_type == 1;
 
     // TODO: Convert to usize asap instead of casting a bunch below
@@ -762,26 +760,24 @@ pub fn InitializeAll() bool {
     return true;
 }
 
-// TODO: Take allocator as param
-pub fn Begin3dLoad() void {
+pub fn Begin3dLoad(gpa: std.mem.Allocator) void {
     if (g_vertices_to_load != null) {
-        std.heap.c_allocator.free(g_vertices_to_load.?);
+        gpa.free(g_vertices_to_load.?);
         g_vertices_to_load = null;
     }
 
-    g_vertices_to_load = std.heap.c_allocator.alloc(MeshVertex, kMAX_VERTICES) catch @panic("failed to allocate"); // TODO: Better error handling
+    g_vertices_to_load = gpa.alloc(MeshVertex, kMAX_VERTICES) catch @panic("failed to allocate"); // TODO: Better error handling
 
     if (g_vertices_to_load == null) {
         fatalError_("Failed to allocate enough memory in order to load model's vertex data");
     }
 }
 
-// TODO: Take allocator as param
-pub fn EndAndCommit3dLoad() void {
+pub fn EndAndCommit3dLoad(gpa: std.mem.Allocator) void {
     jumpman_basic_3d_c.sg_update_buffer(g_bindings.vertex_buffers[0], &.{ .ptr = &g_vertices_to_load.?[0], .size = kMAX_VERTICES * @sizeOf(MeshVertex) });
 
     if (g_vertices_to_load != null) {
-        std.heap.c_allocator.free(g_vertices_to_load.?);
+        gpa.free(g_vertices_to_load.?);
         g_vertices_to_load = null;
     }
 }

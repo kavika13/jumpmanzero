@@ -2,7 +2,6 @@ const std = @import("std");
 const basic_3d = @import("basic_3d.zig");
 const main = @import("main.zig");
 const sound = @import("sound.zig");
-const utilities = @import("utilities.zig");
 const lua_c = @cImport({
     @cInclude("lua.h");
     @cInclude("lualib.h");
@@ -17,7 +16,7 @@ const LuaModuleScriptContext = struct {
     module_table_registry_index: i32,
 };
 
-var g_loaded_texture_count: i32 = undefined;
+var g_loaded_texture_count: usize = undefined;
 var g_loaded_sound_count: i32 = undefined;
 
 const kMAX_SCRIPT_MESHES: usize = 600;
@@ -45,12 +44,12 @@ fn unload_all_resources(_: ?*lua_c.lua_State) callconv(.c) c_int {
 }
 
 fn begin_loading_3d_data(_: ?*lua_c.lua_State) callconv(.c) c_int {
-    basic_3d.Begin3dLoad();
+    basic_3d.Begin3dLoad(g_gpa);
     return 0;
 }
 
 fn end_and_commit_loading_3d_data(_: ?*lua_c.lua_State) callconv(.c) c_int {
-    basic_3d.EndAndCommit3dLoad();
+    basic_3d.EndAndCommit3dLoad(g_gpa);
     return 0;
 }
 
@@ -103,7 +102,7 @@ fn load_texture(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     _ = std.Io.Dir.cwd().realPathFile(g_io, std.mem.span(filename_arg), &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
     basic_3d.LoadTexture(g_loaded_texture_count, &full_filename_buf, @truncate(image_type_arg), is_alpha_blend_enabled_arg);
-    lua_c.lua_pushinteger(lua_state, g_loaded_texture_count);
+    lua_c.lua_pushinteger(lua_state, @intCast(g_loaded_texture_count));
     g_loaded_texture_count += 1;
 
     return 1;
@@ -119,15 +118,19 @@ fn stringToLong(text: []const u8) i32 {
     }
 }
 
-// TODO: Take allocator as param
 fn LoadMesh(sFileName: [:0]const u8) i32 {
-    var cData: [*c]u8 = null;
-    const data_length: usize = utilities.FileToString(g_io, sFileName, &cData); // TODO: Don't use utility function for this?
-    defer std.heap.c_allocator.free(cData[0..data_length]);
-    const vertex_component_count = data_length / 4;
+    const cData: []u8 = std.Io.Dir.cwd().readFileAlloc(g_io, sFileName, g_gpa, .unlimited) catch |err| err: {
+        switch (err) {
+            error.FileNotFound => break :err "",
+            else => return -1, // TODO: Panic?
+        }
+    };
+    defer g_gpa.free(cData);
 
-    const vertex_components: []i32 = std.heap.c_allocator.alloc(i32, vertex_component_count) catch @panic("failed to allocate"); // TODO: Better error handling
-    defer std.heap.c_allocator.free(vertex_components);
+    const vertex_component_count = cData.len / 4;
+
+    const vertex_components: []i32 = g_gpa.alloc(i32, vertex_component_count) catch @panic("failed to allocate"); // TODO: Better error handling
+    defer g_gpa.free(vertex_components);
 
     for (0..vertex_component_count) |component_index| {
         const index = component_index << 2;
@@ -348,7 +351,6 @@ fn get_current_fps(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     return 1;
 }
 
-// TODO: Take allocator as param
 fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     // Handle data in the format:
     // {
@@ -369,7 +371,8 @@ fn create_mesh(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const triangle_count: usize = vertex_count / 3;
     std.debug.assert(triangle_count * 3 == vertex_count); // "Vertex data passed in isn't divisible by 3 (triangles)"
 
-    var new_mesh_vertices = std.heap.c_allocator.alloc(basic_3d.MeshVertex, vertex_count) catch @panic("failed to allocate"); // TODO: Better error handling
+    var new_mesh_vertices = g_gpa.alloc(basic_3d.MeshVertex, vertex_count) catch @panic("failed to allocate"); // TODO: Better error handling
+    defer g_gpa.free(new_mesh_vertices);
 
     for (0..vertex_count) |vertex_index| {
         _ = lua_c.lua_rawgeti(lua_state, 1, @intCast(vertex_index + 1)); // Current vertex table. Lua indices are 1-based - TODO: Don't ignore result
