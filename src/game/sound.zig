@@ -11,58 +11,58 @@ var g_sound_is_initialized: bool = false;
 var g_sound_is_enabled: bool = false;
 var g_sound_decoders = std.mem.zeroes([kNUM_SOUND_DECODERS]miniaudio_c.ma_decoder);
 
-fn AddChannel0Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
+fn addChannel0Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = miniaudio_c.ma_decoder_read_pcm_frames(&g_sound_decoders[0], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == miniaudio_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel1Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
+fn addChannel1Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = miniaudio_c.ma_decoder_read_pcm_frames(&g_sound_decoders[1], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == miniaudio_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel2Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
+fn addChannel2Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = miniaudio_c.ma_decoder_read_pcm_frames(&g_sound_decoders[2], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == miniaudio_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel3Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
+fn addChannel3Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = miniaudio_c.ma_decoder_read_pcm_frames(&g_sound_decoders[3], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == miniaudio_c.MA_SUCCESS) frames_read else 0;
 }
 
-fn AddChannel4Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
+fn addChannel4Samples(frameCount: u64, interleaved_stereo_samples: [*]f32) callconv(.c) u64 {
     var frames_read: u64 = undefined;
     const result = miniaudio_c.ma_decoder_read_pcm_frames(&g_sound_decoders[4], interleaved_stereo_samples, frameCount, &frames_read);
     return if (result == miniaudio_c.MA_SUCCESS) frames_read else 0;
 }
 
 const g_sound_channel_callbacks: [kNUM_SOUND_DECODERS]*const sound_buffer.SoundChannel = .{
-    &AddChannel0Samples,
-    &AddChannel1Samples,
-    &AddChannel2Samples,
-    &AddChannel3Samples,
-    &AddChannel4Samples,
+    &addChannel0Samples,
+    &addChannel1Samples,
+    &addChannel2Samples,
+    &addChannel3Samples,
+    &addChannel4Samples,
 };
 
-pub fn InitSound() bool {
+pub fn init() bool {
     g_sound_is_initialized = true;
     return true;
 }
 
-pub fn GetIsSoundEnabled() bool {
+pub fn getIsSoundEnabled() bool {
     return g_sound_is_enabled;
 }
 
-pub fn SetIsSoundEnabled(is_enabled: bool) void {
+pub fn setIsSoundEnabled(is_enabled: bool) void {
     g_sound_is_enabled = is_enabled;
 }
 
-pub fn PlaySoundEffect(sound_index: usize) void {
+pub fn playSoundEffect(sound_index: usize) void {
     if (!g_sound_is_initialized or !g_sound_is_enabled) {
         return;
     }
@@ -73,7 +73,7 @@ pub fn PlaySoundEffect(sound_index: usize) void {
     sound_buffer.setSoundChannel(kSOUND_CHANNEL_START_INDEX + sound_index, g_sound_channel_callbacks[sound_index]);
 }
 
-pub fn LoadSound(filename: [:0]const u8, sound_index: usize) bool {
+pub fn loadSound(filename: [:0]const u8, sound_index: usize) bool {
     // For now, enable loading sounds even if sounds are not enabled, so we can switch it enabled without having to load sounds again
     if (!g_sound_is_initialized) {
         return false;
@@ -90,7 +90,7 @@ pub fn LoadSound(filename: [:0]const u8, sound_index: usize) bool {
     return result == miniaudio_c.MA_SUCCESS;
 }
 
-pub fn CleanUpSounds() void {
+pub fn cleanup() void {
     if (!g_sound_is_initialized) {
         return;
     }

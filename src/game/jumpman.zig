@@ -80,7 +80,7 @@ fn load_sound(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     var full_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
     _ = std.Io.Dir.cwd().realPathFile(g_io, std.mem.span(filename_arg), &full_filename_buf) catch @panic("Failed to print to buffer"); // TODO: Error handling?
 
-    _ = sound.LoadSound(&full_filename_buf, @intCast(g_loaded_sound_count)); // TODO: Handle return value/error
+    _ = sound.loadSound(&full_filename_buf, @intCast(g_loaded_sound_count)); // TODO: Handle return value/error
     lua_c.lua_pushinteger(lua_state, g_loaded_sound_count);
     g_loaded_sound_count += 1;
 
@@ -326,7 +326,7 @@ fn get_loaded_texture_count(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
 }
 
 fn get_is_sound_enabled(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
-    lua_c.lua_pushboolean(lua_state, @intFromBool(sound.GetIsSoundEnabled()));
+    lua_c.lua_pushboolean(lua_state, @intFromBool(sound.getIsSoundEnabled()));
     return 1;
 }
 
@@ -509,7 +509,7 @@ fn get_config_option_string(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
         var is_enabled: bool = undefined;
 
         if (option_index_arg == 32) {
-            is_enabled = sound.GetIsSoundEnabled();
+            is_enabled = sound.getIsSoundEnabled();
         } else {
             is_enabled = music.GetIsMusicEnabled();
         }
@@ -575,7 +575,7 @@ fn set_config_option(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     }
 
     if (option_index_arg == 32) {
-        sound.SetIsSoundEnabled(key_arg != 0);
+        sound.setIsSoundEnabled(key_arg != 0);
         is_key_good = true;
     }
 
@@ -596,7 +596,7 @@ fn save_config_options(_: ?*lua_c.lua_State) callconv(.c) c_int { // TODO: Might
 
 fn play_sound_effect(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     const arg1: f64 = lua_c.luaL_checknumber(lua_state, 1); // TODO: luaL_checkinteger?
-    sound.PlaySoundEffect(@intFromFloat(arg1));
+    sound.playSoundEffect(@intFromFloat(arg1));
     return 0;
 }
 

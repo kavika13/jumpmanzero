@@ -88,7 +88,7 @@ fn saveSettings(io: std.Io) bool {
             g_key_bindings[3],
             g_key_bindings[4],
             g_key_bindings[5],
-            @intFromBool(sound.GetIsSoundEnabled()),
+            @intFromBool(sound.getIsSoundEnabled()),
             @intFromBool(music.GetIsMusicEnabled()),
             @intFromBool(g_fullscreen_is_enabled),
             g_window_resolution_x,
@@ -560,7 +560,7 @@ pub fn main(init: std.process.Init) !void {
             music_is_initially_enabled = false;
         }
 
-        if (!sound.InitSound()) {
+        if (!sound.init()) {
             sound_is_initially_enabled = false;
         }
     } else {
@@ -573,7 +573,7 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (sound_is_initially_enabled) {
-        sound.SetIsSoundEnabled(true);
+        sound.setIsSoundEnabled(true);
     }
 
     var previous_frame_time: f64 = glfw_c.glfwGetTime();
