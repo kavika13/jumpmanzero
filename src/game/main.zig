@@ -89,7 +89,7 @@ fn saveSettings(io: std.Io) bool {
             g_key_bindings[4],
             g_key_bindings[5],
             @intFromBool(sound.getIsSoundEnabled()),
-            @intFromBool(music.GetIsMusicEnabled()),
+            @intFromBool(music.getIsMusicEnabled()),
             @intFromBool(g_fullscreen_is_enabled),
             g_window_resolution_x,
             g_window_resolution_y,
@@ -556,7 +556,7 @@ pub fn main(init: std.process.Init) !void {
     const init_sound_buffer_succeeded = sound_buffer.init(init.gpa);
     defer if (init_sound_buffer_succeeded) sound_buffer.cleanup();
     if (init_sound_buffer_succeeded) {
-        if (!music.InitMusic()) {
+        if (!music.initMusic()) {
             music_is_initially_enabled = false;
         }
 
@@ -569,7 +569,7 @@ pub fn main(init: std.process.Init) !void {
     }
 
     if (music_is_initially_enabled) {
-        music.SetIsMusicEnabled(true);
+        music.setIsMusicEnabled(true);
     }
 
     if (sound_is_initially_enabled) {

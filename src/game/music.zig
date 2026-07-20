@@ -39,7 +39,7 @@ var g_current_track_filename: []const u8 = &.{};
 var g_current_track_song_start_music_time: i32 = 0;
 var g_current_track_loop_start_music_time: i32 = 0;
 
-fn MusicTimeToMilliseconds(first_midi_message: *tml_c.tml_message, music_time_value: i32) u32 {
+fn musicTimeToMilliseconds(first_midi_message: *tml_c.tml_message, music_time_value: i32) u32 {
     const kMUSIC_TIME_PER_QUARTER_NOTE: f64 = 768.0;
 
     var current_midi_message: *tml_c.tml_message = first_midi_message;
@@ -63,7 +63,7 @@ fn MusicTimeToMilliseconds(first_midi_message: *tml_c.tml_message, music_time_va
     return @intFromFloat(target_time_ms);
 }
 
-fn StopAllNotesWithSustainAndRelease(track: *MusicTrack) void {
+fn stopAllNotesWithSustainAndRelease(track: *MusicTrack) void {
     if (track.sound_font) |sound_font| {
         tsf_c.tsf_note_off_all(sound_font);
     }
@@ -73,7 +73,7 @@ fn StopAllNotesWithSustainAndRelease(track: *MusicTrack) void {
     }
 }
 
-fn SeekTrack(track: *MusicTrack, target_timestamp_msec: u32) void {
+fn seekTrack(track: *MusicTrack, target_timestamp_msec: u32) void {
     track.current_midi_message = track.first_midi_message;
 
     while (track.current_midi_message != null and (track.current_midi_message.?.time < target_timestamp_msec)) {
@@ -112,7 +112,7 @@ fn SeekTrack(track: *MusicTrack, target_timestamp_msec: u32) void {
     }
 }
 
-fn AddMidiSamples(sound_channel: usize, track: *MusicTrack, frame_count: usize, interleaved_stereo_samples: [*]f32) usize {
+fn addMidiSamples(sound_channel: usize, track: *MusicTrack, frame_count: usize, interleaved_stereo_samples: [*]f32) usize {
     const TSF_RENDER_EFFECTSAMPLEBLOCK = 64; // TODO: Why isn't this exposed unless implementation is exposed? Isn't it necessary for us to use it?
     var SampleBlock: c_int = TSF_RENDER_EFFECTSAMPLEBLOCK;
     var SampleCount: usize = frame_count;
@@ -174,8 +174,8 @@ fn AddMidiSamples(sound_channel: usize, track: *MusicTrack, frame_count: usize, 
             // TODO: Do we need to wait? If not, we can just force all notes immediately to off/to ring out, and immediately loop.
             //       Not sure there's currently any music files that would exercise this waiting period, so might have to hack one to test
             if (!are_any_notes_on or track.current_playback_timestamp_msec >= track.track_end_point_msec + @as(f64, @floatFromInt(track.current_tempo_usec_per_quarter_note)) / 1000.0) {
-                StopAllNotesWithSustainAndRelease(track);
-                SeekTrack(track, track.loop_start_point_msec);
+                stopAllNotesWithSustainAndRelease(track);
+                seekTrack(track, track.loop_start_point_msec);
             }
         } else {
             track.is_stopping = true;
@@ -190,15 +190,15 @@ fn AddMidiSamples(sound_channel: usize, track: *MusicTrack, frame_count: usize, 
     return frame_count;
 }
 
-fn AddTrack1Samples(frame_count: u64, interleaved_stereo_samples: [*]f32) callconv(.c) usize {
-    return AddMidiSamples(0, &g_track_1, frame_count, interleaved_stereo_samples);
+fn addTrack1Samples(frame_count: u64, interleaved_stereo_samples: [*]f32) callconv(.c) usize {
+    return addMidiSamples(0, &g_track_1, frame_count, interleaved_stereo_samples);
 }
 
-fn AddTrack2Samples(frame_count: u64, interleaved_stereo_samples: [*]f32) callconv(.c) usize {
-    return AddMidiSamples(1, &g_track_2, frame_count, interleaved_stereo_samples);
+fn addTrack2Samples(frame_count: u64, interleaved_stereo_samples: [*]f32) callconv(.c) usize {
+    return addMidiSamples(1, &g_track_2, frame_count, interleaved_stereo_samples);
 }
 
-fn LoadAndPlayTrack(filename: []const u8, track: *MusicTrack, start_time_music_time: i32, loop_start_music_time: i32, sound_channel_index: usize, sound_channel: sound_buffer.SoundChannel) void {
+fn loadAndPlayTrack(filename: []const u8, track: *MusicTrack, start_time_music_time: i32, loop_start_music_time: i32, sound_channel_index: usize, sound_channel: sound_buffer.SoundChannel) void {
     var tiny_midi_loader: ?*tml_c.tml_message = null;
     tiny_midi_loader = tml_c.tml_load_filename(filename.ptr);
 
@@ -215,7 +215,7 @@ fn LoadAndPlayTrack(filename: []const u8, track: *MusicTrack, start_time_music_t
     track.current_playback_timestamp_msec = 0.0;
 
     if (track.first_midi_message != null and loop_start_music_time >= 0 and loop_start_music_time != 55000) {
-        track.loop_start_point_msec = MusicTimeToMilliseconds(track.first_midi_message.?, loop_start_music_time);
+        track.loop_start_point_msec = musicTimeToMilliseconds(track.first_midi_message.?, loop_start_music_time);
         track.is_looped = true;
     } else {
         track.loop_start_point_msec = 0;
@@ -223,20 +223,20 @@ fn LoadAndPlayTrack(filename: []const u8, track: *MusicTrack, start_time_music_t
     }
 
     if (track.first_midi_message != null and start_time_music_time > 0) {
-        const start_time_msec: u32 = MusicTimeToMilliseconds(track.first_midi_message.?, start_time_music_time);
-        SeekTrack(track, start_time_msec);
+        const start_time_msec: u32 = musicTimeToMilliseconds(track.first_midi_message.?, start_time_music_time);
+        seekTrack(track, start_time_msec);
     }
 
     sound_buffer.setSoundChannel(sound_channel_index, sound_channel);
     track.is_stopping = false;
 }
 
-fn StopTrack(track: *MusicTrack) void {
-    StopAllNotesWithSustainAndRelease(track);
+fn stopTrack(track: *MusicTrack) void {
+    stopAllNotesWithSustainAndRelease(track);
     track.is_stopping = true;
 }
 
-pub fn InitMusic() bool {
+pub fn initMusic() bool {
     if (g_music_is_initialized) {
         return true;
     }
@@ -268,26 +268,26 @@ pub fn InitMusic() bool {
     return true;
 }
 
-pub fn GetIsMusicEnabled() bool {
+pub fn getIsMusicEnabled() bool {
     return g_music_is_enabled;
 }
 
-pub fn SetIsMusicEnabled(is_enabled: bool) void {
+pub fn setIsMusicEnabled(is_enabled: bool) void {
     if (g_music_is_enabled != is_enabled) {
         g_music_is_enabled = is_enabled;
 
         if (g_music_is_initialized and g_current_track_filename.len != 0) {
             // TODO: Handle track 2?
             if (is_enabled) {
-                NewTrack1(g_current_track_filename, g_current_track_song_start_music_time, g_current_track_loop_start_music_time);
+                newTrack1(g_current_track_filename, g_current_track_song_start_music_time, g_current_track_loop_start_music_time);
             } else {
-                StopMusic1();
+                stopMusic1();
             }
         }
     }
 }
 
-pub fn NewTrack1(filename: []const u8, song_start_music_time: i32, loop_start_music_time: i32) void {
+pub fn newTrack1(filename: []const u8, song_start_music_time: i32, loop_start_music_time: i32) void {
     if (!g_music_is_initialized) {
         return;
     }
@@ -301,13 +301,13 @@ pub fn NewTrack1(filename: []const u8, song_start_music_time: i32, loop_start_mu
         return;
     }
 
-    StopTrack(&g_track_1);
+    stopTrack(&g_track_1);
     tml_c.tml_free(g_track_1.first_midi_message);
 
-    LoadAndPlayTrack(filename, &g_track_1, song_start_music_time, loop_start_music_time, 0, AddTrack1Samples);
+    loadAndPlayTrack(filename, &g_track_1, song_start_music_time, loop_start_music_time, 0, addTrack1Samples);
 }
 
-pub fn NewTrack2(filename: []const u8) void {
+pub fn newTrack2(filename: []const u8) void {
     if (!g_music_is_initialized) {
         return;
     }
@@ -321,13 +321,13 @@ pub fn NewTrack2(filename: []const u8) void {
         return;
     }
 
-    StopTrack(&g_track_2);
+    stopTrack(&g_track_2);
     tml_c.tml_free(g_track_2.first_midi_message);
 
-    LoadAndPlayTrack(filename, &g_track_2, 0, -1, 1, AddTrack2Samples);
+    loadAndPlayTrack(filename, &g_track_2, 0, -1, 1, addTrack2Samples);
 }
 
-pub fn StopMusic1() void {
+pub fn stopMusic1() void {
     if (!g_music_is_initialized) {
         return;
     }
@@ -341,10 +341,10 @@ pub fn StopMusic1() void {
         return;
     }
 
-    StopTrack(&g_track_1);
+    stopTrack(&g_track_1);
 }
 
-pub fn CleanUpMusic() void {
+pub fn cleanUpMusic() void {
     if (!g_music_is_initialized) {
         return;
     }
@@ -363,7 +363,7 @@ pub fn CleanUpMusic() void {
     g_music_is_initialized = false;
 }
 
-pub fn CleanupMusic() void {
+pub fn cleanupMusic() void {
     if (!g_music_is_initialized) {
         return;
     }
