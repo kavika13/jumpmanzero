@@ -655,11 +655,11 @@ pub fn loadTexture(texture_index: usize, sFile: [:0]const u8, image_type: i32, i
     g_textures[texture_index] = sokol_gfx_c.sg_make_image(&image_desc);
 
     if (g_textures[texture_index].id == sokol_gfx_c.SG_INVALID_ID) {
-        fatalError_("Error unlocking texture data"); // TODO: Read back error info
+        fatalError("Error unlocking texture data"); // TODO: Read back error info
     }
 }
 
-fn init3d_() bool {
+fn init3d() bool {
     for (0..kMAX_TEXTURES) |texture_index| {
         g_textures[texture_index].id = sokol_gfx_c.SG_INVALID_ID;
     }
@@ -681,7 +681,7 @@ fn init3d_() bool {
     return true;
 }
 
-fn initScene_() void {
+fn initScene() void {
     g_camera_light = .{
         .diffuse_color = .white,
         .ambient_color = .white,
@@ -744,11 +744,11 @@ fn initScene_() void {
 }
 
 pub fn initializeAll() bool {
-    if (!init3d_()) {
+    if (!init3d()) {
         return false;
     }
 
-    initScene_();
+    initScene();
 
     return true;
 }
@@ -762,7 +762,7 @@ pub fn begin3dLoad(gpa: std.mem.Allocator) void {
     g_vertices_to_load = gpa.alloc(MeshVertex, kMAX_VERTICES) catch @panic("failed to allocate"); // TODO: Better error handling
 
     if (g_vertices_to_load == null) {
-        fatalError_("Failed to allocate enough memory in order to load model's vertex data");
+        fatalError("Failed to allocate enough memory in order to load model's vertex data");
     }
 }
 
@@ -779,7 +779,7 @@ pub fn reset3d() void {
     // TODO: Is there any case where we need to reset the context? I think this is a relic from D3D9. Do we might need to handle suspend/resume, ala UWP though?
 }
 
-fn killScene_() void {
+fn killScene() void {
     for (0..kMAX_TEXTURES) |texture_index| {
         if (g_textures[texture_index].id != sokol_gfx_c.SG_INVALID_ID) {
             sokol_gfx_c.sg_destroy_image(g_textures[texture_index]);
@@ -788,17 +788,17 @@ fn killScene_() void {
     }
 }
 
-fn kill3d_() void {
+fn kill3d() void {
     sokol_gfx_c.sg_shutdown();
 }
 
 pub fn doCleanUp() void {
-    killScene_();
-    kill3d_();
+    killScene();
+    kill3d();
 }
 
 // Returns null if handle not valid
-fn getMeshIndexFromHandle_(mesh_handle_index_i32: i32) ?usize {
+fn getMeshIndexFromHandle(mesh_handle_index_i32: i32) ?usize {
     const mesh_handle_index: usize = @intCast(mesh_handle_index_i32);
     std.debug.assert(mesh_handle_index < kMAX_MESHES);
 
@@ -817,7 +817,7 @@ fn getMeshIndexFromHandle_(mesh_handle_index_i32: i32) ?usize {
 }
 
 // Returns null if handle not valid
-fn getTransformIndexFromHandle_(transform_handle_index_i32: i32) ?usize {
+fn getTransformIndexFromHandle(transform_handle_index_i32: i32) ?usize {
     const transform_handle_index: usize = @intCast(transform_handle_index_i32);
     std.debug.assert(transform_handle_index < kMAX_TRANSFORMS);
 
@@ -867,7 +867,7 @@ pub fn transformDelete(deleting_transform_handle_index: i32) void {
     std.debug.assert(g_transform_count > 0);
 
     if (g_transform_count > 0) {
-        const deleting_transform_index_from_handle: ?usize = getTransformIndexFromHandle_(deleting_transform_handle_index);
+        const deleting_transform_index_from_handle: ?usize = getTransformIndexFromHandle(deleting_transform_handle_index);
         const last_transform_index_i32: i32 = g_transform_count - 1;
 
         if (deleting_transform_index_from_handle) |deleting_transform_index| {
@@ -920,7 +920,7 @@ pub fn transformDelete(deleting_transform_handle_index: i32) void {
 }
 
 pub fn transformGetParent(transform_handle_index: i32) i32 {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
     var result: i32 = -1;
 
     if (transform_index_from_handle) |transform_index| {
@@ -933,10 +933,10 @@ pub fn transformGetParent(transform_handle_index: i32) i32 {
 }
 
 pub fn transformSetParent(transform_handle_index: i32, new_parent_transform_handle_index: i32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
-        const new_parent_transform_index_from_handle: ?usize = getTransformIndexFromHandle_(new_parent_transform_handle_index);
+        const new_parent_transform_index_from_handle: ?usize = getTransformIndexFromHandle(new_parent_transform_handle_index);
 
         if (new_parent_transform_index_from_handle) |new_parent_transform_index| {
             // TODO: Detect cycle, assert, and break the cycle in non-debug build
@@ -952,7 +952,7 @@ pub fn transformSetParent(transform_handle_index: i32, new_parent_transform_hand
 }
 
 pub fn transformClearParent(transform_handle_index: i32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_parent_indices[transform_index] = -1;
@@ -964,7 +964,7 @@ pub fn transformClearParent(transform_handle_index: i32) void {
 }
 
 pub fn transformGetParentIsCamera(transform_handle_index: i32) bool {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
     var result = false;
 
     if (transform_index_from_handle) |transform_index| {
@@ -977,7 +977,7 @@ pub fn transformGetParentIsCamera(transform_handle_index: i32) bool {
 }
 
 pub fn transformSetParentIsCamera(transform_handle_index: i32, is_parent_camera: bool) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         if (is_parent_camera) {
@@ -992,7 +992,7 @@ pub fn transformSetParentIsCamera(transform_handle_index: i32, is_parent_camera:
 }
 
 pub fn meshGetTransform(mesh_handle_index: i32) i32 {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
     var result: i32 = -1;
 
     if (mesh_index_from_handle) |mesh_index| {
@@ -1005,10 +1005,10 @@ pub fn meshGetTransform(mesh_handle_index: i32) i32 {
 }
 
 pub fn meshSetTransform(mesh_handle_index: i32, transform_handle_index: i32) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
-        const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+        const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
         if (transform_index_from_handle) |transform_index| {
             g_mesh_transform_indices[mesh_index] = @intCast(transform_index);
@@ -1021,7 +1021,7 @@ pub fn meshSetTransform(mesh_handle_index: i32, transform_handle_index: i32) voi
 }
 
 pub fn meshClearTransform(mesh_handle_index: i32) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
         g_mesh_transform_indices[mesh_index] = -1;
@@ -1031,7 +1031,7 @@ pub fn meshClearTransform(mesh_handle_index: i32) void {
 }
 
 pub fn transformSetToIdentity(transform_handle_index: i32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_translations[transform_index] = .zero;
@@ -1043,7 +1043,7 @@ pub fn transformSetToIdentity(transform_handle_index: i32) void {
 }
 
 pub fn transformSetTranslation(transform_handle_index: i32, x: f32, y: f32, z: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_translations[transform_index] = .init(x, y, z);
@@ -1053,7 +1053,7 @@ pub fn transformSetTranslation(transform_handle_index: i32, x: f32, y: f32, z: f
 }
 
 pub fn transformClearTranslation(transform_handle_index: i32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_translations[transform_index] = .zero;
@@ -1063,7 +1063,7 @@ pub fn transformClearTranslation(transform_handle_index: i32) void {
 }
 
 pub fn transformSetRotationX(transform_handle_index: i32, angle_in_degrees: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_rotations[transform_index] = Quaternion.fromAxisAngle(.x_axis, std.math.degreesToRadians(angle_in_degrees));
@@ -1073,7 +1073,7 @@ pub fn transformSetRotationX(transform_handle_index: i32, angle_in_degrees: f32)
 }
 
 pub fn transformSetRotationY(transform_handle_index: i32, angle_in_degrees: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_rotations[transform_index] = Quaternion.fromAxisAngle(.y_axis, std.math.degreesToRadians(angle_in_degrees));
@@ -1083,7 +1083,7 @@ pub fn transformSetRotationY(transform_handle_index: i32, angle_in_degrees: f32)
 }
 
 pub fn transformSetRotationZ(transform_handle_index: i32, angle_in_degrees: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_rotations[transform_index] = Quaternion.fromAxisAngle(.z_axis, std.math.degreesToRadians(angle_in_degrees));
@@ -1093,7 +1093,7 @@ pub fn transformSetRotationZ(transform_handle_index: i32, angle_in_degrees: f32)
 }
 
 pub fn transformConcatRotationX(transform_handle_index: i32, angle_in_degrees: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_rotations[transform_index] = Quaternion.mul(Quaternion.fromAxisAngle(.x_axis, std.math.degreesToRadians(angle_in_degrees)), g_transform_rotations[transform_index]);
@@ -1103,7 +1103,7 @@ pub fn transformConcatRotationX(transform_handle_index: i32, angle_in_degrees: f
 }
 
 pub fn transformConcatRotationY(transform_handle_index: i32, angle_in_degrees: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_rotations[transform_index] = Quaternion.mul(Quaternion.fromAxisAngle(.y_axis, std.math.degreesToRadians(angle_in_degrees)), g_transform_rotations[transform_index]);
@@ -1113,7 +1113,7 @@ pub fn transformConcatRotationY(transform_handle_index: i32, angle_in_degrees: f
 }
 
 pub fn transformConcatRotationZ(transform_handle_index: i32, angle_in_degrees: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_rotations[transform_index] = Quaternion.mul(Quaternion.fromAxisAngle(.z_axis, std.math.degreesToRadians(angle_in_degrees)), g_transform_rotations[transform_index]);
@@ -1123,7 +1123,7 @@ pub fn transformConcatRotationZ(transform_handle_index: i32, angle_in_degrees: f
 }
 
 pub fn transformClearRotation(transform_handle_index: i32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_rotations[transform_index] = .identity;
@@ -1133,7 +1133,7 @@ pub fn transformClearRotation(transform_handle_index: i32) void {
 }
 
 pub fn transformSetScale(transform_handle_index: i32, x: f32, y: f32, z: f32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_scales[transform_index] = .init(x, y, z);
@@ -1143,7 +1143,7 @@ pub fn transformSetScale(transform_handle_index: i32, x: f32, y: f32, z: f32) vo
 }
 
 pub fn transformClearScale(transform_handle_index: i32) void {
-    const transform_index_from_handle: ?usize = getTransformIndexFromHandle_(transform_handle_index);
+    const transform_index_from_handle: ?usize = getTransformIndexFromHandle(transform_handle_index);
 
     if (transform_index_from_handle) |transform_index| {
         g_transform_scales[transform_index] = .one;
@@ -1152,7 +1152,7 @@ pub fn transformClearScale(transform_handle_index: i32) void {
     }
 }
 
-fn getMeshHandleFromIndex_(mesh_index: i32) ?usize {
+fn getMeshHandleFromIndex(mesh_index: i32) ?usize {
     std.debug.assert(mesh_index >= 0);
     std.debug.assert(mesh_index < kMAX_MESHES);
 
@@ -1171,7 +1171,7 @@ fn getMeshHandleFromIndex_(mesh_index: i32) ?usize {
     return result_mesh_handle_index;
 }
 
-fn meshSwap_(mesh_index_1: usize, mesh_index_2: usize) void {
+fn meshSwap(mesh_index_1: usize, mesh_index_2: usize) void {
     var temp_uv_offset: Vec2 = g_mesh_uv_offsets[mesh_index_1];
     g_mesh_uv_offsets[mesh_index_1] = g_mesh_uv_offsets[mesh_index_2];
     g_mesh_uv_offsets[mesh_index_2] = temp_uv_offset;
@@ -1192,10 +1192,10 @@ fn meshSwap_(mesh_index_1: usize, mesh_index_2: usize) void {
 
     std.mem.swap(i32, &g_mesh_transform_indices[mesh_index_1], &g_mesh_transform_indices[mesh_index_2]);
 
-    const mesh_handle_index_1_from_index: ?usize = getMeshHandleFromIndex_(@intCast(mesh_index_1));
+    const mesh_handle_index_1_from_index: ?usize = getMeshHandleFromIndex(@intCast(mesh_index_1));
 
     if (mesh_handle_index_1_from_index) |mesh_handle_index_1| {
-        const mesh_handle_index_2_from_index: ?usize = getMeshHandleFromIndex_(@intCast(mesh_index_2));
+        const mesh_handle_index_2_from_index: ?usize = getMeshHandleFromIndex(@intCast(mesh_index_2));
 
         if (mesh_handle_index_2_from_index) |mesh_handle_index_2| {
             std.mem.swap(i32, &g_mesh_handles[mesh_handle_index_1], &g_mesh_handles[mesh_handle_index_2]);
@@ -1287,7 +1287,7 @@ pub fn meshCreateFromVertices(vertices: [*]MeshVertex, vertex_count: usize, text
 pub fn meshCreateFromCopy(source_mesh_handle_index: i32) i32 {
     std.debug.assert(g_mesh_count < kMAX_MESHES);
     std.debug.assert(g_mesh_handle_first_free_index != -1);
-    const source_mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(source_mesh_handle_index);
+    const source_mesh_index_from_handle: ?usize = getMeshIndexFromHandle(source_mesh_handle_index);
     var new_mesh_handle_index: i32 = -1;
 
     if (g_mesh_count < kMAX_TRANSFORMS and g_mesh_handle_first_free_index != -1) {
@@ -1319,10 +1319,10 @@ pub fn meshCreateFromCopy(source_mesh_handle_index: i32) i32 {
 }
 
 pub fn meshReplaceWithCopy(target_mesh_handle_index: i32, source_mesh_handle_index: i32) void {
-    const target_mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(target_mesh_handle_index);
+    const target_mesh_index_from_handle: ?usize = getMeshIndexFromHandle(target_mesh_handle_index);
 
     if (target_mesh_index_from_handle) |target_mesh_index| {
-        const source_mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(source_mesh_handle_index);
+        const source_mesh_index_from_handle: ?usize = getMeshIndexFromHandle(source_mesh_handle_index);
 
         if (source_mesh_index_from_handle) |source_mesh_index| {
             g_mesh_vertex_start_indices[target_mesh_index] = g_mesh_vertex_start_indices[source_mesh_index];
@@ -1337,7 +1337,7 @@ pub fn meshReplaceWithCopy(target_mesh_handle_index: i32, source_mesh_handle_ind
 
 pub fn meshDelete(deleting_mesh_handle_index: i32) void {
     std.debug.assert(g_mesh_count > 0);
-    const deleting_mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(deleting_mesh_handle_index);
+    const deleting_mesh_index_from_handle: ?usize = getMeshIndexFromHandle(deleting_mesh_handle_index);
 
     if (g_mesh_count > 0) {
         if (deleting_mesh_index_from_handle) |deleting_mesh_index| {
@@ -1378,7 +1378,7 @@ pub fn meshDelete(deleting_mesh_handle_index: i32) void {
 }
 
 pub fn meshSetIsVisible(mesh_handle_index: i32, is_visible: bool) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
         g_mesh_is_visible[mesh_index] = is_visible;
@@ -1388,7 +1388,7 @@ pub fn meshSetIsVisible(mesh_handle_index: i32, is_visible: bool) void {
 }
 
 pub fn meshSetTextureIndex(mesh_handle_index: i32, texture_index: i32) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
         g_mesh_texture_indices[mesh_index] = texture_index;
@@ -1398,11 +1398,11 @@ pub fn meshSetTextureIndex(mesh_handle_index: i32, texture_index: i32) void {
 }
 
 pub fn meshMoveToFrontForTransparentDrawing(mesh_handle_index: i32) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
         for (mesh_index + 1..@intCast(g_mesh_count)) |current_mesh_index| {
-            meshSwap_(current_mesh_index, current_mesh_index - 1);
+            meshSwap(current_mesh_index, current_mesh_index - 1);
         }
     } else {
         std.log.warn("could not find mesh with handle {}", .{mesh_handle_index});
@@ -1410,12 +1410,12 @@ pub fn meshMoveToFrontForTransparentDrawing(mesh_handle_index: i32) void {
 }
 
 pub fn meshMoveToBackForTransparentDrawing(mesh_handle_index: i32) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
         var current_mesh_index: usize = mesh_index - 1;
         while (current_mesh_index >= 0) : (current_mesh_index -= 1) {
-            meshSwap_(current_mesh_index, current_mesh_index + 1);
+            meshSwap(current_mesh_index, current_mesh_index + 1);
         }
     } else {
         std.log.warn("could not find mesh with handle {}", .{mesh_handle_index});
@@ -1423,7 +1423,7 @@ pub fn meshMoveToBackForTransparentDrawing(mesh_handle_index: i32) void {
 }
 
 pub fn meshScrollTexture(mesh_handle_index: i32, translate_x: f32, translate_y: f32) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
         g_mesh_uv_offsets[mesh_index] = Vec2.add(.init(translate_x, translate_y), g_mesh_uv_offsets[mesh_index]);
@@ -1433,7 +1433,7 @@ pub fn meshScrollTexture(mesh_handle_index: i32, translate_x: f32, translate_y: 
 }
 
 pub fn meshSetIsAnimationContinuous(mesh_handle_index: i32, is_continuous: bool) void {
-    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle_(mesh_handle_index);
+    const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
         g_mesh_animation_is_continuous[mesh_index] = is_continuous;
@@ -1493,7 +1493,7 @@ pub fn rendererPostUpdate() void {
     }
 }
 
-fn renderMesh_(mesh_index: usize, previous_texture_index: *i32, vs_params: *MainShaderVertexParams, are_fs_params_applied: *bool, fs_params: *MainShaderFragmentParams, do_interpolation: bool, interpolation_scale: f32) void {
+fn renderMesh(mesh_index: usize, previous_texture_index: *i32, vs_params: *MainShaderVertexParams, are_fs_params_applied: *bool, fs_params: *MainShaderFragmentParams, do_interpolation: bool, interpolation_scale: f32) void {
     const current_texture_index_i32: i32 = g_mesh_texture_indices[mesh_index];
     std.debug.assert(current_texture_index_i32 != -1);
     const current_texture_index: usize = @intCast(current_texture_index_i32);
@@ -1661,7 +1661,7 @@ pub fn rendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
 
     for (0..@intCast(g_mesh_count)) |mesh_index| {
         if (g_mesh_is_visible[mesh_index] and !g_texture_is_alpha_blend_enabled[@intCast(g_mesh_texture_indices[mesh_index])]) {
-            renderMesh_(mesh_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
+            renderMesh(mesh_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
         }
     }
 
@@ -1673,7 +1673,7 @@ pub fn rendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
 
     for (0..@intCast(g_mesh_count)) |mesh_index| {
         if (g_mesh_is_visible[mesh_index] and g_texture_is_alpha_blend_enabled[@intCast(g_mesh_texture_indices[mesh_index])]) {
-            renderMesh_(mesh_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
+            renderMesh(mesh_index, &previous_texture_index, &vs_params, &are_fs_params_applied, &fs_params, do_interpolation, interpolation_scale);
         }
     }
 
@@ -1726,8 +1726,8 @@ pub fn getViewportMousePos(pos_x: *f32, pos_y: *f32) void {
     pos_y.* = temp_y;
 }
 
-fn fatalError_(error_msg: []const u8) void {
-    killScene_();
-    kill3d_();
+fn fatalError(error_msg: []const u8) void {
+    killScene();
+    kill3d();
     _ = boxer_c.boxerShow(&error_msg[0], "Jumpman Zero", boxer_c.BoxerStyleError, boxer_c.BoxerButtonsOK); // TODO: Don't discard result?
 }
