@@ -18,18 +18,18 @@ R LitFountain 3 1 0
 R Stone 3 0 0
 R Desert 4 0 0
 O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 220 90 1 0 255 220 90 0 1 -100 -145 90 1 1 255 -145 90 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 90 1 4 
-O True True True True True False 0 0 0 0 0 0 0 0 0 201 0 0 0 0 ARBITRARY 0 0 2 30 85 4 0 164 30 85 0 3 2 28 40 4 3 164 28 40 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 85 1 9 
-O True True True True True False 0 0 0 0 0 0 0 0 0 203 0 0 0 0 ARBITRARY 0 0 20 56 80 3 0 130 56 80 0 2 20 54 50 3 2 130 54 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 1 9 
-O True True True True True False 0 0 0 0 0 0 0 0 0 205 0 0 0 0 ARBITRARY 0 0 42 78 75 2 0 112 78 75 0 1 42 75 60 2 1 112 75 60 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 75 1 9 
-O True True True True True False 0 0 0 0 0 0 0 0 0 204 0 0 0 0 ARBITRARY 0 0 42 75 60 2 0 112 75 60 0 1.07 42 54 60 2 1.07 112 54 60 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 60 1 9 
-O True True True True True False 0 0 0 0 0 0 0 0 0 202 0 0 0 0 ARBITRARY 0 0 20 54 50 3 0 130 54 50 0 1.07 20 28 50 3 1.07 130 28 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 50 1 9 
-O True True True True True False 0 0 0 0 0 0 0 0 0 200 0 0 0 0 ARBITRARY 0 0 2 28 40 4 0 164 28 40 0 1.05 2 2 40 4 1.05 164 2 40 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 40 1 9 
+O True True True True True False 0 0 0 0 0 0 0 0 0 201 0 0 0 0 ARBITRARY 0 0 2 -35 50 4 0 164 -35 50 0 3 2 -37 5 4 3 164 -37 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 50 1 9 
+O True True True True True False 0 0 0 0 0 0 0 0 0 203 0 0 0 0 ARBITRARY 0 0 20 -9 45 3 0 130 -9 45 0 2 20 -11 15 3 2 130 -11 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 45 1 9 
+O True True True True True False 0 0 0 0 0 0 0 0 0 205 0 0 0 0 ARBITRARY 0 0 42 13 40 2 0 112 13 40 0 1 42 10 25 2 1 112 10 25 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 40 1 9 
+O True True True True True False 0 0 0 0 0 0 0 0 0 204 0 0 0 0 ARBITRARY 0 0 42 10 25 2 0 112 10 25 0 1.07 42 -11 25 2 1.07 112 -11 25 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 25 1 9 
+O True True True True True False 0 0 0 0 0 0 0 0 0 202 0 0 0 0 ARBITRARY 0 0 20 -11 15 3 0 130 -11 15 0 1.07 20 -37 15 3 1.07 130 -37 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 1 9 
+O True True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 ARBITRARY 0 0 74 126 7 1 0 82 126 7 0 1 74 118 7 1 1 82 118 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 6 
 O True True True True True False 0 0 0 0 0 0 0 0 0 2 0 0 0 0 ARBITRARY 0 0 53 159 7 1 0 61 159 7 0 1 53 151 7 1 1 61 151 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 6 
 O True True True True True False 0 0 0 0 0 0 0 0 0 3 0 0 0 0 ARBITRARY 0 0 143 72 7 1 0 151 72 7 0 1 143 64 7 1 1 151 64 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 6 
 O True True True True True False 0 0 0 0 0 0 0 0 0 4 0 0 0 0 ARBITRARY 0 0 85 103 7 1 0 93 103 7 0 1 85 95 7 1 1 93 95 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 6 
 O True True True True True False 0 0 0 0 0 0 0 0 0 5 0 0 0 0 ARBITRARY 0 0 131 97 7 1 0 139 97 7 0 1 131 89 7 1 1 139 89 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 6 
 O True True True True True False 0 0 0 0 0 0 0 0 0 6 0 0 0 0 ARBITRARY 0 0 60 48 7 1 0 68 48 7 0 1 60 40 7 1 1 68 40 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 6 
-O True True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 ARBITRARY 0 0 74 126 7 1 0 82 126 7 0 1 74 118 7 1 1 82 118 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 6 
+O True True True True True False 0 0 0 0 0 0 0 0 0 200 0 0 0 0 ARBITRARY 0 0 2 -37 5 4 0 164 -37 5 0 1.05 2 -63 5 4 1.05 164 -63 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 5 1 9 
 O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 141 80 0 0 0 158 80 0 0 0 141 77 0 0 0 158 77 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
 O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 84 131 0 0 0 113 131 0 0 0 84 128 0 0 0 113 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
 O False True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 PLATFORM 0 0 67 110 0 0 0 91 110 0 0 0 67 107 0 0 0 91 107 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
