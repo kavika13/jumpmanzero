@@ -20,6 +20,7 @@ R RedPlatform 3 0
 R Fence 6 0
 R ClassicPlatform 3 0
 O True True True True True False 0 0 0 0 0 0 0 0 0 100 0 0 0 0 ARBITRARY 0 0 -100 220 80 1 0 272 222 80 0 1 -100 -140 80 1 1 272 -140 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 80 1 4 
+O True True True True True False 0 0 0 0 0 0 0 0 0 5 0 0 0 0 ARBITRARY 0 0 -90 220 10 8 0 272 220 10 0 4 -90 -220 10 8 4 272 -220 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 1 7 
 O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 LADDER 0 0 22 131 0 0 0 0 112 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8 9 2 
 O False True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 PLATFORM 0 0 45 125 0 0 0 67 125 0 0 0 45 122 0 0 0 67 122 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 11 1 
 O False True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 PLATFORM 0 0 94 118 0 0 0 107 118 0 0 0 94 115 0 0 0 107 115 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 11 1 
@@ -80,7 +81,6 @@ O False True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 PLATFORM 0 0 89 12
 O False True True True True False 0 0 0 0 0 0 0 0 0 1 0 0 0 0 PLATFORM 0 0 146 24 0 0 0 174 24 0 0 0 146 21 0 0 0 174 21 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 5 1 
 O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 108 33 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
 O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 104 166 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
-O True True True True True False 0 0 0 0 0 0 0 0 0 5 0 0 0 0 ARBITRARY 0 0 -90 220 0 8 0 272 220 0 0 4 -90 -220 0 8 4 272 -220 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 7 
 O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 22 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
 O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 46 22 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
 O True True True True True False 0 0 0 0 0 0 0 0 0 0 0 0 0 0 DONUT 0 0 82 23 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 3 
