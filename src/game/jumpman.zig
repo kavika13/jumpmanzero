@@ -477,7 +477,7 @@ fn setFog(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
 
 fn getConfigOptionString(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
     var sNameBuf: [100:0]u8 = undefined;
-    var sName: []u8 = undefined;
+    var sName: []const u8 = "----";
     const option_index_arg: lua_c.lua_Integer = lua_c.luaL_checkinteger(lua_state, 1);
 
     if (option_index_arg >= 0 and option_index_arg <= 5) {
@@ -521,7 +521,7 @@ fn getConfigOptionString(lua_state: ?*lua_c.lua_State) callconv(.c) c_int {
         }
     }
 
-    _ = lua_c.lua_pushstring(lua_state, sName.ptr); // TODO: Don't ignore result
+    _ = lua_c.lua_pushlstring(lua_state, sName.ptr, sName.len); // TODO: Don't ignore result
 
     return 1;
 }
