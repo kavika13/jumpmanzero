@@ -15,8 +15,6 @@ function Module.initialize(initial_level_name)
     set_mesh_texture(g_mesh_index, g_texture_index);
     set_mesh_is_visible(g_mesh_index, true);
     end_and_commit_loading_3d_data();
-
-    -- TODO: Why does it crash when we tab out of the game? But only when full-screen for some reason, and only with this test script...
 end
 
 function Module.update(game_input)

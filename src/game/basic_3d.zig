@@ -1615,6 +1615,10 @@ const MainShaderFragmentParams = extern struct {
 };
 
 pub fn rendererDraw(do_interpolation: bool, interpolation_scale: f32) void {
+    if (g_backbuffer_width < 1 or g_backbuffer_height < 1) {
+        return;
+    }
+
     sokol_gfx_c.sg_begin_default_pass(&g_pass_action, g_backbuffer_width, g_backbuffer_height);
 
     const backbuffer_aspect_ratio: f32 = @as(f32, @floatFromInt(g_backbuffer_width)) / @as(f32, @floatFromInt(g_backbuffer_height));

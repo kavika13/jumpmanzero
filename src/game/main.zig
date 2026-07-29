@@ -368,6 +368,11 @@ fn windowSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callc
 }
 
 fn framebufferSizeCallback(_: ?*glfw_c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
+    if (width < 1 or height < 1) {
+        std.log.warn("Backbuffer frame size changed to invalid value - width: {}, height: {} - ignoring", .{ width, height });
+        return;
+    }
+
     basic_3d.resizeViewport(width, height);
 }
 
