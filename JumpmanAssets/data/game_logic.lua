@@ -100,7 +100,6 @@ local player_mesh = {
     PUNCH_RIGHT_1 = 26,
     PUNCH_LEFT_2 = 27,
     PUNCH_RIGHT_2 = 28,
-    DYING = 29,
     DEAD = 30,
     STARS = 31,
     SLIDE_RIGHT = 32,
@@ -1758,7 +1757,6 @@ function Module.initialize(skip_play_level_music)
     g_player_mesh_indices[player_mesh.PUNCH_LEFT_2] = load_mesh("data/punchleft2.msh");
     g_player_mesh_indices[player_mesh.PUNCH_RIGHT_2] = load_mesh("data/punchright2.msh");
 
-    g_player_mesh_indices[player_mesh.DYING] = load_mesh("data/dying.msh");
     g_player_mesh_indices[player_mesh.DEAD] = load_mesh("data/dead.msh");
     g_player_mesh_indices[player_mesh.STARS] = load_mesh("data/stars.msh");
 
