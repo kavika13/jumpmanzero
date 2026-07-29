@@ -103,6 +103,8 @@ fn saveSettingsImpl(io: std.Io) bool {
         return false;
     };
 
+    // Writable overlay beside packs (cwd = install prefix); create data/ if needed.
+    std.Io.Dir.cwd().createDirPath(io, "data") catch return false;
     const file = std.Io.Dir.cwd().createFile(io, "data/settings.dat", .{}) catch return false;
     defer file.close(io);
     file.writeStreamingAll(io, data_to_output) catch return false;
