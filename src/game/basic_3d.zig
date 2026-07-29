@@ -1413,8 +1413,9 @@ pub fn meshMoveToBackForTransparentDrawing(mesh_handle_index: i32) void {
     const mesh_index_from_handle: ?usize = getMeshIndexFromHandle(mesh_handle_index);
 
     if (mesh_index_from_handle) |mesh_index| {
-        var current_mesh_index: usize = mesh_index - 1;
-        while (current_mesh_index >= 0) : (current_mesh_index -= 1) {
+        var current_mesh_index: usize = mesh_index;
+        while (current_mesh_index > 0) {
+            current_mesh_index -= 1;
             meshSwap(current_mesh_index, current_mesh_index + 1);
         }
     } else {
