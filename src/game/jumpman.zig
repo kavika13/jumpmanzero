@@ -931,14 +931,18 @@ pub fn Init3D() bool {
     return true;
 }
 
+/// Load a standalone Lua host script as the main module (e.g. `test.lua`).
+/// Invoked via `jumpmanzero --script <name.lua>`. Level scripts must go through
+/// `InitGameDebugLevel` instead - they need `main.lua`'s MenuLogic + begin/commit wrap.
 pub fn InitGameDebugScript(script_name: [:0]const u8) void {
     var relative_script_filename_buf = std.mem.zeroes([std.fs.max_path_bytes:0]u8);
-    // TODO: Use path-specific concatenation? one that can just use the relative_script_filename_buf buffer
     const relative_script_filename = std.fmt.bufPrintZ(&relative_script_filename_buf, "data/{s}", .{script_name}) catch @panic("Failed to print to buffer"); // TODO: Error handling?
     LoadLuaScript(relative_script_filename, &g_main_script_context);
     _ = CallLuaModuleFunction(&g_main_script_context, "initialize", null, 0, 0, false); // TODO: Don't ignore result
 }
 
+/// Boot main.lua script in debug-level mode for `level_name` (no `.lua` suffix). Accepts
+/// both bare names and `.lua` args after the caller strips the extension.
 pub fn InitGameDebugLevel(level_name: [*:0]const u8) void {
     LoadLuaScript("data/main.lua", &g_main_script_context);
     _ = lua_c.lua_pushstring(g_main_script_context.lua_state, level_name); // TODO: Don't ignore result

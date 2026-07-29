@@ -587,14 +587,28 @@ pub fn main(init: std.process.Init) !void {
     glad_c.srand(@intFromFloat(previous_frame_time)); // TODO: Seed zig's random instead?
     var previous_update_time: f64 = previous_frame_time;
 
+    // Debug launch:
+    //   jumpmanzero level7       - level via main.lua (MenuLogic + begin/commit wrap)
+    //   jumpmanzero level7.lua   - same (`.lua` is stripped; levels are not host scripts)
+    //   jumpmanzero --script test.lua - load a standalone host script as the main module
     var is_debug_init: bool = false;
     if (arguments.len > 1) {
-        const arg_length: usize = arguments[1].len;
-        if (std.mem.endsWith(u8, arguments[1], ".lua")) {
-            jumpman.InitGameDebugScript(arguments[1]);
+        if (std.mem.eql(u8, arguments[1], "--script")) {
+            if (arguments.len < 3 or arguments[2].len == 0) {
+                std.log.err("--script requires a filename under data/ (e.g. test.lua)", .{});
+                return error.InvalidArgs;
+            }
+            const script = try arena.dupeZ(u8, arguments[2]);
+            jumpman.InitGameDebugScript(script);
             is_debug_init = true;
-        } else if (arg_length > 0) {
-            jumpman.InitGameDebugLevel(arguments[1]);
+        } else if (arguments[1].len > 0) {
+            const arg = arguments[1];
+            const level_name = if (std.mem.endsWith(u8, arg, ".lua"))
+                arg[0 .. arg.len - ".lua".len]
+            else
+                arg;
+            const level_z = try arena.dupeZ(u8, level_name);
+            jumpman.InitGameDebugLevel(level_z);
             is_debug_init = true;
         }
     }

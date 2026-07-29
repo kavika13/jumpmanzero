@@ -1,3 +1,5 @@
+-- Standalone host script for engine smoke tests (not a level).
+-- Launch with: jumpmanzero --script test.lua
 local Module = {};
 
 local g_texture_index = -1;
@@ -10,6 +12,7 @@ function Module.initialize(initial_level_name)
     begin_loading_3d_data();  -- TODO: Should be able to add new 3D data whenever we want, appending to a buffer. Having to synchronize that is not good, and I believe SOKOL has ways to make it work (once per frame? maybe needs to go to a temp buffer? not sure)
     g_texture_index = load_texture("data/jumpman.bmp", 0, false);  -- TODO: Load a default texture that the rendering pipeline starts with. Errors out otherwise. Also, need to initialize all textures to -1 not 0 by default
     g_mesh_index = load_mesh("data/stand.msh");  -- TODO: Should be able to run without a default mesh as well. Maybe fixing the default texture will fix that?
+    set_mesh_texture(g_mesh_index, g_texture_index);
     set_mesh_is_visible(g_mesh_index, true);
     end_and_commit_loading_3d_data();
 
