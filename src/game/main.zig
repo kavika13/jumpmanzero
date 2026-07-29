@@ -48,21 +48,26 @@ fn parseIntOrDefault(comptime T: type, line: ?[]const u8, default: T) T {
 }
 
 fn loadSettings(sound_is_initially_enabled: *bool, music_is_initially_enabled: *bool, io: std.Io, gpa: std.mem.Allocator) !void {
-    const sData: []u8 = std.Io.Dir.cwd().readFileAlloc(io, "data/settings.dat", gpa, .unlimited) catch |err| err: {
-        switch (err) {
-            error.FileNotFound => break :err "",
-            else => return err,
-        }
-    };
-    defer gpa.free(sData);
+    // Defaults match JumpmanAssets/data/settings.dat so a missing writable settings
+    // file (pack-boot cwd is zig-out/) still has valid key bindings
+    // and does not leave sound/music off unexpectedly.
+    const default_keys = [_]i32{ 'I', 'K', 'J', 'L', 'E', 'R' };
 
-    var file_lines = std.mem.splitScalar(u8, sData, '\n');
+    const sData = std.Io.Dir.cwd().readFileAlloc(io, "data/settings.dat", gpa, .unlimited) catch |err|
+        switch (err) {
+            error.FileNotFound => null,
+            else => return err,
+        };
+    defer if (sData) |d| gpa.free(d);
+    const settings_text = sData orelse "";
+
+    var file_lines = std.mem.splitScalar(u8, settings_text, '\n');
     for (0..6) |key_index| {
-        g_key_bindings[key_index] = parseIntOrDefault(i32, file_lines.next(), 0);
+        g_key_bindings[key_index] = parseIntOrDefault(i32, file_lines.next(), default_keys[key_index]);
     }
-    sound_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
-    music_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 0) != 0;
-    g_fullscreen_is_enabled = parseIntOrDefault(u8, file_lines.next(), 0) != 0;
+    sound_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 1) != 0;
+    music_is_initially_enabled.* = parseIntOrDefault(i32, file_lines.next(), 1) != 0;
+    g_fullscreen_is_enabled = parseIntOrDefault(u8, file_lines.next(), @intFromBool(kFULLSCREEN_IS_ENABLED_DEFAULT)) != 0;
     g_window_resolution_x = parseIntOrDefault(i32, file_lines.next(), kWINDOW_RESOLUTION_DEFAULT_X);
 
     if (g_window_resolution_x < kWINDOW_RESOLUTION_MIN_X) {
