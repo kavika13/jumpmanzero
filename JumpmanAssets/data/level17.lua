@@ -230,9 +230,9 @@ local function ReversePlatform_(platform_index)
     -- TODO: Aren't these the exact same logic for both cases?
     -- TODO: Why are these 163, but for donuts, ladders, vines it is 160? Shouldn't they be consistent?
     if g_level_flipping_state == level_flip_state.Inverse then
-        current_platform.set_pos_y(163 - current_platform.pos_lower_right[2], 163 - current_platform.pos_upper_left[2]);
+        current_platform.set_pos_y(163 - current_platform.pos_upper_right[2], 163 - current_platform.pos_upper_left[2]);
     else
-        current_platform.set_pos_y(163 - current_platform.pos_lower_right[2], 163 - current_platform.pos_upper_left[2]);
+        current_platform.set_pos_y(163 - current_platform.pos_upper_right[2], 163 - current_platform.pos_upper_left[2]);
     end
 end
 

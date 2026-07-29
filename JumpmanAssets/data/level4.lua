@@ -75,8 +75,8 @@ local g_trap_door_platform_transform_indices = nil;
 local g_trap_door_fall_progress = 0;
 
 local function MovePlatform_(current_platform, iRotate, iTran, platform_transform_indices)
-    local iPlatX = current_platform.pos_lower_right[1];
-    local iPlatY = current_platform.pos_lower_right[2];
+    local iPlatX = current_platform.pos_upper_right[1];
+    local iPlatY = current_platform.pos_upper_right[2];
 
     transform_set_translation(platform_transform_indices[1], 0 - iPlatX, 0 - iPlatY, 0);
     transform_set_rotation_z(platform_transform_indices[2], iRotate);

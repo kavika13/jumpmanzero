@@ -89,7 +89,7 @@ return {
             extra = 0,
             texture_index = 1,
             pos_upper_left = { 44, 80 },
-            pos_lower_right = { 97, 80 },
+            pos_upper_right = { 97, 80 },
             pos_z = 1,
             mesh = {
                 { pos = { 44, 80, 9 }, normal = { 0, 1, 0 }, uv = { 0, 0.5 } },

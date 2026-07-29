@@ -227,14 +227,14 @@ local function SetPlatformData_(platform_num)
 
     g_platform_indices[platform_num] = current_platform.index;
     g_platforms_x1[platform_num] = current_platform.pos_upper_left[1];
-    g_platforms_x2[platform_num] = current_platform.pos_lower_right[1];
+    g_platforms_x2[platform_num] = current_platform.pos_upper_right[1];
     g_platforms_y1[platform_num] = current_platform.pos_upper_left[2];
-    g_platforms_y2[platform_num] = current_platform.pos_lower_right[2];
+    g_platforms_y2[platform_num] = current_platform.pos_upper_right[2];
 
     g_platforms_original_x1[platform_num] = current_platform.pos_upper_left[1];
-    g_platforms_original_x2[platform_num] = current_platform.pos_lower_right[1];
+    g_platforms_original_x2[platform_num] = current_platform.pos_upper_right[1];
     g_platforms_original_y1[platform_num] = current_platform.pos_upper_left[2];
-    g_platforms_original_y2[platform_num] = current_platform.pos_lower_right[2];
+    g_platforms_original_y2[platform_num] = current_platform.pos_upper_right[2];
 
     g_platforms_previous_x1[platform_num] = current_platform.pos_upper_left[1];
     g_platforms_previous_y1[platform_num] = current_platform.pos_upper_left[2];

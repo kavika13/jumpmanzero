@@ -119,7 +119,7 @@ local function ProgressLevel_(game_input)
         g_left_trap_door_animation_frame = g_left_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
         MovePlatform_(g_left_trap_door_platforms[1], 0 - g_left_trap_door_animation_frame, "pos_upper_left", g_left_trap_door_platform_transform_indices[1]);
-        MovePlatform_(g_left_trap_door_platforms[2], g_left_trap_door_animation_frame, "pos_lower_right", g_left_trap_door_platform_transform_indices[2]);
+        MovePlatform_(g_left_trap_door_platforms[2], g_left_trap_door_animation_frame, "pos_upper_right", g_left_trap_door_platform_transform_indices[2]);
 
         if g_left_trap_door_animation_frame > 56 then
             g_is_left_trap_door_moving = false;
@@ -132,7 +132,7 @@ local function ProgressLevel_(game_input)
         g_right_trap_door_animation_frame = g_right_trap_door_animation_frame + kTRAP_DOOR_ANIMATION_FRAME_STEP;
 
         MovePlatform_(g_right_trap_door_platforms[1], 0 - g_right_trap_door_animation_frame, "pos_upper_left", g_right_trap_door_platform_transform_indices[1]);
-        MovePlatform_(g_right_trap_door_platforms[2], g_right_trap_door_animation_frame, "pos_lower_right", g_right_trap_door_platform_transform_indices[2]);
+        MovePlatform_(g_right_trap_door_platforms[2], g_right_trap_door_animation_frame, "pos_upper_right", g_right_trap_door_platform_transform_indices[2]);
 
         if g_right_trap_door_animation_frame > 56 then
             g_right_trap_door_animation_frame = 56;

@@ -30,7 +30,7 @@ return {
             extra = 0,
             texture_index = 1,
             pos_upper_left = { 9, 16 },
-            pos_lower_right = { 144, 16 },
+            pos_upper_right = { 144, 16 },
             pos_z = 1,
             mesh = {
                 { pos = { 9, 16, 9 }, normal = { 0, 1, 0 }, uv = { 0, 0.5 } },

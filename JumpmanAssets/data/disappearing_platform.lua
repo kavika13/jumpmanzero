@@ -97,11 +97,11 @@ local function DrawStatus_()
     g_platform.set_pos_z(g_original_pos_z + g_current_pos_offset_z);
 
     if g_original_pos_z + g_current_pos_offset_z > 10 and g_platform.pos_upper_left[2] > 0 then
-        g_platform.set_pos_y(-g_platform.pos_lower_right[2], -g_platform.pos_upper_left[2]);
+        g_platform.set_pos_y(-g_platform.pos_upper_right[2], -g_platform.pos_upper_left[2]);
     end
 
     if g_original_pos_z + g_current_pos_offset_z < 10 and g_platform.pos_upper_left[2] < 0 then
-        g_platform.set_pos_y(-g_platform.pos_lower_right[2], -g_platform.pos_upper_left[2]);
+        g_platform.set_pos_y(-g_platform.pos_upper_right[2], -g_platform.pos_upper_left[2]);
     end
 
     transform_set_translation(g_platform_transform_index, 0, 0, g_current_pos_offset_z);

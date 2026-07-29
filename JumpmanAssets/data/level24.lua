@@ -125,7 +125,7 @@ local function CheckHanging_(game_input)
             local actual_hang_animation_frame = jumpman_hang_animation_frame.HANG_NEUTRAL;
 
             if game_input.move_right_action.is_pressed then
-                if g_game_logic.get_player_current_position_x() > player_platform.pos_lower_right[1] - 3 then
+                if g_game_logic.get_player_current_position_x() > player_platform.pos_upper_right[1] - 3 then
                     g_game_logic.set_player_current_position_x(g_game_logic.get_player_current_position_x() - 1);
                 else
                     actual_hang_animation_frame = g_hang_animation_current_frame;
@@ -177,7 +177,7 @@ local function FixHangPlatforms_()
         local current_platform = g_game_logic.get_platform(platform_index);
 
         if current_platform.extra == 3 then
-            current_platform.set_pos_y(current_platform.pos_lower_right[2] - 11, current_platform.pos_upper_left[2] - 11);
+            current_platform.set_pos_y(current_platform.pos_upper_right[2] - 11, current_platform.pos_upper_left[2] - 11);
         end
     end
 

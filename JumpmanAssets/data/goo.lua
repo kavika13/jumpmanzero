@@ -101,8 +101,8 @@ local function SpawnHorizontal_(goo_type, iNFrom, pos_x1, pos_y1, pos_x2, pos_y2
 
     local iPX1 = current_platform.pos_upper_left[1];
     local iPY1 = current_platform.pos_upper_left[2];
-    local iPX2 = current_platform.pos_lower_right[1];
-    local iPY2 = current_platform.pos_lower_right[2];
+    local iPX2 = current_platform.pos_upper_right[1];
+    local iPY2 = current_platform.pos_upper_right[2];
     local iAngle = math.atan(iPY2 - iPY1, iPX2 - iPX1) * 180.0 / math.pi;
 
     local new_goo = Module.SpawnCallback();

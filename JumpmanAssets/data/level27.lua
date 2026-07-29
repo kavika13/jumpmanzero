@@ -169,7 +169,7 @@ local function RingPlatforms_()
     for platform_index = 0, platform_count - 1 do
         local current_platform = g_game_logic.get_platform(platform_index);
         local x1 = current_platform.pos_upper_left[1];
-        local x2 = current_platform.pos_lower_right[1];
+        local x2 = current_platform.pos_upper_right[1];
         local iAve = (x1 + x2) / 2;
 
         transform_set_translation(g_platform_transform_indices[platform_index][1], 0 - iAve, 0, -75);

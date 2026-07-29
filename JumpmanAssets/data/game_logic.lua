@@ -300,20 +300,20 @@ local function FindPlatform_(iX, iY, iHeight, iWide)
     for platform_index = 0, #Module.LevelData.platforms - 1 do
         local current_platform = Module.LevelData.platforms[platform_index + 1];
 
-        if current_platform.pos_upper_left[1] <= iX + iWide and current_platform.pos_lower_right[1] >= iX - iWide then
+        if current_platform.pos_upper_left[1] <= iX + iWide and current_platform.pos_upper_right[1] >= iX - iWide then
             local iEX = iX;
 
             if iEX < current_platform.pos_upper_left[1] then
                 iEX = current_platform.pos_upper_left[1];
             end
 
-            if iEX > current_platform.pos_lower_right[1] then
-                iEX = current_platform.pos_lower_right[1];
+            if iEX > current_platform.pos_upper_right[1] then
+                iEX = current_platform.pos_upper_right[1];
             end
 
-            local iLen = current_platform.pos_lower_right[1] - current_platform.pos_upper_left[1];
-            local iH = current_platform.pos_upper_left[2] * math.abs(math.floor(current_platform.pos_lower_right[1] - iEX)) +  -- TODO: Floor necessary?
-                current_platform.pos_lower_right[2] * math.abs(math.floor(current_platform.pos_upper_left[1] - iEX));  -- TODO: Floor necessary?
+            local iLen = current_platform.pos_upper_right[1] - current_platform.pos_upper_left[1];
+            local iH = current_platform.pos_upper_left[2] * math.abs(math.floor(current_platform.pos_upper_right[1] - iEX)) +  -- TODO: Floor necessary?
+                current_platform.pos_upper_right[2] * math.abs(math.floor(current_platform.pos_upper_left[1] - iEX));  -- TODO: Floor necessary?
             iH = iH / iLen;
 
             local bGood = false;
@@ -369,8 +369,8 @@ local function BuildNavigation_()
             });
         end
 
-        local platform_x2 = current_platform.pos_lower_right[1];
-        local platform_y2 = current_platform.pos_lower_right[2];
+        local platform_x2 = current_platform.pos_upper_right[1];
+        local platform_y2 = current_platform.pos_upper_right[2];
         next_platform_y, next_platform_index = FindPlatform_(platform_x2 + 4, platform_y2, 4, 2);
 
         if next_platform_index >= 0 then
@@ -2356,7 +2356,7 @@ function Module.get_platform(platform_index)
         texture_index = platform_info.texture_index,
         -- TODO: Rename "upper" -> "top" and "lower" -> "bottom"
         pos_upper_left = { platform_info.pos_upper_left[1], platform_info.pos_upper_left[2] },
-        pos_lower_right = { platform_info.pos_lower_right[1], platform_info.pos_lower_right[2] },
+        pos_upper_right = { platform_info.pos_upper_right[1], platform_info.pos_upper_right[2] },
         pos_z = platform_info.pos_z,
         mesh_index = platform_info.mesh_index,
     };
@@ -2375,17 +2375,17 @@ function Module.get_platform(platform_index)
         assert(type(new_pos_x_right) == "number", "new_pos_x_right must be a number");
         assert(type(new_pos_y_bottom) == "number", "new_pos_y_bottom must be a number");
         platform_info.pos_upper_left = { new_pos_x_left, new_pos_y_top };
-        platform_info.pos_lower_right = { new_pos_x_right, new_pos_y_bottom };
+        platform_info.pos_upper_right = { new_pos_x_right, new_pos_y_bottom };
         result.pos_upper_left = { new_pos_x_left, new_pos_y_top };
-        result.pos_lower_right = { new_pos_x_right, new_pos_y_bottom };
+        result.pos_upper_right = { new_pos_x_right, new_pos_y_bottom };
     end;
 
     result.set_pos_y = function(new_pos_y_bottom, new_pos_y_top)
         assert(type(new_pos_y_bottom) == "number", "new_pos_y_bottom must be a number");
         assert(type(new_pos_y_top) == "number", "new_pos_y_top must be a number");
-        platform_info.pos_lower_right[2] = new_pos_y_bottom;
+        platform_info.pos_upper_right[2] = new_pos_y_bottom;
         platform_info.pos_upper_left[2] = new_pos_y_top;
-        result.pos_lower_right[2] = new_pos_y_bottom;
+        result.pos_upper_right[2] = new_pos_y_bottom;
         result.pos_upper_left[2] = new_pos_y_top;
     end;
 

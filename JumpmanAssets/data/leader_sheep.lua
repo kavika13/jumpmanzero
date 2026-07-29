@@ -113,7 +113,7 @@ local function CheckForChange_()
         if platform_index ~= -1 then
             local current_platform = Module.GameLogic.get_platform(platform_index);
             local iX1 = current_platform.pos_upper_left[1];
-            local iX2 = current_platform.pos_lower_right[1];
+            local iX2 = current_platform.pos_upper_right[1];
 
             if g_current_move_direction == move_direction.LEFT and iX1 < g_current_pos_x - 10 then
                 bLeft = true;
@@ -144,7 +144,7 @@ local function CheckForChange_()
 
             g_will_queue_direction_change_for_followers = true;
             local iX1 = current_platform.pos_upper_left[1];
-            local iX2 = current_platform.pos_lower_right[1];
+            local iX2 = current_platform.pos_upper_right[1];
 
             if iX1 < g_current_pos_x - 10 then
                 bLeft = true;

@@ -2597,7 +2597,7 @@ return {
             extra = 0,
             texture_index = 1,
             pos_upper_left = { 119, 128 },
-            pos_lower_right = { 151, 128 },
+            pos_upper_right = { 151, 128 },
             pos_z = 0,
             mesh = {
                 { pos = { 119, 128, 5 }, normal = { 0, 1, 0 }, uv = { 0, 0.5 } },
@@ -2631,7 +2631,7 @@ return {
             extra = 0,
             texture_index = 1,
             pos_upper_left = { 4, 127 },
-            pos_lower_right = { 26, 127 },
+            pos_upper_right = { 26, 127 },
             pos_z = 0,
             mesh = {
                 { pos = { 4, 127, 5 }, normal = { 0, 1, 0 }, uv = { 0, 0.5 } },
